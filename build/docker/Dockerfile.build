@@ -1,0 +1,37 @@
+FROM $BASE_IMAGE_NAME
+
+RUN apt-get update -y && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        curl \
+        wget \
+        software-properties-common \
+        apt-transport-https \
+        make \
+        git \
+        openssl \
+        libssl-dev \
+        libncursesw5 \
+        libncursesw5-dev \
+        libgpm2 \
+        libgpm-dev \
+        cmake
+
+COPY install-llvm.sh /tmp/install-llvm.sh
+RUN bash /tmp/install-llvm.sh
+
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
+    apt-get install -y nodejs
+
+RUN mkdir -p /code && \
+    groupadd -g $HOST_GID $USER && \
+    useradd -r -u $HOST_UID -g $HOST_GID $USER && \
+    chown $HOST_UID:$HOST_GID /code && \
+    mkdir -p /home/$USER && \
+    chown $HOST_UID:$HOST_GID /home/$USER
+
+USER $HOST_UID
+
+RUN echo "export PS1=\"[$IMAGE_NAME] \w\$ \"" > /home/ubuntu/.bashrc && \
+    echo "make -f /code/Makefile help" >> /home/ubuntu/.bashrc
+
+ENTRYPOINT "/bin/bash"
