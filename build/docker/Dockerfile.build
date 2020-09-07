@@ -33,6 +33,8 @@ RUN mkdir -p /code && \
     mkdir -p /home/$USER && \
     chown $HOST_UID:$HOST_GID /home/$USER
 
+RUN apt-get install -y autotools-dev automake libtool bison
+
 USER $HOST_UID
 
 RUN echo "export PS1=\"[$IMAGE_NAME] \w\$ \"" > /home/ubuntu/.bashrc && \
