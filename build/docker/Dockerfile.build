@@ -1,5 +1,7 @@
 FROM $BASE_IMAGE_NAME
 
+RUN sed -i "s/# deb-src/deb-src/g" /etc/apt/sources.list
+
 RUN apt-get update -y && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
         curl \
@@ -10,30 +12,46 @@ RUN apt-get update -y && \
         git \
         openssl \
         libssl-dev \
-        libncursesw5 \
-        libncursesw5-dev \
         libgpm2 \
         libgpm-dev \
         cmake \
         dpkg-dev
 
-COPY install-llvm.sh /tmp/install-llvm.sh
-RUN bash /tmp/install-llvm.sh
+RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
+    add-apt-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-10 main" && \
+    apt-get update -y && \
+    apt-get install -y clang-format-10 && \
+    update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-10 9999
+
+RUN apt-get build-dep -y ncurses
 
 RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
     apt-get install -y nodejs
 
-RUN sed -i "s/# deb-src/deb-src/g" /etc/apt/sources.list && \
-    apt-get update -y
-
 RUN mkdir -p /code && \
+    mkdir -p /pkgsrc && \
     groupadd -g $HOST_GID $USER && \
     useradd -r -u $HOST_UID -g $HOST_GID $USER && \
     chown $HOST_UID:$HOST_GID /code && \
+    chown $HOST_UID:$HOST_GID /pkgsrc && \
     mkdir -p /home/$USER && \
     chown $HOST_UID:$HOST_GID /home/$USER
 
-RUN apt-get install -y autotools-dev automake libtool bison
+USER $HOST_UID
+
+COPY ncurses-rules.diff /pkgsrc/
+RUN cd /pkgsrc && \
+    apt-get source -y ncurses && \
+    mv ncurses*/ ncurses && \
+    cd ncurses && \
+    patch debian/rules /pkgsrc/ncurses-rules.diff
+
+USER 0
+
+RUN cd /pkgsrc/ncurses && \
+    dpkg-buildpackage --build=binary --build-profiles=nobiarch,pkg.ncurses.noexamples
+
+RUN dpkg -i /pkgsrc/*.deb
 
 USER $HOST_UID
 

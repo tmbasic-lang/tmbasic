@@ -8,9 +8,7 @@ export BASE_IMAGE_NAME="arm64v8/ubuntu:20.04"
 
 [ $(uname -m) == "aarch64" ] || docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 
-if [ -z $(docker images -q $IMAGE_NAME) ]; then
-    cat docker/Dockerfile.build | envsubst | docker build -t $IMAGE_NAME docker -f-
-fi
+cat docker/Dockerfile.build | envsubst | docker build -t $IMAGE_NAME docker -f-
 
 pushd ..
 docker run --rm --tty --interactive --volume "$PWD:/code" --workdir /code $IMAGE_NAME
