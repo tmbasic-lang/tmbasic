@@ -1,2 +1,4 @@
 ext/tvision/bin
+ext/llvm
+ext/ncurses
 bin

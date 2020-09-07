@@ -3,6 +3,7 @@ set -euxo pipefail
 cd /tmp 
 wget -q https://apt.llvm.org/llvm.sh 
 chmod +x llvm.sh 
+echo "deb-src http://apt.llvm.org/focal/ llvm-toolchain-focal-10 main" >> /etc/apt/sources.list
 ./llvm.sh 10 
 rm -f llvm.sh 
 apt-get install -y \
