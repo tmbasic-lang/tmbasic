@@ -1,7 +1,7 @@
-#include "App.h"
+#include "ui/App.h"
 
 int main(int argc, char** argv) {
-    App app(argc, argv);
+    ui::App app(argc, argv);
     app.run();
     app.shutDown();
     return 0;

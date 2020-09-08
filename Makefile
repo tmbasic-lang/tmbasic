@@ -1,5 +1,5 @@
 ARCH=$(shell uname -m)
-SRC_APP=$(wildcard src/app/*.cpp)
+SRC_APP=$(wildcard src/**/*.cpp) $(wildcard src/*.cpp)
 
 # for debugging, override with: make OPTFLAGS='-g -O0'
 OPTFLAGS=-Os
