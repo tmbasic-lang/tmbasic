@@ -68,6 +68,12 @@ if (TV_PLATF EQUAL TV_PLATF_UNIX)
         list(APPEND LIBS ${NCURSESW})
         target_compile_definitions(tvision PRIVATE HAVE_NCURSES)
     endif()
+    # Optional dependencies
+    find_library(GPM gpm)
+    if (GPM)
+        list(APPEND LIBS ${GPM})
+        target_compile_definitions(tvision PRIVATE HAVE_GPM)
+    endif()
 endif()
 
 target_link_libraries(hello ${LIBS})
