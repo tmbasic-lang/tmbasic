@@ -6,7 +6,7 @@
 namespace vm {
 
 class Program {
-    std::vector<boost::local_shared_ptr<Procedure>> procedures;
+    std::vector<std::optional<std::unique_ptr<Procedure>>> procedures;
 };
 
 }  // namespace vm

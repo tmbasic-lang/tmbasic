@@ -14,7 +14,7 @@ enum class Kind {
     kObjectToValueMap,
     kObjectToObjectMap,
     kRecord,
-    kProcedure,
+    kProcedureReference,
     kGenericPlaceholder,
 };
 
