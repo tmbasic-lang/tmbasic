@@ -1,9 +1,7 @@
 #pragma once
 
+#include "common.h"
 #include "Type.h"
-#include <optional>
-#include <string>
-#include <vector>
 
 namespace vm {
 

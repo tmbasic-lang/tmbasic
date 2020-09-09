@@ -1,7 +1,6 @@
 #pragma once
-#define Uses_TRect
-#define Uses_TWindow
-#include <tvision/tv.h>
+
+#include "common.h"
 
 namespace ui {
 

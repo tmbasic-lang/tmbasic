@@ -1,8 +1,7 @@
 #pragma once
 
+#include "common.h"
 #include "Object.h"
-#include <boost/smart_ptr/local_shared_ptr.hpp>
-#include <vector>
 
 namespace vm {
 

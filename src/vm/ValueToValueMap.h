@@ -1,8 +1,8 @@
 #pragma once
 
+#include "common.h"
 #include "Object.h"
 #include "Value.h"
-#include <unordered_map>
 
 namespace vm {
 

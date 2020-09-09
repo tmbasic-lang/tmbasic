@@ -1,6 +1,6 @@
 #pragma once
-#include <cstdint>
-#include <unordered_map>
+
+#include "common.h"
 
 namespace vm {
 

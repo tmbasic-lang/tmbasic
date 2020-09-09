@@ -1,14 +1,6 @@
+#include "common.h"
 #include "App.h"
 #include "ProgramWindow.h"
-
-#define Uses_MsgBox
-#define Uses_TDeskTop
-#define Uses_TKeys
-#define Uses_TMenuItem
-#define Uses_TStatusDef
-#define Uses_TStatusItem
-#define Uses_TSubMenu
-#include <tvision/tv.h>
 
 using namespace ui;
 

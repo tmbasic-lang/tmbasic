@@ -2,4 +2,5 @@ ext/tvision/bin
 ext/llvm
 ext/ncurses
 bin
+obj
 .vscode/settings.json

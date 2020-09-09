@@ -1,7 +1,7 @@
 #pragma once
 
+#include "common.h"
 #include "Object.h"
-#include <string>
 
 namespace vm {
 

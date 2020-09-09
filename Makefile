@@ -4,7 +4,7 @@ INCLUDE_APP=$(wildcard src/**/*.h) $(wildcard src/*.h)
 
 # for debugging, override with: make OPTFLAGS='-g -O0'
 OPTFLAGS=-Os -flto
-CXXFLAGS=-Isrc -Iext/tvision/include -Wall -Werror -Wno-unknown-pragmas -Wno-reorder -static -std=c++17 $(OPTFLAGS)
+CXXFLAGS=-Isrc -Iext/tvision/include -Wall -Werror -Winvalid-pch -Wno-unknown-pragmas -Wno-reorder -static -std=c++17 $(OPTFLAGS)
 LDFLAGS=-Lext/tvision/bin/$(ARCH) -lstdc++ -lgpm -lncursesw -ltinfo
 
 .PHONY: all
@@ -22,7 +22,7 @@ help:
 
 .PHONY: clean
 clean:
-	@rm -rf bin/$(ARCH) ext/tvision/bin/$(ARCH)
+	@rm -rf bin/$(ARCH) obj/$(ARCH) ext/tvision/bin/$(ARCH)
 
 .PHONY: run
 run: bin/$(ARCH)/tmbasic
@@ -33,9 +33,13 @@ format:
 	cd src && \
 		find ./ -type f \( -iname \*.h -o -iname \*.cpp \) | xargs clang-format -i --style="{BasedOnStyle: Chromium, IndentWidth: 4, ColumnLimit: 120, SortIncludes: false, AlignAfterOpenBracket: AlwaysBreak, AlignOperands: false, Cpp11BracedListStyle: false, PenaltyReturnTypeOnItsOwnLine: 10000}"
 
-bin/$(ARCH)/tmbasic: ext/tvision/bin/$(ARCH)/libtvision.a $(SRC_APP) $(INCLUDE_APP)
+obj/$(ARCH)/common.h.gch: src/common.h
+	@mkdir -p obj/$(ARCH)
+	$(CXX) $(CXXFLAGS) -x c++-header -o $@ src/common.h
+
+bin/$(ARCH)/tmbasic: ext/tvision/bin/$(ARCH)/libtvision.a obj/$(ARCH)/common.h.gch $(SRC_APP) $(INCLUDE_APP)
 	@mkdir -p bin/$(ARCH)
-	$(CXX) $(CXXFLAGS) -o $@ \
+	$(CXX) $(CXXFLAGS) -include obj/$(ARCH)/common.h -o $@ \
 		$(SRC_APP) \
 		ext/tvision/bin/$(ARCH)/libtvision.a \
 		$(LDFLAGS)

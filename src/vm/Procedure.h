@@ -1,11 +1,8 @@
 #pragma once
 
+#include "common.h"
 #include "Object.h"
 #include "ProcedureArtifact.h"
-#include <memory>
-#include <optional>
-#include <string>
-#include <vector>
 
 namespace vm {
 

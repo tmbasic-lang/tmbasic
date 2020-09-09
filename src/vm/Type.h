@@ -1,8 +1,7 @@
 #pragma once
 
+#include "common.h"
 #include "vm/Kind.h"
-#include <memory>
-#include <optional>
 
 namespace vm {
 

@@ -1,11 +1,6 @@
 #pragma once
 
-#define Uses_TApplication
-#define Uses_TEvent
-#define Uses_TRect
-#define Uses_TMenuBar
-#define Uses_TStatusLine
-#include <tvision/tv.h>
+#include "common.h"
 
 namespace ui {
 

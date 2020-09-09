@@ -1,10 +1,8 @@
 #pragma once
 
+#include "common.h"
 #include "Object.h"
 #include "Value.h"
-#include <boost/smart_ptr/local_shared_ptr.hpp>
-#include <unordered_map>
-#include <vector>
 
 namespace vm {
 
