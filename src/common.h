@@ -26,6 +26,8 @@
 #define Uses_TWindow
 #include <tvision/tv.h>
 
+#define IMMER_NO_THREAD_SAFETY 1
+#define IMMER_NO_FREE_LIST 1
 #include <immer/array.hpp>
 #include <immer/map.hpp>
 #include <immer/vector.hpp>

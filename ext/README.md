@@ -13,3 +13,6 @@ Modified files:
 Source: https://github.com/arximboldi/immer/archive/2076affd9d814afc019ba8cd8c2b18a6c79c9589.zip
 
 License: `immer/LICENSE`
+
+Modified files:
+- `immer/immer/memory_policy.hpp`

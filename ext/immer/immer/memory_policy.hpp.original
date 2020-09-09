@@ -114,7 +114,6 @@ struct memory_policy
 #if IMMER_NO_FREE_LIST
 using default_heap_policy = heap_policy<debug_size_heap<cpp_heap>>;
 #else
-#error IMMER_NO_FREE_LIST should be defined.
 #if IMMER_NO_THREAD_SAFETY
 using default_heap_policy     = unsafe_free_list_heap_policy<cpp_heap>;
 #else
@@ -129,7 +128,6 @@ using default_heap_policy = free_list_heap_policy<cpp_heap>;
 using default_refcount_policy = unsafe_refcount_policy;
 using default_lock_policy     = no_lock_policy;
 #else
-#error IMMER_NO_THREAD_SAFETY should be defined.
 using default_refcount_policy = refcount_policy;
 using default_lock_policy     = spinlock_policy;
 #endif
