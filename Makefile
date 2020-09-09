@@ -4,7 +4,7 @@ INCLUDE_APP=$(wildcard src/**/*.h) $(wildcard src/*.h)
 
 # for debugging, override with: make OPTFLAGS='-g -O0'
 OPTFLAGS=-Os -flto
-CXXFLAGS=-Isrc -Iext/tvision/include -Wall -Werror -Winvalid-pch -Wno-unknown-pragmas -Wno-reorder -static -std=c++17 $(OPTFLAGS)
+CXXFLAGS=-Isrc -Iext/tvision/include -Iext/immer -Wall -Werror -Winvalid-pch -Wno-unknown-pragmas -Wno-reorder -static -std=c++17 $(OPTFLAGS)
 LDFLAGS=-Lext/tvision/bin/$(ARCH) -lstdc++ -lgpm -lncursesw -ltinfo
 
 .PHONY: all

@@ -26,4 +26,8 @@
 #define Uses_TWindow
 #include <tvision/tv.h>
 
+#include <immer/array.hpp>
+#include <immer/map.hpp>
+#include <immer/vector.hpp>
+
 #endif // _COMMON_H_

@@ -8,8 +8,8 @@ namespace vm {
 
 class Record : public Object {
     public:
-    const std::vector<boost::local_shared_ptr<Object>> objects;
-    const std::vector<Value> values;
+    const immer::array<boost::local_shared_ptr<Object>> objects;
+    const immer::array<Value> values;
     virtual Kind getKind() const;
     virtual size_t getHash() const;
     virtual bool equals(const Object& other) const;

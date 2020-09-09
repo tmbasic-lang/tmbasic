@@ -19,10 +19,11 @@ bool ValueToObjectMap::equals(const Object& other) const {
         return false;
     }
     for (auto pair : pairs) {
-        auto otherPair = otherMap.pairs.find(pair.first);
-        if (otherPair == otherMap.pairs.end()) {
+        auto otherValuePtr = otherMap.pairs.find(pair.first);
+        if (otherValuePtr == nullptr) {
             return false;
-        } else if (!pair.second->equals(*otherPair->second)) {
+        }
+        if (!pair.second->equals(**otherValuePtr)) {
             return false;
         }
     }

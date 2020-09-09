@@ -7,7 +7,6 @@ namespace vm {
 union Value {
     bool boolean;
     int64_t integer;
-    double decimal;
     uint64_t bits;
 
     bool operator==(const Value& rhs) const;

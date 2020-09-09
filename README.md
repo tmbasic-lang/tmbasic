@@ -39,3 +39,4 @@ Component | License
 TMBASIC | [MIT license](LICENSE)
 Turbo Vision - original code | [Borland license](ext/tvision/COPYRIGHT)
 Turbo Vision - magiblot changes | [MIT license](ext/tvision/COPYRIGHT)
+immer | [Boost Software License](ext/immer/LICENSE)
