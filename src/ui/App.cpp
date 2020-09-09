@@ -13,7 +13,7 @@
 using namespace ui;
 
 App::App(int argc, char** argv)
-    : TProgInit(initStatusLine, initMenuBar, TApplication::initDeskTop), _newWindowPosition(0) {}
+    : TProgInit(initStatusLine, initMenuBar, TApplication::initDeskTop), _newWindowX(0), _newWindowY(0) {}
 
 void App::handleEvent(TEvent& event) {
     TApplication::handleEvent(event);
@@ -36,9 +36,12 @@ TMenuBar* App::initMenuBar(TRect r) {
         *new TMenuItem("~C~opy", cmCopy, kbCtrlC, hcNoContext, "Ctrl+C") +
         *new TMenuItem("~P~aste", cmPaste, kbCtrlV, hcNoContext, "Ctrl+V");
 
+    auto& viewMenu = *new TSubMenu("~V~iew", kbAltE) +
+        *new TMenuItem("~P~rogram", kCmdProgramContentsWindow, kbCtrlP, hcNoContext, "Ctrl+P") +
+        *new TMenuItem("~I~mmediate", kCmdProgramContentsWindow, kbCtrlI, hcNoContext, "Ctrl+I");
+
     auto& programMenu = *new TSubMenu("~P~rogram", kbAltP) +
-        *new TMenuItem("Switch to program ~w~indow", kCmdProgramContentsWindow, kbCtrlP, hcNoContext, "Ctrl+P") +
-        newLine() + *new TMenuItem("Add ~s~ubroutine...", kCmdProgramAddSubroutine, kbNoKey) +
+        *new TMenuItem("Add ~s~ubroutine...", kCmdProgramAddSubroutine, kbNoKey) +
         *new TMenuItem("Add ~f~unction...", kCmdProgramAddFunction, kbNoKey);
 
     auto& windowMenu = *new TSubMenu("~W~indow", kbAltW) +
@@ -50,7 +53,7 @@ TMenuBar* App::initMenuBar(TRect r) {
     auto& helpMenu = *new TSubMenu("~H~elp", kbAltH) + *new TMenuItem("~A~bout TMBASIC", kCmdHelpAbout, kbNoKey);
 
     r.b.y = r.a.y + 1;
-    return new TMenuBar(r, fileMenu + editMenu + programMenu + windowMenu + helpMenu);
+    return new TMenuBar(r, fileMenu + editMenu + viewMenu + programMenu + windowMenu + helpMenu);
 }
 
 TStatusLine* App::initStatusLine(TRect r) {
@@ -75,11 +78,32 @@ bool App::handleCommand(TEvent& event) {
 }
 
 TRect App::getNewWindowRect(int width, int height) {
-    _newWindowPosition += 2;
-    TRect rect(_newWindowPosition, _newWindowPosition, _newWindowPosition + width, _newWindowPosition + height);
-    if (_newWindowPosition > deskTop->size.x / 2 || _newWindowPosition > deskTop->size.y / 2)
-        _newWindowPosition = 0;
-    return rect;
+    auto maxX = deskTop->size.x - width;
+    auto x = _newWindowX;
+    if (x > maxX) {
+        x = maxX;
+    }
+    if (x < 0) {
+        x = 0;
+    }
+
+    auto maxY = deskTop->size.y - height;
+    auto y = _newWindowY;
+    if (y > maxY) {
+        y = maxY;
+    }
+    if (y < 0) {
+        y = 0;
+    }
+
+    _newWindowX += 2;
+    _newWindowY++;
+    if (_newWindowX > deskTop->size.x / 2)
+        _newWindowX = 0;
+    if (_newWindowY > deskTop->size.y / 2)
+        _newWindowY = 0;
+
+    return TRect(x, y, x + width, y + height);
 }
 
 void App::onFileNew() {

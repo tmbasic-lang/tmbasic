@@ -11,6 +11,7 @@ class ProcedureArtifact {
    public:
     std::vector<uint8_t> instructions;
     std::string signature;
+    size_t signatureHash;
     std::optional<Type> returnType;
     std::vector<Type> parameterTypes;
 };

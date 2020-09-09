@@ -1,8 +1,9 @@
 ARCH=$(shell uname -m)
 SRC_APP=$(wildcard src/**/*.cpp) $(wildcard src/*.cpp)
+INCLUDE_APP=$(wildcard src/**/*.h) $(wildcard src/*.h)
 
 # for debugging, override with: make OPTFLAGS='-g -O0'
-OPTFLAGS=-Os
+OPTFLAGS=-Os -flto
 CXXFLAGS=-Isrc -Iext/tvision/include -Wall -Werror -Wno-unknown-pragmas -Wno-reorder -static -std=c++17 $(OPTFLAGS)
 LDFLAGS=-Lext/tvision/bin/$(ARCH) -lstdc++ -lgpm -lncursesw -ltinfo
 
@@ -32,7 +33,7 @@ format:
 	cd src && \
 		find ./ -type f \( -iname \*.h -o -iname \*.cpp \) | xargs clang-format -i --style="{BasedOnStyle: Chromium, IndentWidth: 4, ColumnLimit: 120, SortIncludes: false, AlignAfterOpenBracket: AlwaysBreak, AlignOperands: false, Cpp11BracedListStyle: false, PenaltyReturnTypeOnItsOwnLine: 10000}"
 
-bin/$(ARCH)/tmbasic: ext/tvision/bin/$(ARCH)/libtvision.a $(SRC_APP)
+bin/$(ARCH)/tmbasic: ext/tvision/bin/$(ARCH)/libtvision.a $(SRC_APP) $(INCLUDE_APP)
 	@mkdir -p bin/$(ARCH)
 	$(CXX) $(CXXFLAGS) -o $@ \
 		$(SRC_APP) \
@@ -42,7 +43,7 @@ bin/$(ARCH)/tmbasic: ext/tvision/bin/$(ARCH)/libtvision.a $(SRC_APP)
 ext/tvision/bin/$(ARCH)/Makefile:
 	@mkdir -p ext/tvision/bin/$(ARCH)
 	cd ext/tvision/bin/$(ARCH) && \
-		CXXFLAGS="-I/code/ext/ncurses/$(ARCH)/ncurses/include" \
+		CXXFLAGS="-I/code/ext/ncurses/$(ARCH)/ncurses/include -Wno-unused-result" \
 		cmake ../../
 
 ext/tvision/bin/$(ARCH)/libtvision.a: ext/tvision/bin/$(ARCH)/Makefile

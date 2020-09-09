@@ -13,8 +13,13 @@ union Value {
     bool operator==(const Value& rhs) const;
 };
 
-struct ValueHash {
-    std::size_t operator()(const Value& k) const;
+}  // namespace vm
+
+namespace std {
+
+template <>
+struct hash<vm::Value> {
+    std::size_t operator()(vm::Value const& k) const noexcept { return hash<uint64_t>{}(k.bits); }
 };
 
-}  // namespace vm
+}  // namespace std

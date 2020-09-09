@@ -26,7 +26,8 @@ class App : public TApplication {
     TRect getNewWindowRect(int width, int height);
     void onFileNew();
 
-    int _newWindowPosition;
+    int _newWindowX;
+    int _newWindowY;
 };
 
 }  // namespace ui

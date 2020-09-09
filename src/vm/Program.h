@@ -1,13 +1,13 @@
 #pragma once
 
 #include "Procedure.h"
+#include <boost/smart_ptr/local_shared_ptr.hpp>
 #include <vector>
-#include <memory>
 
 namespace vm {
 
 class Program {
-    std::vector<std::unique_ptr<Procedure>> procedures;
+    std::vector<boost::local_shared_ptr<Procedure>> procedures;
 };
 
 }  // namespace vm

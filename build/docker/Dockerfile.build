@@ -15,7 +15,8 @@ RUN apt-get update -y && \
         libgpm2 \
         libgpm-dev \
         cmake \
-        dpkg-dev
+        dpkg-dev \
+        libboost-dev
 
 RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
     add-apt-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-10 main" && \
