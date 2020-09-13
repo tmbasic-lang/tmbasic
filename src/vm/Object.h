@@ -12,6 +12,12 @@ class Object {
     virtual bool equals(const Object& other) const = 0;
 };
 
+struct ObjectPointerCompare {
+    bool operator()(const boost::local_shared_ptr<vm::Object>& lhs, const boost::local_shared_ptr<vm::Object>*& rhs) {
+        return lhs->equals(**rhs);
+    }
+};
+
 }  // namespace vm
 
 bool operator==(const boost::local_shared_ptr<vm::Object>& lhs, const boost::local_shared_ptr<vm::Object>& rhs);

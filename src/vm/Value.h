@@ -12,6 +12,10 @@ union Value {
     bool operator==(const Value& rhs) const;
 };
 
+struct ValuePointerCompare {
+    bool operator()(const Value& lhs, const Value*& rhs) { return lhs == *rhs; }
+};
+
 }  // namespace vm
 
 namespace std {

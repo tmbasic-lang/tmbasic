@@ -6,7 +6,8 @@
 namespace vm {
 
 class Program {
-    std::vector<std::optional<std::unique_ptr<Procedure>>> procedures;
+   public:
+    std::vector<std::unique_ptr<Procedure>> procedures;
 };
 
 }  // namespace vm

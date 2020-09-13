@@ -2,6 +2,12 @@
 
 using namespace vm;
 
+String::String() : value("") {}
+
+String::String(std::string value) : value(std::move(value)) {}
+
+String::String(const uint8_t* source, int length) : value(reinterpret_cast<const char*>(source), length) {}
+
 Kind String::getKind() const {
     return Kind::kString;
 }

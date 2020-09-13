@@ -12,6 +12,8 @@ class ProcedureArtifact {
     size_t signatureHash;
     std::optional<Type> returnType;
     std::vector<Type> parameterTypes;
+    int numValueParameters;
+    int numObjectParameters;
 };
 
 }  // namespace vm

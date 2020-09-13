@@ -6,7 +6,7 @@
 namespace vm {
 
 class ProcedureReference : public Object {
-    public:
+   public:
     int cachedProcedureIndex;
     size_t signatureHash;
     std::string signature;
@@ -15,4 +15,4 @@ class ProcedureReference : public Object {
     virtual bool equals(const Object& other) const;
 };
 
-}
+}  // namespace vm

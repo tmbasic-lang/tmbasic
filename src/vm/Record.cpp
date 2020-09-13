@@ -2,6 +2,15 @@
 
 using namespace vm;
 
+Record::Record(RecordBuilder& builder)
+    : objects(std::move(builder.objects.persistent())), values(std::move(builder.values.persistent())) {}
+
+Record::Record(Record& source, int valueIndex, Value newValue)
+    : objects(source.objects), values(std::move(source.values.set(valueIndex, newValue))) {}
+
+Record::Record(Record& source, int objectIndex, boost::local_shared_ptr<Object>& newObject)
+    : objects(std::move(source.objects.set(objectIndex, newObject))), values(source.values) {}
+
 Kind Record::getKind() const {
     return Kind::kRecord;
 }

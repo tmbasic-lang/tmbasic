@@ -3,10 +3,12 @@
 #define _COMMON_H_
 
 #include <boost/smart_ptr/local_shared_ptr.hpp>
+#include <boost/smart_ptr/make_local_shared.hpp>
 #include <cstdlib>
 #include <cstdint>
 #include <memory>
 #include <optional>
+#include <stack>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -29,7 +31,10 @@
 #define IMMER_NO_THREAD_SAFETY 1
 #define IMMER_NO_FREE_LIST 1
 #include <immer/array.hpp>
+#include <immer/array_transient.hpp>
 #include <immer/map.hpp>
+#include <immer/map_transient.hpp>
 #include <immer/vector.hpp>
+#include <immer/vector_transient.hpp>
 
-#endif // _COMMON_H_
+#endif  // _COMMON_H_
