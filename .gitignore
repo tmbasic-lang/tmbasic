@@ -2,3 +2,4 @@ ext/tvision/bin
 bin
 obj
 .vscode/settings.json
+valgrind.txt

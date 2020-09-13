@@ -14,7 +14,8 @@ RUN apt-get update -y && \
         libssl-dev \
         cmake \
         dpkg-dev \
-        libboost-dev
+        libboost-dev \
+        valgrind
 
 RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
     add-apt-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-10 main" && \

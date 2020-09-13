@@ -5,7 +5,7 @@ INCLUDE_APP=$(wildcard src/**/*.h) $(wildcard src/*.h)
 # for debugging, override with: make OPTFLAGS='-g -O0'
 OPTFLAGS=-Os -flto
 CXXFLAGS=-Isrc -Iext/tvision/include -Iext/immer -Wall -Werror -Winvalid-pch -Wno-unknown-pragmas -Wno-reorder -static -std=c++17 $(OPTFLAGS)
-LDFLAGS=-Lext/tvision/bin/$(ARCH) -lstdc++ -lncursesw -ltinfo
+LDFLAGS=-lstdc++ -lncursesw -ltinfo
 
 .PHONY: all
 all: bin/$(ARCH)/tmbasic
@@ -14,10 +14,11 @@ all: bin/$(ARCH)/tmbasic
 help:
 	@echo ""
 	@echo "Commands:"
-	@echo "make all"
+	@echo "make"
 	@echo "make clean"
 	@echo "make format"
 	@echo "make run"
+	@echo "make valgrind"
 	@echo ""
 
 .PHONY: clean
@@ -27,6 +28,10 @@ clean:
 .PHONY: run
 run: bin/$(ARCH)/tmbasic
 	@bin/$(ARCH)/tmbasic
+
+.PHONY: valgrind
+valgrind: bin/$(ARCH)/tmbasic
+	@valgrind --leak-check=full --show-leak-kinds=all --undef-value-errors=no --log-file=valgrind.txt bin/$(ARCH)/tmbasic
 
 .PHONY: format
 format:
