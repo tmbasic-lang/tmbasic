@@ -1,6 +1,8 @@
 #include "common.h"
 #include "App.h"
+#include "ProcedureWindow.h"
 #include "ProgramWindow.h"
+#include "helpfile.h"
 
 using namespace ui;
 
@@ -33,8 +35,10 @@ TMenuBar* App::initMenuBar(TRect r) {
         *new TMenuItem("~I~mmediate", kCmdProgramContentsWindow, kbCtrlI, hcNoContext, "Ctrl+I");
 
     auto& programMenu = *new TSubMenu("~P~rogram", kbAltP) +
-        *new TMenuItem("Add ~s~ubroutine...", kCmdProgramAddSubroutine, kbNoKey) +
-        *new TMenuItem("Add ~f~unction...", kCmdProgramAddFunction, kbNoKey);
+        *new TMenuItem("~R~un", kCmdProgramRun, kbF5, hcNoContext, "F5") + newLine() +
+        *new TMenuItem("Add ~s~ubroutine", kCmdProgramAddSubroutine, kbF2, hcNoContext, "F2") +
+        *new TMenuItem("Add ~f~unction", kCmdProgramAddFunction, kbF3, hcNoContext, "F3") +
+        *new TMenuItem("Add global ~v~ariable", kCmdProgramAddGlobalVariable, kbF4, hcNoContext, "F4");
 
     auto& windowMenu = *new TSubMenu("~W~indow", kbAltW) +
         *new TMenuItem("~S~ize/move", cmResize, kbCtrlF5, hcNoContext, "Ctrl+F5") +
@@ -42,7 +46,9 @@ TMenuBar* App::initMenuBar(TRect r) {
         *new TMenuItem("~P~revious", cmPrev, kbShiftF6, hcNoContext, "Shift+F6") +
         *new TMenuItem("~C~lose", cmClose, kbCtrlW, hcNoContext, "Ctrl+W");
 
-    auto& helpMenu = *new TSubMenu("~H~elp", kbAltH) + *new TMenuItem("~A~bout TMBASIC", kCmdHelpAbout, kbNoKey);
+    auto& helpMenu = *new TSubMenu("~H~elp", kbAltH) + 
+        *new TMenuItem("~B~ASIC reference", kCmdHelpBasicReference, kbNoKey) + newLine() +
+        *new TMenuItem("~A~bout TMBASIC", kCmdHelpAbout, kbNoKey);
 
     r.b.y = r.a.y + 1;
     return new TMenuBar(r, fileMenu + editMenu + viewMenu + programMenu + windowMenu + helpMenu);
@@ -50,13 +56,31 @@ TMenuBar* App::initMenuBar(TRect r) {
 
 TStatusLine* App::initStatusLine(TRect r) {
     r.a.y = r.b.y - 1;
-    return new TStatusLine(r, *new TStatusDef(0, 0xFFFF));
+    return new TStatusLine(
+        r,
+        *new TStatusDef(0, 0xFFFF) + *new TStatusItem("~F1~ Help", kbF1, cmHelp) +
+            *new TStatusItem("~F2~ Add subroutine", kbF2, kCmdProgramAddSubroutine) +
+            *new TStatusItem("~F3~ Add function", kbF3, kCmdProgramAddFunction) +
+            *new TStatusItem("~F4~ Add global variable", kbF4, kCmdProgramAddGlobalVariable) +
+            *new TStatusItem("~F5~ Run", kbF5, kCmdProgramRun));
 }
 
 bool App::handleCommand(TEvent& event) {
     switch (event.message.command) {
         case cmNew:
             onFileNew();
+            return true;
+
+        case kCmdProgramAddSubroutine:
+            onProgramAddProcedure(false);
+            return true;
+
+        case kCmdProgramAddFunction:
+            onProgramAddProcedure(true);
+            return true;
+
+        case kCmdHelpBasicReference:
+            onHelpBasicReference();
             return true;
 
         case kCmdHelpAbout:
@@ -101,4 +125,36 @@ TRect App::getNewWindowRect(int width, int height) {
 void App::onFileNew() {
     auto window = new ProgramWindow(getNewWindowRect(40, 15));
     deskTop->insert(window);
+}
+
+void App::onProgramAddProcedure(bool function) {
+    auto window = new ProcedureWindow(getNewWindowRect(70, 15), function);
+    deskTop->insert(window);
+}
+
+void App::onHelpBasicReference() {
+    auto stream = new fpstream("help.h32", ios::in);
+    auto helpFile = new THelpFile(*stream);
+    auto helpWindow = new THelpWindow(helpFile, hcbasicReference);
+    deskTop->insert(helpWindow);
+    auto width = deskTop->size.x * 0.7;
+    if (width > 80) {
+        width = 80;
+    } else if (width < 40) {
+        width = 40;
+    }
+    auto height = deskTop->size.y * 0.8;
+    if (height > 35) {
+        height = 35;
+    } else if (height < 10) {
+        height = 10;
+    }
+    auto rect = getNewWindowRect(width, height);
+    helpWindow->locate(rect);
+}
+
+TRect App::centeredRect(int width, int height) {
+    auto x = (deskTop->size.x - width) / 2;
+    auto y = (deskTop->size.y - height) / 2;
+    return TRect(x, y, x + width, y + height);
 }

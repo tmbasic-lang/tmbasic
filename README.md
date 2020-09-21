@@ -20,7 +20,7 @@ sudo apt-get update -y && \
 
 Clone the TMBASIC git repository, then start the build environment and build using the following commands:
 - `cd build`
-- `./container-x64.sh` or `./container-arm64.sh`
+- `./build-env-linux-x64.sh` or `./build-env-linux-arm64.sh`
 - `make`
 - `exit`
 
@@ -31,14 +31,24 @@ To build ARM64 binaries on an x64 host, install the following packages first and
 sudo apt-get install qemu binfmt-support qemu-user-static
 ```
 
-## License
+## Software license
 TMBASIC is open source software. It is comprised of the following components:
 
 Component | License
 -- | --
-TMBASIC | [MIT license](LICENSE)
+tmbasic | [MIT license](LICENSE)
 boost | [Boost Software License v1.0](ext/boost/LICENSE_1_0.txt)
 [immer](https://github.com/arximboldi/immer) | [Boost Software License v1.0](ext/immer/LICENSE)
 libstdc++ | [GPL v3](ext/gcc/GPL-3) with [GCC Runtime Library Exception v3.1](ext/gcc/copyright)
 ncurses | [Ncurses License](ext/ncurses/COPYING)
-[tvision](https://github.com/magiblot/tvision) | [Borland and MIT licenses](ext/tvision/COPYRIGHT)
+[tvision](https://github.com/magiblot/tvision) | Turbo Vision | [Borland license](ext/tvision/COPYRIGHT) (original code), [MIT license](ext/tvision/COPYRIGHT) (Linux port)
+
+## Documentation license
+The TMBASIC documentation includes the following components:
+
+Component | License
+-- | --
+tmbasic | [MIT license](LICENSE)
+notoserif | [SIL OFL 1.1 License](ext/notoserif/OFL.txt)
+opensans | [Apache License 2.0](ext/opensans/LICENSE.txt)
+oxygenmono | [SIL OFL 1.1 License](ext/oxygenmono/OFL.txt)

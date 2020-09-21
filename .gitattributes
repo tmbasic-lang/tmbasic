@@ -1,11 +1,12 @@
 * text=auto
 Makefile text eol=lf
 Dockerfile* text eol=lf
-.gitattributes text eol=lf
-.gitignore text eol=lf
 *.c text eol=lf
+*.js text eol=lf
 *.json text eol=lf
 *.md text eol=lf
 *.sh text eol=lf
 *.txt text eol=lf
+.gitattributes text eol=lf
+.gitignore text eol=lf
 ext/* linguist-vendored
