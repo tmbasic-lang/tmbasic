@@ -24,19 +24,19 @@ const procedureNames = [];
 const arch = process.argv[2];
 
 async function build() {
-    await fs.promises.mkdir("temp", { recursive: true });
-    await fs.promises.mkdir("temp/diagrams-cp437", { recursive: true });
-    await fs.promises.mkdir("output-txt", { recursive: true });
-    await fs.promises.mkdir("output-html", { recursive: true });
-    await copyDir('../ext/notoserif', 'output-html/notoserif');
-    await copyDir('../ext/opensans', 'output-html/opensans');
-    await copyDir('../ext/oxygenmono', 'output-html/oxygenmono');
-    await fs.promises.copyFile("html/style.css", "output-html/style.css");
+    await fs.promises.mkdir("../obj/doc-temp", { recursive: true });
+    await fs.promises.mkdir("../obj/doc-temp/diagrams-cp437", { recursive: true });
+    await fs.promises.mkdir("../obj/doc-txt", { recursive: true });
+    await fs.promises.mkdir("../obj/doc-html", { recursive: true });
+    await copyDir('../ext/notoserif', '../obj/doc-html/notoserif');
+    await copyDir('../ext/opensans', '../obj/doc-html/opensans');
+    await copyDir('../ext/oxygenmono', '../obj/doc-html/oxygenmono');
+    await fs.promises.copyFile("html/style.css", "../obj/doc-html/style.css");
     await convertDiagramsToCp437();
     await forEachTopicFile(buildTopic);
     await forEachProcedureFile(buildProcedure);
     await buildProcedureIndex();
-    await fs.promises.writeFile(`output-txt/help.txt`, outputTxt, { options: "ascii" });
+    await fs.promises.writeFile(`../obj/doc-txt/help.txt`, outputTxt, { options: "ascii" });
     await insertCp437Diagrams();
 }
 
@@ -62,7 +62,7 @@ async function writeHtmlPage(topic, text) {
         const html = template
             .replace('[TITLE]', htmlEncode(title))
             .replace('[BODY]', processHtml(text));
-        await fs.promises.writeFile(`output-html/${topic}.html`, html);
+        await fs.promises.writeFile(`../obj/doc-html/${topic}.html`, html);
     } catch (e) {
         console.log(`writeHtmlPage failed for ${topic}: ${text}`);
         throw e;
@@ -140,7 +140,7 @@ function convertDiagramToCp437(filename) {
     return new Promise(resolve =>
     {
         const utf8FilePath = "diagrams/" + filename;
-        const cp437FilePath = "temp/diagrams-cp437/" + filename;
+        const cp437FilePath = "../obj/doc-temp/diagrams-cp437/" + filename;
         console.log(`iconv -f utf8 -t cp437 -o ${cp437FilePath} ${utf8FilePath}`);
         child_process.execFile(
             "iconv",
@@ -164,15 +164,15 @@ async function insertCp437Diagrams() {
 function insertCp437Diagram(filename) {
     return new Promise(resolve =>
     {
-        const cp437FilePath = "temp/diagrams-cp437/" + filename;
+        const cp437FilePath = "../obj/doc-temp/diagrams-cp437/" + filename;
         const name = filename.replace(".txt", "");
-        console.log(`insert-cp437-diagram ${name} ${cp437FilePath} output-txt/help.txt`);
+        console.log(`insert-cp437-diagram ${name} ${cp437FilePath} ../obj/doc-txt/help.txt`);
         child_process.execFile(
             `../obj/${arch}/insert-cp437-diagram`,
             [
                 name,
                 cp437FilePath,
-                "output-txt/help.txt"
+                "../obj/doc-txt/help.txt"
             ], () => resolve()
         );
     });
@@ -216,7 +216,7 @@ async function buildProcedureIndex() {
         o += `li@{${name}:procedure_${name}}@\n`;
     }
     o += "@\n";
-    const filePath = "temp/procedureIndex.txt";
+    const filePath = "../obj/doc-temp/procedureIndex.txt";
     await fs.promises.writeFile(filePath, o, "ascii");
     await buildTopic(filePath);
 }

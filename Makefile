@@ -24,12 +24,8 @@ help:
 	@echo "make valgrind"
 	@echo ""
 
-.PHONY: clean-doc
-clean-doc:
-	@rm -rf doc/output-html doc/output-txt doc/temp
-
 .PHONY: clean
-clean: clean-doc
+clean:
 	@rm -rf bin/$(ARCH) obj/$(ARCH) ext/tvision/bin/$(ARCH)
 
 .PHONY: run
@@ -51,17 +47,17 @@ obj/$(ARCH)/common.h.gch: src/common.h $(EXT_HEADER_FILES)
 obj/$(ARCH)/insert-cp437-diagram: doc/insert-cp437-diagram.c
 	$(CC) -o obj/$(ARCH)/insert-cp437-diagram doc/insert-cp437-diagram.c
 
-obj/$(ARCH)/helpfile.h obj/$(ARCH)/help.h32: doc/output-txt/help.txt ext/tvision/bin/$(ARCH)/libtvision.a
+obj/$(ARCH)/helpfile.h obj/$(ARCH)/help.h32: obj/doc-txt/help.txt ext/tvision/bin/$(ARCH)/libtvision.a
 	@mkdir -p obj/$(ARCH)
 	@rm -f obj/$(ARCH)/help.h32
 	@rm -f obj/$(ARCH)/helpfile.h
-	ext/tvision/bin/$(ARCH)/tvhc doc/output-txt/help.txt /code/obj/$(ARCH)/help.h32 obj/$(ARCH)/helpfile.h
+	ext/tvision/bin/$(ARCH)/tvhc obj/doc-txt/help.txt /code/obj/$(ARCH)/help.h32 obj/$(ARCH)/helpfile.h
 
 bin/$(ARCH)/help.h32: obj/$(ARCH)/helpfile.h obj/$(ARCH)/help.h32
 	@mkdir -p bin/$(ARCH)
 	@cp -f obj/$(ARCH)/help.h32 bin/$(ARCH)/help.h32
 
-doc/output-txt/help.txt: $(DOC_FILES) doc/build-doc.js obj/$(ARCH)/insert-cp437-diagram
+obj/doc-txt/help.txt: $(DOC_FILES) doc/build-doc.js obj/$(ARCH)/insert-cp437-diagram
 	cd doc && node build-doc.js $(ARCH)
 
 bin/$(ARCH)/tmbasic: ext/tvision/bin/$(ARCH)/libtvision.a obj/$(ARCH)/common.h.gch obj/$(ARCH)/helpfile.h bin/$(ARCH)/help.h32 $(SRC_FILES) $(INCLUDE_FILES)
