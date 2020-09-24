@@ -41,7 +41,7 @@ boost | [Boost Software License v1.0](ext/boost/LICENSE_1_0.txt)
 [immer](https://github.com/arximboldi/immer) | [Boost Software License v1.0](ext/immer/LICENSE)
 libstdc++ | [GPL v3](ext/gcc/GPL-3) with [GCC Runtime Library Exception v3.1](ext/gcc/copyright)
 ncurses | [Ncurses License](ext/ncurses/COPYING)
-[tvision](https://github.com/magiblot/tvision) | Turbo Vision | [Borland license](ext/tvision/COPYRIGHT) (original code), [MIT license](ext/tvision/COPYRIGHT) (Linux port)
+[tvision](https://github.com/magiblot/tvision) | [Borland license](ext/tvision/COPYRIGHT) (original code), [MIT license](ext/tvision/COPYRIGHT) (Linux port)
 
 ## Documentation license
 The TMBASIC documentation includes the following components:
