@@ -46,6 +46,7 @@ License: `tvision/COPYRIGHT`
 Modified files:
 - `tvision/CMakeLists.txt`
 - `tvision/examples/tvdemo/ascii.cpp`
+- `tvision/examples/tvhelp/tvhc.cpp`
 - `tvision/include/tvision/help.h`
 - `tvision/source/linux/sighandl.cpp`
 - `tvision/source/tvision/help.cpp`

@@ -10,13 +10,13 @@ const TITLE_BASIC_REFERENCE = "BASIC Reference";
 const TOPIC_PROCEDURE_INDEX = "procedureIndex";
 const TITLE_PROCEDURE_INDEX = "Procedure Index";
 const CHAR_DIAMOND = "\x04";
-const HTML_DIAMOND = "&diams;";
+const HTML_DIAMOND = "♦";
 const CHAR_BULLET = "\x07";
-const HTML_BULLET = "&bull;";
+const HTML_BULLET = "•";
 const CHAR_TRIANGLE_RIGHT = "\x10";
-const HTML_TRIANGLE_RIGHT = "&#9658;";
+const HTML_TRIANGLE_RIGHT = "►";
 const CHAR_OPEN_CIRCLE = "\x09";
-const HTML_OPEN_CIRCLE = "&#9658;";
+const HTML_OPEN_CIRCLE = "○";
 
 let outputTxt = "";
 const procedureNames = [];
@@ -58,9 +58,9 @@ function htmlEncode(str) {
 async function writeHtmlPage(topic, text) {
     try {
         const template = await fs.promises.readFile("html/page-template.html", "utf8");
-        const title = text.match(/<h1>([^<]+)</)[1];
+        const title = text.match(/h1\[([^\]]+)\]/)[1];
         const html = template
-            .replace('[TITLE]', htmlEncode(title))
+            .replace('[TITLE]', processHtml(title))
             .replace('[BODY]', processHtml(text));
         await fs.promises.writeFile(`../obj/doc-html/${topic}.html`, html);
     } catch (e) {
@@ -77,7 +77,7 @@ function processText(str) {
         .replace(/h1\[([^\]]+)\]/g, ($0, $1) => $1)
         .replace(/h2\[([^\]]+)\]/g, ($0, $1) => `<DIAMOND> ${$1}`)
         .replace(/h3\[([^\]]+)\]/g, ($0, $1) => $1)
-        .replace(/code@([^@]+)@/g, ($0, $1) => $1)
+        .replace(/code@([^@]+)@/g, ($0, $1) => indent($1))
         .replace(/nav@([^@]+)@/g, ($0, $1) => $1)
         .replace(/`([^`]+)`/g, ($0, $1) => `'${$1}'`)
         .replace(/li@([^@]+)@/g, ($0, $1) => `<BULLET> ${$1}\n\n`)
@@ -91,29 +91,12 @@ function processText(str) {
         .replace(/<DIAMOND>/g, CHAR_DIAMOND)
         .replace(/<BULLET>/g, CHAR_BULLET)
         .replace(/<TRIANGLE_RIGHT>/g, CHAR_TRIANGLE_RIGHT)
-        .replace(/<OPEN_CIRCLE>/g, CHAR_OPEN_CIRCLE);
+        .replace(/<OPEN_CIRCLE>/g, CHAR_OPEN_CIRCLE)
+        .replace(/{[^:"}]+:[^:"}]+}/g, $0 => "{" + $0);
 }
 
 function processHtml(str) {
     return str
-        .replace(/t\[([^\]]+)\]/g, ($0, $1) => `<a href="${getTypeTopic($1)}">${$1}</a>`)
-        .replace(/p\[([^\]]+)\]/g, ($0, $1) => `<a href="procedure_${$1}.html">${$1}</a>`)
-        .replace(/i\[([^\]]+)\]/g, ($0, $1) => `<i>${$1}</i>`)
-        .replace(/h1\[([^\]]+)\]/g, ($0, $1) => `<h1>${$1}</h1>`)
-        .replace(/h2\[([^\]]+)\]/g, ($0, $1) => `<h2>${$1}</h2>`)
-        .replace(/h3\[([^\]]+)\]/g, ($0, $1) => `<h3>${$1}</h3>`)
-        .replace(/code@([^@]+)@/g, ($0, $1) => `<div class="code"><tt>${$1}</tt></div>`)
-        .replace(/nav@([^@]+)@/g, ($0, $1) => `<navbar>${$1}</navbar>`)
-        .replace(/`([^`]+)`/g, ($0, $1) => `<tt>${$1}</tt>`)
-        .replace(/\n/g, "<br>")
-        .replace(/<\/h1><br>/g, "</h1>")
-        .replace(/<\/h2><br>/g, "</h2>")
-        .replace(/<\/h3><br>/g, "</h3>")
-        .replace(/<\/div><br>/g, "</div>")
-        .replace(/<\/navbar><br>/g, "</navbar>")
-        .replace(/<\/pre><br>/g, "</pre>")
-        .replace(/li@([^@]+)@/g, ($0, $1) => `<li>${$1}</li>`)
-        .replace(/ul@([^@]+)@/g, ($0, $1) => `<ul>${$1}</ul>`)
         .replace(/<TOPIC_HOME>/g, TOPIC_HOME)
         .replace(/<TITLE_HOME>/g, TITLE_HOME)
         .replace(/<TOPIC_BASIC_REFERENCE>/g, TOPIC_BASIC_REFERENCE)
@@ -124,9 +107,38 @@ function processHtml(str) {
         .replace(/<BULLET>/g, HTML_BULLET)
         .replace(/<TRIANGLE_RIGHT>/g, HTML_TRIANGLE_RIGHT)
         .replace(/<OPEN_CIRCLE>/g, HTML_OPEN_CIRCLE)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/t\[([^\]]+)\]/g, ($0, $1) => `<a href="${getTypeTopic($1)}">${$1}</a>`)
+        .replace(/p\[([^\]]+)\]/g, ($0, $1) => `<a href="procedure_${$1}.html">${$1}</a>`)
+        .replace(/i\[([^\]]+)\]/g, ($0, $1) => `<i>${$1}</i>`)
+        .replace(/\n*h1\[([^\]]+)\]\n*/g, ($0, $1) => `<h1>${$1}</h1>`)
+        .replace(/\n*h2\[([^\]]+)\]\n*/g, ($0, $1) => `<h2>${$1}</h2>`)
+        .replace(/\n*h3\[([^\]]+)\]\n*/g, ($0, $1) => `<h3>${$1}</h3>`)
+        .replace(/code@\n*([^@]+)\n*@\n*/g, ($0, $1) => `<div class="code"><tt><div>${replaceIndentChars(syntaxColorCode($1)).trimEnd().replace(/\n/g, "</div><div>")}</div></tt></div>`.replace(/<div><\/div>/g, "<pre></pre>"))
+        .replace(/nav@([^@]+)@/g, ($0, $1) => `<navbar>${$1}</navbar>`)
+        .replace(/`([^`]+)`/g, ($0, $1) => `<tt>${$1}</tt>`)
+        .replace(/<\/h1><br>/g, "</h1>")
+        .replace(/<\/h2><br>/g, "</h2>")
+        .replace(/<\/h3><br>/g, "</h3>")
+        .replace(/<\/div><br>/g, "</div>")
+        .replace(/<\/navbar><br>/g, "</navbar>")
+        .replace(/<\/pre><br>/g, "</pre>")
+        .replace(/\n*li@\n*([^@]+)\n*@\n*/g, ($0, $1) => `<li>${$1}</li>`)
+        .replace(/\n*ul@\n*([^@]+)\n*@\n*/g, ($0, $1) => `<ul>${$1}</ul>`)
         .replace(/{([^:]+):([^}]+)}/g, ($0, $1, $2) => `<a href=\"${$2}.html\">${$1}</a>`)
         .replace(/dia\[([^\]]+)\]/g, ($0, $1) => `<pre class="diagram">${getDiagramHtml($1)}</pre>`)
-        .replace(/-----/g, "<hr>");
+        .replace(/-----/g, "<hr>")
+        .replace(/\n/g, "<br>");
+}
+
+function syntaxColorCode(str) {
+    return str.replace(/"[^"]*"/g, $0 => `<span class="string">${$0}</span>`);
+}
+
+function replaceIndentChars(str) {
+    return str.replace(/    /g, $0 => `<span class="indent">${$0}</span>`);
 }
 
 async function convertDiagramsToCp437() {
@@ -197,7 +209,7 @@ async function buildTopic(inputFilePath) {
     const input = await fs.promises.readFile(inputFilePath, "ascii");
     const topic = path.basename(inputFilePath).replace(".txt", "");
     outputTxt += `.topic ${topic}\n` + processText(input.trim()) + "\n";
-    await writeHtmlPage(topic, processHtml(input));
+    await writeHtmlPage(topic, input);
 }
 
 async function forEachProcedureFile(asyncFunc) {
@@ -228,7 +240,7 @@ async function buildProcedure(inputFilePath) {
     procedureNames.push(procedure.name);
     const text = formatProcedureText(topicName, procedure);
     outputTxt += `.topic ${topicName}\n` + processText(text) + "\n";
-    await writeHtmlPage(topicName, processHtml(text));
+    await writeHtmlPage(topicName, text);
 }
 
 function parseProcedure(input) {
@@ -342,7 +354,7 @@ function formatProcedureText(topicName, procedure) {
         }
 
         if (isFunction) {
-            o += `h3[Return value (${overload.returns.type})]\n\n`;
+            o += `h3[Return value]\n\n`;
             o += `${overload.returns.description}\n\n`;
         }
 
@@ -351,8 +363,8 @@ function formatProcedureText(topicName, procedure) {
             if (example.description.trim() != "") {
                 o += `${example.description}\n\n`;
             }
-            o += `Code:\ncode@${indent(example.code)}@\n\n`;
-            o += `Output:\ncode@${indent(example.output)}@\n\n`;
+            o += `Code:\ncode@${example.code}@\n\n`;
+            o += `Output:\ncode@${example.output}@\n\n`;
         }
 
         o += "-----\n\n";

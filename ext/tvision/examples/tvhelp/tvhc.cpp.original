@@ -665,7 +665,7 @@ void strdel(char *string, int pos, int len)
 void scanForCrossRefs( char *line, int& offset, TCrossRefNode *&xRefs )
 {
     int i;
-    const char* begXRef = "{{";
+    char begXRef = '{';
     char endXRef = '}';
     char aliasCh = ':';
     char *begPtr, *endPtr, *aliasPtr, *tempPtr;
@@ -674,13 +674,18 @@ void scanForCrossRefs( char *line, int& offset, TCrossRefNode *&xRefs )
 
     i = 0;
     do  {
-        if ((begPtr = strstr(line+i,begXRef)) == 0)
+        if ((begPtr = strchr(line+i,begXRef)) == 0)
             i = 0;
         else
             {
             begPos = (int)(begPtr - (line+i));
             i += begPos + 1;
-            strdel(line, i, 1);
+            if (line[i + 1] == begXRef)
+                {
+                strdel(line, i, 1);
+                ++i;
+                }
+            else
                 {
                 if ((endPtr = strchr(line+i,endXRef)) == 0)
                     {

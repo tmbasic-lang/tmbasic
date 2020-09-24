@@ -143,6 +143,23 @@ div.code {
   background: #f8f8f8;
 }
 
+div.code div {
+  text-indent: -2cm;
+  padding-left: 2cm;
+}
+
+span.indent {
+  white-space: pre;
+}
+
+span.string {
+  color: #ba2121;
+}
+
+span.operator {
+  color: #666666;
+}
+
 pre.diagram {
   font-family: monospace;
   font-size: 12px;
@@ -151,6 +168,8 @@ pre.diagram {
   padding: 1mm;
   background: #f8f8f8;
   color: rgba(0,0,0,0.8);
+  cursor: default;
+  user-select: none;
 }
 
 hr {
@@ -166,5 +185,4 @@ a {
 
 ul {
   padding-left: 5mm;
-  padding-bottom: 5mm;
 }

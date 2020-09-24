@@ -1,0 +1,110 @@
+nav@{<TITLE_HOME>:<TOPIC_HOME>} <TRIANGLE_RIGHT> {<TITLE_BASIC_REFERENCE>:<TOPIC_BASIC_REFERENCE>}@
+
+h1[Language Grammar]
+
+h2[Top Level]
+code@
+Program ::= Member*
+Member ::= Subroutine | Function | DimStatement | ConstStatement | TypeDeclaration
+Subroutine ::= "sub" identifier "(" ParameterList ")" "\n" Body "end" "sub" "\n"
+Function ::= "function" identifier "(" ParameterList ")" "as" Type "\n" Body "end" "function" "\n"
+TypeDeclaration ::= "type" identifier "\n" (Parameter "\n")* "end" "type" "\n"
+Statement ::= DeclarationStatement | BlockStatement | CommandStatement
+@
+
+h2[Block Statements]
+code@
+BlockStatement ::= ForStatement | ForEachStatement | WhileStatement | DoStatement | IfStatement | JoinStatement | GroupStatement | SelectCaseStatement
+ForStatement ::= "for" identifier "=" Expression "to" Expression ForStep? "\n" Body "next" "\n"
+ForStep ::= "step" (integer | identifier)
+ForEachStatement ::= "for" "each" identifier "in" Expression "\n" Body "next" "\n"
+WhileStatement ::= "while" Expression "\n" Body "wend" "\n"
+IfStatement ::= "if" Expression "then" ("\n" Body ElseIf* Else? "end" "if" | CommandStatement) "\n"
+ElseIf ::= "else" "if" Expression "then" "\n" Body
+Else ::= "else" "\n" Body
+DoStatement ::= "do" (DoCondition "\n" Body "loop" | "\n" Body "loop" DoCondition) "\n"
+DoCondition ::= ("while" | "until") Expression
+JoinStatement ::= "join" identifier "in" Expression "on" Expression "\n" Body "next" "\n"
+GroupStatement ::= "group" Expression "by" Expression "into" identifier ("with" "key" identifier)? "\n" Body "next" "\n"
+SelectCaseStatement ::= "select" "case" Expression "\n" Case* "end" "select" "\n"
+Case ::= "case" (CaseValueList | "else") "\n" Body
+CaseValueList ::= CaseValue ("," CaseValue)*
+CaseValue ::= Expression ("to" Expression)?
+DeclarationStatement ::= DimStatement | ConstStatement
+DimStatement ::= "dim" identifier "as" Type "\n"
+ConstStatement ::= "const" identifier "=" LiteralValue "\n"
+@
+
+h2[Command Statements]
+code@
+CommandStatement ::= SelectStatement | ReturnStatement | CallStatement | ContinueStatement | ExitStatement | ThrowStatement | RethrowStatement | TryStatement
+SelectStatement ::= "select" Expression ("to" Expression)? "\n"
+ReturnStatement ::= "return" Expression? "\n"
+CallStatement ::= identifier ArgumentList PipeSuffix* "\n"
+ContinueStatement ::= "continue" ("do" | "for" | "while") "\n"
+ExitStatement ::= "exit" ("do" | "for" | "select" | "try" | "while") "\n"
+ThrowStatement ::= "throw" Expression "\n"
+RethrowStatement ::= "rethrow" "\n"
+TryStatement ::= "try" "\n" Body CatchBlock? FinallyBlock? "end" "try"
+CatchBlock ::= "catch" "\n" Body
+FinallyBlock ::= "finally" "\n" Body
+@
+
+h2[Expressions]
+code@
+Expression ::= OrExpression PipeSuffix*
+PipeSuffix ::= "|" identifier ArgumentList
+OrExpression ::= AndExpression OrExpressionSuffix*
+OrExpressionSuffix ::= "or" AndExpression
+AndExpression ::= EqualityExpression AndExpressionSuffix*
+AndExpressionSuffix ::= "and" EqualityExpression
+EqualityExpression ::= InequalityExpression EqualityExpressionSuffix*
+EqualityExpressionSuffix ::= ("=" | "<>") InequalityExpression
+InequalityExpression ::= AddExpression InequalityExpressionSuffix*
+InequalityExpressionSuffix ::= ("<" | "<=" | ">" | ">=") AddExpression
+AddExpression ::= MultiplyExpression AddExpressionSuffix*
+AddExpressionSuffix ::= ("+" | "-") MultiplyExpression
+MultiplyExpression ::= UnaryExpression MultiplyExpressionSuffix*
+MultiplyExpressionSuffix ::= ("*" | "/" | "mod") UnaryExpression
+UnaryExpression ::= "not"? ConvertExpression
+ConvertExpression ::= DottedExpression ("as" Type)?
+DottedExpression ::= ExpressionTerm DottedExpressionSuffix*
+DottedExpressionSuffix ::= "." identifier ("(" ArgumentList ")")?
+ExpressionTerm ::= LiteralValue | identifier | ParenthesesTerm | FunctionCallTerm | LiteralArrayTerm | LiteralRecordTerm
+ParenthesesTerm ::= "(" Expression ")"
+FunctionCallTerm ::= identifier "(" ArgumentList ")"
+LiteralArrayTerm ::= "[" ArgumentList "]"
+LiteralRecordTerm ::= "{" LiteralRecordFieldList "}"
+LiteralRecordFieldList ::= (LiteralRecordField ("," LiteralRecordField)*)?
+LiteralRecordField ::= identifier ":" Expression
+LiteralValue ::= boolean | integer | number | string
+@
+
+h2[Type Signatures]
+code@
+Type ::= PrimitiveType | RecordType | ListType | MapType | OptionalType | NamedType
+PrimitiveType ::= "boolean" | "integer" | "number" | "text" | "date" | "datetime" | "datetimeoffset" | "timespan"
+RecordType ::= "record" "(" ParameterList ")"
+ListType ::= "list" "of" TypeWithParentheses
+MapType ::= "map" "from" TypeWithParentheses "to" TypeWithParentheses
+OptionalType ::= "optional" TypeWithParentheses
+TypeWithParentheses ::= "(" Type ")" | Type
+NamedType ::= identifier
+@
+
+h2[Common]
+code@
+ParameterList ::= (Parameter ("," Parameter)*)?
+Parameter ::= identifier "as" Type
+ArgumentList ::= (Expression ("," Expression)*)?
+Body ::= Statement*
+@
+
+h2[Terminals]
+code@
+identifier ::= /[A-Za-z_][A-Za-z0-9_]*/
+integer ::= /-?[0-9]+/
+boolean ::= "true" | "false"
+decimal ::= /-?[0-9]+\.?[0-9]*/
+string ::= /"(""|[^"])*"/
+@
