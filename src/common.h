@@ -2,6 +2,7 @@
 #ifndef _COMMON_H_
 #define _COMMON_H_
 
+#include <boost/algorithm/string/case_conv.hpp>
 #include <boost/smart_ptr/local_shared_ptr.hpp>
 #include <boost/smart_ptr/make_local_shared.hpp>
 #include <cstdint>
@@ -11,8 +12,11 @@
 #include <iostream>
 #include <memory>
 #include <optional>
+#include <regex>
+#include <sstream>
 #include <stack>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <vector>
 

@@ -16,6 +16,7 @@ enum class Kind {
     kRecord,
     kProcedureReference,
     kGenericPlaceholder,
+    kOptional
 };
 
 }

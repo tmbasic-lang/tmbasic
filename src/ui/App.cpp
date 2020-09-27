@@ -46,7 +46,7 @@ TMenuBar* App::initMenuBar(TRect r) {
         *new TMenuItem("~P~revious", cmPrev, kbShiftF6, hcNoContext, "Shift+F6") +
         *new TMenuItem("~C~lose", cmClose, kbCtrlW, hcNoContext, "Ctrl+W");
 
-    auto& helpMenu = *new TSubMenu("~H~elp", kbAltH) + 
+    auto& helpMenu = *new TSubMenu("~H~elp", kbAltH) +
         *new TMenuItem("~B~ASIC reference", kCmdHelpBasicReference, kbNoKey) + newLine() +
         *new TMenuItem("~A~bout TMBASIC", kCmdHelpAbout, kbNoKey);
 

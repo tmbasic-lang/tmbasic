@@ -12,6 +12,7 @@ class Type {
     std::optional<std::unique_ptr<Type>> listItemType;
     std::optional<std::unique_ptr<Type>> mapKeyType;
     std::optional<std::unique_ptr<Type>> mapValueType;
+    std::optional<std::unique_ptr<Type>> optionalValueType;
 };
 
 }  // namespace vm
