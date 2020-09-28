@@ -15,7 +15,8 @@ RUN apt-get update -y && \
         cmake \
         dpkg-dev \
         libboost-dev \
-        valgrind
+        valgrind \
+        libgtest-dev
 
 RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
     add-apt-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-10 main" && \
@@ -49,13 +50,18 @@ RUN cd /pkgsrc && \
 USER 0
 
 RUN cd /pkgsrc/ncurses && \
-    dpkg-buildpackage --build=binary --build-profiles=nobiarch,pkg.ncurses.noexamples
+    dpkg-buildpackage --build=binary --build-profiles=nobiarch,pkg.ncurses.noexamples && \
+    dpkg -i /pkgsrc/*.deb
 
-RUN dpkg -i /pkgsrc/*.deb
+RUN cd /usr/src/gtest && \
+    cmake CMakeLists.txt && \
+    make -j 4 && \
+    mv lib/*.a /usr/lib/
 
 USER $HOST_UID
 
 RUN echo "export PS1=\"[$IMAGE_NAME] \w\$ \"" > /home/ubuntu/.bashrc && \
-    echo "make -f /code/Makefile help" >> /home/ubuntu/.bashrc
+    echo "make -f /code/Makefile help" >> /home/ubuntu/.bashrc && \
+    echo "export MAKEFLAGS=\"-j4\"" >> /home/ubuntu/.bashrc
 
 ENTRYPOINT "/bin/bash"

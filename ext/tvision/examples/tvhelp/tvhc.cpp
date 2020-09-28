@@ -989,8 +989,6 @@ int main(int argc, char **argv)
     fpstream* helpStrm;
 
     // Banner messages
-    char initialText[] = "Help Compiler " TARGET "  Version 2.0  Copyright (c) 1994"
-                         " Borland International.\n";
     char helpText[] =
        "\n  Syntax  TVHC <Help text>[.txt] [<Help file>[" HELPFILE_EXT "] [<Symbol file>[.h]]\n"
        "\n"
@@ -998,7 +996,6 @@ int main(int argc, char **argv)
        "     Help file   = Compiled help file\n"
        "     Symbol file = An include file containing all the screen names as const's\n";
 
-    cout << initialText;
     if (argc < 2)
         {
         cout << helpText;

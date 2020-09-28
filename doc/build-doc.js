@@ -153,7 +153,7 @@ function convertDiagramToCp437(filename) {
     {
         const utf8FilePath = "diagrams/" + filename;
         const cp437FilePath = "../obj/doc-temp/diagrams-cp437/" + filename;
-        console.log(`iconv -f utf8 -t cp437 -o ${cp437FilePath} ${utf8FilePath}`);
+        console.log(`iconv -o ${cp437FilePath}`);
         child_process.execFile(
             "iconv",
             [
@@ -178,7 +178,7 @@ function insertCp437Diagram(filename) {
     {
         const cp437FilePath = "../obj/doc-temp/diagrams-cp437/" + filename;
         const name = filename.replace(".txt", "");
-        console.log(`insert-cp437-diagram ${name} ${cp437FilePath} ../obj/doc-txt/help.txt`);
+        console.log(`insert-cp437-diagram ${name}`);
         child_process.execFile(
             `../obj/${arch}/insert-cp437-diagram`,
             [

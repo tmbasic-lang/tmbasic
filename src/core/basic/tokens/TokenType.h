@@ -79,7 +79,6 @@ enum class TokenType {
     kOn,
     kOptional,
     kOr,
-    kQuery,
     kRecord,
     kRethrow,
     kReturn,

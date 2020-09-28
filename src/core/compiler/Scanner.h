@@ -1,8 +1,8 @@
 #pragma once
 
 #include "common.h"
-#include "basic/tokens/Token.h"
-#include "basic/tokens/TokenType.h"
+#include "core/basic/tokens/Token.h"
+#include "core/basic/tokens/TokenType.h"
 
 namespace compiler {
 
@@ -13,6 +13,7 @@ class Scanner {
    private:
     std::vector<basic::Token> _tokens;
     bool _currentTokenIsString = false;
+    bool _currentTokenIsComment = false;
     bool _skipNext = false;
     std::ostringstream _currentTokenText;
     int _currentTokenColumnIndex = -1;

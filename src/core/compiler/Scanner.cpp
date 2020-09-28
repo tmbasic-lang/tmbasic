@@ -33,6 +33,16 @@ void Scanner::processChar(char ch, char peek) {
     _columnIndex++;
     if (_skipNext) {
         _skipNext = false;
+    } else if (_currentTokenIsComment) {
+        if (ch == '\n') {
+            // the comment and the newline are two separate tokens
+            endCurrentToken();
+            append(ch);
+            endCurrentToken();
+            _currentTokenIsComment = false;
+        } else {
+            append(ch);
+        }
     } else if (_currentTokenIsString) {
         append(ch);
         if (ch == '"') {
@@ -43,6 +53,10 @@ void Scanner::processChar(char ch, char peek) {
                 _currentTokenIsString = false;
             }
         }
+    } else if (ch == '\'') {
+        endCurrentToken();  // no whitespace necessary before a comment
+        _currentTokenIsComment = true;
+        append(ch);
     } else if (ch == '"') {
         endCurrentToken();  // no whitespace necessary before a string literal
         _currentTokenIsString = true;
@@ -188,6 +202,8 @@ TokenType Scanner::classifyToken(const std::string& text) {
             return TokenType::kDivisionSign;
         case '=':
             return TokenType::kEqualsSign;
+        case '\'':
+            return TokenType::kComment;
 
         case '<':
             if (text == "<") {
@@ -357,11 +373,6 @@ TokenType Scanner::classifyToken(const std::string& text) {
                     return TokenType::kOptional;
                 } else if (lc == "or") {
                     return TokenType::kOr;
-                }
-                break;
-            case 'q':
-                if (lc == "query") {
-                    return TokenType::kQuery;
                 }
                 break;
             case 'r':
