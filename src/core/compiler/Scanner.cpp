@@ -20,12 +20,6 @@ std::vector<Token> Scanner::tokenize(const std::string& input) {
     }
 
     scanner.endCurrentToken();
-
-    // end of line token
-    scanner._columnIndex++;
-    scanner.append('\n');
-    scanner.endCurrentToken();
-
     return scanner._tokens;
 }
 
@@ -86,6 +80,14 @@ void Scanner::processChar(char ch, char peek) {
                 endCurrentToken();
                 append(ch);
                 endCurrentToken();
+                break;
+
+            case '\n':
+                endCurrentToken();
+                append(ch);
+                endCurrentToken();
+                _lineIndex++;
+                _columnIndex = -1;  // will be incremented on the next char
                 break;
 
             // could be start of a literal or minus operator
@@ -340,9 +342,7 @@ TokenType Scanner::classifyToken(const std::string& text) {
                 }
                 break;
             case 'l':
-                if (lc == "let") {
-                    return TokenType::kLet;
-                } else if (lc == "list") {
+                if (lc == "list") {
                     return TokenType::kList;
                 } else if (lc == "loop") {
                     return TokenType::kLoop;

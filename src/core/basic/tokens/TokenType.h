@@ -67,7 +67,6 @@ enum class TokenType {
     kInto,
     kJoin,
     kKey,
-    kLet,
     kList,
     kLoop,
     kMap,
