@@ -31,11 +31,11 @@ class Map : public Object {
         TKey removeKey)
         : pairs(std::move(source.pairs.erase(removeKey))) {}
 
-    virtual Kind getKind() const { return K; }
+    Kind getKind() const override { return K; }
 
-    virtual size_t getHash() const { return std::hash<size_t>{}(pairs.size()); }
+    size_t getHash() const override { return std::hash<size_t>{}(pairs.size()); }
 
-    virtual bool equals(const Object& other) const {
+    bool equals(const Object& other) const override {
         if (other.getKind() != K) {
             return false;
         }

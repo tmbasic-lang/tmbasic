@@ -15,7 +15,7 @@ const ushort kCmdProgramRun = 106;
 class App : public TApplication {
    public:
     App(int argc, char** argv);
-    virtual void handleEvent(TEvent& event);
+    void handleEvent(TEvent& event) override;
 
    private:
     static TMenuBar* initMenuBar(TRect r);

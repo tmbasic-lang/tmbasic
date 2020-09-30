@@ -10,9 +10,9 @@ class ProcedureReference : public Object {
     int cachedProcedureIndex;
     size_t signatureHash;
     std::string signature;
-    virtual Kind getKind() const;
-    virtual size_t getHash() const;
-    virtual bool equals(const Object& other) const;
+    Kind getKind() const override;
+    size_t getHash() const override;
+    bool equals(const Object& other) const override;
 };
 
 }  // namespace vm

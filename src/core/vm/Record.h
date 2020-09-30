@@ -14,9 +14,9 @@ class Record : public Object {
     Record(Record& source, int valueIndex, Value newValue);
     Record(Record& source, int objectIndex, boost::local_shared_ptr<Object>& newObject);
     Record(RecordBuilder& builder);
-    virtual Kind getKind() const;
-    virtual size_t getHash() const;
-    virtual bool equals(const Object& other) const;
+    Kind getKind() const override;
+    size_t getHash() const override;
+    bool equals(const Object& other) const override;
 };
 
 }  // namespace vm

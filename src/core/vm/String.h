@@ -11,9 +11,9 @@ class String : public Object {
     String();
     String(std::string value);
     String(const uint8_t* source, int length);
-    virtual Kind getKind() const;
-    virtual size_t getHash() const;
-    virtual bool equals(const Object& other) const;
+    Kind getKind() const override;
+    size_t getHash() const override;
+    bool equals(const Object& other) const override;
 };
 
 }  // namespace vm

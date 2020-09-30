@@ -28,9 +28,9 @@ class List : public Object {
     List(List<TElement, K>& source, bool insert, int index, TElement newElement)
         : items(std::move(insertOrSetAt(source, insert, index, newElement))) {}
 
-    virtual Kind getKind() const { return K; }
+    Kind getKind() const override { return K; }
 
-    virtual size_t getHash() const {
+    size_t getHash() const override {
         size_t hash = 17;
         auto count = items.size();
         for (size_t i = 0; i < 5 && i < count; i++) {
@@ -39,7 +39,7 @@ class List : public Object {
         return hash;
     }
 
-    virtual bool equals(const Object& other) const {
+    bool equals(const Object& other) const override {
         if (other.getKind() != K) {
             return false;
         }
