@@ -21,8 +21,6 @@ const HTML_OPEN_CIRCLE = "○";
 let outputTxt = "";
 const procedureNames = [];
 
-const arch = process.argv[2];
-
 async function build() {
     await fs.promises.mkdir("../obj/doc-temp", { recursive: true });
     await fs.promises.mkdir("../obj/doc-temp/diagrams-cp437", { recursive: true });
@@ -152,14 +150,14 @@ function convertDiagramToCp437(filename) {
     return new Promise(resolve =>
     {
         const utf8FilePath = "diagrams/" + filename;
-        const cp437FilePath = "../obj/doc-temp/diagrams-cp437/" + filename;
+        const cp437FilePath = "obj/doc-temp/diagrams-cp437/" + filename;
         console.log(`iconv -o ${cp437FilePath}`);
         child_process.execFile(
             "iconv",
             [
                 "-f", "utf8",
                 "-t", "cp437",
-                "-o", cp437FilePath,
+                "-o", "../" + cp437FilePath,
                 utf8FilePath
             ], () => resolve()
         );
@@ -174,18 +172,24 @@ async function insertCp437Diagrams() {
 }
 
 function insertCp437Diagram(filename) {
-    return new Promise(resolve =>
-    {
+    return new Promise((resolve, reject) => {
         const cp437FilePath = "../obj/doc-temp/diagrams-cp437/" + filename;
         const name = filename.replace(".txt", "");
         console.log(`insert-cp437-diagram ${name}`);
         child_process.execFile(
-            `../obj/${arch}/insert-cp437-diagram`,
+            `../obj/insert-cp437-diagram`,
             [
                 name,
                 cp437FilePath,
                 "../obj/doc-txt/help.txt"
-            ], () => resolve()
+            ], (error, stdout, stderr) => {
+                if (error) {
+                    reject(error);
+                }
+                process.stdout.write(stdout);
+                process.stderr.write(stderr);
+                resolve();
+            }
         );
     });
 }

@@ -2,7 +2,17 @@ nav@{<TITLE_HOME>:<TOPIC_HOME>}@
 
 h1[<TITLE_BASIC_REFERENCE>]
 
+h2[General]
+
 ul@
 li@{<TITLE_PROCEDURE_INDEX>:<TOPIC_PROCEDURE_INDEX>}@
 li@{Language Grammar:ref_grammar}@
+@
+
+h2[Types]
+
+ul@
+li@{"boolean" Type:type_boolean}@
+li@{"integer" Type:type_integer}@
+li@{"optional" Type:type_optional}@
 @

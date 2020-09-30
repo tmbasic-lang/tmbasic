@@ -6,7 +6,7 @@ TMBASIC_OBJ_FILES=$(patsubst src/%,obj/%,$(TMBASIC_SRC_FILES:.cpp=.o))
 TEST_SRC_FILES=$(shell find src/test -type f -name "*.cpp")
 TEST_OBJ_FILES=$(patsubst src/%,obj/%,$(TEST_SRC_FILES:.cpp=.o))
 INCLUDE_FILES=$(shell find src -type f -name "*.h")
-DOC_FILES=$(wildcard doc/topics/*.txt) $(wildcard doc/procedures/*.txt) $(wildcard doc/html/*)
+DOC_FILES=$(shell find doc -type f -name "*.txt") $(shell find doc -type f -name "*.html")
 EXT_HEADER_FILES=$(shell find ext -type f -name "*.h")
 TVISION_SRC_FILES=$(shell find ext/tvision -type f -name "*.cpp") $(shell find ext/tvision -type f -name "*.h")
 
@@ -74,7 +74,8 @@ obj/helpfile.h: obj/doc-txt/help.txt obj/tvision/libtvision.a
 bin/help.h32: obj/helpfile.h
 
 obj/doc-txt/help.txt: $(DOC_FILES) doc/build-doc.js obj/insert-cp437-diagram
-	cd doc && node build-doc.js $(ARCH)
+	@echo node doc/build-doc.js
+	@cd doc && node build-doc.js
 
 # tvision
 
