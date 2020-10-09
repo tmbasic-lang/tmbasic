@@ -43,13 +43,6 @@ class TokenBox : public Box {
     size_t count() override { return values.size(); }
 };
 
-class TypeBox : public Box {
-   public:
-    std::vector<std::unique_ptr<TypeNode>> values;
-    TypeBox() : Box(BoxType::kType) {}
-    size_t count() override { return values.size(); }
-};
-
 class Production {
    public:
     std::vector<Term> terms;
@@ -59,7 +52,7 @@ class Production {
 
 // dynamic_cast and move into a new unique_ptr
 template <typename TDst, typename TSrc>
-static std::unique_ptr<TDst> cast(std::unique_ptr<TSrc>&& src) {
+static std::unique_ptr<TDst> cast(std::unique_ptr<TSrc> src) {
     if (!src) {
         return {};
     } else {
@@ -144,16 +137,10 @@ static std::vector<std::unique_ptr<T>> captureNodeArray(std::unique_ptr<Box>& bo
 }
 
 template <typename T>
-static std::unique_ptr<T> captureSingleNode(std::unique_ptr<Box>& box) {
+static std::unique_ptr<T> captureSingleNode(std::unique_ptr<Box> box) {
     assert(box->type == BoxType::kNode);
     auto nodeBox = cast<NodeBox>(std::move(box));
-    return cast<T>(nodeBox->values[0]);
-}
-
-static std::unique_ptr<TypeNode> captureSingleType(std::unique_ptr<Box>& box) {
-    assert(box->type == BoxType::kType);
-    auto typeBox = cast<TypeBox>(std::move(box));
-    return std::move(typeBox->values[0]);
+    return cast<T>(std::move(nodeBox->values[0]));
 }
 
 static bool hasCapture(std::unique_ptr<Box>& box) {
@@ -161,7 +148,7 @@ static bool hasCapture(std::unique_ptr<Box>& box) {
 }
 
 template <typename T>
-static std::unique_ptr<T> captureSingleNodeOrNull(std::unique_ptr<Box>& box) {
+static std::unique_ptr<T> captureSingleNodeOrNull(std::unique_ptr<Box> box) {
     if (hasCapture(box)) {
         return captureSingleNode<T>(box);
     } else {
@@ -200,12 +187,6 @@ static std::unique_ptr<NodeBox> nodeBox(Node* node) {
     box->values.push_back(token);
     return box;
 }*/
-
-static std::unique_ptr<TypeBox> typeBox(TypeNode* type) {
-    auto box = std::make_unique<TypeBox>();
-    box->values.push_back(std::unique_ptr<TypeNode>(type));
-    return box;
-}
 
 //
 // productions
@@ -256,7 +237,8 @@ class ParameterProduction : public Production {
           }) {}
 
     std::unique_ptr<Box> parse(std::vector<std::unique_ptr<Box>>& captures, const Token& firstToken) override {
-        return nodeBox(new ParameterNode(captureTokenText(captures[0]), captureSingleType(captures[1]), firstToken));
+        auto type = captureSingleNode<TypeNode>(std::move(captures[1]));
+        return nodeBox(new ParameterNode(captureTokenText(captures[0]), std::move(type), firstToken));
     }
 };
 
@@ -289,7 +271,7 @@ class NamedTypeProduction : public Production {
     std::unique_ptr<Box> parse(std::vector<std::unique_ptr<Box>>& captures, const Token& firstToken) override {
         auto type = new TypeNode(Kind::kRecord, firstToken);
         type->recordName = std::optional(captureTokenText(captures[0]));
-        return typeBox(type);
+        return nodeBox(type);
     }
 };
 
@@ -324,8 +306,8 @@ class OptionalTypeProduction : public Production {
 
     std::unique_ptr<Box> parse(std::vector<std::unique_ptr<Box>>& captures, const Token& firstToken) override {
         auto type = new TypeNode(Kind::kOptional, firstToken);
-        type->optionalValueType = std::move(captureSingleType(captures[0]));
-        return typeBox(type);
+        type->optionalValueType = std::move(captureSingleNode<TypeNode>(std::move(captures[0])));
+        return nodeBox(type);
     }
 };
 
@@ -343,9 +325,9 @@ class MapTypeProduction : public Production {
 
     std::unique_ptr<Box> parse(std::vector<std::unique_ptr<Box>>& captures, const Token& firstToken) override {
         auto type = new TypeNode(Kind::kMap, firstToken);
-        type->mapKeyType = std::move(captureSingleType(captures[0]));
-        type->mapValueType = std::move(captureSingleType(captures[1]));
-        return typeBox(type);
+        type->mapKeyType = std::move(captureSingleNode<TypeNode>(std::move(captures[0])));
+        type->mapValueType = std::move(captureSingleNode<TypeNode>(std::move(captures[1])));
+        return nodeBox(type);
     }
 };
 
@@ -361,8 +343,8 @@ class ListTypeProduction : public Production {
 
     std::unique_ptr<Box> parse(std::vector<std::unique_ptr<Box>>& captures, const Token& firstToken) override {
         auto type = new TypeNode(Kind::kList, firstToken);
-        type->listItemType = std::move(captureSingleType(captures[0]));
-        return typeBox(type);
+        type->listItemType = std::move(captureSingleNode<TypeNode>(std::move(captures[0])));
+        return nodeBox(type);
     }
 };
 
@@ -383,7 +365,7 @@ class RecordTypeProduction : public Production {
             auto field = new FieldNode(parameter->name, std::move(parameter->type), firstToken);
             type->fields.push_back(std::unique_ptr<FieldNode>(field));
         }
-        return typeBox(type);
+        return nodeBox(type);
     }
 };
 

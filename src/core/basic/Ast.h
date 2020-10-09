@@ -31,14 +31,14 @@ enum class Kind {
 
 class TypeNode;
 
-class FieldNode : Node {
+class FieldNode : public Node {
    public:
     std::string name;
     std::unique_ptr<TypeNode> type;
     FieldNode(std::string name, std::unique_ptr<TypeNode> type, Token token);
 };
 
-class TypeNode : Node {
+class TypeNode : public Node {
    public:
     Kind kind;
     std::optional<std::string> recordName;              // kind = kRecord (named)
