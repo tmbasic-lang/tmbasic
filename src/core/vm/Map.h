@@ -10,7 +10,7 @@ namespace vm {
 template <
     typename TKey,
     typename TValue,
-    Kind K,
+    ObjectType K,
     typename TKeyListBuilder,
     typename TKeyList,
     typename TValuePointerCompare,
@@ -31,12 +31,12 @@ class Map : public Object {
         TKey removeKey)
         : pairs(std::move(source.pairs.erase(removeKey))) {}
 
-    Kind getKind() const override { return K; }
+    ObjectType getObjectType() const override { return K; }
 
     size_t getHash() const override { return std::hash<size_t>{}(pairs.size()); }
 
     bool equals(const Object& other) const override {
-        if (other.getKind() != K) {
+        if (other.getObjectType() != K) {
             return false;
         }
         auto& otherMap = static_cast<const Map<
@@ -77,7 +77,7 @@ class Map : public Object {
 typedef Map<
     Value,
     Value,
-    Kind::kValueToValueMap,
+    ObjectType::kValueToValueMap,
     ValueListBuilder,
     ValueList,
     ValuePointerCompare,
@@ -88,7 +88,7 @@ typedef Map<
 typedef Map<
     Value,
     boost::local_shared_ptr<Object>,
-    Kind::kValueToObjectMap,
+    ObjectType::kValueToObjectMap,
     ValueListBuilder,
     ValueList,
     ObjectPointerCompare,
@@ -99,7 +99,7 @@ typedef Map<
 typedef Map<
     boost::local_shared_ptr<Object>,
     Value,
-    Kind::kObjectToValueMap,
+    ObjectType::kObjectToValueMap,
     ObjectListBuilder,
     ObjectList,
     ValuePointerCompare,
@@ -110,7 +110,7 @@ typedef Map<
 typedef Map<
     boost::local_shared_ptr<Object>,
     boost::local_shared_ptr<Object>,
-    Kind::kObjectToObjectMap,
+    ObjectType::kObjectToObjectMap,
     ObjectListBuilder,
     ObjectList,
     ObjectPointerCompare,

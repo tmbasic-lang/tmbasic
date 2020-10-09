@@ -1,7 +1,7 @@
 #pragma once
 
 #include "common.h"
-#include "Kind.h"
+#include "core/basic/Ast.h"
 #include "Object.h"
 #include "Value.h"
 
@@ -16,7 +16,7 @@ class ListBuilder {
 typedef ListBuilder<boost::local_shared_ptr<Object>> ObjectListBuilder;
 typedef ListBuilder<Value> ValueListBuilder;
 
-template <typename TElement, Kind K>
+template <typename TElement, ObjectType K>
 class List : public Object {
    public:
     const immer::vector<TElement> items;
@@ -28,7 +28,7 @@ class List : public Object {
     List(List<TElement, K>& source, bool insert, int index, TElement newElement)
         : items(std::move(insertOrSetAt(source, insert, index, newElement))) {}
 
-    Kind getKind() const override { return K; }
+    ObjectType getObjectType() const override { return K; }
 
     size_t getHash() const override {
         size_t hash = 17;
@@ -40,7 +40,7 @@ class List : public Object {
     }
 
     bool equals(const Object& other) const override {
-        if (other.getKind() != K) {
+        if (other.getObjectType() != K) {
             return false;
         }
         auto& otherList = static_cast<const List<TElement, K>&>(other);
@@ -83,7 +83,7 @@ class List : public Object {
     }
 };
 
-typedef List<boost::local_shared_ptr<Object>, Kind::kObjectList> ObjectList;
-typedef List<Value, Kind::kValueList> ValueList;
+typedef List<boost::local_shared_ptr<Object>, ObjectType::kObjectList> ObjectList;
+typedef List<Value, ObjectType::kValueList> ValueList;
 
 }  // namespace vm

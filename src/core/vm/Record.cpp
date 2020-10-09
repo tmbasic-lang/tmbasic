@@ -11,8 +11,8 @@ Record::Record(Record& source, int valueIndex, Value newValue)
 Record::Record(Record& source, int objectIndex, boost::local_shared_ptr<Object>& newObject)
     : objects(std::move(source.objects.set(objectIndex, newObject))), values(source.values) {}
 
-Kind Record::getKind() const {
-    return Kind::kRecord;
+ObjectType Record::getObjectType() const {
+    return ObjectType::kRecord;
 }
 
 size_t Record::getHash() const {
@@ -29,7 +29,7 @@ size_t Record::getHash() const {
 }
 
 bool Record::equals(const Object& other) const {
-    if (other.getKind() != Kind::kRecord) {
+    if (other.getObjectType() != ObjectType::kRecord) {
         return false;
     }
     auto& otherRecord = (const Record&)other;

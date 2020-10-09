@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <fstream>
+#include <initializer_list>
 #include <ios>
 #include <iostream>
 #include <memory>
@@ -20,12 +21,8 @@
 #include <unordered_map>
 #include <vector>
 
-// replace tvision/borland/fstream.h
+// don't use tvision/borland/fstream.h which tv.h will try to include
 #define FSTREAM_H
-using std::filebuf;
-using std::fstream;
-using std::ifstream;
-using std::ofstream;
 
 #define Uses_MsgBox
 #define Uses_TApplication

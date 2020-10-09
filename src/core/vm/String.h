@@ -11,7 +11,7 @@ class String : public Object {
     String();
     String(std::string value);
     String(const uint8_t* source, int length);
-    Kind getKind() const override;
+    ObjectType getObjectType() const override;
     size_t getHash() const override;
     bool equals(const Object& other) const override;
 };

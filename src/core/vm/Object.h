@@ -1,13 +1,13 @@
 #pragma once
 
 #include "common.h"
-#include "Kind.h"
+#include "ObjectType.h"
 
 namespace vm {
 
 class Object {
    public:
-    virtual Kind getKind() const = 0;
+    virtual ObjectType getObjectType() const = 0;
     virtual std::size_t getHash() const = 0;
     virtual bool equals(const Object& other) const = 0;
 };

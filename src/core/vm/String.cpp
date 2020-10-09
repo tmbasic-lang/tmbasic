@@ -8,8 +8,8 @@ String::String(std::string value) : value(std::move(value)) {}
 
 String::String(const uint8_t* source, int length) : value(reinterpret_cast<const char*>(source), length) {}
 
-Kind String::getKind() const {
-    return Kind::kString;
+ObjectType String::getObjectType() const {
+    return ObjectType::kString;
 }
 
 size_t String::getHash() const {
@@ -17,7 +17,7 @@ size_t String::getHash() const {
 }
 
 bool String::equals(const Object& other) const {
-    if (other.getKind() != Kind::kString) {
+    if (other.getObjectType() != ObjectType::kString) {
         return false;
     }
     auto& otherString = (const String&)other;

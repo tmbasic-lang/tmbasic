@@ -14,7 +14,7 @@ class Record : public Object {
     Record(Record& source, int valueIndex, Value newValue);
     Record(Record& source, int objectIndex, boost::local_shared_ptr<Object>& newObject);
     Record(RecordBuilder& builder);
-    Kind getKind() const override;
+    ObjectType getObjectType() const override;
     size_t getHash() const override;
     bool equals(const Object& other) const override;
 };

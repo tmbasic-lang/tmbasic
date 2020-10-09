@@ -1,11 +1,10 @@
 #pragma once
 
+#include "common.h"
+
 namespace vm {
 
-enum class Kind {
-    kBoolean,
-    kInteger,
-    kDecimal,
+enum class ObjectType {
     kString,
     kValueList,
     kObjectList,
@@ -14,9 +13,7 @@ enum class Kind {
     kObjectToValueMap,
     kObjectToObjectMap,
     kRecord,
-    kProcedureReference,
-    kGenericPlaceholder,
-    kOptional
+    kProcedureReference
 };
 
 }

@@ -374,8 +374,8 @@ bool Interpreter::run(int maxCycles) {
             case Opcode::kStringXEqualsY:
                 assert(x != nullptr);
                 assert(y != nullptr);
-                assert(x->getKind() == Kind::kString);
-                assert(y->getKind() == Kind::kString);
+                assert(x->getObjectType() == ObjectType::kString);
+                assert(y->getObjectType() == ObjectType::kString);
                 a.boolean = static_cast<String&>(*x).value == static_cast<String&>(*y).value;
                 pc++;
                 break;
@@ -383,8 +383,8 @@ bool Interpreter::run(int maxCycles) {
             case Opcode::kStringXConcatenateY:
                 assert(x != nullptr);
                 assert(y != nullptr);
-                assert(x->getKind() == Kind::kString);
-                assert(y->getKind() == Kind::kString);
+                assert(x->getObjectType() == ObjectType::kString);
+                assert(y->getObjectType() == ObjectType::kString);
                 x = boost::make_local_shared<String>(static_cast<String&>(*x).value + static_cast<String&>(*y).value);
                 pc++;
                 break;
@@ -458,7 +458,7 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kSetError:
                 assert(x != nullptr);
-                assert(x->getKind() == Kind::kString);
+                assert(x->getObjectType() == ObjectType::kString);
                 _errorMessage = x;
                 _errorCode = a;
                 _hasError = true;
@@ -581,7 +581,7 @@ bool Interpreter::run(int maxCycles) {
             case Opcode::kRecordLoadA: {
                 // ABB; A: opcode, B: index
                 assert(x != nullptr);
-                assert(x->getKind() == Kind::kRecord);
+                assert(x->getObjectType() == ObjectType::kRecord);
                 auto index = ReadUint16(&pc[1]);
                 auto& record = static_cast<Record&>(*x);
                 assert(index < record.values.size());
@@ -593,7 +593,7 @@ bool Interpreter::run(int maxCycles) {
             case Opcode::kRecordLoadX: {
                 // ABB; A: opcode, B: index
                 assert(x != nullptr);
-                assert(x->getKind() == Kind::kRecord);
+                assert(x->getObjectType() == ObjectType::kRecord);
                 auto index = ReadUint16(&pc[1]);
                 auto& record = static_cast<Record&>(*x);
                 assert(index < record.objects.size());
@@ -605,7 +605,7 @@ bool Interpreter::run(int maxCycles) {
             case Opcode::kRecordStoreA: {
                 // ABB; A: opcode, B: index
                 assert(x != nullptr);
-                assert(x->getKind() == Kind::kRecord);
+                assert(x->getObjectType() == ObjectType::kRecord);
                 auto index = ReadUint16(&pc[1]);
                 auto& record = static_cast<Record&>(*x);
                 assert(index < record.values.size());
@@ -617,7 +617,7 @@ bool Interpreter::run(int maxCycles) {
             case Opcode::kRecordStoreY: {
                 // ABB; A: opcode, B: index
                 assert(x != nullptr);
-                assert(x->getKind() == Kind::kRecord);
+                assert(x->getObjectType() == ObjectType::kRecord);
                 auto index = ReadUint16(&pc[1]);
                 auto& record = static_cast<Record&>(*x);
                 assert(index < record.objects.size());
@@ -653,7 +653,7 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kValueToValueMapTryGet: {
                 assert(x != nullptr);
-                assert(x->getKind() == Kind::kValueToValueMap);
+                assert(x->getObjectType() == ObjectType::kValueToValueMap);
                 auto found = static_cast<ValueToValueMap&>(*x).pairs.find(a);
                 if (found == nullptr) {
                     b.boolean = false;
@@ -667,35 +667,35 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kValueToValueMapCount:
                 assert(x != nullptr);
-                assert(x->getKind() == Kind::kValueToValueMap);
+                assert(x->getObjectType() == ObjectType::kValueToValueMap);
                 a.integer = static_cast<ValueToValueMap&>(*x).pairs.size();
                 pc++;
                 break;
 
             case Opcode::kValueToValueMapSet:
                 assert(x != nullptr);
-                assert(x->getKind() == Kind::kValueToValueMap);
+                assert(x->getObjectType() == ObjectType::kValueToValueMap);
                 x = boost::make_local_shared<ValueToValueMap>(static_cast<ValueToValueMap&>(*x), a, b);
                 pc++;
                 break;
 
             case Opcode::kValueToValueMapRemove:
                 assert(x != nullptr);
-                assert(x->getKind() == Kind::kValueToValueMap);
+                assert(x->getObjectType() == ObjectType::kValueToValueMap);
                 x = boost::make_local_shared<ValueToValueMap>(static_cast<ValueToValueMap&>(*x), a);
                 pc++;
                 break;
 
             case Opcode::kValueToValueMapKeys:
                 assert(x != nullptr);
-                assert(x->getKind() == Kind::kValueToValueMap);
+                assert(x->getObjectType() == ObjectType::kValueToValueMap);
                 x = static_cast<ValueToValueMap&>(*x).keys();
                 pc++;
                 break;
 
             case Opcode::kValueToValueMapValues:
                 assert(x != nullptr);
-                assert(x->getKind() == Kind::kValueToValueMap);
+                assert(x->getObjectType() == ObjectType::kValueToValueMap);
                 x = static_cast<ValueToValueMap&>(*x).values();
                 pc++;
                 break;
@@ -707,7 +707,7 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kValueToObjectMapTryGet: {
                 assert(x != nullptr);
-                assert(x->getKind() == Kind::kValueToObjectMap);
+                assert(x->getObjectType() == ObjectType::kValueToObjectMap);
                 auto found = static_cast<ValueToObjectMap&>(*x).pairs.find(a);
                 if (found == nullptr) {
                     b.boolean = false;
@@ -721,35 +721,35 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kValueToObjectMapCount:
                 assert(x != nullptr);
-                assert(x->getKind() == Kind::kValueToObjectMap);
+                assert(x->getObjectType() == ObjectType::kValueToObjectMap);
                 a.integer = static_cast<ValueToObjectMap&>(*x).pairs.size();
                 pc++;
                 break;
 
             case Opcode::kValueToObjectMapSet:
                 assert(x != nullptr);
-                assert(x->getKind() == Kind::kValueToObjectMap);
+                assert(x->getObjectType() == ObjectType::kValueToObjectMap);
                 x = boost::make_local_shared<ValueToObjectMap>(static_cast<ValueToObjectMap&>(*x), a, y);
                 pc++;
                 break;
 
             case Opcode::kValueToObjectMapRemove:
                 assert(x != nullptr);
-                assert(x->getKind() == Kind::kValueToObjectMap);
+                assert(x->getObjectType() == ObjectType::kValueToObjectMap);
                 x = boost::make_local_shared<ValueToObjectMap>(static_cast<ValueToObjectMap&>(*x), a);
                 pc++;
                 break;
 
             case Opcode::kValueToObjectMapKeys:
                 assert(x != nullptr);
-                assert(x->getKind() == Kind::kValueToObjectMap);
+                assert(x->getObjectType() == ObjectType::kValueToObjectMap);
                 x = static_cast<ValueToObjectMap&>(*x).keys();
                 pc++;
                 break;
 
             case Opcode::kValueToObjectMapValues:
                 assert(x != nullptr);
-                assert(x->getKind() == Kind::kValueToObjectMap);
+                assert(x->getObjectType() == ObjectType::kValueToObjectMap);
                 x = static_cast<ValueToObjectMap&>(*x).values();
                 pc++;
                 break;
@@ -761,7 +761,7 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kObjectToValueMapTryGet: {
                 assert(x != nullptr);
-                assert(x->getKind() == Kind::kObjectToValueMap);
+                assert(x->getObjectType() == ObjectType::kObjectToValueMap);
                 auto found = static_cast<ObjectToValueMap&>(*x).pairs.find(y);
                 if (found == nullptr) {
                     b.boolean = false;
@@ -775,35 +775,35 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kObjectToValueMapCount:
                 assert(x != nullptr);
-                assert(x->getKind() == Kind::kObjectToValueMap);
+                assert(x->getObjectType() == ObjectType::kObjectToValueMap);
                 a.integer = static_cast<ObjectToValueMap&>(*x).pairs.size();
                 pc++;
                 break;
 
             case Opcode::kObjectToValueMapSet:
                 assert(x != nullptr);
-                assert(x->getKind() == Kind::kObjectToValueMap);
+                assert(x->getObjectType() == ObjectType::kObjectToValueMap);
                 x = boost::make_local_shared<ObjectToValueMap>(static_cast<ObjectToValueMap&>(*x), y, a);
                 pc++;
                 break;
 
             case Opcode::kObjectToValueMapRemove:
                 assert(x != nullptr);
-                assert(x->getKind() == Kind::kObjectToValueMap);
+                assert(x->getObjectType() == ObjectType::kObjectToValueMap);
                 x = boost::make_local_shared<ObjectToValueMap>(static_cast<ObjectToValueMap&>(*x), y);
                 pc++;
                 break;
 
             case Opcode::kObjectToValueMapKeys:
                 assert(x != nullptr);
-                assert(x->getKind() == Kind::kObjectToValueMap);
+                assert(x->getObjectType() == ObjectType::kObjectToValueMap);
                 x = static_cast<ObjectToValueMap&>(*x).keys();
                 pc++;
                 break;
 
             case Opcode::kObjectToValueMapValues:
                 assert(x != nullptr);
-                assert(x->getKind() == Kind::kObjectToValueMap);
+                assert(x->getObjectType() == ObjectType::kObjectToValueMap);
                 x = static_cast<ObjectToValueMap&>(*x).values();
                 pc++;
                 break;
@@ -815,7 +815,7 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kObjectToObjectMapTryGet: {
                 assert(x != nullptr);
-                assert(x->getKind() == Kind::kObjectToObjectMap);
+                assert(x->getObjectType() == ObjectType::kObjectToObjectMap);
                 auto found = static_cast<ObjectToObjectMap&>(*x).pairs.find(y);
                 if (found == nullptr) {
                     b.boolean = false;
@@ -829,42 +829,42 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kObjectToObjectMapCount:
                 assert(x != nullptr);
-                assert(x->getKind() == Kind::kObjectToObjectMap);
+                assert(x->getObjectType() == ObjectType::kObjectToObjectMap);
                 a.integer = static_cast<ObjectToObjectMap&>(*x).pairs.size();
                 pc++;
                 break;
 
             case Opcode::kObjectToObjectMapSet:
                 assert(x != nullptr);
-                assert(x->getKind() == Kind::kObjectToObjectMap);
+                assert(x->getObjectType() == ObjectType::kObjectToObjectMap);
                 x = boost::make_local_shared<ObjectToObjectMap>(static_cast<ObjectToObjectMap&>(*x), y, z);
                 pc++;
                 break;
 
             case Opcode::kObjectToObjectMapRemove:
                 assert(x != nullptr);
-                assert(x->getKind() == Kind::kObjectToObjectMap);
+                assert(x->getObjectType() == ObjectType::kObjectToObjectMap);
                 x = boost::make_local_shared<ObjectToObjectMap>(static_cast<ObjectToObjectMap&>(*x), y);
                 pc++;
                 break;
 
             case Opcode::kObjectToObjectMapKeys:
                 assert(x != nullptr);
-                assert(x->getKind() == Kind::kObjectToObjectMap);
+                assert(x->getObjectType() == ObjectType::kObjectToObjectMap);
                 x = static_cast<ObjectToObjectMap&>(*x).keys();
                 pc++;
                 break;
 
             case Opcode::kObjectToObjectMapValues:
                 assert(x != nullptr);
-                assert(x->getKind() == Kind::kObjectToObjectMap);
+                assert(x->getObjectType() == ObjectType::kObjectToObjectMap);
                 x = static_cast<ObjectToObjectMap&>(*x).values();
                 pc++;
                 break;
 
             case Opcode::kStringMid: {
                 assert(x != nullptr);
-                assert(x->getKind() == Kind::kString);
+                assert(x->getObjectType() == ObjectType::kString);
                 auto& str = static_cast<String&>(*x);
                 if (a.integer >= 0 && static_cast<size_t>(a.integer) < str.value.length() && b.integer > 0) {
                     x = boost::make_local_shared<String>(str.value.substr(a.integer, b.integer));
@@ -877,9 +877,9 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kStringIndexOf: {
                 assert(x != nullptr);
-                assert(x->getKind() == Kind::kString);
+                assert(x->getObjectType() == ObjectType::kString);
                 assert(y != nullptr);
-                assert(y->getKind() == Kind::kString);
+                assert(y->getObjectType() == ObjectType::kString);
                 auto& haystack = static_cast<String&>(*x);
                 auto startIndex = a.integer;
                 if (static_cast<size_t>(startIndex) >= haystack.value.size()) {
@@ -905,7 +905,7 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kStringAsc: {
                 assert(x != nullptr);
-                assert(x->getKind() == Kind::kString);
+                assert(x->getObjectType() == ObjectType::kString);
                 auto& str = static_cast<String&>(*x);
                 if (a.integer >= 0 && static_cast<size_t>(a.integer) < str.value.length()) {
                     a.integer = str.value[a.integer];

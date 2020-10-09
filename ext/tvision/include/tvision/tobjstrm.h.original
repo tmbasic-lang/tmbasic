@@ -559,11 +559,11 @@ public:
 
     void _Cdecl open( const char _FAR *, pstream::openmode);
     void _Cdecl close();
-    std::filebuf _FAR * _Cdecl rdbuf();
+    filebuf _FAR * _Cdecl rdbuf();
 
 private:
 
-    std::filebuf buf;
+    filebuf buf;
 
 };
 
@@ -680,7 +680,7 @@ public:
     _Cdecl fpstream( const char _FAR *, pstream::openmode);
     _Cdecl ~fpstream();
 
-    std::filebuf _FAR * _Cdecl rdbuf();
+    filebuf _FAR * _Cdecl rdbuf();
     void _Cdecl open( const char _FAR *, pstream::openmode);
 
 };

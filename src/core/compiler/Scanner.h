@@ -1,8 +1,7 @@
 #pragma once
 
 #include "common.h"
-#include "core/basic/tokens/Token.h"
-#include "core/basic/tokens/TokenType.h"
+#include "core/basic/Token.h"
 
 namespace compiler {
 

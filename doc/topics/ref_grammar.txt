@@ -52,8 +52,7 @@ FinallyBlock ::= "finally" "\n" Body
 
 h2[Expressions]
 code@
-Expression ::= OrExpression PipeSuffix*
-PipeSuffix ::= "|" identifier ArgumentList
+Expression ::= OrExpression
 OrExpression ::= AndExpression OrExpressionSuffix*
 OrExpressionSuffix ::= "or" AndExpression
 AndExpression ::= EqualityExpression AndExpressionSuffix*

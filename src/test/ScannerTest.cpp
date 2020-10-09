@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 #include "core/compiler/Scanner.h"
-#include "core/basic/tokens/TokenType.h"
+#include "core/basic/TokenType.h"
 
 using namespace basic;
 using namespace compiler;

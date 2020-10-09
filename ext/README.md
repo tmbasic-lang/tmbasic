@@ -48,5 +48,6 @@ Modified files:
 - `tvision/examples/tvdemo/ascii.cpp`
 - `tvision/examples/tvhelp/tvhc.cpp`
 - `tvision/include/tvision/help.h`
+- `tvision/include/tvision/tobjstrm.h`
 - `tvision/source/linux/sighandl.cpp`
 - `tvision/source/tvision/help.cpp`
