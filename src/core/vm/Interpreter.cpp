@@ -11,6 +11,7 @@ static uint16_t ReadUint16(const uint8_t* ptr);
 static uint32_t ReadUint32(const uint8_t* ptr);
 static int64_t ReadInt64(const uint8_t* ptr);
 static int16_t ReadInt16(const uint8_t* ptr);
+IntValue ReadIntValue(const uint8_t* ptr);
 
 Interpreter::Interpreter(const Program& program) : _program(program) {}
 
@@ -58,13 +59,13 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kLoadConstantA:
                 // ABBBBBBBB; A: opcode, B: constant
-                a.integer = ReadInt64(&pc[1]);
+                a.num = ReadInt64(&pc[1]);
                 pc += /*A*/ 1 + /*B*/ 8;
                 break;
 
             case Opcode::kLoadConstantB:
                 // ABBBBBBBB; A: opcode, B: constant
-                b.integer = ReadInt64(&pc[1]);
+                b.num = ReadInt64(&pc[1]);
                 pc += /*A*/ 1 + /*B*/ 8;
                 break;
 
@@ -206,7 +207,7 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kPopA:
                 a = _valueStack[vsi];
-                _valueStack[vsi].bits = 0;
+                _valueStack[vsi].num = 0;
                 vsi++;
                 assert(vsi < kValueStackSize);
                 pc++;
@@ -214,7 +215,7 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kPopB:
                 b = _valueStack[vsi];
-                _valueStack[vsi].bits = 0;
+                _valueStack[vsi].num = 0;
                 vsi++;
                 assert(vsi < kValueStackSize);
                 pc++;
@@ -241,7 +242,9 @@ bool Interpreter::run(int maxCycles) {
                 auto count = ReadUint16(&pc[1]);
                 auto endIndex = vsi + count;
                 assert(endIndex < kValueStackSize);
-                memset(&_valueStack[vsi], 0, sizeof(Value) * count);
+                for (auto i = vsi; i < endIndex; i++) {
+                    _valueStack[i].num = 0;
+                }
                 vsi = endIndex;
                 pc += /*A*/ 1 + /*B*/ 2;
                 break;
@@ -252,8 +255,8 @@ bool Interpreter::run(int maxCycles) {
                 auto count = ReadUint16(&pc[1]);
                 auto endIndex = osi + count;
                 assert(endIndex < kObjectStackSize);
-                for (int i = 0; i < count; i++) {
-                    _objectStack[osi + i] = nullptr;
+                for (auto i = osi; i < endIndex; i++) {
+                    _objectStack[i] = nullptr;
                 }
                 osi = endIndex;
                 pc += /*A*/ 1 + /*B*/ 2;
@@ -291,74 +294,77 @@ bool Interpreter::run(int maxCycles) {
                 break;
 
             case Opcode::kAOrB:
-                a.boolean = a.boolean || b.boolean;
+                a.setBoolean(a.getBoolean() || b.getBoolean());
                 pc++;
                 break;
 
             case Opcode::kAAndB:
-                a.boolean = a.boolean && b.boolean;
+                a.setBoolean(a.getBoolean() && b.getBoolean());
                 pc++;
                 break;
 
             case Opcode::kAEqualsB:
-                a.boolean = a.bits == b.bits;
+                a.setBoolean(a.num == b.num);
                 pc++;
                 break;
 
             case Opcode::kANotEqualsB:
-                a.boolean = a.bits != b.bits;
+                a.setBoolean(a.num != b.num);
                 pc++;
                 break;
 
             case Opcode::kALessThanB:
-                a.boolean = a.integer < b.integer;
+                a.setBoolean(a.num < b.num);
                 pc++;
                 break;
 
             case Opcode::kALessThanEqualsB:
-                a.boolean = a.integer <= b.integer;
+                a.setBoolean(a.num <= b.num);
                 pc++;
                 break;
 
             case Opcode::kAGreaterThanB:
-                a.boolean = a.integer > b.integer;
+                a.setBoolean(a.num > b.num);
                 pc++;
                 break;
 
             case Opcode::kAGreaterThanEqualsB:
-                a.boolean = a.integer >= b.integer;
+                a.setBoolean(a.num >= b.num);
                 pc++;
                 break;
 
             case Opcode::kAAddB:
-                a.integer += b.integer;
+                a.num += b.num;
                 pc++;
                 break;
 
             case Opcode::kASubtractB:
-                a.integer -= b.integer;
+                a.num -= b.num;
                 pc++;
                 break;
 
             case Opcode::kAMultiplyB:
-                a.integer *= b.integer;
+                a.num *= b.num;
                 pc++;
                 break;
 
             case Opcode::kADivideB:
-                a.integer /= b.integer;
+                a.num /= b.num;
                 pc++;
                 break;
 
-            case Opcode::kAModuloB:
-                a.integer %= b.integer;
+            case Opcode::kAModuloB: {
+                auto intA = a.getInt64();
+                auto intB = b.getInt64();
+                a.num = static_cast<FloatValue>(intA % intB);
                 pc++;
                 break;
+            }
 
             case Opcode::kAEqualsConstant: {
                 // ABBBBBBBB; A: opcode, B: int64 constant
                 int64_t constant = ReadInt64(&pc[1]);
-                a.boolean = a.integer == constant;
+                a.setBoolean(a.num == constant);
                 pc += /*A*/ 1 + /*B*/ 8;
                 break;
             }
@@ -366,7 +372,7 @@ bool Interpreter::run(int maxCycles) {
             case Opcode::kBEqualsConstant: {
                 // ABBBBBBBB; A: opcode, B: int64 constant
                 int64_t constant = ReadInt64(&pc[1]);
-                a.boolean = b.integer == constant;
+                a.setBoolean(b.num == constant);
                 pc += /*A*/ 1 + /*B*/ 8;
                 break;
             }
@@ -376,7 +382,7 @@ bool Interpreter::run(int maxCycles) {
                 assert(y != nullptr);
                 assert(x->getObjectType() == ObjectType::kString);
                 assert(y->getObjectType() == ObjectType::kString);
-                a.boolean = static_cast<String&>(*x).value == static_cast<String&>(*y).value;
+                a.setBoolean(static_cast<String&>(*x).value == static_cast<String&>(*y).value);
                 pc++;
                 break;
 
@@ -399,7 +405,7 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kBranchIfA:
                 // ABBBB; A: opcode, B: index
-                if (a.boolean) {
+                if (a.getBoolean()) {
                     auto index = ReadUint32(&pc[1]);
                     assert(index < instructions.size());
                     pc = &instructions[index];
@@ -410,7 +416,7 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kBranchIfNotA:
                 // ABBBB; A: opcode, B: index
-                if (!a.boolean) {
+                if (!a.getBoolean()) {
                     auto index = ReadUint32(&pc[1]);
                     assert(index < instructions.size());
                     pc = &instructions[index];
@@ -467,7 +473,7 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kClearError:
                 _errorMessage = nullptr;
-                _errorCode.bits = 0;
+                _errorCode.num = 0;
                 _hasError = false;
                 pc++;
                 break;
@@ -498,7 +504,9 @@ bool Interpreter::run(int maxCycles) {
                     if (popValues > 0) {
                         auto endIndex = vsi + popValues;
                         assert(endIndex < kValueStackSize);
-                        memset(&_valueStack[vsi], 0, sizeof(Value) * popValues);
+                        for (int i = 0; i < popValues; i++) {
+                            _valueStack[vsi + i].num = 0;
+                        }
                         vsi = endIndex;
                     }
                     auto popObjects = ReadUint16(&pc[3]);
@@ -656,9 +664,9 @@ bool Interpreter::run(int maxCycles) {
                 assert(x->getObjectType() == ObjectType::kValueToValueMap);
                 auto found = static_cast<ValueToValueMap&>(*x).pairs.find(a);
                 if (found == nullptr) {
-                    b.boolean = false;
+                    b.setBoolean(false);
                 } else {
-                    b.boolean = true;
+                    b.setBoolean(true);
                     a = *found;
                 }
                 pc++;
@@ -668,7 +676,7 @@ bool Interpreter::run(int maxCycles) {
             case Opcode::kValueToValueMapCount:
                 assert(x != nullptr);
                 assert(x->getObjectType() == ObjectType::kValueToValueMap);
-                a.integer = static_cast<ValueToValueMap&>(*x).pairs.size();
+                a.num = static_cast<ValueToValueMap&>(*x).pairs.size();
                 pc++;
                 break;
 
@@ -710,9 +718,9 @@ bool Interpreter::run(int maxCycles) {
                 assert(x->getObjectType() == ObjectType::kValueToObjectMap);
                 auto found = static_cast<ValueToObjectMap&>(*x).pairs.find(a);
                 if (found == nullptr) {
-                    b.boolean = false;
+                    b.setBoolean(false);
                 } else {
-                    b.boolean = true;
+                    b.setBoolean(true);
                     x = *found;
                 }
                 pc++;
@@ -722,7 +730,7 @@ bool Interpreter::run(int maxCycles) {
             case Opcode::kValueToObjectMapCount:
                 assert(x != nullptr);
                 assert(x->getObjectType() == ObjectType::kValueToObjectMap);
-                a.integer = static_cast<ValueToObjectMap&>(*x).pairs.size();
+                a.num = static_cast<ValueToObjectMap&>(*x).pairs.size();
                 pc++;
                 break;
 
@@ -764,9 +772,9 @@ bool Interpreter::run(int maxCycles) {
                 assert(x->getObjectType() == ObjectType::kObjectToValueMap);
                 auto found = static_cast<ObjectToValueMap&>(*x).pairs.find(y);
                 if (found == nullptr) {
-                    b.boolean = false;
+                    b.setBoolean(false);
                 } else {
-                    b.boolean = true;
+                    b.setBoolean(true);
                     a = *found;
                 }
                 pc++;
@@ -776,7 +784,7 @@ bool Interpreter::run(int maxCycles) {
             case Opcode::kObjectToValueMapCount:
                 assert(x != nullptr);
                 assert(x->getObjectType() == ObjectType::kObjectToValueMap);
-                a.integer = static_cast<ObjectToValueMap&>(*x).pairs.size();
+                a.num = static_cast<ObjectToValueMap&>(*x).pairs.size();
                 pc++;
                 break;
 
@@ -818,9 +826,9 @@ bool Interpreter::run(int maxCycles) {
                 assert(x->getObjectType() == ObjectType::kObjectToObjectMap);
                 auto found = static_cast<ObjectToObjectMap&>(*x).pairs.find(y);
                 if (found == nullptr) {
-                    b.boolean = false;
+                    b.setBoolean(false);
                 } else {
-                    b.boolean = true;
+                    b.setBoolean(true);
                     x = *found;
                 }
                 pc++;
@@ -830,7 +838,7 @@ bool Interpreter::run(int maxCycles) {
             case Opcode::kObjectToObjectMapCount:
                 assert(x != nullptr);
                 assert(x->getObjectType() == ObjectType::kObjectToObjectMap);
-                a.integer = static_cast<ObjectToObjectMap&>(*x).pairs.size();
+                a.num = static_cast<ObjectToObjectMap&>(*x).pairs.size();
                 pc++;
                 break;
 
@@ -866,8 +874,10 @@ bool Interpreter::run(int maxCycles) {
                 assert(x != nullptr);
                 assert(x->getObjectType() == ObjectType::kString);
                 auto& str = static_cast<String&>(*x);
-                if (a.integer >= 0 && static_cast<size_t>(a.integer) < str.value.length() && b.integer > 0) {
-                    x = boost::make_local_shared<String>(str.value.substr(a.integer, b.integer));
+                auto intA = a.getInt64();
+                auto intB = b.getInt64();
+                if (intA >= 0 && intA < static_cast<int64_t>(str.value.length()) && intB > 0) {
+                    x = boost::make_local_shared<String>(str.value.substr(intA, intB));
                 } else {
                     x = boost::make_local_shared<String>(std::string());
                 }
@@ -881,23 +891,24 @@ bool Interpreter::run(int maxCycles) {
                 assert(y != nullptr);
                 assert(y->getObjectType() == ObjectType::kString);
                 auto& haystack = static_cast<String&>(*x);
-                auto startIndex = a.integer;
-                if (static_cast<size_t>(startIndex) >= haystack.value.size()) {
-                    a.integer = -1;
+                auto startIndex = a.getInt64();
+                if (startIndex >= static_cast<int64_t>(haystack.value.size())) {
+                    a.num = -1;
                 } else {
                     if (startIndex < 0) {
                         startIndex = 0;
                     }
                     auto& needle = static_cast<String&>(*y);
-                    auto found = haystack.value.find(needle.value, a.integer);
-                    a.integer = found == std::string::npos ? -1 : found;
+                    auto found = haystack.value.find(needle.value, startIndex);
+                    a.num = found == std::string::npos ? -1 : found;
                 }
                 pc++;
                 break;
             }
 
             case Opcode::kStringChr: {
-                char ch = a.bits & 0xFF;
+                auto value = a.getInt64();
+                char ch = static_cast<char>(value & 0xFF);
                 x = boost::make_local_shared<String>(std::string(&ch, 1));
                 pc++;
                 break;
@@ -907,10 +918,12 @@ bool Interpreter::run(int maxCycles) {
                 assert(x != nullptr);
                 assert(x->getObjectType() == ObjectType::kString);
                 auto& str = static_cast<String&>(*x);
-                if (a.integer >= 0 && static_cast<size_t>(a.integer) < str.value.length()) {
-                    a.integer = str.value[a.integer];
+                FloatValue strLength = str.value.length();
+                auto intA = a.getInt64();
+                if (intA >= 0 && intA < strLength) {
+                    a.num = str.value[intA];
                 } else {
-                    a.integer = -1;
+                    a.num = -1;
                 }
                 pc++;
                 break;
@@ -957,7 +970,7 @@ Interpreter::ReturnResult Interpreter::returnFromProcedure(int valueStackIndex, 
     auto callFrame = _callStack.top();
     assert(valueStackIndex <= callFrame.valueStackIndex);
     for (int i = valueStackIndex; i < callFrame.valueStackIndex; i++) {
-        _valueStack[i].bits = 0;
+        _valueStack[i].num = 0;
     }
     assert(objectStackIndex <= callFrame.objectStackIndex);
     for (int i = objectStackIndex; i < callFrame.objectStackIndex; i++) {
@@ -991,4 +1004,11 @@ int16_t ReadInt16(const uint8_t* ptr) {
     int16_t value;
     memcpy(&value, ptr, sizeof(int16_t));
     return value;
+}
+
+IntValue ReadIntValue(const uint8_t* ptr) {
+    // first byte tells us how many bytes to read
+    //    auto numBytes = *ptr++;
+    // boost::multiprecision::import_bits();
+    return {};
 }

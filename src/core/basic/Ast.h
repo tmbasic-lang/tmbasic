@@ -18,9 +18,12 @@ class Node {
 
 enum class Kind {
     kBoolean,
-    kInteger,
-    kDecimal,
-    kString,
+    kNumber,
+    kDate,
+    kDateTime,
+    kDateTimeOffset,
+    kTimeSpan,
+    kText,
     kList,
     kMap,
     kRecord,
@@ -56,7 +59,10 @@ class TypeNode : public Node {
 // expressions
 //
 
-class ExpressionNode : public Node {};
+class ExpressionNode : public Node {
+   public:
+    ExpressionNode(Token token);
+};
 
 enum class BinaryOperator {
     kOr,
@@ -92,7 +98,10 @@ class CallExpressionNode : public ExpressionNode {
     std::vector<std::unique_ptr<ExpressionNode>> arguments;
 };
 
-class ConstValueExpressionNode : public ExpressionNode {};
+class ConstValueExpressionNode : public ExpressionNode {
+   public:
+    ConstValueExpressionNode(Token token);
+};
 
 class ConvertExpressionNode : public ExpressionNode {
    public:
@@ -121,11 +130,13 @@ class LiteralArrayExpressionNode : public ConstValueExpressionNode {
 class LiteralBooleanExpressionNode : public ConstValueExpressionNode {
    public:
     bool value;
+    LiteralBooleanExpressionNode(bool value, Token token);
 };
 
-class LiteralIntegerExpressionNode : public ConstValueExpressionNode {
+class LiteralNumberExpressionNode : public ConstValueExpressionNode {
    public:
-    int64_t value;
+    std::decimal::decimal64 value;
+    LiteralNumberExpressionNode(std::decimal::decimal64 value, Token token);
 };
 
 class LiteralRecordFieldNode : public Node {
@@ -142,6 +153,7 @@ class LiteralRecordExpressionNode : public ConstValueExpressionNode {
 class LiteralStringExpressionNode : public ConstValueExpressionNode {
    public:
     std::string value;
+    LiteralStringExpressionNode(std::string value, Token token);
 };
 
 class NotExpressionNode : public ExpressionNode {

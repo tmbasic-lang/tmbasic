@@ -12,9 +12,8 @@ enum class TokenType {
     kComment,
 
     // literals
-    kIntegerLiteral,
     kBooleanLiteral,
-    kDecimalLiteral,
+    kNumberLiteral,
     kStringLiteral,
 
     // punctuation
@@ -63,7 +62,6 @@ enum class TokenType {
     kGroup,
     kIf,
     kIn,
-    kInteger,
     kInto,
     kJoin,
     kKey,

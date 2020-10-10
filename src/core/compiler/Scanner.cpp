@@ -243,10 +243,8 @@ TokenType Scanner::classifyToken(const std::string& text) {
                 return TokenType::kMinusSign;
             } else if (text == ".") {
                 return TokenType::kDot;
-            } else if (std::regex_match(text, _integerRegex)) {
-                return TokenType::kIntegerLiteral;
-            } else if (std::regex_match(text, _decimalRegex)) {
-                return TokenType::kDecimalLiteral;
+            } else if (std::regex_match(text, _numberRegex)) {
+                return TokenType::kNumberLiteral;
             } else {
                 return TokenType::kError;
             }
@@ -325,8 +323,6 @@ TokenType Scanner::classifyToken(const std::string& text) {
                     return TokenType::kIf;
                 } else if (lc == "in") {
                     return TokenType::kIn;
-                } else if (lc == "integer") {
-                    return TokenType::kInteger;
                 } else if (lc == "into") {
                     return TokenType::kInto;
                 }

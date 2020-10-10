@@ -1,3 +1,4 @@
+#include "common.h"
 #include "gtest/gtest.h"
 #include "core/compiler/Scanner.h"
 #include "core/basic/TokenType.h"
@@ -7,7 +8,7 @@ using namespace compiler;
 
 TEST(ScannerTest, IntegerLiteral) {
     auto tokens = Scanner::tokenize("123");
-    ASSERT_EQ(TokenType::kIntegerLiteral, tokens[0].type);
+    ASSERT_EQ(TokenType::kNumberLiteral, tokens[0].type);
     ASSERT_EQ(1, tokens.size());
 }
 
@@ -18,12 +19,12 @@ TEST(ScannerTest, MinusVsNegative) {
     ASSERT_EQ("-4", tokens[i].text);
     ASSERT_EQ(0, tokens[i].lineIndex);
     ASSERT_EQ(0, tokens[i].columnIndex);
-    ASSERT_EQ(TokenType::kIntegerLiteral, tokens[i++].type);
+    ASSERT_EQ(TokenType::kNumberLiteral, tokens[i++].type);
 
     ASSERT_EQ("-5", tokens[i].text);
     ASSERT_EQ(0, tokens[i].lineIndex);
     ASSERT_EQ(2, tokens[i].columnIndex);
-    ASSERT_EQ(TokenType::kIntegerLiteral, tokens[i++].type);
+    ASSERT_EQ(TokenType::kNumberLiteral, tokens[i++].type);
 
     ASSERT_EQ("-", tokens[i].text);
     ASSERT_EQ(0, tokens[i].lineIndex);
@@ -33,7 +34,7 @@ TEST(ScannerTest, MinusVsNegative) {
     ASSERT_EQ("-6", tokens[i].text);
     ASSERT_EQ(0, tokens[i].lineIndex);
     ASSERT_EQ(6, tokens[i].columnIndex);
-    ASSERT_EQ(TokenType::kIntegerLiteral, tokens[i++].type);
+    ASSERT_EQ(TokenType::kNumberLiteral, tokens[i++].type);
 
     ASSERT_EQ("-", tokens[i].text);
     ASSERT_EQ(0, tokens[i].lineIndex);
@@ -43,12 +44,12 @@ TEST(ScannerTest, MinusVsNegative) {
     ASSERT_EQ("-7", tokens[i].text);
     ASSERT_EQ(0, tokens[i].lineIndex);
     ASSERT_EQ(10, tokens[i].columnIndex);
-    ASSERT_EQ(TokenType::kIntegerLiteral, tokens[i++].type);
+    ASSERT_EQ(TokenType::kNumberLiteral, tokens[i++].type);
 
     ASSERT_EQ("-8.9", tokens[i].text);
     ASSERT_EQ(0, tokens[i].lineIndex);
     ASSERT_EQ(13, tokens[i].columnIndex);
-    ASSERT_EQ(TokenType::kDecimalLiteral, tokens[i++].type);
+    ASSERT_EQ(TokenType::kNumberLiteral, tokens[i++].type);
 
     ASSERT_EQ(i, tokens.size());
 }
@@ -78,7 +79,7 @@ TEST(ScannerTest, ForLoop) {
     ASSERT_EQ("1", tokens[i].text);
     ASSERT_EQ(0, tokens[i].lineIndex);
     ASSERT_EQ(8, tokens[i].columnIndex);
-    ASSERT_EQ(TokenType::kIntegerLiteral, tokens[i++].type);
+    ASSERT_EQ(TokenType::kNumberLiteral, tokens[i++].type);
 
     ASSERT_EQ("to", tokens[i].text);
     ASSERT_EQ(0, tokens[i].lineIndex);
@@ -88,7 +89,7 @@ TEST(ScannerTest, ForLoop) {
     ASSERT_EQ("5", tokens[i].text);
     ASSERT_EQ(0, tokens[i].lineIndex);
     ASSERT_EQ(13, tokens[i].columnIndex);
-    ASSERT_EQ(TokenType::kIntegerLiteral, tokens[i++].type);
+    ASSERT_EQ(TokenType::kNumberLiteral, tokens[i++].type);
 
     ASSERT_EQ("\n", tokens[i].text);
     ASSERT_EQ(0, tokens[i].lineIndex);

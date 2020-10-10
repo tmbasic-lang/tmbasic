@@ -11,5 +11,5 @@ export BASE_IMAGE_NAME="arm64v8/ubuntu:20.04"
 cat docker/Dockerfile.build | envsubst | docker build -t $IMAGE_NAME docker -f-
 
 pushd ..
-docker run --rm --tty --interactive --volume "$PWD:/code" --workdir /code $IMAGE_NAME
+docker run --rm --tty --interactive --volume "$PWD:/code" --workdir /code --name $IMAGE_NAME $IMAGE_NAME
 popd

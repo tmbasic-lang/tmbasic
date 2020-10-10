@@ -19,7 +19,7 @@ size_t Record::getHash() const {
     size_t hash = 17;
     auto valuesCount = values.size();
     for (size_t i = 0; i < 5 && i < valuesCount; i++) {
-        hash = hash * 23 + std::hash<uint64_t>{}(values[i].bits);
+        hash = hash * 23 + std::hash<double>{}(values[i].getDouble());
     }
     auto objectsCount = objects.size();
     for (size_t i = 0; i < 5 && i < objectsCount; i++) {
@@ -38,7 +38,7 @@ bool Record::equals(const Object& other) const {
     }
     auto valuesCount = values.size();
     for (size_t i = 0; i < valuesCount; i++) {
-        if (values[i].bits != otherRecord.values[i].bits) {
+        if (values[i].num != otherRecord.values[i].num) {
             return false;
         }
     }

@@ -5,8 +5,10 @@
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/smart_ptr/local_shared_ptr.hpp>
 #include <boost/smart_ptr/make_local_shared.hpp>
+#include <cmath>
 #include <cstdint>
 #include <cstdlib>
+#include <decimal/decimal>
 #include <fstream>
 #include <initializer_list>
 #include <ios>

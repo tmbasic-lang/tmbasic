@@ -1,7 +1,9 @@
 #include "Parser.h"
+#include "core/util/decimal.h"
 
 using namespace basic;
 using namespace compiler;
+using namespace util;
 
 enum class TermType { kAnd, kCapture, kCut, kNonTerminal, kOptional, kOr, kTerminal, kZeroOrMore };
 
@@ -126,7 +128,7 @@ static Term cut() {
 //
 
 template <typename T>
-static std::vector<std::unique_ptr<T>> captureNodeArray(std::unique_ptr<Box>& box) {
+static std::vector<std::unique_ptr<T>> captureNodeArray(std::unique_ptr<Box> box) {
     assert(box->type == BoxType::kNode);
     std::vector<std::unique_ptr<T>> items;
     auto nodeBox = cast<NodeBox>(std::move(box));
@@ -156,19 +158,19 @@ static std::unique_ptr<T> captureSingleNodeOrNull(std::unique_ptr<Box> box) {
     }
 }
 
-static Token captureToken(std::unique_ptr<Box>& box) {
+static Token captureToken(std::unique_ptr<Box> box) {
     assert(box->type == BoxType::kToken);
     auto tokenBox = cast<TokenBox>(std::move(box));
     return tokenBox->values[0];
 }
 
-static std::string captureTokenText(std::unique_ptr<Box>& box) {
-    return captureToken(box).text;
+static std::string captureTokenText(std::unique_ptr<Box> box) {
+    return captureToken(std::move(box)).text;
 }
 
-/*static TokenType captureTokenType(std::unique_ptr<Box>& box) {
-    return captureToken(box).type;
-}*/
+static TokenType captureTokenType(std::unique_ptr<Box> box) {
+    return captureToken(std::move(box)).type;
+}
 
 static std::unique_ptr<NodeBox> nodeBox(Node* node) {
     auto box = std::make_unique<NodeBox>();
@@ -202,7 +204,7 @@ class BodyProduction : public Production {
           }) {}
 
     std::unique_ptr<Box> parse(std::vector<std::unique_ptr<Box>>& captures, const Token& firstToken) override {
-        auto statements = captureNodeArray<StatementNode>(captures[0]);
+        auto statements = captureNodeArray<StatementNode>(std::move(captures[0]));
         auto body = new BodyNode(statements, firstToken);
         return nodeBox(body);
     }
@@ -238,7 +240,7 @@ class ParameterProduction : public Production {
 
     std::unique_ptr<Box> parse(std::vector<std::unique_ptr<Box>>& captures, const Token& firstToken) override {
         auto type = captureSingleNode<TypeNode>(std::move(captures[1]));
-        return nodeBox(new ParameterNode(captureTokenText(captures[0]), std::move(type), firstToken));
+        return nodeBox(new ParameterNode(captureTokenText(std::move(captures[0])), std::move(type), firstToken));
     }
 };
 
@@ -270,7 +272,7 @@ class NamedTypeProduction : public Production {
 
     std::unique_ptr<Box> parse(std::vector<std::unique_ptr<Box>>& captures, const Token& firstToken) override {
         auto type = new TypeNode(Kind::kRecord, firstToken);
-        type->recordName = std::optional(captureTokenText(captures[0]));
+        type->recordName = std::optional(captureTokenText(std::move(captures[0])));
         return nodeBox(type);
     }
 };
@@ -361,11 +363,144 @@ class RecordTypeProduction : public Production {
 
     std::unique_ptr<Box> parse(std::vector<std::unique_ptr<Box>>& captures, const Token& firstToken) override {
         auto type = new TypeNode(Kind::kRecord, firstToken);
-        for (auto& parameter : captureNodeArray<ParameterNode>(captures[0])) {
+        for (auto& parameter : captureNodeArray<ParameterNode>(std::move(captures[0]))) {
             auto field = new FieldNode(parameter->name, std::move(parameter->type), firstToken);
             type->fields.push_back(std::unique_ptr<FieldNode>(field));
         }
         return nodeBox(type);
+    }
+};
+
+class PrimitiveTypeProduction : public Production {
+   public:
+    PrimitiveTypeProduction()
+        : Production({
+              capture(
+                  0,
+                  oneOf({
+                      term(TokenType::kBoolean),
+                      term(TokenType::kNumber),
+                      term(TokenType::kText),
+                      term(TokenType::kDate),
+                      term(TokenType::kDateTime),
+                      term(TokenType::kDateTimeOffset),
+                      term(TokenType::kTimeSpan),
+                  })),
+          }) {}
+
+    std::unique_ptr<Box> parse(std::vector<std::unique_ptr<Box>>& captures, const Token& firstToken) override {
+        Kind k;
+        switch (captureTokenType(std::move(captures[0]))) {
+            case TokenType::kBoolean:
+                k = Kind::kBoolean;
+                break;
+            case TokenType::kNumber:
+                k = Kind::kNumber;
+                break;
+            case TokenType::kText:
+                k = Kind::kText;
+                break;
+            case TokenType::kDate:
+                k = Kind::kDate;
+                break;
+            case TokenType::kDateTime:
+                k = Kind::kDateTime;
+                break;
+            case TokenType::kDateTimeOffset:
+                k = Kind::kDateTimeOffset;
+                break;
+            case TokenType::kTimeSpan:
+                k = Kind::kTimeSpan;
+                break;
+            default:
+                assert(false);
+                k = Kind::kBoolean;
+                break;
+        }
+        auto type = new TypeNode(k, firstToken);
+        return nodeBox(type);
+    }
+};
+
+class TypeProduction : public Production {
+   public:
+    TypeProduction() : Production({}) {}
+
+    void init(
+        const Production* primitiveType,
+        const Production* recordType,
+        const Production* listType,
+        const Production* mapType,
+        const Production* optionalType,
+        const Production* namedType) {
+        terms = {
+            capture(
+                0,
+                oneOf({
+                    prod(primitiveType),
+                    prod(recordType),
+                    prod(listType),
+                    prod(mapType),
+                    prod(optionalType),
+                    prod(namedType),
+                })),
+        };
+    }
+
+    std::unique_ptr<Box> parse(std::vector<std::unique_ptr<Box>>& captures, const Token& firstToken) override {
+        return std::move(captures[0]);
+    }
+};
+
+class LiteralValueProduction : public Production {
+   public:
+    LiteralValueProduction()
+        : Production({
+              capture(
+                  0,
+                  oneOf({
+                      term(TokenType::kBooleanLiteral),
+                      term(TokenType::kNumberLiteral),
+                      term(TokenType::kStringLiteral),
+                  })),
+          }) {}
+
+    std::unique_ptr<Box> parse(std::vector<std::unique_ptr<Box>>& captures, const Token& firstToken) override {
+        auto token = captureToken(std::move(captures[0]));
+        switch (token.type) {
+            case TokenType::kBooleanLiteral: {
+                auto lowercase = boost::algorithm::to_lower_copy(token.text);
+                if (lowercase == "true") {
+                    return nodeBox(new LiteralBooleanExpressionNode(true, firstToken));
+                } else if (lowercase == "false") {
+                    return nodeBox(new LiteralBooleanExpressionNode(false, firstToken));
+                } else {
+                    assert(false);
+                    return {};
+                }
+                break;
+            }
+
+            case TokenType::kNumberLiteral: {
+                return nodeBox(new LiteralNumberExpressionNode(parseDecimalString(token.text), firstToken));
+            }
+
+            case TokenType::kStringLiteral: {
+                auto insidePart = token.text.substr(1, token.text.length() - 2);
+                auto doubleQuote = std::string("\"\"");
+                auto singleQuote = std::string("\"");
+                auto pos = insidePart.find(doubleQuote);
+                while (pos != std::string::npos) {
+                    insidePart.replace(pos, doubleQuote.size(), singleQuote);
+                    pos = insidePart.find(doubleQuote, pos + singleQuote.length());
+                }
+                return nodeBox(new LiteralStringExpressionNode(insidePart, firstToken));
+            }
+
+            default:
+                assert(false);
+                return {};
+        }
     }
 };
 
@@ -387,33 +522,27 @@ class ExpressionProduction : public Production {
     }
 };
 
-class TypeProduction : public Production {
-   public:
-    TypeProduction() : Production({}) {}
-
-    std::unique_ptr<Box> parse(std::vector<std::unique_ptr<Box>>& captures, const Token& firstToken) override {
-        return {};
-    }
-};
-
 namespace compiler {
 class ProductionCollection {
    public:
     ProductionCollection() {
         auto statement = add(new StatementProduction());
         auto expression = add(new ExpressionProduction());
-        auto type = add(new TypeProduction());
+        auto type = dynamic_cast<TypeProduction*>(add(new TypeProduction()));
 
         add(new BodyProduction(statement));
         add(new ArgumentListProduction(expression));
         auto parameter = add(new ParameterProduction(type));
         auto parameterList = add(new ParameterListProduction(parameter));
-        add(new NamedTypeProduction());
+        auto namedType = add(new NamedTypeProduction());
         auto typeWithParentheses = add(new TypeWithParenthesesProduction(type));
-        add(new OptionalTypeProduction(typeWithParentheses));
-        add(new MapTypeProduction(typeWithParentheses));
-        add(new ListTypeProduction(typeWithParentheses));
-        add(new RecordTypeProduction(parameterList));
+        auto optionalType = add(new OptionalTypeProduction(typeWithParentheses));
+        auto mapType = add(new MapTypeProduction(typeWithParentheses));
+        auto listType = add(new ListTypeProduction(typeWithParentheses));
+        auto recordType = add(new RecordTypeProduction(parameterList));
+        auto primitiveType = add(new PrimitiveTypeProduction());
+        type->init(primitiveType, recordType, listType, mapType, optionalType, namedType);
+        add(new LiteralValueProduction());
 
         // TODO: init statement, expression, type
     }
