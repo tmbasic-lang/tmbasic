@@ -96,6 +96,7 @@ class CallExpressionNode : public ExpressionNode {
    public:
     std::string name;
     std::vector<std::unique_ptr<ExpressionNode>> arguments;
+    CallExpressionNode(std::string name, std::vector<std::unique_ptr<ExpressionNode>> arguments, Token token);
 };
 
 class ConstValueExpressionNode : public ExpressionNode {
@@ -114,17 +115,27 @@ class DottedExpressionSuffixNode : public Node {
     std::string name;
     bool isCall;
     std::vector<std::unique_ptr<ExpressionNode>> callArguments;
+    DottedExpressionSuffixNode(
+        std::string name,
+        bool isCall,
+        std::vector<std::unique_ptr<ExpressionNode>> callArguments,
+        Token token);
 };
 
 class DottedExpressionNode : public ExpressionNode {
    public:
     std::unique_ptr<ExpressionNode> base;
     std::vector<std::unique_ptr<DottedExpressionSuffixNode>> dottedSuffixes;
+    DottedExpressionNode(
+        std::unique_ptr<ExpressionNode> base,
+        std::vector<std::unique_ptr<DottedExpressionSuffixNode>> dottedSuffixes,
+        Token token);
 };
 
 class LiteralArrayExpressionNode : public ConstValueExpressionNode {
    public:
     std::vector<std::unique_ptr<ExpressionNode>> elements;
+    LiteralArrayExpressionNode(std::vector<std::unique_ptr<ExpressionNode>> elements, Token token);
 };
 
 class LiteralBooleanExpressionNode : public ConstValueExpressionNode {
@@ -143,11 +154,13 @@ class LiteralRecordFieldNode : public Node {
    public:
     std::string key;
     std::unique_ptr<ExpressionNode> value;
+    LiteralRecordFieldNode(std::string key, std::unique_ptr<ExpressionNode> value, Token token);
 };
 
 class LiteralRecordExpressionNode : public ConstValueExpressionNode {
    public:
     std::vector<std::unique_ptr<LiteralRecordFieldNode>> fields;
+    LiteralRecordExpressionNode(std::vector<std::unique_ptr<LiteralRecordFieldNode>>, Token token);
 };
 
 class LiteralStringExpressionNode : public ConstValueExpressionNode {
@@ -164,11 +177,13 @@ class NotExpressionNode : public ExpressionNode {
 class ParenthesesExpressionNode : public ExpressionNode {
    public:
     std::unique_ptr<ExpressionNode> expression;
+    ParenthesesExpressionNode(std::unique_ptr<ExpressionNode> expression, Token token);
 };
 
 class SymbolReferenceExpressionNode : public ExpressionNode {
    public:
     std::string name;
+    SymbolReferenceExpressionNode(std::string name, Token token);
 };
 
 //

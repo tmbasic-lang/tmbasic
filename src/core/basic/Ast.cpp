@@ -27,3 +27,41 @@ LiteralNumberExpressionNode::LiteralNumberExpressionNode(std::decimal::decimal64
 
 LiteralStringExpressionNode::LiteralStringExpressionNode(std::string value, Token token)
     : ConstValueExpressionNode(token), value(std::move(value)) {}
+
+LiteralRecordFieldNode::LiteralRecordFieldNode(std::string key, std::unique_ptr<ExpressionNode> value, Token token)
+    : Node(token), key(std::move(key)), value(std::move(value)) {}
+
+LiteralRecordExpressionNode::LiteralRecordExpressionNode(
+    std::vector<std::unique_ptr<LiteralRecordFieldNode>>,
+    Token token)
+    : ConstValueExpressionNode(token), fields(std::move(fields)) {}
+
+LiteralArrayExpressionNode::LiteralArrayExpressionNode(
+    std::vector<std::unique_ptr<ExpressionNode>> elements,
+    Token token)
+    : ConstValueExpressionNode(token), elements(std::move(elements)) {}
+
+CallExpressionNode::CallExpressionNode(
+    std::string name,
+    std::vector<std::unique_ptr<ExpressionNode>> arguments,
+    Token token)
+    : ExpressionNode(token), name(std::move(name)), arguments(std::move(arguments)) {}
+
+ParenthesesExpressionNode::ParenthesesExpressionNode(std::unique_ptr<ExpressionNode> expression, Token token)
+    : ExpressionNode(token), expression(std::move(expression)) {}
+
+SymbolReferenceExpressionNode::SymbolReferenceExpressionNode(std::string name, Token token)
+    : ExpressionNode(token), name(std::move(name)) {}
+
+DottedExpressionSuffixNode::DottedExpressionSuffixNode(
+    std::string name,
+    bool isCall,
+    std::vector<std::unique_ptr<ExpressionNode>> callArguments,
+    Token token)
+    : Node(token), name(std::move(name)), isCall(isCall), callArguments(std::move(callArguments)) {}
+
+DottedExpressionNode::DottedExpressionNode(
+    std::unique_ptr<ExpressionNode> base,
+    std::vector<std::unique_ptr<DottedExpressionSuffixNode>> dottedSuffixes,
+    Token token)
+    : ExpressionNode(token), base(std::move(base)), dottedSuffixes(std::move(dottedSuffixes)) {}

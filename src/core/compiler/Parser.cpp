@@ -481,9 +481,8 @@ class LiteralValueProduction : public Production {
                 break;
             }
 
-            case TokenType::kNumberLiteral: {
+            case TokenType::kNumberLiteral:
                 return nodeBox(new LiteralNumberExpressionNode(parseDecimalString(token.text), firstToken));
-            }
 
             case TokenType::kStringLiteral: {
                 auto insidePart = token.text.substr(1, token.text.length() - 2);
@@ -500,6 +499,180 @@ class LiteralValueProduction : public Production {
             default:
                 assert(false);
                 return {};
+        }
+    }
+};
+
+class LiteralRecordFieldProduction : public Production {
+   public:
+    LiteralRecordFieldProduction(const Production* expression)
+        : Production({
+              capture(0, term(TokenType::kIdentifier)),
+              cut(),
+              term(TokenType::kColon),
+              capture(1, prod(expression)),
+          }) {}
+
+    std::unique_ptr<Box> parse(std::vector<std::unique_ptr<Box>>& captures, const Token& firstToken) override {
+        return nodeBox(new LiteralRecordFieldNode(
+            captureTokenText(std::move(captures[0])), captureSingleNode<ExpressionNode>(std::move(captures[1])),
+            firstToken));
+    }
+};
+
+class LiteralRecordFieldListProduction : public Production {
+   public:
+    LiteralRecordFieldListProduction(const Production* literalRecordField)
+        : Production({
+              optional({
+                  capture(0, prod(literalRecordField)),
+                  cut(),
+                  zeroOrMore({
+                      term(TokenType::kComma),
+                      capture(0, prod(literalRecordField)),
+                  }),
+              }),
+          }) {}
+
+    std::unique_ptr<Box> parse(std::vector<std::unique_ptr<Box>>& captures, const Token& firstToken) override {
+        return std::move(captures[0]);
+    }
+};
+
+class LiteralRecordTermProduction : public Production {
+   public:
+    LiteralRecordTermProduction(const Production* literalRecordFieldList)
+        : Production({
+              term(TokenType::kLeftBrace),
+              cut(),
+              capture(0, prod(literalRecordFieldList)),
+              term(TokenType::kRightBrace),
+          }) {}
+
+    std::unique_ptr<Box> parse(std::vector<std::unique_ptr<Box>>& captures, const Token& firstToken) override {
+        return nodeBox(new LiteralRecordExpressionNode(
+            captureNodeArray<LiteralRecordFieldNode>(std::move(captures[0])), firstToken));
+    }
+};
+
+class LiteralArrayTermProduction : public Production {
+   public:
+    LiteralArrayTermProduction(const Production* argumentList)
+        : Production({
+              term(TokenType::kLeftBracket),
+              cut(),
+              capture(0, prod(argumentList)),
+              term(TokenType::kRightBracket),
+          }) {}
+
+    std::unique_ptr<Box> parse(std::vector<std::unique_ptr<Box>>& captures, const Token& firstToken) override {
+        return nodeBox(
+            new LiteralArrayExpressionNode(captureNodeArray<ExpressionNode>(std::move(captures[0])), firstToken));
+    }
+};
+
+class FunctionCallTermProduction : public Production {
+   public:
+    FunctionCallTermProduction(const Production* argumentList)
+        : Production({
+              capture(0, term(TokenType::kIdentifier)),
+              term(TokenType::kLeftParenthesis),
+              cut(),
+              capture(1, prod(argumentList)),
+              term(TokenType::kRightParenthesis),
+          }) {}
+
+    std::unique_ptr<Box> parse(std::vector<std::unique_ptr<Box>>& captures, const Token& firstToken) override {
+        return nodeBox(new CallExpressionNode(
+            captureTokenText(std::move(captures[0])), captureNodeArray<ExpressionNode>(std::move(captures[1])),
+            firstToken));
+    }
+};
+
+class ParenthesesTermProduction : public Production {
+   public:
+    ParenthesesTermProduction(const Production* expression)
+        : Production({
+              term(TokenType::kLeftParenthesis),
+              cut(),
+              capture(0, prod(expression)),
+              term(TokenType::kRightParenthesis),
+          }) {}
+
+    std::unique_ptr<Box> parse(std::vector<std::unique_ptr<Box>>& captures, const Token& firstToken) override {
+        return nodeBox(
+            new ParenthesesExpressionNode(captureSingleNode<ExpressionNode>(std::move(captures[0])), firstToken));
+    }
+};
+
+class ExpressionTermProduction : public Production {
+   public:
+    ExpressionTermProduction(
+        const Production* literalValue,
+        const Production* parenthesesTerm,
+        const Production* functionCallTerm,
+        const Production* literalArrayTerm,
+        const Production* literalRecordTerm)
+        : Production({
+              oneOf({
+                  capture(0, prod(literalValue)),
+                  capture(0, prod(parenthesesTerm)),
+                  capture(0, prod(functionCallTerm)),
+                  capture(0, prod(literalArrayTerm)),
+                  capture(0, prod(literalRecordTerm)),
+                  capture(1, term(TokenType::kIdentifier)),
+              }),
+          }) {}
+
+    std::unique_ptr<Box> parse(std::vector<std::unique_ptr<Box>>& captures, const Token& firstToken) override {
+        if (hasCapture(captures[0])) {
+            return std::move(captures[0]);
+        } else if (hasCapture(captures[1])) {
+            return nodeBox(new SymbolReferenceExpressionNode(captureTokenText(std::move(captures[2])), firstToken));
+        } else {
+            assert(false);
+            return {};
+        }
+    }
+};
+
+class DottedExpressionSuffixProduction : public Production {
+   public:
+    DottedExpressionSuffixProduction(const Production* argumentList)
+        : Production({
+              term(TokenType::kDot),
+              cut(),
+              capture(0, term(TokenType::kIdentifier)),
+              optional({ term(TokenType::kLeftParenthesis), capture(1, prod(argumentList)),
+                         term(TokenType::kRightParenthesis) }),
+          }) {}
+
+    std::unique_ptr<Box> parse(std::vector<std::unique_ptr<Box>>& captures, const Token& firstToken) override {
+        auto isCall = hasCapture(captures[1]);
+        return nodeBox(new DottedExpressionSuffixNode(
+            captureTokenText(std::move(captures[0])), isCall, captureNodeArray<ExpressionNode>(std::move(captures[1])),
+            firstToken));
+    }
+};
+
+class DottedExpressionProduction : public Production {
+   public:
+    DottedExpressionProduction(const Production* expressionTerm, const Production* dottedExpressionSuffix)
+        : Production({
+              capture(0, prod(expressionTerm)),
+              zeroOrMore({
+                  capture(1, prod(dottedExpressionSuffix)),
+              }),
+          }) {}
+
+    std::unique_ptr<Box> parse(std::vector<std::unique_ptr<Box>>& captures, const Token& firstToken) override {
+        auto dottedSuffixes = captureNodeArray<DottedExpressionSuffixNode>(std::move(captures[1]));
+        if (dottedSuffixes.size() == 0) {
+            return std::move(captures[0]);
+        } else {
+            auto token = dottedSuffixes[0]->token;
+            return nodeBox(new DottedExpressionNode(
+                captureSingleNode<ExpressionNode>(std::move(captures[0])), std::move(dottedSuffixes), token));
         }
     }
 };
@@ -531,7 +704,7 @@ class ProductionCollection {
         auto type = dynamic_cast<TypeProduction*>(add(new TypeProduction()));
 
         add(new BodyProduction(statement));
-        add(new ArgumentListProduction(expression));
+        auto argumentList = add(new ArgumentListProduction(expression));
         auto parameter = add(new ParameterProduction(type));
         auto parameterList = add(new ParameterListProduction(parameter));
         auto namedType = add(new NamedTypeProduction());
@@ -542,9 +715,19 @@ class ProductionCollection {
         auto recordType = add(new RecordTypeProduction(parameterList));
         auto primitiveType = add(new PrimitiveTypeProduction());
         type->init(primitiveType, recordType, listType, mapType, optionalType, namedType);
-        add(new LiteralValueProduction());
+        auto literalValue = add(new LiteralValueProduction());
+        auto literalRecordField = add(new LiteralRecordFieldProduction(expression));
+        auto literalRecordFieldList = add(new LiteralRecordFieldListProduction(literalRecordField));
+        auto literalRecordTerm = add(new LiteralRecordTermProduction(literalRecordFieldList));
+        auto literalArrayTerm = add(new LiteralArrayTermProduction(argumentList));
+        auto functionCallTerm = add(new FunctionCallTermProduction(argumentList));
+        auto parenthesesTerm = add(new ParenthesesTermProduction(expression));
+        auto expressionTerm = add(new ExpressionTermProduction(
+            literalValue, parenthesesTerm, functionCallTerm, literalArrayTerm, literalRecordTerm));
+        auto dottedExpressionSuffix = add(new DottedExpressionSuffixProduction(argumentList));
+        add(new DottedExpressionProduction(expressionTerm, dottedExpressionSuffix));
 
-        // TODO: init statement, expression, type
+        // TODO: init statement, expression
     }
 
    private:
