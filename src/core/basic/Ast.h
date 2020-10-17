@@ -12,6 +12,13 @@ class Node {
     virtual ~Node() = 0;
 };
 
+enum class MemberType { kProcedure, kDimStatement, kConstStatement, kTypeDeclaration };
+
+class Member {
+   public:
+    virtual MemberType getMemberType() = 0;
+};
+
 //
 // types
 //
@@ -84,12 +91,20 @@ class BinaryExpressionSuffixNode : public Node {
    public:
     BinaryOperator binaryOperator;
     std::unique_ptr<ExpressionNode> rightOperand;
+    BinaryExpressionSuffixNode(
+        BinaryOperator binaryOperator,
+        std::unique_ptr<ExpressionNode> rightOperand,
+        Token token);
 };
 
 class BinaryExpressionNode : public ExpressionNode {
    public:
     std::unique_ptr<ExpressionNode> leftOperand;
     std::vector<std::unique_ptr<BinaryExpressionSuffixNode>> binarySuffixes;
+    BinaryExpressionNode(
+        std::unique_ptr<ExpressionNode> leftOperand,
+        std::vector<std::unique_ptr<BinaryExpressionSuffixNode>> binarySuffixes,
+        Token token);
 };
 
 class CallExpressionNode : public ExpressionNode {
@@ -108,6 +123,7 @@ class ConvertExpressionNode : public ExpressionNode {
    public:
     std::unique_ptr<ExpressionNode> value;
     std::unique_ptr<TypeNode> type;
+    ConvertExpressionNode(std::unique_ptr<ExpressionNode> value, std::unique_ptr<TypeNode> type, Token token);
 };
 
 class DottedExpressionSuffixNode : public Node {
@@ -172,6 +188,7 @@ class LiteralStringExpressionNode : public ConstValueExpressionNode {
 class NotExpressionNode : public ExpressionNode {
    public:
     std::unique_ptr<ExpressionNode> operand;
+    NotExpressionNode(std::unique_ptr<ExpressionNode> operand, Token token);
 };
 
 class ParenthesesExpressionNode : public ExpressionNode {
@@ -190,12 +207,29 @@ class SymbolReferenceExpressionNode : public ExpressionNode {
 // statements
 //
 
-class StatementNode : public Node {};
+class StatementNode : public Node {
+   public:
+    StatementNode(Token token);
+};
+
+class AssignLocationSuffixNode : public Node {
+   public:
+    std::optional<std::string> name;
+    std::unique_ptr<ExpressionNode> arrayIndex;  // may be null
+    AssignLocationSuffixNode(std::string name, Token token);
+    AssignLocationSuffixNode(std::unique_ptr<ExpressionNode> arrayIndex, Token token);
+};
 
 class AssignStatementNode : public StatementNode {
    public:
     std::string name;
+    std::vector<std::unique_ptr<AssignLocationSuffixNode>> suffixes;
     std::unique_ptr<ExpressionNode> value;
+    AssignStatementNode(
+        std::string name,
+        std::vector<std::unique_ptr<AssignLocationSuffixNode>> suffixes,
+        std::unique_ptr<ExpressionNode> value,
+        Token token);
 };
 
 class BodyNode : public Node {
@@ -208,19 +242,23 @@ class CallStatementNode : public StatementNode {
    public:
     std::string name;
     std::vector<std::unique_ptr<ExpressionNode>> arguments;
+    CallStatementNode(std::string name, std::vector<std::unique_ptr<ExpressionNode>> arguments, Token token);
 };
 
-class ConstStatementNode : public StatementNode {
+class ConstStatementNode : public StatementNode, public Member {
    public:
     std::string name;
     std::unique_ptr<ConstValueExpressionNode> value;
+    ConstStatementNode(std::string name, std::unique_ptr<ConstValueExpressionNode> value, Token token);
+    MemberType getMemberType() override;
 };
 
-enum class ContinueScope { kDo, kFor, kForEach, kWhile };
+enum class ContinueScope { kDo, kFor, kWhile };
 
 class ContinueStatementNode : public StatementNode {
    public:
     ContinueScope scope;
+    ContinueStatementNode(ContinueScope scope, Token token);
 };
 
 class DimListStatementNode : public StatementNode {
@@ -235,30 +273,55 @@ class DimMapStatementNode : public StatementNode {
     std::unique_ptr<BodyNode> body;
 };
 
-class DimStatementNode : public StatementNode {
+class DimStatementNode : public StatementNode, public Member {
    public:
     std::string name;
-    std::unique_ptr<TypeNode> type;
+    std::unique_ptr<TypeNode> type;         // may be null
     std::unique_ptr<ExpressionNode> value;  // may be null
+    DimStatementNode(std::string name, std::unique_ptr<TypeNode> type, Token token);
+    DimStatementNode(std::string name, std::unique_ptr<ExpressionNode> value, Token token);
+    MemberType getMemberType() override;
+};
+
+enum class CollectionType { kList, kMap };
+
+class DimCollectionStatementNode : public StatementNode {
+   public:
+    std::string name;
+    CollectionType type;
+    std::unique_ptr<BodyNode> body;
+    DimCollectionStatementNode(std::string name, CollectionType type, std::unique_ptr<BodyNode> body, Token token);
 };
 
 enum class DoConditionPosition { kBeforeBody, kAfterBody };
 
 enum class DoConditionType { kWhile, kUntil };
 
-class DoStatementNode : public StatementNode {
+class DoConditionNode : public Node {
    public:
     std::unique_ptr<ExpressionNode> condition;
     DoConditionType conditionType;
-    DoConditionPosition conditionPosition;
-    std::unique_ptr<BodyNode> body;
+    DoConditionNode(std::unique_ptr<ExpressionNode> condition, DoConditionType conditionType, Token token);
 };
 
-enum class ExitScope { kDo, kFor, kForEach, kSelectCase, kTry, kWhile };
+class DoStatementNode : public StatementNode {
+   public:
+    std::unique_ptr<DoConditionNode> condition;
+    DoConditionPosition conditionPosition;
+    std::unique_ptr<BodyNode> body;
+    DoStatementNode(
+        std::unique_ptr<DoConditionNode> condition,
+        DoConditionPosition conditionPosition,
+        std::unique_ptr<BodyNode> body,
+        Token token);
+};
+
+enum class ExitScope { kDo, kFor, kSelectCase, kTry, kWhile };
 
 class ExitStatementNode : public StatementNode {
    public:
     ExitScope scope;
+    ExitStatementNode(ExitScope scope, Token token);
 };
 
 class ForEachStatementNode : public StatementNode {
@@ -266,12 +329,19 @@ class ForEachStatementNode : public StatementNode {
     std::string needleName;
     std::unique_ptr<ExpressionNode> haystack;
     std::unique_ptr<BodyNode> body;
+    ForEachStatementNode(
+        std::string needleName,
+        std::unique_ptr<ExpressionNode> haystack,
+        std::unique_ptr<BodyNode> body,
+        Token token);
 };
 
 class ForStepNode : public Node {
    public:
-    std::optional<int64_t> stepImmediate;
+    std::optional<std::decimal::decimal64> stepImmediate;
     std::unique_ptr<SymbolReferenceExpressionNode> stepConstant;  // may be null
+    ForStepNode(std::decimal::decimal64 stepImmediate, Token token);
+    ForStepNode(std::unique_ptr<SymbolReferenceExpressionNode> stepConstant, Token token);
 };
 
 class ForStatementNode : public StatementNode {
@@ -281,11 +351,19 @@ class ForStatementNode : public StatementNode {
     std::unique_ptr<ExpressionNode> toValue;
     std::unique_ptr<ForStepNode> step;  // may be null
     std::unique_ptr<BodyNode> body;
+    ForStatementNode(
+        std::string loopVariableName,
+        std::unique_ptr<ExpressionNode> fromValue,
+        std::unique_ptr<ExpressionNode> toValue,
+        std::unique_ptr<ForStepNode> step,
+        std::unique_ptr<BodyNode> body,
+        Token token);
 };
 
 class GroupKeyNameNode : public Node {
    public:
     std::string name;
+    GroupKeyNameNode(std::string name, Token token);
 };
 
 class GroupStatementNode : public StatementNode {
@@ -295,12 +373,20 @@ class GroupStatementNode : public StatementNode {
     std::string groupName;
     std::unique_ptr<GroupKeyNameNode> keyName;  // may be null
     std::unique_ptr<BodyNode> body;
+    GroupStatementNode(
+        std::unique_ptr<ExpressionNode> itemExpression,
+        std::unique_ptr<ExpressionNode> groupingExpression,
+        std::string groupName,
+        std::unique_ptr<GroupKeyNameNode> keyName,
+        std::unique_ptr<BodyNode> body,
+        Token token);
 };
 
 class ElseIfNode : public Node {
    public:
     std::unique_ptr<ExpressionNode> condition;
     std::unique_ptr<BodyNode> body;
+    ElseIfNode(std::unique_ptr<ExpressionNode> condition, std::unique_ptr<BodyNode> body, Token token);
 };
 
 class IfStatementNode : public StatementNode {
@@ -309,6 +395,12 @@ class IfStatementNode : public StatementNode {
     std::unique_ptr<BodyNode> body;
     std::vector<std::unique_ptr<ElseIfNode>> elseIfs;
     std::unique_ptr<BodyNode> elseBody;  // may be null
+    IfStatementNode(
+        std::unique_ptr<ExpressionNode> condition,
+        std::unique_ptr<BodyNode> body,
+        std::vector<std::unique_ptr<ElseIfNode>> elseIfs,
+        std::unique_ptr<BodyNode> elseBody,
+        Token token);
 };
 
 class JoinStatementNode : public StatementNode {
@@ -317,42 +409,66 @@ class JoinStatementNode : public StatementNode {
     std::unique_ptr<ExpressionNode> haystack;
     std::unique_ptr<ExpressionNode> joinExpression;
     std::unique_ptr<BodyNode> body;
+    JoinStatementNode(
+        std::string needleName,
+        std::unique_ptr<ExpressionNode> haystack,
+        std::unique_ptr<ExpressionNode> joinExpression,
+        std::unique_ptr<BodyNode> body,
+        Token token);
 };
 
-class RethrowStatementNode : public StatementNode {};
+class RethrowStatementNode : public StatementNode {
+   public:
+    RethrowStatementNode(Token token);
+};
 
 class ReturnStatementNode : public StatementNode {
    public:
     std::unique_ptr<ExpressionNode> expression;  // may be null
+    ReturnStatementNode(std::unique_ptr<ExpressionNode> expression, Token token);
 };
 
 class CaseValueNode : public Node {
    public:
     std::unique_ptr<ExpressionNode> expression;
     std::unique_ptr<ExpressionNode> toExpression;  // may be null
+    CaseValueNode(
+        std::unique_ptr<ExpressionNode> expression,
+        std::unique_ptr<ExpressionNode> toExpression,
+        Token token);
 };
 
 class CaseNode : public Node {
    public:
-    std::unique_ptr<CaseValueNode> values;  // may be null (for default)
+    std::vector<std::unique_ptr<CaseValueNode>> values;
     std::unique_ptr<BodyNode> body;
+    CaseNode(std::vector<std::unique_ptr<CaseValueNode>> values, std::unique_ptr<BodyNode> body, Token token);
 };
 
 class SelectCaseStatementNode : public StatementNode {
    public:
     std::unique_ptr<ExpressionNode> expression;
     std::vector<std::unique_ptr<CaseNode>> cases;
+    SelectCaseStatementNode(
+        std::unique_ptr<ExpressionNode> expression,
+        std::vector<std::unique_ptr<CaseNode>> cases,
+        Token token);
 };
 
 class SelectStatementNode : public StatementNode {
    public:
     std::unique_ptr<ExpressionNode> expression;
     std::unique_ptr<ExpressionNode> toExpression;  // may be null
+    SelectStatementNode(
+        std::unique_ptr<ExpressionNode> expression,
+        std::unique_ptr<ExpressionNode> toExpression,
+        Token token);
 };
 
 class ThrowStatementNode : public StatementNode {
    public:
     std::unique_ptr<ExpressionNode> expression;
+    ThrowStatementNode(std::unique_ptr<ExpressionNode> expression, Token token);
 };
 
 class TryStatementNode : public StatementNode {
@@ -360,15 +476,23 @@ class TryStatementNode : public StatementNode {
     std::unique_ptr<BodyNode> tryBody;
     std::unique_ptr<BodyNode> catchBody;    // may be null
     std::unique_ptr<BodyNode> finallyBody;  // may be null
+    TryStatementNode(
+        std::unique_ptr<BodyNode> tryBody,
+        std::unique_ptr<BodyNode> catchBody,
+        std::unique_ptr<BodyNode> finallyBody,
+        Token token);
 };
 
 class WhileStatementNode : public StatementNode {
    public:
     std::unique_ptr<ExpressionNode> condition;
     std::unique_ptr<BodyNode> body;
+    WhileStatementNode(std::unique_ptr<ExpressionNode> condition, std::unique_ptr<BodyNode> body, Token token);
 };
 
+//
 // members
+//
 
 class ParameterNode : public Node {
    public:
@@ -377,12 +501,38 @@ class ParameterNode : public Node {
     ParameterNode(std::string name, std::unique_ptr<TypeNode> type, Token token);
 };
 
-class ProcedureNode : public Node {
+class ProcedureNode : public Node, public Member {
    public:
     std::string name;
     std::vector<std::unique_ptr<ParameterNode>> parameters;
     std::unique_ptr<TypeNode> returnType;  // null for subroutines
     std::unique_ptr<BodyNode> body;
+    ProcedureNode(
+        std::string name,
+        std::vector<std::unique_ptr<ParameterNode>> parameters,
+        std::unique_ptr<TypeNode> returnType,
+        std::unique_ptr<BodyNode> body,
+        Token token);
+    ProcedureNode(
+        std::string name,
+        std::vector<std::unique_ptr<ParameterNode>> parameters,
+        std::unique_ptr<BodyNode> body,
+        Token token);
+    MemberType getMemberType() override;
+};
+
+class TypeDeclarationNode : public Node, public Member {
+   public:
+    std::string name;
+    std::vector<std::unique_ptr<ParameterNode>> fields;
+    TypeDeclarationNode(std::string name, std::vector<std::unique_ptr<ParameterNode>> fields, Token token);
+    MemberType getMemberType() override;
+};
+
+class ProgramNode : public Node {
+   public:
+    std::vector<std::unique_ptr<Member>> members;
+    ProgramNode(std::vector<std::unique_ptr<Member>> members, Token token);
 };
 
 }  // namespace basic

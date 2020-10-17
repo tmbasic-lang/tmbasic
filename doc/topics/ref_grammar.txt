@@ -12,9 +12,12 @@ TypeDeclaration ::= "type" identifier "\n" (Parameter "\n")* "end" "type" "\n"
 Statement ::= DeclarationStatement | BlockStatement | CommandStatement
 @
 
-h2[Block Statements]
+h2[Statements]
 code@
-BlockStatement ::= ForStatement | ForEachStatement | WhileStatement | DoStatement | IfStatement | JoinStatement | GroupStatement | SelectCaseStatement
+Statement ::= CommandStatement | ForStatement | ForEachStatement | WhileStatement | DoStatement | IfStatement | JoinStatement | GroupStatement | SelectCaseStatement | TryStatement | DimStatement | DimCollectionStatement | ConstStatement
+CommandStatement ::= AssignStatement | SelectStatement | ReturnStatement | CallStatement | ContinueStatement | ExitStatement | ThrowStatement | RethrowStatement
+AssignStatement ::= identifier AssignLocationSuffix* "=" expression "\n"
+AssignLocationSuffix ::= "." identifier | "(" expression ")"
 ForStatement ::= "for" identifier "=" Expression "to" Expression ForStep? "\n" Body "next" "\n"
 ForStep ::= "step" (number | identifier)
 ForEachStatement ::= "for" "each" identifier "in" Expression "\n" Body "next" "\n"
@@ -31,23 +34,19 @@ Case ::= "case" (CaseValueList | "else") "\n" Body
 CaseValueList ::= CaseValue ("," CaseValue)*
 CaseValue ::= Expression ("to" Expression)?
 DeclarationStatement ::= DimStatement | ConstStatement
-DimStatement ::= "dim" identifier "as" Type "\n"
+TryStatement ::= "try" "\n" Body CatchBlock? FinallyBlock? "end" "try"
+CatchBlock ::= "catch" "\n" Body
+FinallyBlock ::= "finally" "\n" Body
+DimStatement ::= "dim" identifier ("as" Type | "=" expression) "\n"
+DimCollectionStatement ::= "dim" ("list" | "map") identifier "\n" Body "end" "dim" "\n"
 ConstStatement ::= "const" identifier "=" LiteralValue "\n"
-@
-
-h2[Command Statements]
-code@
-CommandStatement ::= SelectStatement | ReturnStatement | CallStatement | ContinueStatement | ExitStatement | ThrowStatement | RethrowStatement | TryStatement
 SelectStatement ::= "select" Expression ("to" Expression)? "\n"
 ReturnStatement ::= "return" Expression? "\n"
-CallStatement ::= identifier ArgumentList PipeSuffix* "\n"
+CallStatement ::= identifier ArgumentList "\n"
 ContinueStatement ::= "continue" ("do" | "for" | "while") "\n"
 ExitStatement ::= "exit" ("do" | "for" | "select" | "try" | "while") "\n"
 ThrowStatement ::= "throw" Expression "\n"
 RethrowStatement ::= "rethrow" "\n"
-TryStatement ::= "try" "\n" Body CatchBlock? FinallyBlock? "end" "try"
-CatchBlock ::= "catch" "\n" Body
-FinallyBlock ::= "finally" "\n" Body
 @
 
 h2[Expressions]

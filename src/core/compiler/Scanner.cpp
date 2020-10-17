@@ -292,7 +292,9 @@ TokenType Scanner::classifyToken(const std::string& text) {
                 }
                 break;
             case 'e':
-                if (lc == "else") {
+                if (lc == "each") {
+                    return TokenType::kEach;
+                } else if (lc == "else") {
                     return TokenType::kElse;
                 } else if (lc == "end") {
                     return TokenType::kEnd;

@@ -51,6 +51,7 @@ enum class TokenType {
     kDateTimeOffset,
     kDim,
     kDo,
+    kEach,
     kElse,
     kEnd,
     kExit,
