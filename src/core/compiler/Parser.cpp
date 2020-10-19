@@ -1,5 +1,6 @@
 #include "Parser.h"
 #include "core/util/decimal.h"
+#include "core/util/cast.h"
 
 using namespace basic;
 using namespace compiler;
@@ -23,7 +24,7 @@ class Term {
     Term(TermType type) : type(type) {}
 };
 
-enum class BoxType { kNode, kToken, kType };
+enum class BoxType { kNode, kToken };
 
 class Box {
    public:
@@ -31,54 +32,47 @@ class Box {
     Box(BoxType type) : type(type) {}
     virtual ~Box() = 0;
     virtual size_t count() = 0;
+    virtual void removeAt(size_t index) = 0;
 };
 
 typedef std::array<std::unique_ptr<Box>, kNumCaptures> CaptureArray;
-typedef std::array<int, kNumCaptures> CaptureCountArray;
 
 Box::~Box() {}
 
 class NodeBox : public Box {
    public:
     std::vector<std::unique_ptr<Node>> values;
+
     NodeBox() : Box(BoxType::kNode) {}
     size_t count() override { return values.size(); }
+    void removeAt(size_t index) override { values.erase(values.begin() + index); }
+    void append(NodeBox& other) {
+        for (auto& node : other.values) {
+            values.push_back(std::move(node));
+        }
+    }
 };
 
 class TokenBox : public Box {
    public:
     std::vector<Token> values;
+
     TokenBox() : Box(BoxType::kToken) {}
     size_t count() override { return values.size(); }
+    void removeAt(size_t index) override { values.erase(values.begin() + index); }
+    void append(TokenBox& other) {
+        for (auto& node : other.values) {
+            values.push_back(node);
+        }
+    }
 };
 
 class Production {
    public:
     std::vector<Term> terms;
     Production(std::initializer_list<Term> terms) : terms(terms) {}
-    virtual std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) = 0;
+    virtual std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const = 0;
 };
-
-// dynamic_cast and move into a new unique_ptr
-template <typename TDst, typename TSrc>
-static std::unique_ptr<TDst> convert(std::unique_ptr<TSrc> src) {
-    if (!src) {
-        return {};
-    } else {
-        TDst* dst = &dynamic_cast<TDst&>(*src.get());
-        src.release();
-        return std::unique_ptr<TDst>(dst);
-    }
-}
-
-template <typename TDst, typename TSrc>
-static TDst* cast(std::unique_ptr<TSrc> src) {
-    if (!src) {
-        return nullptr;
-    } else {
-        return &dynamic_cast<TDst&>(*src.get());
-    }
-}
 
 //
 // terms
@@ -150,9 +144,9 @@ static std::vector<std::unique_ptr<T>> captureNodeArray(std::unique_ptr<Box> box
     }
     assert(box->type == BoxType::kNode);
     std::vector<std::unique_ptr<T>> items;
-    auto nodeBox = convert<NodeBox>(std::move(box));
+    auto nodeBox = dynamic_cast_move<NodeBox>(std::move(box));
     for (auto& x : nodeBox->values) {
-        items.push_back(convert<T>(std::move(x)));
+        items.push_back(dynamic_cast_move<T>(std::move(x)));
     }
     return items;
 }
@@ -160,8 +154,8 @@ static std::vector<std::unique_ptr<T>> captureNodeArray(std::unique_ptr<Box> box
 template <typename T>
 static std::unique_ptr<T> captureSingleNode(std::unique_ptr<Box> box) {
     assert(box->type == BoxType::kNode);
-    auto nodeBox = convert<NodeBox>(std::move(box));
-    return convert<T>(std::move(nodeBox->values[0]));
+    auto nodeBox = dynamic_cast_move<NodeBox>(std::move(box));
+    return dynamic_cast_move<T>(std::move(nodeBox->values[0]));
 }
 
 static bool hasCapture(std::unique_ptr<Box>& box) {
@@ -179,7 +173,7 @@ static std::unique_ptr<T> captureSingleNodeOrNull(std::unique_ptr<Box> box) {
 
 static Token captureToken(std::unique_ptr<Box> box) {
     assert(box->type == BoxType::kToken);
-    auto tokenBox = convert<TokenBox>(std::move(box));
+    auto tokenBox = dynamic_cast_move<TokenBox>(std::move(box));
     return tokenBox->values[0];
 }
 
@@ -203,17 +197,11 @@ static std::unique_ptr<NodeBox> nodeBox(Node* node) {
     return box;
 }
 
-/*static std::unique_ptr<NodeBox> nodeBox(std::vector<std::unique_ptr<Node>>& node) {
-    auto box = std::make_unique<NodeBox>();
-    box->values = std::move(node);
-    return box;
-}*/
-
-/*static std::unique_ptr<TokenBox> tokenBox(Token token) {
+static std::unique_ptr<TokenBox> tokenBox(Token token) {
     auto box = std::make_unique<TokenBox>();
     box->values.push_back(token);
     return box;
-}*/
+}
 
 //
 // helpers
@@ -283,7 +271,7 @@ class BodyProduction : public Production {
               }),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         auto statements = captureNodeArray<StatementNode>(std::move(captures[0]));
         auto body = new BodyNode(statements, firstToken);
         return nodeBox(body);
@@ -303,7 +291,7 @@ class ArgumentListProduction : public Production {
               }),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return std::move(captures[0]);
     }
 };
@@ -318,7 +306,7 @@ class ParameterProduction : public Production {
               capture(1, prod(type)),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         auto type = captureSingleNode<TypeNode>(std::move(captures[1]));
         return nodeBox(new ParameterNode(captureTokenText(std::move(captures[0])), std::move(type), firstToken));
     }
@@ -338,7 +326,7 @@ class ParameterListProduction : public Production {
               }),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return std::move(captures[0]);
     }
 };
@@ -350,7 +338,7 @@ class NamedTypeProduction : public Production {
               capture(0, term(TokenType::kIdentifier)),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         auto type = new TypeNode(Kind::kRecord, firstToken);
         type->recordName = std::optional(captureTokenText(std::move(captures[0])));
         return nodeBox(type);
@@ -372,7 +360,7 @@ class TypeWithParenthesesProduction : public Production {
               }),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return std::move(captures[0]);
     }
 };
@@ -386,7 +374,7 @@ class OptionalTypeProduction : public Production {
               capture(0, prod(typeWithParentheses)),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         auto type = new TypeNode(Kind::kOptional, firstToken);
         type->optionalValueType = std::move(captureSingleNode<TypeNode>(std::move(captures[0])));
         return nodeBox(type);
@@ -405,7 +393,7 @@ class MapTypeProduction : public Production {
               capture(1, prod(typeWithParentheses)),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         auto type = new TypeNode(Kind::kMap, firstToken);
         type->mapKeyType = std::move(captureSingleNode<TypeNode>(std::move(captures[0])));
         type->mapValueType = std::move(captureSingleNode<TypeNode>(std::move(captures[1])));
@@ -423,7 +411,7 @@ class ListTypeProduction : public Production {
               capture(0, prod(typeWithParentheses)),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         auto type = new TypeNode(Kind::kList, firstToken);
         type->listItemType = std::move(captureSingleNode<TypeNode>(std::move(captures[0])));
         return nodeBox(type);
@@ -441,7 +429,7 @@ class RecordTypeProduction : public Production {
               term(TokenType::kRightParenthesis),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         auto type = new TypeNode(Kind::kRecord, firstToken);
         for (auto& parameter : captureNodeArray<ParameterNode>(std::move(captures[0]))) {
             auto field = new FieldNode(parameter->name, std::move(parameter->type), firstToken);
@@ -468,7 +456,7 @@ class PrimitiveTypeProduction : public Production {
                   })),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         Kind k;
         switch (captureTokenType(std::move(captures[0]))) {
             case TokenType::kBoolean:
@@ -527,7 +515,7 @@ class TypeProduction : public Production {
         };
     }
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return std::move(captures[0]);
     }
 };
@@ -545,7 +533,7 @@ class LiteralValueProduction : public Production {
                   })),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         auto token = captureToken(std::move(captures[0]));
         switch (token.type) {
             case TokenType::kBooleanLiteral: {
@@ -593,7 +581,7 @@ class LiteralRecordFieldProduction : public Production {
               capture(1, prod(expression)),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return nodeBox(new LiteralRecordFieldNode(
             captureTokenText(std::move(captures[0])), captureSingleNode<ExpressionNode>(std::move(captures[1])),
             firstToken));
@@ -614,7 +602,7 @@ class LiteralRecordFieldListProduction : public Production {
               }),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return std::move(captures[0]);
     }
 };
@@ -629,7 +617,7 @@ class LiteralRecordTermProduction : public Production {
               term(TokenType::kRightBrace),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return nodeBox(new LiteralRecordExpressionNode(
             captureNodeArray<LiteralRecordFieldNode>(std::move(captures[0])), firstToken));
     }
@@ -645,7 +633,7 @@ class LiteralArrayTermProduction : public Production {
               term(TokenType::kRightBracket),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return nodeBox(
             new LiteralArrayExpressionNode(captureNodeArray<ExpressionNode>(std::move(captures[0])), firstToken));
     }
@@ -662,7 +650,7 @@ class FunctionCallTermProduction : public Production {
               term(TokenType::kRightParenthesis),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return nodeBox(new CallExpressionNode(
             captureTokenText(std::move(captures[0])), captureNodeArray<ExpressionNode>(std::move(captures[1])),
             firstToken));
@@ -679,7 +667,7 @@ class ParenthesesTermProduction : public Production {
               term(TokenType::kRightParenthesis),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return nodeBox(
             new ParenthesesExpressionNode(captureSingleNode<ExpressionNode>(std::move(captures[0])), firstToken));
     }
@@ -704,7 +692,7 @@ class ExpressionTermProduction : public Production {
               }),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         if (hasCapture(captures[0])) {
             return std::move(captures[0]);
         } else if (hasCapture(captures[1])) {
@@ -730,7 +718,7 @@ class DottedExpressionSuffixProduction : public Production {
               }),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         auto isCall = hasCapture(captures[1]);
         return nodeBox(new DottedExpressionSuffixNode(
             captureTokenText(std::move(captures[0])), isCall, captureNodeArray<ExpressionNode>(std::move(captures[1])),
@@ -748,7 +736,7 @@ class DottedExpressionProduction : public Production {
               }),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         auto dottedSuffixes = captureNodeArray<DottedExpressionSuffixNode>(std::move(captures[1]));
         if (dottedSuffixes.size() == 0) {
             return std::move(captures[0]);
@@ -771,7 +759,7 @@ class ConvertExpressionProduction : public Production {
               }),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         if (hasCapture(captures[1])) {
             auto token = captureTokenNoMove(captures[1].get());
             return nodeBox(new ConvertExpressionNode(
@@ -793,7 +781,7 @@ class UnaryExpressionProduction : public Production {
               capture(1, prod(convertExpression)),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         if (hasCapture(captures[0])) {
             return nodeBox(
                 new NotExpressionNode(captureSingleNode<ExpressionNode>(std::move(captures[1])), firstToken));
@@ -817,7 +805,7 @@ class MultiplyExpressionSuffixProduction : public Production {
               capture(1, prod(unaryExpression)),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return parseBinaryExpressionSuffix(captures, firstToken);
     }
 };
@@ -832,7 +820,7 @@ class MultiplyExpressionProduction : public Production {
               }),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return parseBinaryExpression(captures, firstToken);
     }
 };
@@ -850,7 +838,7 @@ class AddExpressionSuffixProduction : public Production {
               capture(1, prod(multiplyExpression)),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return parseBinaryExpressionSuffix(captures, firstToken);
     }
 };
@@ -865,7 +853,7 @@ class AddExpressionProduction : public Production {
               }),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return parseBinaryExpression(captures, firstToken);
     }
 };
@@ -885,7 +873,7 @@ class InequalityExpressionSuffixProduction : public Production {
               capture(1, prod(addExpression)),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return parseBinaryExpressionSuffix(captures, firstToken);
     }
 };
@@ -900,7 +888,7 @@ class InequalityExpressionProduction : public Production {
               }),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return parseBinaryExpression(captures, firstToken);
     }
 };
@@ -918,7 +906,7 @@ class EqualityExpressionSuffixProduction : public Production {
               capture(1, prod(inequalityExpression)),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return parseBinaryExpressionSuffix(captures, firstToken);
     }
 };
@@ -933,7 +921,7 @@ class EqualityExpressionProduction : public Production {
               }),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return parseBinaryExpression(captures, firstToken);
     }
 };
@@ -946,7 +934,7 @@ class AndExpressionSuffixProduction : public Production {
               capture(1, prod(equalityExpression)),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return parseBinaryExpressionSuffix(captures, firstToken);
     }
 };
@@ -961,7 +949,7 @@ class AndExpressionProduction : public Production {
               }),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return parseBinaryExpression(captures, firstToken);
     }
 };
@@ -974,7 +962,7 @@ class OrExpressionSuffixProduction : public Production {
               capture(1, prod(andExpression)),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return parseBinaryExpressionSuffix(captures, firstToken);
     }
 };
@@ -989,7 +977,7 @@ class OrExpressionProduction : public Production {
               }),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return parseBinaryExpression(captures, firstToken);
     }
 };
@@ -1000,7 +988,7 @@ class ExpressionProduction : public Production {
 
     void init(const Production* orExpression) { terms = { capture(0, prod(orExpression)) }; }
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return std::move(captures[0]);
     }
 };
@@ -1015,7 +1003,7 @@ class FinallyBlockProduction : public Production {
               capture(0, prod(body)),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return std::move(captures[0]);
     }
 };
@@ -1030,7 +1018,7 @@ class CatchBlockProduction : public Production {
               capture(0, prod(body)),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return std::move(captures[0]);
     }
 };
@@ -1051,7 +1039,7 @@ class TryStatementProduction : public Production {
               }),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return nodeBox(new TryStatementNode(
             captureSingleNode<BodyNode>(std::move(captures[0])),
             captureSingleNodeOrNull<BodyNode>(std::move(captures[1])),
@@ -1068,7 +1056,7 @@ class RethrowStatementProduction : public Production {
               term(TokenType::kEndOfLine),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return nodeBox(new RethrowStatementNode(firstToken));
     }
 };
@@ -1083,7 +1071,7 @@ class ThrowStatementProduction : public Production {
               term(TokenType::kEndOfLine),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return nodeBox(new ThrowStatementNode(captureSingleNode<ExpressionNode>(std::move(captures[0])), firstToken));
     }
 };
@@ -1105,7 +1093,7 @@ class ExitStatementProduction : public Production {
               term(TokenType::kEndOfLine),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         ExitScope scope;
         switch (captureTokenType(std::move(captures[0]))) {
             case TokenType::kDo:
@@ -1147,7 +1135,7 @@ class ContinueStatementProduction : public Production {
               term(TokenType::kEndOfLine),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         ContinueScope scope;
         switch (captureTokenType(std::move(captures[0]))) {
             case TokenType::kDo:
@@ -1178,7 +1166,7 @@ class CallStatementProduction : public Production {
               term(TokenType::kEndOfLine),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return nodeBox(new CallStatementNode(
             captureTokenText(std::move(captures[0])), captureNodeArray<ExpressionNode>(std::move(captures[1])),
             firstToken));
@@ -1197,7 +1185,7 @@ class ReturnStatementProduction : public Production {
               term(TokenType::kEndOfLine),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return nodeBox(
             new ReturnStatementNode(captureSingleNodeOrNull<ExpressionNode>(std::move(captures[0])), firstToken));
     }
@@ -1218,7 +1206,7 @@ class SelectStatementProduction : public Production {
               term(TokenType::kEndOfLine),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return nodeBox(new SelectStatementNode(
             captureSingleNode<ExpressionNode>(std::move(captures[0])),
             captureSingleNodeOrNull<ExpressionNode>(std::move(captures[1])), firstToken));
@@ -1237,7 +1225,7 @@ class ConstStatementProduction : public Production {
               term(TokenType::kEndOfLine),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         auto token = captureTokenNoMove(captures[0].get());
         return nodeBox(new ConstStatementNode(
             captureTokenText(std::move(captures[0])),
@@ -1262,7 +1250,7 @@ class AssignLocationSuffixProduction : public Production {
               }),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         if (hasCapture(captures[0])) {
             return nodeBox(new AssignLocationSuffixNode(captureTokenText(std::move(captures[0])), firstToken));
         } else {
@@ -1285,7 +1273,7 @@ class AssignStatementProduction : public Production {
               term(TokenType::kEndOfLine),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return nodeBox(new AssignStatementNode(
             captureTokenText(std::move(captures[0])),
             captureNodeArray<AssignLocationSuffixNode>(std::move(captures[1])),
@@ -1313,7 +1301,7 @@ class DimStatementProduction : public Production {
               term(TokenType::kEndOfLine),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         if (hasCapture(captures[1])) {
             return nodeBox(new DimStatementNode(
                 captureTokenText(std::move(captures[0])), captureSingleNode<TypeNode>(std::move(captures[1])),
@@ -1345,7 +1333,7 @@ class DimCollectionStatementProduction : public Production {
               term(TokenType::kEndOfLine),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         CollectionType type;
         switch (captureTokenType(std::move(captures[0]))) {
             case TokenType::kList:
@@ -1376,7 +1364,7 @@ class CaseValueProduction : public Production {
               }),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return nodeBox(new CaseValueNode(
             captureSingleNode<ExpressionNode>(std::move(captures[0])),
             captureSingleNodeOrNull<ExpressionNode>(std::move(captures[1])), firstToken));
@@ -1394,7 +1382,7 @@ class CaseValueListProduction : public Production {
               }),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return std::move(captures[0]);
     }
 };
@@ -1413,7 +1401,7 @@ class CaseProduction : public Production {
               capture(1, prod(body)),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return nodeBox(new CaseNode(
             captureNodeArray<CaseValueNode>(std::move(captures[0])),
             captureSingleNode<BodyNode>(std::move(captures[1])), firstToken));
@@ -1437,7 +1425,7 @@ class SelectCaseStatementProduction : public Production {
               term(TokenType::kEndOfLine),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return nodeBox(new SelectCaseStatementNode(
             captureSingleNode<ExpressionNode>(std::move(captures[0])),
             captureNodeArray<CaseNode>(std::move(captures[1])), firstToken));
@@ -1466,7 +1454,7 @@ class GroupStatementProduction : public Production {
               term(TokenType::kEndOfLine),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         auto groupKeyNameToken = captureTokenNoMove(captures[3].get());
         return nodeBox(new GroupStatementNode(
             captureSingleNode<ExpressionNode>(std::move(captures[0])),
@@ -1493,7 +1481,7 @@ class JoinStatementProduction : public Production {
               term(TokenType::kEndOfLine),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return nodeBox(new JoinStatementNode(
             captureTokenText(std::move(captures[0])), captureSingleNode<ExpressionNode>(std::move(captures[1])),
             captureSingleNode<ExpressionNode>(std::move(captures[2])),
@@ -1515,7 +1503,7 @@ class DoConditionProduction : public Production {
               capture(1, prod(expression)),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         DoConditionType type;
         switch (captureTokenType(std::move(captures[0]))) {
             case TokenType::kWhile:
@@ -1557,7 +1545,7 @@ class DoStatementProduction : public Production {
               term(TokenType::kEndOfLine),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         auto isBefore = hasCapture(captures[0]);
         auto position = isBefore ? DoConditionPosition::kBeforeBody : DoConditionPosition::kAfterBody;
         return nodeBox(new DoStatementNode(
@@ -1578,7 +1566,7 @@ class ElseIfProduction : public Production {
               capture(1, prod(body)),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return nodeBox(new ElseIfNode(
             captureSingleNode<ExpressionNode>(std::move(captures[0])),
             captureSingleNode<BodyNode>(std::move(captures[1])), firstToken));
@@ -1608,7 +1596,7 @@ class IfStatementProduction : public Production {
               term(TokenType::kEndOfLine),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return nodeBox(new IfStatementNode(
             captureSingleNode<ExpressionNode>(std::move(captures[0])),
             captureSingleNode<BodyNode>(std::move(captures[1])), captureNodeArray<ElseIfNode>(std::move(captures[2])),
@@ -1629,7 +1617,7 @@ class WhileStatementProduction : public Production {
               term(TokenType::kEndOfLine),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return nodeBox(new WhileStatementNode(
             captureSingleNode<ExpressionNode>(std::move(captures[0])),
             captureSingleNode<BodyNode>(std::move(captures[1])), firstToken));
@@ -1651,7 +1639,7 @@ class ForEachStatementProduction : public Production {
               term(TokenType::kEndOfLine),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return nodeBox(new ForEachStatementNode(
             captureTokenText(std::move(captures[0])), captureSingleNode<ExpressionNode>(std::move(captures[1])),
             captureSingleNode<BodyNode>(std::move(captures[2])), firstToken));
@@ -1672,7 +1660,7 @@ class ForStepProduction : public Production {
                   })),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         auto t = captureToken(std::move(captures[0]));
         switch (t.type) {
             case TokenType::kNumberLiteral:
@@ -1706,7 +1694,7 @@ class ForStatementProduction : public Production {
               term(TokenType::kEndOfLine),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return nodeBox(new ForStatementNode(
             captureTokenText(std::move(captures[0])), captureSingleNode<ExpressionNode>(std::move(captures[1])),
             captureSingleNode<ExpressionNode>(std::move(captures[2])),
@@ -1741,7 +1729,7 @@ class CommandStatementProduction : public Production {
                   })),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return std::move(captures[0]);
     }
 };
@@ -1783,7 +1771,7 @@ class StatementProduction : public Production {
         };
     }
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return std::move(captures[0]);
     }
 };
@@ -1805,7 +1793,7 @@ class TypeDeclarationProduction : public Production {
               term(TokenType::kEndOfLine),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return nodeBox(new TypeDeclarationNode(
             captureTokenText(std::move(captures[0])), captureNodeArray<ParameterNode>(std::move(captures[1])),
             firstToken));
@@ -1831,7 +1819,7 @@ class FunctionProduction : public Production {
               term(TokenType::kEndOfLine),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return nodeBox(new ProcedureNode(
             captureTokenText(std::move(captures[0])), captureNodeArray<ParameterNode>(std::move(captures[1])),
             captureSingleNode<TypeNode>(std::move(captures[2])), captureSingleNode<BodyNode>(std::move(captures[3])),
@@ -1856,7 +1844,7 @@ class SubroutineProduction : public Production {
               term(TokenType::kEndOfLine),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return nodeBox(new ProcedureNode(
             captureTokenText(std::move(captures[0])), captureNodeArray<ParameterNode>(std::move(captures[1])),
             captureSingleNode<BodyNode>(std::move(captures[2])), firstToken));
@@ -1883,7 +1871,7 @@ class MemberProduction : public Production {
                   })),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return std::move(captures[0]);
     }
 };
@@ -1897,7 +1885,7 @@ class ProgramProduction : public Production {
               }),
           }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) override {
+    std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return std::move(captures[0]);
     }
 };
@@ -2007,30 +1995,285 @@ class ProductionCollection {
 class InputState {
    public:
     const std::vector<Token>& tokens;
-    int tokenIndex;
+    size_t tokenIndex;
+
+    InputState(const std::vector<Token>& tokens)
+        : tokens(tokens), tokenIndex(0), _endOfFileToken(Token(-1, 0, TokenType::kEndOfFile, "")) {}
+
+    const Token& currentToken() {
+        if (tokenIndex < tokens.size()) {
+            return tokens[tokenIndex];
+        } else {
+            return _endOfFileToken;
+        }
+    }
+
+   private:
+    const Token _endOfFileToken;
 };
 
 class ProductionState {
    public:
     bool cutHasBeenHit;
     CaptureArray captures;
+
+    ProductionState() : cutHasBeenHit(false), captures({}) {}
+
+    std::array<int, kNumCaptures> captureCounts() const {
+        std::array<int, kNumCaptures> counts;
+        for (auto i = 0; i < kNumCaptures; i++) {
+            counts[i] = captures[i]->count();
+        }
+        return counts;
+    }
 };
 
 class Checkpoint {
    public:
-    InputState inputState;
-    ProductionState productionState;
-    CaptureCountArray captureCounts;
+    Checkpoint(const InputState& inputState, const ProductionState& productionState)
+        : _tokenIndex(inputState.tokenIndex),
+          _cutHasBeenHit(productionState.cutHasBeenHit),
+          _captureCounts(productionState.captureCounts()) {}
+
+    void revert(InputState& inputState, ProductionState& productionState) {
+        inputState.tokenIndex = _tokenIndex;
+        productionState.cutHasBeenHit = _cutHasBeenHit;
+        for (auto i = 0; i < kNumCaptures; i++) {
+            trimCaptures(productionState.captures[i].get(), _captureCounts[i]);
+        }
+    }
+
+   private:
+    const int _tokenIndex;
+    const bool _cutHasBeenHit;
+    const std::array<int, kNumCaptures> _captureCounts;
+
+    void trimCaptures(Box* box, size_t desiredCount) {
+        while (box->count() > desiredCount) {
+            box->removeAt(box->count() - 1);
+        }
+    }
+};
+
+class TermResult {
+   public:
+    bool isMatch;
+    bool isError;
+    const Term* mismatchedTerm;
+    std::optional<Token> token;
+    std::unique_ptr<Box> box;
+
+    static TermResult success() { return TermResult(true, false, nullptr, {}, {}); }
+
+    static TermResult success(std::unique_ptr<Box> box) { return TermResult(true, false, nullptr, {}, std::move(box)); }
+
+    static TermResult mismatch(const Term& mismatchedTerm, Token token) {
+        return TermResult(false, false, &mismatchedTerm, token, nullptr);
+    }
+
+    static TermResult error(const Term& mismatchedTerm, Token token) {
+        return TermResult(false, true, &mismatchedTerm, token, nullptr);
+    }
+
+    static TermResult mismatchOrError(const ProductionState& productionState, const Term& mismatchedTerm, Token token) {
+        if (productionState.cutHasBeenHit) {
+            return error(mismatchedTerm, token);
+        } else {
+            return mismatch(mismatchedTerm, token);
+        }
+    }
+
+   private:
+    TermResult(
+        bool isMatch,
+        bool isError,
+        const Term* mismatchedTerm,
+        std::optional<Token> token,
+        std::unique_ptr<Box> box)
+        : isMatch(isMatch), isError(isError), mismatchedTerm(mismatchedTerm), token(token), box(std::move(box)) {}
 };
 
 }  // namespace compiler
 
 Parser::Parser() : _productionCollection(std::make_unique<ProductionCollection>()) {}
 
-std::unique_ptr<basic::ProgramNode> Parser::parseProgram(const std::vector<basic::Token>& tokens) {
-    return {};
+ParserResult::ParserResult(std::string message, Token token)
+    : success(false), message(std::move(message)), token(token) {}
+
+ParserResult::ParserResult(std::unique_ptr<Node> node) : success(true), node(std::move(node)) {}
+
+static Token peekToken(const InputState& inputState) {
+    if (inputState.tokenIndex < inputState.tokens.size()) {
+        return inputState.tokens[inputState.tokenIndex];
+    } else {
+        return Token(-1, 0, TokenType::kEndOfFile, "");
+    }
 }
 
-std::unique_ptr<basic::Member> Parser::parseMember(const std::vector<basic::Token>& tokens) {
-    return {};
+static void acceptToken(InputState& inputState) {
+    inputState.tokenIndex++;
+}
+
+static void appendCapture(std::unique_ptr<Box>& existingBox, std::unique_ptr<Box>& newBox) {
+    switch (existingBox->type) {
+        case BoxType::kNode: {
+            auto existingNodeBox = dynamic_cast_borrow<NodeBox>(existingBox);
+            auto newNodeBox = dynamic_cast_borrow<NodeBox>(newBox);
+            existingNodeBox->append(*newNodeBox);
+            break;
+        }
+
+        case BoxType::kToken: {
+            auto existingTokenBox = dynamic_cast_borrow<TokenBox>(existingBox);
+            auto newTokenBox = dynamic_cast_borrow<TokenBox>(newBox);
+            existingTokenBox->append(*newTokenBox);
+            break;
+        }
+
+        default:
+            assert(false);
+            break;
+    }
+}
+
+static TermResult parseTerm(const Term& term, InputState& inputState, ProductionState& productionState);
+
+static TermResult parseProductionTerm(const Production& production, InputState& inputState) {
+    auto productionState = ProductionState();
+    auto checkpoint = Checkpoint(inputState, productionState);
+    auto firstToken = peekToken(inputState);
+
+    for (const auto& term : production.terms) {
+        auto termResult = parseTerm(term, inputState, productionState);
+        if (!termResult.isMatch) {
+            checkpoint.revert(inputState, productionState);
+            return termResult;
+        }
+    }
+
+    return TermResult::success(std::move(production.parse(productionState.captures, firstToken)));
+}
+
+TermResult parseTerm(const Term& term, InputState& inputState, ProductionState& productionState) {
+    auto checkpoint = Checkpoint(inputState, productionState);
+    switch (term.type) {
+        case TermType::kAnd:
+            for (const auto& subTerm : term.subTerms) {
+                auto subTermResult = parseTerm(subTerm, inputState, productionState);
+                if (!subTermResult.isMatch) {
+                    checkpoint.revert(inputState, productionState);
+                    return subTermResult;
+                }
+            }
+            return TermResult::success();
+
+        case TermType::kCapture: {
+            auto captureResult = parseTerm(term.subTerms[0], inputState, productionState);
+            if (captureResult.isMatch) {
+                appendCapture(productionState.captures[term.captureId], captureResult.box);
+                return TermResult::success();
+            } else {
+                checkpoint.revert(inputState, productionState);
+                return captureResult;
+            }
+        }
+
+        case TermType::kCut:
+            productionState.cutHasBeenHit = true;
+            return TermResult::success();
+
+        case TermType::kNonTerminal:
+            return parseProductionTerm(*term.production, inputState);
+
+        case TermType::kOptional: {
+            for (const auto& subTerm : term.subTerms) {
+                auto subTermResult = parseTerm(subTerm, inputState, productionState);
+                if (!subTermResult.isMatch) {
+                    checkpoint.revert(inputState, productionState);
+                    if (subTermResult.isError) {
+                        return subTermResult;  // it matched up to the cut, so this is an error
+                    } else {
+                        return TermResult::success();  // it's ok, this was optional
+                    }
+                }
+            }
+            return TermResult::success();
+        }
+
+        case TermType::kOr:
+            for (const auto& subTerm : term.subTerms) {
+                auto subTermResult = parseTerm(subTerm, inputState, productionState);
+                if (!subTermResult.isMatch) {
+                    checkpoint.revert(inputState, productionState);
+                }
+                if (subTermResult.isError || subTermResult.isMatch) {
+                    return subTermResult;
+                }
+            }
+            return TermResult::mismatchOrError(productionState, term, inputState.currentToken());
+
+        case TermType::kTerminal: {
+            auto terminalToken = peekToken(inputState);
+            if (term.tokenType == terminalToken.type) {
+                acceptToken(inputState);
+                return TermResult::success(tokenBox(terminalToken));
+            } else {
+                checkpoint.revert(inputState, productionState);
+                return TermResult::mismatchOrError(productionState, term, inputState.currentToken());
+            }
+            break;
+        }
+
+        case TermType::kZeroOrMore: {
+            while (true) {
+                for (const auto& subTerm : term.subTerms) {
+                    auto subTermResult = parseTerm(subTerm, inputState, productionState);
+                    if (!subTermResult.isMatch) {
+                        checkpoint.revert(inputState, productionState);
+                        if (subTermResult.isError) {
+                            return subTermResult;  // it matched up to the cut, so this is an error
+                        } else {
+                            return TermResult::success();  // it's ok, end of the list
+                        }
+                    }
+                }
+            }
+        }
+
+        default:
+            assert(false);
+            return TermResult::success();
+    }
+}
+
+ParserResult parseProduction(const Production& production, InputState& inputState) {
+    auto termResult = parseProductionTerm(production, inputState);
+    if (termResult.isMatch) {
+        auto nodeBox = dynamic_cast_move<NodeBox>(std::move(termResult.box));
+        return ParserResult(std::move(nodeBox->values[0]));
+    } else {
+        // TODO: better error message here based on the mismatching term
+        return ParserResult("This token was unexpected.", termResult.token.value());
+    }
+}
+
+static ParserResult parseRootProduction(const Production& production, const std::vector<basic::Token>& tokens) {
+    auto inputState = InputState(tokens);
+    auto result = parseProduction(production, inputState);
+    if (result.success && inputState.tokenIndex < inputState.tokens.size()) {
+        // the code is good but there is unparsed junk left over
+        return ParserResult(
+            "This token was unexpected. The block should have ended before this token.",
+            inputState.tokens[inputState.tokenIndex]);
+    } else {
+        return result;
+    }
+}
+
+ParserResult Parser::parseProgram(const std::vector<basic::Token>& tokens) {
+    return parseRootProduction(*_productionCollection->programProduction, tokens);
+}
+
+ParserResult Parser::parseMember(const std::vector<basic::Token>& tokens) {
+    return parseRootProduction(*_productionCollection->memberProduction, tokens);
 }

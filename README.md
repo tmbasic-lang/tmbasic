@@ -8,7 +8,7 @@ TMBASIC is tested on:
 ## Build
 The build scripts and instructions assume that the host machine is Ubuntu 18+. AWS instance types `c5a.large` (x64) or `c6g.large` (ARM64) are recommended for building.
 
-The build environment runs in a Docker container. Make sure that Docker is installed and that your user has permission to run `docker`. The following command will prepare a fresh AWS Ubuntu 18.04 instance for building TMBASIC.
+The build environment runs in a Docker container. Make sure that Docker is installed and that your user has permission to run `docker`. The following command will prepare a fresh AWS Ubuntu instance for building TMBASIC.
 
 ```
 sudo apt-get update -y && \
@@ -32,7 +32,7 @@ sudo apt-get install qemu binfmt-support qemu-user-static
 ```
 
 ## Software license
-TMBASIC is open source software. It is comprised of the following components:
+TMBASIC is open source software. The following components are included in the TMBASIC development environment and in builds of user programs.
 
 Component | License
 -- | --
@@ -44,7 +44,7 @@ ncurses | [Ncurses License](ext/ncurses/COPYING)
 [tvision](https://github.com/magiblot/tvision) | [Borland license](ext/tvision/COPYRIGHT) (original code), [MIT license](ext/tvision/COPYRIGHT) (Linux port)
 
 ## Documentation license
-The TMBASIC documentation includes the following components:
+The TMBASIC documentation includes the following components.
 
 Component | License
 -- | --

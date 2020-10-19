@@ -11,7 +11,11 @@ class Token {
     int columnIndex;
     TokenType type;
     std::string text;
-    Token(int lineIndex, int columnIndex, TokenType type, std::string&& text);
+
+    Token(int lineIndex, int columnIndex, TokenType type, std::string text);
+    Token(const Token& other);
+    Token(Token&& other);
+    void operator=(Token&& other);
 };
 
 }  // namespace basic
