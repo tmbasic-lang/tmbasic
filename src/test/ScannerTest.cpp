@@ -6,6 +6,28 @@
 using namespace basic;
 using namespace compiler;
 
+static std::string readFile(std::string filename) {
+    std::ifstream stream("/code/src/test/programs/" + filename);
+    std::ostringstream buffer;
+    buffer << stream.rdbuf();
+    return buffer.str();
+}
+
+static void scanMatch(std::string filenameWithoutExtension) {
+    auto tok = readFile(filenameWithoutExtension + ".tok");
+    auto bas = readFile(filenameWithoutExtension + ".bas");
+    auto tokens = Scanner::tokenize(bas);
+    std::ostringstream s;
+    for (auto token : tokens) {
+        s << NAMEOF_ENUM(token.type) << "(" << token.lineIndex << "," << token.columnIndex << ")"
+          << "\n";
+    }
+    if (tok != s.str()) {
+        std::cout << "Actual:" << std::endl << s.str() << std::endl;
+    }
+    ASSERT_EQ(tok, s.str());
+}
+
 TEST(ScannerTest, IntegerLiteral) {
     auto tokens = Scanner::tokenize("123");
     ASSERT_EQ(TokenType::kNumberLiteral, tokens[0].type);
@@ -127,4 +149,8 @@ TEST(ScannerTest, ForLoop) {
     ASSERT_EQ(TokenType::kNext, tokens[i++].type);
 
     ASSERT_EQ(i, tokens.size());
+}
+
+TEST(ScannerTest, ScanSimpleSub) {
+    scanMatch("SimpleSub");
 }

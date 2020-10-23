@@ -59,4 +59,6 @@
 #include <immer/vector.hpp>
 #include <immer/vector_transient.hpp>
 
+#include <nameof.hpp>
+
 #endif  // _COMMON_H_

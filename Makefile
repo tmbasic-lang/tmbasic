@@ -10,9 +10,11 @@ DOC_FILES=$(shell find doc -type f -name "*.txt") $(shell find doc -type f -name
 EXT_HEADER_FILES=$(shell find ext -type f -name "*.h")
 TVISION_SRC_FILES=$(shell find ext/tvision -type f -name "*.cpp") $(shell find ext/tvision -type f -name "*.h")
 
-# for debugging, override with: make OPTFLAGS='-g -O0'
+# for debugging, override with: OPTFLAGS='-g -O0'
+# to dump AST parse trees, override with: EXTRADEFS='-DDUMP_AST'
+EXTRADEFS=
 OPTFLAGS=-Os -flto
-CXXFLAGS=-Isrc -Iobj -Iext/tvision/include -Iext/immer -Wall -Werror -Winvalid-pch -Wno-unknown-pragmas -Wno-reorder -std=c++17 $(OPTFLAGS)
+CXXFLAGS=-Isrc -Iobj -Iext/tvision/include -Iext/immer -Iext/nameof -Wall -Werror -Winvalid-pch -Wno-unknown-pragmas -Wno-reorder -std=c++17 $(OPTFLAGS) $(EXTRADEFS)
 LDFLAGS=-lstdc++ -lncursesw -ltinfo
 
 .PHONY: all

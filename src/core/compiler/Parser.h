@@ -21,6 +21,7 @@ class ParserResult {
 class Parser {
    public:
     Parser();
+    ~Parser();
     ParserResult parseProgram(const std::vector<basic::Token>& tokens);
     ParserResult parseMember(const std::vector<basic::Token>& tokens);
 

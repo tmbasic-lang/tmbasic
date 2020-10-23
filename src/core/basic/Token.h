@@ -12,6 +12,7 @@ class Token {
     TokenType type;
     std::string text;
 
+    Token();
     Token(int lineIndex, int columnIndex, TokenType type, std::string text);
     Token(const Token& other);
     Token(Token&& other);

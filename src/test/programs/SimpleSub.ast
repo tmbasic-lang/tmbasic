@@ -1,0 +1,6 @@
+ProgramNode
+ members
+  ProcedureNode
+   name=noop
+   body
+    BodyNode

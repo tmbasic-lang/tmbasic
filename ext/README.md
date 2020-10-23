@@ -18,6 +18,11 @@ Source: Ubuntu 20.04 `gcc-10` package
 
 License: `gcc/GPL-3` and `gcc/copyright`
 
+## nameof
+Source: https://github.com/Neargye/nameof/releases/download/v0.9.4/nameof.hpp
+
+License: `nameof/LICENSE.txt`
+
 ## ncurses
 Source: Ubuntu 20.04 `ncurses` package
 
