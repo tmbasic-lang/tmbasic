@@ -19,7 +19,7 @@ size_t Record::getHash() const {
     size_t hash = 17;
     auto valuesCount = values.size();
     for (size_t i = 0; i < 5 && i < valuesCount; i++) {
-        hash = hash * 23 + std::hash<double>{}(values[i].getDouble());
+        hash = hash * 23 + std::hash<int64_t>{}(values[i].num.floor().i64());
     }
     auto objectsCount = objects.size();
     for (size_t i = 0; i < 5 && i < objectsCount; i++) {

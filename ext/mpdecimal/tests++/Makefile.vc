@@ -1,0 +1,70 @@
+
+SRCDIR = ..\libmpdec
+LIBSTATIC = libmpdec-2.5.0.lib
+LIBSHARED = libmpdec-2.5.0.dll
+LIBIMPORT = libmpdec-2.5.0.dll.lib
+
+SRCDIR_CXX = ..\libmpdec++
+LIBSTATIC_CXX = libmpdec++-2.5.0.lib
+
+CXX = cl.exe
+
+!if "$(DEBUG)" == "1"
+OPT = /MTd /Od /Zi /EHsc
+OPT_SHARED = /MDd /Od /Zi /EHsc
+!else
+OPT = /MT /Ox /GS /EHsc
+OPT_SHARED = /MD /Ox /GS /EHsc
+!endif
+
+MPD_CFLAGS = /W4 /wd4200 /wd4204 /wd4221 /D_CRT_SECURE_NO_WARNINGS /nologo $(OPT)
+
+
+default: runtest runtest_alloc apitest
+
+
+# Short test.
+runtest:\
+Makefile runtest.cc $(SRCDIR)\mpdecimal.h $(SRCDIR_CXX)\decimal.hh common.hh \
+malloc_fail.cc malloc_fail.hh $(SRCDIR)\$(LIBSTATIC) $(SRCDIR_CXX)\$(LIBSTATIC_CXX)
+	$(CXX) -I$(SRCDIR) -I$(SRCDIR_CXX) $(MPD_CFLAGS) /Fe:runtest runtest.cc malloc_fail.cc $(SRCDIR_CXX)\$(LIBSTATIC_CXX) $(SRCDIR)\$(LIBSTATIC)
+
+
+# Also test all allocation failures.
+runtest_alloc:\
+Makefile runtest.cc $(SRCDIR)\mpdecimal.h $(SRCDIR_CXX)\decimal.hh common.hh \
+malloc_fail.cc malloc_fail.hh $(SRCDIR)\$(LIBSTATIC) $(SRCDIR_CXX)\$(LIBSTATIC_CXX)
+	$(CXX) -I$(SRCDIR) -I$(SRCDIR_CXX) $(MPD_CFLAGS) /DTEST_ALLOC /Fe:runtest_alloc runtest.cc malloc_fail.cc $(SRCDIR_CXX)\$(LIBSTATIC_CXX) $(SRCDIR)\$(LIBSTATIC)
+
+
+# API test.
+apitest:\
+Makefile apitest.cc $(SRCDIR)\mpdecimal.h $(SRCDIR_CXX)\decimal.hh common.hh \
+$(SRCDIR_CXX)\$(LIBSTATIC_CXX) $(SRCDIR)\$(LIBSTATIC)
+	$(CXX) -I$(SRCDIR) -I$(SRCDIR_CXX) $(MPD_CFLAGS) /Fe:apitest apitest.cc $(SRCDIR_CXX)\$(LIBSTATIC_CXX) $(SRCDIR)\$(LIBSTATIC)
+
+
+FORCE:
+
+clean: FORCE
+	-@if exist *.obj del *.obj
+	-@if exist *.dll del *.dll
+	-@if exist *.exp del *.exp
+	-@if exist *.lib del *.lib
+	-@if exist *.ilk del *.ilk
+	-@if exist *.pdb del *.pdb
+	-@if exist *.pgc del *.pgc
+	-@if exist *.pgd del *.pgd
+	-@if exist *.manifest del *.manifest
+	-@if exist *.exe del *.exe
+	-@if exist runtest del runtest
+	-@if exist runtest del runtest_alloc
+	-@if exist apitest del apitest
+
+distclean: FORCE
+	nmake clean
+	-@if exist testdata rd /q /s testdata
+	-@if exist Makefile del Makefile
+
+
+

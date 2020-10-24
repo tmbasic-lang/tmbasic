@@ -14,7 +14,7 @@ TVISION_SRC_FILES=$(shell find ext/tvision -type f -name "*.cpp") $(shell find e
 # to dump AST parse trees, override with: EXTRADEFS='-DDUMP_AST'
 EXTRADEFS=
 OPTFLAGS=-Os -flto
-CXXFLAGS=-Isrc -Iobj -Iext/tvision/include -Iext/immer -Iext/nameof -Wall -Werror -Winvalid-pch -Wno-unknown-pragmas -Wno-reorder -std=c++17 $(OPTFLAGS) $(EXTRADEFS)
+CXXFLAGS=-Isrc -Iobj -Iext/tvision/include -Iext/immer -Iext/nameof -Iext/mpdecimal/libmpdec -Iext/mpdecimal/libmpdec++ -Wall -Werror -Winvalid-pch -Wno-unknown-pragmas -Wno-reorder -std=c++17 $(OPTFLAGS) $(EXTRADEFS)
 LDFLAGS=-lstdc++ -lncursesw -ltinfo
 
 .PHONY: all
@@ -34,7 +34,24 @@ help:
 
 .PHONY: clean
 clean:
-	rm -rf bin obj obj/tvision valgrind.txt
+	@rm -rf bin obj obj/tvision valgrind.txt \
+		ext/mpdecimal/Makefile \
+		ext/mpdecimal/config.log \
+		ext/mpdecimal/config.status \
+		ext/mpdecimal/config.h \
+		ext/mpdecimal/libmpdec++/Makefile \
+		ext/mpdecimal/libmpdec/Makefile \
+		ext/mpdecimal/libmpdec/mpdecimal.h \
+		ext/mpdecimal/tests++/Makefile \
+		ext/mpdecimal/tests/Makefile \
+		ext/mpdecimal/libmpdec++/.objs/*.o \
+		ext/mpdecimal/libmpdec++/*.o \
+		ext/mpdecimal/libmpdec++/*.a \
+		ext/mpdecimal/libmpdec++/*.so* \
+		ext/mpdecimal/libmpdec/.objs/*.o \
+		ext/mpdecimal/libmpdec/*.o \
+		ext/mpdecimal/libmpdec/*.a \
+		ext/mpdecimal/libmpdec/*.so*
 
 .PHONY: run
 run: bin/tmbasic
@@ -54,7 +71,7 @@ format:
 
 # shared
 
-obj/common.h.gch: src/common.h $(EXT_HEADER_FILES)
+obj/common.h.gch: src/common.h $(EXT_HEADER_FILES) ext/mpdecimal/libmpdec/mpdecimal.h
 	@mkdir -p $(@D)
 	@echo $(CXX) -o $@
 	@$(CXX) $(CXXFLAGS) -x c++-header -o $@ src/common.h
@@ -62,6 +79,7 @@ obj/common.h.gch: src/common.h $(EXT_HEADER_FILES)
 # help
 
 obj/insert-cp437-diagram: doc/insert-cp437-diagram.c
+	@mkdir -p obj
 	@echo $(CC) -o $@
 	@$(CC) -o $@ doc/insert-cp437-diagram.c
 
@@ -90,9 +108,18 @@ obj/tvision/libtvision.a: obj/tvision/Makefile $(TVISION_SRC_FILES)
 	@rm -f obj/tvision/*.a obj/tvision/tv* obj/tvision/hello
 	@cd obj/tvision && $(MAKE)
 
+# mpdecimal
+
+ext/mpdecimal/Makefile:
+	@echo ext/mpdecimal/configure
+	@cd ext/mpdecimal && ./configure
+
+ext/mpdecimal/libmpdec/libmpdec.a ext/mpdecimal/libmpdec++/libmpdec++.a ext/mpdecimal/libmpdec/mpdecimal.h: ext/mpdecimal/Makefile
+	@cd ext/mpdecimal && $(MAKE)
+
 # core
 
-$(CORE_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(INCLUDE_FILES)
+$(CORE_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(INCLUDE_FILES) ext/mpdecimal/libmpdec/mpdecimal.h
 	@mkdir -p $(@D)
 	@echo $(CXX) -o $@
 	@$(CXX) $(CXXFLAGS) -c -include obj/common.h -o $@ $<
@@ -104,24 +131,24 @@ obj/core.a: $(CORE_OBJ_FILES)
 
 # tmbasic
 
-$(TMBASIC_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch obj/helpfile.h bin/help.h32 $(INCLUDE_FILES)
+$(TMBASIC_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch obj/helpfile.h bin/help.h32 $(INCLUDE_FILES) ext/mpdecimal/libmpdec/mpdecimal.h
 	@mkdir -p $(@D)
 	@echo $(CXX) -o $@
 	@$(CXX) $(CXXFLAGS) -c -include obj/common.h -o $@ $<
 
-bin/tmbasic: $(TMBASIC_OBJ_FILES) obj/tvision/libtvision.a obj/core.a obj/common.h.gch obj/helpfile.h bin/help.h32
+bin/tmbasic: $(TMBASIC_OBJ_FILES) obj/tvision/libtvision.a obj/core.a ext/mpdecimal/libmpdec/libmpdec.a ext/mpdecimal/libmpdec++/libmpdec++.a obj/common.h.gch obj/helpfile.h bin/help.h32
 	@mkdir -p $(@D)
 	@echo $(CXX) -o $@
-	@$(CXX) $(CXXFLAGS) -static -include obj/common.h -o $@ $(TMBASIC_OBJ_FILES) obj/core.a obj/tvision/libtvision.a $(LDFLAGS)
+	@$(CXX) $(CXXFLAGS) -static -include obj/common.h -o $@ $(TMBASIC_OBJ_FILES) obj/core.a obj/tvision/libtvision.a ext/mpdecimal/libmpdec/libmpdec.a ext/mpdecimal/libmpdec++/libmpdec++.a $(LDFLAGS)
 
 # test
 
-$(TEST_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch obj/helpfile.h bin/help.h32 $(INCLUDE_FILES)
+$(TEST_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch obj/helpfile.h bin/help.h32 $(INCLUDE_FILES) ext/mpdecimal/libmpdec/mpdecimal.h
 	@mkdir -p $(@D)
 	@echo $(CXX) -o $@
 	@$(CXX) $(CXXFLAGS) -c -include obj/common.h -o $@ $<
 
-bin/test: $(TEST_OBJ_FILES) obj/tvision/libtvision.a obj/core.a obj/common.h.gch obj/helpfile.h bin/help.h32
+bin/test: $(TEST_OBJ_FILES) obj/tvision/libtvision.a obj/core.a ext/mpdecimal/libmpdec/libmpdec.a ext/mpdecimal/libmpdec++/libmpdec++.a obj/common.h.gch obj/helpfile.h bin/help.h32
 	@mkdir -p $(@D)
 	@echo $(CXX) -o $@
-	@$(CXX) $(CXXFLAGS) -include obj/common.h -o $@ $(TEST_OBJ_FILES) obj/core.a obj/tvision/libtvision.a $(LDFLAGS) -lgtest -lgtest_main -lpthread
+	@$(CXX) $(CXXFLAGS) -include obj/common.h -o $@ $(TEST_OBJ_FILES) obj/core.a obj/tvision/libtvision.a ext/mpdecimal/libmpdec/libmpdec.a ext/mpdecimal/libmpdec++/libmpdec++.a $(LDFLAGS) -lgtest -lgtest_main -lpthread

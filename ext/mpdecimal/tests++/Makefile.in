@@ -1,0 +1,63 @@
+
+SRCDIR = ../libmpdec
+LIBSTATIC = @LIBSTATIC@
+LIBSHARED = @LIBSHARED@
+
+SRCDIR_CXX = ../libmpdec++
+LIBSTATIC_CXX = @LIBSTATIC_CXX@
+LIBSHARED_CXX = @LIBSHARED_CXX@
+
+CXX = @CXX@
+
+CONFIGURE_CXXFLAGS = @CONFIGURE_CXXFLAGS@
+CXXFLAGS ?= $(CONFIGURE_CXXFLAGS)
+
+
+default: runtest runtest_shared runtest_alloc runtest_alloc_shared apitest apitest_shared
+
+
+# Short test.
+runtest:\
+Makefile runtest.cc $(SRCDIR)/mpdecimal.h $(SRCDIR_CXX)/decimal.hh common.hh \
+malloc_fail.cc malloc_fail.hh $(SRCDIR)/$(LIBSTATIC) $(SRCDIR_CXX)/$(LIBSTATIC_CXX)
+	$(CXX) -I$(SRCDIR) -I$(SRCDIR_CXX) $(CXXFLAGS) -o runtest runtest.cc malloc_fail.cc $(SRCDIR_CXX)/$(LIBSTATIC_CXX) $(SRCDIR)/$(LIBSTATIC) -lm -pthread
+
+runtest_shared:\
+Makefile runtest.cc $(SRCDIR)/mpdecimal.h $(SRCDIR_CXX)/decimal.hh common.hh \
+malloc_fail.cc malloc_fail.hh $(SRCDIR)/$(LIBSHARED) $(SRCDIR_CXX)/$(LIBSTATIC_CXX)
+	$(CXX) -I$(SRCDIR) -I$(SRCDIR_CXX) -L$(SRCDIR) -L$(SRCDIR_CXX) $(CXXFLAGS) -o runtest_shared runtest.cc malloc_fail.cc -lmpdec++ -lmpdec -lm -pthread
+
+# Also test all allocation failures.
+runtest_alloc:\
+Makefile runtest.cc $(SRCDIR)/mpdecimal.h $(SRCDIR_CXX)/decimal.hh common.hh \
+malloc_fail.cc malloc_fail.hh $(SRCDIR)/$(LIBSTATIC) $(SRCDIR_CXX)/$(LIBSTATIC_CXX)
+	$(CXX) -I$(SRCDIR) -I$(SRCDIR_CXX) $(CXXFLAGS) -DTEST_ALLOC -o runtest_alloc runtest.cc malloc_fail.cc $(SRCDIR_CXX)/$(LIBSTATIC_CXX) $(SRCDIR)/$(LIBSTATIC) -lm -pthread
+
+runtest_alloc_shared:\
+Makefile runtest.cc $(SRCDIR)/mpdecimal.h $(SRCDIR_CXX)/decimal.hh common.hh \
+malloc_fail.cc malloc_fail.hh $(SRCDIR)/$(LIBSHARED) $(SRCDIR_CXX)/$(LIBSTATIC_CXX)
+	$(CXX) -I$(SRCDIR) -I$(SRCDIR_CXX) -L$(SRCDIR) -L$(SRCDIR_CXX) $(CXXFLAGS) -DTEST_ALLOC -o runtest_alloc_shared runtest.cc malloc_fail.cc -lmpdec++ -lmpdec -lm -pthread
+
+# API test.
+apitest:\
+Makefile apitest.cc $(SRCDIR)/mpdecimal.h $(SRCDIR_CXX)/decimal.hh common.hh \
+$(SRCDIR)/$(LIBSTATIC) $(SRCDIR_CXX)/$(LIBSTATIC_CXX)
+	$(CXX) -I$(SRCDIR) -I$(SRCDIR_CXX) $(CXXFLAGS) -o apitest apitest.cc $(SRCDIR_CXX)/$(LIBSTATIC_CXX) $(SRCDIR)/$(LIBSTATIC) -lm -pthread
+
+apitest_shared:\
+Makefile apitest.cc $(SRCDIR)/mpdecimal.h $(SRCDIR_CXX)/decimal.hh common.hh \
+$(SRCDIR)/$(LIBSHARED) $(SRCDIR_CXX)/$(LIBSTATIC_CXX)
+	$(CXX) -I$(SRCDIR) -I$(SRCDIR_CXX) -L$(SRCDIR) -L$(SRCDIR_CXX) $(CXXFLAGS) -o apitest_shared apitest.cc -lmpdec++ -lmpdec -lm -pthread
+
+
+FORCE:
+
+clean: FORCE
+	rm -f *.o *.gch *.gcda *.gcno *.gcov *.dyn *.dpi *.lock
+	rm -f runtest runtest_shared runtest_alloc runtest_alloc_shared apitest apitest_shared
+
+distclean: FORCE
+	$(MAKE) clean
+	rm -rf Makefile dectest.zip testdata
+
+

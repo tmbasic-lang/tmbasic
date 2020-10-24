@@ -18,6 +18,11 @@ Source: Ubuntu 20.04 `gcc-10` package
 
 License: `gcc/GPL-3` and `gcc/copyright`
 
+## mpdecimal
+Source: http://www.bytereef.org/software/mpdecimal/releases/mpdecimal-2.5.0.tar.gz
+
+License: `mpdecimal/LICENSE.txt`
+
 ## nameof
 Source: https://github.com/Neargye/nameof/releases/download/v0.9.4/nameof.hpp
 

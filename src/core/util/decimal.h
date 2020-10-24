@@ -4,7 +4,8 @@
 
 namespace util {
 
-std::decimal::decimal64 parseDecimalString(const std::string& str);
-std::string decimalToString(std::decimal::decimal64 x);
+size_t getDecimalHash(const decimal::Decimal& x);
+decimal::Decimal parseDecimalString(const std::string& str);
+std::string decimalToString(decimal::Decimal x);
 
 }  // namespace util

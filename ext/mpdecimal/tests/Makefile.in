@@ -1,0 +1,49 @@
+
+SRCDIR = ../libmpdec
+LIBSTATIC = @LIBSTATIC@
+LIBSHARED = @LIBSHARED@
+
+CC = @CC@
+AR = @AR@
+
+CONFIGURE_CFLAGS = @CONFIGURE_CFLAGS@
+CFLAGS ?= $(CONFIGURE_CFLAGS)
+
+
+default: runtest runtest_shared runtest_alloc runtest_alloc_shared
+
+
+# Short test.
+runtest:\
+Makefile runtest.c $(SRCDIR)/io.h $(SRCDIR)/mpdecimal.h $(SRCDIR)/mpalloc.h \
+malloc_fail.c malloc_fail.h $(SRCDIR)/$(LIBSTATIC)
+	$(CC) -I$(SRCDIR) $(CFLAGS) -o runtest runtest.c malloc_fail.c $(SRCDIR)/libmpdec.a -lm
+
+runtest_shared:\
+Makefile runtest.c $(SRCDIR)/io.h $(SRCDIR)/mpdecimal.h $(SRCDIR)/mpalloc.h \
+malloc_fail.c malloc_fail.h $(SRCDIR)/$(LIBSHARED)
+	$(CC) -I$(SRCDIR) -L$(SRCDIR) $(CFLAGS) -o runtest_shared runtest.c malloc_fail.c -lmpdec -lm
+
+# Also test all allocation failures.
+runtest_alloc:\
+Makefile runtest.c $(SRCDIR)/io.h $(SRCDIR)/mpdecimal.h $(SRCDIR)/mpalloc.h \
+malloc_fail.c malloc_fail.h $(SRCDIR)/$(LIBSTATIC)
+	$(CC) -I$(SRCDIR) $(CFLAGS) -DTEST_ALLOC -o runtest_alloc runtest.c malloc_fail.c $(SRCDIR)/libmpdec.a -lm
+
+runtest_alloc_shared:\
+Makefile runtest.c $(SRCDIR)/io.h $(SRCDIR)/mpdecimal.h $(SRCDIR)/mpalloc.h \
+malloc_fail.c malloc_fail.h $(SRCDIR)/$(LIBSHARED)
+	$(CC) -I$(SRCDIR) -L$(SRCDIR) $(CFLAGS) -DTEST_ALLOC -o runtest_alloc_shared runtest.c malloc_fail.c -lmpdec -lm
+
+
+FORCE:
+
+clean: FORCE
+	rm -f *.o *.gch *.gcda *.gcno *.gcov *.dyn *.dpi *.lock
+	rm -f runtest runtest_shared runtest_alloc runtest_alloc_shared
+
+distclean: FORCE
+	$(MAKE) clean
+	rm -rf Makefile dectest.zip testdata
+
+

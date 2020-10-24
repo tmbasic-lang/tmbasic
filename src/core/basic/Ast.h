@@ -169,8 +169,8 @@ class LiteralBooleanExpressionNode : public ConstValueExpressionNode {
 
 class LiteralNumberExpressionNode : public ConstValueExpressionNode {
    public:
-    std::decimal::decimal64 value;
-    LiteralNumberExpressionNode(std::decimal::decimal64 value, Token token);
+    decimal::Decimal value;
+    LiteralNumberExpressionNode(decimal::Decimal value, Token token);
     void dump(std::ostringstream& s, int indent) const override;
 };
 
@@ -366,9 +366,9 @@ class ForEachStatementNode : public StatementNode {
 
 class ForStepNode : public Node {
    public:
-    std::optional<std::decimal::decimal64> stepImmediate;
+    std::optional<decimal::Decimal> stepImmediate;
     std::unique_ptr<SymbolReferenceExpressionNode> stepConstant;  // may be null
-    ForStepNode(std::decimal::decimal64 stepImmediate, Token token);
+    ForStepNode(decimal::Decimal stepImmediate, Token token);
     ForStepNode(std::unique_ptr<SymbolReferenceExpressionNode> stepConstant, Token token);
     void dump(std::ostringstream& s, int indent) const override;
 };

@@ -1,0 +1,123 @@
+
+# ==============================================================================
+#                          Unix Makefile for libmpdec++
+# ==============================================================================
+
+
+LIBSTATIC = @LIBSTATIC@
+LIBNAME = @LIBNAME@
+LIBSONAME = @LIBSONAME@
+LIBSHARED = @LIBSHARED@
+
+LIBSTATIC_CXX = @LIBSTATIC_CXX@
+LIBNAME_CXX = @LIBNAME_CXX@
+LIBSONAME_CXX = @LIBSONAME_CXX@
+LIBSHARED_CXX = @LIBSHARED_CXX@
+
+CXX = @CXX@
+LDXX = @LDXX@
+AR = @AR@
+RANLIB = @RANLIB@
+MPD_PGEN = @MPD_PGEN@
+MPD_PUSE = @MPD_PUSE@
+MPD_PREC = @MPD_PREC@
+MPD_DPREC = @MPD_DPREC@
+
+CONFIGURE_CXXFLAGS = @CONFIGURE_CXXFLAGS@
+MPD_CXXFLAGS = $(strip $(CONFIGURE_CXXFLAGS) $(CXXFLAGS))
+MPD_CXXFLAGS_SHARED = $(MPD_CXXFLAGS) -fPIC
+
+CONFIGURE_LDXXFLAGS = @CONFIGURE_LDXXFLAGS@
+MPD_LDXXFLAGS = $(strip $(CONFIGURE_LDXXFLAGS) $(LDXXFLAGS))
+
+ifeq ($(MAKECMDGOALS), profile_gen)
+  MPD_CXXFLAGS += $(MPD_PGEN)
+  MPD_LDXXFLAGS += $(MPD_PGEN)
+endif
+ifeq ($(MAKECMDGOALS), profile_use)
+  MPD_CXXFLAGS += $(MPD_PUSE)
+  MPD_LDXXFLAGS += $(MPD_PUSE)
+endif
+
+
+default: $(LIBSTATIC_CXX) $(LIBSHARED_CXX)
+
+
+OBJS := decimal.o
+SHARED_OBJS := .objs/decimal.o
+
+
+$(LIBSTATIC_CXX): Makefile $(OBJS)
+	$(AR) rc $(LIBSTATIC_CXX) $(OBJS)
+	$(RANLIB) $(LIBSTATIC_CXX)
+
+$(LIBSHARED_CXX): Makefile $(SHARED_OBJS)
+	$(LDXX) $(MPD_LDXXFLAGS) -o $(LIBSHARED_CXX) $(SHARED_OBJS) -lm
+	ln -sf $(LIBSHARED_CXX) $(LIBNAME_CXX)
+	ln -sf $(LIBSHARED_CXX) $(LIBSONAME_CXX)
+
+
+decimal.o:\
+Makefile decimal.cc decimal.hh
+	$(CXX) -I. -I../libmpdec $(MPD_CXXFLAGS) -c decimal.cc
+
+.objs/decimal.o:\
+Makefile decimal.cc decimal.hh
+	$(CXX) -I. -I../libmpdec $(MPD_CXXFLAGS_SHARED) -c decimal.cc -o .objs/decimal.o
+
+
+bench: Makefile bench.cc $(LIBSTATIC_CXX)
+	$(CXX) -I. -I../libmpdec $(MPD_CXXFLAGS) -o bench bench.cc $(LIBSTATIC_CXX) ../libmpdec/$(LIBSTATIC) -lm
+
+bench_full: Makefile bench_full.cc $(LIBSTATIC_CXX)
+	$(CXX) -I. -I../libmpdec $(MPD_CXXFLAGS) -o bench_full bench_full.cc $(LIBSTATIC_CXX) ../libmpdec/$(LIBSTATIC) -lm
+
+bench_shared: Makefile bench.cc $(LIBSHARED_CXX)
+	$(CXX) -I. -I../libmpdec -L. -L../libmpdec $(MPD_CXXFLAGS) -o bench_shared bench.cc -lm -lmpdec++ -lmpdec
+
+bench_full_shared: Makefile bench_full.cc $(LIBSHARED_CXX)
+	$(CXX) -I. -I../libmpdec -L. -L../libmpdec $(MPD_CXXFLAGS) -o bench_full_shared bench_full.cc -lm -lmpdec++ -lmpdec
+
+
+factorial: Makefile examples/factorial.cc $(LIBSTATIC_CXX)
+	$(CXX) -I. -I../libmpdec $(MPD_CXXFLAGS) -o factorial examples/factorial.cc $(LIBSTATIC_CXX) ../libmpdec/$(LIBSTATIC) -lm
+
+pi: Makefile examples/pi.cc $(LIBSTATIC_CXX)
+	$(CXX) -I. -I../libmpdec $(MPD_CXXFLAGS) -o pi examples/pi.cc $(LIBSTATIC_CXX) ../libmpdec/$(LIBSTATIC) -lm
+
+examples: factorial pi
+
+
+profile_gen: clean bench_full bench_shared
+	./bench_full $(MPD_PREC) 1000
+	./bench_full $(MPD_DPREC) 1000
+	LD_32_LIBRARY_PATH=.:../libmpdec LD_LIBRARY_PATH=.:../libmpdec ./bench_shared $(MPD_PREC) 1000000
+	LD_32_LIBRARY_PATH=.:../libmpdec LD_LIBRARY_PATH=.:../libmpdec ./bench_shared $(MPD_DPREC) 1000000
+	rm -f *.o *.gch .objs/*.o .objs/*.gch bench_full bench_shared
+	rm -f $(LIBSTATIC_CXX) $(LIBSHARED_CXX) $(LIBSONAME_CXX) $(LIBNAME_CXX)
+
+profile_use: bench_full bench_shared
+	./bench_full $(MPD_PREC) 1000
+	./bench_full $(MPD_DPREC) 1000
+	LD_32_LIBRARY_PATH=.:../libmpdec LD_LIBRARY_PATH=.:../libmpdec ./bench_shared $(MPD_PREC) 1000000
+	LD_32_LIBRARY_PATH=.:../libmpdec LD_LIBRARY_PATH=.:../libmpdec ./bench_shared $(MPD_DPREC) 1000000
+
+profile:
+	$(MAKE) profile_gen
+	$(MAKE) profile_use
+
+
+check: default
+	cd ../tests++ && $(MAKE) && ./runshort.sh
+
+check_alloc: default
+	cd ../tests++ && $(MAKE) && ./runshort_alloc.sh
+
+
+clean:
+	rm -f *.o *.so *.gch *.gcda *.gcno *.gcov *.dyn *.dpi *.lock
+	rm -f bench bench_shared bench_full bench_full_shared factorial pi $(LIBSTATIC_CXX) $(LIBSHARED_CXX) $(LIBSONAME_CXX) $(LIBNAME_CXX)
+	cd .objs && rm -f *.o *.so *.gch *.gcda *.gcno *.gcov *.dyn *.dpi *.lock
+
+distclean: clean
+	rm -f Makefile

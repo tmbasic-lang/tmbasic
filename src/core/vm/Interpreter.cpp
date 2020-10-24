@@ -921,7 +921,7 @@ bool Interpreter::run(int maxCycles) {
                 FloatValue strLength = str.value.length();
                 auto intA = a.getInt64();
                 if (intA >= 0 && intA < strLength) {
-                    a.num = str.value[intA];
+                    a.num = static_cast<int>(str.value[intA]);
                 } else {
                     a.num = -1;
                 }

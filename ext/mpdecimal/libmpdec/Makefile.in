@@ -1,0 +1,254 @@
+
+# ==============================================================================
+#                          Unix Makefile for libmpdec
+# ==============================================================================
+
+
+LIBSTATIC = @LIBSTATIC@
+LIBNAME = @LIBNAME@
+LIBSONAME = @LIBSONAME@
+LIBSHARED = @LIBSHARED@
+
+CC = @CC@
+LD = @LD@
+AR = @AR@
+RANLIB = @RANLIB@
+MPD_PGEN = @MPD_PGEN@
+MPD_PUSE = @MPD_PUSE@
+MPD_PREC = @MPD_PREC@
+MPD_DPREC = @MPD_DPREC@
+
+CONFIGURE_CFLAGS = @CONFIGURE_CFLAGS@
+MPD_CFLAGS = $(strip $(CONFIGURE_CFLAGS) $(CFLAGS))
+MPD_CFLAGS_SHARED = $(MPD_CFLAGS) -fPIC
+
+CONFIGURE_LDFLAGS = @CONFIGURE_LDFLAGS@
+MPD_LDFLAGS = $(strip $(CONFIGURE_LDFLAGS) $(LDFLAGS))
+
+ifeq ($(MAKECMDGOALS), profile_gen)
+  MPD_CFLAGS += $(MPD_PGEN)
+  MPD_LDFLAGS += $(MPD_PGEN)
+endif
+ifeq ($(MAKECMDGOALS), profile_use)
+  MPD_CFLAGS += $(MPD_PUSE)
+  MPD_LDFLAGS += $(MPD_PUSE)
+endif
+
+
+default: $(LIBSTATIC) $(LIBSHARED)
+
+
+OBJS := basearith.o context.o constants.o convolute.o crt.o mpdecimal.o \
+        mpsignal.o difradix2.o fnt.o fourstep.o io.o mpalloc.o numbertheory.o \
+        sixstep.o transpose.o
+
+SHARED_OBJS := .objs/basearith.o .objs/context.o .objs/constants.o \
+               .objs/convolute.o .objs/crt.o .objs/mpdecimal.o .objs/mpsignal.o \
+               .objs/difradix2.o .objs/fnt.o .objs/fourstep.o .objs/io.o \
+               .objs/mpalloc.o .objs/numbertheory.o .objs/sixstep.o \
+               .objs/transpose.o
+
+$(LIBSTATIC): Makefile $(OBJS)
+	$(AR) rc $(LIBSTATIC) $(OBJS)
+	$(RANLIB) $(LIBSTATIC)
+
+$(LIBSHARED): Makefile $(SHARED_OBJS)
+	$(LD) $(MPD_LDFLAGS) -o $(LIBSHARED) $(SHARED_OBJS) -lm
+	ln -sf $(LIBSHARED) $(LIBNAME)
+	ln -sf $(LIBSHARED) $(LIBSONAME)
+
+
+basearith.o:\
+Makefile basearith.c mpdecimal.h basearith.h typearith.h constants.h
+	$(CC) $(MPD_CFLAGS) -c basearith.c
+
+.objs/basearith.o:\
+Makefile basearith.c mpdecimal.h basearith.h typearith.h constants.h
+	$(CC) $(MPD_CFLAGS_SHARED) -c basearith.c -o .objs/basearith.o
+
+constants.o:\
+Makefile constants.c mpdecimal.h constants.h
+	$(CC) $(MPD_CFLAGS) -c constants.c
+
+.objs/constants.o:\
+Makefile constants.c mpdecimal.h constants.h
+	$(CC) $(MPD_CFLAGS_SHARED) -c constants.c -o .objs/constants.o
+
+context.o:\
+Makefile context.c mpdecimal.h
+	$(CC) $(MPD_CFLAGS) -c context.c
+
+.objs/context.o:\
+Makefile context.c mpdecimal.h
+	$(CC) $(MPD_CFLAGS_SHARED) -c context.c -o .objs/context.o
+
+convolute.o:\
+Makefile convolute.c mpdecimal.h bits.h constants.h convolute.h fnt.h \
+fourstep.h numbertheory.h sixstep.h umodarith.h typearith.h
+	$(CC) $(MPD_CFLAGS) -c convolute.c
+
+.objs/convolute.o:\
+Makefile convolute.c mpdecimal.h bits.h constants.h convolute.h fnt.h \
+fourstep.h numbertheory.h sixstep.h umodarith.h typearith.h
+	$(CC) $(MPD_CFLAGS_SHARED) -c convolute.c -o .objs/convolute.o
+
+crt.o:\
+Makefile crt.c mpdecimal.h constants.h crt.h numbertheory.h umodarith.h \
+typearith.h
+	$(CC) $(MPD_CFLAGS) -c crt.c
+
+.objs/crt.o:\
+Makefile crt.c mpdecimal.h constants.h crt.h numbertheory.h umodarith.h \
+typearith.h
+	$(CC) $(MPD_CFLAGS_SHARED) -c crt.c -o .objs/crt.o
+
+difradix2.o:\
+Makefile difradix2.c mpdecimal.h bits.h constants.h difradix2.h \
+numbertheory.h umodarith.h typearith.h
+	$(CC) $(MPD_CFLAGS) -c difradix2.c
+
+.objs/difradix2.o:\
+Makefile difradix2.c mpdecimal.h bits.h constants.h difradix2.h \
+numbertheory.h umodarith.h typearith.h
+	$(CC) $(MPD_CFLAGS_SHARED) -c difradix2.c -o .objs/difradix2.o
+
+fnt.o:\
+Makefile fnt.c mpdecimal.h bits.h difradix2.h numbertheory.h constants.h \
+fnt.h
+	$(CC) $(MPD_CFLAGS) -c fnt.c
+
+.objs/fnt.o:\
+Makefile fnt.c mpdecimal.h bits.h difradix2.h numbertheory.h constants.h \
+fnt.h
+	$(CC) $(MPD_CFLAGS_SHARED) -c fnt.c -o .objs/fnt.o
+
+fourstep.o:\
+Makefile fourstep.c mpdecimal.h constants.h fourstep.h numbertheory.h \
+sixstep.h umodarith.h typearith.h
+	$(CC) $(MPD_CFLAGS) -c fourstep.c
+
+.objs/fourstep.o:\
+Makefile fourstep.c mpdecimal.h constants.h fourstep.h numbertheory.h \
+sixstep.h umodarith.h typearith.h
+	$(CC) $(MPD_CFLAGS_SHARED) -c fourstep.c -o .objs/fourstep.o
+
+io.o:\
+Makefile io.c mpdecimal.h typearith.h io.h
+	$(CC) $(MPD_CFLAGS) -c io.c
+
+.objs/io.o:\
+Makefile io.c mpdecimal.h typearith.h io.h
+	$(CC) $(MPD_CFLAGS_SHARED) -c io.c -o .objs/io.o
+
+mpalloc.o:\
+Makefile mpalloc.c mpdecimal.h mpalloc.h typearith.h
+	$(CC) $(MPD_CFLAGS) -c mpalloc.c
+
+.objs/mpalloc.o:\
+Makefile mpalloc.c mpdecimal.h mpalloc.h typearith.h
+	$(CC) $(MPD_CFLAGS_SHARED) -c mpalloc.c -o .objs/mpalloc.o
+
+mpdecimal.o:\
+Makefile mpdecimal.c mpdecimal.h basearith.h typearith.h bits.h \
+constants.h convolute.h crt.h mpalloc.h
+	$(CC) $(MPD_CFLAGS) -c mpdecimal.c
+
+.objs/mpdecimal.o:\
+Makefile mpdecimal.c mpdecimal.h basearith.h typearith.h bits.h \
+constants.h convolute.h crt.h mpalloc.h
+	$(CC) $(MPD_CFLAGS_SHARED) -c mpdecimal.c -o .objs/mpdecimal.o
+
+mpsignal.o:\
+Makefile mpsignal.c mpdecimal.h
+	$(CC) $(MPD_CFLAGS) -c mpsignal.c
+
+.objs/mpsignal.o:\
+Makefile mpsignal.c mpdecimal.h
+	$(CC) $(MPD_CFLAGS_SHARED) -c mpsignal.c -o .objs/mpsignal.o
+
+numbertheory.o:\
+Makefile numbertheory.c mpdecimal.h bits.h numbertheory.h \
+constants.h umodarith.h typearith.h
+	$(CC) $(MPD_CFLAGS) -c numbertheory.c
+
+.objs/numbertheory.o:\
+Makefile numbertheory.c mpdecimal.h bits.h numbertheory.h \
+constants.h umodarith.h typearith.h
+	$(CC) $(MPD_CFLAGS_SHARED) -c numbertheory.c -o .objs/numbertheory.o
+
+sixstep.o:\
+Makefile sixstep.c mpdecimal.h bits.h constants.h difradix2.h \
+numbertheory.h sixstep.h transpose.h umodarith.h typearith.h
+	$(CC) $(MPD_CFLAGS) -c sixstep.c
+
+.objs/sixstep.o:\
+Makefile sixstep.c mpdecimal.h bits.h constants.h difradix2.h \
+numbertheory.h sixstep.h transpose.h umodarith.h typearith.h
+	$(CC) $(MPD_CFLAGS_SHARED) -c sixstep.c -o .objs/sixstep.o
+
+transpose.o:\
+Makefile transpose.c mpdecimal.h bits.h constants.h transpose.h \
+typearith.h
+	$(CC) $(MPD_CFLAGS) -c transpose.c
+
+.objs/transpose.o:\
+Makefile transpose.c mpdecimal.h bits.h constants.h transpose.h \
+typearith.h
+	$(CC) $(MPD_CFLAGS_SHARED) -c transpose.c -o .objs/transpose.o
+
+
+bench: bench.c $(LIBSTATIC)
+	$(CC) $(MPD_CFLAGS) -o bench bench.c $(LIBSTATIC) -lm
+
+bench_full: bench_full.c $(LIBSTATIC)
+	$(CC) $(MPD_CFLAGS) -o bench_full bench_full.c $(LIBSTATIC) -lm
+
+bench_shared: bench.c $(LIBSHARED)
+	$(CC) -L. $(MPD_CFLAGS) -o bench_shared bench.c -lmpdec -lm
+
+bench_full_shared: bench_full.c $(LIBSHARED)
+	$(CC) -L. $(MPD_CFLAGS) -o bench_full_shared bench_full.c -lmpdec -lm
+
+
+pow: Makefile examples/pow.c $(LIBSTATIC)
+	$(CC) -I. $(MPD_CFLAGS) -o pow examples/pow.c $(LIBSTATIC) -lm
+
+sqrt: Makefile examples/sqrt.c $(LIBSTATIC)
+	$(CC) -I. $(MPD_CFLAGS) -o sqrt examples/sqrt.c $(LIBSTATIC) -lm
+
+examples: pow sqrt
+
+
+profile_gen: clean bench_full bench_shared
+	./bench_full $(MPD_PREC) 1000
+	./bench_full $(MPD_DPREC) 1000
+	LD_32_LIBRARY_PATH=. LD_LIBRARY_PATH=. ./bench_shared $(MPD_PREC) 1000000
+	LD_32_LIBRARY_PATH=. LD_LIBRARY_PATH=. ./bench_shared $(MPD_DPREC) 1000000
+	rm -f *.o *.gch .objs/*.o .objs/*.gch bench_full bench_shared
+	rm -f $(LIBSTATIC) $(LIBSHARED) $(LIBSONAME) $(LIBNAME)
+
+profile_use: bench_full bench_shared
+	./bench_full $(MPD_PREC) 1000
+	./bench_full $(MPD_DPREC) 1000
+	LD_32_LIBRARY_PATH=. LD_LIBRARY_PATH=. ./bench_shared $(MPD_PREC) 1000000
+	LD_32_LIBRARY_PATH=. LD_LIBRARY_PATH=. ./bench_shared $(MPD_DPREC) 1000000
+
+profile:
+	$(MAKE) profile_gen
+	$(MAKE) profile_use
+
+
+check: default
+	cd ../tests && $(MAKE) && ./runshort.sh
+
+check_alloc: default
+	cd ../tests && $(MAKE) && ./runshort_alloc.sh
+
+
+clean:
+	rm -f *.o *.so *.gch *.gcda *.gcno *.gcov *.dyn *.dpi *.lock
+	rm -f bench bench_shared bench_full bench_full_shared pow sqrt $(LIBSTATIC) $(LIBSHARED) $(LIBSONAME) $(LIBNAME)
+	cd .objs && rm -f *.o *.so *.gch *.gcda *.gcno *.gcov *.dyn *.dpi *.lock
+
+distclean: clean
+	rm -f config.h config.log config.status Makefile mpdecimal.h

@@ -184,7 +184,7 @@ void LiteralBooleanExpressionNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR(value);
 }
 
-LiteralNumberExpressionNode::LiteralNumberExpressionNode(std::decimal::decimal64 value, Token token)
+LiteralNumberExpressionNode::LiteralNumberExpressionNode(decimal::Decimal value, Token token)
     : ConstValueExpressionNode(token), value(value) {}
 
 void LiteralNumberExpressionNode::dump(std::ostringstream& s, int n) const {
@@ -399,7 +399,7 @@ void ForEachStatementNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODE(body);
 }
 
-ForStepNode::ForStepNode(std::decimal::decimal64 stepImmediate, Token token)
+ForStepNode::ForStepNode(decimal::Decimal stepImmediate, Token token)
     : Node(token), stepImmediate(stepImmediate) {}
 
 ForStepNode::ForStepNode(std::unique_ptr<SymbolReferenceExpressionNode> stepConstant, Token token)
