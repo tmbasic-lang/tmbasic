@@ -1,0 +1,5 @@
+nav@{<TITLE_HOME>:<TOPIC_HOME>} <TRIANGLE_RIGHT> {License:license}@
+
+h1['ncurses' License]
+
+  dia[license_ncurses]

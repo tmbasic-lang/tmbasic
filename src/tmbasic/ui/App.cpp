@@ -47,6 +47,7 @@ TMenuBar* App::initMenuBar(TRect r) {
         *new TMenuItem("~C~lose", cmClose, kbCtrlW, hcNoContext, "Ctrl+W");
 
     auto& helpMenu = *new TSubMenu("~H~elp", kbAltH) +
+        *new TMenuItem("~D~ocumentation", kCmdHelpDocumentation, kbNoKey) + 
         *new TMenuItem("~B~ASIC reference", kCmdHelpBasicReference, kbNoKey) + newLine() +
         *new TMenuItem("~A~bout TMBASIC", kCmdHelpAbout, kbNoKey);
 
@@ -81,6 +82,10 @@ bool App::handleCommand(TEvent& event) {
 
         case kCmdHelpBasicReference:
             onHelpBasicReference();
+            return true;
+
+        case kCmdHelpDocumentation:
+            onHelpDocumentation();
             return true;
 
         case kCmdHelpAbout:
@@ -132,14 +137,15 @@ void App::onProgramAddProcedure(bool function) {
     deskTop->insert(window);
 }
 
-void App::onHelpBasicReference() {
+void App::openHelpTopic(ushort topic) {
     auto stream = new fpstream("help.h32", ios::in);
     auto helpFile = new THelpFile(*stream);
-    auto helpWindow = new THelpWindow(helpFile, hcbasicReference);
+    auto helpWindow = new THelpWindow(helpFile, topic);
     deskTop->insert(helpWindow);
-    auto width = deskTop->size.x * 0.7;
-    if (width > 80) {
-        width = 80;
+    auto width = 85;
+    auto maxWidth = deskTop->size.x - 10;
+    if (width > maxWidth) {
+        width = maxWidth;
     } else if (width < 40) {
         width = 40;
     }
@@ -151,6 +157,14 @@ void App::onHelpBasicReference() {
     }
     auto rect = getNewWindowRect(width, height);
     helpWindow->locate(rect);
+}
+
+void App::onHelpDocumentation() {
+    openHelpTopic(hcdoc);
+}
+
+void App::onHelpBasicReference() {
+    openHelpTopic(hcbasic);
 }
 
 TRect App::centeredRect(int width, int height) {

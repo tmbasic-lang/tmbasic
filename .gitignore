@@ -20,3 +20,4 @@ ext/mpdecimal/libmpdec/.objs/*.o
 ext/mpdecimal/libmpdec/*.o
 ext/mpdecimal/libmpdec/*.a
 ext/mpdecimal/libmpdec/*.so*
+doc/diagrams/license*.txt

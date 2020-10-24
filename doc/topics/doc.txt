@@ -2,8 +2,7 @@ h1[<TITLE_HOME>]
 
 Welcome to TMBASIC!
 
-dia[aboutWindow]
-
 ul@li@{<TITLE_BASIC_REFERENCE>:<TOPIC_BASIC_REFERENCE>}@
+li@{License:license}@
 @
 

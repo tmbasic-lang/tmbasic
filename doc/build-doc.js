@@ -5,9 +5,9 @@ const process = require("process");
 
 const TOPIC_HOME = "doc";
 const TITLE_HOME = "TMBASIC Documentation";
-const TOPIC_BASIC_REFERENCE = "basicReference";
+const TOPIC_BASIC_REFERENCE = "basic";
 const TITLE_BASIC_REFERENCE = "BASIC Reference";
-const TOPIC_PROCEDURE_INDEX = "procedureIndex";
+const TOPIC_PROCEDURE_INDEX = "procedure";
 const TITLE_PROCEDURE_INDEX = "Procedure Index";
 const CHAR_DIAMOND = "\x04";
 const HTML_DIAMOND = "♦";
@@ -126,9 +126,9 @@ function processHtml(str) {
         .replace(/\n*li@\n*([^@]+)\n*@\n*/g, ($0, $1) => `<li>${$1}</li>`)
         .replace(/\n*ul@\n*([^@]+)\n*@\n*/g, ($0, $1) => `<ul>${$1}</ul>`)
         .replace(/{([^:]+):([^}]+)}/g, ($0, $1, $2) => `<a href=\"${$2}.html\">${$1}</a>`)
-        .replace(/dia\[([^\]]+)\]/g, ($0, $1) => `<pre class="diagram">${getDiagramHtml($1)}</pre>`)
-        .replace(/-----/g, "<hr>")
-        .replace(/\n/g, "<br>");
+        .replace(/\n-----\n/g, "<hr>")
+        .replace(/\n/g, "<br>")
+        .replace(/dia\[([^\]]+)\]/g, ($0, $1) => `<pre class="diagram">${getDiagramHtml($1)}</pre>`);
 }
 
 function syntaxColorCode(str) {
@@ -142,7 +142,9 @@ function replaceIndentChars(str) {
 async function convertDiagramsToCp437() {
     const dir = await fs.promises.opendir("diagrams");
     for await (const file of dir) {
-        await convertDiagramToCp437(file.name);
+        if (file.name.indexOf('.txt') >= 0) {
+            await convertDiagramToCp437(file.name);
+        }
     }
 }
 
@@ -151,7 +153,7 @@ function convertDiagramToCp437(filename) {
     {
         const utf8FilePath = "diagrams/" + filename;
         const cp437FilePath = "obj/doc-temp/diagrams-cp437/" + filename;
-        console.log(`iconv -o ${cp437FilePath}`);
+        console.log(cp437FilePath);
         child_process.execFile(
             "iconv",
             [
@@ -167,7 +169,9 @@ function convertDiagramToCp437(filename) {
 async function insertCp437Diagrams() {
     const dir = await fs.promises.opendir("diagrams");
     for await (const file of dir) {
-        await insertCp437Diagram(file.name);
+        if (file.name.indexOf('.txt') >= 0) {
+            await insertCp437Diagram(file.name);
+        }
     }
 }
 
@@ -175,7 +179,7 @@ function insertCp437Diagram(filename) {
     return new Promise((resolve, reject) => {
         const cp437FilePath = "../obj/doc-temp/diagrams-cp437/" + filename;
         const name = filename.replace(".txt", "");
-        console.log(`insert-cp437-diagram ${name}`);
+        console.log(name);
         child_process.execFile(
             `../obj/insert-cp437-diagram`,
             [
@@ -195,7 +199,7 @@ function insertCp437Diagram(filename) {
 }
 
 function getDiagramHtml(name) {
-    return fs.readFileSync(`diagrams/${name}.txt`, { encoding: "utf8" });
+    return htmlEncode(fs.readFileSync(`diagrams/${name}.txt`, { encoding: "utf8" }));
 }
 
 function getTypeTopic(type) {
@@ -212,7 +216,7 @@ async function forEachTopicFile(asyncFunc) {
 async function buildTopic(inputFilePath) {
     const input = await fs.promises.readFile(inputFilePath, "ascii");
     const topic = path.basename(inputFilePath).replace(".txt", "");
-    outputTxt += `.topic ${topic}\n` + processText(input.trim()) + "\n";
+    outputTxt += `.topic ${topic}\n` + processText(input.trim()) + "\n\n-----\n\n";
     await writeHtmlPage(topic, input);
 }
 
@@ -229,10 +233,10 @@ async function buildProcedureIndex() {
     o += "ul@";
     procedureNames.sort();
     for (const name of procedureNames) {
-        o += `li@{${name}:procedure_${name}}@\n`;
+        o += `li@{'${name}' Procedure:procedure_${name}}@\n`;
     }
     o += "@\n";
-    const filePath = "../obj/doc-temp/procedureIndex.txt";
+    const filePath = "../obj/doc-temp/procedure.txt";
     await fs.promises.writeFile(filePath, o, "ascii");
     await buildTopic(filePath);
 }
@@ -326,7 +330,7 @@ function parseProcedure(input) {
 function formatProcedureText(topicName, procedure) {
     let o = "";
     o += `nav@{<TITLE_HOME>:<TOPIC_HOME>} <TRIANGLE_RIGHT> {<TITLE_BASIC_REFERENCE>:<TOPIC_BASIC_REFERENCE>} <TRIANGLE_RIGHT> {<TITLE_PROCEDURE_INDEX>:<TOPIC_PROCEDURE_INDEX>}@\n\n`;
-    o += `h1["${procedure.name}" Procedure]\n\n`;
+    o += `h1['${procedure.name}' Procedure]\n\n`;
 
     for (const overload of procedure.overloads) {
         const isFunction = overload.hasOwnProperty("returns");

@@ -10,9 +10,6 @@ Source: https://github.com/arximboldi/immer/archive/2076affd9d814afc019ba8cd8c2b
 
 License: `immer/LICENSE`
 
-Modified files:
-- `immer/immer/memory_policy.hpp`
-
 ## libstdc++
 Source: Ubuntu 20.04 `gcc-10` package
 
@@ -52,12 +49,3 @@ License: `oxygenmono/OFL.txt`
 Source: https://github.com/magiblot/tvision/archive/r586.zip
 
 License: `tvision/COPYRIGHT`
-
-Modified files:
-- `tvision/CMakeLists.txt`
-- `tvision/examples/tvdemo/ascii.cpp`
-- `tvision/examples/tvhelp/tvhc.cpp`
-- `tvision/include/tvision/help.h`
-- `tvision/include/tvision/tobjstrm.h`
-- `tvision/source/linux/sighandl.cpp`
-- `tvision/source/tvision/help.cpp`
