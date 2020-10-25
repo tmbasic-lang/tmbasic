@@ -27,7 +27,7 @@ class Scanner {
     void append(char ch);
     void endCurrentToken();
     bool isCurrentTokenTextEmpty();
-    basic::TokenType classifyToken(const std::string& text);
+    basic::TokenKind classifyToken(const std::string& text);
 };
 
 }  // namespace compiler

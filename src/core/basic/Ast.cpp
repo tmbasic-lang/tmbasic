@@ -399,8 +399,7 @@ void ForEachStatementNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODE(body);
 }
 
-ForStepNode::ForStepNode(decimal::Decimal stepImmediate, Token token)
-    : Node(token), stepImmediate(stepImmediate) {}
+ForStepNode::ForStepNode(decimal::Decimal stepImmediate, Token token) : Node(token), stepImmediate(stepImmediate) {}
 
 ForStepNode::ForStepNode(std::unique_ptr<SymbolReferenceExpressionNode> stepConstant, Token token)
     : Node(token), stepConstant(std::move(stepConstant)) {}

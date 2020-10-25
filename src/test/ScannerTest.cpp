@@ -1,7 +1,7 @@
 #include "common.h"
 #include "gtest/gtest.h"
 #include "core/compiler/Scanner.h"
-#include "core/basic/TokenType.h"
+#include "core/basic/TokenKind.h"
 
 using namespace basic;
 using namespace compiler;
@@ -30,7 +30,7 @@ static void scanMatch(std::string filenameWithoutExtension) {
 
 TEST(ScannerTest, IntegerLiteral) {
     auto tokens = Scanner::tokenize("123");
-    ASSERT_EQ(TokenType::kNumberLiteral, tokens[0].type);
+    ASSERT_EQ(TokenKind::kNumberLiteral, tokens[0].type);
     ASSERT_EQ(1, tokens.size());
 }
 
@@ -41,37 +41,37 @@ TEST(ScannerTest, MinusVsNegative) {
     ASSERT_EQ("-4", tokens[i].text);
     ASSERT_EQ(0, tokens[i].lineIndex);
     ASSERT_EQ(0, tokens[i].columnIndex);
-    ASSERT_EQ(TokenType::kNumberLiteral, tokens[i++].type);
+    ASSERT_EQ(TokenKind::kNumberLiteral, tokens[i++].type);
 
     ASSERT_EQ("-5", tokens[i].text);
     ASSERT_EQ(0, tokens[i].lineIndex);
     ASSERT_EQ(2, tokens[i].columnIndex);
-    ASSERT_EQ(TokenType::kNumberLiteral, tokens[i++].type);
+    ASSERT_EQ(TokenKind::kNumberLiteral, tokens[i++].type);
 
     ASSERT_EQ("-", tokens[i].text);
     ASSERT_EQ(0, tokens[i].lineIndex);
     ASSERT_EQ(4, tokens[i].columnIndex);
-    ASSERT_EQ(TokenType::kMinusSign, tokens[i++].type);
+    ASSERT_EQ(TokenKind::kMinusSign, tokens[i++].type);
 
     ASSERT_EQ("-6", tokens[i].text);
     ASSERT_EQ(0, tokens[i].lineIndex);
     ASSERT_EQ(6, tokens[i].columnIndex);
-    ASSERT_EQ(TokenType::kNumberLiteral, tokens[i++].type);
+    ASSERT_EQ(TokenKind::kNumberLiteral, tokens[i++].type);
 
     ASSERT_EQ("-", tokens[i].text);
     ASSERT_EQ(0, tokens[i].lineIndex);
     ASSERT_EQ(9, tokens[i].columnIndex);
-    ASSERT_EQ(TokenType::kMinusSign, tokens[i++].type);
+    ASSERT_EQ(TokenKind::kMinusSign, tokens[i++].type);
 
     ASSERT_EQ("-7", tokens[i].text);
     ASSERT_EQ(0, tokens[i].lineIndex);
     ASSERT_EQ(10, tokens[i].columnIndex);
-    ASSERT_EQ(TokenType::kNumberLiteral, tokens[i++].type);
+    ASSERT_EQ(TokenKind::kNumberLiteral, tokens[i++].type);
 
     ASSERT_EQ("-8.9", tokens[i].text);
     ASSERT_EQ(0, tokens[i].lineIndex);
     ASSERT_EQ(13, tokens[i].columnIndex);
-    ASSERT_EQ(TokenType::kNumberLiteral, tokens[i++].type);
+    ASSERT_EQ(TokenKind::kNumberLiteral, tokens[i++].type);
 
     ASSERT_EQ(i, tokens.size());
 }
@@ -86,67 +86,67 @@ TEST(ScannerTest, ForLoop) {
     ASSERT_EQ("for", tokens[i].text);
     ASSERT_EQ(0, tokens[i].lineIndex);
     ASSERT_EQ(0, tokens[i].columnIndex);
-    ASSERT_EQ(TokenType::kFor, tokens[i++].type);
+    ASSERT_EQ(TokenKind::kFor, tokens[i++].type);
 
     ASSERT_EQ("i", tokens[i].text);
     ASSERT_EQ(0, tokens[i].lineIndex);
     ASSERT_EQ(4, tokens[i].columnIndex);
-    ASSERT_EQ(TokenType::kIdentifier, tokens[i++].type);
+    ASSERT_EQ(TokenKind::kIdentifier, tokens[i++].type);
 
     ASSERT_EQ("=", tokens[i].text);
     ASSERT_EQ(0, tokens[i].lineIndex);
     ASSERT_EQ(6, tokens[i].columnIndex);
-    ASSERT_EQ(TokenType::kEqualsSign, tokens[i++].type);
+    ASSERT_EQ(TokenKind::kEqualsSign, tokens[i++].type);
 
     ASSERT_EQ("1", tokens[i].text);
     ASSERT_EQ(0, tokens[i].lineIndex);
     ASSERT_EQ(8, tokens[i].columnIndex);
-    ASSERT_EQ(TokenType::kNumberLiteral, tokens[i++].type);
+    ASSERT_EQ(TokenKind::kNumberLiteral, tokens[i++].type);
 
     ASSERT_EQ("to", tokens[i].text);
     ASSERT_EQ(0, tokens[i].lineIndex);
     ASSERT_EQ(10, tokens[i].columnIndex);
-    ASSERT_EQ(TokenType::kTo, tokens[i++].type);
+    ASSERT_EQ(TokenKind::kTo, tokens[i++].type);
 
     ASSERT_EQ("5", tokens[i].text);
     ASSERT_EQ(0, tokens[i].lineIndex);
     ASSERT_EQ(13, tokens[i].columnIndex);
-    ASSERT_EQ(TokenType::kNumberLiteral, tokens[i++].type);
+    ASSERT_EQ(TokenKind::kNumberLiteral, tokens[i++].type);
 
     ASSERT_EQ("\n", tokens[i].text);
     ASSERT_EQ(0, tokens[i].lineIndex);
     ASSERT_EQ(14, tokens[i].columnIndex);
-    ASSERT_EQ(TokenType::kEndOfLine, tokens[i++].type);
+    ASSERT_EQ(TokenKind::kEndOfLine, tokens[i++].type);
 
     ASSERT_EQ("dim", tokens[i].text);
     ASSERT_EQ(1, tokens[i].lineIndex);
     ASSERT_EQ(4, tokens[i].columnIndex);
-    ASSERT_EQ(TokenType::kDim, tokens[i++].type);
+    ASSERT_EQ(TokenKind::kDim, tokens[i++].type);
 
     ASSERT_EQ("a", tokens[i].text);
     ASSERT_EQ(1, tokens[i].lineIndex);
     ASSERT_EQ(8, tokens[i].columnIndex);
-    ASSERT_EQ(TokenType::kIdentifier, tokens[i++].type);
+    ASSERT_EQ(TokenKind::kIdentifier, tokens[i++].type);
 
     ASSERT_EQ("=", tokens[i].text);
     ASSERT_EQ(1, tokens[i].lineIndex);
     ASSERT_EQ(10, tokens[i].columnIndex);
-    ASSERT_EQ(TokenType::kEqualsSign, tokens[i++].type);
+    ASSERT_EQ(TokenKind::kEqualsSign, tokens[i++].type);
 
     ASSERT_EQ("true", tokens[i].text);
     ASSERT_EQ(1, tokens[i].lineIndex);
     ASSERT_EQ(12, tokens[i].columnIndex);
-    ASSERT_EQ(TokenType::kTrue, tokens[i++].type);
+    ASSERT_EQ(TokenKind::kTrue, tokens[i++].type);
 
     ASSERT_EQ("\n", tokens[i].text);
     ASSERT_EQ(1, tokens[i].lineIndex);
     ASSERT_EQ(16, tokens[i].columnIndex);
-    ASSERT_EQ(TokenType::kEndOfLine, tokens[i++].type);
+    ASSERT_EQ(TokenKind::kEndOfLine, tokens[i++].type);
 
     ASSERT_EQ("next", tokens[i].text);
     ASSERT_EQ(2, tokens[i].lineIndex);
     ASSERT_EQ(0, tokens[i].columnIndex);
-    ASSERT_EQ(TokenType::kNext, tokens[i++].type);
+    ASSERT_EQ(TokenKind::kNext, tokens[i++].type);
 
     ASSERT_EQ(i, tokens.size());
 }

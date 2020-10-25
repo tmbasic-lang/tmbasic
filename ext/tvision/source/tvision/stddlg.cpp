@@ -40,9 +40,11 @@
 #include <errno.h>
 #endif  // __ERRNO_H
 
+#ifdef _WIN32
 #if !defined( __IO_H )
 #include <io.h>
 #endif  // __IO_H
+#endif
 
 #if !defined( __STDIO_H )
 #include <stdio.h>
@@ -65,6 +67,15 @@
 #endif  // __LIMITS_H
 
 #define cpInfoPane "\x1E"
+
+struct  ftime   {
+  unsigned    ft_tsec  : 5;   /* Two second interval */
+  unsigned    ft_min   : 6;   /* Minutes */
+  unsigned    ft_hour  : 5;   /* Hours */
+  unsigned    ft_day   : 5;   /* Days */
+  unsigned    ft_month : 4;   /* Months */
+  unsigned    ft_year  : 7;   /* Year */
+};
 
 TFileInputLine::TFileInputLine( const TRect& bounds, short aMaxLen ) :
     TInputLine( bounds, aMaxLen )

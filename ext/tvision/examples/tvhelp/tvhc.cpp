@@ -107,9 +107,11 @@
 #include <dir.h>
 #endif  // __DIR_H
 
+#ifdef _WIN32
 #if !defined( __IO_H )
 #include <io.h>
 #endif  // __IO_H
+#endif
 
 #if !defined( __CTYPE_H )
 #include <ctype.h>

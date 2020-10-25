@@ -260,3 +260,5 @@ TWindow::TWindow( StreamableInit ) :
 }
 
 #endif
+
+const char *TWindow::streamableName() const { return "TWindow"; }

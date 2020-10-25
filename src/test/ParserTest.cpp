@@ -41,7 +41,7 @@ static void parseMatch(std::string filenameWithoutExtension) {
 }
 
 TEST(ParserTest, SingleProgramNodeDump) {
-    auto n = ProgramNode(std::vector<std::unique_ptr<Node>>(), Token(0, 0, TokenType::kEndOfFile, ""));
+    auto n = ProgramNode(std::vector<std::unique_ptr<Node>>(), Token(0, 0, TokenKind::kEndOfFile, ""));
     ASSERT_EQ("ProgramNode\n", dump(n));
 }
 

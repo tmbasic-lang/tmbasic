@@ -173,58 +173,58 @@ bool Scanner::isCurrentTokenTextEmpty() {
     return _currentTokenText.tellp() <= 0;
 }
 
-TokenType Scanner::classifyToken(const std::string& text) {
+TokenKind Scanner::classifyToken(const std::string& text) {
     assert(text.length() > 0);
     switch (text[0]) {
         case '\n':
-            return TokenType::kEndOfLine;
+            return TokenKind::kEndOfLine;
         case '"':
-            return TokenType::kStringLiteral;
+            return TokenKind::kStringLiteral;
         case '(':
-            return TokenType::kLeftParenthesis;
+            return TokenKind::kLeftParenthesis;
         case ')':
-            return TokenType::kRightParenthesis;
+            return TokenKind::kRightParenthesis;
         case '[':
-            return TokenType::kLeftBracket;
+            return TokenKind::kLeftBracket;
         case ']':
-            return TokenType::kRightBracket;
+            return TokenKind::kRightBracket;
         case '{':
-            return TokenType::kLeftBrace;
+            return TokenKind::kLeftBrace;
         case '}':
-            return TokenType::kRightBrace;
+            return TokenKind::kRightBrace;
         case ':':
-            return TokenType::kColon;
+            return TokenKind::kColon;
         case ',':
-            return TokenType::kComma;
+            return TokenKind::kComma;
         case '+':
-            return TokenType::kPlusSign;
+            return TokenKind::kPlusSign;
         case '*':
-            return TokenType::kMultiplicationSign;
+            return TokenKind::kMultiplicationSign;
         case '/':
-            return TokenType::kDivisionSign;
+            return TokenKind::kDivisionSign;
         case '=':
-            return TokenType::kEqualsSign;
+            return TokenKind::kEqualsSign;
         case '\'':
-            return TokenType::kComment;
+            return TokenKind::kComment;
 
         case '<':
             if (text == "<") {
-                return TokenType::kLessThanSign;
+                return TokenKind::kLessThanSign;
             } else if (text == "<=") {
-                return TokenType::kLessThanEqualsSign;
+                return TokenKind::kLessThanEqualsSign;
             } else if (text == "<>") {
-                return TokenType::kNotEqualsSign;
+                return TokenKind::kNotEqualsSign;
             } else {
-                return TokenType::kError;
+                return TokenKind::kError;
             }
 
         case '>':
             if (text == ">") {
-                return TokenType::kGreaterThanSign;
+                return TokenKind::kGreaterThanSign;
             } else if (text == ">=") {
-                return TokenType::kGreaterThanEqualsSign;
+                return TokenKind::kGreaterThanEqualsSign;
             } else {
-                return TokenType::kError;
+                return TokenKind::kError;
             }
 
         case '0':
@@ -240,13 +240,13 @@ TokenType Scanner::classifyToken(const std::string& text) {
         case '-':
         case '.':
             if (text == "-") {
-                return TokenType::kMinusSign;
+                return TokenKind::kMinusSign;
             } else if (text == ".") {
-                return TokenType::kDot;
+                return TokenKind::kDot;
             } else if (std::regex_match(text, _numberRegex)) {
-                return TokenType::kNumberLiteral;
+                return TokenKind::kNumberLiteral;
             } else {
-                return TokenType::kError;
+                return TokenKind::kError;
             }
     }
 
@@ -255,180 +255,180 @@ TokenType Scanner::classifyToken(const std::string& text) {
         switch (lc[0]) {
             case 'a':
                 if (lc == "and") {
-                    return TokenType::kAnd;
+                    return TokenKind::kAnd;
                 } else if (lc == "as") {
-                    return TokenType::kAs;
+                    return TokenKind::kAs;
                 }
                 break;
             case 'b':
                 if (lc == "boolean") {
-                    return TokenType::kBoolean;
+                    return TokenKind::kBoolean;
                 } else if (lc == "by") {
-                    return TokenType::kBy;
+                    return TokenKind::kBy;
                 }
                 break;
             case 'c':
                 if (lc == "case") {
-                    return TokenType::kCase;
+                    return TokenKind::kCase;
                 } else if (lc == "catch") {
-                    return TokenType::kCatch;
+                    return TokenKind::kCatch;
                 } else if (lc == "const") {
-                    return TokenType::kConst;
+                    return TokenKind::kConst;
                 } else if (lc == "continue") {
-                    return TokenType::kContinue;
+                    return TokenKind::kContinue;
                 }
                 break;
             case 'd':
                 if (lc == "date") {
-                    return TokenType::kDate;
+                    return TokenKind::kDate;
                 } else if (lc == "datetime") {
-                    return TokenType::kDateTime;
+                    return TokenKind::kDateTime;
                 } else if (lc == "datetimeoffset") {
-                    return TokenType::kDateTimeOffset;
+                    return TokenKind::kDateTimeOffset;
                 } else if (lc == "dim") {
-                    return TokenType::kDim;
+                    return TokenKind::kDim;
                 } else if (lc == "do") {
-                    return TokenType::kDo;
+                    return TokenKind::kDo;
                 }
                 break;
             case 'e':
                 if (lc == "each") {
-                    return TokenType::kEach;
+                    return TokenKind::kEach;
                 } else if (lc == "else") {
-                    return TokenType::kElse;
+                    return TokenKind::kElse;
                 } else if (lc == "end") {
-                    return TokenType::kEnd;
+                    return TokenKind::kEnd;
                 } else if (lc == "exit") {
-                    return TokenType::kExit;
+                    return TokenKind::kExit;
                 }
                 break;
             case 'f':
                 if (lc == "false") {
-                    return TokenType::kFalse;
+                    return TokenKind::kFalse;
                 } else if (lc == "finally") {
-                    return TokenType::kFinally;
+                    return TokenKind::kFinally;
                 } else if (lc == "for") {
-                    return TokenType::kFor;
+                    return TokenKind::kFor;
                 } else if (lc == "from") {
-                    return TokenType::kFrom;
+                    return TokenKind::kFrom;
                 } else if (lc == "function") {
-                    return TokenType::kFunction;
+                    return TokenKind::kFunction;
                 }
                 break;
             case 'g':
                 if (lc == "group") {
-                    return TokenType::kGroup;
+                    return TokenKind::kGroup;
                 }
                 break;
             case 'i':
                 if (lc == "if") {
-                    return TokenType::kIf;
+                    return TokenKind::kIf;
                 } else if (lc == "in") {
-                    return TokenType::kIn;
+                    return TokenKind::kIn;
                 } else if (lc == "into") {
-                    return TokenType::kInto;
+                    return TokenKind::kInto;
                 }
                 break;
             case 'j':
                 if (lc == "join") {
-                    return TokenType::kJoin;
+                    return TokenKind::kJoin;
                 }
                 break;
             case 'k':
                 if (lc == "key") {
-                    return TokenType::kKey;
+                    return TokenKind::kKey;
                 }
                 break;
             case 'l':
                 if (lc == "list") {
-                    return TokenType::kList;
+                    return TokenKind::kList;
                 } else if (lc == "loop") {
-                    return TokenType::kLoop;
+                    return TokenKind::kLoop;
                 }
                 break;
             case 'm':
                 if (lc == "map") {
-                    return TokenType::kMap;
+                    return TokenKind::kMap;
                 } else if (lc == "mod") {
-                    return TokenType::kMod;
+                    return TokenKind::kMod;
                 }
                 break;
             case 'n':
                 if (lc == "next") {
-                    return TokenType::kNext;
+                    return TokenKind::kNext;
                 } else if (lc == "not") {
-                    return TokenType::kNot;
+                    return TokenKind::kNot;
                 } else if (lc == "number") {
-                    return TokenType::kNumber;
+                    return TokenKind::kNumber;
                 }
                 break;
             case 'o':
                 if (lc == "of") {
-                    return TokenType::kOf;
+                    return TokenKind::kOf;
                 } else if (lc == "on") {
-                    return TokenType::kOn;
+                    return TokenKind::kOn;
                 } else if (lc == "optional") {
-                    return TokenType::kOptional;
+                    return TokenKind::kOptional;
                 } else if (lc == "or") {
-                    return TokenType::kOr;
+                    return TokenKind::kOr;
                 }
                 break;
             case 'r':
                 if (lc == "record") {
-                    return TokenType::kRecord;
+                    return TokenKind::kRecord;
                 } else if (lc == "rethrow") {
-                    return TokenType::kRethrow;
+                    return TokenKind::kRethrow;
                 } else if (lc == "return") {
-                    return TokenType::kReturn;
+                    return TokenKind::kReturn;
                 }
                 break;
             case 's':
                 if (lc == "select") {
-                    return TokenType::kSelect;
+                    return TokenKind::kSelect;
                 } else if (lc == "step") {
-                    return TokenType::kStep;
+                    return TokenKind::kStep;
                 } else if (lc == "sub") {
-                    return TokenType::kSub;
+                    return TokenKind::kSub;
                 }
                 break;
             case 't':
                 if (lc == "text") {
-                    return TokenType::kText;
+                    return TokenKind::kText;
                 } else if (lc == "then") {
-                    return TokenType::kThen;
+                    return TokenKind::kThen;
                 } else if (lc == "throw") {
-                    return TokenType::kThrow;
+                    return TokenKind::kThrow;
                 } else if (lc == "timespan") {
-                    return TokenType::kTimeSpan;
+                    return TokenKind::kTimeSpan;
                 } else if (lc == "to") {
-                    return TokenType::kTo;
+                    return TokenKind::kTo;
                 } else if (lc == "true") {
-                    return TokenType::kTrue;
+                    return TokenKind::kTrue;
                 } else if (lc == "try") {
-                    return TokenType::kTry;
+                    return TokenKind::kTry;
                 } else if (lc == "type") {
-                    return TokenType::kType;
+                    return TokenKind::kType;
                 }
                 break;
             case 'u':
                 if (lc == "until") {
-                    return TokenType::kUntil;
+                    return TokenKind::kUntil;
                 }
                 break;
             case 'w':
                 if (lc == "wend") {
-                    return TokenType::kWend;
+                    return TokenKind::kWend;
                 } else if (lc == "where") {
-                    return TokenType::kWhere;
+                    return TokenKind::kWhere;
                 } else if (lc == "while") {
-                    return TokenType::kWhile;
+                    return TokenKind::kWhile;
                 } else if (lc == "with") {
-                    return TokenType::kWith;
+                    return TokenKind::kWith;
                 }
                 break;
         }
-        return TokenType::kIdentifier;
+        return TokenKind::kIdentifier;
     } else {
-        return TokenType::kError;
+        return TokenKind::kError;
     }
 }

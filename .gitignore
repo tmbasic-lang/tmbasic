@@ -21,3 +21,5 @@ ext/mpdecimal/libmpdec/*.o
 ext/mpdecimal/libmpdec/*.a
 ext/mpdecimal/libmpdec/*.so*
 doc/diagrams/license*.txt
+build/docker/*.tar.gz
+build/docker/*.zst

@@ -20,9 +20,12 @@
 #if !defined(__DIR_H)
 #define __DIR_H
 
+#ifdef _WIN32
+#include <direct.h>
+#endif
+
 #ifdef _MSC_VER
 #include <corecrt.h>
-#include <direct.h>
 #else
 // For the functions commented out below, which have slightly different
 // specifiers in modern POSIX.

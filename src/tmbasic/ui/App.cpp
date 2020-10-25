@@ -47,7 +47,7 @@ TMenuBar* App::initMenuBar(TRect r) {
         *new TMenuItem("~C~lose", cmClose, kbCtrlW, hcNoContext, "Ctrl+W");
 
     auto& helpMenu = *new TSubMenu("~H~elp", kbAltH) +
-        *new TMenuItem("~D~ocumentation", kCmdHelpDocumentation, kbNoKey) + 
+        *new TMenuItem("~D~ocumentation", kCmdHelpDocumentation, kbNoKey) +
         *new TMenuItem("~B~ASIC reference", kCmdHelpBasicReference, kbNoKey) + newLine() +
         *new TMenuItem("~A~bout TMBASIC", kCmdHelpAbout, kbNoKey);
 

@@ -70,5 +70,4 @@ short TGroup::indexOf( TView *p )
         return index;
 }
 
-
-
+const char *TGroup::streamableName() const { return "TGroup"; }

@@ -6,8 +6,10 @@
  *
  */
 
-#if defined(__BORLANDC__) || defined(_MSC_VER)
+#if defined(__BORLANDC__) || defined(_MSC_VER) || defined(_WIN32)
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
 #include <windows.h>
 #else
 
@@ -173,4 +175,4 @@ extern "C" {
 
 #endif // __WINDOWS_H
 
-#endif // __BORLANDC__ || _MSC_VER
+#endif // __BORLANDC__ || _MSC_VER || _WIN32

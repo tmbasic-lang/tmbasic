@@ -33,9 +33,11 @@
 #include <fstream.h>
 #endif  // __FSTREAM_H
 
+#ifdef _WIN32
 #if !defined( __IO_H )
 #include <io.h>
 #endif  // __IO_H
+#endif
 
 #if !defined( __STDIO_H )
 #include <stdio.h>

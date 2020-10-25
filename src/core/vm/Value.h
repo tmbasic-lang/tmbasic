@@ -25,9 +25,7 @@ namespace std {
 
 template <>
 struct hash<vm::Value> {
-    std::size_t operator()(vm::Value const& k) const noexcept {
-        return hash<int64_t>{}(k.num.floor().i64());
-    }
+    std::size_t operator()(vm::Value const& k) const noexcept { return hash<int64_t>{}(k.num.floor().i64()); }
 };
 
 }  // namespace std

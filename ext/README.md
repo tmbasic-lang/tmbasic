@@ -26,7 +26,9 @@ Source: https://github.com/Neargye/nameof/releases/download/v0.9.4/nameof.hpp
 License: `nameof/LICENSE.txt`
 
 ## ncurses
-Source: Ubuntu 20.04 `ncurses` package
+Source (Linux): Ubuntu 20.04 `ncurses` package
+
+Source (Windows): https://repo.msys2.org/mingw/x86_64/mingw-w64-x86_64-ncurses-6.2-2-any.pkg.tar.zst
 
 License: `ncurses/COPYING`
 

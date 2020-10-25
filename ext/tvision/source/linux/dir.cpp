@@ -8,6 +8,7 @@
 
 #ifdef _WIN32
 #include <bitset>
+#include <io.h>
 #endif
 
 unsigned _dos_findfirst( const char *pathname, unsigned attrib,

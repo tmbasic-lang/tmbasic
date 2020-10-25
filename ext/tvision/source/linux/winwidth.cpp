@@ -6,11 +6,9 @@
 WinWidth thread_local WinWidth::state;
 
 std::vector<WinWidth*> WinWidth::states;
-std::mutex WinWidth::m;
 
 WinWidth::~WinWidth()
 {
-    auto &&lock = std::scoped_lock(m);
     // In theory this object should appear only once in the list, but whatever.
     auto it = states.cbegin();
     while (it != states.cend())
@@ -23,7 +21,6 @@ WinWidth::~WinWidth()
 
 void WinWidth::resetState()
 {
-    auto &&lock = std::scoped_lock(m);
     for (auto *state : states)
         state->setUp();
 }
@@ -32,7 +29,6 @@ void WinWidth::setUp()
 {
     if (!cnHandle) {
         // First time.
-        auto &&lock = std::scoped_lock(m);
         states.push_back(this);
     } else {
         tearDown();

@@ -2,11 +2,11 @@
 
 ## Platforms
 TMBASIC is tested on:
-- Ubuntu 18.04 (x64, ARM64)
+- Ubuntu Linux 18.04 (x64, ARM64)
 - Android 10 (ARM64) using [Termux](https://termux.com/)
 
 ## Build
-The build scripts and instructions assume that the host machine is Ubuntu 18+. AWS instance types `c5a.large` (x64) or `c6g.large` (ARM64) are recommended for building.
+The build scripts and instructions assume that the host machine is Ubuntu Linux 18+. AWS instance types `c5a.large` (x64) or `c6g.large` (ARM64) are recommended for building.
 
 The build environment runs in a Docker container. Make sure that Docker is installed and that your user has permission to run `docker`. The following command will prepare a fresh AWS Ubuntu instance for building TMBASIC.
 
@@ -20,7 +20,7 @@ sudo apt-get update -y && \
 
 Clone the TMBASIC git repository, then start the build environment and build using the following commands:
 - `cd build`
-- `./build-env-linux-x64.sh` or `./build-env-linux-arm64.sh`
+- `./linux-x64.sh` or `./linux-arm64.sh` or `./win-x64.sh`
 - `make`
 - `exit`
 

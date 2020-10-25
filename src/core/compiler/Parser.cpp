@@ -21,9 +21,9 @@ class Term {
     TermType type;
     std::vector<Term> subTerms;
     const Production* production;  // when type = kNonTerminal
-    basic::TokenType tokenType;    // when type = kTerminal
+    TokenKind tokenKind;           // when type = kTerminal
     int captureId;                 // when type = kCapture
-    Term(TermType type) : type(type), production(nullptr), tokenType(TokenType::kError), captureId(-1) {}
+    Term(TermType type) : type(type), production(nullptr), tokenKind(TokenKind::kError), captureId(-1) {}
 };
 
 enum class BoxType { kNode, kToken };
@@ -101,9 +101,9 @@ static Term prod(const Production* production) {
     return t;
 }
 
-static Term term(TokenType tokenType) {
+static Term term(TokenKind TokenKind) {
     auto t = Term(TermType::kTerminal);
-    t.tokenType = tokenType;
+    t.tokenKind = TokenKind;
     return t;
 }
 
@@ -204,7 +204,7 @@ static std::string captureTokenText(std::unique_ptr<Box> box) {
     return captureToken(std::move(box)).text;
 }
 
-static TokenType captureTokenType(std::unique_ptr<Box> box) {
+static TokenKind captureTokenKind(std::unique_ptr<Box> box) {
     return captureToken(std::move(box)).type;
 }
 
@@ -224,33 +224,33 @@ static std::unique_ptr<TokenBox> tokenBox(Token token) {
 // helpers
 //
 
-static BinaryOperator tokenTypeToBinaryOperator(TokenType tokenType) {
-    switch (tokenType) {
-        case TokenType::kMultiplicationSign:
+static BinaryOperator TokenKindToBinaryOperator(TokenKind TokenKind) {
+    switch (TokenKind) {
+        case TokenKind::kMultiplicationSign:
             return BinaryOperator::kMultiply;
-        case TokenType::kDivisionSign:
+        case TokenKind::kDivisionSign:
             return BinaryOperator::kDivide;
-        case TokenType::kMod:
+        case TokenKind::kMod:
             return BinaryOperator::kModulus;
-        case TokenType::kPlusSign:
+        case TokenKind::kPlusSign:
             return BinaryOperator::kAdd;
-        case TokenType::kMinusSign:
+        case TokenKind::kMinusSign:
             return BinaryOperator::kSubtract;
-        case TokenType::kLessThanSign:
+        case TokenKind::kLessThanSign:
             return BinaryOperator::kLessThan;
-        case TokenType::kLessThanEqualsSign:
+        case TokenKind::kLessThanEqualsSign:
             return BinaryOperator::kLessThanEquals;
-        case TokenType::kGreaterThanSign:
+        case TokenKind::kGreaterThanSign:
             return BinaryOperator::kGreaterThan;
-        case TokenType::kGreaterThanEqualsSign:
+        case TokenKind::kGreaterThanEqualsSign:
             return BinaryOperator::kGreaterThanEquals;
-        case TokenType::kEqualsSign:
+        case TokenKind::kEqualsSign:
             return BinaryOperator::kEquals;
-        case TokenType::kNotEqualsSign:
+        case TokenKind::kNotEqualsSign:
             return BinaryOperator::kNotEquals;
-        case TokenType::kAnd:
+        case TokenKind::kAnd:
             return BinaryOperator::kAnd;
-        case TokenType::kOr:
+        case TokenKind::kOr:
             return BinaryOperator::kOr;
         default:
             assert(false);
@@ -260,7 +260,7 @@ static BinaryOperator tokenTypeToBinaryOperator(TokenType tokenType) {
 
 static std::unique_ptr<Box> parseBinaryExpressionSuffix(CaptureArray& captures, const Token& firstToken) {
     return nodeBox(new BinaryExpressionSuffixNode(
-        tokenTypeToBinaryOperator(captureTokenType(std::move(captures[0]))),
+        TokenKindToBinaryOperator(captureTokenKind(std::move(captures[0]))),
         captureSingleNode<ExpressionNode>(std::move(captures[1])), firstToken));
 }
 
@@ -306,7 +306,7 @@ class ArgumentListProduction : public Production {
                   optional({
                       capture(0, prod(expression)),
                       zeroOrMore({
-                          term(TokenType::kComma),
+                          term(TokenKind::kComma),
                           capture(0, prod(expression)),
                       }),
                   }),
@@ -323,9 +323,9 @@ class ParameterProduction : public Production {
         : Production(
               NAMEOF_TYPE(ParameterProduction),
               {
-                  capture(0, term(TokenType::kIdentifier)),
+                  capture(0, term(TokenKind::kIdentifier)),
                   cut(),
-                  term(TokenType::kAs),
+                  term(TokenKind::kAs),
                   capture(1, prod(type)),
               }) {}
 
@@ -345,7 +345,7 @@ class ParameterListProduction : public Production {
                       capture(0, prod(parameter)),
                       cut(),
                       zeroOrMore({
-                          term(TokenType::kComma),
+                          term(TokenKind::kComma),
                           capture(0, prod(parameter)),
                       }),
                   }),
@@ -362,7 +362,7 @@ class NamedTypeProduction : public Production {
         : Production(
               NAMEOF_TYPE(NamedTypeProduction),
               {
-                  capture(0, term(TokenType::kIdentifier)),
+                  capture(0, term(TokenKind::kIdentifier)),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
@@ -380,10 +380,10 @@ class TypeWithParenthesesProduction : public Production {
               {
                   oneOf({
                       list({
-                          term(TokenType::kLeftParenthesis),
+                          term(TokenKind::kLeftParenthesis),
                           cut(),
                           capture(0, prod(type)),
-                          term(TokenType::kRightParenthesis),
+                          term(TokenKind::kRightParenthesis),
                       }),
                       capture(0, prod(type)),
                   }),
@@ -400,7 +400,7 @@ class OptionalTypeProduction : public Production {
         : Production(
               NAMEOF_TYPE(OptionalTypeProduction),
               {
-                  term(TokenType::kOptional),
+                  term(TokenKind::kOptional),
                   cut(),
                   capture(0, prod(typeWithParentheses)),
               }) {}
@@ -418,11 +418,11 @@ class MapTypeProduction : public Production {
         : Production(
               NAMEOF_TYPE(MapTypeProduction),
               {
-                  term(TokenType::kMap),
+                  term(TokenKind::kMap),
                   cut(),
-                  term(TokenType::kFrom),
+                  term(TokenKind::kFrom),
                   capture(0, prod(typeWithParentheses)),
-                  term(TokenType::kTo),
+                  term(TokenKind::kTo),
                   capture(1, prod(typeWithParentheses)),
               }) {}
 
@@ -440,9 +440,9 @@ class ListTypeProduction : public Production {
         : Production(
               NAMEOF_TYPE(ListTypeProduction),
               {
-                  term(TokenType::kList),
+                  term(TokenKind::kList),
                   cut(),
-                  term(TokenType::kOf),
+                  term(TokenKind::kOf),
                   capture(0, prod(typeWithParentheses)),
               }) {}
 
@@ -459,11 +459,11 @@ class RecordTypeProduction : public Production {
         : Production(
               NAMEOF_TYPE(RecordTypeProduction),
               {
-                  term(TokenType::kRecord),
+                  term(TokenKind::kRecord),
                   cut(),
-                  term(TokenType::kLeftParenthesis),
+                  term(TokenKind::kLeftParenthesis),
                   capture(0, prod(parameterList)),
-                  term(TokenType::kRightParenthesis),
+                  term(TokenKind::kRightParenthesis),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
@@ -485,38 +485,38 @@ class PrimitiveTypeProduction : public Production {
                   capture(
                       0,
                       oneOf({
-                          term(TokenType::kBoolean),
-                          term(TokenType::kNumber),
-                          term(TokenType::kText),
-                          term(TokenType::kDate),
-                          term(TokenType::kDateTime),
-                          term(TokenType::kDateTimeOffset),
-                          term(TokenType::kTimeSpan),
+                          term(TokenKind::kBoolean),
+                          term(TokenKind::kNumber),
+                          term(TokenKind::kText),
+                          term(TokenKind::kDate),
+                          term(TokenKind::kDateTime),
+                          term(TokenKind::kDateTimeOffset),
+                          term(TokenKind::kTimeSpan),
                       })),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         Kind k;
-        switch (captureTokenType(std::move(captures[0]))) {
-            case TokenType::kBoolean:
+        switch (captureTokenKind(std::move(captures[0]))) {
+            case TokenKind::kBoolean:
                 k = Kind::kBoolean;
                 break;
-            case TokenType::kNumber:
+            case TokenKind::kNumber:
                 k = Kind::kNumber;
                 break;
-            case TokenType::kText:
+            case TokenKind::kText:
                 k = Kind::kText;
                 break;
-            case TokenType::kDate:
+            case TokenKind::kDate:
                 k = Kind::kDate;
                 break;
-            case TokenType::kDateTime:
+            case TokenKind::kDateTime:
                 k = Kind::kDateTime;
                 break;
-            case TokenType::kDateTimeOffset:
+            case TokenKind::kDateTimeOffset:
                 k = Kind::kDateTimeOffset;
                 break;
-            case TokenType::kTimeSpan:
+            case TokenKind::kTimeSpan:
                 k = Kind::kTimeSpan;
                 break;
             default:
@@ -568,16 +568,16 @@ class LiteralValueProduction : public Production {
                   capture(
                       0,
                       oneOf({
-                          term(TokenType::kBooleanLiteral),
-                          term(TokenType::kNumberLiteral),
-                          term(TokenType::kStringLiteral),
+                          term(TokenKind::kBooleanLiteral),
+                          term(TokenKind::kNumberLiteral),
+                          term(TokenKind::kStringLiteral),
                       })),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         auto token = captureToken(std::move(captures[0]));
         switch (token.type) {
-            case TokenType::kBooleanLiteral: {
+            case TokenKind::kBooleanLiteral: {
                 auto lowercase = boost::algorithm::to_lower_copy(token.text);
                 if (lowercase == "true") {
                     return nodeBox(new LiteralBooleanExpressionNode(true, firstToken));
@@ -590,10 +590,10 @@ class LiteralValueProduction : public Production {
                 break;
             }
 
-            case TokenType::kNumberLiteral:
+            case TokenKind::kNumberLiteral:
                 return nodeBox(new LiteralNumberExpressionNode(parseDecimalString(token.text), firstToken));
 
-            case TokenType::kStringLiteral: {
+            case TokenKind::kStringLiteral: {
                 auto insidePart = token.text.substr(1, token.text.length() - 2);
                 auto doubleQuote = std::string("\"\"");
                 auto singleQuote = std::string("\"");
@@ -618,9 +618,9 @@ class LiteralRecordFieldProduction : public Production {
         : Production(
               NAMEOF_TYPE(LiteralRecordFieldProduction),
               {
-                  capture(0, term(TokenType::kIdentifier)),
+                  capture(0, term(TokenKind::kIdentifier)),
                   cut(),
-                  term(TokenType::kColon),
+                  term(TokenKind::kColon),
                   capture(1, prod(expression)),
               }) {}
 
@@ -641,7 +641,7 @@ class LiteralRecordFieldListProduction : public Production {
                       capture(0, prod(literalRecordField)),
                       cut(),
                       zeroOrMore({
-                          term(TokenType::kComma),
+                          term(TokenKind::kComma),
                           capture(0, prod(literalRecordField)),
                       }),
                   }),
@@ -658,10 +658,10 @@ class LiteralRecordTermProduction : public Production {
         : Production(
               NAMEOF_TYPE(LiteralRecordTermProduction),
               {
-                  term(TokenType::kLeftBrace),
+                  term(TokenKind::kLeftBrace),
                   cut(),
                   capture(0, prod(literalRecordFieldList)),
-                  term(TokenType::kRightBrace),
+                  term(TokenKind::kRightBrace),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
@@ -676,10 +676,10 @@ class LiteralArrayTermProduction : public Production {
         : Production(
               NAMEOF_TYPE(LiteralArrayTermProduction),
               {
-                  term(TokenType::kLeftBracket),
+                  term(TokenKind::kLeftBracket),
                   cut(),
                   capture(0, prod(argumentList)),
-                  term(TokenType::kRightBracket),
+                  term(TokenKind::kRightBracket),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
@@ -694,11 +694,11 @@ class FunctionCallTermProduction : public Production {
         : Production(
               NAMEOF_TYPE(FunctionCallTermProduction),
               {
-                  capture(0, term(TokenType::kIdentifier)),
-                  term(TokenType::kLeftParenthesis),
+                  capture(0, term(TokenKind::kIdentifier)),
+                  term(TokenKind::kLeftParenthesis),
                   cut(),
                   capture(1, prod(argumentList)),
-                  term(TokenType::kRightParenthesis),
+                  term(TokenKind::kRightParenthesis),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
@@ -714,10 +714,10 @@ class ParenthesesTermProduction : public Production {
         : Production(
               NAMEOF_TYPE(ParenthesesTermProduction),
               {
-                  term(TokenType::kLeftParenthesis),
+                  term(TokenKind::kLeftParenthesis),
                   cut(),
                   capture(0, prod(expression)),
-                  term(TokenType::kRightParenthesis),
+                  term(TokenKind::kRightParenthesis),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
@@ -743,7 +743,7 @@ class ExpressionTermProduction : public Production {
                       capture(0, prod(functionCallTerm)),
                       capture(0, prod(literalArrayTerm)),
                       capture(0, prod(literalRecordTerm)),
-                      capture(1, term(TokenType::kIdentifier)),
+                      capture(1, term(TokenKind::kIdentifier)),
                   }),
               }) {}
 
@@ -765,13 +765,13 @@ class DottedExpressionSuffixProduction : public Production {
         : Production(
               NAMEOF_TYPE(DottedExpressionSuffixProduction),
               {
-                  term(TokenType::kDot),
+                  term(TokenKind::kDot),
                   cut(),
-                  capture(0, term(TokenType::kIdentifier)),
+                  capture(0, term(TokenKind::kIdentifier)),
                   optional({
-                      term(TokenType::kLeftParenthesis),
+                      term(TokenKind::kLeftParenthesis),
                       capture(1, prod(argumentList)),
-                      term(TokenType::kRightParenthesis),
+                      term(TokenKind::kRightParenthesis),
                   }),
               }) {}
 
@@ -815,7 +815,7 @@ class ConvertExpressionProduction : public Production {
               {
                   capture(0, prod(dottedExpression)),
                   optional({
-                      term(TokenType::kAs),
+                      term(TokenKind::kAs),
                       capture(1, prod(type)),
                   }),
               }) {}
@@ -839,7 +839,7 @@ class UnaryExpressionProduction : public Production {
               NAMEOF_TYPE(UnaryExpressionProduction),
               {
                   optional({
-                      capture(0, term(TokenType::kNot)),
+                      capture(0, term(TokenKind::kNot)),
                   }),
                   capture(1, prod(convertExpression)),
               }) {}
@@ -863,9 +863,9 @@ class MultiplyExpressionSuffixProduction : public Production {
                   capture(
                       0,
                       oneOf({
-                          term(TokenType::kMultiplicationSign),
-                          term(TokenType::kDivisionSign),
-                          term(TokenType::kMod),
+                          term(TokenKind::kMultiplicationSign),
+                          term(TokenKind::kDivisionSign),
+                          term(TokenKind::kMod),
                       })),
                   capture(1, prod(unaryExpression)),
               }) {}
@@ -901,8 +901,8 @@ class AddExpressionSuffixProduction : public Production {
                   capture(
                       0,
                       oneOf({
-                          term(TokenType::kPlusSign),
-                          term(TokenType::kMinusSign),
+                          term(TokenKind::kPlusSign),
+                          term(TokenKind::kMinusSign),
                       })),
                   capture(1, prod(multiplyExpression)),
               }) {}
@@ -938,10 +938,10 @@ class InequalityExpressionSuffixProduction : public Production {
                   capture(
                       0,
                       oneOf({
-                          term(TokenType::kLessThanSign),
-                          term(TokenType::kLessThanEqualsSign),
-                          term(TokenType::kGreaterThanSign),
-                          term(TokenType::kGreaterThanEqualsSign),
+                          term(TokenKind::kLessThanSign),
+                          term(TokenKind::kLessThanEqualsSign),
+                          term(TokenKind::kGreaterThanSign),
+                          term(TokenKind::kGreaterThanEqualsSign),
                       })),
                   capture(1, prod(addExpression)),
               }) {}
@@ -977,8 +977,8 @@ class EqualityExpressionSuffixProduction : public Production {
                   capture(
                       0,
                       oneOf({
-                          term(TokenType::kEqualsSign),
-                          term(TokenType::kNotEqualsSign),
+                          term(TokenKind::kEqualsSign),
+                          term(TokenKind::kNotEqualsSign),
                       })),
                   capture(1, prod(inequalityExpression)),
               }) {}
@@ -1011,7 +1011,7 @@ class AndExpressionSuffixProduction : public Production {
         : Production(
               NAMEOF_TYPE(AndExpressionSuffixProduction),
               {
-                  capture(0, term(TokenType::kAnd)),
+                  capture(0, term(TokenKind::kAnd)),
                   capture(1, prod(equalityExpression)),
               }) {}
 
@@ -1043,7 +1043,7 @@ class OrExpressionSuffixProduction : public Production {
         : Production(
               NAMEOF_TYPE(OrExpressionSuffixProduction),
               {
-                  capture(0, term(TokenType::kOr)),
+                  capture(0, term(TokenKind::kOr)),
                   capture(1, prod(andExpression)),
               }) {}
 
@@ -1086,9 +1086,9 @@ class FinallyBlockProduction : public Production {
         : Production(
               NAMEOF_TYPE(FinallyBlockProduction),
               {
-                  term(TokenType::kFinally),
+                  term(TokenKind::kFinally),
                   cut(),
-                  term(TokenType::kEndOfLine),
+                  term(TokenKind::kEndOfLine),
                   capture(0, prod(body)),
               }) {}
 
@@ -1103,9 +1103,9 @@ class CatchBlockProduction : public Production {
         : Production(
               NAMEOF_TYPE(CatchBlockProduction),
               {
-                  term(TokenType::kCatch),
+                  term(TokenKind::kCatch),
                   cut(),
-                  term(TokenType::kEndOfLine),
+                  term(TokenKind::kEndOfLine),
                   capture(0, prod(body)),
               }) {}
 
@@ -1120,9 +1120,9 @@ class TryStatementProduction : public Production {
         : Production(
               NAMEOF_TYPE(TryStatementProduction),
               {
-                  term(TokenType::kTry),
+                  term(TokenKind::kTry),
                   cut(),
-                  term(TokenType::kEndOfLine),
+                  term(TokenKind::kEndOfLine),
                   capture(0, prod(body)),
                   optional({
                       capture(1, prod(catchBlock)),
@@ -1146,9 +1146,9 @@ class RethrowStatementProduction : public Production {
         : Production(
               NAMEOF_TYPE(RethrowStatementProduction),
               {
-                  term(TokenType::kRethrow),
+                  term(TokenKind::kRethrow),
                   cut(),
-                  term(TokenType::kEndOfLine),
+                  term(TokenKind::kEndOfLine),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
@@ -1162,10 +1162,10 @@ class ThrowStatementProduction : public Production {
         : Production(
               NAMEOF_TYPE(ThrowStatementProduction),
               {
-                  term(TokenType::kThrow),
+                  term(TokenKind::kThrow),
                   cut(),
                   capture(0, prod(expression)),
-                  term(TokenType::kEndOfLine),
+                  term(TokenKind::kEndOfLine),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
@@ -1179,35 +1179,35 @@ class ExitStatementProduction : public Production {
         : Production(
               NAMEOF_TYPE(ExitStatementProduction),
               {
-                  term(TokenType::kExit),
+                  term(TokenKind::kExit),
                   capture(
                       0,
                       oneOf({
-                          term(TokenType::kDo),
-                          term(TokenType::kFor),
-                          term(TokenType::kSelect),
-                          term(TokenType::kTry),
-                          term(TokenType::kWhile),
+                          term(TokenKind::kDo),
+                          term(TokenKind::kFor),
+                          term(TokenKind::kSelect),
+                          term(TokenKind::kTry),
+                          term(TokenKind::kWhile),
                       })),
-                  term(TokenType::kEndOfLine),
+                  term(TokenKind::kEndOfLine),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         ExitScope scope;
-        switch (captureTokenType(std::move(captures[0]))) {
-            case TokenType::kDo:
+        switch (captureTokenKind(std::move(captures[0]))) {
+            case TokenKind::kDo:
                 scope = ExitScope::kDo;
                 break;
-            case TokenType::kFor:
+            case TokenKind::kFor:
                 scope = ExitScope::kFor;
                 break;
-            case TokenType::kSelect:
+            case TokenKind::kSelect:
                 scope = ExitScope::kSelectCase;
                 break;
-            case TokenType::kTry:
+            case TokenKind::kTry:
                 scope = ExitScope::kTry;
                 break;
-            case TokenType::kWhile:
+            case TokenKind::kWhile:
                 scope = ExitScope::kWhile;
                 break;
             default:
@@ -1225,27 +1225,27 @@ class ContinueStatementProduction : public Production {
         : Production(
               NAMEOF_TYPE(ContinueStatementProduction),
               {
-                  term(TokenType::kExit),
+                  term(TokenKind::kExit),
                   capture(
                       0,
                       oneOf({
-                          term(TokenType::kDo),
-                          term(TokenType::kFor),
-                          term(TokenType::kWhile),
+                          term(TokenKind::kDo),
+                          term(TokenKind::kFor),
+                          term(TokenKind::kWhile),
                       })),
-                  term(TokenType::kEndOfLine),
+                  term(TokenKind::kEndOfLine),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         ContinueScope scope;
-        switch (captureTokenType(std::move(captures[0]))) {
-            case TokenType::kDo:
+        switch (captureTokenKind(std::move(captures[0]))) {
+            case TokenKind::kDo:
                 scope = ContinueScope::kDo;
                 break;
-            case TokenType::kFor:
+            case TokenKind::kFor:
                 scope = ContinueScope::kFor;
                 break;
-            case TokenType::kWhile:
+            case TokenKind::kWhile:
                 scope = ContinueScope::kWhile;
                 break;
             default:
@@ -1263,10 +1263,10 @@ class CallStatementProduction : public Production {
         : Production(
               NAMEOF_TYPE(CallStatementProduction),
               {
-                  capture(0, term(TokenType::kIdentifier)),
+                  capture(0, term(TokenKind::kIdentifier)),
                   cut(),
                   capture(1, prod(argumentList)),
-                  term(TokenType::kEndOfLine),
+                  term(TokenKind::kEndOfLine),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
@@ -1282,12 +1282,12 @@ class ReturnStatementProduction : public Production {
         : Production(
               NAMEOF_TYPE(ReturnStatementProduction),
               {
-                  term(TokenType::kReturn),
+                  term(TokenKind::kReturn),
                   cut(),
                   optional({
                       capture(0, prod(expression)),
                   }),
-                  term(TokenType::kEndOfLine),
+                  term(TokenKind::kEndOfLine),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
@@ -1302,15 +1302,15 @@ class SelectStatementProduction : public Production {
         : Production(
               NAMEOF_TYPE(SelectStatementProduction),
               {
-                  term(TokenType::kSelect),
+                  term(TokenKind::kSelect),
                   // no cut here, since it could be 'select' 'case'
                   capture(0, prod(expression)),
                   cut(),  // instead the cut is here
                   optional({
-                      term(TokenType::kTo),
+                      term(TokenKind::kTo),
                       capture(1, prod(expression)),
                   }),
-                  term(TokenType::kEndOfLine),
+                  term(TokenKind::kEndOfLine),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
@@ -1326,12 +1326,12 @@ class ConstStatementProduction : public Production {
         : Production(
               NAMEOF_TYPE(ConstStatementProduction),
               {
-                  term(TokenType::kConst),
+                  term(TokenKind::kConst),
                   cut(),
-                  capture(0, term(TokenType::kIdentifier)),
-                  term(TokenType::kEqualsSign),
+                  capture(0, term(TokenKind::kIdentifier)),
+                  term(TokenKind::kEqualsSign),
                   capture(1, prod(literalValue)),
-                  term(TokenType::kEndOfLine),
+                  term(TokenKind::kEndOfLine),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
@@ -1350,13 +1350,13 @@ class AssignLocationSuffixProduction : public Production {
               {
                   oneOf({
                       list({
-                          term(TokenType::kDot),
-                          capture(0, term(TokenType::kIdentifier)),
+                          term(TokenKind::kDot),
+                          capture(0, term(TokenKind::kIdentifier)),
                       }),
                       list({
-                          term(TokenType::kLeftParenthesis),
+                          term(TokenKind::kLeftParenthesis),
                           capture(1, prod(expression)),
-                          term(TokenType::kRightParenthesis),
+                          term(TokenKind::kRightParenthesis),
                       }),
                   }),
               }) {}
@@ -1377,13 +1377,13 @@ class AssignStatementProduction : public Production {
         : Production(
               NAMEOF_TYPE(AssignStatementProduction),
               {
-                  capture(0, term(TokenType::kIdentifier)),
+                  capture(0, term(TokenKind::kIdentifier)),
                   zeroOrMore({
                       capture(1, prod(assignLocationSuffix)),
                   }),
-                  term(TokenType::kEqualsSign),
+                  term(TokenKind::kEqualsSign),
                   capture(2, prod(expression)),
-                  term(TokenType::kEndOfLine),
+                  term(TokenKind::kEndOfLine),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
@@ -1400,20 +1400,20 @@ class DimStatementProduction : public Production {
         : Production(
               NAMEOF_TYPE(DimStatementProduction),
               {
-                  term(TokenType::kDim),  // no cut here because it could be "dim list"
-                  capture(0, term(TokenType::kIdentifier)),
+                  term(TokenKind::kDim),  // no cut here because it could be "dim list"
+                  capture(0, term(TokenKind::kIdentifier)),
                   cut(),  // cut here instead
                   oneOf({
                       list({
-                          term(TokenType::kAs),
+                          term(TokenKind::kAs),
                           capture(1, prod(type)),
                       }),
                       list({
-                          term(TokenType::kEqualsSign),
+                          term(TokenKind::kEqualsSign),
                           capture(2, prod(expression)),
                       }),
                   }),
-                  term(TokenType::kEndOfLine),
+                  term(TokenKind::kEndOfLine),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
@@ -1435,28 +1435,28 @@ class DimCollectionStatementProduction : public Production {
         : Production(
               NAMEOF_TYPE(DimCollectionStatementProduction),
               {
-                  term(TokenType::kDim),
+                  term(TokenKind::kDim),
                   capture(
                       0,
                       oneOf({
-                          term(TokenType::kList),
-                          term(TokenType::kMap),
+                          term(TokenKind::kList),
+                          term(TokenKind::kMap),
                       })),
-                  capture(1, term(TokenType::kIdentifier)),
-                  term(TokenType::kEndOfLine),
+                  capture(1, term(TokenKind::kIdentifier)),
+                  term(TokenKind::kEndOfLine),
                   capture(2, prod(body)),
-                  term(TokenType::kEnd),
-                  term(TokenType::kDim),
-                  term(TokenType::kEndOfLine),
+                  term(TokenKind::kEnd),
+                  term(TokenKind::kDim),
+                  term(TokenKind::kEndOfLine),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         CollectionType type;
-        switch (captureTokenType(std::move(captures[0]))) {
-            case TokenType::kList:
+        switch (captureTokenKind(std::move(captures[0]))) {
+            case TokenKind::kList:
                 type = CollectionType::kList;
                 break;
-            case TokenType::kMap:
+            case TokenKind::kMap:
                 type = CollectionType::kMap;
                 break;
             default:
@@ -1478,7 +1478,7 @@ class CaseValueProduction : public Production {
               {
                   capture(0, prod(expression)),
                   optional({
-                      term(TokenType::kTo),
+                      term(TokenKind::kTo),
                       capture(1, prod(expression)),
                   }),
               }) {}
@@ -1498,7 +1498,7 @@ class CaseValueListProduction : public Production {
               {
                   capture(0, prod(caseValue)),
                   zeroOrMore({
-                      term(TokenType::kComma),
+                      term(TokenKind::kComma),
                       capture(0, prod(caseValue)),
                   }),
               }) {}
@@ -1514,13 +1514,13 @@ class CaseProduction : public Production {
         : Production(
               NAMEOF_TYPE(CaseProduction),
               {
-                  term(TokenType::kCase),
+                  term(TokenKind::kCase),
                   cut(),
                   oneOf({
                       capture(0, prod(caseValueList)),
-                      term(TokenType::kElse),
+                      term(TokenKind::kElse),
                   }),
-                  term(TokenType::kEndOfLine),
+                  term(TokenKind::kEndOfLine),
                   capture(1, prod(body)),
               }) {}
 
@@ -1537,17 +1537,17 @@ class SelectCaseStatementProduction : public Production {
         : Production(
               NAMEOF_TYPE(SelectCaseStatementProduction),
               {
-                  term(TokenType::kSelect),
-                  term(TokenType::kCase),
+                  term(TokenKind::kSelect),
+                  term(TokenKind::kCase),
                   cut(),
                   capture(0, prod(expression)),
-                  term(TokenType::kEndOfLine),
+                  term(TokenKind::kEndOfLine),
                   zeroOrMore({
                       capture(1, prod(case_)),
                   }),
-                  term(TokenType::kEnd),
-                  term(TokenType::kSelect),
-                  term(TokenType::kEndOfLine),
+                  term(TokenKind::kEnd),
+                  term(TokenKind::kSelect),
+                  term(TokenKind::kEndOfLine),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
@@ -1563,22 +1563,22 @@ class GroupStatementProduction : public Production {
         : Production(
               NAMEOF_TYPE(GroupStatementProduction),
               {
-                  term(TokenType::kGroup),
+                  term(TokenKind::kGroup),
                   cut(),
                   capture(0, prod(expression)),
-                  term(TokenType::kBy),
+                  term(TokenKind::kBy),
                   capture(1, prod(expression)),
-                  term(TokenType::kInto),
-                  capture(2, term(TokenType::kIdentifier)),
+                  term(TokenKind::kInto),
+                  capture(2, term(TokenKind::kIdentifier)),
                   optional({
-                      term(TokenType::kWith),
-                      term(TokenType::kKey),
-                      capture(3, term(TokenType::kIdentifier)),
+                      term(TokenKind::kWith),
+                      term(TokenKind::kKey),
+                      capture(3, term(TokenKind::kIdentifier)),
                   }),
-                  term(TokenType::kEndOfLine),
+                  term(TokenKind::kEndOfLine),
                   capture(4, prod(body)),
-                  term(TokenType::kNext),
-                  term(TokenType::kEndOfLine),
+                  term(TokenKind::kNext),
+                  term(TokenKind::kEndOfLine),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
@@ -1597,17 +1597,17 @@ class JoinStatementProduction : public Production {
         : Production(
               NAMEOF_TYPE(JoinStatementProduction),
               {
-                  term(TokenType::kJoin),
+                  term(TokenKind::kJoin),
                   cut(),
-                  capture(0, term(TokenType::kIdentifier)),
-                  term(TokenType::kIn),
+                  capture(0, term(TokenKind::kIdentifier)),
+                  term(TokenKind::kIn),
                   capture(1, prod(expression)),
-                  term(TokenType::kOn),
+                  term(TokenKind::kOn),
                   capture(2, prod(expression)),
-                  term(TokenType::kEndOfLine),
+                  term(TokenKind::kEndOfLine),
                   capture(1, prod(body)),
-                  term(TokenType::kNext),
-                  term(TokenType::kEndOfLine),
+                  term(TokenKind::kNext),
+                  term(TokenKind::kEndOfLine),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
@@ -1627,8 +1627,8 @@ class DoConditionProduction : public Production {
                   capture(
                       0,
                       oneOf({
-                          term(TokenType::kWhile),
-                          term(TokenType::kUntil),
+                          term(TokenKind::kWhile),
+                          term(TokenKind::kUntil),
                       })),
                   cut(),
                   capture(1, prod(expression)),
@@ -1636,11 +1636,11 @@ class DoConditionProduction : public Production {
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         DoConditionType type;
-        switch (captureTokenType(std::move(captures[0]))) {
-            case TokenType::kWhile:
+        switch (captureTokenKind(std::move(captures[0]))) {
+            case TokenKind::kWhile:
                 type = DoConditionType::kWhile;
                 break;
-            case TokenType::kUntil:
+            case TokenKind::kUntil:
                 type = DoConditionType::kUntil;
                 break;
             default:
@@ -1659,23 +1659,23 @@ class DoStatementProduction : public Production {
         : Production(
               NAMEOF_TYPE(DoStatementProduction),
               {
-                  term(TokenType::kDo),
+                  term(TokenKind::kDo),
                   cut(),
                   oneOf({
                       list({
                           capture(0, prod(doCondition)),
-                          term(TokenType::kEndOfLine),
+                          term(TokenKind::kEndOfLine),
                           capture(1, prod(body)),
-                          term(TokenType::kLoop),
+                          term(TokenKind::kLoop),
                       }),
                       list({
-                          term(TokenType::kEndOfLine),
+                          term(TokenKind::kEndOfLine),
                           capture(1, prod(body)),
-                          term(TokenType::kLoop),
+                          term(TokenKind::kLoop),
                           capture(2, prod(doCondition)),
                       }),
                   }),
-                  term(TokenType::kEndOfLine),
+                  term(TokenKind::kEndOfLine),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
@@ -1693,11 +1693,11 @@ class ElseIfProduction : public Production {
         : Production(
               NAMEOF_TYPE(ElseIfProduction),
               {
-                  term(TokenType::kElse),
-                  term(TokenType::kIf),
+                  term(TokenKind::kElse),
+                  term(TokenKind::kIf),
                   capture(0, prod(expression)),
-                  term(TokenType::kThen),
-                  term(TokenType::kEndOfLine),
+                  term(TokenKind::kThen),
+                  term(TokenKind::kEndOfLine),
                   capture(1, prod(body)),
               }) {}
 
@@ -1714,23 +1714,23 @@ class IfStatementProduction : public Production {
         : Production(
               NAMEOF_TYPE(IfStatementProduction),
               {
-                  term(TokenType::kIf),
+                  term(TokenKind::kIf),
                   cut(),
                   capture(0, prod(expression)),
-                  term(TokenType::kThen),
-                  term(TokenType::kEndOfLine),
+                  term(TokenKind::kThen),
+                  term(TokenKind::kEndOfLine),
                   capture(1, prod(body)),
                   zeroOrMore({
                       capture(2, prod(elseIf)),
                   }),
                   optional({
-                      term(TokenType::kElse),
-                      term(TokenType::kEndOfLine),
+                      term(TokenKind::kElse),
+                      term(TokenKind::kEndOfLine),
                       capture(3, prod(body)),
                   }),
-                  term(TokenType::kEnd),
-                  term(TokenType::kIf),
-                  term(TokenType::kEndOfLine),
+                  term(TokenKind::kEnd),
+                  term(TokenKind::kIf),
+                  term(TokenKind::kEndOfLine),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
@@ -1747,13 +1747,13 @@ class WhileStatementProduction : public Production {
         : Production(
               NAMEOF_TYPE(WhileStatementProduction),
               {
-                  term(TokenType::kWhile),
+                  term(TokenKind::kWhile),
                   cut(),
                   capture(0, prod(expression)),
-                  term(TokenType::kEndOfLine),
+                  term(TokenKind::kEndOfLine),
                   capture(1, prod(body)),
-                  term(TokenType::kWend),
-                  term(TokenType::kEndOfLine),
+                  term(TokenKind::kWend),
+                  term(TokenKind::kEndOfLine),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
@@ -1769,15 +1769,15 @@ class ForEachStatementProduction : public Production {
         : Production(
               NAMEOF_TYPE(ForEachStatementProduction),
               {
-                  term(TokenType::kFrom),
+                  term(TokenKind::kFrom),
                   cut(),
-                  capture(0, term(TokenType::kIdentifier)),
-                  term(TokenType::kIn),
+                  capture(0, term(TokenKind::kIdentifier)),
+                  term(TokenKind::kIn),
                   capture(1, prod(expression)),
-                  term(TokenType::kEndOfLine),
+                  term(TokenKind::kEndOfLine),
                   capture(2, prod(body)),
-                  term(TokenType::kNext),
-                  term(TokenType::kEndOfLine),
+                  term(TokenKind::kNext),
+                  term(TokenKind::kEndOfLine),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
@@ -1793,22 +1793,22 @@ class ForStepProduction : public Production {
         : Production(
               NAMEOF_TYPE(ForStepProduction),
               {
-                  term(TokenType::kStep),
+                  term(TokenKind::kStep),
                   cut(),
                   capture(
                       0,
                       oneOf({
-                          term(TokenType::kNumberLiteral),
-                          term(TokenType::kIdentifier),
+                          term(TokenKind::kNumberLiteral),
+                          term(TokenKind::kIdentifier),
                       })),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         auto t = captureToken(std::move(captures[0]));
         switch (t.type) {
-            case TokenType::kNumberLiteral:
+            case TokenKind::kNumberLiteral:
                 return nodeBox(new ForStepNode(parseDecimalString(t.text), firstToken));
-            case TokenType::kIdentifier:
+            case TokenKind::kIdentifier:
                 return nodeBox(new ForStepNode(std::make_unique<SymbolReferenceExpressionNode>(t.text, t), firstToken));
             default:
                 assert(false);
@@ -1823,20 +1823,20 @@ class ForStatementProduction : public Production {
         : Production(
               NAMEOF_TYPE(ForStatementProduction),
               {
-                  term(TokenType::kFor),  // no cut here because it could be FOR EACH
-                  capture(0, term(TokenType::kIdentifier)),
+                  term(TokenKind::kFor),  // no cut here because it could be FOR EACH
+                  capture(0, term(TokenKind::kIdentifier)),
                   cut(),
-                  term(TokenType::kEqualsSign),
+                  term(TokenKind::kEqualsSign),
                   capture(1, prod(expression)),
-                  term(TokenType::kTo),
+                  term(TokenKind::kTo),
                   capture(2, prod(expression)),
                   optional({
                       capture(3, prod(forStep)),
                   }),
-                  term(TokenType::kEndOfLine),
+                  term(TokenKind::kEndOfLine),
                   capture(4, prod(body)),
-                  term(TokenType::kNext),
-                  term(TokenType::kEndOfLine),
+                  term(TokenKind::kNext),
+                  term(TokenKind::kEndOfLine),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
@@ -1929,17 +1929,17 @@ class TypeDeclarationProduction : public Production {
         : Production(
               NAMEOF_TYPE(TypeDeclarationProduction),
               {
-                  term(TokenType::kType),
+                  term(TokenKind::kType),
                   cut(),
-                  capture(0, term(TokenType::kIdentifier)),
-                  term(TokenType::kEndOfLine),
+                  capture(0, term(TokenKind::kIdentifier)),
+                  term(TokenKind::kEndOfLine),
                   zeroOrMore({
                       capture(1, prod(parameter)),
-                      term(TokenType::kEndOfLine),
+                      term(TokenKind::kEndOfLine),
                   }),
-                  term(TokenType::kEnd),
-                  term(TokenType::kType),
-                  term(TokenType::kEndOfLine),
+                  term(TokenKind::kEnd),
+                  term(TokenKind::kType),
+                  term(TokenKind::kEndOfLine),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
@@ -1955,19 +1955,19 @@ class FunctionProduction : public Production {
         : Production(
               NAMEOF_TYPE(FunctionProduction),
               {
-                  term(TokenType::kFunction),
+                  term(TokenKind::kFunction),
                   cut(),
-                  capture(0, term(TokenType::kIdentifier)),
-                  term(TokenType::kLeftParenthesis),
+                  capture(0, term(TokenKind::kIdentifier)),
+                  term(TokenKind::kLeftParenthesis),
                   capture(1, prod(parameterList)),
-                  term(TokenType::kRightParenthesis),
-                  term(TokenType::kAs),
+                  term(TokenKind::kRightParenthesis),
+                  term(TokenKind::kAs),
                   capture(2, prod(type)),
-                  term(TokenType::kEndOfLine),
+                  term(TokenKind::kEndOfLine),
                   capture(3, prod(body)),
-                  term(TokenType::kEnd),
-                  term(TokenType::kFunction),
-                  term(TokenType::kEndOfLine),
+                  term(TokenKind::kEnd),
+                  term(TokenKind::kFunction),
+                  term(TokenKind::kEndOfLine),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
@@ -1984,17 +1984,17 @@ class SubroutineProduction : public Production {
         : Production(
               NAMEOF_TYPE(SubroutineProduction),
               {
-                  term(TokenType::kSub),
+                  term(TokenKind::kSub),
                   cut(),
-                  capture(0, term(TokenType::kIdentifier)),
-                  term(TokenType::kLeftParenthesis),
+                  capture(0, term(TokenKind::kIdentifier)),
+                  term(TokenKind::kLeftParenthesis),
                   capture(1, prod(parameterList)),
-                  term(TokenType::kRightParenthesis),
-                  term(TokenType::kEndOfLine),
+                  term(TokenKind::kRightParenthesis),
+                  term(TokenKind::kEndOfLine),
                   capture(2, prod(body)),
-                  term(TokenType::kEnd),
-                  term(TokenType::kSub),
-                  term(TokenType::kEndOfLine),
+                  term(TokenKind::kEnd),
+                  term(TokenKind::kSub),
+                  term(TokenKind::kEndOfLine),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
@@ -2155,7 +2155,7 @@ class InputState {
     size_t tokenIndex;
 
     InputState(const std::vector<Token>& tokens)
-        : tokens(tokens), tokenIndex(0), _endOfFileToken(Token(-1, 0, TokenType::kEndOfFile, "")) {}
+        : tokens(tokens), tokenIndex(0), _endOfFileToken(Token(-1, 0, TokenKind::kEndOfFile, "")) {}
 
     const Token& currentToken() {
         if (tokenIndex < tokens.size()) {
@@ -2271,7 +2271,7 @@ static Token peekToken(const InputState& inputState) {
     if (inputState.tokenIndex < inputState.tokens.size()) {
         return inputState.tokens[inputState.tokenIndex];
     } else {
-        return Token(-1, 0, TokenType::kEndOfFile, "");
+        return Token(-1, 0, TokenKind::kEndOfFile, "");
     }
 }
 
@@ -2405,10 +2405,10 @@ static TermResult parseTermCore(const Term& term, InputState& inputState, Produc
 
         case TermType::kTerminal: {
 #ifdef DUMP_AST
-            std::cout << std::string(depth + 4, ' ') << NAMEOF_ENUM(term.tokenType) << " " << std::endl;
+            std::cout << std::string(depth + 4, ' ') << NAMEOF_ENUM(term.tokenKind) << " " << std::endl;
 #endif
             auto terminalToken = peekToken(inputState);
-            if (term.tokenType == terminalToken.type) {
+            if (term.tokenKind == terminalToken.type) {
                 acceptToken(inputState);
                 return TermResult::success(tokenBox(terminalToken));
             } else {

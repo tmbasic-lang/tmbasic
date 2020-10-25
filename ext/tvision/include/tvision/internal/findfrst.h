@@ -3,7 +3,6 @@
 
 #include <string>
 #include <vector>
-#include <mutex>
 #include <filesystem>
 
 #include <tvision/tv.h>
@@ -58,11 +57,6 @@ private:
         {
             for (FindFirstRec &r : *this)
                 r.close();
-        }
-        std::mutex m;
-        std::lock_guard<std::mutex> lock()
-        {
-            return std::lock_guard<std::mutex>(m);
         }
     } static recList;
 };

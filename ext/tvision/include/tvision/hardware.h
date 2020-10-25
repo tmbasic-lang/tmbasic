@@ -27,10 +27,14 @@
 #include <tvision/borland/win.h>
 #endif
 
-#ifdef __BORLANDC__
 // Missing symbols in wincon.h
+#ifdef _WIN32
+#ifndef MOUSE_WHEELED
 #define MOUSE_WHEELED   0x0004
+#endif
+#ifndef MOUSE_HWHEELED
 #define MOUSE_HWHEELED  0x0008
+#endif
 #endif
 
 #else

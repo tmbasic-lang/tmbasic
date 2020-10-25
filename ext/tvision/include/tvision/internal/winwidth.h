@@ -8,7 +8,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <vector>
-#include <mutex>
 #include <unordered_map>
 
 class WinWidth {
@@ -31,7 +30,6 @@ class WinWidth {
 
     static thread_local WinWidth state;
     static std::vector<WinWidth*> states;
-    static std::mutex m;
 
 
 public:

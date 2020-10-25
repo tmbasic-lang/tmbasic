@@ -889,8 +889,7 @@ private:
     void selectView( TView *p, Boolean enable );
     TView* findNext(Boolean forwards);
 
-    virtual const char *streamableName() const
-        { return name; }
+    virtual const char *streamableName() const;
 
 protected:
 
@@ -989,8 +988,7 @@ public:
 
 private:
 
-    virtual const char *streamableName() const
-        { return name; }
+    virtual const char *streamableName() const;
 
 protected:
 

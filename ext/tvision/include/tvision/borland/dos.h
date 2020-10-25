@@ -531,12 +531,9 @@ void        _RTLENTRYF setvect( int __interruptno,
 extern "C" {
 #endif
 extern  int * _RTLENTRY _EXPFUNC __errno(void);
-extern  int * _RTLENTRY _EXPFUNC __doserrno(void);
 #ifdef  __cplusplus
 }
 #endif
-#define errno (*__errno())
-#define _doserrno (*__doserrno())
 
 #else
 
@@ -601,7 +598,7 @@ struct  dfree   {
     unsigned df_bsec;
     unsigned df_sclus;
 };
-#ifndef _MSC_VER
+#ifndef _WIN32
 struct  diskfree_t {
     unsigned total_clusters;
     unsigned avail_clusters;
