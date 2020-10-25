@@ -30,6 +30,10 @@
 
 #include "gadgets.h"
 
+#ifdef __linux__
+#include <malloc.h>
+#endif
+
 //extern "C" unsigned long farcoreleft( void );
 
 //

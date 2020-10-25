@@ -4,6 +4,5 @@ obj
 mac
 .vscode/settings.json
 valgrind.txt
-doc/diagrams/license*.txt
 build/docker/*.tar.gz
 build/docker/*.zst
