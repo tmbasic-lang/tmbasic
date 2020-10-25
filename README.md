@@ -2,6 +2,7 @@
 
 ## Platforms
 TMBASIC is tested on:
+- Windows 10 (x64)
 - Ubuntu Linux 18.04 (x64, ARM64)
 - Android 10 (ARM64) using [Termux](https://termux.com/)
 
@@ -18,20 +19,23 @@ sudo apt-get update -y && \
     sudo reboot
 ```
 
-Clone the TMBASIC git repository, then start the build environment and build using the following commands:
-- `cd build`
-- `./linux-x64.sh` or `./linux-arm64.sh` or `./win-x64.sh`
-- `make`
-- `exit`
-
-## Cross-compile ARM64
-To build ARM64 binaries on an x64 host, install the following packages first and then perform the build steps above. Skip this step if you only want to build binaries native to your host platform. Note: cross-compilation is slow; consider using an ARM64 cloud instance instead.
+If you want to build ARM64 binaries on an x64 host, install the following prerequisite packages. Skip this step if you only want to build binaries native to your host platform.
 
 ```
 sudo apt-get install qemu binfmt-support qemu-user-static
 ```
 
-## Software license
+Clone the TMBASIC git repository, then start the build environment and build using the following commands:
+<table><tr><th>Linux (x64)</th><th>Linux (ARM64)</th><th>Windows (x64)</th></tr>
+<tr><td><pre>cd build
+./linux-x64.sh
+make</pre></td><td><pre>cd build
+./linux-arm64.sh
+make</pre></td><td><pre>cd build
+./win-x64.sh
+make win</pre></td></tr></table>
+
+## License
 TMBASIC is open source software. The following components are included in the TMBASIC development environment and in builds of user programs.
 
 Component | License
@@ -45,12 +49,10 @@ libstdc++ | [GPL v3](ext/gcc/GPL-3) with [GCC Runtime Library Exception v3.1](ex
 ncurses | [Ncurses License](ext/ncurses/COPYING)
 [tvision](https://github.com/magiblot/tvision) | [Borland license](ext/tvision/COPYRIGHT) (original code), [MIT license](ext/tvision/COPYRIGHT) (Linux port)
 
-## Documentation license
-The TMBASIC documentation includes the following components.
+The TMBASIC web-based documentation includes the following additional components.
 
 Component | License
 -- | --
-tmbasic | [MIT license](LICENSE)
 notoserif | [SIL OFL 1.1 License](ext/notoserif/OFL.txt)
 opensans | [Apache License 2.0](ext/opensans/LICENSE.txt)
 oxygenmono | [SIL OFL 1.1 License](ext/oxygenmono/OFL.txt)
