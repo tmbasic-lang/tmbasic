@@ -3,6 +3,7 @@
 #include "ProcedureWindow.h"
 #include "ProgramWindow.h"
 #include "helpfile.h"
+#include "binary_help.h"
 
 using namespace ui;
 
@@ -137,8 +138,29 @@ void App::onProgramAddProcedure(bool function) {
     deskTop->insert(window);
 }
 
+struct membuf : std::streambuf {
+    membuf(char* begin, char* end) { this->setg(begin, begin, end); }
+
+    pos_type seekoff(off_type off, std::ios_base::seekdir dir, std::ios_base::openmode which = std::ios_base::in)
+        override {
+        if (dir == std::ios_base::cur) {
+            gbump(off);
+        } else if (dir == std::ios_base::end) {
+            setg(eback(), egptr() + off, egptr());
+        } else if (dir == std::ios_base::beg) {
+            setg(eback(), eback() + off, egptr());
+        }
+        return gptr() - eback();
+    }
+
+    pos_type seekpos(pos_type sp, std::ios_base::openmode which) override {
+        return seekoff(sp - pos_type(off_type(0)), std::ios_base::beg, which);
+    }
+};
+
 void App::openHelpTopic(ushort topic) {
-    auto stream = new fpstream("help.h32", ios::in);
+    auto buf = new membuf(_binary_help_h32_start, _binary_help_h32_end);
+    auto stream = new iopstream(buf);
     auto helpFile = new THelpFile(*stream);
     auto helpWindow = new THelpWindow(helpFile, topic);
     deskTop->insert(helpWindow);

@@ -42,7 +42,7 @@ clean:
 
 .PHONY: run
 run: bin/tmbasic
-	@cd bin && ./tmbasic
+	@bin/tmbasic
 
 .PHONY: test
 test: bin/test
@@ -191,16 +191,22 @@ obj/helpfile.h: obj/doc-txt/help.txt obj/tvision/libtvision.a
 	@echo $@
 	@mkdir -p obj
 	@mkdir -p bin
-	@rm -f bin/help.h32
+	@rm -f obj/help.h32
 	@rm -f obj/helpfile.h
-	@$(TVHC) obj/doc-txt/help.txt bin/help.h32 obj/helpfile.h
+	@$(TVHC) obj/doc-txt/help.txt obj/help.h32 obj/helpfile.h
 
-bin/help.h32: obj/helpfile.h
+obj/help.h32: obj/helpfile.h
 	@echo $@
 
 obj/doc-txt/help.txt: $(DOC_FILES) doc/build-doc.js obj/insert-cp437-diagram doc/diagrams/license_tmbasic.txt doc/diagrams/license_boost.txt doc/diagrams/license_immer.txt doc/diagrams/license_libstdc++_gpl3.txt doc/diagrams/license_libstdc++_gcc1.txt doc/diagrams/license_libstdc++_gcc2.txt doc/diagrams/license_mpdecimal.txt doc/diagrams/license_nameof.txt doc/diagrams/license_ncurses.txt doc/diagrams/license_tvision.txt doc/diagrams/license_notoserif.txt doc/diagrams/license_opensans.txt doc/diagrams/license_oxygenmono.txt
 	@echo $@
+	@mkdir -p obj
 	@cd doc && node build-doc.js
+
+obj/helpfile.o: obj/help.h32
+	@echo $@
+	@mkdir -p obj
+	@cd obj && $(LD) -r -b binary -o ../obj/helpfile.o help.h32
 
 # tvision
 
@@ -228,24 +234,24 @@ obj/core.a: $(CORE_OBJ_FILES)
 
 # tmbasic
 
-$(TMBASIC_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch obj/helpfile.h bin/help.h32 $(INCLUDE_FILES)
+$(TMBASIC_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch obj/helpfile.h obj/help.h32 $(INCLUDE_FILES)
 	@echo $@
 	@mkdir -p $(@D)
 	@$(CXX) $(CXXFLAGS) -c -include obj/common.h -o $@ $<
 
-bin/tmbasic: $(TMBASIC_OBJ_FILES) obj/tvision/libtvision.a obj/core.a obj/common.h.gch obj/helpfile.h bin/help.h32
+bin/tmbasic: $(TMBASIC_OBJ_FILES) obj/tvision/libtvision.a obj/core.a obj/common.h.gch obj/helpfile.h obj/help.h32 obj/helpfile.o
 	@echo $@
 	@mkdir -p $(@D)
-	@$(CXX) $(CXXFLAGS) -static -include obj/common.h -o $@ $(TMBASIC_OBJ_FILES) obj/core.a obj/tvision/libtvision.a $(LDFLAGS)
+	@$(CXX) $(CXXFLAGS) -static -include obj/common.h -o $@ $(TMBASIC_OBJ_FILES) obj/core.a obj/tvision/libtvision.a obj/helpfile.o $(LDFLAGS)
 
 # test
 
-$(TEST_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch obj/helpfile.h bin/help.h32 $(INCLUDE_FILES)
+$(TEST_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch obj/helpfile.h obj/help.h32 $(INCLUDE_FILES)
 	@echo $@
 	@mkdir -p $(@D)
 	@$(CXX) $(CXXFLAGS) -c -include obj/common.h -o $@ $<
 
-bin/test: $(TEST_OBJ_FILES) obj/tvision/libtvision.a obj/core.a obj/common.h.gch obj/helpfile.h bin/help.h32
+bin/test: $(TEST_OBJ_FILES) obj/tvision/libtvision.a obj/core.a obj/common.h.gch obj/helpfile.h obj/help.h32 obj/helpfile.o
 	@echo $@
 	@mkdir -p $(@D)
-	@$(CXX) $(CXXFLAGS) -include obj/common.h -o $@ $(TEST_OBJ_FILES) obj/core.a obj/tvision/libtvision.a $(LDFLAGS) -lgtest -lgtest_main -lpthread
+	@$(CXX) $(CXXFLAGS) -include obj/common.h -o $@ $(TEST_OBJ_FILES) obj/core.a obj/tvision/libtvision.a obj/helpfile.o $(LDFLAGS) -lgtest -lgtest_main -lpthread
