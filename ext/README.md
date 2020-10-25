@@ -11,7 +11,9 @@ Source: https://github.com/arximboldi/immer/archive/2076affd9d814afc019ba8cd8c2b
 License: `immer/LICENSE`
 
 ## libstdc++
-Source: Ubuntu 20.04 `gcc-10` package
+Source (Linux, Windows): Ubuntu 20.04 `gcc-10` package
+
+Source (macOS): Xcode distribution
 
 License: `gcc/GPL-3` and `gcc/copyright`
 
@@ -29,6 +31,8 @@ License: `nameof/LICENSE.txt`
 Source (Linux): Ubuntu 20.04 `ncurses` package
 
 Source (Windows): https://repo.msys2.org/mingw/x86_64/mingw-w64-x86_64-ncurses-6.2-2-any.pkg.tar.zst
+
+Source (macOS): Xcode distribution
 
 License: `ncurses/COPYING`
 

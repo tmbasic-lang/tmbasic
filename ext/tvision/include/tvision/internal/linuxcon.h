@@ -28,10 +28,6 @@ public:
 
 };
 
-#else
-
-class LinuxConsoleStrategy : public PlatformStrategy {};
-
 #endif // __linux__
 
 #endif

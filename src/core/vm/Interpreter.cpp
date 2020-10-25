@@ -439,7 +439,7 @@ bool Interpreter::run(int maxCycles) {
                     fatalError = "Call to procedure that contains an error";
                     goto end;
                 }
-                auto& callProcedureArtifact = *callProcedure.artifact.value();
+                auto& callProcedureArtifact = **callProcedure.artifact;
                 auto callNumValues = pc[3];
                 auto callNumObjects = pc[4];
                 assert(callNumValues == callProcedureArtifact.numValueParameters);

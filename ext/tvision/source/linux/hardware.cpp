@@ -123,10 +123,15 @@ void THardwareInfo::setUpConsole()
             disp = new NcursesDisplay();
         else
             disp = new AnsiDisplay<NcursesDisplay>();
+
+#ifdef __linux__
         if (isLinuxConsole(0))
             platf.reset(new LinuxConsoleStrategy(disp, new NcursesInput(false)));
         else
             platf.reset(new PlatformStrategy(disp, new NcursesInput()));
+#else
+        platf.reset(new PlatformStrategy(disp, new NcursesInput()));
+#endif
 #endif
     }
 }

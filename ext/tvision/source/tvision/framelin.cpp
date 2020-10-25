@@ -16,7 +16,7 @@
 #define Uses_TGroup
 #include <tvision/tv.h>
 
-#include <malloc.h>
+#include <cstdlib>
 
 void TFrame::frameLine( TDrawBuffer& frameBuf, short y, short n, uchar color )
 {

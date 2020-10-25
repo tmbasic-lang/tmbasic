@@ -37,9 +37,7 @@
 #include <dos.h>
 #endif  // __DOS_H
 
-#if !defined( __MALLOC_H )
-#include <malloc.h>
-#endif  // __MALLOC_H
+#include <cstdlib>
 
 #ifndef __BORLANDC__
 #define register

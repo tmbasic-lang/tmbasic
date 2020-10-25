@@ -6,9 +6,7 @@ TMBASIC is tested on:
 - Ubuntu Linux 18.04 (x64, ARM64)
 - Android 10 (ARM64) using [Termux](https://termux.com/)
 
-## Build
-The build scripts and instructions assume that the host machine is Ubuntu Linux 18+. AWS instance types `c5a.large` (x64) or `c6g.large` (ARM64) are recommended for building.
-
+## Build - Linux and Windows
 The build environment runs in a Docker container. Make sure that Docker is installed and that your user has permission to run `docker`. The following command will prepare a fresh AWS Ubuntu instance for building TMBASIC.
 
 ```
@@ -19,7 +17,7 @@ sudo apt-get update -y && \
     sudo reboot
 ```
 
-If you want to build ARM64 binaries on an x64 host, install the following prerequisite packages. Skip this step if you only want to build binaries native to your host platform.
+If you want to build ARM64 binaries on an x64 system, install the following prerequisite packages. Skip this step if you only want to build binaries native to your platform.
 
 ```
 sudo apt-get install qemu binfmt-support qemu-user-static
@@ -34,6 +32,16 @@ make</pre></td><td><pre>cd build
 make</pre></td><td><pre>cd build
 ./win-x64.sh
 make win</pre></td></tr></table>
+
+## Build - macOS
+Install Xcode first.
+
+```
+cd build
+./mac-x64.sh
+cd ..
+make mac -j4
+```
 
 ## License
 TMBASIC is open source software. The following components are included in the TMBASIC development environment and in builds of user programs.

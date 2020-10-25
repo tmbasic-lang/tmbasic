@@ -30,7 +30,6 @@ async function build() {
     await copyDir('../ext/opensans', '../obj/doc-html/opensans');
     await copyDir('../ext/oxygenmono', '../obj/doc-html/oxygenmono');
     await fs.promises.copyFile("html/style.css", "../obj/doc-html/style.css");
-    await convertDiagramsToCp437();
     await forEachTopicFile(buildTopic);
     await forEachProcedureFile(buildProcedure);
     await buildProcedureIndex();
@@ -139,33 +138,6 @@ function replaceIndentChars(str) {
     return str.replace(/    /g, $0 => `<span class="indent">${$0}</span>`);
 }
 
-async function convertDiagramsToCp437() {
-    const dir = await fs.promises.opendir("diagrams");
-    for await (const file of dir) {
-        if (file.name.indexOf('.txt') >= 0) {
-            await convertDiagramToCp437(file.name);
-        }
-    }
-}
-
-function convertDiagramToCp437(filename) {
-    return new Promise(resolve =>
-    {
-        const utf8FilePath = "diagrams/" + filename;
-        const cp437FilePath = "obj/doc-temp/diagrams-cp437/" + filename;
-        console.log(cp437FilePath);
-        child_process.execFile(
-            "iconv",
-            [
-                "-f", "utf8",
-                "-t", "cp437",
-                "-o", "../" + cp437FilePath,
-                utf8FilePath
-            ], () => resolve()
-        );
-    });
-}
-
 async function insertCp437Diagrams() {
     const dir = await fs.promises.opendir("diagrams");
     for await (const file of dir) {
@@ -199,7 +171,11 @@ function insertCp437Diagram(filename) {
 }
 
 function getDiagramHtml(name) {
-    return htmlEncode(fs.readFileSync(`diagrams/${name}.txt`, { encoding: "utf8" }));
+    if (fs.existsSync(`diagrams/${name}.txt`)) {
+        return htmlEncode(fs.readFileSync(`diagrams/${name}.txt`, { encoding: "utf8" }));
+    } else {
+        return htmlEncode(fs.readFileSync(`../obj/doc-temp/diagrams-license/${name}.txt`, { encoding: "utf8" }));
+    }
 }
 
 function getTypeTopic(type) {

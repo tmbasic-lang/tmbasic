@@ -22,7 +22,7 @@
 #include <string.h>
 #endif  // __STRING_H
 
-#include <malloc.h>
+#include <cstdlib>
 
 TTextDevice::TTextDevice( const TRect& bounds,
                           TScrollBar *aHScrollBar,

@@ -22,11 +22,10 @@
 #include <tvision/tv.h>
 
 #include <string.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include <ctype.h>
 #include <strstrea.h>
 #include <iomanip.h>
-#include <malloc.h>
 #include <time.h>
 
 #include "gadgets.h"
