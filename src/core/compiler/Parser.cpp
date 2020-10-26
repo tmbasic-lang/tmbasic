@@ -88,6 +88,7 @@ class Production {
     std::string_view name;  // to ease debugging; not used for any logic
     std::vector<Term> terms;
     Production(std::string_view name, std::initializer_list<Term> terms) : name(name), terms(terms) {}
+    virtual ~Production() {}
     virtual std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const = 0;
 };
 
@@ -367,7 +368,7 @@ class NamedTypeProduction : public Production {
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         auto type = new TypeNode(Kind::kRecord, firstToken);
-        type->recordName = std::optional(captureTokenText(std::move(captures[0])));
+        type->recordName = std::optional<std::string>(captureTokenText(std::move(captures[0])));
         return nodeBox(type);
     }
 };
@@ -407,7 +408,7 @@ class OptionalTypeProduction : public Production {
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         auto type = new TypeNode(Kind::kOptional, firstToken);
-        type->optionalValueType = std::move(captureSingleNode<TypeNode>(std::move(captures[0])));
+        type->optionalValueType = captureSingleNode<TypeNode>(std::move(captures[0]));
         return nodeBox(type);
     }
 };
@@ -428,8 +429,8 @@ class MapTypeProduction : public Production {
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         auto type = new TypeNode(Kind::kMap, firstToken);
-        type->mapKeyType = std::move(captureSingleNode<TypeNode>(std::move(captures[0])));
-        type->mapValueType = std::move(captureSingleNode<TypeNode>(std::move(captures[1])));
+        type->mapKeyType = captureSingleNode<TypeNode>(std::move(captures[0]));
+        type->mapValueType = captureSingleNode<TypeNode>(std::move(captures[1]));
         return nodeBox(type);
     }
 };
@@ -448,7 +449,7 @@ class ListTypeProduction : public Production {
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         auto type = new TypeNode(Kind::kList, firstToken);
-        type->listItemType = std::move(captureSingleNode<TypeNode>(std::move(captures[0])));
+        type->listItemType = captureSingleNode<TypeNode>(std::move(captures[0]));
         return nodeBox(type);
     }
 };
@@ -2339,7 +2340,7 @@ static TermResult parseProductionTerm(const Production& production, InputState& 
     std::cout << std::string(depth - 1, ' ') << "+ match parseProductionTerm " << production.name << std::endl;
 #endif
 
-    return TermResult::success(std::move(production.parse(productionState.captures, firstToken)));
+    return TermResult::success(production.parse(productionState.captures, firstToken));
 }
 
 static TermResult parseTermCore(const Term& term, InputState& inputState, ProductionState& productionState, int depth) {
@@ -2467,10 +2468,10 @@ ParserResult parseProduction(const Production& production, InputState& inputStat
     auto termResult = parseProductionTerm(production, inputState, 1);
     if (termResult.isMatch) {
         auto nodeBox = dynamic_cast_move<NodeBox>(std::move(termResult.box));
-        return ParserResult(std::move(nodeBox->value()));
+        return ParserResult(nodeBox->value());
     } else {
         // TODO: better error message here based on the mismatching term
-        return ParserResult("This token was unexpected.", termResult.token.value());
+        return ParserResult("This token was unexpected.", *termResult.token);
     }
 }
 

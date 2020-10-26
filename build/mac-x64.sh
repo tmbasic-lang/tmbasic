@@ -38,19 +38,10 @@ fi
 
 if [ ! -d "ncurses" ]
 then
-    curl -L -o ncurses.tar.gz https://ftp.gnu.org/gnu/ncurses/ncurses-6.2.tar.gz
+    curl -L -o ncurses.tar.gz https://homebrew.bintray.com/bottles/ncurses-6.2.high_sierra.bottle.tar.gz
     tar zxf ncurses.tar.gz
-    mv ncurses-* ncurses
     pushd ncurses
-    ./configure \
-        --enable-widec \
-        --disable-overwrite \
-        --with-static \
-        --without-ada \
-        --without-progs \
-        --without-tack \
-        --without-tests
-    make -j4
+    mv -f 6.2/* ./
     popd
 fi
 

@@ -165,7 +165,7 @@ void Scanner::endCurrentToken() {
         auto text = _currentTokenText.str();
         auto type = classifyToken(text);
         _tokens.push_back(Token(_lineIndex, _currentTokenColumnIndex, type, std::move(text)));
-        _currentTokenText = {};
+        _currentTokenText = std::ostringstream();
     }
 }
 

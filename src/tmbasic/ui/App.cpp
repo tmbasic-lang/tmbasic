@@ -1,9 +1,9 @@
 #include "common.h"
 #include "App.h"
+#include "HelpResource.h"
 #include "ProcedureWindow.h"
 #include "ProgramWindow.h"
 #include "helpfile.h"
-#include "binary_help.h"
 
 using namespace ui;
 
@@ -159,7 +159,8 @@ struct membuf : std::streambuf {
 };
 
 void App::openHelpTopic(ushort topic) {
-    auto buf = new membuf(_binary_help_h32_start, _binary_help_h32_end);
+    HelpResource helpResource;
+    auto buf = new membuf(reinterpret_cast<char*>(helpResource.start), reinterpret_cast<char*>(helpResource.end));
     auto stream = new iopstream(buf);
     auto helpFile = new THelpFile(*stream);
     auto helpWindow = new THelpWindow(helpFile, topic);

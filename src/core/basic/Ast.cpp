@@ -202,7 +202,7 @@ void LiteralRecordFieldNode::dump(std::ostringstream& s, int n) const {
 }
 
 LiteralRecordExpressionNode::LiteralRecordExpressionNode(
-    std::vector<std::unique_ptr<LiteralRecordFieldNode>>,
+    std::vector<std::unique_ptr<LiteralRecordFieldNode>> fields,
     Token token)
     : ConstValueExpressionNode(token), fields(std::move(fields)) {}
 
@@ -244,7 +244,7 @@ void SymbolReferenceExpressionNode::dump(std::ostringstream& s, int n) const {
 }
 
 AssignLocationSuffixNode::AssignLocationSuffixNode(std::string name, Token token)
-    : Node(token), arrayIndex(std::unique_ptr<ExpressionNode>()), name(std::optional(name)) {}
+    : Node(token), arrayIndex(std::unique_ptr<ExpressionNode>()), name(std::optional<std::string>(name)) {}
 
 AssignLocationSuffixNode::AssignLocationSuffixNode(std::unique_ptr<ExpressionNode> arrayIndex, Token token)
     : Node(token), arrayIndex(std::move(arrayIndex)), name({}) {}
@@ -538,7 +538,7 @@ void CaseValueNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODE(toExpression);
 }
 
-CaseNode::CaseNode(std::vector<std::unique_ptr<CaseValueNode>>, std::unique_ptr<BodyNode> body, Token token)
+CaseNode::CaseNode(std::vector<std::unique_ptr<CaseValueNode>> values, std::unique_ptr<BodyNode> body, Token token)
     : Node(token), values(std::move(values)), body(std::move(body)) {}
 
 void CaseNode::dump(std::ostringstream& s, int n) const {

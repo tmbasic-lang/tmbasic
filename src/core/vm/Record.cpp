@@ -3,13 +3,13 @@
 using namespace vm;
 
 Record::Record(RecordBuilder& builder)
-    : objects(std::move(builder.objects.persistent())), values(std::move(builder.values.persistent())) {}
+    : objects(builder.objects.persistent()), values(builder.values.persistent()) {}
 
 Record::Record(Record& source, int valueIndex, Value newValue)
-    : objects(source.objects), values(std::move(source.values.set(valueIndex, newValue))) {}
+    : objects(source.objects), values(source.values.set(valueIndex, newValue)) {}
 
 Record::Record(Record& source, int objectIndex, boost::local_shared_ptr<Object>& newObject)
-    : objects(std::move(source.objects.set(objectIndex, newObject))), values(source.values) {}
+    : objects(source.objects.set(objectIndex, newObject)), values(source.values) {}
 
 ObjectType Record::getObjectType() const {
     return ObjectType::kRecord;

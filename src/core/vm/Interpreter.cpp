@@ -34,7 +34,7 @@ bool Interpreter::run(int maxCycles) {
     // use local variables for our registers with the hope that the compiler chooses to put them into actual cpu
     // registers and avoids writing them to memory
     auto procedure = _procedure;
-    auto instructions = procedure->artifact.value()->instructions;
+    auto instructions = (*procedure->artifact)->instructions;
     auto pc = _instruction;
     auto a = _a;
     auto b = _b;
@@ -551,7 +551,7 @@ bool Interpreter::run(int maxCycles) {
                 // ABBCC; A: opcode, B: num values, C: num objects
                 auto numValues = ReadUint16(&pc[1]);
                 auto numObjects = ReadUint16(&pc[3]);
-                _recordBuilderStack.push(std::move(RecordBuilder(numValues, numObjects)));
+                _recordBuilderStack.push(RecordBuilder(numValues, numObjects));
                 pc += /*A*/ 1 + /*B*/ 2 + /*C*/ 2;
                 break;
             }
@@ -636,7 +636,7 @@ bool Interpreter::run(int maxCycles) {
             }
 
             case Opcode::kValueListBuilderBegin: {
-                _valueListBuilderStack.push(std::move(ValueListBuilder()));
+                _valueListBuilderStack.push(ValueListBuilder());
                 pc++;
                 break;
             }
@@ -978,7 +978,7 @@ Interpreter::ReturnResult Interpreter::returnFromProcedure(int valueStackIndex, 
     }
     _callStack.pop();
     return ReturnResult(
-        callFrame.procedure, callFrame.procedure->artifact.value()->instructions, callFrame.instruction,
+        callFrame.procedure, (*callFrame.procedure->artifact)->instructions, callFrame.instruction,
         callFrame.valueStackIndex, callFrame.objectStackIndex);
 }
 
