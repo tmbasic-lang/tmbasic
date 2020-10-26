@@ -65,7 +65,8 @@ RUN cd /tmp && \
     cd mpdecimal-2.5.0 && \
     ./configure && \
     make && \
-    make install
+    make install && \
+    cp -rf /usr/local/lib/libmpdec* /lib/*-linux-gnu/
 
 USER $HOST_UID
 
