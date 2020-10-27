@@ -5,11 +5,18 @@ using namespace ui;
 #ifdef __linux__
 extern char _binary_help_h32_start[];
 extern char _binary_help_h32_end[];
+
+HelpResource::HelpResource()
+    : start(reinterpret_cast<uint8_t*>(_binary_help_h32_start)),
+      end(reinterpret_cast<uint8_t*>(_binary_help_h32_end)) {}
 #endif
 
 #ifdef _WIN32
 extern char binary_help_h32_start[];
 extern char binary_help_h32_end[];
+
+HelpResource::HelpResource()
+    : start(reinterpret_cast<uint8_t*>(binary_help_h32_start)), end(reinterpret_cast<uint8_t*>(binary_help_h32_end)) {}
 #endif
 
 #ifdef __APPLE__
@@ -24,4 +31,3 @@ HelpResource::HelpResource() {
     end = data + size;
 }
 #endif
-
