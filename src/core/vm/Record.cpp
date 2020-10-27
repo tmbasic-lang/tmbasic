@@ -2,8 +2,7 @@
 
 using namespace vm;
 
-Record::Record(RecordBuilder& builder)
-    : objects(builder.objects.persistent()), values(builder.values.persistent()) {}
+Record::Record(RecordBuilder& builder) : objects(builder.objects.persistent()), values(builder.values.persistent()) {}
 
 Record::Record(Record& source, int valueIndex, Value newValue)
     : objects(source.objects), values(source.values.set(valueIndex, newValue)) {}

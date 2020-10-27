@@ -28,16 +28,16 @@ static std::string stripNamespace(std::string_view sv) {
 #define DUMP_VAR(f) \
     { s << indent(n + 1) << NAMEOF(f) << '=' << f << '\n'; }
 
-#define DUMP_VAR_OPTIONAL(f)                                         \
-    if (f.has_value()) {                                             \
+#define DUMP_VAR_OPTIONAL(f)                                  \
+    if (f.has_value()) {                                      \
         s << indent(n + 1) << NAMEOF(f) << '=' << *f << '\n'; \
     }
 
 #define DUMP_VAR_DECIMAL(f) \
     { s << indent(n + 1) << NAMEOF(f) << '=' << decimalToString(f) << '\n'; }
 
-#define DUMP_VAR_OPTIONAL_DECIMAL(f)                                                  \
-    if (f.has_value()) {                                                              \
+#define DUMP_VAR_OPTIONAL_DECIMAL(f)                                           \
+    if (f.has_value()) {                                                       \
         s << indent(n + 1) << NAMEOF(f) << '=' << decimalToString(*f) << '\n'; \
     }
 
