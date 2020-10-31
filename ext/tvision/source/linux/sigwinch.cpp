@@ -40,11 +40,12 @@ SigwinchAware::SigwinchAware()
     {
         firstTime = false;
         // Make the pipe non-blocking, so that read() never gets stuck.
-#ifdef __linux__
-        pipe2(fd, O_NONBLOCK);
-#else
         pipe(fd);
-#endif
+        for (int d : fd)
+        {
+            int flags = fcntl(d, F_GETFL);
+            fcntl(d, F_SETFL, flags | O_NONBLOCK);
+        }
         // Set the SIGWINCH handler, and save the previous one.
         struct sigaction sa, oldsa;
         sa.sa_handler = handler;

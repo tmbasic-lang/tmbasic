@@ -90,7 +90,7 @@ win:
 .PHONY: mac
 mac:
 	@MAC_INCLUDE_FLAGS="-I$(PWD)/mac/boost -I$(PWD)/mac/mpdecimal/libmpdec -I$(PWD)/mac/mpdecimal/libmpdec++ -I$(PWD)/mac/ncurses/include" \
-		MAC_LD_FLAGS="-L$(PWD)/mac/mpdecimal/libmpdec -L$(PWD)/mac/mpdecimal/libmpdec++ -L$(PWD)/mac/ncurses/lib" \
+		MAC_LD_FLAGS="-L$(PWD)/mac/mpdecimal/libmpdec -L$(PWD)/mac/mpdecimal/libmpdec++" \
 		CMAKE="$(PWD)/mac/cmake/CMake.app/Contents/bin/cmake -D CMAKE_PREFIX_PATH=$(PWD)/mac/ncurses" \
 		NODE="$(PWD)/mac/node/bin/node" \
 		HELP_FILE_OBJ="" \
@@ -98,7 +98,7 @@ mac:
 		STATIC_FLAG="" \
 		LIBTINFO_FLAG="" \
 		LIBMPDEC_FLAG="$(PWD)/mac/mpdecimal/libmpdec/libmpdec.a $(PWD)/mac/mpdecimal/libmpdec++/libmpdec++.a " \
-		LIBNCURSESW_FLAG="$(PWD)/mac/ncurses/lib/libncursesw.a" \
+		LIBNCURSESW_FLAG="-lncurses" \
 		$(MAKE) bin/tmbasic bin/LICENSE.txt
 
 # shared

@@ -36,23 +36,4 @@ then
     popd
 fi
 
-if [ ! -d "ncurses" ]
-then
-    curl -L -o ncurses.tar.gz https://ftp.gnu.org/gnu/ncurses/ncurses-6.2.tar.gz
-    tar zxf ncurses.tar.gz
-    mv ncurses-*/ ncurses
-    patch ncurses/misc/terminfo.src ../build/mac-ncurses-terminfo.src.diff
-    pushd ncurses
-    ./configure \
-        --with-fallbacks=ansi,xterm,xterm-256color \
-        --with-static \
-        --enable-widec \
-        --enable-ext-colors \
-        --enable-ext-mouse \
-        --enable-sigwinch \
-        --enable-termcap
-    make -j4
-    popd
-fi
-
 popd

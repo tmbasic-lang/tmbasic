@@ -63,11 +63,13 @@ add_executable(tvhc ${TVHELPSRC})
 set(LIBS tvision)
 
 if (TV_PLATF EQUAL TV_PLATF_UNIX)
-    find_library(NCURSESW ncursesw REQUIRED)
-    if (NCURSESW)
-        list(APPEND LIBS ${NCURSESW})
-        target_compile_definitions(tvision PRIVATE HAVE_NCURSES)
+    find_library(NCURSESW ncursesw)
+    if (NOT NCURSESW AND APPLE)
+        # macOS has no ncursesw by default
+        find_library(NCURSESW ncurses)
     endif()
+    list(APPEND LIBS ${NCURSESW})
+    target_compile_definitions(tvision PRIVATE HAVE_NCURSES)
 endif()
 
 target_link_libraries(hello ${LIBS})
