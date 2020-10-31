@@ -1,4 +1,4 @@
-// compile with -DDUMP_AST to dump AST parse tree to std::cout
+// compile with -DDUMP_PARSE to dump AST parse tree to std::cout
 
 #include "Parser.h"
 #include "core/util/decimal.h"
@@ -86,8 +86,8 @@ class TokenBox : public Box {
 class Production {
    public:
     std::string_view name;  // to ease debugging; not used for any logic
-    std::vector<Term> terms;
-    Production(std::string_view name, std::initializer_list<Term> terms) : name(name), terms(terms) {}
+    Term listTerm;
+    Production(std::string_view name, std::initializer_list<Term> terms);
     virtual ~Production() {}
     virtual std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const = 0;
 };
@@ -134,9 +134,7 @@ static Term oneOf(std::initializer_list<Term> terms) {
 
 static Term zeroOrMore(std::initializer_list<Term> terms) {
     auto t = Term(TermType::kZeroOrMore);
-    for (auto& subTerm : terms) {
-        t.subTerms.push_back(subTerm);
-    }
+    t.subTerms.push_back(list(terms));
     return t;
 }
 
@@ -151,12 +149,14 @@ static Term cut() {
     return Term(TermType::kCut);
 }
 
+Production::Production(std::string_view name, std::initializer_list<Term> terms) : name(name), listTerm(list(terms)) {}
+
 //
 // captures
 //
 
 template <typename T>
-static std::vector<std::unique_ptr<T>> captureNodeArray(std::unique_ptr<Box> box) {
+static std::vector<std::unique_ptr<T>> captureNodeArray(std::unique_ptr<Box>& box) {
     if (!box || box->count() == 0) {
         return {};
     }
@@ -270,7 +270,7 @@ static std::unique_ptr<Box> parseBinaryExpression(CaptureArray& captures, const 
         auto token = captureTokenNoMove(captures[1].get());
         return nodeBox(new BinaryExpressionNode(
             captureSingleNode<ExpressionNode>(std::move(captures[0])),
-            captureNodeArray<BinaryExpressionSuffixNode>(std::move(captures[1])), token));
+            captureNodeArray<BinaryExpressionSuffixNode>(captures[1]), token));
     } else {
         return std::move(captures[0]);
     }
@@ -292,7 +292,7 @@ class BodyProduction : public Production {
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
-        auto statements = captureNodeArray<StatementNode>(std::move(captures[0]));
+        auto statements = captureNodeArray<StatementNode>(captures[0]);
         auto body = new BodyNode(statements, firstToken);
         return nodeBox(body);
     }
@@ -469,7 +469,7 @@ class RecordTypeProduction : public Production {
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         auto type = new TypeNode(Kind::kRecord, firstToken);
-        for (auto& parameter : captureNodeArray<ParameterNode>(std::move(captures[0]))) {
+        for (auto& parameter : captureNodeArray<ParameterNode>(captures[0])) {
             auto field = new FieldNode(parameter->name, std::move(parameter->type), firstToken);
             type->fields.push_back(std::unique_ptr<FieldNode>(field));
         }
@@ -541,7 +541,7 @@ class TypeProduction : public Production {
         const Production* mapType,
         const Production* optionalType,
         const Production* namedType) {
-        terms = {
+        listTerm = list({
             capture(
                 0,
                 oneOf({
@@ -552,7 +552,7 @@ class TypeProduction : public Production {
                     prod(optionalType),
                     prod(namedType),
                 })),
-        };
+        });
     }
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
@@ -666,8 +666,8 @@ class LiteralRecordTermProduction : public Production {
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
-        return nodeBox(new LiteralRecordExpressionNode(
-            captureNodeArray<LiteralRecordFieldNode>(std::move(captures[0])), firstToken));
+        return nodeBox(
+            new LiteralRecordExpressionNode(captureNodeArray<LiteralRecordFieldNode>(captures[0]), firstToken));
     }
 };
 
@@ -684,8 +684,7 @@ class LiteralArrayTermProduction : public Production {
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
-        return nodeBox(
-            new LiteralArrayExpressionNode(captureNodeArray<ExpressionNode>(std::move(captures[0])), firstToken));
+        return nodeBox(new LiteralArrayExpressionNode(captureNodeArray<ExpressionNode>(captures[0]), firstToken));
     }
 };
 
@@ -704,8 +703,7 @@ class FunctionCallTermProduction : public Production {
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return nodeBox(new CallExpressionNode(
-            captureTokenText(std::move(captures[0])), captureNodeArray<ExpressionNode>(std::move(captures[1])),
-            firstToken));
+            captureTokenText(std::move(captures[0])), captureNodeArray<ExpressionNode>(captures[1]), firstToken));
     }
 };
 
@@ -752,7 +750,7 @@ class ExpressionTermProduction : public Production {
         if (hasCapture(captures[0])) {
             return std::move(captures[0]);
         } else if (hasCapture(captures[1])) {
-            return nodeBox(new SymbolReferenceExpressionNode(captureTokenText(std::move(captures[2])), firstToken));
+            return nodeBox(new SymbolReferenceExpressionNode(captureTokenText(std::move(captures[1])), firstToken));
         } else {
             assert(false);
             return {};
@@ -779,7 +777,7 @@ class DottedExpressionSuffixProduction : public Production {
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         auto isCall = hasCapture(captures[1]);
         return nodeBox(new DottedExpressionSuffixNode(
-            captureTokenText(std::move(captures[0])), isCall, captureNodeArray<ExpressionNode>(std::move(captures[1])),
+            captureTokenText(std::move(captures[0])), isCall, captureNodeArray<ExpressionNode>(captures[1]),
             firstToken));
     }
 };
@@ -797,7 +795,7 @@ class DottedExpressionProduction : public Production {
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
-        auto dottedSuffixes = captureNodeArray<DottedExpressionSuffixNode>(std::move(captures[1]));
+        auto dottedSuffixes = captureNodeArray<DottedExpressionSuffixNode>(captures[1]);
         if (dottedSuffixes.size() == 0) {
             return std::move(captures[0]);
         } else {
@@ -1074,7 +1072,11 @@ class ExpressionProduction : public Production {
    public:
     ExpressionProduction() : Production(NAMEOF_TYPE(ExpressionProduction), {}) {}
 
-    void init(const Production* orExpression) { terms = { capture(0, prod(orExpression)) }; }
+    void init(const Production* orExpression) {
+        listTerm = list({
+            capture(0, prod(orExpression)),
+        });
+    }
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return std::move(captures[0]);
@@ -1272,8 +1274,7 @@ class CallStatementProduction : public Production {
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return nodeBox(new CallStatementNode(
-            captureTokenText(std::move(captures[0])), captureNodeArray<ExpressionNode>(std::move(captures[1])),
-            firstToken));
+            captureTokenText(std::move(captures[0])), captureNodeArray<ExpressionNode>(captures[1]), firstToken));
     }
 };
 
@@ -1389,8 +1390,7 @@ class AssignStatementProduction : public Production {
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return nodeBox(new AssignStatementNode(
-            captureTokenText(std::move(captures[0])),
-            captureNodeArray<AssignLocationSuffixNode>(std::move(captures[1])),
+            captureTokenText(std::move(captures[0])), captureNodeArray<AssignLocationSuffixNode>(captures[1]),
             captureSingleNode<ExpressionNode>(std::move(captures[2])), firstToken));
     }
 };
@@ -1527,8 +1527,8 @@ class CaseProduction : public Production {
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return nodeBox(new CaseNode(
-            captureNodeArray<CaseValueNode>(std::move(captures[0])),
-            captureSingleNode<BodyNode>(std::move(captures[1])), firstToken));
+            captureNodeArray<CaseValueNode>(captures[0]), captureSingleNode<BodyNode>(std::move(captures[1])),
+            firstToken));
     }
 };
 
@@ -1553,8 +1553,8 @@ class SelectCaseStatementProduction : public Production {
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return nodeBox(new SelectCaseStatementNode(
-            captureSingleNode<ExpressionNode>(std::move(captures[0])),
-            captureNodeArray<CaseNode>(std::move(captures[1])), firstToken));
+            captureSingleNode<ExpressionNode>(std::move(captures[0])), captureNodeArray<CaseNode>(captures[1]),
+            firstToken));
     }
 };
 
@@ -1737,7 +1737,7 @@ class IfStatementProduction : public Production {
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return nodeBox(new IfStatementNode(
             captureSingleNode<ExpressionNode>(std::move(captures[0])),
-            captureSingleNode<BodyNode>(std::move(captures[1])), captureNodeArray<ElseIfNode>(std::move(captures[2])),
+            captureSingleNode<BodyNode>(std::move(captures[1])), captureNodeArray<ElseIfNode>(captures[2]),
             captureSingleNodeOrNull<BodyNode>(std::move(captures[3])), firstToken));
     }
 };
@@ -1900,7 +1900,7 @@ class StatementProduction : public Production {
         const Production* dimStatement,
         const Production* dimCollectionStatement,
         const Production* constStatement) {
-        terms = {
+        listTerm = list({
             oneOf({
                 prod(commandStatement),
                 prod(forStatement),
@@ -1916,7 +1916,7 @@ class StatementProduction : public Production {
                 prod(dimCollectionStatement),
                 prod(constStatement),
             }),
-        };
+        });
     }
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
@@ -1945,8 +1945,7 @@ class TypeDeclarationProduction : public Production {
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return nodeBox(new TypeDeclarationNode(
-            captureTokenText(std::move(captures[0])), captureNodeArray<ParameterNode>(std::move(captures[1])),
-            firstToken));
+            captureTokenText(std::move(captures[0])), captureNodeArray<ParameterNode>(captures[1]), firstToken));
     }
 };
 
@@ -1973,7 +1972,7 @@ class FunctionProduction : public Production {
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return nodeBox(new ProcedureNode(
-            captureTokenText(std::move(captures[0])), captureNodeArray<ParameterNode>(std::move(captures[1])),
+            captureTokenText(std::move(captures[0])), captureNodeArray<ParameterNode>(captures[1]),
             captureSingleNode<TypeNode>(std::move(captures[2])), captureSingleNode<BodyNode>(std::move(captures[3])),
             firstToken));
     }
@@ -2000,7 +1999,7 @@ class SubroutineProduction : public Production {
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
         return nodeBox(new ProcedureNode(
-            captureTokenText(std::move(captures[0])), captureNodeArray<ParameterNode>(std::move(captures[1])),
+            captureTokenText(std::move(captures[0])), captureNodeArray<ParameterNode>(captures[1]),
             captureSingleNode<BodyNode>(std::move(captures[2])), firstToken));
     }
 };
@@ -2044,7 +2043,7 @@ class ProgramProduction : public Production {
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
-        return nodeBox(new ProgramNode(captureNodeArray<Node>(std::move(captures[0])), firstToken));
+        return nodeBox(new ProgramNode(captureNodeArray<Node>(captures[0]), firstToken));
     }
 };
 
@@ -2174,8 +2173,13 @@ class ProductionState {
    public:
     bool cutHasBeenHit;
     CaptureArray captures;
+    Token firstToken;
 
-    ProductionState() : cutHasBeenHit(false), captures({}) {}
+    ProductionState(Token firstToken) : cutHasBeenHit(false), firstToken(firstToken) {
+        for (auto i = 0; i < kNumCaptures; i++) {
+            captures[i] = nullptr;
+        }
+    }
 
     std::array<int, kNumCaptures> captureCounts() const {
         std::array<int, kNumCaptures> counts;
@@ -2227,27 +2231,33 @@ class TermResult {
     std::optional<Token> token;
     std::unique_ptr<Box> box;
 
-    static TermResult success() { return TermResult(true, false, nullptr, {}, {}); }
-
-    static TermResult success(std::unique_ptr<Box> box) { return TermResult(true, false, nullptr, {}, std::move(box)); }
-
-    static TermResult mismatch(const Term& mismatchedTerm, Token token) {
-        return TermResult(false, false, &mismatchedTerm, token, nullptr);
+    static std::unique_ptr<TermResult> newSuccess() {
+        return std::make_unique<TermResult>(true, false, nullptr, std::optional<Token>(), std::unique_ptr<Box>());
     }
 
-    static TermResult error(const Term& mismatchedTerm, Token token) {
-        return TermResult(false, true, &mismatchedTerm, token, nullptr);
+    static std::unique_ptr<TermResult> newSuccess(std::unique_ptr<Box> box) {
+        return std::make_unique<TermResult>(true, false, nullptr, std::optional<Token>(), std::move(box));
     }
 
-    static TermResult mismatchOrError(const ProductionState& productionState, const Term& mismatchedTerm, Token token) {
+    static std::unique_ptr<TermResult> newMismatch(const Term& mismatchedTerm, Token token) {
+        return std::make_unique<TermResult>(false, false, &mismatchedTerm, token, std::unique_ptr<Box>());
+    }
+
+    static std::unique_ptr<TermResult> newError(const Term& mismatchedTerm, Token token) {
+        return std::make_unique<TermResult>(false, true, &mismatchedTerm, token, std::unique_ptr<Box>());
+    }
+
+    static std::unique_ptr<TermResult> newMismatchOrError(
+        const ProductionState& productionState,
+        const Term& mismatchedTerm,
+        Token token) {
         if (productionState.cutHasBeenHit) {
-            return error(mismatchedTerm, token);
+            return newError(mismatchedTerm, token);
         } else {
-            return mismatch(mismatchedTerm, token);
+            return newMismatch(mismatchedTerm, token);
         }
     }
 
-   private:
     TermResult(
         bool isMatch,
         bool isError,
@@ -2255,6 +2265,38 @@ class TermResult {
         std::optional<Token> token,
         std::unique_ptr<Box> box)
         : isMatch(isMatch), isError(isError), mismatchedTerm(mismatchedTerm), token(token), box(std::move(box)) {}
+};
+
+class ParseStackFrame {
+   public:
+    // either term or production
+    const Term* term = nullptr;
+    const Production* production = nullptr;
+
+    std::unique_ptr<ProductionState> productionState = nullptr;  // when production != nullptr
+    ProductionState* productionStateRef = nullptr;               // when production == nullptr
+    std::unique_ptr<Checkpoint> checkpoint = nullptr;
+    std::unique_ptr<TermResult> subTermResult = nullptr;
+    bool previousCutStatus = false;                           // when term->type == kOptional or kZeroOrMore
+    std::unique_ptr<Checkpoint> elementCheckpoint = nullptr;  // when term->type == kZeroOrMore
+
+    size_t step = 0;
+
+    ParseStackFrame() : productionState(std::make_unique<ProductionState>(Token(0, 0, TokenKind::kEndOfFile, ""))) {
+        productionStateRef = productionState.get();
+    }
+    ParseStackFrame(
+        const Production& production,
+        InputState& inputState,
+        std::unique_ptr<ProductionState> takeProductionState)
+        : production(&production), checkpoint(std::make_unique<Checkpoint>(inputState, *takeProductionState)) {
+        productionState = std::move(takeProductionState);
+        productionStateRef = productionState.get();
+    }
+    ParseStackFrame(const Term& term, InputState& inputState, ProductionState* productionState)
+        : term(&term),
+          checkpoint(std::make_unique<Checkpoint>(inputState, *productionState)),
+          productionStateRef(productionState) {}
 };
 
 }  // namespace compiler
@@ -2312,177 +2354,350 @@ static void appendCapture(std::unique_ptr<Box>& existingBox, std::unique_ptr<Box
     }
 }
 
-static TermResult parseTerm(const Term& term, InputState& inputState, ProductionState& productionState, int depth);
+static void pumpParseAnd(
+    ParseStackFrame* frame,
+    std::stack<std::unique_ptr<ParseStackFrame>>& stack,
+    InputState& inputState) {
+    // step 0: start subTerms[0]
+    // step 1: receive subTerms[0], start subTerms[1]
+    // ...
+    // step N: receive subTerms[n-1], return
 
-static TermResult parseProductionTerm(const Production& production, InputState& inputState, int depth) {
-#ifdef DUMP_AST
-    std::cout << std::string(depth - 1, ' ') << "* parseProductionTerm " << production.name << std::endl;
-#endif
-
-    auto productionState = ProductionState();
-    auto checkpoint = Checkpoint(inputState, productionState);
-    auto firstToken = peekToken(inputState);
-
-    for (const auto& term : production.terms) {
-        auto termResult = parseTerm(term, inputState, productionState, depth + 1);
-        if (!termResult.isMatch) {
-            checkpoint.revert(inputState, productionState);
-
-#ifdef DUMP_AST
-            std::cout << std::string(depth - 1, ' ') << "- no parseProductionTerm " << production.name << std::endl;
-#endif
-
-            return termResult;
+    if (frame->step > 0) {
+        // receive subTerms[step-1]
+        if (!frame->subTermResult->isMatch) {
+            auto result = std::move(frame->subTermResult);
+            frame->checkpoint->revert(inputState, *frame->productionStateRef);
+            stack.pop();
+            stack.top()->subTermResult = std::move(result);
+            return;
         }
     }
 
-#ifdef DUMP_AST
-    std::cout << std::string(depth - 1, ' ') << "+ match parseProductionTerm " << production.name << std::endl;
-#endif
-
-    return TermResult::success(production.parse(productionState.captures, firstToken));
-}
-
-static TermResult parseTermCore(const Term& term, InputState& inputState, ProductionState& productionState, int depth) {
-    auto checkpoint = Checkpoint(inputState, productionState);
-    switch (term.type) {
-        case TermType::kAnd:
-            for (const auto& subTerm : term.subTerms) {
-                auto subTermResult = parseTerm(subTerm, inputState, productionState, depth + 1);
-                if (!subTermResult.isMatch) {
-                    checkpoint.revert(inputState, productionState);
-                    return subTermResult;
-                }
-            }
-            return TermResult::success();
-
-        case TermType::kCapture: {
-            auto captureResult = parseTerm(term.subTerms[0], inputState, productionState, depth + 1);
-            if (captureResult.isMatch) {
-                appendCapture(productionState.captures[term.captureId], captureResult.box);
-                return TermResult::success();
-            } else {
-                checkpoint.revert(inputState, productionState);
-                return captureResult;
-            }
-        }
-
-        case TermType::kCut:
-            productionState.cutHasBeenHit = true;
-            return TermResult::success();
-
-        case TermType::kNonTerminal:
-            return parseProductionTerm(*term.production, inputState, depth + 1);
-
-        case TermType::kOptional: {
-            for (const auto& subTerm : term.subTerms) {
-                auto previousCutStatus = productionState.cutHasBeenHit;
-                productionState.cutHasBeenHit = false;
-                auto subTermResult = parseTerm(subTerm, inputState, productionState, depth + 1);
-                productionState.cutHasBeenHit = previousCutStatus;
-                if (!subTermResult.isMatch) {
-                    checkpoint.revert(inputState, productionState);
-                    if (subTermResult.isError) {
-                        return subTermResult;  // it matched up to the cut, so this is an error
-                    } else {
-                        return TermResult::success();  // it's ok, this was optional
-                    }
-                }
-            }
-            return TermResult::success();
-        }
-
-        case TermType::kOr:
-            for (const auto& subTerm : term.subTerms) {
-                auto subTermResult = parseTerm(subTerm, inputState, productionState, depth + 1);
-                if (!subTermResult.isMatch) {
-                    checkpoint.revert(inputState, productionState);
-                }
-                if (subTermResult.isError || subTermResult.isMatch) {
-                    return subTermResult;
-                }
-            }
-            return TermResult::mismatchOrError(productionState, term, inputState.currentToken());
-
-        case TermType::kTerminal: {
-#ifdef DUMP_AST
-            std::cout << std::string(depth + 4, ' ') << NAMEOF_ENUM(term.tokenKind) << " " << std::endl;
-#endif
-            auto terminalToken = peekToken(inputState);
-            if (term.tokenKind == terminalToken.type) {
-                acceptToken(inputState);
-                return TermResult::success(tokenBox(terminalToken));
-            } else {
-                checkpoint.revert(inputState, productionState);
-                return TermResult::mismatchOrError(productionState, term, inputState.currentToken());
-            }
-            break;
-        }
-
-        case TermType::kZeroOrMore: {
-            while (true) {
-                for (const auto& subTerm : term.subTerms) {
-                    auto elementCheckpoint = Checkpoint(inputState, productionState);
-                    auto previousCutStatus = productionState.cutHasBeenHit;
-                    productionState.cutHasBeenHit = false;
-                    auto subTermResult = parseTerm(subTerm, inputState, productionState, depth + 1);
-                    productionState.cutHasBeenHit = previousCutStatus;
-                    if (!subTermResult.isMatch) {
-                        elementCheckpoint.revert(inputState, productionState);
-                        if (subTermResult.isError) {
-                            return subTermResult;  // it matched up to the cut, so this is an error
-                        } else {
-                            return TermResult::success();  // it's ok, end of the list
-                        }
-                    }
-                }
-            }
-        }
-
-        default:
-            assert(false);
-            return TermResult::success();
-    }
-}
-
-TermResult parseTerm(const Term& term, InputState& inputState, ProductionState& productionState, int depth) {
-#ifdef DUMP_AST
-    std::cout << std::string(depth - 1, ' ') << "* parseTerm " << NAMEOF_ENUM(term.type) << std::endl;
-#endif
-
-    auto result = parseTermCore(term, inputState, productionState, depth);
-
-#ifdef DUMP_AST
-    std::cout << std::string(depth - 1, ' ') << (result.isError ? "! error" : (result.isMatch ? "+ match" : "- no"))
-              << " parseTerm " << NAMEOF_ENUM(term.type) << std::endl;
-#endif
-
-    return result;
-}
-
-ParserResult parseProduction(const Production& production, InputState& inputState) {
-#ifdef DUMP_AST
-    std::cout << "parseProduction " << production.name << std::endl;
-#endif
-
-    auto termResult = parseProductionTerm(production, inputState, 1);
-    if (termResult.isMatch) {
-        auto nodeBox = dynamic_cast_move<NodeBox>(std::move(termResult.box));
-        return ParserResult(nodeBox->value());
+    if (frame->step < frame->term->subTerms.size()) {
+        // start subTerms[step]
+        const auto& subTerm = frame->term->subTerms[frame->step];
+        stack.push(std::make_unique<ParseStackFrame>(subTerm, inputState, frame->productionStateRef));
+        frame->subTermResult = nullptr;
+        frame->step++;
     } else {
-        // TODO: better error message here based on the mismatching term
-        return ParserResult("This token was unexpected.", *termResult.token);
+        // return
+        stack.pop();
+        stack.top()->subTermResult = TermResult::newSuccess();
+    }
+}
+
+static void pumpParseCapture(
+    ParseStackFrame* frame,
+    std::stack<std::unique_ptr<ParseStackFrame>>& stack,
+    InputState& inputState) {
+    // step 0: start subTerms[0]
+    // step 1: receive subTerms[0], return
+
+    if (frame->step == 0) {
+        // start subTerms[0]
+        const auto& subTerm = frame->term->subTerms[0];
+        stack.push(std::make_unique<ParseStackFrame>(subTerm, inputState, frame->productionStateRef));
+        frame->subTermResult = nullptr;
+        frame->step++;
+    } else {
+        // receive subTerms[0]
+        if (frame->subTermResult->isMatch) {
+            appendCapture(frame->productionStateRef->captures[frame->term->captureId], frame->subTermResult->box);
+            stack.pop();
+            stack.top()->subTermResult = TermResult::newSuccess();
+        } else {
+            auto result = std::move(frame->subTermResult);
+            stack.pop();
+            stack.top()->subTermResult = std::move(result);
+        }
+    }
+}
+
+static void pumpParseCut(
+    ParseStackFrame* frame,
+    std::stack<std::unique_ptr<ParseStackFrame>>& stack,
+    InputState& inputState) {
+    // single step
+    frame->productionStateRef->cutHasBeenHit = true;
+    stack.pop();
+    stack.top()->subTermResult = TermResult::newSuccess();
+}
+
+static void pumpParseNonTerminal(
+    ParseStackFrame* frame,
+    std::stack<std::unique_ptr<ParseStackFrame>>& stack,
+    InputState& inputState) {
+    // step 0: start sub-production
+    // step 1: receive sub-production, return
+
+    if (frame->step == 0) {
+        // start sub-production
+        stack.push(std::make_unique<ParseStackFrame>(
+            *frame->term->production, inputState, std::make_unique<ProductionState>(peekToken(inputState))));
+        frame->subTermResult = nullptr;
+        frame->step++;
+    } else {
+        // receive sub-production
+        auto result = std::move(frame->subTermResult);
+
+        // return
+        stack.pop();
+        stack.top()->subTermResult = std::move(result);
+    }
+}
+
+static void pumpParseOptional(
+    ParseStackFrame* frame,
+    std::stack<std::unique_ptr<ParseStackFrame>>& stack,
+    InputState& inputState) {
+    // step 0: start subTerms[0]
+    // step 1: receive subTerms[0], start subTerms[1]
+    // ...
+    // step N: receive subTerms[n-1], return
+
+    if (frame->step > 0) {
+        // receive subTerms[step-1]
+        if (!frame->subTermResult->isMatch) {
+            auto result = std::move(frame->subTermResult);
+            frame->checkpoint->revert(inputState, *frame->productionStateRef);
+            stack.pop();
+            // if it didn't match (but isn't an error), that's fine because this was optional
+            stack.top()->subTermResult = result->isError ? std::move(result) : TermResult::newSuccess();
+            return;
+        }
+    }
+
+    if (frame->step < frame->term->subTerms.size()) {
+        // start subTerms[step]
+        const auto& subTerm = frame->term->subTerms[frame->step];
+        stack.push(std::make_unique<ParseStackFrame>(subTerm, inputState, frame->productionStateRef));
+        frame->subTermResult = nullptr;
+        frame->step++;
+    } else {
+        // return
+        stack.pop();
+        stack.top()->subTermResult = TermResult::newSuccess();
+    }
+}
+
+static void pumpParseOr(
+    ParseStackFrame* frame,
+    std::stack<std::unique_ptr<ParseStackFrame>>& stack,
+    InputState& inputState) {
+    // step 0: start subTerms[0]
+    // step 1: receive subTerms[0], start subTerms[1]
+    // ...
+    // step N: receive subTerms[n-1], return
+
+    if (frame->step > 0) {
+        // receive subTerms[step-1]
+        if (frame->subTermResult->isError || frame->subTermResult->isMatch) {
+            auto result = std::move(frame->subTermResult);
+            stack.pop();
+            stack.top()->subTermResult = std::move(result);
+            return;
+        } else {
+            auto result = std::move(frame->subTermResult);
+            frame->checkpoint->revert(inputState, *frame->productionStateRef);
+            // it's fine, try the next one
+        }
+    }
+
+    if (frame->step < frame->term->subTerms.size()) {
+        // start subTerms[step]
+        const auto& subTerm = frame->term->subTerms[frame->step];
+        stack.push(std::make_unique<ParseStackFrame>(subTerm, inputState, frame->productionStateRef));
+        frame->subTermResult = nullptr;
+        frame->step++;
+    } else {
+        // if we made it this far, then none matched. return
+        stack.pop();
+        stack.top()->subTermResult =
+            TermResult::newMismatchOrError(*frame->productionStateRef, *frame->term, inputState.currentToken());
+    }
+}
+
+static void pumpParseTerminal(
+    ParseStackFrame* frame,
+    std::stack<std::unique_ptr<ParseStackFrame>>& stack,
+    InputState& inputState) {
+    // single step
+    auto terminalToken = peekToken(inputState);
+    if (frame->term->tokenKind == terminalToken.type) {
+        acceptToken(inputState);
+        stack.pop();
+        stack.top()->subTermResult = TermResult::newSuccess(tokenBox(terminalToken));
+    } else {
+        frame->checkpoint->revert(inputState, *frame->productionStateRef);
+        auto& term = *frame->term;
+        stack.pop();
+        stack.top()->subTermResult =
+            TermResult::newMismatchOrError(*frame->productionStateRef, term, inputState.currentToken());
+    }
+}
+
+static void pumpParseZeroOrMore(
+    ParseStackFrame* frame,
+    std::stack<std::unique_ptr<ParseStackFrame>>& stack,
+    InputState& inputState) {
+    // step 0: start subTerms[0]
+    // step N: receive subTerms[0], start subTerms[0] again or return.
+
+    if (frame->step > 0) {
+        // receive subTerms[0]
+        frame->productionStateRef->cutHasBeenHit = frame->previousCutStatus;
+        if (!frame->subTermResult->isMatch) {
+            frame->elementCheckpoint->revert(inputState, *frame->productionStateRef);
+            if (frame->subTermResult->isError) {
+                // it matched up to the cut, so this is an error
+                stack.pop();
+                stack.top()->subTermResult = std::move(frame->subTermResult);
+            } else {
+                // it's ok, end of the list
+                stack.pop();
+                stack.top()->subTermResult = TermResult::newSuccess();
+            }
+            return;
+        }
+    }
+
+    // start subTerms[0]
+    frame->elementCheckpoint = std::make_unique<Checkpoint>(inputState, *frame->productionStateRef);
+    frame->previousCutStatus = frame->productionStateRef->cutHasBeenHit;
+    frame->productionStateRef->cutHasBeenHit = false;
+    stack.push(std::make_unique<ParseStackFrame>(frame->term->subTerms[0], inputState, frame->productionStateRef));
+    frame->subTermResult = nullptr;
+    frame->step++;
+}
+
+static void pumpParseProduction(
+    ParseStackFrame* frame,
+    std::stack<std::unique_ptr<ParseStackFrame>>& stack,
+    InputState& inputState) {
+    // step 0: start listTerm
+    // step 1: receive listTerm
+
+    if (frame->step == 0) {
+        // start listTerm
+        stack.push(
+            std::make_unique<ParseStackFrame>(frame->production->listTerm, inputState, frame->productionStateRef));
+        frame->subTermResult = nullptr;
+        frame->step++;
+    } else {
+        // receive listTerm
+        if (frame->subTermResult->isMatch) {
+            auto termResult = TermResult::newSuccess(
+                frame->production->parse(frame->productionStateRef->captures, frame->productionStateRef->firstToken));
+            stack.pop();
+            stack.top()->subTermResult = std::move(termResult);
+        } else {
+            auto result = std::move(frame->subTermResult);
+            stack.pop();
+            stack.top()->subTermResult = std::move(result);
+        }
+    }
+}
+
+static void pumpParse(std::stack<std::unique_ptr<ParseStackFrame>>& stack, InputState& inputState) {
+    auto frame = stack.top().get();
+
+#ifdef DUMP_PARSE
+    if (frame->subTermResult) {
+        if (frame->subTermResult->isMatch) {
+            std::cerr << " match";
+        } else if (frame->subTermResult->isError) {
+            std::cerr << " error";
+        } else {
+            std::cerr << " no";
+        }
+    }
+    std::cerr << std::endl;
+
+    for (size_t i = 0; i < stack.size(); i++) {
+        std::cerr << ' ';
+    }
+    std::cerr << frame->step << ' ';
+    if (frame->production) {
+        std::cerr << frame->production->name;
+    } else {
+        std::cerr << NAMEOF_ENUM(frame->term->type);
+        if (frame->term->type == TermType::kTerminal) {
+            std::cerr << ' ' << NAMEOF_ENUM(frame->term->tokenKind);
+        }
+    }
+#endif
+
+    if (frame->production) {
+        pumpParseProduction(frame, stack, inputState);
+    } else {
+        switch (frame->term->type) {
+            case TermType::kAnd:
+                pumpParseAnd(frame, stack, inputState);
+                break;
+
+            case TermType::kCapture:
+                pumpParseCapture(frame, stack, inputState);
+                break;
+
+            case TermType::kCut:
+                pumpParseCut(frame, stack, inputState);
+                break;
+
+            case TermType::kNonTerminal:
+                pumpParseNonTerminal(frame, stack, inputState);
+                break;
+
+            case TermType::kOptional:
+                pumpParseOptional(frame, stack, inputState);
+                break;
+
+            case TermType::kOr:
+                pumpParseOr(frame, stack, inputState);
+                break;
+
+            case TermType::kTerminal:
+                pumpParseTerminal(frame, stack, inputState);
+                break;
+
+            case TermType::kZeroOrMore:
+                pumpParseZeroOrMore(frame, stack, inputState);
+                break;
+
+            default:
+                assert(false);
+                break;
+        }
     }
 }
 
 static ParserResult parseRootProduction(const Production& production, const std::vector<basic::Token>& tokens) {
     auto inputState = InputState(tokens);
-    auto result = parseProduction(production, inputState);
-    if (result.success && inputState.tokenIndex < inputState.tokens.size()) {
-        // the code is good but there is unparsed junk left over
-        return ParserResult("This token was unexpected.", inputState.tokens[inputState.tokenIndex]);
+    auto stack = std::stack<std::unique_ptr<ParseStackFrame>>();
+
+    stack.push(std::make_unique<ParseStackFrame>());
+
+    stack.push(std::make_unique<ParseStackFrame>(
+        production, inputState, std::make_unique<ProductionState>(peekToken(inputState))));
+
+    while (stack.size() > 1) {
+        pumpParse(stack, inputState);
+    }
+
+#ifdef DUMP_PARSE
+    std::cerr << std::endl;
+#endif
+
+    auto& result = stack.top()->subTermResult;
+    if (result->isMatch) {
+        if (inputState.tokenIndex < inputState.tokens.size()) {
+            // the code is good but there is unparsed junk left over
+            return ParserResult("This token was unexpected.", inputState.tokens[inputState.tokenIndex]);
+        } else {
+            return ParserResult(captureSingleNode<Node>(std::move(result->box)));
+        }
     } else {
-        return result;
+        return ParserResult("This token was unexpected.", inputState.tokens[inputState.tokenIndex]);
     }
 }
 

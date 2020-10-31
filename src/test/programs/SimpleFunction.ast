@@ -1,0 +1,15 @@
+ProgramNode
+ members
+  ProcedureNode
+   name=identity
+   parameters
+    ParameterNode
+     name=x
+     type
+      TypeNode
+       kind=kNumber
+   returnType
+    TypeNode
+     kind=kNumber
+   body
+    BodyNode

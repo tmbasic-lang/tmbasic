@@ -25,7 +25,7 @@ LIBNCURSESW_FLAG ?= -lncursesw
 LIBTINFO_FLAG ?= -ltinfo
 
 # for debugging, override with: OPTFLAGS='-g -O0'
-# to dump AST parse trees, override with: EXTRADEFS='-DDUMP_AST'
+# to dump AST parse trees, override with: EXTRADEFS='-DDUMP_PARSE'
 OPTFLAGS=-Os -flto
 CXXFLAGS=$(WIN_INCLUDE_FLAGS) $(MAC_INCLUDE_FLAGS) -Isrc -Iobj -Iext/tvision/include -Iext/immer -Iext/nameof -I/usr/include/libmpdec -I/usr/include/libmpdec++ -Wall -Werror -Winvalid-pch -Wno-unknown-pragmas -Wno-reorder -std=c++17 $(OPTFLAGS) $(EXTRADEFS)
 LDFLAGS=$(MAC_LD_FLAGS) -lstdc++ $(LIBNCURSESW_FLAG) $(LIBTINFO_FLAG) $(LIBMPDEC_FLAG)
@@ -36,18 +36,23 @@ all: bin/tmbasic bin/test bin/LICENSE.txt
 .PHONY: help
 help:
 	@echo ""
-	@echo "Commands:"
+	@echo "COMMANDS"
+	@echo "--------"
+	@echo "make                      Build for Linux"
+	@echo "make win                  Build for Windows"
+	@echo "make mac                  Build for macOS"
 	@echo
-	@echo "make"
-	@echo "make win"
-	@echo "make mac"
+	@echo "make run                  Run bin/tmbasic"
+	@echo "make valgrind             Run bin/tmbasic with valgrind (Linux only)"
+	@echo "make test                 Run bin/test (Linux only)"
 	@echo
-	@echo "make run"
-	@echo
-	@echo "make clean"
-	@echo "make format"
-	@echo "make test"
-	@echo "make valgrind"
+	@echo "make clean                Delete build outputs"
+	@echo "make format               Reformat C++ code"
+	@echo ""
+	@echo "MAKE FLAGS"
+	@echo "----------"
+	@echo "OPTFLAGS='-g -O0'         Compile with debugging info"
+	@echo "EXTRADEFS='-DDUMP_PARSE'  Dump parse tree"
 	@echo ""
 
 .PHONY: clean
@@ -55,7 +60,7 @@ clean:
 	@rm -rf bin obj obj/tvision valgrind.txt
 
 .PHONY: run
-run: bin/tmbasic
+run:
 	@bin/tmbasic
 
 .PHONY: test
