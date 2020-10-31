@@ -10,10 +10,11 @@ enum class MemberType { kNonMember, kProcedure, kDimStatement, kConstStatement, 
 class Node {
    public:
     Token token;
-    Node(Token token) : token(token) {}
+    Node(Token token);
     virtual ~Node();
     virtual void dump(std::ostringstream& s, int indent) const;
-    virtual MemberType getMemberType() const { return MemberType::kNonMember; }
+    virtual MemberType getMemberType() const;
+    virtual std::optional<std::string> getSymbolDeclaration() const;
 };
 
 //
@@ -270,6 +271,7 @@ class ConstStatementNode : public StatementNode {
     ConstStatementNode(std::string name, std::unique_ptr<ConstValueExpressionNode> value, Token token);
     MemberType getMemberType() const override;
     void dump(std::ostringstream& s, int indent) const override;
+    std::optional<std::string> getSymbolDeclaration() const override;
 };
 
 enum class ContinueScope { kDo, kFor, kWhile };
@@ -304,6 +306,7 @@ class DimStatementNode : public StatementNode {
     DimStatementNode(std::string name, std::unique_ptr<ExpressionNode> value, Token token);
     MemberType getMemberType() const override;
     void dump(std::ostringstream& s, int indent) const override;
+    std::optional<std::string> getSymbolDeclaration() const override;
 };
 
 enum class CollectionType { kList, kMap };
@@ -362,6 +365,7 @@ class ForEachStatementNode : public StatementNode {
         std::unique_ptr<BodyNode> body,
         Token token);
     void dump(std::ostringstream& s, int indent) const override;
+    std::optional<std::string> getSymbolDeclaration() const override;
 };
 
 class ForStepNode : public Node {
@@ -388,6 +392,7 @@ class ForStatementNode : public StatementNode {
         std::unique_ptr<BodyNode> body,
         Token token);
     void dump(std::ostringstream& s, int indent) const override;
+    std::optional<std::string> getSymbolDeclaration() const override;
 };
 
 class GroupKeyNameNode : public Node {
@@ -395,6 +400,7 @@ class GroupKeyNameNode : public Node {
     std::string name;
     GroupKeyNameNode(std::string name, Token token);
     void dump(std::ostringstream& s, int indent) const override;
+    std::optional<std::string> getSymbolDeclaration() const override;
 };
 
 class GroupStatementNode : public StatementNode {
@@ -412,6 +418,7 @@ class GroupStatementNode : public StatementNode {
         std::unique_ptr<BodyNode> body,
         Token token);
     void dump(std::ostringstream& s, int indent) const override;
+    std::optional<std::string> getSymbolDeclaration() const override;
 };
 
 class ElseIfNode : public Node {
@@ -450,6 +457,7 @@ class JoinStatementNode : public StatementNode {
         std::unique_ptr<BodyNode> body,
         Token token);
     void dump(std::ostringstream& s, int indent) const override;
+    std::optional<std::string> getSymbolDeclaration() const override;
 };
 
 class RethrowStatementNode : public StatementNode {
@@ -544,6 +552,7 @@ class ParameterNode : public Node {
     std::unique_ptr<TypeNode> type;
     ParameterNode(std::string name, std::unique_ptr<TypeNode> type, Token token);
     void dump(std::ostringstream& s, int indent) const override;
+    std::optional<std::string> getSymbolDeclaration() const override;
 };
 
 class ProcedureNode : public Node {
@@ -565,6 +574,7 @@ class ProcedureNode : public Node {
         Token token);
     MemberType getMemberType() const override;
     void dump(std::ostringstream& s, int indent) const override;
+    std::optional<std::string> getSymbolDeclaration() const override;
 };
 
 class TypeDeclarationNode : public Node {
@@ -574,6 +584,7 @@ class TypeDeclarationNode : public Node {
     TypeDeclarationNode(std::string name, std::vector<std::unique_ptr<ParameterNode>> fields, Token token);
     MemberType getMemberType() const override;
     void dump(std::ostringstream& s, int indent) const override;
+    std::optional<std::string> getSymbolDeclaration() const override;
 };
 
 class ProgramNode : public Node {

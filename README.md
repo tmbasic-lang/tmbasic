@@ -1,6 +1,6 @@
 # TMBASIC
 
-TMBASIC is a simple programming language for creating console applications that run on Windows and Linux. The "TM" stands for "Text Mode." TMBASIC apps can be simple command line tools or complex mouse-driven user interfaces.
+TMBASIC is a simple programming language for creating console applications that run on Windows, Linux, and macOS. The "TM" stands for "Text Mode." TMBASIC apps can be simple command line tools or complex mouse-driven user interfaces.
 
 TMBASIC is tested on:
 - Windows 10 (x64)

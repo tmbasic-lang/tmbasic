@@ -56,11 +56,21 @@ static std::string stripNamespace(std::string_view sv) {
         DUMP_NODES(f);    \
     }
 
+Node::Node(Token token) : token(token) {}
+
 Node::~Node() {}
 
 void Node::dump(std::ostringstream& s, int n) const {
     assert(false);
     DUMP_TYPE(Node);
+}
+
+MemberType Node::getMemberType() const {
+    return MemberType::kNonMember;
+}
+
+std::optional<std::string> Node::getSymbolDeclaration() const {
+    return std::optional<std::string>();
 }
 
 ExpressionNode::ExpressionNode(Token token) : Node(token) {}
@@ -302,6 +312,10 @@ void ConstStatementNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODE(value);
 }
 
+std::optional<std::string> ConstStatementNode::getSymbolDeclaration() const {
+    return name;
+}
+
 ContinueStatementNode::ContinueStatementNode(ContinueScope scope, Token token) : StatementNode(token), scope(scope) {}
 
 void ContinueStatementNode::dump(std::ostringstream& s, int n) const {
@@ -336,6 +350,10 @@ void DimStatementNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR(name);
     DUMP_VAR_NODE(type);
     DUMP_VAR_NODE(value);
+}
+
+std::optional<std::string> DimStatementNode::getSymbolDeclaration() const {
+    return name;
 }
 
 DimCollectionStatementNode::DimCollectionStatementNode(
@@ -399,6 +417,10 @@ void ForEachStatementNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODE(body);
 }
 
+std::optional<std::string> ForEachStatementNode::getSymbolDeclaration() const {
+    return needleName;
+}
+
 ForStepNode::ForStepNode(decimal::Decimal stepImmediate, Token token) : Node(token), stepImmediate(stepImmediate) {}
 
 ForStepNode::ForStepNode(std::unique_ptr<SymbolReferenceExpressionNode> stepConstant, Token token)
@@ -433,11 +455,19 @@ void ForStatementNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODE(body);
 }
 
+std::optional<std::string> ForStatementNode::getSymbolDeclaration() const {
+    return loopVariableName;
+}
+
 GroupKeyNameNode::GroupKeyNameNode(std::string name, Token token) : Node(token), name(std::move(name)) {}
 
 void GroupKeyNameNode::dump(std::ostringstream& s, int n) const {
     DUMP_TYPE(GroupKeyNameNode);
     DUMP_VAR(name);
+}
+
+std::optional<std::string> GroupKeyNameNode::getSymbolDeclaration() const {
+    return name;
 }
 
 GroupStatementNode::GroupStatementNode(
@@ -461,6 +491,10 @@ void GroupStatementNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR(groupName);
     DUMP_VAR_NODE(keyName);
     DUMP_VAR_NODE(body);
+}
+
+std::optional<std::string> GroupStatementNode::getSymbolDeclaration() const {
+    return groupName;
 }
 
 ElseIfNode::ElseIfNode(std::unique_ptr<ExpressionNode> condition, std::unique_ptr<BodyNode> body, Token token)
@@ -510,6 +544,10 @@ void JoinStatementNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODE(haystack);
     DUMP_VAR_NODE(joinExpression);
     DUMP_VAR_NODE(body);
+}
+
+std::optional<std::string> JoinStatementNode::getSymbolDeclaration() const {
+    return needleName;
 }
 
 RethrowStatementNode::RethrowStatementNode(Token token) : StatementNode(token) {}
@@ -617,6 +655,10 @@ void ParameterNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODE(type);
 }
 
+std::optional<std::string> ParameterNode::getSymbolDeclaration() const {
+    return name;
+}
+
 ProcedureNode::ProcedureNode(
     std::string name,
     std::vector<std::unique_ptr<ParameterNode>> parameters,
@@ -644,6 +686,10 @@ void ProcedureNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODE(body);
 }
 
+std::optional<std::string> ProcedureNode::getSymbolDeclaration() const {
+    return name;
+}
+
 TypeDeclarationNode::TypeDeclarationNode(
     std::string name,
     std::vector<std::unique_ptr<ParameterNode>> fields,
@@ -658,6 +704,10 @@ void TypeDeclarationNode::dump(std::ostringstream& s, int n) const {
     DUMP_TYPE(TypeDeclarationNode);
     DUMP_VAR(name);
     DUMP_VAR_NODES(fields);
+}
+
+std::optional<std::string> TypeDeclarationNode::getSymbolDeclaration() const {
+    return name;
 }
 
 ProgramNode::ProgramNode(std::vector<std::unique_ptr<Node>> members, Token token)
