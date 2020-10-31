@@ -5,7 +5,7 @@
 #include "Record.h"
 #include "String.h"
 
-using namespace vm;
+namespace vm {
 
 static uint16_t ReadUint16(const uint8_t* ptr);
 static uint32_t ReadUint32(const uint8_t* ptr);
@@ -1012,3 +1012,4 @@ IntValue ReadIntValue(const uint8_t* ptr) {
     // boost::multiprecision::import_bits();
     return {};
 }
+}  // namespace vm

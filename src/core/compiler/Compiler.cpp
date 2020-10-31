@@ -2,8 +2,9 @@
 #include "Scanner.h"
 
 using namespace basic;
-using namespace compiler;
 using namespace vm;
+
+namespace compiler {
 
 CompilerResult::CompilerResult(bool isSuccess, std::string message, basic::Token token)
     : isSuccess(isSuccess), message(std::move(message)), token(token) {}
@@ -49,3 +50,5 @@ CompilerResult Compiler::compile(Procedure& procedure) {
 
     return CompilerResult::success();
 }
+
+}  // namespace compiler

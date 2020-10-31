@@ -1,6 +1,6 @@
 #include "ProcedureReference.h"
 
-using namespace vm;
+namespace vm {
 
 ObjectType ProcedureReference::getObjectType() const {
     return ObjectType::kProcedureReference;
@@ -17,3 +17,5 @@ bool ProcedureReference::equals(const Object& other) const {
     auto& otherProcedureReference = (const ProcedureReference&)other;
     return signature == otherProcedureReference.signature;
 }
+
+}  // namespace vm

@@ -1,6 +1,6 @@
 #include "Value.h"
 
-using namespace vm;
+namespace vm {
 
 bool Value::operator==(const Value& rhs) const {
     return num == rhs.num;
@@ -17,3 +17,5 @@ void Value::setBoolean(bool value) {
 int64_t Value::getInt64() const {
     return num.floor().i64();
 }
+
+}  // namespace vm

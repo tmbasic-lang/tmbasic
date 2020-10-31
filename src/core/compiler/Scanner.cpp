@@ -1,7 +1,8 @@
 #include "Scanner.h"
 
 using namespace basic;
-using namespace compiler;
+
+namespace compiler {
 
 Scanner::Scanner() {}
 
@@ -432,3 +433,5 @@ TokenKind Scanner::classifyToken(const std::string& text) {
         return TokenKind::kError;
     }
 }
+
+}  // namespace compiler

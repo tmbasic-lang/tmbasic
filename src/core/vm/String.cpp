@@ -1,6 +1,6 @@
 #include "String.h"
 
-using namespace vm;
+namespace vm {
 
 String::String() : value("") {}
 
@@ -23,3 +23,5 @@ bool String::equals(const Object& other) const {
     auto& otherString = (const String&)other;
     return value == otherString.value;
 }
+
+}  // namespace vm

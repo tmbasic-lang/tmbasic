@@ -1,6 +1,6 @@
 #include "Record.h"
 
-using namespace vm;
+namespace vm {
 
 Record::Record(RecordBuilder& builder) : objects(builder.objects.persistent()), values(builder.values.persistent()) {}
 
@@ -49,3 +49,5 @@ bool Record::equals(const Object& other) const {
     }
     return true;
 }
+
+}  // namespace vm

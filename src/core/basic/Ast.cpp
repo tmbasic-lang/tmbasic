@@ -2,8 +2,9 @@
 #include "core/util/cast.h"
 #include "core/util/decimal.h"
 
-using namespace basic;
 using namespace util;
+
+namespace basic {
 
 static std::string indent(int n) {
     return std::string(n, ' ');
@@ -721,3 +722,5 @@ void ProgramNode::dump(std::ostringstream& s, int n) const {
     DUMP_TYPE(ProgramNode);
     DUMP_VAR_NODES(members);
 }
+
+}  // namespace basic

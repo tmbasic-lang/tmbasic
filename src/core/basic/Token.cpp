@@ -1,6 +1,6 @@
 #include "Token.h"
 
-using namespace basic;
+namespace basic {
 
 Token::Token() : lineIndex(0), columnIndex(-1), type(TokenKind::kEndOfFile), text({}) {}
 
@@ -19,3 +19,5 @@ void Token::operator=(Token&& other) {
     type = other.type;
     text = std::move(other.text);
 }
+
+}  // namespace basic

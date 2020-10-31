@@ -5,7 +5,7 @@
 #include "ProgramWindow.h"
 #include "helpfile.h"
 
-using namespace ui;
+namespace ui {
 
 App::App(int argc, char** argv)
     : TProgInit(initStatusLine, initMenuBar, TApplication::initDeskTop), _newWindowX(0), _newWindowY(0) {}
@@ -195,3 +195,5 @@ TRect App::centeredRect(int width, int height) {
     auto y = (deskTop->size.y - height) / 2;
     return TRect(x, y, x + width, y + height);
 }
+
+}  // namespace ui

@@ -2299,8 +2299,6 @@ class ParseStackFrame {
           productionStateRef(productionState) {}
 };
 
-}  // namespace compiler
-
 Parser::Parser() : _productionCollection(std::make_unique<ProductionCollection>()) {}
 
 Parser::~Parser() {}
@@ -2708,3 +2706,5 @@ ParserResult Parser::parseProgram(const std::vector<basic::Token>& tokens) {
 ParserResult Parser::parseMember(const std::vector<basic::Token>& tokens) {
     return parseRootProduction(*_productionCollection->memberProduction, tokens);
 }
+
+}  // namespace compiler

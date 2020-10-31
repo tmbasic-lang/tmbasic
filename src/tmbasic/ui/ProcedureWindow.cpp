@@ -1,6 +1,6 @@
 #include "ProcedureWindow.h"
 
-using namespace ui;
+namespace ui {
 
 const std::string kInitialSubroutineText("sub untitled()\n\nend sub\n");
 const int kInitialSubroutineCursorStart = 4;
@@ -36,3 +36,5 @@ ProcedureWindow::ProcedureWindow(const TRect& r, bool function)
         function ? kInitialFunctionCursorEnd : kInitialSubroutineCursorEnd, true);
     insert(editor);
 }
+
+}  // namespace ui
