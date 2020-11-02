@@ -74,6 +74,26 @@ std::optional<std::string> Node::getSymbolDeclaration() const {
     return std::optional<std::string>();
 }
 
+Node* Node::getChildSymbolDeclaration() const {
+    return nullptr;
+}
+
+bool Node::isSymbolVisibleToSiblingStatements() const {
+    return false;
+}
+
+bool Node::visitBodies(VisitBodyFunc func) const {
+    return true;
+}
+
+bool Node::visitExpressions(VisitExpressionFunc func) const {
+    return true;
+}
+
+bool Node::isSymbolReference() const {
+    return false;
+}
+
 ExpressionNode::ExpressionNode(Token token) : Node(token) {}
 
 ConstValueExpressionNode::ConstValueExpressionNode(Token token) : ExpressionNode(token) {}
@@ -115,6 +135,10 @@ void BinaryExpressionSuffixNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODE(rightOperand);
 }
 
+bool BinaryExpressionSuffixNode::visitExpressions(VisitExpressionFunc func) const {
+    return func(*rightOperand);
+}
+
 BinaryExpressionNode::BinaryExpressionNode(
     std::unique_ptr<ExpressionNode> leftOperand,
     std::vector<std::unique_ptr<BinaryExpressionSuffixNode>> binarySuffixes,
@@ -125,6 +149,18 @@ void BinaryExpressionNode::dump(std::ostringstream& s, int n) const {
     DUMP_TYPE(BinaryExpressionNode);
     DUMP_VAR_NODE(leftOperand);
     DUMP_VAR_NODES(binarySuffixes);
+}
+
+bool BinaryExpressionNode::visitExpressions(VisitExpressionFunc func) const {
+    if (!func(*leftOperand)) {
+        return false;
+    }
+    for (auto& x : binarySuffixes) {
+        if (!x->visitExpressions(func)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 CallExpressionNode::CallExpressionNode(
@@ -139,6 +175,15 @@ void CallExpressionNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODES(arguments);
 }
 
+bool CallExpressionNode::visitExpressions(VisitExpressionFunc func) const {
+    for (auto& x : arguments) {
+        if (!x->visitExpressions(func)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 ConvertExpressionNode::ConvertExpressionNode(
     std::unique_ptr<ExpressionNode> value,
     std::unique_ptr<TypeNode> type,
@@ -149,6 +194,10 @@ void ConvertExpressionNode::dump(std::ostringstream& s, int n) const {
     DUMP_TYPE(ConvertExpressionNode);
     DUMP_VAR_NODE(value);
     DUMP_VAR_NODE(type);
+}
+
+bool ConvertExpressionNode::visitExpressions(VisitExpressionFunc func) const {
+    return func(*value);
 }
 
 DottedExpressionSuffixNode::DottedExpressionSuffixNode(
@@ -165,6 +214,15 @@ void DottedExpressionSuffixNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODES(callArguments);
 }
 
+bool DottedExpressionSuffixNode::visitExpressions(VisitExpressionFunc func) const {
+    for (auto& x : callArguments) {
+        if (!func(*x)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 DottedExpressionNode::DottedExpressionNode(
     std::unique_ptr<ExpressionNode> base,
     std::vector<std::unique_ptr<DottedExpressionSuffixNode>> dottedSuffixes,
@@ -177,6 +235,18 @@ void DottedExpressionNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODES(dottedSuffixes);
 }
 
+bool DottedExpressionNode::visitExpressions(VisitExpressionFunc func) const {
+    if (!func(*base)) {
+        return false;
+    }
+    for (auto& x : dottedSuffixes) {
+        if (!x->visitExpressions(func)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 LiteralArrayExpressionNode::LiteralArrayExpressionNode(
     std::vector<std::unique_ptr<ExpressionNode>> elements,
     Token token)
@@ -185,6 +255,15 @@ LiteralArrayExpressionNode::LiteralArrayExpressionNode(
 void LiteralArrayExpressionNode::dump(std::ostringstream& s, int n) const {
     DUMP_TYPE(LiteralArrayExpressionNode);
     DUMP_VAR_NODES(elements);
+}
+
+bool LiteralArrayExpressionNode::visitExpressions(VisitExpressionFunc func) const {
+    for (auto& x : elements) {
+        if (!func(*x)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 LiteralBooleanExpressionNode::LiteralBooleanExpressionNode(bool value, Token token)
@@ -212,6 +291,10 @@ void LiteralRecordFieldNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODE(value);
 }
 
+bool LiteralRecordFieldNode::visitExpressions(VisitExpressionFunc func) const {
+    return func(*value);
+}
+
 LiteralRecordExpressionNode::LiteralRecordExpressionNode(
     std::vector<std::unique_ptr<LiteralRecordFieldNode>> fields,
     Token token)
@@ -220,6 +303,15 @@ LiteralRecordExpressionNode::LiteralRecordExpressionNode(
 void LiteralRecordExpressionNode::dump(std::ostringstream& s, int n) const {
     DUMP_TYPE(LiteralRecordExpressionNode);
     DUMP_VAR_NODES(fields);
+}
+
+bool LiteralRecordExpressionNode::visitExpressions(VisitExpressionFunc func) const {
+    for (auto& x : fields) {
+        if (!x->visitExpressions(func)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 LiteralStringExpressionNode::LiteralStringExpressionNode(std::string value, Token token)
@@ -238,12 +330,8 @@ void NotExpressionNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODE(operand);
 }
 
-ParenthesesExpressionNode::ParenthesesExpressionNode(std::unique_ptr<ExpressionNode> expression, Token token)
-    : ExpressionNode(token), expression(std::move(expression)) {}
-
-void ParenthesesExpressionNode::dump(std::ostringstream& s, int n) const {
-    DUMP_TYPE(ParenthesesExpressionNode);
-    DUMP_VAR_NODE(expression);
+bool NotExpressionNode::visitExpressions(VisitExpressionFunc func) const {
+    return func(*operand);
 }
 
 SymbolReferenceExpressionNode::SymbolReferenceExpressionNode(std::string name, Token token)
@@ -252,6 +340,10 @@ SymbolReferenceExpressionNode::SymbolReferenceExpressionNode(std::string name, T
 void SymbolReferenceExpressionNode::dump(std::ostringstream& s, int n) const {
     DUMP_TYPE(SymbolReferenceExpressionNode);
     DUMP_VAR(name);
+}
+
+bool SymbolReferenceExpressionNode::isSymbolReference() const {
+    return true;
 }
 
 AssignLocationSuffixNode::AssignLocationSuffixNode(std::string name, Token token)
@@ -266,6 +358,15 @@ void AssignLocationSuffixNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODE(arrayIndex);
 }
 
+bool AssignLocationSuffixNode::visitExpressions(VisitExpressionFunc func) const {
+    if (arrayIndex) {
+        if (!func(*arrayIndex)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 AssignStatementNode::AssignStatementNode(
     std::string name,
     std::vector<std::unique_ptr<AssignLocationSuffixNode>> suffixes,
@@ -278,6 +379,18 @@ void AssignStatementNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR(name);
     DUMP_VAR_NODES(suffixes);
     DUMP_VAR_NODE(value);
+}
+
+bool AssignStatementNode::visitExpressions(VisitExpressionFunc func) const {
+    for (auto& x : suffixes) {
+        if (!x->visitExpressions(func)) {
+            return false;
+        }
+    }
+    if (!func(*value)) {
+        return false;
+    }
+    return true;
 }
 
 BodyNode::BodyNode(std::vector<std::unique_ptr<StatementNode>>& statements, Token token)
@@ -298,6 +411,15 @@ void CallStatementNode::dump(std::ostringstream& s, int n) const {
     DUMP_TYPE(CallStatementNode);
     DUMP_VAR(name);
     DUMP_VAR_NODES(arguments);
+}
+
+bool CallStatementNode::visitExpressions(VisitExpressionFunc func) const {
+    for (auto& x : arguments) {
+        if (!func(*x)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 ConstStatementNode::ConstStatementNode(std::string name, std::unique_ptr<ConstValueExpressionNode> value, Token token)
@@ -330,10 +452,24 @@ void DimListStatementNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODE(body);
 }
 
+bool DimListStatementNode::visitBodies(VisitBodyFunc func) const {
+    if (!func(*body)) {
+        return false;
+    }
+    return true;
+}
+
 void DimMapStatementNode::dump(std::ostringstream& s, int n) const {
     DUMP_TYPE(DimMapStatementNode);
     DUMP_VAR(name);
     DUMP_VAR_NODE(body);
+}
+
+bool DimMapStatementNode::visitBodies(VisitBodyFunc func) const {
+    if (!func(*body)) {
+        return false;
+    }
+    return true;
 }
 
 DimStatementNode::DimStatementNode(std::string name, std::unique_ptr<TypeNode> type, Token token)
@@ -357,6 +493,15 @@ std::optional<std::string> DimStatementNode::getSymbolDeclaration() const {
     return name;
 }
 
+bool DimStatementNode::visitExpressions(VisitExpressionFunc func) const {
+    if (value) {
+        if (!func(*value)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 DimCollectionStatementNode::DimCollectionStatementNode(
     std::string name,
     CollectionType type,
@@ -371,6 +516,13 @@ void DimCollectionStatementNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODE(body);
 }
 
+bool DimCollectionStatementNode::visitBodies(VisitBodyFunc func) const {
+    if (!func(*body)) {
+        return false;
+    }
+    return true;
+}
+
 DoConditionNode::DoConditionNode(std::unique_ptr<ExpressionNode> condition, DoConditionType conditionType, Token token)
     : Node(token), condition(std::move(condition)), conditionType(conditionType) {}
 
@@ -378,6 +530,13 @@ void DoConditionNode::dump(std::ostringstream& s, int n) const {
     DUMP_TYPE(DoConditionNode);
     DUMP_VAR_NODE(condition);
     DUMP_VAR_ENUM(conditionType);
+}
+
+bool DoConditionNode::visitExpressions(VisitExpressionFunc func) const {
+    if (!func(*condition)) {
+        return false;
+    }
+    return true;
 }
 
 DoStatementNode::DoStatementNode(
@@ -395,6 +554,20 @@ void DoStatementNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODE(condition);
     DUMP_VAR_ENUM(conditionPosition);
     DUMP_VAR_NODE(body);
+}
+
+bool DoStatementNode::visitBodies(VisitBodyFunc func) const {
+    if (!func(*body)) {
+        return false;
+    }
+    return true;
+}
+
+bool DoStatementNode::visitExpressions(VisitExpressionFunc func) const {
+    if (!condition->visitExpressions(func)) {
+        return false;
+    }
+    return true;
 }
 
 ExitStatementNode::ExitStatementNode(ExitScope scope, Token token) : StatementNode(token), scope(scope) {}
@@ -422,6 +595,20 @@ std::optional<std::string> ForEachStatementNode::getSymbolDeclaration() const {
     return needleName;
 }
 
+bool ForEachStatementNode::visitBodies(VisitBodyFunc func) const {
+    if (!func(*body)) {
+        return false;
+    }
+    return true;
+}
+
+bool ForEachStatementNode::visitExpressions(VisitExpressionFunc func) const {
+    if (!func(*haystack)) {
+        return false;
+    }
+    return true;
+}
+
 ForStepNode::ForStepNode(decimal::Decimal stepImmediate, Token token) : Node(token), stepImmediate(stepImmediate) {}
 
 ForStepNode::ForStepNode(std::unique_ptr<SymbolReferenceExpressionNode> stepConstant, Token token)
@@ -431,6 +618,15 @@ void ForStepNode::dump(std::ostringstream& s, int n) const {
     DUMP_TYPE(ForStepNode);
     DUMP_VAR_OPTIONAL_DECIMAL(stepImmediate);
     DUMP_VAR_NODE(stepConstant);
+}
+
+bool ForStepNode::visitExpressions(VisitExpressionFunc func) const {
+    if (stepConstant) {
+        if (!func(*stepConstant)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 ForStatementNode::ForStatementNode(
@@ -458,6 +654,28 @@ void ForStatementNode::dump(std::ostringstream& s, int n) const {
 
 std::optional<std::string> ForStatementNode::getSymbolDeclaration() const {
     return loopVariableName;
+}
+
+bool ForStatementNode::visitBodies(VisitBodyFunc func) const {
+    if (!func(*body)) {
+        return false;
+    }
+    return true;
+}
+
+bool ForStatementNode::visitExpressions(VisitExpressionFunc func) const {
+    if (!func(*fromValue)) {
+        return false;
+    }
+    if (!func(*toValue)) {
+        return false;
+    }
+    if (step) {
+        if (!step->visitExpressions(func)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 GroupKeyNameNode::GroupKeyNameNode(std::string name, Token token) : Node(token), name(std::move(name)) {}
@@ -498,6 +716,23 @@ std::optional<std::string> GroupStatementNode::getSymbolDeclaration() const {
     return groupName;
 }
 
+bool GroupStatementNode::visitBodies(VisitBodyFunc func) const {
+    if (!func(*body)) {
+        return false;
+    }
+    return true;
+}
+
+bool GroupStatementNode::visitExpressions(VisitExpressionFunc func) const {
+    if (!func(*itemExpression)) {
+        return false;
+    }
+    if (!func(*groupingExpression)) {
+        return false;
+    }
+    return true;
+}
+
 ElseIfNode::ElseIfNode(std::unique_ptr<ExpressionNode> condition, std::unique_ptr<BodyNode> body, Token token)
     : Node(token), condition(std::move(condition)), body(std::move(body)) {}
 
@@ -505,6 +740,20 @@ void ElseIfNode::dump(std::ostringstream& s, int n) const {
     DUMP_TYPE(ElseIfNode);
     DUMP_VAR_NODE(condition);
     DUMP_VAR_NODE(body);
+}
+
+bool ElseIfNode::visitBodies(VisitBodyFunc func) const {
+    if (!func(*body)) {
+        return false;
+    }
+    return true;
+}
+
+bool ElseIfNode::visitExpressions(VisitExpressionFunc func) const {
+    if (!func(*condition)) {
+        return false;
+    }
+    return true;
 }
 
 IfStatementNode::IfStatementNode(
@@ -525,6 +774,30 @@ void IfStatementNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODE(body);
     DUMP_VAR_NODES(elseIfs);
     DUMP_VAR_NODE(elseBody);
+}
+
+bool IfStatementNode::visitBodies(VisitBodyFunc func) const {
+    if (!func(*body)) {
+        return false;
+    }
+    for (auto& x : elseIfs) {
+        if (!x->visitBodies(func)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool IfStatementNode::visitExpressions(VisitExpressionFunc func) const {
+    if (!func(*condition)) {
+        return false;
+    }
+    for (auto& x : elseIfs) {
+        if (!x->visitExpressions(func)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 JoinStatementNode::JoinStatementNode(
@@ -551,6 +824,23 @@ std::optional<std::string> JoinStatementNode::getSymbolDeclaration() const {
     return needleName;
 }
 
+bool JoinStatementNode::visitBodies(VisitBodyFunc func) const {
+    if (!func(*body)) {
+        return false;
+    }
+    return true;
+}
+
+bool JoinStatementNode::visitExpressions(VisitExpressionFunc func) const {
+    if (!func(*haystack)) {
+        return false;
+    }
+    if (!func(*joinExpression)) {
+        return false;
+    }
+    return true;
+}
+
 RethrowStatementNode::RethrowStatementNode(Token token) : StatementNode(token) {}
 
 void RethrowStatementNode::dump(std::ostringstream& s, int n) const {
@@ -565,6 +855,15 @@ void ReturnStatementNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODE(expression);
 }
 
+bool ReturnStatementNode::visitExpressions(VisitExpressionFunc func) const {
+    if (expression) {
+        if (!func(*expression)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 CaseValueNode::CaseValueNode(
     std::unique_ptr<ExpressionNode> expression,
     std::unique_ptr<ExpressionNode> toExpression,
@@ -577,6 +876,18 @@ void CaseValueNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODE(toExpression);
 }
 
+bool CaseValueNode::visitExpressions(VisitExpressionFunc func) const {
+    if (!func(*expression)) {
+        return false;
+    }
+    if (toExpression) {
+        if (!func(*toExpression)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 CaseNode::CaseNode(std::vector<std::unique_ptr<CaseValueNode>> values, std::unique_ptr<BodyNode> body, Token token)
     : Node(token), values(std::move(values)), body(std::move(body)) {}
 
@@ -584,6 +895,22 @@ void CaseNode::dump(std::ostringstream& s, int n) const {
     DUMP_TYPE(CaseNode);
     DUMP_VAR_NODES(values);
     DUMP_VAR_NODE(body);
+}
+
+bool CaseNode::visitBodies(VisitBodyFunc func) const {
+    if (!func(*body)) {
+        return false;
+    }
+    return true;
+}
+
+bool CaseNode::visitExpressions(VisitExpressionFunc func) const {
+    for (auto& x : values) {
+        if (!x->visitExpressions(func)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 SelectCaseStatementNode::SelectCaseStatementNode(
@@ -598,6 +925,22 @@ void SelectCaseStatementNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODES(cases);
 }
 
+bool SelectCaseStatementNode::visitBodies(VisitBodyFunc func) const {
+    for (auto& x : cases) {
+        if (!x->visitBodies(func)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool SelectCaseStatementNode::visitExpressions(VisitExpressionFunc func) const {
+    if (!func(*expression)) {
+        return false;
+    }
+    return true;
+}
+
 SelectStatementNode::SelectStatementNode(
     std::unique_ptr<ExpressionNode> expression,
     std::unique_ptr<ExpressionNode> toExpression,
@@ -610,12 +953,31 @@ void SelectStatementNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODE(toExpression);
 }
 
+bool SelectStatementNode::visitExpressions(VisitExpressionFunc func) const {
+    if (!func(*expression)) {
+        return false;
+    }
+    if (toExpression) {
+        if (!func(*toExpression)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 ThrowStatementNode::ThrowStatementNode(std::unique_ptr<ExpressionNode> expression, Token token)
     : StatementNode(token), expression(std::move(expression)) {}
 
 void ThrowStatementNode::dump(std::ostringstream& s, int n) const {
     DUMP_TYPE(ThrowStatementNode);
     DUMP_VAR_NODE(expression);
+}
+
+bool ThrowStatementNode::visitExpressions(VisitExpressionFunc func) const {
+    if (!func(*expression)) {
+        return false;
+    }
+    return true;
 }
 
 TryStatementNode::TryStatementNode(
@@ -635,6 +997,23 @@ void TryStatementNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODE(finallyBody);
 }
 
+bool TryStatementNode::visitBodies(VisitBodyFunc func) const {
+    if (!func(*tryBody)) {
+        return false;
+    }
+    if (catchBody) {
+        if (!func(*catchBody)) {
+            return false;
+        }
+    }
+    if (finallyBody) {
+        if (!func(*finallyBody)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 WhileStatementNode::WhileStatementNode(
     std::unique_ptr<ExpressionNode> condition,
     std::unique_ptr<BodyNode> body,
@@ -647,6 +1026,20 @@ void WhileStatementNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODE(body);
 }
 
+bool WhileStatementNode::visitBodies(VisitBodyFunc func) const {
+    if (!func(*body)) {
+        return false;
+    }
+    return true;
+}
+
+bool WhileStatementNode::visitExpressions(VisitExpressionFunc func) const {
+    if (!func(*condition)) {
+        return false;
+    }
+    return true;
+}
+
 ParameterNode::ParameterNode(std::string name, std::unique_ptr<TypeNode> type, Token token)
     : Node(token), name(std::move(name)), type(std::move(type)) {}
 
@@ -657,6 +1050,18 @@ void ParameterNode::dump(std::ostringstream& s, int n) const {
 }
 
 std::optional<std::string> ParameterNode::getSymbolDeclaration() const {
+    return name;
+}
+
+GlobalVariableNode::GlobalVariableNode(std::string name, size_t index)
+    : Node(Token(0, 0, TokenKind::kError, "")), name(std::move(name)), index(index) {}
+
+void GlobalVariableNode::dump(std::ostringstream& s, int n) const {
+    DUMP_TYPE(GlobalVariableNode);
+    DUMP_VAR(index);
+}
+
+std::optional<std::string> GlobalVariableNode::getSymbolDeclaration() const {
     return name;
 }
 

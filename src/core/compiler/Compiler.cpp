@@ -1,5 +1,7 @@
 #include "Compiler.h"
+#include "core/util/cast.h"
 #include "Scanner.h"
+#include "bindProcedureSymbols.h"
 
 using namespace basic;
 using namespace vm;
@@ -34,7 +36,7 @@ static void removeBlankLines(std::vector<Token>& tokens) {
 }
 
 CompilerResult Compiler::compile(Procedure& procedure) {
-    // source is missing if we're executing a precompiled program, which won't be running the compiler
+    // source is missing if we're executing a precompiled program, which shouldn't run the compiler
     assert(procedure.source.has_value());
 
     auto tokens = Scanner::tokenize(*procedure.source);
@@ -44,9 +46,11 @@ CompilerResult Compiler::compile(Procedure& procedure) {
     auto parserResult = _parser.parseMember(tokens);
     if (!parserResult.success) {
         return CompilerResult::error(parserResult.message, *parserResult.token);
+    } else if (parserResult.node->getMemberType() != MemberType::kProcedure) {
+        return CompilerResult::error("This member must be a subroutine or function.", tokens[0]);
     }
 
-    // TODO
+    dynamic_cast_move<ProcedureNode>(std::move(parserResult.node));
 
     return CompilerResult::success();
 }

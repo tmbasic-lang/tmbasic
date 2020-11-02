@@ -1,4 +1,4 @@
-// compile with -DDUMP_PARSE to dump AST parse tree to std::cout
+// compile with -DDUMP_PARSE to dump AST parse tree to std::cerr
 
 #include "Parser.h"
 #include "core/util/decimal.h"
@@ -720,8 +720,7 @@ class ParenthesesTermProduction : public Production {
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray& captures, const Token& firstToken) const override {
-        return nodeBox(
-            new ParenthesesExpressionNode(captureSingleNode<ExpressionNode>(std::move(captures[0])), firstToken));
+        return std::move(captures[0]);
     }
 };
 
