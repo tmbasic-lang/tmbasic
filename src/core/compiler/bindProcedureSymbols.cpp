@@ -8,18 +8,15 @@ enum class AddSymbolResult { kSuccess, kNoSymbolDeclaration, kDuplicateName };
 
 class Scope {
    public:
-    const Scope* parentScope = nullptr;
-    std::unordered_map<std::string, Node&> symbolDeclarations;
-
     Scope() {}
-    Scope(const Scope& parentScope) : parentScope(&parentScope) {}
+    Scope(const Scope& parentScope) : _parentScope(&parentScope) {}
 
     Node* lookup(std::string lowercaseName) {
         const auto* scope = this;
         while (scope) {
-            auto found = scope->symbolDeclarations.find(lowercaseName);
-            if (found == scope->symbolDeclarations.end()) {
-                scope = scope->parentScope;
+            auto found = scope->_symbolDeclarations.find(lowercaseName);
+            if (found == scope->_symbolDeclarations.end()) {
+                scope = scope->_parentScope;
             } else {
                 return &found->second;
             }
@@ -38,10 +35,14 @@ class Scope {
         if (existingSymbolDeclaration) {
             return AddSymbolResult::kDuplicateName;
         } else {
-            symbolDeclarations.insert({ { lowercaseName, symbolDeclaration } });
+            _symbolDeclarations.insert({ { lowercaseName, symbolDeclaration } });
             return AddSymbolResult::kSuccess;
         }
     }
+
+   private:
+    const Scope* _parentScope = nullptr;
+    std::unordered_map<std::string, Node&> _symbolDeclarations;
 };
 
 static Scope makeProcedureGlobalScope(ProcedureNode& procedure, const vm::Program& program) {
