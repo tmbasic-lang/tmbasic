@@ -139,7 +139,7 @@ function replaceIndentChars(str) {
 }
 
 async function insertCp437Diagrams() {
-    const dir = await fs.promises.opendir("diagrams");
+    const dir = await fs.promises.opendir("../obj/doc-temp/diagrams-cp437");
     for await (const file of dir) {
         if (file.name.indexOf('.txt') >= 0) {
             await insertCp437Diagram(file.name);
