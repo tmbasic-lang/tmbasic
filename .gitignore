@@ -5,4 +5,5 @@ mac
 .vscode/settings.json
 valgrind.txt
 build/docker/*.tar.gz
+build/docker/*.tgz
 build/docker/*.zst

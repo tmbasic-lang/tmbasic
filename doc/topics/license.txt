@@ -6,10 +6,10 @@ TMBASIC is open source software. The following components are included in the TM
 
 ul@li@{'tmbasic' License:license_tmbasic}@
 li@{'boost' License:license_boost}@
-li@{'glibc' License:license_glibc}@
 li@{'immer' License:license_immer}@
 li@'libstdc++' License - {Part 1:license_libstdcxx1}, {Part 2:license_libstdcxx2}, {Part 3:license_libstdcxx3}@
 li@{'mpdecimal' License:license_mpdecimal}@
+li@{'musl' License:license_musl}@
 li@{'nameof' License:license_nameof}@
 li@{'ncurses' License:license_ncurses}@
 li@{'tvision' License:license_tvision}@

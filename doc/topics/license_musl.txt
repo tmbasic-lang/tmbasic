@@ -1,5 +1,5 @@
 nav@{<TITLE_HOME>:<TOPIC_HOME>} <TRIANGLE_RIGHT> {License:license}@
 
-h1['glibc' License]
+h1['musl' License]
 
-  dia[license_glibc]
+  dia[license_musl]

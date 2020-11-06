@@ -1,75 +1,64 @@
 FROM $BASE_IMAGE_NAME
 
-RUN sed -i "s/# deb-src/deb-src/g" /etc/apt/sources.list
-
-RUN apt-get update -y && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+RUN apk update && \
+    apk add \
+        bash \
         curl \
         wget \
-        software-properties-common \
-        apt-transport-https \
+        build-base \
+        clang \
         make \
         git \
         openssl \
-        libssl-dev \
+        openssl-dev \
         cmake \
-        dpkg-dev \
-        libboost-dev \
+        boost-dev \
         valgrind \
-        libgtest-dev
+        gtest-dev \
+        alpine-sdk \
+        nodejs-current \
+        ncurses
 
-RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
-    add-apt-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-10 main" && \
-    apt-get update -y && \
-    apt-get install -y clang-format-10 && \
-    update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-10 9999
+# set up unprivileged user
+RUN addgroup -g $HOST_GID $USER && \
+    adduser -h /home/$USER -s /bin/bash -G $USER -u $HOST_UID -D $USER && \
+    chmod a+w /var/cache/distfiles
 
-RUN apt-get build-dep -y ncurses
-
-RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
-    apt-get install -y nodejs
-
-RUN mkdir -p /code && \
-    mkdir -p /pkgsrc && \
-    groupadd -g $HOST_GID $USER && \
-    useradd -r -u $HOST_UID -g $HOST_GID $USER && \
-    chown $HOST_UID:$HOST_GID /code && \
-    chown $HOST_UID:$HOST_GID /pkgsrc && \
-    mkdir -p /home/$USER && \
-    chown $HOST_UID:$HOST_GID /home/$USER
-
+# set up the key for signing built .apk packages    
 USER $HOST_UID
-
-COPY ncurses-rules.diff /pkgsrc/
-RUN cd /pkgsrc && \
-    apt-get source -y ncurses && \
-    mv ncurses*/ ncurses && \
-    cd ncurses && \
-    patch debian/rules /pkgsrc/ncurses-rules.diff
-
+RUN abuild-keygen && \
+    echo "PACKAGER_PRIVKEY=\"$(ls /home/$USER/.abuild/*.rsa)\"" > /home/$USER/.abuild/abuild.conf
 USER 0
+RUN cp /home/$USER/.abuild/*.rsa.pub /etc/apk/keys/
 
-RUN cd /pkgsrc/ncurses && \
-    dpkg-buildpackage --build=binary --build-profiles=nobiarch,pkg.ncurses.noexamples && \
-    dpkg -i /pkgsrc/*.deb
+# build ncurses
+USER $HOST_UID
+COPY ncurses-APKBUILD.diff /tmp/
+RUN mkdir -p /tmp/aports/main/ncurses && \
+    cd /tmp/aports/main/ncurses && \
+    curl -o APKBUILD https://git.alpinelinux.org/aports/plain/main/ncurses/APKBUILD && \
+    patch APKBUILD /tmp/ncurses-APKBUILD.diff && \
+    abuild fetch && \
+    abuild unpack && \
+    abuild prepare && \
+    abuild build && \
+    abuild rootpkg && \
+    abuild index
+USER 0
+RUN apk add /home/$USER/packages/main/*/*.apk
 
-RUN cd /usr/src/gtest && \
-    cmake CMakeLists.txt && \
-    make -j 2 && \
-    mv lib/*.a /usr/lib/
-
+# build mpdecimal
+USER 0
 COPY mpdecimal-2.5.0.tar.gz /tmp/
-
 RUN cd /tmp && \
     tar zxf mpdecimal-2.5.0.tar.gz && \
     cd mpdecimal-2.5.0 && \
     ./configure && \
-    make && \
-    make install && \
-    cp -rf /usr/local/lib/libmpdec* /lib/*-linux-gnu/
+    make -j2 && \
+    make install
 
+# set up environment
 USER $HOST_UID
-
 RUN echo "export PS1=\"[$IMAGE_NAME] \w\$ \"" > /home/ubuntu/.bashrc && \
     echo "make -f /code/Makefile help" >> /home/ubuntu/.bashrc && \
     echo "export MAKEFLAGS=\"-j2\"" >> /home/ubuntu/.bashrc

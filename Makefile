@@ -11,7 +11,7 @@ EXT_HEADER_FILES=$(shell find ext -type f -name "*.h")
 TVISION_SRC_FILES=$(shell find ext/tvision -type f -name "*.cpp") $(shell find ext/tvision -type f -name "*.h")
 DIAGRAM_SRC_FILES=$(shell find doc/diagrams -type f -name "*.txt")
 DIAGRAM_CP437_FILES=$(patsubst doc/diagrams/%,obj/doc-temp/diagrams-cp437/%,$(DIAGRAM_SRC_FILES))
-LICENSE_DIAGRAM_SRC_FILES=obj/doc-temp/diagrams-license/license_tmbasic.txt obj/doc-temp/diagrams-license/license_boost.txt obj/doc-temp/diagrams-license/license_glibc.txt obj/doc-temp/diagrams-license/license_immer.txt obj/doc-temp/diagrams-license/license_libstdc++_gpl3.txt obj/doc-temp/diagrams-license/license_libstdc++_gcc1.txt obj/doc-temp/diagrams-license/license_libstdc++_gcc2.txt obj/doc-temp/diagrams-license/license_mpdecimal.txt obj/doc-temp/diagrams-license/license_nameof.txt obj/doc-temp/diagrams-license/license_ncurses.txt obj/doc-temp/diagrams-license/license_tvision.txt obj/doc-temp/diagrams-license/license_notoserif.txt obj/doc-temp/diagrams-license/license_opensans.txt obj/doc-temp/diagrams-license/license_oxygenmono.txt
+LICENSE_DIAGRAM_SRC_FILES=obj/doc-temp/diagrams-license/license_tmbasic.txt obj/doc-temp/diagrams-license/license_boost.txt obj/doc-temp/diagrams-license/license_musl.txt obj/doc-temp/diagrams-license/license_immer.txt obj/doc-temp/diagrams-license/license_libstdc++_gpl3.txt obj/doc-temp/diagrams-license/license_libstdc++_gcc1.txt obj/doc-temp/diagrams-license/license_libstdc++_gcc2.txt obj/doc-temp/diagrams-license/license_mpdecimal.txt obj/doc-temp/diagrams-license/license_nameof.txt obj/doc-temp/diagrams-license/license_ncurses.txt obj/doc-temp/diagrams-license/license_tvision.txt obj/doc-temp/diagrams-license/license_notoserif.txt obj/doc-temp/diagrams-license/license_opensans.txt obj/doc-temp/diagrams-license/license_oxygenmono.txt
 LICENSE_DIAGRAM_CP437_FILES=$(patsubst obj/doc-temp/diagrams-license/%,obj/doc-temp/diagrams-cp437/%,$(LICENSE_DIAGRAM_SRC_FILES))
 
 BUILDCC ?= $(CC)
@@ -22,7 +22,6 @@ HELP_FILE_OBJ ?= obj/helpfile.o
 STATIC_FLAG ?= -static
 LIBMPDEC_FLAG ?= -lmpdec -lmpdec++
 LIBNCURSESW_FLAG ?= -lncursesw
-LIBTINFO_FLAG ?= -ltinfo
 
 # for debugging, override with: OPTFLAGS='-g -O0'
 # to dump AST parse trees, override with: EXTRADEFS='-DDUMP_PARSE'
@@ -168,7 +167,7 @@ obj/doc-temp/diagrams-license/license_boost.txt: ext/boost/LICENSE_1_0.txt
 	@mkdir -p $(@D)
 	@cp -f $< $@
 
-obj/doc-temp/diagrams-license/license_glibc.txt: ext/glibc/copyright
+obj/doc-temp/diagrams-license/license_musl.txt: ext/musl/COPYRIGHT
 	@echo $@
 	@mkdir -p $(@D)
 	@cp -f $< $@
