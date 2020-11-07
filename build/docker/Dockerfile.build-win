@@ -24,7 +24,8 @@ RUN apt-get update -y && \
         mingw-w64 \
         wine64 \
         zstd \
-        libgtest-dev
+        libgtest-dev \
+        dos2unix
 
 # clang-format
 RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \

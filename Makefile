@@ -1,4 +1,3 @@
-ARCH=$(shell uname -m)
 CORE_SRC_FILES=$(shell find src/core -type f -name "*.cpp")
 CORE_OBJ_FILES=$(patsubst src/%,obj/%,$(CORE_SRC_FILES:.cpp=.o))
 TMBASIC_SRC_FILES=$(shell find src/tmbasic -type f -name "*.cpp")
@@ -14,6 +13,7 @@ DIAGRAM_CP437_FILES=$(patsubst doc/diagrams/%,obj/doc-temp/diagrams-cp437/%,$(DI
 LICENSE_DIAGRAM_SRC_FILES=obj/doc-temp/diagrams-license/license_tmbasic.txt obj/doc-temp/diagrams-license/license_boost.txt obj/doc-temp/diagrams-license/license_musl.txt obj/doc-temp/diagrams-license/license_immer.txt obj/doc-temp/diagrams-license/license_libstdc++_gpl3.txt obj/doc-temp/diagrams-license/license_libstdc++_gcc1.txt obj/doc-temp/diagrams-license/license_libstdc++_gcc2.txt obj/doc-temp/diagrams-license/license_mpdecimal.txt obj/doc-temp/diagrams-license/license_nameof.txt obj/doc-temp/diagrams-license/license_ncurses.txt obj/doc-temp/diagrams-license/license_tvision.txt obj/doc-temp/diagrams-license/license_notoserif.txt obj/doc-temp/diagrams-license/license_opensans.txt obj/doc-temp/diagrams-license/license_oxygenmono.txt
 LICENSE_DIAGRAM_CP437_FILES=$(patsubst obj/doc-temp/diagrams-license/%,obj/doc-temp/diagrams-cp437/%,$(LICENSE_DIAGRAM_SRC_FILES))
 
+TARGET_OS ?= linux
 BUILDCC ?= $(CC)
 TVHC ?= obj/tvision/tvhc
 CMAKE ?= cmake
@@ -81,10 +81,13 @@ win:
 		CC=x86_64-w64-mingw32-gcc \
 		CXX=x86_64-w64-mingw32-g++ \
 		AR=x86_64-w64-mingw32-ar \
+		STRIP=x86_64-w64-mingw32-strip \
 		WIN_INCLUDE_FLAGS="-I/usr/share/mingw-w64/include/" \
 		TVHC="WINEPATH=/usr/lib/gcc/x86_64-w64-mingw32/9.3-win32 wine64 obj/tvision/tvhc.exe" \
 		LIBTINFO_FLAG="" \
+		TARGET_OS=win \
 		$(MAKE) bin/tmbasic bin/LICENSE.txt
+	@unix2dos bin/LICENSE.txt
 
 .PHONY: mac
 mac:
@@ -98,6 +101,7 @@ mac:
 		LIBTINFO_FLAG="" \
 		LIBMPDEC_FLAG="$(PWD)/mac/mpdecimal/libmpdec/libmpdec.a $(PWD)/mac/mpdecimal/libmpdec++/libmpdec++.a " \
 		LIBNCURSESW_FLAG="-lncurses" \
+		TARGET_OS=mac \
 		$(MAKE) bin/tmbasic bin/LICENSE.txt
 
 # shared
@@ -303,7 +307,7 @@ bin/tmbasic: $(TMBASIC_OBJ_FILES) obj/tvision/libtvision.a obj/core.a obj/common
 	@echo $@
 	@mkdir -p $(@D)
 	@$(CXX) $(CXXFLAGS) $(MAC_HELP_FILE_LINK_FLAG) $(STATIC_FLAG) -include obj/common.h -o $@ $(TMBASIC_OBJ_FILES) obj/core.a obj/tvision/libtvision.a $(HELP_FILE_OBJ) $(LDFLAGS)
-	@$(STRIP) $@
+	@$(STRIP) bin/tmbasic*
 
 # test
 
