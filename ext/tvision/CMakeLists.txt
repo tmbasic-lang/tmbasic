@@ -68,8 +68,10 @@ if (TV_PLATF EQUAL TV_PLATF_UNIX)
         # macOS has no ncursesw by default
         find_library(NCURSESW ncurses)
     endif()
-    list(APPEND LIBS ${NCURSESW})
-    target_compile_definitions(tvision PRIVATE HAVE_NCURSES)
+    if (NCURSESW)
+        list(APPEND LIBS ${NCURSESW})
+        target_compile_definitions(tvision PRIVATE HAVE_NCURSES)
+    endif()
 endif()
 
 target_link_libraries(hello ${LIBS})

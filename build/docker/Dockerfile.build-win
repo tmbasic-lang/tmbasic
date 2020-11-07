@@ -1,6 +1,11 @@
 FROM $BASE_IMAGE_NAME
 
-RUN sed -i "s/# deb-src/deb-src/g" /etc/apt/sources.list
+RUN mkdir -p /code && \
+    groupadd -g $HOST_GID $USER && \
+    useradd -r -u $HOST_UID -g $HOST_GID $USER && \
+    chown $HOST_UID:$HOST_GID /code && \
+    mkdir -p /home/$USER && \
+    chown $HOST_UID:$HOST_GID /home/$USER
 
 RUN apt-get update -y && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
@@ -18,51 +23,34 @@ RUN apt-get update -y && \
         libgtest-dev \
         mingw-w64 \
         wine64 \
-        zstd
+        zstd \
+        libgtest-dev
 
+# clang-format
 RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
     add-apt-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-10 main" && \
     apt-get update -y && \
     apt-get install -y clang-format-10 && \
     update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-10 9999
 
-RUN apt-get build-dep -y ncurses
-
+# node
 RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
     apt-get install -y nodejs
 
-RUN mkdir -p /code && \
-    mkdir -p /pkgsrc && \
-    groupadd -g $HOST_GID $USER && \
-    useradd -r -u $HOST_UID -g $HOST_GID $USER && \
-    chown $HOST_UID:$HOST_GID /code && \
-    chown $HOST_UID:$HOST_GID /pkgsrc && \
-    mkdir -p /home/$USER && \
-    chown $HOST_UID:$HOST_GID /home/$USER
-
-USER $HOST_UID
-
-COPY ncurses-rules.diff /pkgsrc/
-RUN cd /pkgsrc && \
-    apt-get source -y ncurses && \
-    mv ncurses*/ ncurses && \
-    cd ncurses && \
-    patch debian/rules /pkgsrc/ncurses-rules.diff
-
-USER 0
-
-COPY mingw-w64-x86_64-ncurses-6.2-2-any.pkg.tar.zst /tmp/ncurses.pkg.tar.zst
-
+# ncurses, gtest
 RUN cd /tmp && \
+    curl -sL -o ncurses.pkg.tar.zst https://repo.msys2.org/mingw/x86_64/mingw-w64-x86_64-ncurses-6.2-2-any.pkg.tar.zst && \
     unzstd ncurses.pkg.tar.zst && \
     tar xf ncurses.pkg.tar && \
+    curl -o gtest.pkg.tar.xz https://repo.msys2.org/mingw/x86_64/mingw-w64-x86_64-gtest-1.10.0-1-any.pkg.tar.xz && \
+    unzstd gtest.pkg.tar.xz && \
+    tar xf gtest.pkg.tar && \
     cd mingw64 && \
     cp -rf ./* /usr/x86_64-w64-mingw32/ && \
-    cd /tmp && \
-    rm -rf mingw64
+    rm -rf /tmp/mingw64 /tmp/*.tar*
 
+# mpdecimal
 COPY mpdecimal-2.5.0.tar.gz /tmp/
-
 RUN cd /tmp && \
     tar zxf mpdecimal-2.5.0.tar.gz && \
     cd mpdecimal-2.5.0 && \
@@ -76,10 +64,13 @@ RUN cd /tmp && \
     make libmpdec++.a -j2 && \
     cp -f libmpdec++.a /usr/x86_64-w64-mingw32/lib/ && \
     mkdir -p /usr/include/libmpdec++ && \
-    cp -f *.hh /usr/include/libmpdec++/
+    cp -f *.hh /usr/include/libmpdec++/ && \
+    rm -rf /tmp/*.tar*
 
+# boost
 RUN ln -s /usr/include/boost /usr/share/mingw-w64/include/
 
+# wine32
 RUN dpkg --add-architecture i386 && apt-get update -y && apt-get install -y wine32
 
 USER $HOST_UID

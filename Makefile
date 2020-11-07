@@ -80,7 +80,6 @@ win:
 		CC=x86_64-w64-mingw32-gcc \
 		CXX=x86_64-w64-mingw32-g++ \
 		AR=x86_64-w64-mingw32-ar \
-		HOSTFLAGS="--host=x86_64-w64-mingw32" \
 		WIN_INCLUDE_FLAGS="-I/usr/share/mingw-w64/include/" \
 		TVHC="WINEPATH=/usr/lib/gcc/x86_64-w64-mingw32/9.3-win32 wine64 obj/tvision/tvhc.exe" \
 		LIBTINFO_FLAG="" \
@@ -138,6 +137,11 @@ bin/LICENSE.txt: LICENSE ext/boost/LICENSE_1_0.txt ext/immer/LICENSE ext/gcc/GPL
 	@echo ================= >> $@
 	@echo >> $@
 	@cat ext/mpdecimal/LICENSE.txt >> $@
+	@echo >> $@
+	@echo musl license >> $@
+	@echo ================= >> $@
+	@echo >> $@
+	@cat ext/musl/COPYRIGHT >> $@
 	@echo >> $@
 	@echo nameof license >> $@
 	@echo ============== >> $@

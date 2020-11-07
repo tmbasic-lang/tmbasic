@@ -52,6 +52,7 @@ void Win32ConsoleStrategy::initConsole()
     GetConsoleMode(consoleHandle[cnInput], &consoleMode[cnInput]);
     consoleMode[cnInput] |= ENABLE_WINDOW_INPUT; // Report changes in buffer size
     consoleMode[cnInput] &= ~ENABLE_PROCESSED_INPUT; // Report CTRL+C and SHIFT+Arrow events.
+    consoleMode[cnInput] = ENABLE_EXTENDED_FLAGS | (consoleMode[cnInput] & ~ENABLE_QUICK_EDIT_MODE); // no Quick Edit
     SetConsoleMode(consoleHandle[cnInput], consoleMode[cnInput]);
     // Set the output mode.
     GetConsoleMode(consoleHandle[cnOutput], &consoleMode[cnOutput]);

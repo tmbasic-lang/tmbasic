@@ -6,27 +6,17 @@
 #include <mach-o/ldsyms.h>
 #endif
 
-#ifdef __linux__
+#if defined(__linux__) || defined(_WIN32)
 extern char _binary_help_h32_start[];
 extern char _binary_help_h32_end[];
 #endif
 
-#ifdef _WIN32
-extern char binary_help_h32_start[];
-extern char binary_help_h32_end[];
-#endif
-
 namespace ui {
 
-#ifdef __linux__
+#if defined(__linux__) || defined(_WIN32)
 HelpResource::HelpResource()
     : start(reinterpret_cast<uint8_t*>(_binary_help_h32_start)),
       end(reinterpret_cast<uint8_t*>(_binary_help_h32_end)) {}
-#endif
-
-#ifdef _WIN32
-HelpResource::HelpResource()
-    : start(reinterpret_cast<uint8_t*>(binary_help_h32_start)), end(reinterpret_cast<uint8_t*>(binary_help_h32_end)) {}
 #endif
 
 #ifdef __APPLE__

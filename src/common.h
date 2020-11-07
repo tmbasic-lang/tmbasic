@@ -63,4 +63,8 @@
 
 #include <nameof.hpp>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 #endif  // _COMMON_H_

@@ -7,7 +7,6 @@ export HOST_GID=$(id -g "$USER")
 export BASE_IMAGE_NAME="ubuntu:20.04"
 
 cp -f ../ext/mpdecimal/*.tar.gz docker/
-cp -f ../ext/ncurses/*.zst docker/
 
 cat docker/Dockerfile.build-win | envsubst | docker build -t $IMAGE_NAME docker -f-
 
