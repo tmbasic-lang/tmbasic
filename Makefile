@@ -22,6 +22,7 @@ HELP_FILE_OBJ ?= obj/helpfile.o
 STATIC_FLAG ?= -static
 LIBMPDEC_FLAG ?= -lmpdec -lmpdec++
 LIBNCURSESW_FLAG ?= -lncursesw
+STRIP ?= strip
 
 # for debugging, override with: OPTFLAGS='-g -O0'
 # to dump AST parse trees, override with: EXTRADEFS='-DDUMP_PARSE'
@@ -302,6 +303,7 @@ bin/tmbasic: $(TMBASIC_OBJ_FILES) obj/tvision/libtvision.a obj/core.a obj/common
 	@echo $@
 	@mkdir -p $(@D)
 	@$(CXX) $(CXXFLAGS) $(MAC_HELP_FILE_LINK_FLAG) $(STATIC_FLAG) -include obj/common.h -o $@ $(TMBASIC_OBJ_FILES) obj/core.a obj/tvision/libtvision.a $(HELP_FILE_OBJ) $(LDFLAGS)
+	@$(STRIP) $@
 
 # test
 
