@@ -1,0 +1,78 @@
+FROM $BASE_IMAGE_NAME
+
+RUN sed -i "s/# deb-src/deb-src/g" /etc/apt/sources.list
+
+RUN apt-get update -y && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        curl \
+        wget \
+        software-properties-common \
+        apt-transport-https \
+        make \
+        git \
+        openssl \
+        libssl-dev \
+        cmake \
+        dpkg-dev \
+        libboost-dev \
+        valgrind \
+        libgtest-dev
+
+RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
+    add-apt-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-10 main" && \
+    apt-get update -y && \
+    apt-get install -y clang-format-10 && \
+    update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-10 9999
+
+RUN apt-get build-dep -y ncurses
+
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
+    apt-get install -y nodejs
+
+RUN mkdir -p /code && \
+    mkdir -p /pkgsrc && \
+    groupadd -g $HOST_GID $USER && \
+    useradd -r -u $HOST_UID -g $HOST_GID $USER && \
+    chown $HOST_UID:$HOST_GID /code && \
+    chown $HOST_UID:$HOST_GID /pkgsrc && \
+    mkdir -p /home/$USER && \
+    chown $HOST_UID:$HOST_GID /home/$USER
+
+USER $HOST_UID
+
+COPY ncurses-rules.diff /pkgsrc/
+RUN cd /pkgsrc && \
+    apt-get source -y ncurses && \
+    mv ncurses*/ ncurses && \
+    cd ncurses && \
+    patch debian/rules /pkgsrc/ncurses-rules.diff
+
+USER 0
+
+RUN cd /pkgsrc/ncurses && \
+    dpkg-buildpackage --build=binary --build-profiles=nobiarch,pkg.ncurses.noexamples && \
+    dpkg -i /pkgsrc/*.deb
+
+RUN cd /usr/src/gtest && \
+    cmake CMakeLists.txt && \
+    make -j 2 && \
+    mv lib/*.a /usr/lib/
+
+COPY mpdecimal-2.5.0.tar.gz /tmp/
+
+RUN cd /tmp && \
+    tar zxf mpdecimal-2.5.0.tar.gz && \
+    cd mpdecimal-2.5.0 && \
+    ./configure && \
+    make && \
+    make install && \
+    cp -rf /usr/local/lib/libmpdec* /lib/*-linux-gnu/
+
+USER $HOST_UID
+
+RUN echo "export PS1=\"[$IMAGE_NAME] \w\$ \"" > /home/ubuntu/.bashrc && \
+    echo "make -f /code/Makefile help" >> /home/ubuntu/.bashrc && \
+    echo "export MAKEFLAGS=\"-j2\"" >> /home/ubuntu/.bashrc && \
+    echo "export LIBTINFO_FLAG=\"-ltinfo\"" >> /home/ubuntu/.bashrc
+
+ENTRYPOINT "/bin/bash"

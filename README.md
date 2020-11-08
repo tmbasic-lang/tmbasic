@@ -9,7 +9,7 @@ TMBASIC is tested on the following platforms:
 - macOS 10.13 (x64) using [iTerm2](https://www.iterm2.com/)
 - Android 10 (ARM64) using [Termux](https://termux.com/)
 
-See [`CONTRIBUTING.md`](CONTRIBUTING.md) for instructions on building TMBASIC from source.
+See [`DEVELOPERS.md`](DEVELOPERS.md) for instructions on building TMBASIC from source.
 
 ## License
 TMBASIC is open source software. The following components are included in the TMBASIC development environment and in builds of user programs.
