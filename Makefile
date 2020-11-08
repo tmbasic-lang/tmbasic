@@ -1,3 +1,18 @@
+# environment variable defaults
+TARGET_OS ?= linux
+BUILDCC ?= $(CC)
+TVHC ?= obj/tvision/tvhc
+CMAKE ?= cmake
+NODE ?= node
+HELP_FILE_OBJ ?= obj/helpfile.o
+STATIC_FLAG ?= -static
+LIBMPDEC_FLAG ?= -lmpdec -lmpdec++
+LIBNCURSESW_FLAG ?= -lncursesw
+STRIP ?= strip
+LICENSE_PROCESS_CMD ?= >/dev/null echo
+ALL_TARGETS ?= bin/tmbasic bin/test bin/runner bin/LICENSE.txt bin/doc-html
+OPTFLAGS ?= -Os -flto
+
 COMPILER_SRC_FILES=$(shell find src/compiler -type f -name "*.cpp")
 COMPILER_OBJ_FILES=$(patsubst src/%,obj/%,$(COMPILER_SRC_FILES:.cpp=.o))
 CORE_SRC_FILES=$(shell find src/core -type f -name "*.cpp")
@@ -17,33 +32,18 @@ DIAGRAM_CP437_FILES=$(patsubst doc/diagrams/%,obj/doc-temp/diagrams-cp437/%,$(DI
 LICENSE_DIAGRAM_SRC_FILES=obj/doc-temp/diagrams-license/license_tmbasic.txt obj/doc-temp/diagrams-license/license_boost.txt obj/doc-temp/diagrams-license/license_musl.txt obj/doc-temp/diagrams-license/license_immer.txt obj/doc-temp/diagrams-license/license_libstdc++_gpl3.txt obj/doc-temp/diagrams-license/license_libstdc++_gcc1.txt obj/doc-temp/diagrams-license/license_libstdc++_gcc2.txt obj/doc-temp/diagrams-license/license_mpdecimal.txt obj/doc-temp/diagrams-license/license_nameof.txt obj/doc-temp/diagrams-license/license_ncurses.txt obj/doc-temp/diagrams-license/license_tvision.txt obj/doc-temp/diagrams-license/license_notoserif.txt obj/doc-temp/diagrams-license/license_opensans.txt obj/doc-temp/diagrams-license/license_oxygenmono.txt
 LICENSE_DIAGRAM_CP437_FILES=$(patsubst obj/doc-temp/diagrams-license/%,obj/doc-temp/diagrams-cp437/%,$(LICENSE_DIAGRAM_SRC_FILES))
 
-TARGET_OS ?= linux
-BUILDCC ?= $(CC)
-TVHC ?= obj/tvision/tvhc
-CMAKE ?= cmake
-NODE ?= node
-HELP_FILE_OBJ ?= obj/helpfile.o
-STATIC_FLAG ?= -static
-LIBMPDEC_FLAG ?= -lmpdec -lmpdec++
-LIBNCURSESW_FLAG ?= -lncursesw
-STRIP ?= strip
-
-# for debugging, override with: OPTFLAGS='-g -O0'
-# to dump AST parse trees, override with: EXTRADEFS='-DDUMP_PARSE'
-OPTFLAGS=-Os -flto
 CXXFLAGS=$(WIN_INCLUDE_FLAGS) $(MAC_INCLUDE_FLAGS) -Isrc -Iobj -Iext/tvision/include -Iext/immer -Iext/nameof -I/usr/include/libmpdec -I/usr/include/libmpdec++ -Wall -Werror -Winvalid-pch -Wno-unknown-pragmas -Wno-reorder -std=c++17 $(OPTFLAGS) $(EXTRADEFS)
 LDFLAGS=$(MAC_LD_FLAGS) -lstdc++ $(LIBNCURSESW_FLAG) $(LIBTINFO_FLAG) $(LIBMPDEC_FLAG)
 
 .PHONY: all
-all: bin/tmbasic bin/test bin/runner bin/LICENSE.txt bin/doc-html
+all: $(ALL_TARGETS)
 
 .PHONY: help
 help:
 	@echo ""
 	@echo "COMMANDS"
 	@echo "--------"
-	@echo "make                      Build for Linux"
-	@echo "make win                  Build for Windows"
+	@echo "make                      Build for Linux, Windows"
 	@echo "make mac                  Build for macOS"
 	@echo
 	@echo "make run                  Run bin/tmbasic"
@@ -78,20 +78,6 @@ valgrind: bin/tmbasic
 .PHONY: format
 format:
 	@cd src && find ./ -type f \( -iname \*.h -o -iname \*.cpp \) | xargs clang-format -i --style="{BasedOnStyle: Chromium, IndentWidth: 4, ColumnLimit: 120, SortIncludes: false, AlignAfterOpenBracket: AlwaysBreak, AlignOperands: false, Cpp11BracedListStyle: false, PenaltyReturnTypeOnItsOwnLine: 10000}"
-
-.PHONY: win
-win:
-	@BUILDCC=gcc \
-		CC=x86_64-w64-mingw32-gcc \
-		CXX=x86_64-w64-mingw32-g++ \
-		AR=x86_64-w64-mingw32-ar \
-		STRIP=x86_64-w64-mingw32-strip \
-		WIN_INCLUDE_FLAGS="-I/usr/share/mingw-w64/include/" \
-		TVHC="WINEPATH=/usr/lib/gcc/x86_64-w64-mingw32/9.3-win32 wine64 obj/tvision/tvhc.exe" \
-		LIBTINFO_FLAG="" \
-		TARGET_OS=win \
-		$(MAKE) bin/tmbasic bin/LICENSE.txt
-	@unix2dos bin/LICENSE.txt
 
 .PHONY: mac
 mac:
@@ -174,6 +160,7 @@ bin/LICENSE.txt: LICENSE ext/boost/LICENSE_1_0.txt ext/immer/LICENSE ext/gcc/GPL
 	@echo >> $@
 	@echo >> $@
 	@echo == End == >> $@
+	@$(LICENSE_PROCESS_CMD) $@
 
 obj/doc-temp/diagrams-license/license_tmbasic.txt: LICENSE
 	@echo $@
@@ -324,11 +311,11 @@ $(TMBASIC_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch obj/helpfile.h obj/hel
 	@mkdir -p $(@D)
 	@$(CXX) $(CXXFLAGS) -c -include obj/common.h -o $@ $<
 
-bin/tmbasic: $(TMBASIC_OBJ_FILES) obj/tvision/libtvision.a obj/core.a obj/compiler.a obj/common.h.gch obj/helpfile.h obj/help.h32 $(HELP_FILE_OBJ)
+bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) obj/tvision/libtvision.a obj/core.a obj/compiler.a obj/common.h.gch obj/helpfile.h obj/help.h32 $(HELP_FILE_OBJ)
 	@echo $@
 	@mkdir -p $(@D)
 	@$(CXX) $(CXXFLAGS) $(MAC_HELP_FILE_LINK_FLAG) $(STATIC_FLAG) -include obj/common.h -o $@ $(TMBASIC_OBJ_FILES) obj/core.a obj/compiler.a obj/tvision/libtvision.a $(HELP_FILE_OBJ) $(LDFLAGS)
-	@$(STRIP) bin/tmbasic*
+	@$(STRIP) bin/tmbasic$(EXE_EXTENSION)
 
 # test
 
@@ -337,7 +324,7 @@ $(TEST_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch obj/helpfile.h obj/help.h
 	@mkdir -p $(@D)
 	@$(CXX) $(CXXFLAGS) -c -include obj/common.h -o $@ $<
 
-bin/test: $(TEST_OBJ_FILES) obj/tvision/libtvision.a obj/core.a obj/compiler.a obj/common.h.gch obj/helpfile.h obj/help.h32 $(HELP_FILE_OBJ)
+bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) obj/tvision/libtvision.a obj/core.a obj/compiler.a obj/common.h.gch obj/helpfile.h obj/help.h32 $(HELP_FILE_OBJ)
 	@echo $@
 	@mkdir -p $(@D)
 	@$(CXX) $(CXXFLAGS) $(MAC_HELP_FILE_LINK_FLAG) -include obj/common.h -o $@ $(TEST_OBJ_FILES) obj/core.a obj/compiler.a obj/tvision/libtvision.a $(HELP_FILE_OBJ) $(LDFLAGS) -lgtest -lgtest_main -lpthread
@@ -349,8 +336,8 @@ $(RUNNER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(INCLUDE_FILES)
 	@mkdir -p $(@D)
 	@$(CXX) $(CXXFLAGS) -c -include obj/common.h -o $@ $<
 
-bin/runner: $(RUNNER_OBJ_FILES) obj/tvision/libtvision.a obj/core.a obj/common.h.gch
+bin/runner$(EXE_EXTENSION): $(RUNNER_OBJ_FILES) obj/tvision/libtvision.a obj/core.a obj/common.h.gch
 	@echo $@
 	@mkdir -p $(@D)
 	@$(CXX) $(CXXFLAGS) $(STATIC_FLAG) -include obj/common.h -o $@ $(RUNNER_OBJ_FILES) obj/core.a obj/tvision/libtvision.a $(LDFLAGS)
-	@$(STRIP) bin/runner*
+	@$(STRIP) bin/runner$(EXE_EXTENSION)

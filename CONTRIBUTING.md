@@ -25,9 +25,20 @@ make</pre></td><td><pre>cd build
 ./linux-arm64.sh
 make</pre></td><td><pre>cd build
 ./win-x64.sh
-make win</pre></td></tr></table>
+make</pre></td></tr></table>
 
-## Use Visual Studio Code for debugging
+## Build for macOS
+1. Install Xcode.
+1. Install prerequisites:
+    ```
+    pushd build && ./mac-x64.sh && popd
+    ```
+1. Build TMBASIC:
+    ```
+    make mac -j8
+    ```
+
+## Use Visual Studio Code for debugging in Linux
 The C++ extension in Visual Studio Code can be used by installing TMBASIC's dependencies in the host machine. These instructions are for Ubuntu Linux 18.04. Run these commands from the `tmbasic` directory to install the libraries. Then use the Docker container configured in the previous section for building.
 
 1. Install prerequisite packages:
@@ -64,15 +75,4 @@ The C++ extension in Visual Studio Code can be used by installing TMBASIC's depe
     sudo make install && \
     popd && \
     rm -rf /tmp/mpdecimal-2.5.0.tar.gz /tmp/mpdecimal-2.5.0
-    ```
-
-## Build for macOS
-1. Install Xcode.
-1. Install prerequisites:
-    ```
-    pushd build && ./mac-x64.sh && popd
-    ```
-1. Build TMBASIC:
-    ```
-    make mac -j8
     ```

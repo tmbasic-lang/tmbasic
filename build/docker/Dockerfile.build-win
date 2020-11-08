@@ -78,6 +78,18 @@ USER $HOST_UID
 
 RUN echo "export PS1=\"[$IMAGE_NAME] \w\$ \"" > /home/ubuntu/.bashrc && \
     echo "make -f /code/Makefile help" >> /home/ubuntu/.bashrc && \
-    echo "export MAKEFLAGS=\"-j2\"" >> /home/ubuntu/.bashrc
+    echo "export MAKEFLAGS=\"-j2\"" >> /home/ubuntu/.bashrc && \
+    echo "export BUILDCC=gcc" >> /home/ubuntu/.bashrc && \
+    echo "export CC=x86_64-w64-mingw32-gcc" >> /home/ubuntu/.bashrc && \
+    echo "export CXX=x86_64-w64-mingw32-g++" >> /home/ubuntu/.bashrc && \
+    echo "export AR=x86_64-w64-mingw32-ar" >> /home/ubuntu/.bashrc && \
+    echo "export STRIP=x86_64-w64-mingw32-strip" >> /home/ubuntu/.bashrc && \
+    echo "export WIN_INCLUDE_FLAGS=\"-I/usr/share/mingw-w64/include/\"" >> /home/ubuntu/.bashrc && \
+    echo "export TVHC=\"WINEPATH=/usr/lib/gcc/x86_64-w64-mingw32/9.3-win32 wine64 obj/tvision/tvhc.exe\"" >> /home/ubuntu/.bashrc && \
+    echo "export LIBTINFO_FLAG=\"\"" >> /home/ubuntu/.bashrc && \
+    echo "export LICENSE_PROCESS_CMD=unix2dos" >> /home/ubuntu/.bashrc && \
+    echo "export ALL_TARGETS=\"bin/tmbasic.exe bin/runner.exe bin/LICENSE.txt\"" >> /home/ubuntu/.bashrc && \
+    echo "export TARGET_OS=win" >> /home/ubuntu/.bashrc && \
+    echo "export EXE_EXTENSION=.exe" >> /home/ubuntu/.bashrc
 
 ENTRYPOINT "/bin/bash"
