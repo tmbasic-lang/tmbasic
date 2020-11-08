@@ -15,7 +15,8 @@ static std::string dump(Node& node) {
 }
 
 static std::string readFile(std::string filename) {
-    std::ifstream stream("/code/src/test/programs/" + filename);
+    // this will be executed from the the "bin" directory
+    std::ifstream stream("../src/test/programs/" + filename);
     std::ostringstream buffer;
     buffer << stream.rdbuf();
     return buffer.str();
@@ -27,7 +28,7 @@ static void parseMatch(std::string filenameWithoutExtension) {
     auto tokens = tokenize(bas);
     auto result = parse(ParserRootProduction::kProgram, tokens);
     if (!result.isSuccess) {
-        std::cout << "Token: " << result.token.value().text << std::endl;
+        std::cout << "Token: " << (*result.token).text << std::endl;
         std::cout << "Message: " << result.message << std::endl;
     }
     ASSERT_TRUE(result.isSuccess);

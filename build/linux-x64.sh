@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euxo pipefail
 
-export IMAGE_NAME="tmbasic-build-x64"
+export IMAGE_NAME="tmbasic-linux-x64"
 export HOST_UID=$(id -u "$USER")
 export HOST_GID=$(id -g "$USER")
 export BASE_IMAGE_NAME="alpine:3.12"

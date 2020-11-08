@@ -6,7 +6,7 @@ TMBASIC is tested on the following platforms:
 - Windows 10 (x64)
 - Alpine Linux 3.12 (x64, ARM64)
 - Ubuntu Linux 18.04 (x64, ARM64)
-- macOS 10.13 (x64)
+- macOS 10.13 (x64) using [iTerm2](https://www.iterm2.com/)
 - Android 10 (ARM64) using [Termux](https://termux.com/)
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md) for instructions on building TMBASIC from source.

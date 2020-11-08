@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euxo pipefail
 
-pushd ..
+cd ..
 mkdir -p mac
 cd mac
 
@@ -36,4 +36,34 @@ then
     popd
 fi
 
-popd
+if [ ! -d "googletest" ]
+then
+    curl -L -o googletest.zip https://github.com/google/googletest/archive/release-1.10.0.zip
+    unzip googletest.zip
+    mv googletest-* googletest
+    pushd googletest
+    mkdir build
+    cd build
+    ../../cmake/CMake.app/Contents/bin/cmake ..
+    make -j8
+    popd
+fi
+
+set +x
+cd ..
+make help
+MAC_INCLUDE_FLAGS="-I$(PWD)/mac/boost -I$(PWD)/mac/mpdecimal/libmpdec -I$(PWD)/mac/mpdecimal/libmpdec++ -I$(PWD)/mac/ncurses/include -I$(PWD)/mac/googletest/googletest/include" \
+    MAC_LD_FLAGS="-L$(PWD)/mac/mpdecimal/libmpdec -L$(PWD)/mac/mpdecimal/libmpdec++" \
+    CMAKE="$(PWD)/mac/cmake/CMake.app/Contents/bin/cmake -D CMAKE_PREFIX_PATH=$(PWD)/mac/ncurses" \
+    NODE="$(PWD)/mac/node/bin/node" \
+    HELP_FILE_OBJ="" \
+    MAC_HELP_FILE_LINK_FLAG="-Wl,-sectcreate,__DATA,__help_h32,obj/help.h32" \
+    STATIC_FLAG="" \
+    LIBTINFO_FLAG="" \
+    LIBMPDEC_FLAG="$(PWD)/mac/mpdecimal/libmpdec/libmpdec.a $(PWD)/mac/mpdecimal/libmpdec++/libmpdec++.a " \
+    LIBNCURSESW_FLAG="-lncurses" \
+    LIBGTEST_FLAG="$(PWD)/mac/googletest/build/lib/libgtest.a $(PWD)/mac/googletest/build/lib/libgtest_main.a" \
+    TARGET_OS=mac \
+    PS1="[tmbasic-mac-x64] \w\$ " \
+    MAKEFLAGS="-j8" \
+    bash

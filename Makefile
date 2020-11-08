@@ -8,6 +8,7 @@ HELP_FILE_OBJ ?= obj/helpfile.o
 STATIC_FLAG ?= -static
 LIBMPDEC_FLAG ?= -lmpdec -lmpdec++
 LIBNCURSESW_FLAG ?= -lncursesw
+LIBGTEST_FLAG ?= -lgtest -lgtest_main
 STRIP ?= strip
 LICENSE_PROCESS_CMD ?= >/dev/null echo
 ALL_TARGETS ?= bin/tmbasic bin/test bin/runner bin/LICENSE.txt bin/doc-html
@@ -43,15 +44,12 @@ help:
 	@echo ""
 	@echo "COMMANDS"
 	@echo "--------"
-	@echo "make                      Build for Linux, Windows"
-	@echo "make mac                  Build for macOS"
-	@echo
-	@echo "make run                  Run bin/tmbasic"
-	@echo "make valgrind             Run bin/tmbasic with valgrind (Linux only)"
-	@echo "make test                 Run bin/test (Linux only)"
-	@echo
+	@echo "make                      Build TMBASIC"
+	@echo "make run                  Run TMBASIC"
+	@echo "make test                 Run tests (Linux/macOS)"
+	@echo "make valgrind             Run TMBASIC with valgrind (Linux)"
 	@echo "make clean                Delete build outputs"
-	@echo "make format               Reformat C++ code"
+	@echo "make format               Reformat all code"
 	@echo ""
 	@echo "MAKE FLAGS"
 	@echo "----------"
@@ -78,21 +76,6 @@ valgrind: bin/tmbasic
 .PHONY: format
 format:
 	@cd src && find ./ -type f \( -iname \*.h -o -iname \*.cpp \) | xargs clang-format -i --style="{BasedOnStyle: Chromium, IndentWidth: 4, ColumnLimit: 120, SortIncludes: false, AlignAfterOpenBracket: AlwaysBreak, AlignOperands: false, Cpp11BracedListStyle: false, PenaltyReturnTypeOnItsOwnLine: 10000}"
-
-.PHONY: mac
-mac:
-	@MAC_INCLUDE_FLAGS="-I$(PWD)/mac/boost -I$(PWD)/mac/mpdecimal/libmpdec -I$(PWD)/mac/mpdecimal/libmpdec++ -I$(PWD)/mac/ncurses/include" \
-		MAC_LD_FLAGS="-L$(PWD)/mac/mpdecimal/libmpdec -L$(PWD)/mac/mpdecimal/libmpdec++" \
-		CMAKE="$(PWD)/mac/cmake/CMake.app/Contents/bin/cmake -D CMAKE_PREFIX_PATH=$(PWD)/mac/ncurses" \
-		NODE="$(PWD)/mac/node/bin/node" \
-		HELP_FILE_OBJ="" \
-		MAC_HELP_FILE_LINK_FLAG="-Wl,-sectcreate,__DATA,__help_h32,obj/help.h32" \
-		STATIC_FLAG="" \
-		LIBTINFO_FLAG="" \
-		LIBMPDEC_FLAG="$(PWD)/mac/mpdecimal/libmpdec/libmpdec.a $(PWD)/mac/mpdecimal/libmpdec++/libmpdec++.a " \
-		LIBNCURSESW_FLAG="-lncurses" \
-		TARGET_OS=mac \
-		$(MAKE) bin/tmbasic bin/LICENSE.txt
 
 bin/doc-html: obj/help.h32
 	@echo $@
@@ -327,7 +310,7 @@ $(TEST_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch obj/helpfile.h obj/help.h
 bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) obj/tvision/libtvision.a obj/core.a obj/compiler.a obj/common.h.gch obj/helpfile.h obj/help.h32 $(HELP_FILE_OBJ)
 	@echo $@
 	@mkdir -p $(@D)
-	@$(CXX) $(CXXFLAGS) $(MAC_HELP_FILE_LINK_FLAG) -include obj/common.h -o $@ $(TEST_OBJ_FILES) obj/core.a obj/compiler.a obj/tvision/libtvision.a $(HELP_FILE_OBJ) $(LDFLAGS) -lgtest -lgtest_main -lpthread
+	@$(CXX) $(CXXFLAGS) $(MAC_HELP_FILE_LINK_FLAG) -include obj/common.h -o $@ $(TEST_OBJ_FILES) obj/core.a obj/compiler.a obj/tvision/libtvision.a $(HELP_FILE_OBJ) $(LDFLAGS) $(LIBGTEST_FLAG) -lpthread
 
 # runner
 
