@@ -1,8 +1,8 @@
 #include "common.h"
 #include "gtest/gtest.h"
 #include "core/basic/Ast.h"
-#include "core/compiler/Parser.h"
-#include "core/compiler/Scanner.h"
+#include "core/compiler/parse.h"
+#include "core/compiler/tokenize.h"
 #include "core/util/cast.h"
 
 using namespace basic;
@@ -22,11 +22,10 @@ static std::string readFile(std::string filename) {
 }
 
 static void parseMatch(std::string filenameWithoutExtension) {
-    Parser parser;
     auto ast = readFile(filenameWithoutExtension + ".ast");
     auto bas = readFile(filenameWithoutExtension + ".bas");
-    auto tokens = Scanner::tokenize(bas);
-    auto result = parser.parseProgram(tokens);
+    auto tokens = tokenize(bas);
+    auto result = parse(ParserRootProduction::kProgram, tokens);
     if (!result.isSuccess) {
         std::cout << "Token: " << result.token.value().text << std::endl;
         std::cout << "Message: " << result.message << std::endl;

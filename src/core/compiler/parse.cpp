@@ -1,6 +1,6 @@
 // compile with -DDUMP_PARSE to dump AST parse tree to std::cerr
 
-#include "Parser.h"
+#include "parse.h"
 #include "core/util/decimal.h"
 #include "core/util/cast.h"
 
@@ -2148,6 +2148,8 @@ class ProductionCollection {
     }
 };
 
+static ProductionCollection _productionCollection;
+
 class InputState {
    public:
     const std::vector<Token>& tokens;
@@ -2297,10 +2299,6 @@ class ParseStackFrame {
           checkpoint(std::make_unique<Checkpoint>(inputState, *productionState)),
           productionStateRef(productionState) {}
 };
-
-Parser::Parser() : _productionCollection(std::make_unique<ProductionCollection>()) {}
-
-Parser::~Parser() {}
 
 ParserResult::ParserResult(std::string message, Token token)
     : isSuccess(false), message(std::move(message)), token(token) {}
@@ -2698,12 +2696,15 @@ static ParserResult parseRootProduction(const Production& production, const std:
     }
 }
 
-ParserResult Parser::parseProgram(const std::vector<basic::Token>& tokens) {
-    return parseRootProduction(*_productionCollection->programProduction, tokens);
-}
-
-ParserResult Parser::parseMember(const std::vector<basic::Token>& tokens) {
-    return parseRootProduction(*_productionCollection->memberProduction, tokens);
+ParserResult parse(ParserRootProduction rootProduction, const std::vector<basic::Token>& tokens) {
+    switch (rootProduction) {
+        case ParserRootProduction::kMember:
+            return parseRootProduction(*_productionCollection.memberProduction, tokens);
+        case ParserRootProduction::kProgram:
+            return parseRootProduction(*_productionCollection.programProduction, tokens);
+        default:
+            return ParserResult("Invalid root production.", Token(0, 0, TokenKind::kError, ""));
+    }
 }
 
 }  // namespace compiler

@@ -5,8 +5,6 @@
 
 namespace compiler {
 
-class ProductionCollection;
-
 class ParserResult {
    public:
     bool isSuccess;
@@ -18,15 +16,8 @@ class ParserResult {
     ParserResult(std::unique_ptr<basic::Node> node);
 };
 
-class Parser {
-   public:
-    Parser();
-    ~Parser();
-    ParserResult parseProgram(const std::vector<basic::Token>& tokens);
-    ParserResult parseMember(const std::vector<basic::Token>& tokens);
+enum class ParserRootProduction { kProgram, kMember };
 
-   private:
-    std::unique_ptr<ProductionCollection> _productionCollection;
-};
+ParserResult parse(ParserRootProduction rootProduction, const std::vector<basic::Token>& tokens);
 
 }  // namespace compiler

@@ -1,6 +1,6 @@
-#include "Compiler.h"
+#include "compile.h"
 #include "core/util/cast.h"
-#include "Scanner.h"
+#include "tokenize.h"
 #include "bindProcedureSymbols.h"
 
 using namespace basic;
@@ -35,15 +35,15 @@ static void removeBlankLines(std::vector<Token>& tokens) {
     }
 }
 
-CompilerResult Compiler::compileProcedure(Procedure& procedure, Program& program) {
+CompilerResult compileProcedure(Procedure& procedure, Program& program) {
     // source is missing if we're executing a precompiled program, which shouldn't run the compiler
     assert(procedure.source.has_value());
 
-    auto tokens = Scanner::tokenize(*procedure.source);
+    auto tokens = tokenize(*procedure.source);
     removeComments(tokens);
     removeBlankLines(tokens);
 
-    auto parserResult = _parser.parseMember(tokens);
+    auto parserResult = parse(ParserRootProduction::kMember, tokens);
     if (!parserResult.isSuccess) {
         return CompilerResult::error(parserResult.message, *parserResult.token);
     } else if (parserResult.node->getMemberType() != MemberType::kProcedure) {
@@ -55,7 +55,6 @@ CompilerResult Compiler::compileProcedure(Procedure& procedure, Program& program
     if (!compilerResult.isSuccess) {
         return compilerResult;
     }
-
 
     return CompilerResult::success();
 }

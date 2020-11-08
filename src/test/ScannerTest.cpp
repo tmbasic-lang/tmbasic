@@ -1,6 +1,6 @@
 #include "common.h"
 #include "gtest/gtest.h"
-#include "core/compiler/Scanner.h"
+#include "core/compiler/tokenize.h"
 #include "core/basic/TokenKind.h"
 
 using namespace basic;
@@ -16,7 +16,7 @@ static std::string readFile(std::string filename) {
 static void scanMatch(std::string filenameWithoutExtension) {
     auto tok = readFile(filenameWithoutExtension + ".tok");
     auto bas = readFile(filenameWithoutExtension + ".bas");
-    auto tokens = Scanner::tokenize(bas);
+    auto tokens = tokenize(bas);
     std::ostringstream s;
     for (auto token : tokens) {
         s << NAMEOF_ENUM(token.type) << "(" << token.lineIndex << "," << token.columnIndex << ")"
@@ -29,13 +29,13 @@ static void scanMatch(std::string filenameWithoutExtension) {
 }
 
 TEST(ScannerTest, IntegerLiteral) {
-    auto tokens = Scanner::tokenize("123");
+    auto tokens = tokenize("123");
     ASSERT_EQ(TokenKind::kNumberLiteral, tokens[0].type);
     ASSERT_EQ(1, tokens.size());
 }
 
 TEST(ScannerTest, MinusVsNegative) {
-    auto tokens = Scanner::tokenize("-4-5- -6 --7 -8.9");
+    auto tokens = tokenize("-4-5- -6 --7 -8.9");
     auto i = 0;
 
     ASSERT_EQ("-4", tokens[i].text);
@@ -77,7 +77,7 @@ TEST(ScannerTest, MinusVsNegative) {
 }
 
 TEST(ScannerTest, ForLoop) {
-    auto tokens = Scanner::tokenize(
+    auto tokens = tokenize(
         "for i = 1 to 5\n"
         "    dim a = true\n"
         "next");
