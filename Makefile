@@ -35,7 +35,7 @@ CXXFLAGS=$(WIN_INCLUDE_FLAGS) $(MAC_INCLUDE_FLAGS) -Isrc -Iobj -Iext/tvision/inc
 LDFLAGS=$(MAC_LD_FLAGS) -lstdc++ $(LIBNCURSESW_FLAG) $(LIBTINFO_FLAG) $(LIBMPDEC_FLAG)
 
 .PHONY: all
-all: bin/tmbasic bin/test bin/runner bin/LICENSE.txt
+all: bin/tmbasic bin/test bin/runner bin/LICENSE.txt bin/doc-html
 
 .PHONY: help
 help:
@@ -45,7 +45,6 @@ help:
 	@echo "make                      Build for Linux"
 	@echo "make win                  Build for Windows"
 	@echo "make mac                  Build for macOS"
-	@echo "make doc                  Build HTML documentation"
 	@echo
 	@echo "make run                  Run bin/tmbasic"
 	@echo "make valgrind             Run bin/tmbasic with valgrind (Linux only)"
@@ -109,9 +108,9 @@ mac:
 		TARGET_OS=mac \
 		$(MAKE) bin/tmbasic bin/LICENSE.txt
 
-.PHONY: doc
-doc: obj/help.h32
-	@echo bin/doc
+bin/doc-html: obj/help.h32
+	@echo $@
+	@rm -rf bin/doc-html
 	@cp -rf obj/doc-html bin/
 
 # shared
