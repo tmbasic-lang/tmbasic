@@ -1,5 +1,6 @@
 #ifdef __linux__
 
+#include <tvision/tv.h>
 #include <internal/linuxcon.h>
 #include <linux/keyboard.h>
 #include <linux/vt.h>
