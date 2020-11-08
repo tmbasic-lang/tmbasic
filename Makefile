@@ -1,9 +1,13 @@
+COMPILER_SRC_FILES=$(shell find src/compiler -type f -name "*.cpp")
+COMPILER_OBJ_FILES=$(patsubst src/%,obj/%,$(COMPILER_SRC_FILES:.cpp=.o))
 CORE_SRC_FILES=$(shell find src/core -type f -name "*.cpp")
 CORE_OBJ_FILES=$(patsubst src/%,obj/%,$(CORE_SRC_FILES:.cpp=.o))
 TMBASIC_SRC_FILES=$(shell find src/tmbasic -type f -name "*.cpp")
 TMBASIC_OBJ_FILES=$(patsubst src/%,obj/%,$(TMBASIC_SRC_FILES:.cpp=.o))
 TEST_SRC_FILES=$(shell find src/test -type f -name "*.cpp")
 TEST_OBJ_FILES=$(patsubst src/%,obj/%,$(TEST_SRC_FILES:.cpp=.o))
+RUNNER_SRC_FILES=$(shell find src/runner -type f -name "*.cpp")
+RUNNER_OBJ_FILES=$(patsubst src/%,obj/%,$(RUNNER_SRC_FILES:.cpp=.o))
 INCLUDE_FILES=$(shell find src -type f -name "*.h")
 DOC_FILES=$(shell find doc -type f -name "*.txt") $(shell find doc -type f -name "*.html")
 EXT_HEADER_FILES=$(shell find ext -type f -name "*.h")
@@ -31,7 +35,7 @@ CXXFLAGS=$(WIN_INCLUDE_FLAGS) $(MAC_INCLUDE_FLAGS) -Isrc -Iobj -Iext/tvision/inc
 LDFLAGS=$(MAC_LD_FLAGS) -lstdc++ $(LIBNCURSESW_FLAG) $(LIBTINFO_FLAG) $(LIBMPDEC_FLAG)
 
 .PHONY: all
-all: bin/tmbasic bin/test bin/LICENSE.txt
+all: bin/tmbasic bin/test bin/runner bin/LICENSE.txt
 
 .PHONY: help
 help:
@@ -41,6 +45,7 @@ help:
 	@echo "make                      Build for Linux"
 	@echo "make win                  Build for Windows"
 	@echo "make mac                  Build for macOS"
+	@echo "make doc                  Build HTML documentation"
 	@echo
 	@echo "make run                  Run bin/tmbasic"
 	@echo "make valgrind             Run bin/tmbasic with valgrind (Linux only)"
@@ -103,6 +108,11 @@ mac:
 		LIBNCURSESW_FLAG="-lncurses" \
 		TARGET_OS=mac \
 		$(MAKE) bin/tmbasic bin/LICENSE.txt
+
+.PHONY: doc
+doc: obj/help.h32
+	@echo bin/doc
+	@cp -rf obj/doc-html bin/
 
 # shared
 
@@ -236,10 +246,10 @@ obj/doc-temp/diagrams-license/license_oxygenmono.txt: ext/oxygenmono/OFL.txt
 	@mkdir -p $(@D)
 	@cp -f $< $@
 
-obj/insert-cp437-diagram: doc/insert-cp437-diagram.c
+obj/insert-cp437-diagram: build/scripts/insert-cp437-diagram.c
 	@echo $@
 	@mkdir -p obj
-	@$(BUILDCC) -o $@ doc/insert-cp437-diagram.c
+	@$(BUILDCC) -o $@ build/scripts/insert-cp437-diagram.c
 
 obj/helpfile.h: obj/doc-txt/help.txt obj/tvision/libtvision.a
 	@echo $@
@@ -252,10 +262,10 @@ obj/helpfile.h: obj/doc-txt/help.txt obj/tvision/libtvision.a
 obj/help.h32: obj/helpfile.h
 	@echo $@
 
-obj/doc-txt/help.txt: $(DOC_FILES) doc/build-doc.js obj/insert-cp437-diagram $(DIAGRAM_CP437_FILES) $(LICENSE_DIAGRAM_CP437_FILES)
+obj/doc-txt/help.txt: $(DOC_FILES) build/scripts/build-doc.js obj/insert-cp437-diagram $(DIAGRAM_CP437_FILES) $(LICENSE_DIAGRAM_CP437_FILES)
 	@echo $@
 	@mkdir -p obj
-	@cd doc && $(NODE) build-doc.js
+	@cd doc && $(NODE) ../build/scripts/build-doc.js
 
 obj/helpfile.o: obj/help.h32
 	@echo $@
@@ -284,6 +294,18 @@ obj/tvision/libtvision.a: obj/tvision/Makefile $(TVISION_SRC_FILES)
 	@rm -f obj/tvision/*.a obj/tvision/tv* obj/tvision/hello
 	@cd obj/tvision && $(MAKE)
 
+# compiler
+
+$(COMPILER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(INCLUDE_FILES)
+	@echo $@
+	@mkdir -p $(@D)
+	@$(CXX) $(CXXFLAGS) -c -include obj/common.h -o $@ $<
+
+obj/compiler.a: $(COMPILER_OBJ_FILES)
+	@echo $@
+	@mkdir -p $(@D)
+	@$(AR) rcs $@ $(COMPILER_OBJ_FILES)
+
 # core
 
 $(CORE_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(INCLUDE_FILES)
@@ -303,10 +325,10 @@ $(TMBASIC_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch obj/helpfile.h obj/hel
 	@mkdir -p $(@D)
 	@$(CXX) $(CXXFLAGS) -c -include obj/common.h -o $@ $<
 
-bin/tmbasic: $(TMBASIC_OBJ_FILES) obj/tvision/libtvision.a obj/core.a obj/common.h.gch obj/helpfile.h obj/help.h32 $(HELP_FILE_OBJ)
+bin/tmbasic: $(TMBASIC_OBJ_FILES) obj/tvision/libtvision.a obj/core.a obj/compiler.a obj/common.h.gch obj/helpfile.h obj/help.h32 $(HELP_FILE_OBJ)
 	@echo $@
 	@mkdir -p $(@D)
-	@$(CXX) $(CXXFLAGS) $(MAC_HELP_FILE_LINK_FLAG) $(STATIC_FLAG) -include obj/common.h -o $@ $(TMBASIC_OBJ_FILES) obj/core.a obj/tvision/libtvision.a $(HELP_FILE_OBJ) $(LDFLAGS)
+	@$(CXX) $(CXXFLAGS) $(MAC_HELP_FILE_LINK_FLAG) $(STATIC_FLAG) -include obj/common.h -o $@ $(TMBASIC_OBJ_FILES) obj/core.a obj/compiler.a obj/tvision/libtvision.a $(HELP_FILE_OBJ) $(LDFLAGS)
 	@$(STRIP) bin/tmbasic*
 
 # test
@@ -316,7 +338,20 @@ $(TEST_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch obj/helpfile.h obj/help.h
 	@mkdir -p $(@D)
 	@$(CXX) $(CXXFLAGS) -c -include obj/common.h -o $@ $<
 
-bin/test: $(TEST_OBJ_FILES) obj/tvision/libtvision.a obj/core.a obj/common.h.gch obj/helpfile.h obj/help.h32 $(HELP_FILE_OBJ)
+bin/test: $(TEST_OBJ_FILES) obj/tvision/libtvision.a obj/core.a obj/compiler.a obj/common.h.gch obj/helpfile.h obj/help.h32 $(HELP_FILE_OBJ)
 	@echo $@
 	@mkdir -p $(@D)
-	@$(CXX) $(CXXFLAGS) $(MAC_HELP_FILE_LINK_FLAG) -include obj/common.h -o $@ $(TEST_OBJ_FILES) obj/core.a obj/tvision/libtvision.a $(HELP_FILE_OBJ) $(LDFLAGS) -lgtest -lgtest_main -lpthread
+	@$(CXX) $(CXXFLAGS) $(MAC_HELP_FILE_LINK_FLAG) -include obj/common.h -o $@ $(TEST_OBJ_FILES) obj/core.a obj/compiler.a obj/tvision/libtvision.a $(HELP_FILE_OBJ) $(LDFLAGS) -lgtest -lgtest_main -lpthread
+
+# runner
+
+$(RUNNER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(INCLUDE_FILES)
+	@echo $@
+	@mkdir -p $(@D)
+	@$(CXX) $(CXXFLAGS) -c -include obj/common.h -o $@ $<
+
+bin/runner: $(RUNNER_OBJ_FILES) obj/tvision/libtvision.a obj/core.a obj/common.h.gch
+	@echo $@
+	@mkdir -p $(@D)
+	@$(CXX) $(CXXFLAGS) $(STATIC_FLAG) -include obj/common.h -o $@ $(RUNNER_OBJ_FILES) obj/core.a obj/tvision/libtvision.a $(LDFLAGS)
+	@$(STRIP) bin/runner*

@@ -1,8 +1,8 @@
 #include "common.h"
 #include "gtest/gtest.h"
 #include "core/basic/Ast.h"
-#include "core/compiler/parse.h"
-#include "core/compiler/tokenize.h"
+#include "compiler/parse.h"
+#include "compiler/tokenize.h"
 #include "core/util/cast.h"
 
 using namespace basic;
