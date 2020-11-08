@@ -35,7 +35,7 @@ static void removeBlankLines(std::vector<Token>& tokens) {
     }
 }
 
-CompilerResult Compiler::compile(Procedure& procedure) {
+CompilerResult Compiler::compileProcedure(Procedure& procedure, Program& program) {
     // source is missing if we're executing a precompiled program, which shouldn't run the compiler
     assert(procedure.source.has_value());
 
@@ -44,13 +44,18 @@ CompilerResult Compiler::compile(Procedure& procedure) {
     removeBlankLines(tokens);
 
     auto parserResult = _parser.parseMember(tokens);
-    if (!parserResult.success) {
+    if (!parserResult.isSuccess) {
         return CompilerResult::error(parserResult.message, *parserResult.token);
     } else if (parserResult.node->getMemberType() != MemberType::kProcedure) {
         return CompilerResult::error("This member must be a subroutine or function.", tokens[0]);
     }
+    auto procedureNode = dynamic_cast_move<ProcedureNode>(std::move(parserResult.node));
 
-    dynamic_cast_move<ProcedureNode>(std::move(parserResult.node));
+    auto compilerResult = bindProcedureSymbols(*procedureNode, program);
+    if (!compilerResult.isSuccess) {
+        return compilerResult;
+    }
+
 
     return CompilerResult::success();
 }

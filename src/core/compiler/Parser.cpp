@@ -2303,9 +2303,9 @@ Parser::Parser() : _productionCollection(std::make_unique<ProductionCollection>(
 Parser::~Parser() {}
 
 ParserResult::ParserResult(std::string message, Token token)
-    : success(false), message(std::move(message)), token(token) {}
+    : isSuccess(false), message(std::move(message)), token(token) {}
 
-ParserResult::ParserResult(std::unique_ptr<Node> node) : success(true), node(std::move(node)) {}
+ParserResult::ParserResult(std::unique_ptr<Node> node) : isSuccess(true), node(std::move(node)) {}
 
 static Token peekToken(const InputState& inputState) {
     if (inputState.tokenIndex < inputState.tokens.size()) {

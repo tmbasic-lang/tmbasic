@@ -9,6 +9,7 @@ enum class MemberType { kNonMember, kProcedure, kDimStatement, kConstStatement, 
 
 class BodyNode;
 class ExpressionNode;
+class TypeNode;
 
 typedef std::function<bool(BodyNode&)> VisitBodyFunc;
 typedef std::function<bool(ExpressionNode&)> VisitExpressionFunc;
@@ -20,20 +21,14 @@ class Node {
     virtual ~Node();
     virtual void dump(std::ostringstream& s, int indent) const;
     virtual MemberType getMemberType() const;
+    virtual bool visitBodies(VisitBodyFunc func) const;
+    virtual bool visitExpressions(VisitExpressionFunc func) const;
+    virtual bool isSymbolReference() const;
 
-    // only for symbol declaration nodes
+    // symbol declaration nodes
     virtual std::optional<std::string> getSymbolDeclaration() const;
     virtual Node* getChildSymbolDeclaration() const;  // a sub-node that declares another symbol
     virtual bool isSymbolVisibleToSiblingStatements() const;
-
-    // only for statement nodes that have bodies
-    virtual bool visitBodies(VisitBodyFunc func) const;
-
-    // only for statement or expression nodes that have sub-expressions
-    virtual bool visitExpressions(VisitExpressionFunc func) const;
-
-    // only for SymbolReferenceExpressionNode
-    virtual bool isSymbolReference() const;
 };
 
 //

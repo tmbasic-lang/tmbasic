@@ -9,7 +9,7 @@ class ProductionCollection;
 
 class ParserResult {
    public:
-    bool success;
+    bool isSuccess;
     std::string message;                // if !success
     std::optional<basic::Token> token;  // if !success
     std::unique_ptr<basic::Node> node;  // if success

@@ -27,11 +27,11 @@ static void parseMatch(std::string filenameWithoutExtension) {
     auto bas = readFile(filenameWithoutExtension + ".bas");
     auto tokens = Scanner::tokenize(bas);
     auto result = parser.parseProgram(tokens);
-    if (!result.success) {
+    if (!result.isSuccess) {
         std::cout << "Token: " << result.token.value().text << std::endl;
         std::cout << "Message: " << result.message << std::endl;
     }
-    ASSERT_TRUE(result.success);
+    ASSERT_TRUE(result.isSuccess);
     std::ostringstream s;
     dynamic_cast_borrow<ProgramNode>(result.node)->dump(s, 0);
     if (ast != s.str()) {
