@@ -24,6 +24,7 @@ class Node {
     virtual bool visitBodies(VisitBodyFunc func) const;
     virtual bool visitExpressions(VisitExpressionFunc func) const;
     virtual bool isSymbolReference() const;
+    virtual TypeNode* getChildTypeNode() const; // statements and expressions
 
     // symbol declaration nodes
     virtual std::optional<std::string> getSymbolDeclaration() const;
@@ -146,6 +147,7 @@ class ConvertExpressionNode : public ExpressionNode {
     ConvertExpressionNode(std::unique_ptr<ExpressionNode> value, std::unique_ptr<TypeNode> type, Token token);
     void dump(std::ostringstream& s, int indent) const override;
     bool visitExpressions(VisitExpressionFunc func) const override;
+    TypeNode* getChildTypeNode() const override;
 };
 
 class DottedExpressionSuffixNode : public Node {
@@ -332,6 +334,7 @@ class DimStatementNode : public StatementNode {
     void dump(std::ostringstream& s, int indent) const override;
     std::optional<std::string> getSymbolDeclaration() const override;
     bool visitExpressions(VisitExpressionFunc func) const override;
+    TypeNode* getChildTypeNode() const override;
 };
 
 enum class CollectionType { kList, kMap };

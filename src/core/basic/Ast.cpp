@@ -94,6 +94,8 @@ bool Node::isSymbolReference() const {
     return false;
 }
 
+TypeNode* Node::getChildTypeNode() const { return nullptr; }
+
 ExpressionNode::ExpressionNode(Token token) : Node(token) {}
 
 ConstValueExpressionNode::ConstValueExpressionNode(Token token) : ExpressionNode(token) {}
@@ -198,6 +200,10 @@ void ConvertExpressionNode::dump(std::ostringstream& s, int n) const {
 
 bool ConvertExpressionNode::visitExpressions(VisitExpressionFunc func) const {
     return func(*value);
+}
+
+TypeNode* ConvertExpressionNode::getChildTypeNode() const {
+    return type.get();
 }
 
 DottedExpressionSuffixNode::DottedExpressionSuffixNode(
@@ -500,6 +506,14 @@ bool DimStatementNode::visitExpressions(VisitExpressionFunc func) const {
         }
     }
     return true;
+}
+
+TypeNode* DimStatementNode::getChildTypeNode() const {
+    if (type) {
+        return type.get();
+    } else {
+        return nullptr;
+    }
 }
 
 DimCollectionStatementNode::DimCollectionStatementNode(
