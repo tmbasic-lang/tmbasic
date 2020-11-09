@@ -19,7 +19,7 @@ sudo apt-get install -y qemu binfmt-support qemu-user-static
 
 Start the build environment and build using the following commands:
 - `cd build`
-- `./linux-x64.sh` or `./linux-arm64.sh` or `win-x64.sh`
+- `./linux-x64.sh` or `./linux-arm64.sh` or `./win-x64.sh`
 - `make`
 
 ## Build for macOS
