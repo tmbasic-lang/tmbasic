@@ -1,6 +1,6 @@
 #include "common.h"
 #include "gtest/gtest.h"
-#include "core/util/decimal.h"
+#include "shared/util/decimal.h"
 
 using namespace util;
 

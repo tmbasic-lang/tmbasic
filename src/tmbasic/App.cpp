@@ -5,7 +5,7 @@
 #include "ProgramWindow.h"
 #include "helpfile.h"
 
-namespace ui {
+namespace tmbasic {
 
 App::App(int argc, char** argv)
     : TProgInit(initStatusLine, initMenuBar, TApplication::initDeskTop), _newWindowX(0), _newWindowY(0) {}
@@ -26,7 +26,7 @@ TMenuBar* App::initMenuBar(TRect r) {
 
     auto& editMenu = *new TSubMenu("~E~dit", kbAltE) +
         *new TMenuItem("~U~ndo", cmUndo, kbCtrlZ, hcNoContext, "Ctrl+Z") +
-        *new TMenuItem("~R~edo", cmUndo, kbCtrlZ, hcNoContext, "Ctrl+Y") + newLine() +
+        *new TMenuItem("~R~edo", cmUndo, kbCtrlY, hcNoContext, "Ctrl+Y") + newLine() +
         *new TMenuItem("Cu~t~", cmCut, kbCtrlX, hcNoContext, "Ctrl+X") +
         *new TMenuItem("~C~opy", cmCopy, kbCtrlC, hcNoContext, "Ctrl+C") +
         *new TMenuItem("~P~aste", cmPaste, kbCtrlV, hcNoContext, "Ctrl+V");
@@ -196,4 +196,4 @@ TRect App::centeredRect(int width, int height) {
     return TRect(x, y, x + width, y + height);
 }
 
-}  // namespace ui
+}  // namespace tmbasic

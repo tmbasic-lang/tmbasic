@@ -1,9 +1,9 @@
 #include "common.h"
 #include "gtest/gtest.h"
-#include "core/basic/Ast.h"
+#include "shared/basic/ast.h"
 #include "compiler/parse.h"
 #include "compiler/tokenize.h"
-#include "core/util/cast.h"
+#include "shared/util/cast.h"
 
 using namespace basic;
 using namespace compiler;

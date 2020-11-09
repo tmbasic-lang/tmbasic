@@ -2,7 +2,7 @@
 
 #include "common.h"
 
-namespace ui {
+namespace tmbasic {
 
 class HelpResource {
    public:
@@ -11,4 +11,4 @@ class HelpResource {
     HelpResource();
 };
 
-}  // namespace ui
+}  // namespace tmbasic

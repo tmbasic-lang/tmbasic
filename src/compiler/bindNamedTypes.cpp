@@ -6,8 +6,8 @@ namespace compiler {
 
 static CompilerResult bindNamedTypesInType(TypeNode& typeNode, const vm::Program& program) {
     if (typeNode.recordName.has_value()) {
-        //auto& name = *typeNode.recordName;
-        //TODO: find type
+        // auto& name = *typeNode.recordName;
+        // TODO: find type
     }
 
     for (auto& field : typeNode.fields) {
@@ -61,12 +61,11 @@ static CompilerResult bindNamedTypesInStatement(basic::StatementNode& node, cons
         }
     }
 
-    node.visitBodies(
-        [&program, &result](BodyNode& body) -> bool {
-            result = bindNamedTypesInBody(body, program);
-            return result.isSuccess;
+    node.visitBodies([&program, &result](BodyNode& body) -> bool {
+        result = bindNamedTypesInBody(body, program);
+        return result.isSuccess;
     });
-    
+
     return result;
 }
 
@@ -103,4 +102,4 @@ CompilerResult bindNamedTypes(basic::ProcedureNode& procedure, const vm::Program
     return CompilerResult::success();
 }
 
-}
+}  // namespace compiler

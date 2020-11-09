@@ -1,8 +1,8 @@
 #pragma once
 
 #include "common.h"
-#include "core/basic/Ast.h"
-#include "core/vm/Program.h"
+#include "shared/basic/ast.h"
+#include "shared/vm/Program.h"
 #include "CompilerResult.h"
 
 namespace compiler {

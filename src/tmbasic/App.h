@@ -2,7 +2,7 @@
 
 #include "common.h"
 
-namespace ui {
+namespace tmbasic {
 
 const ushort kCmdHelpBasicReference = 100;
 const ushort kCmdHelpDocumentation = 101;
@@ -34,4 +34,4 @@ class App : public TApplication {
     int _newWindowY;
 };
 
-}  // namespace ui
+}  // namespace tmbasic

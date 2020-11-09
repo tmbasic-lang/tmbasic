@@ -2,7 +2,7 @@
 
 #include "common.h"
 
-namespace ui {
+namespace tmbasic {
 
 class ProcedureWindow : public TWindow {
    public:
@@ -10,4 +10,4 @@ class ProcedureWindow : public TWindow {
     ProcedureWindow(const TRect&, bool function);
 };
 
-}  // namespace ui
+}  // namespace tmbasic

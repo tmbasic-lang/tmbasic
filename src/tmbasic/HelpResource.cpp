@@ -11,7 +11,7 @@ extern char _binary_help_h32_start[];
 extern char _binary_help_h32_end[];
 #endif
 
-namespace ui {
+namespace tmbasic {
 
 #if defined(__linux__) || defined(_WIN32)
 HelpResource::HelpResource()
@@ -28,4 +28,4 @@ HelpResource::HelpResource() {
 }
 #endif
 
-}  // namespace ui
+}  // namespace tmbasic

@@ -1,7 +1,7 @@
-#include "ui/App.h"
+#include "App.h"
 
 int main(int argc, char** argv) {
-    ui::App app(argc, argv);
+    tmbasic::App app(argc, argv);
     app.run();
     app.shutDown();
     return 0;

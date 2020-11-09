@@ -1,8 +1,8 @@
 // compile with -DDUMP_PARSE to dump AST parse tree to std::cerr
 
 #include "parse.h"
-#include "core/util/decimal.h"
-#include "core/util/cast.h"
+#include "shared/util/decimal.h"
+#include "shared/util/cast.h"
 
 using namespace basic;
 using namespace compiler;

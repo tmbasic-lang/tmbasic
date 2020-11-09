@@ -1,7 +1,7 @@
 #include "common.h"
 #include "gtest/gtest.h"
 #include "compiler/tokenize.h"
-#include "core/basic/TokenKind.h"
+#include "shared/basic/TokenKind.h"
 
 using namespace basic;
 using namespace compiler;

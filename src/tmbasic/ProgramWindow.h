@@ -2,11 +2,11 @@
 
 #include "common.h"
 
-namespace ui {
+namespace tmbasic {
 
 class ProgramWindow : public TWindow {
    public:
     ProgramWindow(const TRect& r);
 };
 
-}  // namespace ui
+}  // namespace tmbasic

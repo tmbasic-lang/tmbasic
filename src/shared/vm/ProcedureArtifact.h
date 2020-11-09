@@ -1,7 +1,7 @@
 #pragma once
 
 #include "common.h"
-#include "core/basic/Ast.h"
+#include "shared/basic/ast.h"
 
 namespace vm {
 

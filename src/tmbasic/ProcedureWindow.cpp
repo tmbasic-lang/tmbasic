@@ -1,6 +1,6 @@
 #include "ProcedureWindow.h"
 
-namespace ui {
+namespace tmbasic {
 
 const std::string kInitialSubroutineText("sub untitled()\n\nend sub\n");
 const int kInitialSubroutineCursorStart = 4;
@@ -37,4 +37,4 @@ ProcedureWindow::ProcedureWindow(const TRect& r, bool function)
     insert(editor);
 }
 
-}  // namespace ui
+}  // namespace tmbasic

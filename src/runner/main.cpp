@@ -17,7 +17,7 @@ static uint8_t* findAppendedData() {
         return nullptr;
     }
 
-    //TODO
+    // TODO
     return nullptr;
 }
 

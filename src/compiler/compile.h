@@ -1,9 +1,9 @@
 #pragma once
 
 #include "common.h"
-#include "core/basic/Token.h"
-#include "core/vm/Procedure.h"
-#include "core/vm/Program.h"
+#include "shared/basic/Token.h"
+#include "shared/vm/Procedure.h"
+#include "shared/vm/Program.h"
 #include "CompilerResult.h"
 #include "parse.h"
 

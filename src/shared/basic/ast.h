@@ -24,7 +24,7 @@ class Node {
     virtual bool visitBodies(VisitBodyFunc func) const;
     virtual bool visitExpressions(VisitExpressionFunc func) const;
     virtual bool isSymbolReference() const;
-    virtual TypeNode* getChildTypeNode() const; // statements and expressions
+    virtual TypeNode* getChildTypeNode() const;  // statements and expressions
 
     // symbol declaration nodes
     virtual std::optional<std::string> getSymbolDeclaration() const;

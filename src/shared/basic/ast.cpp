@@ -1,6 +1,6 @@
-#include "Ast.h"
-#include "core/util/cast.h"
-#include "core/util/decimal.h"
+#include "ast.h"
+#include "shared/util/cast.h"
+#include "shared/util/decimal.h"
 
 using namespace util;
 
@@ -94,7 +94,9 @@ bool Node::isSymbolReference() const {
     return false;
 }
 
-TypeNode* Node::getChildTypeNode() const { return nullptr; }
+TypeNode* Node::getChildTypeNode() const {
+    return nullptr;
+}
 
 ExpressionNode::ExpressionNode(Token token) : Node(token) {}
 

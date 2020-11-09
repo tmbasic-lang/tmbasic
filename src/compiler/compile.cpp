@@ -1,5 +1,5 @@
 #include "compile.h"
-#include "core/util/cast.h"
+#include "shared/util/cast.h"
 #include "tokenize.h"
 #include "bindProcedureSymbols.h"
 
