@@ -28,7 +28,8 @@ fi
 
 if [ ! -d "mpdecimal" ]
 then
-    tar zxf ../ext/mpdecimal/mpdecimal-2.5.0.tar.gz
+    curl -L -o mpdecimal.tar.gz http://www.bytereef.org/software/mpdecimal/releases/mpdecimal-2.5.0.tar.gz
+    tar zxf mpdecimal.tar.gz
     mv mpdecimal-* mpdecimal
     pushd mpdecimal
     ./configure

@@ -6,8 +6,6 @@ export HOST_UID=$(id -u "$USER")
 export HOST_GID=$(id -g "$USER")
 export BASE_IMAGE_NAME="alpine:3.12"
 
-cp -f ../ext/mpdecimal/*.tar.gz docker/
-
 cat docker/Dockerfile.build-linux | envsubst | docker build -t $IMAGE_NAME docker -f-
 
 pushd ..

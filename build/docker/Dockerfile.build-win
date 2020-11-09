@@ -52,9 +52,9 @@ RUN cd /tmp && \
     cp /usr/x86_64-w64-mingw32/bin/libgtest*.dll /usr/lib/gcc/x86_64-w64-mingw32/9.3-win32/
 
 # mpdecimal
-COPY mpdecimal-2.5.0.tar.gz /tmp/
 RUN cd /tmp && \
-    tar zxf mpdecimal-2.5.0.tar.gz && \
+    curl -L -o mpdecimal.tar.gz http://www.bytereef.org/software/mpdecimal/releases/mpdecimal-2.5.0.tar.gz && \
+    tar zxf mpdecimal.tar.gz && \
     cd mpdecimal-2.5.0 && \
     ./configure --host=x86_64-w64-mingw32 && \
     cd libmpdec && \

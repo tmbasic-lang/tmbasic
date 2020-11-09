@@ -61,7 +61,8 @@ RUN cd /usr/src/gtest && \
 COPY mpdecimal-2.5.0.tar.gz /tmp/
 
 RUN cd /tmp && \
-    tar zxf mpdecimal-2.5.0.tar.gz && \
+    curl -L -o mpdecimal.tar.gz http://www.bytereef.org/software/mpdecimal/releases/mpdecimal-2.5.0.tar.gz && \
+    tar zxf mpdecimal.tar.gz && \
     cd mpdecimal-2.5.0 && \
     ./configure && \
     make && \
