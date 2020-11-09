@@ -11,8 +11,11 @@ LIBNCURSESW_FLAG ?= -lncursesw
 LIBGTEST_FLAG ?= -lgtest -lgtest_main
 STRIP ?= strip
 LICENSE_PROCESS_CMD ?= >/dev/null echo
-ALL_TARGETS ?= bin/tmbasic bin/test bin/runner bin/LICENSE.txt bin/doc-html
 OPTFLAGS ?= -Os -flto
+TEST_CMD ?= ./test
+
+CXXFLAGS=$(WIN_INCLUDE_FLAGS) $(MAC_INCLUDE_FLAGS) -Isrc -Iobj -Iext/tvision/include -Iext/immer -Iext/nameof -I/usr/include/libmpdec -I/usr/include/libmpdec++ -Wall -Werror -Winvalid-pch -Wno-unknown-pragmas -Wno-reorder -std=c++17 $(OPTFLAGS) $(EXTRADEFS)
+LDFLAGS=$(MAC_LD_FLAGS) -lstdc++ $(LIBNCURSESW_FLAG) $(LIBTINFO_FLAG) $(LIBMPDEC_FLAG)
 
 COMPILER_SRC_FILES=$(shell find src/compiler -type f -name "*.cpp")
 COMPILER_OBJ_FILES=$(patsubst src/%,obj/%,$(COMPILER_SRC_FILES:.cpp=.o))
@@ -33,11 +36,8 @@ DIAGRAM_CP437_FILES=$(patsubst doc/diagrams/%,obj/doc-temp/diagrams-cp437/%,$(DI
 LICENSE_DIAGRAM_SRC_FILES=obj/doc-temp/diagrams-license/license_tmbasic.txt obj/doc-temp/diagrams-license/license_boost.txt obj/doc-temp/diagrams-license/license_musl.txt obj/doc-temp/diagrams-license/license_immer.txt obj/doc-temp/diagrams-license/license_libstdc++_gpl3.txt obj/doc-temp/diagrams-license/license_libstdc++_gcc1.txt obj/doc-temp/diagrams-license/license_libstdc++_gcc2.txt obj/doc-temp/diagrams-license/license_mpdecimal.txt obj/doc-temp/diagrams-license/license_nameof.txt obj/doc-temp/diagrams-license/license_ncurses.txt obj/doc-temp/diagrams-license/license_tvision.txt obj/doc-temp/diagrams-license/license_notoserif.txt obj/doc-temp/diagrams-license/license_opensans.txt obj/doc-temp/diagrams-license/license_oxygenmono.txt
 LICENSE_DIAGRAM_CP437_FILES=$(patsubst obj/doc-temp/diagrams-license/%,obj/doc-temp/diagrams-cp437/%,$(LICENSE_DIAGRAM_SRC_FILES))
 
-CXXFLAGS=$(WIN_INCLUDE_FLAGS) $(MAC_INCLUDE_FLAGS) -Isrc -Iobj -Iext/tvision/include -Iext/immer -Iext/nameof -I/usr/include/libmpdec -I/usr/include/libmpdec++ -Wall -Werror -Winvalid-pch -Wno-unknown-pragmas -Wno-reorder -std=c++17 $(OPTFLAGS) $(EXTRADEFS)
-LDFLAGS=$(MAC_LD_FLAGS) -lstdc++ $(LIBNCURSESW_FLAG) $(LIBTINFO_FLAG) $(LIBMPDEC_FLAG)
-
 .PHONY: all
-all: $(ALL_TARGETS)
+all: bin/tmbasic$(EXE_EXTENSION) bin/test$(EXE_EXTENSION) bin/runner$(EXE_EXTENSION) bin/LICENSE.txt bin/doc-html
 
 .PHONY: help
 help:
@@ -46,7 +46,7 @@ help:
 	@echo "--------"
 	@echo "make                      Build TMBASIC"
 	@echo "make run                  Run TMBASIC"
-	@echo "make test                 Run tests (Linux/macOS)"
+	@echo "make test                 Run tests"
 	@echo "make valgrind             Run TMBASIC with valgrind (Linux)"
 	@echo "make clean                Delete build outputs"
 	@echo "make format               Reformat all code"
@@ -66,8 +66,8 @@ run:
 	@bin/tmbasic
 
 .PHONY: test
-test: bin/test
-	@cd bin && ./test
+test: bin/test$(EXE_EXTENSION)
+	@cd bin && $(TEST_CMD)
 
 .PHONY: valgrind
 valgrind: bin/tmbasic
@@ -77,12 +77,7 @@ valgrind: bin/tmbasic
 format:
 	@cd src && find ./ -type f \( -iname \*.h -o -iname \*.cpp \) | xargs clang-format -i --style="{BasedOnStyle: Chromium, IndentWidth: 4, ColumnLimit: 120, SortIncludes: false, AlignAfterOpenBracket: AlwaysBreak, AlignOperands: false, Cpp11BracedListStyle: false, PenaltyReturnTypeOnItsOwnLine: 10000}"
 
-bin/doc-html: obj/help.h32
-	@echo $@
-	@rm -rf bin/doc-html
-	@cp -rf obj/doc-html bin/
-
-# shared
+# precompiled header
 
 obj/common.h.gch: src/common.h $(EXT_HEADER_FILES)
 	@echo $@
@@ -90,6 +85,11 @@ obj/common.h.gch: src/common.h $(EXT_HEADER_FILES)
 	@$(CXX) $(CXXFLAGS) -x c++-header -o $@ src/common.h
 
 # help
+
+bin/doc-html: obj/help.h32
+	@echo $@
+	@rm -rf bin/doc-html
+	@cp -rf obj/doc-html bin/
 
 bin/LICENSE.txt: LICENSE ext/boost/LICENSE_1_0.txt ext/immer/LICENSE ext/gcc/GPL-3 ext/gcc/copyright ext/mpdecimal/LICENSE.txt ext/nameof/LICENSE.txt ext/ncurses/COPYING ext/tvision/COPYRIGHT
 	@echo $@

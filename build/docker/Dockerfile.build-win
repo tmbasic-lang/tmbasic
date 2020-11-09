@@ -48,7 +48,8 @@ RUN cd /tmp && \
     tar xf gtest.pkg.tar && \
     cd mingw64 && \
     cp -rf ./* /usr/x86_64-w64-mingw32/ && \
-    rm -rf /tmp/mingw64 /tmp/*.tar*
+    rm -rf /tmp/mingw64 /tmp/*.tar* && \
+    cp /usr/x86_64-w64-mingw32/bin/libgtest*.dll /usr/lib/gcc/x86_64-w64-mingw32/9.3-win32/
 
 # mpdecimal
 COPY mpdecimal-2.5.0.tar.gz /tmp/
@@ -87,9 +88,11 @@ RUN echo "export PS1=\"[$IMAGE_NAME] \w\$ \"" > /home/ubuntu/.bashrc && \
     echo "export WIN_INCLUDE_FLAGS=\"-I/usr/share/mingw-w64/include/\"" >> /home/ubuntu/.bashrc && \
     echo "export TVHC=\"WINEPATH=/usr/lib/gcc/x86_64-w64-mingw32/9.3-win32 wine64 obj/tvision/tvhc.exe\"" >> /home/ubuntu/.bashrc && \
     echo "export LIBTINFO_FLAG=\"\"" >> /home/ubuntu/.bashrc && \
+    echo "export LIBMPDEC_FLAG=\"/usr/x86_64-w64-mingw32/lib/libmpdec.a /usr/x86_64-w64-mingw32/lib/libmpdec++.a\"" >> /home/ubuntu/.bashrc && \
     echo "export LICENSE_PROCESS_CMD=unix2dos" >> /home/ubuntu/.bashrc && \
-    echo "export ALL_TARGETS=\"bin/tmbasic.exe bin/runner.exe bin/LICENSE.txt\"" >> /home/ubuntu/.bashrc && \
     echo "export TARGET_OS=win" >> /home/ubuntu/.bashrc && \
-    echo "export EXE_EXTENSION=.exe" >> /home/ubuntu/.bashrc
+    echo "export EXE_EXTENSION=.exe" >> /home/ubuntu/.bashrc && \
+    echo "export OPTFLAGS=-Os" >> /home/ubuntu/.bashrc && \
+    echo "export TEST_CMD=\"WINEPATH=/usr/lib/gcc/x86_64-w64-mingw32/9.3-win32 wine64 test.exe\"" >> /home/ubuntu/.bashrc
 
 ENTRYPOINT "/bin/bash"
