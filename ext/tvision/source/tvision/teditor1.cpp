@@ -345,10 +345,10 @@ void TEditor::clipPaste()
 TMenuItem& TEditor::contextMenuEntries()
 {
     return
-        *new TMenuItem( "Cu~t~", cmCut, kbShiftDel, hcNoContext, "Shift-Del" ) +
-        *new TMenuItem( "~C~opy", cmCopy, kbCtrlIns, hcNoContext, "Ctrl-Ins" ) +
-        *new TMenuItem( "~P~aste", cmPaste, kbShiftIns, hcNoContext, "Shift-Ins" ) +
-        *new TMenuItem( "~U~ndo", cmUndo, kbCtrlU, hcNoContext, "Ctrl-U" );
+        *new TMenuItem( "Cu~t~", cmCut, kbCtrlX, hcNoContext, "Ctrl+X" ) +
+        *new TMenuItem( "~C~opy", cmCopy, kbCtrlC, hcNoContext, "Ctrl+C" ) +
+        *new TMenuItem( "~P~aste", cmPaste, kbCtrlV, hcNoContext, "Ctrl+V" ) +
+        *new TMenuItem( "~U~ndo", cmUndo, kbCtrlZ, hcNoContext, "Ctrl+Z" );
 }
 
 void TEditor::convertEvent( TEvent& event )
