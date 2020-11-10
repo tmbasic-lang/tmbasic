@@ -13,21 +13,21 @@ ProcedureWindow::ProcedureWindow(const TRect& r, bool function)
     : TWindow(r, "Untitled (procedure)", wnNoNumber), TWindowInit(TWindow::initFrame) {
     options |= ofTileable;
 
-    auto hScrollBar = new TScrollBar(TRect(18, size.y - 1, size.x - 2, size.y));
+    auto* hScrollBar = new TScrollBar(TRect(18, size.y - 1, size.x - 2, size.y));
     hScrollBar->hide();
     insert(hScrollBar);
 
-    auto vScrollBar = new TScrollBar(TRect(size.x - 1, 1, size.x, size.y - 1));
+    auto* vScrollBar = new TScrollBar(TRect(size.x - 1, 1, size.x, size.y - 1));
     vScrollBar->hide();
     insert(vScrollBar);
 
-    auto indicator = new TIndicator(TRect(2, size.y - 1, 16, size.y));
+    auto* indicator = new TIndicator(TRect(2, size.y - 1, 16, size.y));
     indicator->hide();
     insert(indicator);
 
     auto editorRect = TRect(getExtent());
     editorRect.grow(-1, -1);
-    auto editor = new TEditor(editorRect, hScrollBar, vScrollBar, indicator, kBufferSize);
+    auto* editor = new TEditor(editorRect, hScrollBar, vScrollBar, indicator, kBufferSize);
     editor->modified = false;
     auto& text = function ? kInitialFunctionText : kInitialSubroutineText;
     editor->insertText(text.c_str(), text.size(), false);

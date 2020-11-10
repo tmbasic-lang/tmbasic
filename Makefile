@@ -18,14 +18,19 @@ CXXFLAGS=$(WIN_INCLUDE_FLAGS) $(MAC_INCLUDE_FLAGS) -Isrc -Iobj -Iext/tvision/inc
 LDFLAGS=$(MAC_LD_FLAGS) -lstdc++ $(LIBNCURSESW_FLAG) $(LIBTINFO_FLAG) $(LIBMPDEC_FLAG)
 
 COMPILER_SRC_FILES=$(shell find src/compiler -type f -name "*.cpp")
+COMPILER_H_FILES=$(shell find src/compiler -type f -name "*.h")
 COMPILER_OBJ_FILES=$(patsubst src/%,obj/%,$(COMPILER_SRC_FILES:.cpp=.o))
 RUNNER_SRC_FILES=$(shell find src/runner -type f -name "*.cpp")
+RUNNER_H_FILES=$(shell find src/runner -type f -name "*.h")
 RUNNER_OBJ_FILES=$(patsubst src/%,obj/%,$(RUNNER_SRC_FILES:.cpp=.o))
 SHARED_SRC_FILES=$(shell find src/shared -type f -name "*.cpp")
+SHARED_H_FILES=$(shell find src/shared -type f -name "*.h")
 SHARED_OBJ_FILES=$(patsubst src/%,obj/%,$(SHARED_SRC_FILES:.cpp=.o))
 TEST_SRC_FILES=$(shell find src/test -type f -name "*.cpp")
+TEST_H_FILES=$(shell find src/test -type f -name "*.h")
 TEST_OBJ_FILES=$(patsubst src/%,obj/%,$(TEST_SRC_FILES:.cpp=.o))
 TMBASIC_SRC_FILES=$(shell find src/tmbasic -type f -name "*.cpp")
+TMBASIC_H_FILES=$(shell find src/tmbasic -type f -name "*.h")
 TMBASIC_OBJ_FILES=$(patsubst src/%,obj/%,$(TMBASIC_SRC_FILES:.cpp=.o))
 
 INCLUDE_FILES=$(shell find src -type f -name "*.h")
@@ -268,7 +273,7 @@ obj/tvision/libtvision.a: obj/tvision/Makefile $(TVISION_SRC_FILES)
 
 # compiler
 
-$(COMPILER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(INCLUDE_FILES)
+$(COMPILER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(SHARED_H_FILES) $(COMPILER_H_FILES)
 	@echo $@
 	@mkdir -p $(@D)
 	@$(CXX) $(CXXFLAGS) -c -include obj/common.h -o $@ $<
@@ -280,7 +285,7 @@ obj/compiler.a: $(COMPILER_OBJ_FILES)
 
 # shared
 
-$(SHARED_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(INCLUDE_FILES)
+$(SHARED_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(SHARED_H_FILES)
 	@echo $@
 	@mkdir -p $(@D)
 	@$(CXX) $(CXXFLAGS) -c -include obj/common.h -o $@ $<
@@ -292,7 +297,7 @@ obj/shared.a: $(SHARED_OBJ_FILES)
 
 # tmbasic
 
-$(TMBASIC_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch obj/helpfile.h obj/help.h32 $(INCLUDE_FILES)
+$(TMBASIC_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch obj/helpfile.h obj/help.h32 $(COMPILER_H_FILES) $(SHARED_H_FILES) $(TMBASIC_H_FILES)
 	@echo $@
 	@mkdir -p $(@D)
 	@$(CXX) $(CXXFLAGS) -c -include obj/common.h -o $@ $<
@@ -305,7 +310,7 @@ bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) obj/tvision/libtvision.a obj/s
 
 # test
 
-$(TEST_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch obj/helpfile.h obj/help.h32 $(INCLUDE_FILES)
+$(TEST_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch obj/helpfile.h obj/help.h32 $(COMPILER_H_FILES) $(SHARED_H_FILES)
 	@echo $@
 	@mkdir -p $(@D)
 	@$(CXX) $(CXXFLAGS) -c -include obj/common.h -o $@ $<
@@ -317,7 +322,7 @@ bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) obj/tvision/libtvision.a obj/shared.
 
 # runner
 
-$(RUNNER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(INCLUDE_FILES)
+$(RUNNER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(SHARED_H_FILES) $(RUNNER_H_FILES)
 	@echo $@
 	@mkdir -p $(@D)
 	@$(CXX) $(CXXFLAGS) -c -include obj/common.h -o $@ $<

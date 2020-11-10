@@ -4,9 +4,6 @@
 
 namespace tmbasic {
 
-class ProgramWindow : public TWindow {
-   public:
-    ProgramWindow(const TRect& r);
-};
+TWindow* newProgramWindow(const TRect& r);
 
 }  // namespace tmbasic

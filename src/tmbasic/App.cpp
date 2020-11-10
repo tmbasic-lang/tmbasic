@@ -129,7 +129,7 @@ TRect App::getNewWindowRect(int width, int height) {
 }
 
 void App::onFileNew() {
-    auto window = new ProgramWindow(getNewWindowRect(40, 15));
+    auto window = newProgramWindow(getNewWindowRect(40, 15));
     deskTop->insert(window);
 }
 

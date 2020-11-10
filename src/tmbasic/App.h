@@ -1,17 +1,9 @@
 #pragma once
 
 #include "common.h"
+#include "constants.h"
 
 namespace tmbasic {
-
-const ushort kCmdHelpBasicReference = 100;
-const ushort kCmdHelpDocumentation = 101;
-const ushort kCmdHelpAbout = 102;
-const ushort kCmdProgramContentsWindow = 103;
-const ushort kCmdProgramAddSubroutine = 104;
-const ushort kCmdProgramAddFunction = 105;
-const ushort kCmdProgramAddGlobalVariable = 106;
-const ushort kCmdProgramRun = 107;
 
 class App : public TApplication {
    public:
