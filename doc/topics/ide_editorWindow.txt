@@ -1,0 +1,3 @@
+nav@{<TITLE_HOME>:<TOPIC_HOME>} <TRIANGLE_RIGHT> {Getting Started:ide}@
+
+h1[Editor Window]

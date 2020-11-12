@@ -94,7 +94,7 @@ TFileDialog::TFileDialog( TStringView aWildCard,
     insert( new TLabel( TRect( 2, 5, 8, 6 ), filesText, fileList ) );
     first()->growMode = 0;
     ushort opt = bfDefault;
-    TRect r( 35, 3, 46, 5 );
+    TRect r( 35, 3, 47, 5 );
 
     if( (aOptions & fdOpenButton) != 0 )
         {

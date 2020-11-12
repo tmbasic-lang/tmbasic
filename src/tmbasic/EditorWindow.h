@@ -4,10 +4,11 @@
 
 namespace tmbasic {
 
-class ProcedureWindow : public TWindow {
+class EditorWindow : public TWindow {
    public:
     const unsigned int kBufferSize = 100000;
-    ProcedureWindow(const TRect&, bool function);
+    EditorWindow(const TRect&, bool function);
+    ushort getHelpCtx() override;
 };
 
 }  // namespace tmbasic

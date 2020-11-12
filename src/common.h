@@ -35,6 +35,8 @@
 #define Uses_TDialog
 #define Uses_TEditor
 #define Uses_TEvent
+#define Uses_TFileDialog
+#define Uses_TFrame
 #define Uses_TIndicator
 #define Uses_TKeys
 #define Uses_TLabel

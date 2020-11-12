@@ -107,7 +107,7 @@ const char * _NEAR TStringLookupValidator::errorMsg = "Input is not in list of v
 const char * _NEAR TRangeValidator::validUnsignedChars = "+0123456789";
 const char * _NEAR TRangeValidator::validSignedChars = "+-0123456789";
 
-const char * _NEAR TListViewer::emptyText = "<empty>";
+const char * _NEAR TListViewer::emptyText = "";
 
 const char * _NEAR THelpWindow::helpWinTitle = "Help";
 const char * _NEAR THelpFile::invalidContext =

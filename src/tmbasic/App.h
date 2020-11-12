@@ -11,11 +11,14 @@ class App : public TApplication {
     void handleEvent(TEvent& event) override;
 
    private:
+    void disableDefaultCommands();
     static TMenuBar* initMenuBar(TRect r);
     static TStatusLine* initStatusLine(TRect r);
     bool handleCommand(TEvent& event);
     TRect getNewWindowRect(int width, int height);
     void onFileNew();
+    void onFileOpen();
+    void onFileSave();
     void onProgramAddProcedure(bool function);
     void onHelpDocumentation();
     void onHelpBasicReference();

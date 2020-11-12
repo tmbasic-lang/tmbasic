@@ -8,6 +8,8 @@ namespace vm {
 
 class Program {
    public:
+    void save(std::string filePath) const;
+
     std::vector<std::unique_ptr<Procedure>> procedures;
     std::vector<std::unique_ptr<GlobalVariable>> globalVariables;
 };

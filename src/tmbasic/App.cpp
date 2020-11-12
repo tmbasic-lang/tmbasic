@@ -1,20 +1,29 @@
 #include "common.h"
 #include "App.h"
 #include "HelpResource.h"
-#include "ProcedureWindow.h"
+#include "EditorWindow.h"
 #include "ProgramWindow.h"
 #include "helpfile.h"
 
 namespace tmbasic {
 
 App::App(int argc, char** argv)
-    : TProgInit(initStatusLine, initMenuBar, TApplication::initDeskTop), _newWindowX(0), _newWindowY(0) {}
+    : TProgInit(initStatusLine, initMenuBar, TApplication::initDeskTop), _newWindowX(0), _newWindowY(0) {
+    disableDefaultCommands();
+}
 
 void App::handleEvent(TEvent& event) {
-    TApplication::handleEvent(event);
     if (event.what == evCommand && handleCommand(event)) {
         clearEvent(event);
     }
+    TApplication::handleEvent(event);
+}
+
+void App::disableDefaultCommands() {
+    TCommandSet ts;
+    ts.enableCmd(cmSave);
+    ts.enableCmd(cmSaveAs);
+    disableCommands(ts);
 }
 
 TMenuBar* App::initMenuBar(TRect r) {
@@ -37,9 +46,10 @@ TMenuBar* App::initMenuBar(TRect r) {
 
     auto& programMenu = *new TSubMenu("~P~rogram", kbAltP) +
         *new TMenuItem("~R~un", kCmdProgramRun, kbF5, hcNoContext, "F5") + newLine() +
-        *new TMenuItem("Add ~s~ubroutine", kCmdProgramAddSubroutine, kbF2, hcNoContext, "F2") +
-        *new TMenuItem("Add ~f~unction", kCmdProgramAddFunction, kbF3, hcNoContext, "F3") +
-        *new TMenuItem("Add global ~v~ariable", kCmdProgramAddGlobalVariable, kbF4, hcNoContext, "F4");
+        *new TMenuItem("Add ~s~ubroutine", kCmdProgramAddSubroutine, kbNoKey) +
+        *new TMenuItem("Add ~f~unction", kCmdProgramAddFunction, kbNoKey) +
+        *new TMenuItem("Add ~g~lobal variable", kCmdProgramAddGlobalVariable, kbNoKey) +
+        *new TMenuItem("Add ~t~ype", kCmdProgramAddType, kbNoKey);
 
     auto& windowMenu = *new TSubMenu("~W~indow", kbAltW) +
         *new TMenuItem("~S~ize/move", cmResize, kbCtrlF5, hcNoContext, "Ctrl+F5") +
@@ -58,19 +68,37 @@ TMenuBar* App::initMenuBar(TRect r) {
 
 TStatusLine* App::initStatusLine(TRect r) {
     r.a.y = r.b.y - 1;
-    return new TStatusLine(
-        r,
-        *new TStatusDef(0, 0xFFFF) + *new TStatusItem("~F1~ Help", kbF1, cmHelp) +
-            *new TStatusItem("~F2~ Add subroutine", kbF2, kCmdProgramAddSubroutine) +
-            *new TStatusItem("~F3~ Add function", kbF3, kCmdProgramAddFunction) +
-            *new TStatusItem("~F4~ Add global variable", kbF4, kCmdProgramAddGlobalVariable) +
-            *new TStatusItem("~F5~ Run", kbF5, kCmdProgramRun));
+
+    auto& appStatusDef = *new TStatusDef(0, 0xFFFF) + *new TStatusItem("~Ctrl+N~ New program", kbNoKey, cmNew) +
+        *new TStatusItem("~Ctrl+O~ Open program", kbNoKey, cmOpen) + *new TStatusItem("~Ctrl+Q~ Exit", kbNoKey, cmQuit);
+
+    auto& editorWindowStatusDef = *new TStatusDef(hcide_editorWindow, hcide_editorWindow) +
+        *new TStatusItem("~Alt+A~ Apply changes", kbAltA, kCmdEditorApplyChanges) +
+        *new TStatusItem("~Ctrl+W~ Close editor", kbNoKey, cmClose);
+    editorWindowStatusDef.next = &appStatusDef;
+
+    auto& programWindowStatusDef = *new TStatusDef(hcide_programWindow, hcide_programWindow) +
+        *new TStatusItem("~Alt+S~ Add subroutine", kbAltS, kCmdProgramAddSubroutine) +
+        *new TStatusItem("~Alt+F~ Add function", kbAltF, kCmdProgramAddFunction) +
+        *new TStatusItem("~Alt+G~ Add global", kbAltG, kCmdProgramAddGlobalVariable) +
+        *new TStatusItem("~Alt+T~ Add type", kbAltT, kCmdProgramAddGlobalVariable);
+    programWindowStatusDef.next = &editorWindowStatusDef;
+
+    return new TStatusLine(r, programWindowStatusDef);
 }
 
 bool App::handleCommand(TEvent& event) {
     switch (event.message.command) {
         case cmNew:
             onFileNew();
+            return true;
+
+        case cmOpen:
+            onFileOpen();
+            return true;
+
+        case cmSave:
+            onFileSave();
             return true;
 
         case kCmdProgramAddSubroutine:
@@ -93,6 +121,12 @@ bool App::handleCommand(TEvent& event) {
             messageBox(
                 std::string("TMBASIC\n(C) 2020 Brian Luft\ngithub.com/electroly/tmbasic"), mfInformation | mfOKButton);
             return true;
+
+        case cmQuit: {
+            bool cancel = false;
+            message(deskTop, evBroadcast, kCmdAppExit, &cancel);
+            return cancel;
+        }
 
         default:
             return false;
@@ -129,12 +163,26 @@ TRect App::getNewWindowRect(int width, int height) {
 }
 
 void App::onFileNew() {
-    auto window = newProgramWindow(getNewWindowRect(40, 15));
+    auto window = new ProgramWindow(getNewWindowRect(60, 15), std::optional<std::string>());
     deskTop->insert(window);
 }
 
+void App::onFileOpen() {
+    auto* d = new TFileDialog("*.bas", "Open Program (.BAS)", "~N~ame", fdOpenButton, 100);
+    if (deskTop->execView(d) != cmCancel) {
+        char fileName[MAXPATH];
+        d->getFileName(fileName);
+        deskTop->insert(new ProgramWindow(getNewWindowRect(60, 15), std::string(fileName)));
+    }
+    destroy(d);
+}
+
+void App::onFileSave() {
+    message(deskTop, evBroadcast, kCmdProgramSave, nullptr);
+}
+
 void App::onProgramAddProcedure(bool function) {
-    auto window = new ProcedureWindow(getNewWindowRect(70, 15), function);
+    auto window = new EditorWindow(getNewWindowRect(70, 15), function);
     deskTop->insert(window);
 }
 

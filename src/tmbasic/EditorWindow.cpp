@@ -1,4 +1,5 @@
-#include "ProcedureWindow.h"
+#include "EditorWindow.h"
+#include "helpfile.h"
 
 namespace tmbasic {
 
@@ -8,8 +9,11 @@ const int kInitialSubroutineCursorEnd = 12;
 const std::string kInitialFunctionText("function untitled() as integer\n\nend function\n");
 const int kInitialFunctionCursorStart = 9;
 const int kInitialFunctionCursorEnd = 17;
+// const std::string kInitialGlobalText("dim untitled as number\n");
+// const int kInitialGlobalCursorStart = 4;
+// const int kInitialGlobalCursorEnd = 12;
 
-ProcedureWindow::ProcedureWindow(const TRect& r, bool function)
+EditorWindow::EditorWindow(const TRect& r, bool function)
     : TWindow(r, "Untitled (procedure)", wnNoNumber), TWindowInit(TWindow::initFrame) {
     options |= ofTileable;
 
@@ -35,6 +39,10 @@ ProcedureWindow::ProcedureWindow(const TRect& r, bool function)
         function ? kInitialFunctionCursorStart : kInitialSubroutineCursorStart,
         function ? kInitialFunctionCursorEnd : kInitialSubroutineCursorEnd, true);
     insert(editor);
+}
+
+ushort EditorWindow::getHelpCtx() {
+    return hcide_editorWindow;
 }
 
 }  // namespace tmbasic
