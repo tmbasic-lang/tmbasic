@@ -3,6 +3,7 @@
 #include "shared/vm/Program.h"
 #include "constants.h"
 #include "helpfile.h"
+#include "tvutil.h"
 
 using namespace vm;
 
@@ -184,10 +185,14 @@ void ProgramWindow::handleEvent(TEvent& event) {
 
             case kCmdAppExit:
                 if (!preClose()) {
-                    auto* cancel = static_cast<bool*>(event.message.infoPtr);
-                    *cancel = true;
+                    *static_cast<bool*>(event.message.infoPtr) = true;
                     clearEvent(event);
                 }
+                break;
+
+            case kCmdFindProgramWindow:
+                *static_cast<ProgramWindow**>(event.message.infoPtr) = this;
+                clearEvent(event);
                 break;
         }
     }
@@ -268,6 +273,15 @@ void ProgramWindow::close() {
     if (preClose()) {
         TWindow::close();
     }
+}
+
+void ProgramWindow::enableDisableMenuCommands() {
+    enableDisableCommand(cmSave, _dirty);
+    enableDisableCommand(cmSaveAs, true);
+}
+
+bool ProgramWindow::isDirty() {
+    return _dirty;
 }
 
 }  // namespace tmbasic

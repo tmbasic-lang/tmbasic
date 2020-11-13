@@ -16,13 +16,15 @@ class ProgramWindow : public TWindow {
     ushort getHelpCtx() override;
     void handleEvent(TEvent& event) override;
     void close() override;
+    bool isDirty();
+    bool preClose();
 
    private:
     bool onSave();
     bool onSaveAs();
     bool save(std::string filePath);
     void setTitleFromFilePath();
-    bool preClose();
+    void enableDisableMenuCommands();
 
     bool _dirty;
     std::optional<std::string> _filePath;
