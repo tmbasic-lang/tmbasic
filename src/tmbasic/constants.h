@@ -24,12 +24,11 @@ const ushort kCmdProgramAddGlobalVariable = 106;
 const ushort kCmdProgramAddType = 107;
 const ushort kCmdProgramRun = 108;
 const ushort kCmdProgramSave = 109;
-const ushort kCmdEditorApplyChanges = 110;
 
-// sent to windows when the app is exiting. bool* = whether to cancel
-const ushort kCmdAppExit = 111;
+// broadcast when the app is exiting. bool* infoPtr = whether to cancel
+const ushort kCmdAppExit = 110;
 
-// sent to windows to ask them to enable relevant menu commands
-const ushort kCmdEnableCommands = 112;
+// broadcast to find a ProgramWindow. ProgramWindow** infoPtr
+const ushort kCmdFindProgramWindow = 111;
 
 }  // namespace tmbasic

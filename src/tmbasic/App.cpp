@@ -73,15 +73,14 @@ TStatusLine* App::initStatusLine(TRect r) {
         *new TStatusItem("~Ctrl+O~ Open program", kbNoKey, cmOpen) + *new TStatusItem("~Ctrl+Q~ Exit", kbNoKey, cmQuit);
 
     auto& editorWindowStatusDef = *new TStatusDef(hcide_editorWindow, hcide_editorWindow) +
-        *new TStatusItem("~Alt+A~ Apply changes", kbAltA, kCmdEditorApplyChanges) +
         *new TStatusItem("~Ctrl+W~ Close editor", kbNoKey, cmClose);
     editorWindowStatusDef.next = &appStatusDef;
 
     auto& programWindowStatusDef = *new TStatusDef(hcide_programWindow, hcide_programWindow) +
-        *new TStatusItem("~Alt+S~ Add subroutine", kbAltS, kCmdProgramAddSubroutine) +
-        *new TStatusItem("~Alt+F~ Add function", kbAltF, kCmdProgramAddFunction) +
-        *new TStatusItem("~Alt+G~ Add global", kbAltG, kCmdProgramAddGlobalVariable) +
-        *new TStatusItem("~Alt+T~ Add type", kbAltT, kCmdProgramAddGlobalVariable);
+        *new TStatusItem("~Alt+1~ Add subroutine", kbAlt1, kCmdProgramAddSubroutine) +
+        *new TStatusItem("~Alt+2~ Add function", kbAlt2, kCmdProgramAddFunction) +
+        *new TStatusItem("~Alt+3~ Add global", kbAlt3, kCmdProgramAddGlobalVariable) +
+        *new TStatusItem("~Alt+4~ Add type", kbAlt4, kCmdProgramAddGlobalVariable);
     programWindowStatusDef.next = &editorWindowStatusDef;
 
     return new TStatusLine(r, programWindowStatusDef);
@@ -118,8 +117,7 @@ bool App::handleCommand(TEvent& event) {
             return true;
 
         case kCmdHelpAbout:
-            messageBox(
-                std::string("TMBASIC\n(C) 2020 Brian Luft\ngithub.com/electroly/tmbasic"), mfInformation | mfOKButton);
+            messageBox("TMBASIC\n(C) 2020 Brian Luft\ngithub.com/electroly/tmbasic", mfInformation | mfOKButton);
             return true;
 
         case cmQuit: {
@@ -162,14 +160,44 @@ TRect App::getNewWindowRect(int width, int height) {
     return TRect(x, y, x + width, y + height);
 }
 
+static ProgramWindow* findProgramWindow(TDeskTop* deskTop) {
+    ProgramWindow* programWindow = nullptr;
+    message(deskTop, evBroadcast, kCmdFindProgramWindow, &programWindow);
+    return programWindow;
+}
+
+static bool closeProgramWindow(ProgramWindow* programWindow) {
+    if (programWindow) {
+        programWindow->close();
+        if (programWindow->frame) {
+            // the program window is still open, so the user must have clicked cancel
+            return false;
+        }
+    }
+    return true;
+}
+
 void App::onFileNew() {
-    auto window = new ProgramWindow(getNewWindowRect(60, 15), std::optional<std::string>());
+    // close the existing program if there is one
+    auto* programWindow = findProgramWindow(deskTop);
+    if (!closeProgramWindow(programWindow)) {
+        return;
+    }
+
+    auto* window = new ProgramWindow(getNewWindowRect(60, 15), std::optional<std::string>());
     deskTop->insert(window);
 }
 
 void App::onFileOpen() {
+    auto* programWindow = findProgramWindow(deskTop);
+
     auto* d = new TFileDialog("*.bas", "Open Program (.BAS)", "~N~ame", fdOpenButton, 100);
     if (deskTop->execView(d) != cmCancel) {
+        if (!closeProgramWindow(programWindow)) {
+            destroy(d);
+            return;
+        }
+
         char fileName[MAXPATH];
         d->getFileName(fileName);
         deskTop->insert(new ProgramWindow(getNewWindowRect(60, 15), std::string(fileName)));
