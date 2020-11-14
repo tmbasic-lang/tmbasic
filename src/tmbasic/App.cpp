@@ -1,5 +1,4 @@
 #include "common.h"
-#include "App.h"
 #include "HelpResource.h"
 #include "EditorWindow.h"
 #include "ProgramWindow.h"
@@ -72,6 +71,7 @@ class App : public TApplication {
             *new TMenuItem("Add ~s~ubroutine", kCmdProgramAddSubroutine, kbNoKey) +
             *new TMenuItem("Add ~f~unction", kCmdProgramAddFunction, kbNoKey) +
             *new TMenuItem("Add ~g~lobal variable", kCmdProgramAddGlobalVariable, kbNoKey) +
+            *new TMenuItem("Add ~c~onstant", kCmdProgramAddConstant, kbNoKey) +
             *new TMenuItem("Add ~t~ype", kCmdProgramAddType, kbNoKey);
 
         auto& windowMenu = *new TSubMenu("~W~indow", kbAltW) +
@@ -101,10 +101,11 @@ class App : public TApplication {
         editorWindowStatusDef.next = &appStatusDef;
 
         auto& programWindowStatusDef = *new TStatusDef(hcide_programWindow, hcide_programWindow) +
-            *new TStatusItem("~Alt+1~ Add subroutine", kbAlt1, kCmdProgramAddSubroutine) +
+            *new TStatusItem("~Alt+1~ Add sub", kbAlt1, kCmdProgramAddSubroutine) +
             *new TStatusItem("~Alt+2~ Add function", kbAlt2, kCmdProgramAddFunction) +
             *new TStatusItem("~Alt+3~ Add global", kbAlt3, kCmdProgramAddGlobalVariable) +
-            *new TStatusItem("~Alt+4~ Add type", kbAlt4, kCmdProgramAddGlobalVariable);
+            *new TStatusItem("~Alt+4~ Add constant", kbAlt4, kCmdProgramAddConstant) +
+            *new TStatusItem("~Alt+5~ Add type", kbAlt5, kCmdProgramAddGlobalVariable);
         programWindowStatusDef.next = &editorWindowStatusDef;
 
         return new TStatusLine(r, programWindowStatusDef);
@@ -121,15 +122,31 @@ class App : public TApplication {
                 return true;
 
             case cmSave:
-                onFileSave();
+                message(deskTop, evBroadcast, kCmdProgramSave, nullptr);
+                return true;
+
+            case cmSaveAs:
+                message(deskTop, evBroadcast, kCmdProgramSaveAs, nullptr);
                 return true;
 
             case kCmdProgramAddSubroutine:
-                onProgramAddProcedure(false);
+                onProgramAdd(TextEditorType::kSubroutine);
                 return true;
 
             case kCmdProgramAddFunction:
-                onProgramAddProcedure(true);
+                onProgramAdd(TextEditorType::kFunction);
+                return true;
+
+            case kCmdProgramAddGlobalVariable:
+                onProgramAdd(TextEditorType::kGlobalVariable);
+                return true;
+
+            case kCmdProgramAddConstant:
+                onProgramAdd(TextEditorType::kConstant);
+                return true;
+
+            case kCmdProgramAddType:
+                onProgramAdd(TextEditorType::kType);
                 return true;
 
             case kCmdHelpBasicReference:
@@ -229,10 +246,8 @@ class App : public TApplication {
         destroy(d);
     }
 
-    void onFileSave() { message(deskTop, evBroadcast, kCmdProgramSave, nullptr); }
-
-    void onProgramAddProcedure(bool function) {
-        auto window = new EditorWindow(getNewWindowRect(70, 15), function);
+    void onProgramAdd(TextEditorType type) {
+        auto window = new EditorWindow(getNewWindowRect(70, 15), type);
         deskTop->insert(window);
     }
 

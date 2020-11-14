@@ -13,22 +13,31 @@ namespace tmbasic {
 #define kWindowPaletteScrollerSelectedText "\x07"
 #define kWindowPaletteReserved "\x08"
 
-// app
-const ushort kCmdHelpBasicReference = 100;
-const ushort kCmdHelpDocumentation = 101;
-const ushort kCmdHelpAbout = 102;
-const ushort kCmdProgramContentsWindow = 103;
-const ushort kCmdProgramAddSubroutine = 104;
-const ushort kCmdProgramAddFunction = 105;
-const ushort kCmdProgramAddGlobalVariable = 106;
-const ushort kCmdProgramAddType = 107;
-const ushort kCmdProgramRun = 108;
-const ushort kCmdProgramSave = 109;
+enum : ushort {
+    // menu commands
+    kCmdHelpBasicReference = 100,
+    kCmdHelpDocumentation,
+    kCmdHelpAbout,
+    kCmdProgramContentsWindow,
+    kCmdProgramAddSubroutine,
+    kCmdProgramAddFunction,
+    kCmdProgramAddGlobalVariable,
+    kCmdProgramAddConstant,
+    kCmdProgramAddType,
+    kCmdProgramRun,
 
-// broadcast when the app is exiting. bool* infoPtr = whether to cancel
-const ushort kCmdAppExit = 110;
+    // broadcast in response to cmSave/cmSaveAs
+    kCmdProgramSave,
+    kCmdProgramSaveAs,
 
-// broadcast to find a ProgramWindow. ProgramWindow** infoPtr
-const ushort kCmdFindProgramWindow = 111;
+    // broadcast when the app is exiting. bool* infoPtr = whether to cancel
+    kCmdAppExit,
+
+    // broadcast to find a ProgramWindow. ProgramWindow** infoPtr
+    kCmdFindProgramWindow,
+
+    // broadcast to close all program-related windows.
+    kCmdCloseProgramRelatedWindows,
+};
 
 }  // namespace tmbasic

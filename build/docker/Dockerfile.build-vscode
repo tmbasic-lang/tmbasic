@@ -72,6 +72,8 @@ USER $HOST_UID
 RUN echo "export PS1=\"[$IMAGE_NAME] \w\$ \"" > /home/ubuntu/.bashrc && \
     echo "make -f /code/Makefile help" >> /home/ubuntu/.bashrc && \
     echo "export MAKEFLAGS=\"-j2\"" >> /home/ubuntu/.bashrc && \
-    echo "export LIBTINFO_FLAG=\"-ltinfo\"" >> /home/ubuntu/.bashrc
+    echo "export LIBTINFO_FLAG=\"-ltinfo\"" >> /home/ubuntu/.bashrc && \
+    echo "alias m=\"clear;make\"" >> /home/ubuntu/.bashrc && \
+    echo "alias r=\"make run\"" >> /home/ubuntu/.bashrc
 
 ENTRYPOINT "/bin/bash"

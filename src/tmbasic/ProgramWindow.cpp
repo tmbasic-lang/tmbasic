@@ -104,23 +104,6 @@ class ProgramContentsListBox : public TListViewer {
     }
 };
 
-class VerticalDividerView : public TView {
-   public:
-    VerticalDividerView(const TRect& r) : TView(r) {}
-
-    virtual ~VerticalDividerView() {}
-
-    void draw() override {
-        TDrawBuffer drawBuffer;
-        auto color = getColor(2);
-
-        for (int y = 0; y <= size.y; y++) {
-            drawBuffer.moveChar(0, '\xB3', color, 1);
-            writeLine(0, y, 1, 1, drawBuffer);
-        }
-    }
-};
-
 ProgramWindow::ProgramWindow(const TRect& r, std::optional<std::string> filePath)
     : TWindow(r, "Untitled (program)", wnNoNumber),
       TWindowInit(TWindow::initFrame),
@@ -139,6 +122,7 @@ ProgramWindow::ProgramWindow(const TRect& r, std::optional<std::string> filePath
         }
     });
     _typesListBox->growMode = gfGrowHiY;
+    _typesListBox->options |= ofFramed;
     insert(_typesListBox);
 
     auto contentsListBoxRect = getExtent();
@@ -147,14 +131,6 @@ ProgramWindow::ProgramWindow(const TRect& r, std::optional<std::string> filePath
     _contentsListBox = new ProgramContentsListBox(contentsListBoxRect, 1, vScrollBar);
     _contentsListBox->growMode = gfGrowHiX | gfGrowHiY;
     insert(_contentsListBox);
-
-    auto dividerRect = getExtent();
-    dividerRect.grow(-1, -1);
-    dividerRect.a.x = 15;
-    dividerRect.b.x = 16;
-    auto* divider = new VerticalDividerView(dividerRect);
-    divider->growMode = gfGrowHiY;
-    insert(divider);
 
     auto v = std::vector<ProgramItem>();
     _contentsListBox->setData(std::move(v));
@@ -181,6 +157,10 @@ void ProgramWindow::handleEvent(TEvent& event) {
         switch (event.message.command) {
             case kCmdProgramSave:
                 onSave();
+                break;
+
+            case kCmdProgramSaveAs:
+                onSaveAs();
                 break;
 
             case kCmdAppExit:
@@ -271,6 +251,9 @@ bool ProgramWindow::preClose() {
 
 void ProgramWindow::close() {
     if (preClose()) {
+        // close all other program-related windows first
+        message(owner, evBroadcast, kCmdCloseProgramRelatedWindows, nullptr);
+
         TWindow::close();
     }
 }
