@@ -58,6 +58,7 @@ help:
 	@echo "make valgrind             Run TMBASIC with valgrind (Linux)"
 	@echo "make clean                Delete build outputs"
 	@echo "make format               Reformat all code"
+	@echo "make cpplint              Check code with cpplint"
 	@echo ""
 	@echo "MAKE FLAGS"
 	@echo "----------"
@@ -84,6 +85,10 @@ valgrind: bin/tmbasic
 .PHONY: format
 format:
 	@cd src && find ./ -type f \( -iname \*.h -o -iname \*.cpp \) | xargs clang-format -i --style="{BasedOnStyle: Chromium, IndentWidth: 4, ColumnLimit: 120, SortIncludes: false, AlignAfterOpenBracket: AlwaysBreak, AlignOperands: false, Cpp11BracedListStyle: false, PenaltyReturnTypeOnItsOwnLine: 10000}"
+
+.PHONY: cpplint
+cpplint:
+	@cpplint --recursive --linelength 120 --filter=-whitespace/indent,-readability/todo,-build/include_what_you_use src
 
 # precompiled header
 
