@@ -4,6 +4,9 @@
 
 namespace tmbasic {
 
+const char kCharBullet = '\x07';
+const char kCharStar = '\x0F';
+
 #define kWindowPaletteFramePassive "\x01"
 #define kWindowPaletteFrameActive "\x02"
 #define kWindowPaletteFrameIcon "\x03"
@@ -38,6 +41,9 @@ enum : ushort {
 
     // broadcast to close all program-related windows.
     kCmdCloseProgramRelatedWindows,
+
+    // broadcast every 100msec or so
+    kCmdTimerTick,
 };
 
 }  // namespace tmbasic

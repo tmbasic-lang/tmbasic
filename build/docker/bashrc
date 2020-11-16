@@ -1,0 +1,4 @@
+make -f /code/Makefile help
+export MAKEFLAGS="-j2"
+export LIBTINFO_FLAG="-ltinfo"
+alias dev='while true; do echo -ne "[$IMAGE_NAME] \e[1;32mm\e[0make, \e[1;32mr\e[0mun, \e[1;32mf\e[0mormat, \e[1;32mq\e[0muit? "; read -n1 x; echo; [ "$x" == "m" ] && clear && make; [ "$x" == "r" ] && make run; [ "$x" == "f" ] && make format; [ "$x" == "q" ] && break; done'

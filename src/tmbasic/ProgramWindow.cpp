@@ -1,19 +1,20 @@
 #include "ProgramWindow.h"
-#include "shared/util/path.h"
-#include "shared/vm/Program.h"
 #include "constants.h"
 #include "helpfile.h"
+#include "shared/util/path.h"
+#include "shared/vm/Program.h"
 #include "tvutil.h"
 
 using namespace vm;
 
 namespace tmbasic {
 
-enum class ProgramItemType { kProcedure, kGlobal, kType };
+enum class ProgramItemType { kProcedure, kGlobal, kConstant, kType };
 
 static const char* kProgramItemTypeStrings[] = {
     "Procedures \x10",
     "Globals    \x10",
+    "Constants  \x10",
     "Types      \x10",
 };
 
@@ -23,7 +24,7 @@ class ProgramItemTypesListBox : public TListViewer {
    public:
     ProgramItemTypesListBox(const TRect& bounds, ushort numCols, ProgramItemTypeSelectedFunc onSelectedFunc)
         : TListViewer(bounds, numCols, nullptr, nullptr), _onSelectedFunc(onSelectedFunc) {
-        setRange(3);
+        setRange(4);
     }
 
     virtual ~ProgramItemTypesListBox() {}
@@ -107,7 +108,8 @@ class ProgramContentsListBox : public TListViewer {
 ProgramWindow::ProgramWindow(const TRect& r, std::optional<std::string> filePath)
     : TWindow(r, "Untitled (program)", wnNoNumber),
       TWindowInit(TWindow::initFrame),
-      _program(std::make_unique<Program>()),
+      _vmProgram(std::make_unique<Program>()),
+      _sourceProgram(std::make_unique<SourceProgram>()),
       _dirty(!filePath.has_value()) {
     palette = 0;
     auto* vScrollBar = new TScrollBar(TRect(size.x - 1, 1, size.x, size.y - 1));
@@ -137,7 +139,7 @@ ProgramWindow::ProgramWindow(const TRect& r, std::optional<std::string> filePath
 
     // TODO: open file
     _filePath = filePath;
-    setTitleFromFilePath();
+    updateTitle();
 }
 
 ProgramWindow::~ProgramWindow() {}
@@ -195,7 +197,7 @@ bool ProgramWindow::onSaveAs() {
         d->getFileName(fileName);
         if (save(fileName)) {
             _filePath = fileName;
-            setTitleFromFilePath();
+            updateTitle();
             frame->drawView();
             result = true;
         }
@@ -207,7 +209,7 @@ bool ProgramWindow::onSaveAs() {
 
 bool ProgramWindow::save(std::string filePath) {
     try {
-        _program->save(filePath);
+        _sourceProgram->save(filePath);
         _filePath = filePath;
         return true;
     } catch (const std::system_error& ex) {
@@ -221,14 +223,20 @@ bool ProgramWindow::save(std::string filePath) {
     }
 }
 
-void ProgramWindow::setTitleFromFilePath() {
-    auto s = std::string("Untitled (program)");
-    if (_filePath.has_value()) {
-        s = util::getFileName(*_filePath) + " (program)";
+void ProgramWindow::updateTitle() {
+    std::ostringstream s;
+    if (_dirty) {
+        s << kCharStar;
     }
+    if (_filePath.has_value()) {
+        s << util::getFileName(*_filePath);
+    } else {
+        s << "Untitled";
+    }
+    s << " (program)";
 
     delete[] title;
-    title = strdup(s.c_str());
+    title = strdup(s.str().c_str());
 }
 
 // true = close, false = stay open
@@ -265,6 +273,10 @@ void ProgramWindow::enableDisableMenuCommands() {
 
 bool ProgramWindow::isDirty() {
     return _dirty;
+}
+
+void ProgramWindow::addNewSourceMember(std::unique_ptr<SourceMember> sourceMember) {
+    _sourceProgram->members.push_back(std::move(sourceMember));
 }
 
 }  // namespace tmbasic

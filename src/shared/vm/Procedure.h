@@ -3,15 +3,17 @@
 #include "common.h"
 #include "Object.h"
 #include "ProcedureArtifact.h"
+#include "ProgramMember.h"
 
 namespace vm {
 
-class Procedure {
+class Procedure : public ProgramMember {
    public:
     bool isSystemProcedure;
-    std::string name;  // used for display only
-    std::optional<std::string> source;
     std::optional<std::unique_ptr<ProcedureArtifact>> artifact;
+
+    virtual ~Procedure();
+    ProgramMemberType getProgramMemberType() const override;
 };
 
 }  // namespace vm

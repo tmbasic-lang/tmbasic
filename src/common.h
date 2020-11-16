@@ -4,20 +4,24 @@
 
 #include <decimal.hh>
 
-#include <boost/algorithm/string/case_conv.hpp>
+#include <boost/algorithm/string.hpp>
 #include <boost/smart_ptr/local_shared_ptr.hpp>
 #include <boost/smart_ptr/make_local_shared.hpp>
+
 #include <algorithm>
 #include <array>
+#include <chrono>
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
+#include <ctime>
 #include <fstream>
 #include <initializer_list>
 #include <ios>
 #include <iostream>
 #include <memory>
 #include <optional>
+#include <ratio>
 #include <regex>
 #include <sstream>
 #include <stack>
@@ -52,17 +56,17 @@
 #define Uses_TStatusDef
 #define Uses_TStatusItem
 #define Uses_TStatusLine
+#define Uses_TStrListMaker
 #define Uses_TStringCollection
 #define Uses_TStringList
-#define Uses_TStrListMaker
 #define Uses_TSubMenu
 #define Uses_TWindow
 #define Uses_fpstream
 #include <tvision/tv.h>
 #include <tvision/help.h>
 
-#define IMMER_NO_THREAD_SAFETY 1
 #define IMMER_NO_FREE_LIST 1
+#define IMMER_NO_THREAD_SAFETY 1
 #include <immer/array.hpp>
 #include <immer/array_transient.hpp>
 #include <immer/map.hpp>
