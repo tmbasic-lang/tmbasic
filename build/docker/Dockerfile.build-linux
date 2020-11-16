@@ -59,8 +59,8 @@ RUN cd /tmp && \
 
 # set up environment
 USER $HOST_UID
-RUN echo "export PS1=\"[$IMAGE_NAME] \w\$ \"" > /home/ubuntu/.bashrc && \
-    echo "make -f /code/Makefile help" >> /home/ubuntu/.bashrc && \
-    echo "export MAKEFLAGS=\"-j2\"" >> /home/ubuntu/.bashrc
+RUN echo "export PS1=\"[$IMAGE_NAME] \w\$ \"" > /home/$USER/.bashrc && \
+    echo "make -f /code/Makefile help" >> /home/$USER/.bashrc && \
+    echo "export MAKEFLAGS=\"-j2\"" >> /home/$USER/.bashrc
 
 ENTRYPOINT "/bin/bash"

@@ -77,22 +77,23 @@ RUN dpkg --add-architecture i386 && apt-get update -y && apt-get install -y wine
 
 USER $HOST_UID
 
-RUN echo "export PS1=\"[$IMAGE_NAME] \w\$ \"" > /home/ubuntu/.bashrc && \
-    echo "make -f /code/Makefile help" >> /home/ubuntu/.bashrc && \
-    echo "export MAKEFLAGS=\"-j2\"" >> /home/ubuntu/.bashrc && \
-    echo "export BUILDCC=gcc" >> /home/ubuntu/.bashrc && \
-    echo "export CC=x86_64-w64-mingw32-gcc" >> /home/ubuntu/.bashrc && \
-    echo "export CXX=x86_64-w64-mingw32-g++" >> /home/ubuntu/.bashrc && \
-    echo "export AR=x86_64-w64-mingw32-ar" >> /home/ubuntu/.bashrc && \
-    echo "export STRIP=x86_64-w64-mingw32-strip" >> /home/ubuntu/.bashrc && \
-    echo "export WIN_INCLUDE_FLAGS=\"-I/usr/share/mingw-w64/include/\"" >> /home/ubuntu/.bashrc && \
-    echo "export TVHC=\"WINEPATH=/usr/lib/gcc/x86_64-w64-mingw32/9.3-win32 wine64 obj/tvision/tvhc.exe\"" >> /home/ubuntu/.bashrc && \
-    echo "export LIBTINFO_FLAG=\"\"" >> /home/ubuntu/.bashrc && \
-    echo "export LIBMPDEC_FLAG=\"/usr/x86_64-w64-mingw32/lib/libmpdec.a /usr/x86_64-w64-mingw32/lib/libmpdec++.a\"" >> /home/ubuntu/.bashrc && \
-    echo "export LICENSE_PROCESS_CMD=unix2dos" >> /home/ubuntu/.bashrc && \
-    echo "export TARGET_OS=win" >> /home/ubuntu/.bashrc && \
-    echo "export EXE_EXTENSION=.exe" >> /home/ubuntu/.bashrc && \
-    echo "export OPTFLAGS=-Os" >> /home/ubuntu/.bashrc && \
-    echo "export TEST_CMD=\"WINEPATH=/usr/lib/gcc/x86_64-w64-mingw32/9.3-win32 wine64 test.exe\"" >> /home/ubuntu/.bashrc
+RUN echo "export PS1=\"[$IMAGE_NAME] \w\$ \"" > /home/$USER/.bashrc && \
+    echo "make -f /code/Makefile help" >> /home/$USER/.bashrc && \
+    echo "export MAKEFLAGS=\"-j2\"" >> /home/$USER/.bashrc && \
+    echo "export BUILDCC=gcc" >> /home/$USER/.bashrc && \
+    echo "export CC=x86_64-w64-mingw32-gcc" >> /home/$USER/.bashrc && \
+    echo "export CXX=x86_64-w64-mingw32-g++" >> /home/$USER/.bashrc && \
+    echo "export AR=x86_64-w64-mingw32-ar" >> /home/$USER/.bashrc && \
+    echo "export STRIP=x86_64-w64-mingw32-strip" >> /home/$USER/.bashrc && \
+    echo "export WIN_INCLUDE_FLAGS=\"-I/usr/share/mingw-w64/include/\"" >> /home/$USER/.bashrc && \
+    echo "export TVHC=\"WINEPATH=/usr/lib/gcc/x86_64-w64-mingw32/9.3-win32 wine64 obj/tvision/tvhc.exe\"" >> /home/$USER/.bashrc && \
+    echo "export LIBGTEST_FLAG=\"/usr/x86_64-w64-mingw32/lib/libgtest.dll.a /usr/x86_64-w64-mingw32/lib/libgtest_main.dll.a\"" >> /home/$USER/.bashrc && \
+    echo "export LIBTINFO_FLAG=\"\"" >> /home/$USER/.bashrc && \
+    echo "export LIBMPDEC_FLAG=\"/usr/x86_64-w64-mingw32/lib/libmpdec.a /usr/x86_64-w64-mingw32/lib/libmpdec++.a\"" >> /home/$USER/.bashrc && \
+    echo "export LICENSE_PROCESS_CMD=unix2dos" >> /home/$USER/.bashrc && \
+    echo "export TARGET_OS=win" >> /home/$USER/.bashrc && \
+    echo "export EXE_EXTENSION=.exe" >> /home/$USER/.bashrc && \
+    echo "export OPTFLAGS=-Os" >> /home/$USER/.bashrc && \
+    echo "export TEST_CMD=\"WINEPATH=/usr/lib/gcc/x86_64-w64-mingw32/9.3-win32 wine64 test.exe\"" >> /home/$USER/.bashrc
 
 ENTRYPOINT "/bin/bash"
