@@ -1,37 +1,8 @@
 // this is the precompiled header
-#ifndef _COMMON_H_
-#define _COMMON_H_
+#ifndef COMMON_H_
+#define COMMON_H_
 
 #include <decimal.hh>
-
-#include <boost/algorithm/string.hpp>
-#include <boost/smart_ptr/local_shared_ptr.hpp>
-#include <boost/smart_ptr/make_local_shared.hpp>
-
-#include <algorithm>
-#include <array>
-#include <chrono>
-#include <cmath>
-#include <cstdint>
-#include <cstdlib>
-#include <ctime>
-#include <fstream>
-#include <initializer_list>
-#include <ios>
-#include <iostream>
-#include <memory>
-#include <optional>
-#include <ratio>
-#include <regex>
-#include <sstream>
-#include <stack>
-#include <string>
-#include <string_view>
-#include <unordered_map>
-#include <vector>
-
-// don't use tvision/borland/fstream.h which tv.h will try to include
-#define FSTREAM_H
 
 #define Uses_MsgBox
 #define Uses_TApplication
@@ -65,6 +36,33 @@
 #include <tvision/tv.h>
 #include <tvision/help.h>
 
+#include <cmath>
+#include <cstdint>
+#include <cstdlib>
+#include <ctime>
+
+#include <algorithm>
+#include <array>
+#include <chrono>
+#include <fstream>
+#include <initializer_list>
+#include <ios>
+#include <iostream>
+#include <memory>
+#include <optional>
+#include <ratio>
+#include <regex>
+#include <sstream>
+#include <stack>
+#include <string>
+#include <string_view>
+#include <unordered_map>
+#include <vector>
+
+#include <boost/algorithm/string.hpp>
+#include <boost/smart_ptr/local_shared_ptr.hpp>
+#include <boost/smart_ptr/make_local_shared.hpp>
+
 #define IMMER_NO_FREE_LIST 1
 #define IMMER_NO_THREAD_SAFETY 1
 #include <immer/array.hpp>
@@ -80,4 +78,4 @@
 #include <windows.h>
 #endif
 
-#endif  // _COMMON_H_
+#endif  // COMMON_H_

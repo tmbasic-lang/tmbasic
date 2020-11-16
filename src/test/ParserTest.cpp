@@ -1,14 +1,20 @@
-#include "common.h"
-#include "gtest/gtest.h"
-#include "shared/basic/ast.h"
+#include "../common.h"
 #include "compiler/parse.h"
 #include "compiler/tokenize.h"
+#include "gtest/gtest.h"
+#include "shared/basic/ast.h"
 #include "shared/util/cast.h"
 
-using namespace basic;
-using namespace compiler;
+using basic::Node;
+using basic::ProgramNode;
+using basic::Token;
+using basic::TokenKind;
+using compiler::parse;
+using compiler::ParserRootProduction;
+using compiler::tokenize;
+using util::dynamic_cast_borrow;
 
-static std::string dump(Node& node) {
+static std::string dump(const Node& node) {
     std::ostringstream s;
     node.dump(s, 0);
     return s.str();

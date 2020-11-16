@@ -1,8 +1,8 @@
 #pragma once
 
-#include "common.h"
-#include "GlobalVariable.h"
-#include "Procedure.h"
+#include "../../common.h"
+#include "shared/vm/GlobalVariable.h"
+#include "shared/vm/Procedure.h"
 
 namespace vm {
 

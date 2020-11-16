@@ -1,4 +1,4 @@
-#include "common.h"
+#include "../common.h"
 #include "gtest/gtest.h"
 
 class BaseClass {

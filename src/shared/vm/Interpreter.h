@@ -1,12 +1,12 @@
 #pragma once
 
-#include "common.h"
-#include "CallFrame.h"
-#include "Object.h"
-#include "Program.h"
-#include "RecordBuilder.h"
-#include "Value.h"
-#include "List.h"
+#include "../../common.h"
+#include "shared/vm/CallFrame.h"
+#include "shared/vm/List.h"
+#include "shared/vm/Object.h"
+#include "shared/vm/Program.h"
+#include "shared/vm/RecordBuilder.h"
+#include "shared/vm/Value.h"
 
 namespace vm {
 
@@ -15,7 +15,7 @@ const int kObjectStackSize = 10000;
 
 class Interpreter {
    public:
-    Interpreter(const Program& program);
+    explicit Interpreter(const Program& program);
     void init(int procedureIndex);
     bool run(int maxCycles);
 

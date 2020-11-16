@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common.h"
+#include "../common.h"
 #include "shared/basic/Token.h"
 
 namespace compiler {

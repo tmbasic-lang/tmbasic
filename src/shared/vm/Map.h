@@ -1,9 +1,9 @@
 #pragma once
 
-#include "common.h"
-#include "List.h"
-#include "Object.h"
-#include "Value.h"
+#include "../../common.h"
+#include "shared/vm/List.h"
+#include "shared/vm/Object.h"
+#include "shared/vm/Value.h"
 
 namespace vm {
 
@@ -22,12 +22,14 @@ class Map : public Object {
 
     Map() {}
 
-    Map(Map<TKey, TValue, K, TKeyListBuilder, TKeyList, TValuePointerCompare, TValueListBuilder, TValueList>& source,
+    Map(const Map<TKey, TValue, K, TKeyListBuilder, TKeyList, TValuePointerCompare, TValueListBuilder, TValueList>&
+            source,
         TKey newKey,
         TValue newValue)
         : pairs(std::move(source.pairs.set(newKey, newValue))) {}
 
-    Map(Map<TKey, TValue, K, TKeyListBuilder, TKeyList, TValuePointerCompare, TValueListBuilder, TValueList>& source,
+    Map(const Map<TKey, TValue, K, TKeyListBuilder, TKeyList, TValuePointerCompare, TValueListBuilder, TValueList>&
+            source,
         TKey removeKey)
         : pairs(std::move(source.pairs.erase(removeKey))) {}
 
@@ -62,7 +64,7 @@ class Map : public Object {
         for (auto& pair : pairs) {
             builder.items.push_back(pair.first);
         }
-        return boost::make_local_shared<TKeyList>(builder);
+        return boost::make_local_shared<TKeyList>(&builder);
     }
 
     boost::local_shared_ptr<TValueList> values() const {
@@ -70,7 +72,7 @@ class Map : public Object {
         for (auto& pair : pairs) {
             builder.items.push_back(pair.second);
         }
-        return boost::make_local_shared<TValueList>(builder);
+        return boost::make_local_shared<TValueList>(&builder);
     }
 };
 

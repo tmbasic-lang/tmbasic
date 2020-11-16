@@ -581,7 +581,7 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kRecordBuilderEnd:
                 assert(!_recordBuilderStack.empty());
-                x = boost::make_local_shared<Record>(_recordBuilderStack.top());
+                x = boost::make_local_shared<Record>(&_recordBuilderStack.top());
                 _recordBuilderStack.pop();
                 pc++;
                 break;
@@ -649,7 +649,7 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kValueListBuilderEnd:
                 assert(!_valueListBuilderStack.empty());
-                x = boost::make_local_shared<ValueList>(_valueListBuilderStack.top());
+                x = boost::make_local_shared<ValueList>(&_valueListBuilderStack.top());
                 _valueListBuilderStack.pop();
                 pc++;
                 break;

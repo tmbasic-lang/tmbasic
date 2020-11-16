@@ -1,9 +1,9 @@
 #pragma once
 
-#include "common.h"
+#include "../../common.h"
 #include "shared/basic/ast.h"
-#include "Object.h"
-#include "Value.h"
+#include "shared/vm/Object.h"
+#include "shared/vm/Value.h"
 
 namespace vm {
 
@@ -21,7 +21,7 @@ class List : public Object {
    public:
     const immer::vector<TElement> items;
 
-    List(ListBuilder<TElement>& builder) : items(std::move(builder.items.persistent())) {}
+    explicit List(ListBuilder<TElement>* builder) : items(std::move(builder->items.persistent())) {}
 
     List(List<TElement, K>& source, int removeIndex) : items(std::move(removeAt(source, removeIndex))) {}
 

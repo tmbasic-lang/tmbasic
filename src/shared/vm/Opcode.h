@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../../common.h"
+
 namespace vm {
 
 enum class Opcode {
@@ -134,4 +136,4 @@ enum class Opcode {
     kStringAsc,      // X=string, A=index. store -1 or X[A] into A
 };
 
-}
+}  // namespace vm

@@ -1,6 +1,7 @@
 #include "CompilerResult.h"
 
-using namespace basic;
+using basic::Token;
+using basic::TokenKind;
 
 namespace compiler {
 

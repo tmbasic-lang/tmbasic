@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common.h"
+#include "../../common.h"
 
 namespace basic {
 
@@ -98,4 +98,4 @@ enum class TokenKind {
     kWith
 };
 
-}
+}  // namespace basic

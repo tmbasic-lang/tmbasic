@@ -1,7 +1,7 @@
 #pragma once
 
-#include "common.h"
-#include "TokenKind.h"
+#include "../../common.h"
+#include "shared/basic/TokenKind.h"
 
 namespace basic {
 

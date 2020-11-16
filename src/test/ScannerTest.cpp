@@ -1,10 +1,10 @@
-#include "common.h"
-#include "gtest/gtest.h"
+#include "../common.h"
 #include "compiler/tokenize.h"
+#include "gtest/gtest.h"
 #include "shared/basic/TokenKind.h"
 
-using namespace basic;
-using namespace compiler;
+using basic::TokenKind;
+using compiler::tokenize;
 
 static std::string readFile(std::string filename) {
     std::ifstream stream("/code/src/test/programs/" + filename);

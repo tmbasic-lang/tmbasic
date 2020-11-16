@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common.h"
+#include "../common.h"
 #include "shared/basic/ast.h"
 
 namespace compiler {
@@ -13,7 +13,7 @@ class ParserResult {
     std::unique_ptr<basic::Node> node;  // if success
 
     ParserResult(std::string message, basic::Token token);
-    ParserResult(std::unique_ptr<basic::Node> node);
+    explicit ParserResult(std::unique_ptr<basic::Node> node);
 };
 
 enum class ParserRootProduction { kProgram, kMember };

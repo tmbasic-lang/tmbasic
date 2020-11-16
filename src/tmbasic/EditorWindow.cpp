@@ -1,12 +1,12 @@
-#include "EditorWindow.h"
-#include "helpfile.h"
-#include "constants.h"
+#include "tmbasic/EditorWindow.h"
+#include "../../obj/helpfile.h"
+#include "tmbasic/constants.h"
 
 namespace tmbasic {
 
 class EditorIndicator : public TIndicator {
    public:
-    EditorIndicator(const TRect& r) : TIndicator(r) {}
+    explicit EditorIndicator(const TRect& r) : TIndicator(r) {}
 
     void draw() override {
         auto oldModified = modified;
@@ -16,7 +16,7 @@ class EditorIndicator : public TIndicator {
     }
 };
 
-static std::string getEditorWindowTitle(SourceMember& member) {
+static std::string getEditorWindowTitle(const SourceMember& member) {
     std::ostringstream s;
     s << member.displayName << " (";
     switch (member.memberType) {
@@ -40,8 +40,8 @@ static std::string getEditorWindowTitle(SourceMember& member) {
     return s.str();
 }
 
-EditorWindow::EditorWindow(const TRect& r, SourceMember& member)
-    : TWindow(r, getEditorWindowTitle(member), wnNoNumber), TWindowInit(TWindow::initFrame), _member(member) {
+EditorWindow::EditorWindow(const TRect& r, SourceMember* member)
+    : TWindow(r, getEditorWindowTitle(*member), wnNoNumber), TWindowInit(TWindow::initFrame), _member(member) {
     options |= ofTileable;
 
     auto* hScrollBar = new TScrollBar(TRect(18, size.y - 1, size.x - 2, size.y));
@@ -58,8 +58,8 @@ EditorWindow::EditorWindow(const TRect& r, SourceMember& member)
     auto* editor = new TEditor(editorRect, hScrollBar, vScrollBar, indicator, kBufferSize);
     editor->modified = false;
 
-    editor->insertText(member.source.c_str(), member.source.size(), false);
-    editor->setSelect(member.selectionStart, member.selectionEnd, true);
+    editor->insertText(member->source.c_str(), member->source.size(), false);
+    editor->setSelect(member->selectionStart, member->selectionEnd, true);
     editor->trackCursor(false);
     insert(editor);
 }

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "common.h"
-#include "Token.h"
+#include "../../common.h"
+#include "shared/basic/Token.h"
 
 namespace basic {
 
@@ -17,7 +17,7 @@ typedef std::function<bool(ExpressionNode&)> VisitExpressionFunc;
 class Node {
    public:
     Token token;
-    Node(Token token);
+    explicit Node(Token token);
     virtual ~Node();
     virtual void dump(std::ostringstream& s, int indent) const;
     virtual MemberType getMemberType() const;
@@ -83,7 +83,7 @@ class TypeNode : public Node {
 
 class ExpressionNode : public Node {
    public:
-    ExpressionNode(Token token);
+    explicit ExpressionNode(Token token);
 };
 
 enum class BinaryOperator {
@@ -137,7 +137,7 @@ class CallExpressionNode : public ExpressionNode {
 
 class ConstValueExpressionNode : public ExpressionNode {
    public:
-    ConstValueExpressionNode(Token token);
+    explicit ConstValueExpressionNode(Token token);
 };
 
 class ConvertExpressionNode : public ExpressionNode {
@@ -233,7 +233,7 @@ class NotExpressionNode : public ExpressionNode {
 class SymbolReferenceExpressionNode : public ExpressionNode {
    public:
     std::string name;
-    Node* boundSymbolDeclaration = nullptr;  //  set during symbol binding
+    const Node* boundSymbolDeclaration = nullptr;  //  set during symbol binding
     SymbolReferenceExpressionNode(std::string name, Token token);
     void dump(std::ostringstream& s, int indent) const override;
     bool isSymbolReference() const override;
@@ -245,7 +245,7 @@ class SymbolReferenceExpressionNode : public ExpressionNode {
 
 class StatementNode : public Node {
    public:
-    StatementNode(Token token);
+    explicit StatementNode(Token token);
 };
 
 class AssignLocationSuffixNode : public Node {
@@ -275,7 +275,7 @@ class AssignStatementNode : public StatementNode {
 class BodyNode : public Node {
    public:
     std::vector<std::unique_ptr<StatementNode>> statements;
-    BodyNode(std::vector<std::unique_ptr<StatementNode>>& statements, Token token);
+    BodyNode(std::vector<std::unique_ptr<StatementNode>> statements, Token token);
     void dump(std::ostringstream& s, int indent) const override;
 };
 
@@ -507,7 +507,7 @@ class JoinStatementNode : public StatementNode {
 
 class RethrowStatementNode : public StatementNode {
    public:
-    RethrowStatementNode(Token token);
+    explicit RethrowStatementNode(Token token);
     void dump(std::ostringstream& s, int indent) const override;
 };
 

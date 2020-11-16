@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common.h"
+#include "../../common.h"
 
 namespace vm {
 
@@ -16,7 +16,7 @@ struct Value {
 };
 
 struct ValuePointerCompare {
-    bool operator()(const Value& lhs, const Value*& rhs) { return lhs == *rhs; }
+    bool operator()(const Value& lhs, const Value* rhs) { return lhs == *rhs; }
 };
 
 }  // namespace vm

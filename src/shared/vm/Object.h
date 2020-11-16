@@ -1,7 +1,7 @@
 #pragma once
 
-#include "common.h"
-#include "ObjectType.h"
+#include "../../common.h"
+#include "shared/vm/ObjectType.h"
 
 namespace vm {
 
@@ -14,7 +14,7 @@ class Object {
 };
 
 struct ObjectPointerCompare {
-    bool operator()(const boost::local_shared_ptr<vm::Object>& lhs, const boost::local_shared_ptr<vm::Object>*& rhs) {
+    bool operator()(const boost::local_shared_ptr<vm::Object>& lhs, const boost::local_shared_ptr<vm::Object>* rhs) {
         return lhs->equals(**rhs);
     }
 };

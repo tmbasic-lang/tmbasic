@@ -1,4 +1,4 @@
-#include "common.h"
+#include "../common.h"
 
 static uint8_t* findAppendedData() {
     auto pid = getpid();

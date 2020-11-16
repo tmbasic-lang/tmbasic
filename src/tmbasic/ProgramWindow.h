@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common.h"
+#include "../common.h"
 #include "shared/vm/Program.h"
 #include "EditorWindow.h"
 #include "SourceProgram.h"

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common.h"
+#include "../../common.h"
 
 namespace vm {
 
@@ -16,4 +16,4 @@ enum class ObjectType {
     kProcedureReference
 };
 
-}
+}  // namespace vm

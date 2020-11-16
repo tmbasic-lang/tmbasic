@@ -1,15 +1,16 @@
-#include "tokenize.h"
+#include "compiler/tokenize.h"
 
-using namespace basic;
+using basic::Token;
+using basic::TokenKind;
 
 namespace compiler {
 
 class Scanner {
    public:
-    static std::vector<basic::Token> tokenize(const std::string& input);
+    static std::vector<Token> tokenize(const std::string& input);
 
    private:
-    std::vector<basic::Token> _tokens;
+    std::vector<Token> _tokens;
     bool _currentTokenIsString = false;
     bool _currentTokenIsComment = false;
     bool _skipNext = false;
@@ -26,7 +27,7 @@ class Scanner {
     void append(char ch);
     void endCurrentToken();
     bool isCurrentTokenTextEmpty();
-    basic::TokenKind classifyToken(const std::string& text);
+    TokenKind classifyToken(const std::string& text);
 };
 
 Scanner::Scanner() {}

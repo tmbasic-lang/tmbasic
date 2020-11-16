@@ -1,10 +1,10 @@
-#include "App.h"
-#include "EditorWindow.h"
-#include "HelpResource.h"
-#include "ProgramWindow.h"
-#include "SourceProgram.h"
-#include "constants.h"
-#include "helpfile.h"
+#include "tmbasic/App.h"
+#include "../../obj/helpfile.h"
+#include "tmbasic/EditorWindow.h"
+#include "tmbasic/HelpResource.h"
+#include "tmbasic/ProgramWindow.h"
+#include "tmbasic/SourceProgram.h"
+#include "tmbasic/constants.h"
 
 namespace tmbasic {
 
@@ -45,7 +45,7 @@ void App::idle() {
 }
 
 void App::handleEvent(TEvent& event) {
-    if (event.what == evCommand && handleCommand(event)) {
+    if (event.what == evCommand && handleCommand(&event)) {
         clearEvent(event);
     }
     TApplication::handleEvent(event);
@@ -120,8 +120,8 @@ TStatusLine* App::initStatusLine(TRect r) {
     return new TStatusLine(r, programWindowStatusDef);
 }
 
-bool App::handleCommand(TEvent& event) {
-    switch (event.message.command) {
+bool App::handleCommand(TEvent* event) {
+    switch (event->message.command) {
         case cmNew:
             onFileNew();
             return true;
@@ -309,10 +309,10 @@ void App::onProgramAdd(TextEditorType type) {
     }
 
     auto sourceMember = std::make_unique<SourceMember>(memberType, displayName, source, selectionStart, selectionEnd);
-    auto& sourceMemberRef = *sourceMember;
+    auto* sourceMemberPtr = sourceMember.get();
     programWindow->addNewSourceMember(std::move(sourceMember));
 
-    auto window = new EditorWindow(getNewWindowRect(82, 30), sourceMemberRef);
+    auto window = new EditorWindow(getNewWindowRect(82, 30), sourceMemberPtr);
     deskTop->insert(window);
 }
 

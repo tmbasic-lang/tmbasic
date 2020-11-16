@@ -1,8 +1,7 @@
-#include "ast.h"
-#include "shared/util/cast.h"
+#include "shared/basic/ast.h"
 #include "shared/util/decimal.h"
 
-using namespace util;
+using util::decimalToString;
 
 namespace basic {
 
@@ -401,7 +400,7 @@ bool AssignStatementNode::visitExpressions(VisitExpressionFunc func) const {
     return true;
 }
 
-BodyNode::BodyNode(std::vector<std::unique_ptr<StatementNode>>& statements, Token token)
+BodyNode::BodyNode(std::vector<std::unique_ptr<StatementNode>> statements, Token token)
     : Node(token), statements(std::move(statements)) {}
 
 void BodyNode::dump(std::ostringstream& s, int n) const {

@@ -1,8 +1,9 @@
-#include "common.h"
+#include "../common.h"
 #include "gtest/gtest.h"
 #include "shared/util/decimal.h"
 
-using namespace util;
+using util::decimalToString;
+using util::parseDecimalString;
 
 static std::string roundtrip(std::string str) {
     return decimalToString(parseDecimalString(str));

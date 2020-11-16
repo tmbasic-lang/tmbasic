@@ -1,11 +1,11 @@
-#include "ProgramWindow.h"
-#include "constants.h"
-#include "helpfile.h"
+#include "tmbasic/ProgramWindow.h"
+#include "../../obj/helpfile.h"
 #include "shared/util/path.h"
 #include "shared/vm/Program.h"
-#include "tvutil.h"
+#include "tmbasic/constants.h"
+#include "tmbasic/tvutil.h"
 
-using namespace vm;
+using vm::Program;
 
 namespace tmbasic {
 
@@ -29,12 +29,12 @@ class ProgramItemTypesListBox : public TListViewer {
 
     virtual ~ProgramItemTypesListBox() {}
 
-    void getText(char* dest, short item, short maxLen) override {
+    void getText(char* dest, int16_t item, int16_t maxLen) override {
         strncpy(dest, kProgramItemTypeStrings[item], maxLen);
         dest[maxLen] = '\0';
     }
 
-    void focusItem(short item) override {
+    void focusItem(int16_t item) override {
         TListViewer::focusItem(item);
         _onSelectedFunc(static_cast<ProgramItemType>(item));
     }
@@ -80,7 +80,7 @@ class ProgramContentsListBox : public TListViewer {
         drawView();
     }
 
-    void getText(char* dest, short item, short maxLen) override {
+    void getText(char* dest, int16_t item, int16_t maxLen) override {
         if (item >= 0 && static_cast<size_t>(item) < _items.size()) {
             strncpy(dest, _items[item].name.c_str(), maxLen);
             dest[maxLen] = '\0';
