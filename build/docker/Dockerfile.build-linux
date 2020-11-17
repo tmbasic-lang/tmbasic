@@ -17,7 +17,12 @@ RUN apk update && \
         gtest-dev \
         alpine-sdk \
         nodejs-current \
-        ncurses
+        ncurses \
+        python3
+
+# install cpplint
+RUN python3 -m ensurepip && \
+    pip3 install cpplint
 
 # set up unprivileged user
 RUN addgroup -g $HOST_GID $USER && \
