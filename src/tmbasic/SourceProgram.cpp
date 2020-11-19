@@ -2,17 +2,33 @@
 
 namespace tmbasic {
 
-SourceMember::SourceMember(
-    SourceMemberType memberType,
-    std::string displayName,
-    std::string source,
-    int selectionStart,
-    int selectionEnd)
-    : memberType(memberType),
-      displayName(displayName),
-      source(source),
-      selectionStart(selectionStart),
-      selectionEnd(selectionEnd) {}
+SourceMember::SourceMember(SourceMemberType memberType, std::string source, int selectionStart, int selectionEnd)
+    : memberType(memberType), source(source), selectionStart(selectionStart), selectionEnd(selectionEnd) {
+    updateDisplayName();
+}
+
+static bool isBlankOrComment(std::string str) {
+    for (auto ch : str) {
+        if (ch == '\'') {
+            return true;
+        } else if (ch != ' ' && ch != '\t') {
+            return false;
+        }
+    }
+    return true;
+}
+
+void SourceMember::updateDisplayName() {
+    std::istringstream stream(source);
+    std::string line;
+    while (std::getline(stream, line)) {
+        if (!isBlankOrComment(line)) {
+            displayName = line;
+            return;
+        }
+    }
+    displayName = "Untitled";
+}
 
 static std::vector<const SourceMember*> sortMembers(const SourceProgram* program) {
     std::vector<const SourceMember*> sortedMembers;

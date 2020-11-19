@@ -1,32 +1,15 @@
 #include "tmbasic/App.h"
 #include "../../obj/helpfile.h"
+#include "shared/util/membuf.h"
 #include "tmbasic/EditorWindow.h"
 #include "tmbasic/HelpResource.h"
 #include "tmbasic/ProgramWindow.h"
 #include "tmbasic/SourceProgram.h"
 #include "tmbasic/constants.h"
 
+using util::membuf;
+
 namespace tmbasic {
-
-struct membuf : std::streambuf {
-    membuf(char* begin, char* end) { this->setg(begin, begin, end); }
-
-    pos_type seekoff(off_type off, std::ios_base::seekdir dir, std::ios_base::openmode which = std::ios_base::in)
-        override {
-        if (dir == std::ios_base::cur) {
-            gbump(off);
-        } else if (dir == std::ios_base::end) {
-            setg(eback(), egptr() + off, egptr());
-        } else if (dir == std::ios_base::beg) {
-            setg(eback(), eback() + off, egptr());
-        }
-        return gptr() - eback();
-    }
-
-    pos_type seekpos(pos_type sp, std::ios_base::openmode which) override {
-        return seekoff(sp - pos_type(off_type(0)), std::ios_base::beg, which);
-    }
-};
 
 App::App(int argc, char** argv)
     : TProgInit(initStatusLine, initMenuBar, TApplication::initDeskTop), _newWindowX(0), _newWindowY(0) {
@@ -114,7 +97,7 @@ TStatusLine* App::initStatusLine(TRect r) {
         *new TStatusItem("~Alt+2~ Add function", kbAlt2, kCmdProgramAddFunction) +
         *new TStatusItem("~Alt+3~ Add global", kbAlt3, kCmdProgramAddGlobalVariable) +
         *new TStatusItem("~Alt+4~ Add constant", kbAlt4, kCmdProgramAddConstant) +
-        *new TStatusItem("~Alt+5~ Add type", kbAlt5, kCmdProgramAddGlobalVariable);
+        *new TStatusItem("~Alt+5~ Add type", kbAlt5, kCmdProgramAddType);
     programWindowStatusDef.next = &editorWindowStatusDef;
 
     return new TStatusLine(r, programWindowStatusDef);
@@ -263,7 +246,6 @@ void App::onProgramAdd(TextEditorType type) {
 
     auto memberType = SourceMemberType::kConstant;
     auto source = std::string();
-    auto displayName = std::string();
     auto selectionStart = 0;
     auto selectionEnd = 0;
 
@@ -271,35 +253,30 @@ void App::onProgramAdd(TextEditorType type) {
         case TextEditorType::kConstant:
             memberType = SourceMemberType::kConstant;
             source = "const untitled = 0\n";
-            displayName = "untitled";
             selectionStart = 6;
             selectionEnd = 14;
             break;
         case TextEditorType::kGlobalVariable:
             memberType = SourceMemberType::kGlobalVariable;
             source = "dim untitled as number\n";
-            displayName = "untitled";
             selectionStart = 4;
             selectionEnd = 12;
             break;
         case TextEditorType::kFunction:
             memberType = SourceMemberType::kProcedure;
             source = "function untitled() as integer\n\nend function\n";
-            displayName = "untitled";
             selectionStart = 9;
             selectionEnd = 17;
             break;
         case TextEditorType::kSubroutine:
             memberType = SourceMemberType::kProcedure;
             source = "sub untitled()\n\nend sub\n";
-            displayName = "untitled";
             selectionStart = 4;
             selectionEnd = 12;
             break;
         case TextEditorType::kType:
             memberType = SourceMemberType::kType;
             source = "type Untitled\n\nend type\n";
-            displayName = "Untitled";
             selectionStart = 5;
             selectionEnd = 13;
             break;
@@ -308,7 +285,7 @@ void App::onProgramAdd(TextEditorType type) {
             break;
     }
 
-    auto sourceMember = std::make_unique<SourceMember>(memberType, displayName, source, selectionStart, selectionEnd);
+    auto sourceMember = std::make_unique<SourceMember>(memberType, source, selectionStart, selectionEnd);
     auto* sourceMemberPtr = sourceMember.get();
     programWindow->addNewSourceMember(std::move(sourceMember));
 

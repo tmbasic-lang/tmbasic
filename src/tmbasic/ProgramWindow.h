@@ -7,8 +7,8 @@
 
 namespace tmbasic {
 
-class ProgramItemTypesListBox;
-class ProgramContentsListBox;
+class SourceMemberTypesListBox;
+class SourceMembersListBox;
 
 class ProgramWindow : public TWindow {
    public:
@@ -33,8 +33,8 @@ class ProgramWindow : public TWindow {
     std::optional<std::string> _filePath;
     std::unique_ptr<vm::Program> _vmProgram;
     std::unique_ptr<SourceProgram> _sourceProgram;
-    ProgramItemTypesListBox* _typesListBox;
-    ProgramContentsListBox* _contentsListBox;
+    SourceMemberTypesListBox* _typesListBox;
+    SourceMembersListBox* _contentsListBox;
 };
 
 }  // namespace tmbasic

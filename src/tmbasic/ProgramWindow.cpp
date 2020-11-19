@@ -9,34 +9,36 @@ using vm::Program;
 
 namespace tmbasic {
 
-enum class ProgramItemType { kProcedure, kGlobal, kConstant, kType };
-
-static const char* kProgramItemTypeStrings[] = {
+// matches the order of SourceMemberType
+static const char* kSourceMemberTypeStrings[] = {
     "Procedures \x10",
     "Globals    \x10",
     "Constants  \x10",
     "Types      \x10",
 };
 
-typedef std::function<void(ProgramItemType)> ProgramItemTypeSelectedFunc;
+typedef std::function<void()> SourceMemberTypeSelectedFunc;
 
-class ProgramItemTypesListBox : public TListViewer {
+class SourceMemberTypesListBox : public TListViewer {
    public:
-    ProgramItemTypesListBox(const TRect& bounds, ushort numCols, ProgramItemTypeSelectedFunc onSelectedFunc)
-        : TListViewer(bounds, numCols, nullptr, nullptr), _onSelectedFunc(onSelectedFunc) {
+    SourceMemberTypesListBox(const TRect& bounds, ushort numCols, SourceMemberTypeSelectedFunc onSelectedFunc)
+        : TListViewer(bounds, numCols, nullptr, nullptr),
+          _onSelectedFunc(onSelectedFunc),
+          _selectedType(SourceMemberType::kConstant) {
         setRange(4);
     }
 
-    virtual ~ProgramItemTypesListBox() {}
+    virtual ~SourceMemberTypesListBox() {}
 
     void getText(char* dest, int16_t item, int16_t maxLen) override {
-        strncpy(dest, kProgramItemTypeStrings[item], maxLen);
+        strncpy(dest, kSourceMemberTypeStrings[item], maxLen);
         dest[maxLen] = '\0';
     }
 
     void focusItem(int16_t item) override {
         TListViewer::focusItem(item);
-        _onSelectedFunc(static_cast<ProgramItemType>(item));
+        _selectedType = static_cast<SourceMemberType>(item);
+        _onSelectedFunc();
     }
 
     TPalette& getPalette() const override {
@@ -47,42 +49,50 @@ class ProgramItemTypesListBox : public TListViewer {
         return palette;
     }
 
+    SourceMemberType getSelectedType() const { return _selectedType; }
+
    private:
-    ProgramItemTypeSelectedFunc _onSelectedFunc;
+    SourceMemberTypeSelectedFunc _onSelectedFunc;
+    SourceMemberType _selectedType;
 };
 
-class ProgramItem {
-   public:
-    ProgramItemType type;
-    size_t index;
-    std::string name;
-
-    ProgramItem(ProgramItemType type, size_t index, std::string name) : type(type), index(index), name(name) {}
-};
-
-class ProgramContentsListBox : public TListViewer {
+class SourceMembersListBox : public TListViewer {
    private:
-    std::vector<ProgramItem> _items;
+    const SourceProgram& _program;
+    SourceMemberType _selectedType;
+    std::vector<const SourceMember*> _items;
 
    public:
-    ProgramContentsListBox(const TRect& bounds, ushort numCols, TScrollBar* vScrollBar)
-        : TListViewer(bounds, numCols, nullptr, vScrollBar) {
-        setRange(0);
+    SourceMembersListBox(const TRect& bounds, ushort numCols, TScrollBar* vScrollBar, const SourceProgram& program)
+        : TListViewer(bounds, numCols, nullptr, vScrollBar),
+          _program(program),
+          _selectedType(SourceMemberType::kProcedure) {
         curCommandSet.enableCmd(cmSave);
         curCommandSet.enableCmd(cmSaveAs);
+        selectType(SourceMemberType::kProcedure);
     }
 
-    virtual ~ProgramContentsListBox() {}
+    virtual ~SourceMembersListBox() {}
 
-    void setData(std::vector<ProgramItem> items) {
-        _items = std::move(items);
+    void selectType(SourceMemberType type) {
+        _selectedType = type;
+        updateItems();
+    }
+
+    void updateItems() {
+        _items.clear();
+        for (auto& member : _program.members) {
+            if (member->memberType == _selectedType) {
+                _items.push_back(member.get());
+            }
+        }
         setRange(_items.size());
         drawView();
     }
 
     void getText(char* dest, int16_t item, int16_t maxLen) override {
         if (item >= 0 && static_cast<size_t>(item) < _items.size()) {
-            strncpy(dest, _items[item].name.c_str(), maxLen);
+            strncpy(dest, _items[item]->displayName.c_str(), maxLen);
             dest[maxLen] = '\0';
         } else {
             dest[0] = '\0';
@@ -118,11 +128,8 @@ ProgramWindow::ProgramWindow(const TRect& r, std::optional<std::string> filePath
     auto typesListBoxRect = getExtent();
     typesListBoxRect.grow(-1, -1);
     typesListBoxRect.b.x = 15;
-    _typesListBox = new ProgramItemTypesListBox(typesListBoxRect, 1, [](ProgramItemType programItemType) {
-        if (programItemType == ProgramItemType::kType) {
-            // exit(-1);
-        }
-    });
+    _typesListBox = new SourceMemberTypesListBox(
+        typesListBoxRect, 1, [this]() { _contentsListBox->selectType(_typesListBox->getSelectedType()); });
     _typesListBox->growMode = gfGrowHiY;
     _typesListBox->options |= ofFramed;
     insert(_typesListBox);
@@ -130,12 +137,9 @@ ProgramWindow::ProgramWindow(const TRect& r, std::optional<std::string> filePath
     auto contentsListBoxRect = getExtent();
     contentsListBoxRect.grow(-1, -1);
     contentsListBoxRect.a.x = 16;
-    _contentsListBox = new ProgramContentsListBox(contentsListBoxRect, 1, vScrollBar);
+    _contentsListBox = new SourceMembersListBox(contentsListBoxRect, 1, vScrollBar, *_sourceProgram);
     _contentsListBox->growMode = gfGrowHiX | gfGrowHiY;
     insert(_contentsListBox);
-
-    auto v = std::vector<ProgramItem>();
-    _contentsListBox->setData(std::move(v));
 
     // TODO: open file
     _filePath = filePath;
@@ -226,7 +230,7 @@ bool ProgramWindow::save(std::string filePath) {
 void ProgramWindow::updateTitle() {
     std::ostringstream s;
     if (_dirty) {
-        s << kCharStar;
+        s << kCharBullet;
     }
     if (_filePath.has_value()) {
         s << util::getFileName(*_filePath);
@@ -277,6 +281,7 @@ bool ProgramWindow::isDirty() {
 
 void ProgramWindow::addNewSourceMember(std::unique_ptr<SourceMember> sourceMember) {
     _sourceProgram->members.push_back(std::move(sourceMember));
+    _contentsListBox->updateItems();
 }
 
 }  // namespace tmbasic

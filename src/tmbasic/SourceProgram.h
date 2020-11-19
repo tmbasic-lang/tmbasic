@@ -5,7 +5,7 @@
 
 namespace tmbasic {
 
-enum class SourceMemberType { kConstant, kGlobalVariable, kType, kProcedure };
+enum class SourceMemberType { kProcedure, kGlobalVariable, kConstant, kType };
 
 class SourceMember {
    public:
@@ -19,12 +19,9 @@ class SourceMember {
     vm::ProgramMember* compiledMember = nullptr;
     bool isCompiledMemberUpToDate = false;
 
-    SourceMember(
-        SourceMemberType memberType,
-        std::string displayName,
-        std::string source,
-        int selectionStart,
-        int selectionEnd);
+    SourceMember(SourceMemberType memberType, std::string source, int selectionStart, int selectionEnd);
+
+    void updateDisplayName();
 };
 
 class SourceProgram {
