@@ -73,7 +73,7 @@ RUN pip3 install cpplint
 
 USER $HOST_UID
 
-COPY bashrc /tmp/bashrc
+COPY bashrc-vscode /tmp/bashrc
 RUN cat /tmp/bashrc >> /home/$USER/.bashrc && \
     echo "export IMAGE_NAME=\"$IMAGE_NAME\"" >> /home/$USER/.bashrc && \
     echo "export PS1=\"[$IMAGE_NAME] \w\$ \"" >> /home/$USER/.bashrc
