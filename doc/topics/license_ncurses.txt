@@ -1,5 +1,5 @@
-nav@{<TITLE_HOME>:<TOPIC_HOME>} <TRIANGLE_RIGHT> {License:license}@
+nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {License:license}@
 
 h1['ncurses' License]
 
-  dia[license_ncurses]
+dia[license_ncurses]

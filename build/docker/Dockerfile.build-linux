@@ -16,7 +16,6 @@ RUN apk update && \
         valgrind \
         gtest-dev \
         alpine-sdk \
-        nodejs-current \
         ncurses \
         python3
 

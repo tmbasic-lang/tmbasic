@@ -1,3 +1,3 @@
-nav@{<TITLE_HOME>:<TOPIC_HOME>} <TRIANGLE_RIGHT> {<TITLE_BASIC_REFERENCE>:<TOPIC_BASIC_REFERENCE>}@
+nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {BASIC Reference:basic}@
 
 h1['optional' Type]

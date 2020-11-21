@@ -1,10 +1,10 @@
-.procedure name:"hasValue"
+.procedure hasValue
 .overload
 .description
 Determines whether an t[optional] value has been provided, or whether it is `none`.
-.parameter name:"this", type:"optional T"
+.parameter this: optional T
 Any t[optional] value.
-.return type:"boolean"
+.return boolean
 If i[this] contains a value (of type i[T]), then p[hasValue] returns `true`. Otherwise, it returns `false`.
 .example
 This example shows how p[hasValue] responds to changes in an t[optional] t[integer] variable.

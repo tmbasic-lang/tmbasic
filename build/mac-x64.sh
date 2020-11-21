@@ -12,13 +12,6 @@ then
     mv cmake-* cmake
 fi
 
-if [ ! -d "node" ]
-then
-    curl -L -o node.tar.gz https://nodejs.org/dist/v15.0.1/node-v15.0.1-darwin-x64.tar.gz
-    tar zxf node.tar.gz
-    mv node-* node
-fi
-
 if [ ! -d "boost" ]
 then
     curl -L -o boost.tar.gz https://dl.bintray.com/boostorg/release/1.74.0/source/boost_1_74_0.tar.gz
@@ -56,7 +49,6 @@ make help
 MAC_INCLUDE_FLAGS="-I$(PWD)/mac/boost -I$(PWD)/mac/mpdecimal/libmpdec -I$(PWD)/mac/mpdecimal/libmpdec++ -I$(PWD)/mac/ncurses/include -I$(PWD)/mac/googletest/googletest/include" \
     MAC_LD_FLAGS="-L$(PWD)/mac/mpdecimal/libmpdec -L$(PWD)/mac/mpdecimal/libmpdec++" \
     CMAKE="$(PWD)/mac/cmake/CMake.app/Contents/bin/cmake -D CMAKE_PREFIX_PATH=$(PWD)/mac/ncurses" \
-    NODE="$(PWD)/mac/node/bin/node" \
     HELP_FILE_OBJ="" \
     MAC_HELP_FILE_LINK_FLAG="-Wl,-sectcreate,__DATA,__help_h32,obj/help.h32" \
     STATIC_FLAG="" \

@@ -1,11 +1,11 @@
-nav@{<TITLE_HOME>:<TOPIC_HOME>}@
+nav@{TMBASIC Documentation:doc}@
 
-h1[<TITLE_BASIC_REFERENCE>]
+h1[BASIC Reference]
 
 h2[General]
 
 ul@
-li@{<TITLE_PROCEDURE_INDEX>:<TOPIC_PROCEDURE_INDEX>}@
+li@{Procedure Index:procedure}@
 li@{Language Grammar:ref_grammar}@
 @
 

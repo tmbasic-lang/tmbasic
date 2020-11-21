@@ -1,5 +1,5 @@
-nav@{<TITLE_HOME>:<TOPIC_HOME>} <TRIANGLE_RIGHT> {License:license}@
+nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {License:license}@
 
 h1['libstdc++' License (Part 3)]
 
-  dia[license_libstdc++_gcc2]
+dia[license_libstdc++_gcc2]

@@ -3,7 +3,6 @@ TARGET_OS ?= linux
 BUILDCC ?= $(CC)
 TVHC ?= obj/tvision/tvhc
 CMAKE ?= cmake
-NODE ?= node
 HELP_FILE_OBJ ?= obj/helpfile.o
 STATIC_FLAG ?= -static
 LIBMPDEC_FLAG ?= -lmpdec -lmpdec++
@@ -16,6 +15,7 @@ TEST_CMD ?= ./test
 
 CXXFLAGS=$(WIN_INCLUDE_FLAGS) $(MAC_INCLUDE_FLAGS) -Isrc -Iobj -Iext/tvision/include -Iext/immer -Iext/nameof -I/usr/include/libmpdec -I/usr/include/libmpdec++ -Wall -Werror -Winvalid-pch -Wno-unknown-pragmas -Wno-reorder -std=c++17 $(OPTFLAGS) $(EXTRADEFS)
 LDFLAGS=$(MAC_LD_FLAGS) -lstdc++ $(LIBNCURSESW_FLAG) $(LIBTINFO_FLAG) $(LIBMPDEC_FLAG)
+CLANG_FORMAT_FLAGS=-i --style="{BasedOnStyle: Chromium, IndentWidth: 4, ColumnLimit: 120, SortIncludes: false, AlignAfterOpenBracket: AlwaysBreak, AlignOperands: false, Cpp11BracedListStyle: false, PenaltyReturnTypeOnItsOwnLine: 10000}"
 
 COMPILER_SRC_FILES=$(shell find src/compiler -type f -name "*.cpp")
 COMPILER_H_FILES=$(shell find src/compiler -type f -name "*.h")
@@ -84,11 +84,12 @@ valgrind: bin/tmbasic
 
 .PHONY: format
 format:
-	@cd src && find ./ -type f \( -iname \*.h -o -iname \*.cpp \) | xargs clang-format -i --style="{BasedOnStyle: Chromium, IndentWidth: 4, ColumnLimit: 120, SortIncludes: false, AlignAfterOpenBracket: AlwaysBreak, AlignOperands: false, Cpp11BracedListStyle: false, PenaltyReturnTypeOnItsOwnLine: 10000}"
+	@cd src && find ./ -type f \( -iname \*.h -o -iname \*.cpp \) | xargs clang-format $(CLANG_FORMAT_FLAGS)
+	@clang-format $(CLANG_FORMAT_FLAGS) build/scripts/buildDoc.cpp
 
 .PHONY: lint
 lint:
-	@cpplint --quiet --recursive --linelength 120 --filter=-whitespace/indent,-readability/todo,-build/include_what_you_use,-legal/copyright,-readability/fn_size,-build/c++11 --repository=src src
+	@cpplint --quiet --recursive --linelength 120 --filter=-whitespace/indent,-readability/todo,-build/include_what_you_use,-legal/copyright,-readability/fn_size,-build/c++11 --repository=src src build/scripts/buildDoc.cpp
 
 # precompiled header
 
@@ -228,26 +229,26 @@ obj/doc-temp/diagrams-license/license_oxygenmono.txt: ext/oxygenmono/OFL.txt
 	@mkdir -p $(@D)
 	@cp -f $< $@
 
-obj/insert-cp437-diagram: build/scripts/insert-cp437-diagram.c
+obj/buildDoc: build/scripts/buildDoc.cpp
 	@echo $@
 	@mkdir -p obj
-	@$(BUILDCC) -o $@ build/scripts/insert-cp437-diagram.c
+	@$(BUILDCC) -Iext/nameof -Wall -Werror -std=c++17 -o $@ $< -lstdc++
 
-obj/helpfile.h: obj/doc-txt/help.txt obj/tvision/libtvision.a
+obj/helpfile.h: obj/help.txt obj/tvision/libtvision.a
 	@echo $@
 	@mkdir -p obj
 	@mkdir -p bin
 	@rm -f obj/help.h32
 	@rm -f obj/helpfile.h
-	@$(TVHC) obj/doc-txt/help.txt obj/help.h32 obj/helpfile.h
+	@$(TVHC) obj/help.txt obj/help.h32 obj/helpfile.h
 
 obj/help.h32: obj/helpfile.h
 	@echo $@
 
-obj/doc-txt/help.txt: $(DOC_FILES) build/scripts/build-doc.js obj/insert-cp437-diagram $(DIAGRAM_CP437_FILES) $(LICENSE_DIAGRAM_CP437_FILES)
+obj/help.txt: $(DOC_FILES) obj/buildDoc $(DIAGRAM_CP437_FILES) $(LICENSE_DIAGRAM_CP437_FILES)
 	@echo $@
 	@mkdir -p obj
-	@cd doc && $(NODE) ../build/scripts/build-doc.js
+	@cd doc && ../obj/buildDoc
 
 obj/helpfile.o: obj/help.h32
 	@echo $@

@@ -34,10 +34,6 @@ RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
     apt-get install -y clang-format-10 && \
     update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-10 9999
 
-# node
-RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
-    apt-get install -y nodejs
-
 # ncurses, gtest
 RUN cd /tmp && \
     curl -sL -o ncurses.pkg.tar.zst https://repo.msys2.org/mingw/x86_64/mingw-w64-x86_64-ncurses-6.2-2-any.pkg.tar.zst && \

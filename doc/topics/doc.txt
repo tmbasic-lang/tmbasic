@@ -1,8 +1,8 @@
-h1[<TITLE_HOME>]
+h1[TMBASIC Documentation]
 
 Welcome to TMBASIC!
 
-ul@li@{<TITLE_BASIC_REFERENCE>:<TOPIC_BASIC_REFERENCE>}@
+ul@li@{BASIC Reference:basic}@
 li@{License:license}@
 @
 

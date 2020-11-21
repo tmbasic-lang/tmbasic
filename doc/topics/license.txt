@@ -1,4 +1,4 @@
-nav@{<TITLE_HOME>:<TOPIC_HOME>}@
+nav@{TMBASIC Documentation:doc}@
 
 h1[License]
 

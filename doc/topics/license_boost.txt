@@ -1,5 +1,5 @@
-nav@{<TITLE_HOME>:<TOPIC_HOME>} <TRIANGLE_RIGHT> {License:license}@
+nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {License:license}@
 
 h1['boost' License]
 
-  dia[license_boost]
+dia[license_boost]

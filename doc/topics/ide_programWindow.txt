@@ -1,4 +1,4 @@
-nav@{<TITLE_HOME>:<TOPIC_HOME>} <TRIANGLE_RIGHT> {Getting Started:ide}@
+nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {Getting Started:ide}@
 
 h1[Program Window]
 

@@ -28,9 +28,6 @@ RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
 
 RUN apt-get build-dep -y ncurses
 
-RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
-    apt-get install -y nodejs
-
 RUN mkdir -p /code && \
     mkdir -p /pkgsrc && \
     groupadd -g $HOST_GID $USER && \
