@@ -2,13 +2,12 @@
 
 #include "../common.h"
 #include "shared/vm/Program.h"
-#include "EditorWindow.h"
-#include "SourceProgram.h"
+#include "tmbasic/EditorWindow.h"
+#include "tmbasic/SourceMemberTypesListBox.h"
+#include "tmbasic/SourceMembersListBox.h"
+#include "tmbasic/SourceProgram.h"
 
 namespace tmbasic {
-
-class SourceMemberTypesListBox;
-class SourceMembersListBox;
 
 class ProgramWindow : public TWindow {
    public:

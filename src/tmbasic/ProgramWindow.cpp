@@ -2,6 +2,7 @@
 #include "../../obj/helpfile.h"
 #include "shared/util/path.h"
 #include "shared/vm/Program.h"
+#include "tmbasic/SourceMemberTypesListBox.h"
 #include "tmbasic/constants.h"
 #include "tmbasic/events.h"
 #include "tmbasic/tvutil.h"
@@ -9,122 +10,6 @@
 using vm::Program;
 
 namespace tmbasic {
-
-// matches the order of SourceMemberType
-static const char* kSourceMemberTypeStrings[] = {
-    "Procedures \x10",
-    "Globals    \x10",
-    "Constants  \x10",
-    "Types      \x10",
-};
-
-typedef std::function<void()> SourceMemberTypeSelectedFunc;
-
-class SourceMemberTypesListBox : public TListViewer {
-   public:
-    SourceMemberTypesListBox(const TRect& bounds, uint16_t numCols, SourceMemberTypeSelectedFunc onSelectedFunc)
-        : TListViewer(bounds, numCols, nullptr, nullptr),
-          _onSelectedFunc(onSelectedFunc),
-          _selectedType(SourceMemberType::kConstant) {
-        setRange(4);
-    }
-
-    virtual ~SourceMemberTypesListBox() {}
-
-    void getText(char* dest, int16_t item, int16_t maxLen) override {
-        strncpy(dest, kSourceMemberTypeStrings[item], maxLen);
-        dest[maxLen] = '\0';
-    }
-
-    void focusItem(int16_t item) override {
-        TListViewer::focusItem(item);
-        _selectedType = static_cast<SourceMemberType>(item);
-        _onSelectedFunc();
-    }
-
-    TPalette& getPalette() const override {
-        // Active, Inactive, Focused, Selected, Divider
-        static const char bytes[] = kWindowPaletteFrameActive kWindowPaletteFramePassive
-            kWindowPaletteScrollerSelectedText kWindowPaletteScrollBarControls kWindowPaletteFrameActive;
-        static auto palette = TPalette(bytes, sizeof(bytes) - 1);
-        return palette;
-    }
-
-    SourceMemberType getSelectedType() const { return _selectedType; }
-
-   private:
-    SourceMemberTypeSelectedFunc _onSelectedFunc;
-    SourceMemberType _selectedType;
-};
-
-class SourceMembersListBox : public TListViewer {
-   private:
-    const SourceProgram& _program;
-    SourceMemberType _selectedType;
-    std::vector<SourceMember*> _items;
-
-   public:
-    SourceMembersListBox(
-        const TRect& bounds,
-        uint16_t numCols,
-        TScrollBar* vScrollBar,
-        const SourceProgram& program,
-        std::function<void(SourceMember*)> onMemberOpen)
-        : TListViewer(bounds, numCols, nullptr, vScrollBar),
-          _program(program),
-          _selectedType(SourceMemberType::kProcedure),
-          _onMemberOpen(onMemberOpen) {
-        curCommandSet.enableCmd(cmSave);
-        curCommandSet.enableCmd(cmSaveAs);
-        selectType(SourceMemberType::kProcedure);
-    }
-
-    virtual ~SourceMembersListBox() {}
-
-    void selectType(SourceMemberType type) {
-        _selectedType = type;
-        updateItems();
-    }
-
-    void updateItems() {
-        _items.clear();
-        for (auto& member : _program.members) {
-            if (member->memberType == _selectedType) {
-                _items.push_back(member.get());
-            }
-        }
-        setRange(_items.size());
-        drawView();
-    }
-
-    void getText(char* dest, int16_t item, int16_t maxLen) override {
-        if (item >= 0 && static_cast<size_t>(item) < _items.size()) {
-            strncpy(dest, _items[item]->displayName.c_str(), maxLen);
-            dest[maxLen] = '\0';
-        } else {
-            dest[0] = '\0';
-        }
-    }
-
-    void selectItem(int16_t item) override { openMember(item); }
-
-    TPalette& getPalette() const override {
-        // Active, Inactive, Focused, Selected, Divider
-        static const char bytes[] = kWindowPaletteFrameActive kWindowPaletteFramePassive
-            kWindowPaletteScrollerSelectedText kWindowPaletteScrollBarControls kWindowPaletteFrameActive;
-        static auto palette = TPalette(bytes, sizeof(bytes) - 1);
-        return palette;
-    }
-
-   private:
-    std::function<void(SourceMember*)> _onMemberOpen;
-
-    void openMember(int16_t index) {
-        if (index >= 0 && static_cast<size_t>(index) < _items.size()) {
-            _onMemberOpen(_items[index]);
-        }
-    }
-};
 
 ProgramWindow::ProgramWindow(
     const TRect& r,
