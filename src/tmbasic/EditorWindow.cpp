@@ -1,6 +1,6 @@
 #include "tmbasic/EditorWindow.h"
 #include "../../obj/helpfile.h"
-#include "tmbasic/constants.h"
+#include "tmbasic/events.h"
 
 namespace tmbasic {
 
@@ -18,25 +18,24 @@ class EditorIndicator : public TIndicator {
 
 static std::string getEditorWindowTitle(const SourceMember& member) {
     std::ostringstream s;
-    s << member.displayName << " (";
+    s << member.displayName << " - ";
     switch (member.memberType) {
         case SourceMemberType::kConstant:
-            s << "constant";
+            s << "Constant";
             break;
         case SourceMemberType::kGlobalVariable:
-            s << "global";
+            s << "Global";
             break;
         case SourceMemberType::kType:
-            s << "type";
+            s << "Type";
             break;
         case SourceMemberType::kProcedure:
-            s << "procedure";
+            s << "Procedure";
             break;
         default:
             assert(false);
             break;
     }
-    s << ")";
     return s.str();
 }
 
@@ -55,13 +54,13 @@ EditorWindow::EditorWindow(const TRect& r, SourceMember* member)
 
     auto editorRect = TRect(getExtent());
     editorRect.grow(-1, -1);
-    auto* editor = new TEditor(editorRect, hScrollBar, vScrollBar, indicator, kBufferSize);
-    editor->modified = false;
+    _editor = new TEditor(editorRect, hScrollBar, vScrollBar, indicator, kBufferSize);
+    _editor->modified = false;
 
-    editor->insertText(member->source.c_str(), member->source.size(), false);
-    editor->setSelect(member->selectionStart, member->selectionEnd, true);
-    editor->trackCursor(false);
-    insert(editor);
+    _editor->insertText(member->source.c_str(), member->source.size(), false);
+    _editor->setSelect(member->selectionStart, member->selectionEnd, true);
+    _editor->trackCursor(false);
+    insert(_editor);
 }
 
 void EditorWindow::handleEvent(TEvent& event) {
@@ -71,12 +70,34 @@ void EditorWindow::handleEvent(TEvent& event) {
             case kCmdCloseProgramRelatedWindows:
                 close();
                 break;
+
+            case kCmdFindEditorWindow: {
+                auto* e = static_cast<FindEditorWindowEventArgs*>(event.message.infoPtr);
+                if (e->member == _member) {
+                    e->window = this;
+                    clearEvent(event);
+                }
+                break;
+            }
         }
     }
 }
 
-ushort EditorWindow::getHelpCtx() {
+uint16_t EditorWindow::getHelpCtx() {
     return hcide_editorWindow;
+}
+
+static std::string getEditorText(TEditor* editor) {
+    return std::string(editor->buffer, editor->curPtr) +
+        std::string(editor->buffer + editor->curPtr + editor->gapLen, editor->bufLen - editor->curPtr);
+}
+
+void EditorWindow::close() {
+    _member->source = getEditorText(_editor);
+    _member->selectionStart = _editor->selStart;
+    _member->selectionEnd = _editor->selEnd;
+    _member->isCompiledMemberUpToDate = false;
+    TWindow::close();
 }
 
 }  // namespace tmbasic

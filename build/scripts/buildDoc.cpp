@@ -28,7 +28,6 @@ using std::move;
 using std::ofstream;
 using std::ostringstream;
 using std::regex;
-using std::regex_constants::match_any;
 using std::regex_error;
 using std::regex_replace;
 using std::regex_search;
@@ -39,6 +38,7 @@ using std::string;
 using std::system_error;
 using std::unique_ptr;
 using std::vector;
+using std::regex_constants::match_any;
 
 const char kCharDiamond[] = "\x04";
 const char kHtmlDiamond[] = "&diams;";
@@ -70,7 +70,7 @@ struct Overload {
     string description;
     vector<unique_ptr<Parameter>> parameters;
     vector<unique_ptr<Example>> examples;
-    unique_ptr<ReturnType> returns; // nullable
+    unique_ptr<ReturnType> returns;  // nullable
 };
 
 struct Procedure {
@@ -284,7 +284,11 @@ static void writeHtmlPage(const string& topic, const string& text, const string&
     writeFile(string("../obj/doc-html/") + topic + ".html", html);
 }
 
-static void buildTopic(const string& filename, const string& topic, ostringstream* outputTxt, const string& htmlPageTemplate) {
+static void buildTopic(
+    const string& filename,
+    const string& topic,
+    ostringstream* outputTxt,
+    const string& htmlPageTemplate) {
     auto inputFilePath = string("topics/") + filename;
     auto input = readFile(inputFilePath);
     *outputTxt << ".topic " << topic << "\n" << processText(trim_copy(input)) << "\n\n-----\n\n";
@@ -392,7 +396,8 @@ static unique_ptr<Procedure> parseProcedure(const string& input) {
 
 static string formatProcedureText(const string& topicName, const Procedure& procedure) {
     ostringstream o;
-    o << "nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {BASIC Reference:basic} <TRIANGLE_RIGHT> {Procedure Index:procedure}@\n\n";
+    o << "nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {BASIC Reference:basic} <TRIANGLE_RIGHT> {Procedure "
+         "Index:procedure}@\n\n";
     o << "h1['" << procedure.name << "' Procedure]\n\n";
 
     for (auto& overload : procedure.overloads) {
@@ -419,7 +424,8 @@ static string formatProcedureText(const string& topicName, const Procedure& proc
         if (overload->parameters.size() > 0) {
             o << "h3[Parameters]\n\nul@";
             for (auto& parameter : overload->parameters) {
-                o << "li@i[" << parameter->name << "] as t[" << parameter->type << "]: " << parameter->description << "@";
+                o << "li@i[" << parameter->name << "] as t[" << parameter->type << "]: " << parameter->description
+                  << "@";
             }
             o << "@";
         }
@@ -443,7 +449,11 @@ static string formatProcedureText(const string& topicName, const Procedure& proc
     return o.str();
 }
 
-static void buildProcedure(const string& filename, vector<string>* procedureNames, ostringstream* outputTxt, const string& htmlPageTemplate) {
+static void buildProcedure(
+    const string& filename,
+    vector<string>* procedureNames,
+    ostringstream* outputTxt,
+    const string& htmlPageTemplate) {
     auto inputFilePath = string("procedures/") + filename;
     auto input = readFile(inputFilePath);
     auto procedure = parseProcedure(input);
@@ -454,7 +464,10 @@ static void buildProcedure(const string& filename, vector<string>* procedureName
     writeHtmlPage(topicName, text, htmlPageTemplate);
 }
 
-static void buildProcedureIndex(vector<string> procedureNames, ostringstream* outputTxt, const string& htmlPageTemplate) {
+static void buildProcedureIndex(
+    vector<string> procedureNames,
+    ostringstream* outputTxt,
+    const string& htmlPageTemplate) {
     ostringstream o;
     o << "nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {BASIC Reference:basic}@\n\nh1[Procedure Index]\n\n";
     o << "ul@";
@@ -470,7 +483,7 @@ static void buildProcedureIndex(vector<string> procedureNames, ostringstream* ou
 
 static string insertCp437Diagram(string input, string filename) {
     auto cp437FilePath = string("../obj/doc-temp/diagrams-cp437/") + filename;
-    auto name = filename.substr(0, filename.length() - 4); // remove ".txt"
+    auto name = filename.substr(0, filename.length() - 4);  // remove ".txt"
 
     auto diagram = indent(readFile(cp437FilePath));
     auto tag = string("dia[") + name + "]";
@@ -495,8 +508,7 @@ static string insertCp437Diagrams(string text) {
 }
 
 int main() {
-    try
-    {
+    try {
         ostringstream outputTxt;
         vector<string> procedureNames;
         auto htmlPageTemplate = readFile("html/page-template.html");

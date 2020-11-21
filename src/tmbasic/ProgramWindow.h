@@ -12,10 +12,10 @@ class SourceMembersListBox;
 
 class ProgramWindow : public TWindow {
    public:
-    ProgramWindow(const TRect& r, std::optional<std::string> filePath);
+    ProgramWindow(const TRect& r, std::optional<std::string> filePath, std::function<void(SourceMember*)> openMember);
     virtual ~ProgramWindow();
     TPalette& getPalette() const override;
-    ushort getHelpCtx() override;
+    uint16_t getHelpCtx() override;
     void handleEvent(TEvent& event) override;
     void close() override;
     bool isDirty();
@@ -35,6 +35,7 @@ class ProgramWindow : public TWindow {
     std::unique_ptr<SourceProgram> _sourceProgram;
     SourceMemberTypesListBox* _typesListBox;
     SourceMembersListBox* _contentsListBox;
+    std::function<void(SourceMember*)> _openMember;
 };
 
 }  // namespace tmbasic

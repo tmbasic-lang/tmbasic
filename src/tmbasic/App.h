@@ -27,7 +27,9 @@ class App : public TApplication {
     void onHelpDocumentation();
     void onHelpBasicReference();
     TRect centeredRect(int width, int height);
-    void openHelpTopic(ushort topic);
+    void openHelpTopic(uint16_t topic);
+    void showNewProgramWindow(std::optional<std::string> filePath);
+    void showNewEditorWindow(SourceMember* member);
 
     int _newWindowX;
     int _newWindowY;

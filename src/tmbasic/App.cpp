@@ -5,14 +5,14 @@
 #include "tmbasic/HelpResource.h"
 #include "tmbasic/ProgramWindow.h"
 #include "tmbasic/SourceProgram.h"
-#include "tmbasic/constants.h"
+#include "tmbasic/events.h"
 
 using util::membuf;
 
 namespace tmbasic {
 
 App::App(int argc, char** argv)
-    : TProgInit(initStatusLine, initMenuBar, TApplication::initDeskTop), _newWindowX(0), _newWindowY(0) {
+    : TProgInit(initStatusLine, initMenuBar, TApplication::initDeskTop), _newWindowX(2), _newWindowY(1) {
     disableDefaultCommands();
 }
 
@@ -210,6 +210,25 @@ bool App::closeProgramWindow(ProgramWindow* programWindow) {
     return true;
 }
 
+void App::showNewProgramWindow(std::optional<std::string> filePath) {
+    auto* window =
+        new ProgramWindow(TRect(0, 0, 60, 15), filePath, [this](auto* member) -> void { showNewEditorWindow(member); });
+    deskTop->insert(window);
+}
+
+void App::showNewEditorWindow(SourceMember* member) {
+    // is there already an editor open for this member?
+    FindEditorWindowEventArgs e = { 0 };
+    e.member = member;
+    message(deskTop, evBroadcast, kCmdFindEditorWindow, &e);
+    if (e.window) {
+        e.window->focus();
+    } else {
+        auto window = new EditorWindow(getNewWindowRect(82, 30), member);
+        deskTop->insert(window);
+    }
+}
+
 void App::onFileNew() {
     // close the existing program if there is one
     auto* programWindow = findProgramWindow(deskTop);
@@ -217,8 +236,7 @@ void App::onFileNew() {
         return;
     }
 
-    auto* window = new ProgramWindow(getNewWindowRect(60, 15), std::optional<std::string>());
-    deskTop->insert(window);
+    showNewProgramWindow(std::optional<std::string>());
 }
 
 void App::onFileOpen() {
@@ -233,7 +251,7 @@ void App::onFileOpen() {
 
         char fileName[MAXPATH];
         d->getFileName(fileName);
-        deskTop->insert(new ProgramWindow(getNewWindowRect(60, 15), std::string(fileName)));
+        showNewProgramWindow(fileName);
     }
     destroy(d);
 }
@@ -289,8 +307,7 @@ void App::onProgramAdd(TextEditorType type) {
     auto* sourceMemberPtr = sourceMember.get();
     programWindow->addNewSourceMember(std::move(sourceMember));
 
-    auto window = new EditorWindow(getNewWindowRect(82, 30), sourceMemberPtr);
-    deskTop->insert(window);
+    showNewEditorWindow(sourceMemberPtr);
 }
 
 void App::onHelpDocumentation() {
@@ -307,7 +324,7 @@ TRect App::centeredRect(int width, int height) {
     return TRect(x, y, x + width, y + height);
 }
 
-void App::openHelpTopic(ushort topic) {
+void App::openHelpTopic(uint16_t topic) {
     HelpResource helpResource;
     auto buf = new membuf(reinterpret_cast<char*>(helpResource.start), reinterpret_cast<char*>(helpResource.end));
     auto stream = new iopstream(buf);

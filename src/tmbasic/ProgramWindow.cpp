@@ -3,6 +3,7 @@
 #include "shared/util/path.h"
 #include "shared/vm/Program.h"
 #include "tmbasic/constants.h"
+#include "tmbasic/events.h"
 #include "tmbasic/tvutil.h"
 
 using vm::Program;
@@ -21,7 +22,7 @@ typedef std::function<void()> SourceMemberTypeSelectedFunc;
 
 class SourceMemberTypesListBox : public TListViewer {
    public:
-    SourceMemberTypesListBox(const TRect& bounds, ushort numCols, SourceMemberTypeSelectedFunc onSelectedFunc)
+    SourceMemberTypesListBox(const TRect& bounds, uint16_t numCols, SourceMemberTypeSelectedFunc onSelectedFunc)
         : TListViewer(bounds, numCols, nullptr, nullptr),
           _onSelectedFunc(onSelectedFunc),
           _selectedType(SourceMemberType::kConstant) {
@@ -60,13 +61,19 @@ class SourceMembersListBox : public TListViewer {
    private:
     const SourceProgram& _program;
     SourceMemberType _selectedType;
-    std::vector<const SourceMember*> _items;
+    std::vector<SourceMember*> _items;
 
    public:
-    SourceMembersListBox(const TRect& bounds, ushort numCols, TScrollBar* vScrollBar, const SourceProgram& program)
+    SourceMembersListBox(
+        const TRect& bounds,
+        uint16_t numCols,
+        TScrollBar* vScrollBar,
+        const SourceProgram& program,
+        std::function<void(SourceMember*)> onMemberOpen)
         : TListViewer(bounds, numCols, nullptr, vScrollBar),
           _program(program),
-          _selectedType(SourceMemberType::kProcedure) {
+          _selectedType(SourceMemberType::kProcedure),
+          _onMemberOpen(onMemberOpen) {
         curCommandSet.enableCmd(cmSave);
         curCommandSet.enableCmd(cmSaveAs);
         selectType(SourceMemberType::kProcedure);
@@ -99,12 +106,7 @@ class SourceMembersListBox : public TListViewer {
         }
     }
 
-    void handleEvent(TEvent& event) override {
-        TListViewer::handleEvent(event);
-        if (event.what == evKeyDown && event.keyDown.keyCode == kbEnter) {
-            // TODO - 'focused' is the selected index value
-        }
-    }
+    void selectItem(int16_t item) override { openMember(item); }
 
     TPalette& getPalette() const override {
         // Active, Inactive, Focused, Selected, Divider
@@ -113,14 +115,27 @@ class SourceMembersListBox : public TListViewer {
         static auto palette = TPalette(bytes, sizeof(bytes) - 1);
         return palette;
     }
+
+   private:
+    std::function<void(SourceMember*)> _onMemberOpen;
+
+    void openMember(int16_t index) {
+        if (index >= 0 && static_cast<size_t>(index) < _items.size()) {
+            _onMemberOpen(_items[index]);
+        }
+    }
 };
 
-ProgramWindow::ProgramWindow(const TRect& r, std::optional<std::string> filePath)
-    : TWindow(r, "Untitled (program)", wnNoNumber),
+ProgramWindow::ProgramWindow(
+    const TRect& r,
+    std::optional<std::string> filePath,
+    std::function<void(SourceMember*)> openMember)
+    : TWindow(r, "Untitled - Program", wnNoNumber),
       TWindowInit(TWindow::initFrame),
       _vmProgram(std::make_unique<Program>()),
       _sourceProgram(std::make_unique<SourceProgram>()),
-      _dirty(!filePath.has_value()) {
+      _dirty(false),
+      _openMember(openMember) {
     palette = 0;
     auto* vScrollBar = new TScrollBar(TRect(size.x - 1, 1, size.x, size.y - 1));
     insert(vScrollBar);
@@ -137,7 +152,8 @@ ProgramWindow::ProgramWindow(const TRect& r, std::optional<std::string> filePath
     auto contentsListBoxRect = getExtent();
     contentsListBoxRect.grow(-1, -1);
     contentsListBoxRect.a.x = 16;
-    _contentsListBox = new SourceMembersListBox(contentsListBoxRect, 1, vScrollBar, *_sourceProgram);
+    _contentsListBox = new SourceMembersListBox(
+        contentsListBoxRect, 1, vScrollBar, *_sourceProgram, [this](auto* member) -> void { _openMember(member); });
     _contentsListBox->growMode = gfGrowHiX | gfGrowHiY;
     insert(_contentsListBox);
 
@@ -153,7 +169,7 @@ TPalette& ProgramWindow::getPalette() const {
     return palette;
 }
 
-ushort ProgramWindow::getHelpCtx() {
+uint16_t ProgramWindow::getHelpCtx() {
     return hcide_programWindow;
 }
 
@@ -215,6 +231,8 @@ bool ProgramWindow::save(std::string filePath) {
     try {
         _sourceProgram->save(filePath);
         _filePath = filePath;
+        _dirty = false;
+        updateTitle();
         return true;
     } catch (const std::system_error& ex) {
         std::ostringstream s;
@@ -237,7 +255,7 @@ void ProgramWindow::updateTitle() {
     } else {
         s << "Untitled";
     }
-    s << " (program)";
+    s << " - Program";
 
     delete[] title;
     title = strdup(s.str().c_str());
@@ -282,6 +300,8 @@ bool ProgramWindow::isDirty() {
 void ProgramWindow::addNewSourceMember(std::unique_ptr<SourceMember> sourceMember) {
     _sourceProgram->members.push_back(std::move(sourceMember));
     _contentsListBox->updateItems();
+    _dirty = true;
+    updateTitle();
 }
 
 }  // namespace tmbasic

@@ -10,9 +10,11 @@ class EditorWindow : public TWindow {
     const unsigned int kBufferSize = 100000;
     EditorWindow(const TRect& r, SourceMember* member);
     void handleEvent(TEvent& event) override;
-    ushort getHelpCtx() override;
+    uint16_t getHelpCtx() override;
+    void close() override;
 
    private:
+    TEditor* _editor;
     SourceMember* _member;
 };
 

@@ -2,7 +2,7 @@
 
 namespace tmbasic {
 
-void enableDisableCommand(ushort command, bool enable) {
+void enableDisableCommand(uint16_t command, bool enable) {
     TCommandSet s;
     s += command;
     if (enable) {
