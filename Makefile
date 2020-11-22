@@ -1,7 +1,7 @@
 # environment variable defaults
 TARGET_OS ?= linux
 BUILDCC ?= $(CC)
-TVHC ?= obj/tvision/tvhc
+TVHC ?= tvhc
 CMAKE ?= cmake
 HELP_FILE_OBJ ?= obj/helpfile.o
 STATIC_FLAG ?= -static
@@ -13,7 +13,7 @@ LICENSE_PROCESS_CMD ?= >/dev/null echo
 OPTFLAGS ?= -Os -flto
 TEST_CMD ?= ./test
 
-CXXFLAGS=$(WIN_INCLUDE_FLAGS) $(MAC_INCLUDE_FLAGS) -Isrc -Iobj -Iext/tvision/include -Iext/immer -Iext/nameof -I/usr/include/libmpdec -I/usr/include/libmpdec++ -Wall -Werror -Winvalid-pch -Wno-unknown-pragmas -Wno-reorder -std=c++17 $(OPTFLAGS) $(EXTRADEFS)
+CXXFLAGS=$(WIN_INCLUDE_FLAGS) $(MAC_INCLUDE_FLAGS) -Isrc -Iobj -Iext/immer -Iext/nameof -I/usr/include/libmpdec -I/usr/include/libmpdec++ -Wall -Werror -Winvalid-pch -Wno-unknown-pragmas -Wno-reorder -std=c++17 $(OPTFLAGS) $(EXTRADEFS)
 LDFLAGS=$(MAC_LD_FLAGS) -lstdc++ $(LIBNCURSESW_FLAG) $(LIBTINFO_FLAG) $(LIBMPDEC_FLAG)
 CLANG_FORMAT_FLAGS=-i --style="{BasedOnStyle: Chromium, IndentWidth: 4, ColumnLimit: 120, SortIncludes: false, AlignAfterOpenBracket: AlwaysBreak, AlignOperands: false, Cpp11BracedListStyle: false, PenaltyReturnTypeOnItsOwnLine: 10000}"
 
@@ -36,7 +36,6 @@ TMBASIC_OBJ_FILES=$(patsubst src/%,obj/%,$(TMBASIC_SRC_FILES:.cpp=.o))
 INCLUDE_FILES=$(shell find src -type f -name "*.h")
 
 EXT_HEADER_FILES=$(shell find ext -type f -name "*.h")
-TVISION_SRC_FILES=$(shell find ext/tvision -type f -name "*.cpp") $(shell find ext/tvision -type f -name "*.h")
 
 DOC_FILES=$(shell find doc -type f -name "*.txt") $(shell find doc -type f -name "*.html")
 DIAGRAM_SRC_FILES=$(shell find doc/diagrams -type f -name "*.txt")
@@ -68,7 +67,7 @@ help:
 
 .PHONY: clean
 clean:
-	@rm -rf bin obj obj/tvision valgrind.txt
+	@rm -rf bin obj valgrind.txt
 
 .PHONY: run
 run:
@@ -234,7 +233,7 @@ obj/buildDoc: build/scripts/buildDoc.cpp
 	@mkdir -p obj
 	@$(BUILDCC) -Iext/nameof -Wall -Werror -std=c++17 -o $@ $< -lstdc++
 
-obj/helpfile.h: obj/help.txt obj/tvision/libtvision.a
+obj/helpfile.h: obj/help.txt
 	@echo $@
 	@mkdir -p obj
 	@mkdir -p bin
@@ -264,18 +263,6 @@ $(LICENSE_DIAGRAM_CP437_FILES): obj/doc-temp/diagrams-cp437/%: obj/doc-temp/diag
 	@echo $@
 	@mkdir -p $(@D)
 	@iconv -f utf8 -t cp437 $< > $@
-
-# tvision
-
-obj/tvision/Makefile:
-	@echo $@
-	@mkdir -p $(@D)
-	@cd obj/tvision && CXXFLAGS="-Wno-unused-result -Wno-attributes" $(CMAKE) ../../ext/tvision
-
-obj/tvision/libtvision.a: obj/tvision/Makefile $(TVISION_SRC_FILES)
-	@echo $@
-	@rm -f obj/tvision/*.a obj/tvision/tv* obj/tvision/hello
-	@cd obj/tvision && $(MAKE)
 
 # compiler
 
@@ -308,10 +295,10 @@ $(TMBASIC_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch obj/helpfile.h obj/hel
 	@mkdir -p $(@D)
 	@$(CXX) $(CXXFLAGS) -c -include obj/common.h -o $@ $<
 
-bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) obj/tvision/libtvision.a obj/shared.a obj/compiler.a obj/common.h.gch obj/helpfile.h obj/help.h32 $(HELP_FILE_OBJ)
+bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) obj/shared.a obj/compiler.a obj/common.h.gch obj/helpfile.h obj/help.h32 $(HELP_FILE_OBJ)
 	@echo $@
 	@mkdir -p $(@D)
-	@$(CXX) $(CXXFLAGS) $(MAC_HELP_FILE_LINK_FLAG) $(STATIC_FLAG) -include obj/common.h -o $@ $(TMBASIC_OBJ_FILES) obj/shared.a obj/compiler.a obj/tvision/libtvision.a $(HELP_FILE_OBJ) $(LDFLAGS)
+	@$(CXX) $(CXXFLAGS) $(MAC_HELP_FILE_LINK_FLAG) $(STATIC_FLAG) -include obj/common.h -o $@ $(TMBASIC_OBJ_FILES) obj/shared.a obj/compiler.a -ltvision $(HELP_FILE_OBJ) $(LDFLAGS)
 	@$(STRIP) bin/tmbasic$(EXE_EXTENSION)
 
 # test
@@ -321,10 +308,10 @@ $(TEST_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch obj/helpfile.h obj/help.h
 	@mkdir -p $(@D)
 	@$(CXX) $(CXXFLAGS) -c -include obj/common.h -o $@ $<
 
-bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) obj/tvision/libtvision.a obj/shared.a obj/compiler.a obj/common.h.gch obj/helpfile.h obj/help.h32 $(HELP_FILE_OBJ)
+bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) obj/shared.a obj/compiler.a obj/common.h.gch obj/helpfile.h obj/help.h32 $(HELP_FILE_OBJ)
 	@echo $@
 	@mkdir -p $(@D)
-	@$(CXX) $(CXXFLAGS) $(MAC_HELP_FILE_LINK_FLAG) -include obj/common.h -o $@ $(TEST_OBJ_FILES) obj/shared.a obj/compiler.a obj/tvision/libtvision.a $(HELP_FILE_OBJ) $(LDFLAGS) $(LIBGTEST_FLAG) -lpthread
+	@$(CXX) $(CXXFLAGS) $(MAC_HELP_FILE_LINK_FLAG) -include obj/common.h -o $@ $(TEST_OBJ_FILES) obj/shared.a obj/compiler.a -ltvision $(HELP_FILE_OBJ) $(LDFLAGS) $(LIBGTEST_FLAG) -lpthread
 
 # runner
 
@@ -333,8 +320,8 @@ $(RUNNER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(SHARED_H_FILES) $(RUN
 	@mkdir -p $(@D)
 	@$(CXX) $(CXXFLAGS) -c -include obj/common.h -o $@ $<
 
-bin/runner$(EXE_EXTENSION): $(RUNNER_OBJ_FILES) obj/tvision/libtvision.a obj/shared.a obj/common.h.gch
+bin/runner$(EXE_EXTENSION): $(RUNNER_OBJ_FILES) obj/shared.a obj/common.h.gch
 	@echo $@
 	@mkdir -p $(@D)
-	@$(CXX) $(CXXFLAGS) $(STATIC_FLAG) -include obj/common.h -o $@ $(RUNNER_OBJ_FILES) obj/shared.a obj/tvision/libtvision.a $(LDFLAGS)
+	@$(CXX) $(CXXFLAGS) $(STATIC_FLAG) -include obj/common.h -o $@ $(RUNNER_OBJ_FILES) obj/shared.a -ltvision $(LDFLAGS)
 	@$(STRIP) bin/runner$(EXE_EXTENSION)

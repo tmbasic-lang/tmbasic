@@ -1,0 +1,27 @@
+*** tvhc.h	2020-11-22 04:28:06.411597025 +0000
+--- tvhc.h.new	2020-11-22 04:28:21.063602705 +0000
+***************
+*** 20,30 ****
+  #endif  // __HELPBASE_H
+  
+  
+! const int MAXSIZE = 80;
+  const int MAXSTRSIZE=256;
+  const int MAXHELPTOPICID=16379;
+  const char commandChar[] = ".";
+! const int bufferSize = 4096;
+  
+  enum State { undefined, wrapping, notWrapping };
+  
+--- 20,30 ----
+  #endif  // __HELPBASE_H
+  
+  
+! const int MAXSIZE = 300;
+  const int MAXSTRSIZE=256;
+  const int MAXHELPTOPICID=16379;
+  const char commandChar[] = ".";
+! const int bufferSize = 1000000;
+  
+  enum State { undefined, wrapping, notWrapping };
+  

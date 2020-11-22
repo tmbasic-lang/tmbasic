@@ -61,6 +61,23 @@ RUN cd /tmp && \
     make -j2 && \
     make install
 
+# build tvision
+COPY tvision-*.diff /tmp/
+RUN cd /tmp && \
+    curl -L -o tvision.zip https://github.com/magiblot/tvision/archive/dfe7fef52903b80126cf35012ce9f0f05479ef20.zip && \
+    unzip -q tvision.zip && \
+    mv tvision-*/ tvision/ && \
+    patch tvision/source/tvision/help.cpp tvision-help.cpp.diff && \
+    patch tvision/source/tvision/helpbase.cpp tvision-helpbase.cpp.diff && \
+    patch tvision/include/tvision/helpbase.h tvision-helpbase.h.diff && \
+    patch tvision/examples/tvhc/tvhc.cpp tvision-tvhc.cpp.diff && \
+    patch tvision/examples/tvhc/tvhc.h tvision-tvhc.h.diff && \
+    mkdir -p tvision/build && \
+    cd tvision/build && \
+    cmake .. -DTV_BUILD_USING_GPM=OFF && \
+    make -j2 && \
+    make install
+
 # set up environment
 USER $HOST_UID
 COPY bashrc-linux /tmp/bashrc

@@ -1,0 +1,20 @@
+*** help.cpp	2020-11-22 04:29:44.475399620 +0000
+--- help.cpp.new	2020-11-22 04:31:17.114759105 +0000
+***************
+*** 251,258 ****
+                    (mouse.x < keyPoint.x + keyLength)));
+              selected = keyCount;
+              drawView();
+!             if (event.mouse.eventFlags & meDoubleClick)
+!                 switchToTopic(keyRef);
+              clearEvent(event);
+              break;
+  
+--- 251,257 ----
+                    (mouse.x < keyPoint.x + keyLength)));
+              selected = keyCount;
+              drawView();
+!             switchToTopic(keyRef);
+              clearEvent(event);
+              break;
+  
