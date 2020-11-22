@@ -43,12 +43,52 @@ then
     popd
 fi
 
+if [ ! -d "dos2unix" ]
+then
+    curl -L -o dos2unix.tar.gz https://netactuate.dl.sourceforge.net/project/dos2unix/dos2unix/7.4.2/dos2unix-7.4.2.tar.gz
+    tar zxf dos2unix.tar.gz 
+    mv dos2unix-* dos2unix
+    pushd dos2unix
+    make ENABLE_NLS=
+    popd
+fi
+
+if [ ! -d "tvision" ]
+then
+    curl -L -o tvision.zip https://github.com/magiblot/tvision/archive/dfe7fef52903b80126cf35012ce9f0f05479ef20.zip
+    unzip tvision.zip
+    mv tvision-* tvision
+    dos2unix/dos2unix tvision/source/tvision/help.cpp
+    patch tvision/source/tvision/help.cpp ../build/docker/tvision-help.cpp.diff
+    dos2unix/dos2unix tvision/source/tvision/helpbase.cpp
+    patch tvision/source/tvision/helpbase.cpp ../build/docker/tvision-helpbase.cpp.diff
+    dos2unix/dos2unix tvision/include/tvision/helpbase.h
+    patch tvision/include/tvision/helpbase.h ../build/docker/tvision-helpbase.h.diff
+    dos2unix/dos2unix tvision/source/platform/ncursinp.cpp
+    patch tvision/source/platform/ncursinp.cpp ../build/docker/tvision-ncursinp.cpp.diff
+    dos2unix/dos2unix tvision/include/tvision/internal/ncursinp.h
+    patch tvision/include/tvision/internal/ncursinp.h ../build/docker/tvision-ncursinp.h.diff
+    dos2unix/dos2unix tvision/include/tvision/tv.h
+    patch tvision/include/tvision/tv.h ../build/docker/tvision-tv.h.diff
+    dos2unix/dos2unix tvision/examples/tvhc/tvhc.cpp
+    patch tvision/examples/tvhc/tvhc.cpp ../build/docker/tvision-tvhc.cpp.diff
+    dos2unix/dos2unix tvision/examples/tvhc/tvhc.h
+    patch tvision/examples/tvhc/tvhc.h ../build/docker/tvision-tvhc.h.diff
+    dos2unix/dos2unix tvision/source/platform/win32con.cpp
+    patch tvision/source/platform/win32con.cpp ../build/docker/tvision-win32con.cpp.diff
+    pushd tvision
+    mkdir build
+    cd build
+    ../../cmake/CMake.app/Contents/bin/cmake -D CMAKE_PREFIX_PATH=../../ncurses ..
+    make -j8
+    popd
+fi
+
 set +x
 cd ..
 make help
-MAC_INCLUDE_FLAGS="-I$(PWD)/mac/boost -I$(PWD)/mac/mpdecimal/libmpdec -I$(PWD)/mac/mpdecimal/libmpdec++ -I$(PWD)/mac/ncurses/include -I$(PWD)/mac/googletest/googletest/include" \
-    MAC_LD_FLAGS="-L$(PWD)/mac/mpdecimal/libmpdec -L$(PWD)/mac/mpdecimal/libmpdec++" \
-    CMAKE="$(PWD)/mac/cmake/CMake.app/Contents/bin/cmake -D CMAKE_PREFIX_PATH=$(PWD)/mac/ncurses" \
+MAC_INCLUDE_FLAGS="-I$(PWD)/mac/boost -I$(PWD)/mac/mpdecimal/libmpdec -I$(PWD)/mac/mpdecimal/libmpdec++ -I$(PWD)/mac/ncurses/include -I$(PWD)/mac/googletest/googletest/include -I$(PWD)/mac/tvision/include" \
+    MAC_LD_FLAGS="-L$(PWD)/mac/mpdecimal/libmpdec -L$(PWD)/mac/mpdecimal/libmpdec++ -L$(PWD)/mac/tvision/build" \
     HELP_FILE_OBJ="" \
     MAC_HELP_FILE_LINK_FLAG="-Wl,-sectcreate,__DATA,__help_h32,obj/help.h32" \
     STATIC_FLAG="" \
@@ -59,4 +99,5 @@ MAC_INCLUDE_FLAGS="-I$(PWD)/mac/boost -I$(PWD)/mac/mpdecimal/libmpdec -I$(PWD)/m
     TARGET_OS=mac \
     PS1="[tmbasic-mac-x64] \w\$ " \
     MAKEFLAGS="-j8" \
+    TVHC="$(PWD)/mac/tvision/build/tvhc" \
     bash

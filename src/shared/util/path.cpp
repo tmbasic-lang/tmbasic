@@ -6,7 +6,7 @@ std::string getFileName(std::string filePath) {
     std::ostringstream s;
     for (auto ch : filePath) {
         if (ch == '/' || ch == '\\') {
-            s = {};
+            s = std::ostringstream();
         } else {
             s << ch;
         }
