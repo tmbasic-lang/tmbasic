@@ -21,7 +21,7 @@ HelpResource::HelpResource()
 
 #ifdef __APPLE__
 HelpResource::HelpResource() {
-    uint64_t size = 0;
+    size_t size = 0;
     auto data = getsectiondata(&_mh_execute_header, "__DATA", "__help_h32", &size);
     start = data;
     end = data + size;
