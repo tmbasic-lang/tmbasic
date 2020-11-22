@@ -11,7 +11,11 @@ namespace tmbasic {
 
 class ProgramWindow : public TWindow {
    public:
-    ProgramWindow(const TRect& r, std::optional<std::string> filePath, std::function<void(SourceMember*)> openMember);
+    ProgramWindow(
+        const TRect& r,
+        std::unique_ptr<SourceProgram> sourceProgram,
+        std::optional<std::string> filePath,
+        std::function<void(SourceMember*)> openMember);
     virtual ~ProgramWindow();
     TPalette& getPalette() const override;
     uint16_t getHelpCtx() override;

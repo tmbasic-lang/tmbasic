@@ -13,12 +13,13 @@ namespace tmbasic {
 
 ProgramWindow::ProgramWindow(
     const TRect& r,
+    std::unique_ptr<SourceProgram> sourceProgram,
     std::optional<std::string> filePath,
     std::function<void(SourceMember*)> openMember)
     : TWindow(r, "Untitled - Program", wnNoNumber),
       TWindowInit(TWindow::initFrame),
       _vmProgram(std::make_unique<Program>()),
-      _sourceProgram(std::make_unique<SourceProgram>()),
+      _sourceProgram(std::move(sourceProgram)),
       _dirty(false),
       _openMember(openMember) {
     palette = 0;
@@ -42,7 +43,6 @@ ProgramWindow::ProgramWindow(
     _contentsListBox->growMode = gfGrowHiX | gfGrowHiY;
     insert(_contentsListBox);
 
-    // TODO: open file
     _filePath = filePath;
     updateTitle();
 }

@@ -211,8 +211,22 @@ bool App::closeProgramWindow(ProgramWindow* programWindow) {
 }
 
 void App::showNewProgramWindow(std::optional<std::string> filePath) {
-    auto* window =
-        new ProgramWindow(TRect(0, 0, 60, 15), filePath, [this](auto* member) -> void { showNewEditorWindow(member); });
+    auto sourceProgram = std::make_unique<SourceProgram>();
+    if (filePath.has_value()) {
+        try {
+            sourceProgram->load(*filePath);
+        } catch (std::runtime_error& ex) {
+            messageBox(std::string("There was an error opening the file: ") + ex.what(), mfError | mfOKButton);
+            return;
+        } catch (...) {
+            messageBox(std::string("There was an error opening the file."), mfError | mfOKButton);
+            return;
+        }
+    }
+
+    auto* window = new ProgramWindow(
+        TRect(0, 0, 60, 15), std::move(sourceProgram), filePath,
+        [this](auto* member) -> void { showNewEditorWindow(member); });
     deskTop->insert(window);
 }
 

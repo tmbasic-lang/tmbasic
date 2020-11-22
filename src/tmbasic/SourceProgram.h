@@ -28,7 +28,8 @@ class SourceProgram {
    public:
     std::vector<std::unique_ptr<SourceMember>> members;
 
-    void save(std::string filePath) const;
+    void load(const std::string& filePath);
+    void save(const std::string& filePath) const;
 };
 
 }  // namespace tmbasic
