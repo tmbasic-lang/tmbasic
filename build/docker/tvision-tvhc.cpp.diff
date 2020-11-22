@@ -1,40 +1,6 @@
 *** tvhc.cpp	2020-11-22 04:28:06.411597025 +0000
 --- tvhc.cpp.new	2020-11-22 04:34:10.740618720 +0000
 ***************
-*** 388,394 ****
-          }
-  }
-  
-! void doFixUps( TFixUp *p, uint value, fpstream& s )
-  {
-      streampos pos;
-  
---- 388,394 ----
-          }
-  }
-  
-! void doFixUps( TFixUp *p, uint value, iopstream& s )
-  {
-      streampos pos;
-  
-***************
-*** 405,411 ****
-  //  handles forward references.                                         //
-  //----------------------------------------------------------------------//
-  
-! void resolveReference( const char *topic, uint value, fpstream& s )
-  {
-      TReference *ref;
-  
---- 405,411 ----
-  //  handles forward references.                                         //
-  //----------------------------------------------------------------------//
-  
-! void resolveReference( const char *topic, uint value, iopstream& s )
-  {
-      TReference *ref;
-  
-***************
 *** 665,671 ****
   void scanForCrossRefs( char *line, int& offset, TCrossRefNode *&xRefs )
   {
@@ -85,37 +51,3 @@
                   {
                   if ((endPtr = strchr(line+i,endXRef)) == 0)
                       {
-***************
-*** 956,962 ****
-  //----------------------------------------------------------------------//
-  
-  void processText( TProtectedStream& textFile,
-!                   fpstream& helpFile,
-                    TProtectedStream& symbFile )
-  {
-      THelpFile *helpRez;
---- 951,957 ----
-  //----------------------------------------------------------------------//
-  
-  void processText( TProtectedStream& textFile,
-!                   iopstream& helpFile,
-                    TProtectedStream& symbFile )
-  {
-      THelpFile *helpRez;
-***************
-*** 991,997 ****
-  {
-      char helpName[MAXPATH];
-      char symbName[MAXPATH];
-!     fpstream* helpStrm;
-  
-      // Banner messages
-      char initialText[] = "Help Compiler " TARGET "  Version 2.0  Copyright (c) 1994"
---- 986,992 ----
-  {
-      char helpName[MAXPATH];
-      char symbName[MAXPATH];
-!     iopstream* helpStrm;
-  
-      // Banner messages
-      char initialText[] = "Help Compiler " TARGET "  Version 2.0  Copyright (c) 1994"

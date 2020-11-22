@@ -58,12 +58,6 @@ then
     curl -L -o tvision.zip https://github.com/magiblot/tvision/archive/dfe7fef52903b80126cf35012ce9f0f05479ef20.zip
     unzip tvision.zip
     mv tvision-* tvision
-    dos2unix/dos2unix tvision/source/tvision/help.cpp
-    patch tvision/source/tvision/help.cpp ../build/docker/tvision-help.cpp.diff
-    dos2unix/dos2unix tvision/source/tvision/helpbase.cpp
-    patch tvision/source/tvision/helpbase.cpp ../build/docker/tvision-helpbase.cpp.diff
-    dos2unix/dos2unix tvision/include/tvision/helpbase.h
-    patch tvision/include/tvision/helpbase.h ../build/docker/tvision-helpbase.h.diff
     dos2unix/dos2unix tvision/source/platform/ncursinp.cpp
     patch tvision/source/platform/ncursinp.cpp ../build/docker/tvision-ncursinp.cpp.diff
     dos2unix/dos2unix tvision/include/tvision/internal/ncursinp.h
@@ -72,10 +66,6 @@ then
     patch tvision/include/tvision/tv.h ../build/docker/tvision-tv.h.diff
     dos2unix/dos2unix tvision/examples/tvhc/tvhc.cpp
     patch tvision/examples/tvhc/tvhc.cpp ../build/docker/tvision-tvhc.cpp.diff
-    dos2unix/dos2unix tvision/examples/tvhc/tvhc.h
-    patch tvision/examples/tvhc/tvhc.h ../build/docker/tvision-tvhc.h.diff
-    dos2unix/dos2unix tvision/source/platform/win32con.cpp
-    patch tvision/source/platform/win32con.cpp ../build/docker/tvision-win32con.cpp.diff
     pushd tvision
     mkdir build
     cd build
