@@ -6,7 +6,7 @@ export CXX=x86_64-w64-mingw32-g++
 export AR=x86_64-w64-mingw32-ar
 export STRIP=x86_64-w64-mingw32-strip
 export WIN_INCLUDE_FLAGS="-I/usr/share/mingw-w64/include/"
-export TVHC="WINEPATH=/usr/lib/gcc/x86_64-w64-mingw32/9.3-win32 wine64 obj/tvision/tvhc.exe"
+export TVHC="WINEPATH=/usr/lib/gcc/x86_64-w64-mingw32/9.3-win32 wine64 /usr/x86_64-w64-mingw32/bin/tvhc.exe"
 export LIBGTEST_FLAG="/usr/x86_64-w64-mingw32/lib/libgtest.dll.a /usr/x86_64-w64-mingw32/lib/libgtest_main.dll.a"
 export LIBTINFO_FLAG=""
 export LIBMPDEC_FLAG="/usr/x86_64-w64-mingw32/lib/libmpdec.a /usr/x86_64-w64-mingw32/lib/libmpdec++.a"
@@ -14,5 +14,5 @@ export LICENSE_PROCESS_CMD=unix2dos
 export TARGET_OS=win
 export EXE_EXTENSION=.exe
 export OPTFLAGS=-Os
-export TEST_CMD="WINEPATH=/usr/lib/gcc/x86_64-w64-mingw32/9.3-win32 wine64 test.exe""
+export TEST_CMD="WINEPATH=/usr/lib/gcc/x86_64-w64-mingw32/9.3-win32 wine64 test.exe"
 alias dev='while true; do echo -ne "[$IMAGE_NAME] \e[1;32mm\e[0make, \e[1;32mr\e[0mun, \e[1;32mf\e[0mormat, \e[1;32ml\e[0mint, \e[1;32mq\e[0muit? "; read -n1 x; echo; [ "$x" == "m" ] && clear && make; [ "$x" == "r" ] && make run; [ "$x" == "f" ] && make format; [ "$x" == "l" ] && make lint; [ "$x" == "q" ] && break; done'

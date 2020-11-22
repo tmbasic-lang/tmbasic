@@ -1,0 +1,34 @@
+*** ncursinp.h	2020-11-22 05:57:14.777883188 +0000
+--- ncursinp.h.new	2020-11-22 05:57:50.082821097 +0000
+***************
+*** 3,9 ****
+  
+  #include <internal/platform.h>
+  
+! #ifdef HAVE_NCURSES
+  
+  #define Uses_TKeys
+  #define Uses_TPoint
+--- 3,9 ----
+  
+  #include <internal/platform.h>
+  
+! #if defined( HAVE_NCURSES ) && defined( _TV_UNIX )
+  
+  #define Uses_TKeys
+  #define Uses_TPoint
+***************
+*** 55,60 ****
+  
+  class NcursesInput : public InputStrategy {};
+  
+! #endif // HAVE_NCURSES
+  
+  #endif
+--- 55,60 ----
+  
+  class NcursesInput : public InputStrategy {};
+  
+! #endif // defined( HAVE_NCURSES ) && defined( _TV_UNIX )
+  
+  #endif

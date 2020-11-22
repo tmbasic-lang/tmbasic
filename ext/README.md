@@ -26,7 +26,7 @@ See this repository's readme for license information.
 
 ## ncurses
 - Linux: Alpine 3.12 `ncurses` package
-- Windows: https://repo.msys2.org/mingw/x86_64/mingw-w64-x86_64-ncurses-6.2-2-any.pkg.tar.zst ([mirror](https://tmbasic.s3.amazonaws.com/ncurses/mingw-w64-x86_64-ncurses-6.2-2-any.pkg.tar.zst))
+- Windows: ftp://ftp.invisible-island.net/ncurses/ncurses-6.2.tar.gz ([mirror](https://tmbasic.s3.amazonaws.com/ncurses/ncurses-6.2.tar.gz))
 - macOS: Xcode distribution
 
 ## notoserif
