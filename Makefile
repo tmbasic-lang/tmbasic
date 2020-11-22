@@ -231,7 +231,7 @@ obj/doc-temp/diagrams-license/license_oxygenmono.txt: ext/oxygenmono/OFL.txt
 obj/buildDoc: build/scripts/buildDoc.cpp
 	@echo $@
 	@mkdir -p obj
-	@$(BUILDCC) $(WIN_INCLUDE_FLAGS) $(MAC_INCLUDE_FLAGS) -Iext/nameof -Wall -Werror -std=c++17 -o $@ $< -lstdc++
+	@$(BUILDCC) $(BUILDDOC_WIN_INCLUDE_FLAGS) $(BUILDDOC_MAC_INCLUDE_FLAGS) -Iext/nameof -Wall -Werror -std=c++17 -o $@ $< -lstdc++
 
 obj/helpfile.h: obj/help.txt
 	@echo $@

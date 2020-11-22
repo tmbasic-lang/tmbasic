@@ -78,6 +78,7 @@ set +x
 cd ..
 make help
 MAC_INCLUDE_FLAGS="-I$(PWD)/mac/boost -I$(PWD)/mac/mpdecimal/libmpdec -I$(PWD)/mac/mpdecimal/libmpdec++ -I$(PWD)/mac/ncurses/include -I$(PWD)/mac/googletest/googletest/include -I$(PWD)/mac/tvision/include" \
+    BUILDDOC_MAC_INCLUDE_FLAGS="-I$(PWD)/mac/boost" \
     MAC_LD_FLAGS="-L$(PWD)/mac/mpdecimal/libmpdec -L$(PWD)/mac/mpdecimal/libmpdec++ -L$(PWD)/mac/tvision/build" \
     HELP_FILE_OBJ="" \
     MAC_HELP_FILE_LINK_FLAG="-Wl,-sectcreate,__DATA,__help_h32,obj/help.h32" \

@@ -75,10 +75,6 @@ RUN cd /tmp && \
     curl -L -o tvision.zip https://github.com/magiblot/tvision/archive/75c25953def0ab131312c3526f468fabf3856043.zip && \
     unzip -q tvision.zip && \
     mv tvision-*/ tvision/ && \
-    dos2unix tvision/source/platform/ncursinp.cpp && \
-    patch tvision/source/platform/ncursinp.cpp tvision-ncursinp.cpp.diff && \
-    dos2unix tvision/include/tvision/internal/ncursinp.h && \
-    patch tvision/include/tvision/internal/ncursinp.h tvision-ncursinp.h.diff && \
     dos2unix tvision/include/tvision/tv.h && \
     patch tvision/include/tvision/tv.h tvision-tv.h.diff && \
     dos2unix tvision/examples/tvhc/tvhc.cpp && \
