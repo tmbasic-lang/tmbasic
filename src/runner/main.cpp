@@ -1,5 +1,14 @@
 #include "../common.h"
 
+#ifdef _WIN32
+
+static uint8_t* findAppendedData() {
+    assert(false); // not implemented
+    return nullptr;
+}
+
+#else 
+
 static uint8_t* findAppendedData() {
     auto pid = getpid();
     auto s = std::ostringstream();
@@ -20,6 +29,8 @@ static uint8_t* findAppendedData() {
     // TODO
     return nullptr;
 }
+
+#endif
 
 int main(int argc, char** argv) {
     findAppendedData();

@@ -25,7 +25,8 @@ RUN apt-get update -y && \
         wine64 \
         zstd \
         libgtest-dev \
-        dos2unix
+        dos2unix \
+        unzip
 
 # clang-format
 RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
@@ -34,11 +35,8 @@ RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
     apt-get install -y clang-format-10 && \
     update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-10 9999
 
-# ncurses, gtest
+# gtest
 RUN cd /tmp && \
-    curl -sL -o ncurses.pkg.tar.zst https://repo.msys2.org/mingw/x86_64/mingw-w64-x86_64-ncurses-6.2-2-any.pkg.tar.zst && \
-    unzstd ncurses.pkg.tar.zst && \
-    tar xf ncurses.pkg.tar && \
     curl -o gtest.pkg.tar.xz https://repo.msys2.org/mingw/x86_64/mingw-w64-x86_64-gtest-1.10.0-1-any.pkg.tar.xz && \
     unzstd gtest.pkg.tar.xz && \
     tar xf gtest.pkg.tar && \
@@ -70,6 +68,83 @@ RUN ln -s /usr/include/boost /usr/share/mingw-w64/include/
 
 # wine32
 RUN dpkg --add-architecture i386 && apt-get update -y && apt-get install -y wine32
+
+# ncurses
+RUN cd /tmp && \
+    wget -q ftp://ftp.invisible-island.net/ncurses/ncurses-6.2.tar.gz && \
+    tar xf ncurses*.tar.gz && \
+    mv ncurses-*/ ncurses/ && \
+    cd ncurses && \
+    ./configure \
+        --host=x86_64-w64-mingw32 \
+        --without-ada \
+        --with-static \
+        --with-normal \
+        --without-debug \
+        --disable-relink \
+        --disable-rpath \
+        --with-ticlib \
+        --without-termlib \
+        --enable-widec \
+        --enable-ext-colors \
+        --enable-ext-mouse \
+        --enable-sp-funcs \
+        --with-wrap-prefix=ncwrap_ \
+        --enable-sigwinch \
+        --enable-term-driver \
+        --enable-colorfgbg \
+        --enable-tcap-names \
+        --disable-termcap \
+        --disable-mixed-case \
+        --with-pkg-config \
+        --enable-pc-files \
+        --enable-echo \
+        --with-build-cflags=-D_XOPEN_SOURCE_EXTENDED \
+        --without-progs \
+        --without-tests \
+        --prefix=/usr/x86_64-w64-mingw32/ \
+        --without-cxx-binding \
+        --disable-home-terminfo \
+        --enable-interop \
+        && \
+    make -j2 && \
+    make install
+
+# tvision
+COPY tvision-*.diff /tmp/
+RUN cd /tmp && \
+    curl -L -o tvision.zip https://github.com/magiblot/tvision/archive/dfe7fef52903b80126cf35012ce9f0f05479ef20.zip && \
+    unzip -q tvision.zip && \
+    mv tvision-*/ tvision/ && \
+    dos2unix tvision/CMakeLists.txt && \
+    patch tvision/CMakeLists.txt tvision-CMakeLists.txt-win.diff && \
+    dos2unix tvision/source/tvision/help.cpp && \
+    patch tvision/source/tvision/help.cpp tvision-help.cpp.diff && \
+    dos2unix tvision/source/tvision/helpbase.cpp && \
+    patch tvision/source/tvision/helpbase.cpp tvision-helpbase.cpp.diff && \
+    dos2unix tvision/include/tvision/helpbase.h && \
+    patch tvision/include/tvision/helpbase.h tvision-helpbase.h.diff && \
+    dos2unix tvision/source/platform/ncursinp.cpp && \
+    patch tvision/source/platform/ncursinp.cpp tvision-ncursinp.cpp.diff && \
+    dos2unix tvision/include/tvision/internal/ncursinp.h && \
+    patch tvision/include/tvision/internal/ncursinp.h tvision-ncursinp.h.diff && \
+    dos2unix tvision/include/tvision/tv.h && \
+    patch tvision/include/tvision/tv.h tvision-tv.h.diff && \
+    dos2unix tvision/examples/tvhc/tvhc.cpp && \
+    patch tvision/examples/tvhc/tvhc.cpp tvision-tvhc.cpp.diff && \
+    dos2unix tvision/examples/tvhc/tvhc.h && \
+    patch tvision/examples/tvhc/tvhc.h tvision-tvhc.h.diff && \
+    dos2unix tvision/source/platform/win32con.cpp && \
+    patch tvision/source/platform/win32con.cpp tvision-win32con.cpp.diff && \
+    mkdir -p tvision/build && \
+    cd tvision/build && \
+    export CC=x86_64-w64-mingw32-gcc && \
+    export CXX=x86_64-w64-mingw32-g++ && \
+    export AR=x86_64-w64-mingw32-ar && \
+    cmake .. -DTV_BUILD_USING_GPM=OFF -DCMAKE_PREFIX_PATH=/usr/x86_64-w64-mingw32 -DCMAKE_INSTALL_PREFIX=/usr/x86_64-w64-mingw32 -DCMAKE_BUILD_TYPE=Release && \
+    make -j2 && \
+    make install && \
+    cp tvhc.exe /usr/x86_64-w64-mingw32/bin/
 
 USER $HOST_UID
 

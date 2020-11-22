@@ -1,0 +1,13 @@
+*** CMakeLists.txt	2020-11-22 07:08:42.754819417 +0000
+--- CMakeLists.txt.new	2020-11-22 07:11:33.434081961 +0000
+***************
+*** 187,194 ****
+          target_link_libraries(${app} PUBLIC ${PROJECT_NAME})
+      endforeach()
+  
+-     install(TARGETS ${TVINSTALLAPPS} RUNTIME DESTINATION bin)
+- 
+      if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+          target_compile_options(tvdir PRIVATE -Wno-stringop-truncation)
+      endif()
+--- 187,192 ----

@@ -81,7 +81,7 @@ RUN cd /tmp && \
     patch tvision/examples/tvhc/tvhc.h tvision-tvhc.h.diff && \
     mkdir -p tvision/build && \
     cd tvision/build && \
-    cmake .. -DTV_BUILD_USING_GPM=OFF && \
+    cmake .. -DTV_BUILD_USING_GPM=OFF -DCMAKE_BUILD_TYPE=Release && \
     make -j2 && \
     make install
 
