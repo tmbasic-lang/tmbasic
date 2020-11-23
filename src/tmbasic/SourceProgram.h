@@ -11,6 +11,7 @@ class SourceMember {
    public:
     SourceMemberType memberType;
     std::string displayName;
+    std::string identifier;
 
     std::string source;
     int selectionStart;

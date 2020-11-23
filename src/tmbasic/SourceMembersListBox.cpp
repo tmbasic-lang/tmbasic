@@ -26,13 +26,31 @@ void SourceMembersListBox::selectType(SourceMemberType type) {
 }
 
 void SourceMembersListBox::updateItems() {
+    auto* selectedMember = focused >= 0 && static_cast<size_t>(focused) < _items.size() ? _items[focused] : nullptr;
+
     _items.clear();
+
     for (auto& member : _program.members) {
         if (member->memberType == _selectedType) {
             _items.push_back(member.get());
         }
     }
+
+    std::sort(_items.begin(), _items.end(), [](const SourceMember* lhs, const SourceMember* rhs) {
+        return lhs->identifier == rhs->identifier ? lhs->displayName < rhs->displayName
+                                                  : lhs->identifier < rhs->identifier;
+    });
+
     setRange(_items.size());
+
+    focused = 0;
+    for (size_t i = 0; i < _items.size(); i++) {
+        if (_items[i] == selectedMember) {
+            focused = i;
+            break;
+        }
+    }
+
     drawView();
 }
 

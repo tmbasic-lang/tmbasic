@@ -15,10 +15,13 @@ class EditorWindow : public TWindow {
 
    private:
     void onTimerTick();
+    void updateTitle();
 
     TEditor* _editor;
     SourceMember* _member;
     std::function<void()> _onEdited;
+    int _pendingUpdate = -1;   // -1=no edit pending, 0+=number of ticks since the last edit
+    std::string _pendingText;  // text we saw at the last tick
 };
 
 }  // namespace tmbasic

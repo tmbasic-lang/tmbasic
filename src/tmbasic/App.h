@@ -23,6 +23,7 @@ class App : public TApplication {
     static bool closeProgramWindow(ProgramWindow* programWindow);
     void onFileNew();
     void onFileOpen();
+    void onViewProgram();
     void onProgramAdd(TextEditorType type);
     void onHelpDocumentation();
     void onHelpBasicReference();

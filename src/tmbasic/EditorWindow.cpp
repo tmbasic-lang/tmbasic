@@ -18,7 +18,7 @@ class EditorIndicator : public TIndicator {
 
 static std::string getEditorWindowTitle(const SourceMember& member) {
     std::ostringstream s;
-    s << member.displayName << " - ";
+    s << member.identifier << " - ";
     switch (member.memberType) {
         case SourceMemberType::kConstant:
             s << "Constant";
@@ -113,10 +113,24 @@ void EditorWindow::close() {
 
 void EditorWindow::onTimerTick() {
     auto newSource = getEditorText(_editor);
-    if (newSource != _member->source) {
+    if (newSource != _pendingText) {
+        _pendingUpdate = 0;
+        _pendingText = newSource;
+    } else if (_pendingUpdate >= 4) {
+        // after 1 second of no edits, go ahead and parse the text
         _member->setSource(newSource);
         _onEdited();
+        updateTitle();
+        frame->drawView();
+        _pendingUpdate = -1;
+    } else {
+        _pendingUpdate++;
     }
+}
+
+void EditorWindow::updateTitle() {
+    delete[] title;
+    title = strdup(getEditorWindowTitle(*_member).c_str());
 }
 
 }  // namespace tmbasic

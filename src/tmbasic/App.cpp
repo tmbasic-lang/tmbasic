@@ -21,7 +21,7 @@ void App::idle() {
 
     auto now = std::chrono::steady_clock::now();
     std::chrono::duration<double, std::milli> msec = now - _lastTimerTick;
-    if (msec.count() >= 100) {
+    if (msec.count() >= 250) {
         _lastTimerTick = now;
         message(deskTop, evBroadcast, kCmdTimerTick, nullptr);
     }
@@ -56,8 +56,7 @@ TMenuBar* App::initMenuBar(TRect r) {
         *new TMenuItem("~P~aste", cmPaste, kbCtrlV, hcNoContext, "Ctrl+V");
 
     auto& viewMenu = *new TSubMenu("~V~iew", kbAltE) +
-        *new TMenuItem("~P~rogram", kCmdProgramContentsWindow, kbCtrlP, hcNoContext, "Ctrl+P") +
-        *new TMenuItem("~I~mmediate", kCmdProgramContentsWindow, kbCtrlI, hcNoContext, "Ctrl+I");
+        *new TMenuItem("~P~rogram", kCmdProgramContentsWindow, kbCtrlP, hcNoContext, "Ctrl+P");
 
     auto& programMenu = *new TSubMenu("~P~rogram", kbAltP) +
         *new TMenuItem("~R~un", kCmdProgramRun, kbF5, hcNoContext, "F5") + newLine() +
@@ -89,6 +88,7 @@ TStatusLine* App::initStatusLine(TRect r) {
         *new TStatusItem("~Ctrl+O~ Open program", kbNoKey, cmOpen) + *new TStatusItem("~Ctrl+Q~ Exit", kbNoKey, cmQuit);
 
     auto& editorWindowStatusDef = *new TStatusDef(hcide_editorWindow, hcide_editorWindow) +
+        *new TStatusItem("~Ctrl+P~ View program", kbNoKey, kCmdProgramContentsWindow) +
         *new TStatusItem("~Ctrl+W~ Close editor", kbNoKey, cmClose);
     editorWindowStatusDef.next = &appStatusDef;
 
@@ -158,6 +158,10 @@ bool App::handleCommand(TEvent* event) {
             message(deskTop, evBroadcast, kCmdAppExit, &cancel);
             return cancel;
         }
+
+        case kCmdProgramContentsWindow:
+            onViewProgram();
+            return true;
 
         default:
             return false;
@@ -236,13 +240,13 @@ void App::showNewEditorWindow(SourceMember* member) {
     e.member = member;
     message(deskTop, evBroadcast, kCmdFindEditorWindow, &e);
     if (e.window) {
-        e.window->focus();
+        e.window->select();
     } else {
         auto window = new EditorWindow(getNewWindowRect(82, 30), member, [this]() -> void {
             // onUpdated
             auto* programWindow = findProgramWindow(deskTop);
             if (programWindow) {
-                programWindow->redrawListItems();
+                programWindow->updateListItems();
             }
         });
         deskTop->insert(window);
@@ -366,6 +370,13 @@ void App::openHelpTopic(uint16_t topic) {
     }
     auto rect = getNewWindowRect(width, height);
     helpWindow->locate(rect);
+}
+
+void App::onViewProgram() {
+    auto* window = findProgramWindow(deskTop);
+    if (window) {
+        window->select();
+    }
 }
 
 }  // namespace tmbasic

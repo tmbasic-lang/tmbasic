@@ -30,10 +30,21 @@ void SourceMember::updateDisplayName() {
     while (std::getline(stream, line)) {
         if (!isBlankOrComment(line)) {
             displayName = line;
+
+            std::regex r("^[^ ]+ ([^( ]+)\\(.*$");
+            std::smatch match;
+            if (std::regex_search(displayName, match, r)) {
+                identifier = match[1].str();
+            } else {
+                identifier = displayName;
+            }
+
             return;
         }
     }
+
     displayName = "Untitled";
+    identifier = "?";
 }
 
 static std::vector<const SourceMember*> sortMembers(const SourceProgram* program) {
