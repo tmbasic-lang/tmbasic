@@ -7,43 +7,23 @@ RUN mkdir -p /code && \
     mkdir -p /home/$USER && \
     chown $HOST_UID:$HOST_GID /home/$USER
 
-RUN apt-get update -y && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y \
-        curl \
+RUN echo "[multilib]" >> /etc/pacman.conf && \
+    echo "Include = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf && \
+    pacman -Syu --noconfirm && \
+    pacman -S --noconfirm \
         wget \
-        software-properties-common \
-        apt-transport-https \
         make \
         git \
-        openssl \
-        libssl-dev \
         cmake \
-        dpkg-dev \
-        libboost-dev \
-        libgtest-dev \
+        boost \
         mingw-w64 \
-        wine64 \
-        zstd \
-        libgtest-dev \
+        wine \
         dos2unix \
-        unzip
+        unzip \
+        clang \
+        patch
 
-# clang-format
-RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
-    add-apt-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-10 main" && \
-    apt-get update -y && \
-    apt-get install -y clang-format-10 && \
-    update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-10 9999
-
-# gtest
-RUN cd /tmp && \
-    curl -o gtest.pkg.tar.xz https://repo.msys2.org/mingw/x86_64/mingw-w64-x86_64-gtest-1.10.0-1-any.pkg.tar.xz && \
-    unzstd gtest.pkg.tar.xz && \
-    tar xf gtest.pkg.tar && \
-    cd mingw64 && \
-    cp -rf ./* /usr/x86_64-w64-mingw32/ && \
-    rm -rf /tmp/mingw64 /tmp/*.tar* && \
-    cp /usr/x86_64-w64-mingw32/bin/libgtest*.dll /usr/lib/gcc/x86_64-w64-mingw32/9.3-win32/
+COPY toolchain-cross-mingw64-linux.cmake /tmp/
 
 # mpdecimal
 RUN cd /tmp && \
@@ -60,14 +40,10 @@ RUN cd /tmp && \
     make libmpdec++.a -j2 && \
     cp -f libmpdec++.a /usr/x86_64-w64-mingw32/lib/ && \
     mkdir -p /usr/include/libmpdec++ && \
-    cp -f *.hh /usr/include/libmpdec++/ && \
-    rm -rf /tmp/*.tar*
+    cp -f *.hh /usr/include/libmpdec++/
 
 # boost
-RUN ln -s /usr/include/boost /usr/share/mingw-w64/include/
-
-# wine32
-RUN dpkg --add-architecture i386 && apt-get update -y && apt-get install -y wine32
+RUN ln -s /usr/include/boost /usr/x86_64-w64-mingw32/include/
 
 # ncurses
 RUN cd /tmp && \
@@ -102,7 +78,7 @@ RUN cd /tmp && \
         --with-build-cflags=-D_XOPEN_SOURCE_EXTENDED \
         --without-progs \
         --without-tests \
-        --prefix=/usr/x86_64-w64-mingw32/ \
+        --prefix=/usr/x86_64-w64-mingw32 \
         --without-cxx-binding \
         --disable-home-terminfo \
         --enable-interop \
@@ -112,21 +88,45 @@ RUN cd /tmp && \
 
 # tvision
 COPY tvision-*.diff /tmp/
-COPY toolchain-cross-mingw64-linux.cmake /tmp/
 RUN cd /tmp && \
     curl -L -o tvision.zip https://github.com/magiblot/tvision/archive/75c25953def0ab131312c3526f468fabf3856043.zip && \
     unzip -q tvision.zip && \
     mv tvision-*/ tvision/ && \
-    dos2unix tvision/include/tvision/tv.h && \
-    patch tvision/include/tvision/tv.h tvision-tv.h.diff && \
     dos2unix tvision/examples/tvhc/tvhc.cpp && \
     patch tvision/examples/tvhc/tvhc.cpp tvision-tvhc.cpp.diff && \
     mkdir -p tvision/build && \
     cd tvision/build && \
-    cmake .. -DCMAKE_PREFIX_PATH=/usr/x86_64-w64-mingw32 -DCMAKE_INSTALL_PREFIX=/usr/x86_64-w64-mingw32 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=/tmp/toolchain-cross-mingw64-linux.cmake && \
+    cmake .. \
+        -DCMAKE_PREFIX_PATH=/usr/x86_64-w64-mingw32 \
+        -DCMAKE_INSTALL_PREFIX=/usr/x86_64-w64-mingw32 \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_TOOLCHAIN_FILE=/tmp/toolchain-cross-mingw64-linux.cmake \
+        && \
     make -j2 && \
-    make install && \
-    cp tvhc.exe /usr/x86_64-w64-mingw32/bin/
+    make install
+
+# gtest
+RUN cd /tmp && \
+    curl -L -o gtest.zip https://github.com/google/googletest/archive/release-1.10.0.zip && \
+    unzip gtest.zip && \
+    mv googletest-* googletest && \
+    cd googletest && \
+    mkdir build && \
+    cd build && \
+    cmake .. \
+        -DCMAKE_PREFIX_PATH=/usr/x86_64-w64-mingw32 \
+        -DCMAKE_INSTALL_PREFIX=/usr/x86_64-w64-mingw32 \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_TOOLCHAIN_FILE=/tmp/toolchain-cross-mingw64-linux.cmake \
+        && \
+    make -j2 && \
+    make install
+
+# why are these declarations from <io.h> needed? gtest header fails when included in tmbasic otherwise
+RUN echo "static int _isatty(int) { return 0; }" >> /usr/x86_64-w64-mingw32/include/gtest/internal/custom/gtest-port.h && \
+    echo "static int read(int,void*,unsigned int) { return 0; }" >> /usr/x86_64-w64-mingw32/include/gtest/internal/custom/gtest-port.h && \
+    echo "static int write(int,const void*,unsigned int) { return 0; }" >> /usr/x86_64-w64-mingw32/include/gtest/internal/custom/gtest-port.h && \
+    echo "static int close(int) { return 0; }" >> /usr/x86_64-w64-mingw32/include/gtest/internal/custom/gtest-port.h
 
 USER $HOST_UID
 

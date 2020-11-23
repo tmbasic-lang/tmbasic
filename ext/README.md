@@ -4,7 +4,7 @@ See this repository's readme for license information.
 
 ## boost
 - Linux: Alpine 3.12 `boost-dev` package
-- Windows: Ubuntu 20.04 `libboost-dev` package
+- Windows: Arch `boost` package
 - macOS: https://dl.bintray.com/boostorg/release/1.74.0/source/boost_1_74_0.tar.gz ([mirror](https://tmbasic.s3.amazonaws.com/boost/boost_1_74_0.tar.gz))
 
 ## immer
@@ -12,8 +12,8 @@ See this repository's readme for license information.
 
 ## libstdc++
 - Linux: Ubuntu 20.04 `gcc` package
-- Windows: Ubuntu 20.04 `gcc-mingw-w64` package
-- macOS: Xcode distribution
+- Windows: Arch `mingw-w64-gcc` package
+- macOS: Xcode package
 
 ## mpdecimal
 - http://www.bytereef.org/software/mpdecimal/releases/mpdecimal-2.5.0.tar.gz ([mirror](https://tmbasic.s3.amazonaws.com/mpdecimal/mpdecimal-2.5.0.tar.gz))
@@ -27,7 +27,7 @@ See this repository's readme for license information.
 ## ncurses
 - Linux: Alpine 3.12 `ncurses` package
 - Windows: ftp://ftp.invisible-island.net/ncurses/ncurses-6.2.tar.gz ([mirror](https://tmbasic.s3.amazonaws.com/ncurses/ncurses-6.2.tar.gz))
-- macOS: Xcode distribution
+- macOS: Xcode package
 
 ## notoserif
 - https://google-webfonts-helper.herokuapp.com/api/fonts/noto-serif?download=zip&subsets=latin,latin-ext&variants=700,regular,italic,700italic&formats=woff,woff2 ([mirror](https://tmbasic.s3.amazonaws.com/notoserif/noto-serif-v9-latin-ext_latin.zip))
