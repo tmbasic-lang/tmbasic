@@ -3,11 +3,11 @@
 #ifdef _WIN32
 
 static uint8_t* findAppendedData() {
-    assert(false); // not implemented
+    assert(false);  // not implemented
     return nullptr;
 }
 
-#else 
+#else
 
 static uint8_t* findAppendedData() {
     auto pid = getpid();

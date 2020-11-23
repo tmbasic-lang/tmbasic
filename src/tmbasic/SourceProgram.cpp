@@ -48,20 +48,16 @@ static std::vector<const SourceMember*> sortMembers(const SourceProgram* program
 static std::string removeLeadingAndTrailingNonCodeLines(std::list<std::string>* linesPtr) {
     auto& lines = *linesPtr;
     auto whitespaceRegex = std::regex("^[ \t]*$");
-    auto disabledRegex = std::regex("^#disabled");
-    auto endDisabledRegex = std::regex("^#end");
 
     // remove leading lines
-    /*while (lines.size() > 0 &&
-           (std::regex_match(lines.front(), whitespaceRegex) || std::regex_match(lines.front(), disabledRegex))) {
+    while (lines.size() > 0 && std::regex_match(lines.front(), whitespaceRegex)) {
         lines.erase(lines.begin());
     }
 
     // remove trailing lines
-    while (lines.size() > 0 &&
-           (std::regex_match(lines.back(), whitespaceRegex) || std::regex_match(lines.back(), endDisabledRegex))) {
+    while (lines.size() > 0 && std::regex_match(lines.back(), whitespaceRegex)) {
         lines.erase(--lines.end());
-    }*/
+    }
 
     // join into a string
     std::ostringstream s;
@@ -79,42 +75,46 @@ void SourceProgram::load(const std::string& filePath) {
         throw std::system_error(errno, std::system_category());
     }
 
-    auto endSubRegex = std::regex("^[ \t]*[Ee][Nn][Dd][ \t]+[Ss][Uu][Bb]");
-    auto endFunctionRegex = std::regex("^[ \t]*[Ee][Nn][Dd][ \t]+[Ff][Uu][Nn][Cc][Tt][Ii][Oo][Nn]");
-    auto dimRegex = std::regex("^[ \t]*[Dd][Ii][Mm][ \t]");
-    auto constRegex = std::regex("^[ \t]*[Cc][Oo][Nn][Ss][Tt][ \t]");
-    auto endTypeRegex = std::regex("^[ \t]*[Ee][Nn][Dd][ \t]+[Tt][Yy][Pp][Ee]");
-    auto disabledRegex = std::regex("^#disabled");
-    auto endDisabledConstRegex = std::regex("^#end disabled const");
-    auto endDisabledDimRegex = std::regex("^#end disabled dim");
-    auto endDisabledProcedureRegex = std::regex("^#end disabled procedure");
-    auto endDisabledTypeRegex = std::regex("^#end disabled type");
+    auto endSubRegex = std::regex("^[ \t]*[Ee][Nn][Dd][ \t]+[Ss][Uu][Bb].*$");
+    auto endFunctionRegex = std::regex("^[ \t]*[Ee][Nn][Dd][ \t]+[Ff][Uu][Nn][Cc][Tt][Ii][Oo][Nn].*$");
+    auto dimRegex = std::regex("^[ \t]*[Dd][Ii][Mm][ \t].*$");
+    auto constRegex = std::regex("^[ \t]*[Cc][Oo][Nn][Ss][Tt][ \t].*$");
+    auto endTypeRegex = std::regex("^[ \t]*[Ee][Nn][Dd][ \t]+[Tt][Yy][Pp][Ee].*$");
+    auto disabledRegex = std::regex("^#disabled.*$");
+    auto endDisabledConstRegex = std::regex("^#end disabled const.*$");
+    auto endDisabledDimRegex = std::regex("^#end disabled dim.*$");
+    auto endDisabledProcedureRegex = std::regex("^#end disabled procedure.*$");
+    auto endDisabledTypeRegex = std::regex("^#end disabled type.*$");
 
     std::list<std::string> currentBlock;
     auto isDisabledBlock = false;
     std::string line;
     while (std::getline(file, line)) {
-        currentBlock.push_back(line);
-
         auto isBlockDone = false;
         SourceMemberType memberType;  // set this when setting isBlockDone=true
+        auto includeThisLine = true;
 
-        if (isDisabledBlock) {
+        if (!isDisabledBlock && std::regex_match(line, disabledRegex)) {
+            isDisabledBlock = true;
+            includeThisLine = false;
+        } else if (isDisabledBlock) {
             if (std::regex_match(line, endDisabledConstRegex)) {
                 memberType = SourceMemberType::kConstant;
                 isBlockDone = true;
+                includeThisLine = false;
             } else if (std::regex_match(line, endDisabledDimRegex)) {
                 memberType = SourceMemberType::kGlobalVariable;
                 isBlockDone = true;
+                includeThisLine = false;
             } else if (std::regex_match(line, endDisabledProcedureRegex)) {
                 memberType = SourceMemberType::kProcedure;
                 isBlockDone = true;
+                includeThisLine = false;
             } else if (std::regex_match(line, endDisabledTypeRegex)) {
                 memberType = SourceMemberType::kType;
                 isBlockDone = true;
+                includeThisLine = false;
             }
-        } else if (std::regex_match(line, disabledRegex)) {
-            isDisabledBlock = true;
         } else if (std::regex_match(line, endSubRegex) || std::regex_match(line, endFunctionRegex)) {
             memberType = SourceMemberType::kProcedure;
             isBlockDone = true;
@@ -129,10 +129,15 @@ void SourceProgram::load(const std::string& filePath) {
             isBlockDone = true;
         }
 
+        if (includeThisLine) {
+            currentBlock.push_back(line);
+        }
+
         if (isBlockDone) {
-            members.push_back(
-                std::make_unique<SourceMember>(memberType, removeLeadingAndTrailingNonCodeLines(&currentBlock), 0, 0));
-            currentBlock = {};
+            members.push_back(std::make_unique<SourceMember>(
+                memberType, boost::replace_all_copy(removeLeadingAndTrailingNonCodeLines(&currentBlock), "##", "#"), 0,
+                0));
+            currentBlock.clear();
             isDisabledBlock = false;
         }
     }

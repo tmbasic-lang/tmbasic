@@ -101,9 +101,6 @@ bool ProgramWindow::onSaveAs() {
         char fileName[MAXPATH];
         d->getFileName(fileName);
         if (save(fileName)) {
-            _filePath = fileName;
-            updateTitle();
-            frame->drawView();
             result = true;
         }
     }
@@ -118,6 +115,7 @@ bool ProgramWindow::save(std::string filePath) {
         _filePath = filePath;
         _dirty = false;
         updateTitle();
+        frame->drawView();
         return true;
     } catch (const std::system_error& ex) {
         std::ostringstream s;
