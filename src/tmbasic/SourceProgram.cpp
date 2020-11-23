@@ -18,6 +18,12 @@ static bool isBlankOrComment(std::string str) {
     return true;
 }
 
+void SourceMember::setSource(std::string newSource) {
+    isCompiledMemberUpToDate = false;
+    source = newSource;
+    updateDisplayName();
+}
+
 void SourceMember::updateDisplayName() {
     std::istringstream stream(source);
     std::string line;

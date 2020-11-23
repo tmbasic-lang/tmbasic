@@ -187,4 +187,12 @@ void ProgramWindow::addNewSourceMember(std::unique_ptr<SourceMember> sourceMembe
     updateTitle();
 }
 
+void ProgramWindow::updateListItems() {
+    _contentsListBox->updateItems();
+}
+
+void ProgramWindow::redrawListItems() {
+    _contentsListBox->drawView();
+}
+
 }  // namespace tmbasic

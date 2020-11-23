@@ -20,7 +20,9 @@ class SourceMember {
     bool isCompiledMemberUpToDate = false;
 
     SourceMember(SourceMemberType memberType, std::string source, int selectionStart, int selectionEnd);
+    void setSource(std::string newSource);
 
+   private:
     void updateDisplayName();
 };
 

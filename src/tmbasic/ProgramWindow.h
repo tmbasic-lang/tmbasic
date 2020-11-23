@@ -24,6 +24,8 @@ class ProgramWindow : public TWindow {
     bool isDirty();
     bool preClose();
     void addNewSourceMember(std::unique_ptr<SourceMember> sourceMember);
+    void updateListItems();
+    void redrawListItems();
 
    private:
     bool onSave();

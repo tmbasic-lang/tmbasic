@@ -39,8 +39,11 @@ static std::string getEditorWindowTitle(const SourceMember& member) {
     return s.str();
 }
 
-EditorWindow::EditorWindow(const TRect& r, SourceMember* member)
-    : TWindow(r, getEditorWindowTitle(*member), wnNoNumber), TWindowInit(TWindow::initFrame), _member(member) {
+EditorWindow::EditorWindow(const TRect& r, SourceMember* member, std::function<void()> onEdited)
+    : TWindow(r, getEditorWindowTitle(*member), wnNoNumber),
+      TWindowInit(TWindow::initFrame),
+      _member(member),
+      _onEdited(onEdited) {
     options |= ofTileable;
 
     auto* hScrollBar = new TScrollBar(TRect(18, size.y - 1, size.x - 2, size.y));
@@ -79,6 +82,11 @@ void EditorWindow::handleEvent(TEvent& event) {
                 }
                 break;
             }
+
+            case kCmdTimerTick: {
+                onTimerTick();
+                break;
+            }
         }
     }
 }
@@ -93,11 +101,22 @@ static std::string getEditorText(TEditor* editor) {
 }
 
 void EditorWindow::close() {
-    _member->source = getEditorText(_editor);
+    auto newSource = getEditorText(_editor);
+    if (newSource != _member->source) {
+        _member->setSource(newSource);
+        _onEdited();
+    }
     _member->selectionStart = _editor->selStart;
     _member->selectionEnd = _editor->selEnd;
-    _member->isCompiledMemberUpToDate = false;
     TWindow::close();
+}
+
+void EditorWindow::onTimerTick() {
+    auto newSource = getEditorText(_editor);
+    if (newSource != _member->source) {
+        _member->setSource(newSource);
+        _onEdited();
+    }
 }
 
 }  // namespace tmbasic

@@ -238,7 +238,13 @@ void App::showNewEditorWindow(SourceMember* member) {
     if (e.window) {
         e.window->focus();
     } else {
-        auto window = new EditorWindow(getNewWindowRect(82, 30), member);
+        auto window = new EditorWindow(getNewWindowRect(82, 30), member, [this]() -> void {
+            // onUpdated
+            auto* programWindow = findProgramWindow(deskTop);
+            if (programWindow) {
+                programWindow->redrawListItems();
+            }
+        });
         deskTop->insert(window);
     }
 }
