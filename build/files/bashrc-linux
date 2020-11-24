@@ -1,0 +1,2 @@
+make -f /code/Makefile help
+export MAKEFLAGS="-j2"

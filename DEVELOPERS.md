@@ -36,8 +36,8 @@ Start the build environment and build using the following commands:
 1. Start the debugging container:
     ```
     cd build
-    ./vscode.sh
+    ./dev.sh
     make clean
     make
     ```
-1. In Visual Studio Code, click "View" > "Command Palette..." and run the "Remote-Containers: Attach to Running Container..." command. Choose the `/tmbasic-vscode` container.
+1. In Visual Studio Code, click "View" > "Command Palette..." and run the "Remote-Containers: Attach to Running Container..." command. Choose the `/tmbasic-dev` container.
