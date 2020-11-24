@@ -1,6 +1,10 @@
 #include "tmbasic/SourceMembersListBox.h"
 #include "tmbasic/constants.h"
 
+using compiler::SourceMember;
+using compiler::SourceMemberType;
+using compiler::SourceProgram;
+
 namespace tmbasic {
 
 SourceMembersListBox::SourceMembersListBox(

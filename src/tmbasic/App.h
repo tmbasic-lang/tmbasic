@@ -30,7 +30,7 @@ class App : public TApplication {
     TRect centeredRect(int width, int height);
     void openHelpTopic(uint16_t topic);
     void showNewProgramWindow(std::optional<std::string> filePath);
-    void showNewEditorWindow(SourceMember* member);
+    void showNewEditorWindow(compiler::SourceMember* member);
 
     int _newWindowX;
     int _newWindowY;

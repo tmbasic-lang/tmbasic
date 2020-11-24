@@ -1,5 +1,6 @@
 #include "compiler/compile.h"
 #include "compiler/bindProcedureSymbols.h"
+#include "compiler/parse.h"
 #include "compiler/tokenize.h"
 #include "shared/util/cast.h"
 
@@ -12,17 +13,6 @@ using vm::Procedure;
 using vm::Program;
 
 namespace compiler {
-
-CompilerResult::CompilerResult(bool isSuccess, std::string message, basic::Token token)
-    : isSuccess(isSuccess), message(std::move(message)), token(token) {}
-
-CompilerResult CompilerResult::success() {
-    return CompilerResult(true, std::string(), basic::Token(0, 0, basic::TokenKind::kEndOfFile, std::string()));
-}
-
-CompilerResult CompilerResult::error(std::string message, basic::Token token) {
-    return CompilerResult(false, std::move(message), token);
-}
 
 static bool isCommentToken(const Token& x) {
     return x.type == TokenKind::kComment;
@@ -40,7 +30,7 @@ static void removeBlankLines(std::vector<Token>* tokens) {
     }
 }
 
-CompilerResult compileProcedure(Procedure* procedure, Program* program) {
+CompilerResult compile(Procedure* procedure, Program* program) {
     // source is missing if we're executing a precompiled program, which shouldn't run the compiler
     assert(procedure->source.has_value());
 

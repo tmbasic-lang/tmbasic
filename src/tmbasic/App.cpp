@@ -1,12 +1,15 @@
 #include "tmbasic/App.h"
 #include "../../obj/helpfile.h"
+#include "compiler/SourceProgram.h"
 #include "shared/util/membuf.h"
 #include "tmbasic/EditorWindow.h"
 #include "tmbasic/HelpResource.h"
 #include "tmbasic/ProgramWindow.h"
-#include "tmbasic/SourceProgram.h"
 #include "tmbasic/events.h"
 
+using compiler::SourceMember;
+using compiler::SourceMemberType;
+using compiler::SourceProgram;
 using util::membuf;
 
 namespace tmbasic {

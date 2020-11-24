@@ -1,6 +1,6 @@
 #include "SourceProgram.h"
 
-namespace tmbasic {
+namespace compiler {
 
 SourceMember::SourceMember(SourceMemberType memberType, std::string source, int selectionStart, int selectionEnd)
     : memberType(memberType), source(source), selectionStart(selectionStart), selectionEnd(selectionEnd) {

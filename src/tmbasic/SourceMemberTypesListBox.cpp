@@ -1,6 +1,8 @@
 #include "SourceMemberTypesListBox.h"
 #include "tmbasic/constants.h"
 
+using compiler::SourceMemberType;
+
 namespace tmbasic {
 
 // matches the order of SourceMemberType

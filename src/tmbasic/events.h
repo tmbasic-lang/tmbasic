@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../common.h"
+#include "compiler/SourceProgram.h"
 #include "tmbasic/EditorWindow.h"
-#include "tmbasic/SourceProgram.h"
 
 namespace tmbasic {
 
@@ -40,7 +40,7 @@ enum : uint16_t {
 };
 
 struct FindEditorWindowEventArgs {
-    SourceMember* member;  // input
+    compiler::SourceMember* member;  // input
     EditorWindow* window;  // output
 };
 

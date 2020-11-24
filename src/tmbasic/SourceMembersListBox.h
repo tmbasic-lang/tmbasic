@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../common.h"
-#include "tmbasic/SourceProgram.h"
+#include "compiler/SourceProgram.h"
 
 namespace tmbasic {
 
@@ -11,10 +11,10 @@ class SourceMembersListBox : public TListViewer {
         const TRect& bounds,
         uint16_t numCols,
         TScrollBar* vScrollBar,
-        const SourceProgram& program,
-        std::function<void(SourceMember*)> onMemberOpen);
+        const compiler::SourceProgram& program,
+        std::function<void(compiler::SourceMember*)> onMemberOpen);
     virtual ~SourceMembersListBox();
-    void selectType(SourceMemberType type);
+    void selectType(compiler::SourceMemberType type);
     void updateItems();
     void getText(char* dest, int16_t item, int16_t maxLen) override;
     void selectItem(int16_t item) override;
@@ -23,10 +23,10 @@ class SourceMembersListBox : public TListViewer {
    private:
     void openMember(int16_t index);
 
-    const SourceProgram& _program;
-    SourceMemberType _selectedType;
-    std::vector<SourceMember*> _items;
-    std::function<void(SourceMember*)> _onMemberOpen;
+    const compiler::SourceProgram& _program;
+    compiler::SourceMemberType _selectedType;
+    std::vector<compiler::SourceMember*> _items;
+    std::function<void(compiler::SourceMember*)> _onMemberOpen;
 };
 
 }  // namespace tmbasic

@@ -3,7 +3,7 @@
 #include "../common.h"
 #include "shared/vm/ProgramMember.h"
 
-namespace tmbasic {
+namespace compiler {
 
 enum class SourceMemberType { kProcedure, kGlobalVariable, kConstant, kType };
 

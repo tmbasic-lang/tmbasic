@@ -7,6 +7,8 @@
 #include "tmbasic/events.h"
 #include "tmbasic/tvutil.h"
 
+using compiler::SourceMember;
+using compiler::SourceProgram;
 using vm::Program;
 
 namespace tmbasic {

@@ -2362,11 +2362,6 @@ class ParseStackFrame {
           productionStateRef(productionState) {}
 };
 
-ParserResult::ParserResult(std::string message, Token token)
-    : isSuccess(false), message(std::move(message)), token(token) {}
-
-ParserResult::ParserResult(std::unique_ptr<Node> node) : isSuccess(true), node(std::move(node)) {}
-
 static Token peekToken(const InputState* inputState) {
     if (inputState->tokenIndex < inputState->tokens.size()) {
         return inputState->tokens[inputState->tokenIndex];

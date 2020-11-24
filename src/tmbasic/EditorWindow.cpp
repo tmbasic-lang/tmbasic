@@ -2,6 +2,9 @@
 #include "../../obj/helpfile.h"
 #include "tmbasic/events.h"
 
+using compiler::SourceMember;
+using compiler::SourceMemberType;
+
 namespace tmbasic {
 
 class EditorIndicator : public TIndicator {
