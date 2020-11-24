@@ -4,7 +4,6 @@ set -euxo pipefail
 export IMAGE_NAME="tmbasic-dev"
 export HOST_UID=$(id -u "$USER")
 export HOST_GID=$(id -g "$USER")
-export BASE_IMAGE_NAME="ubuntu:20.04"
 
 cat files/Dockerfile.build-dev | envsubst | docker build -t $IMAGE_NAME files -f-
 

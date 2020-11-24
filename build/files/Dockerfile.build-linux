@@ -1,4 +1,4 @@
-FROM $BASE_IMAGE_NAME
+FROM $ARCH/alpine:3.12
 
 RUN apk update && \
     apk add \

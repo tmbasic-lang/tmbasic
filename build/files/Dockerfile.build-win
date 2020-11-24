@@ -1,4 +1,4 @@
-FROM $BASE_IMAGE_NAME
+FROM archlinux:latest
 
 RUN mkdir -p /code && \
     groupadd -g $HOST_GID $USER && \

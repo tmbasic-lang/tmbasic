@@ -4,7 +4,6 @@ set -euxo pipefail
 export IMAGE_NAME="tmbasic-win-x64"
 export HOST_UID=$(id -u "$USER")
 export HOST_GID=$(id -g "$USER")
-export BASE_IMAGE_NAME="archlinux:latest"
 
 cat files/Dockerfile.build-win | envsubst | docker build -t $IMAGE_NAME files -f-
 
