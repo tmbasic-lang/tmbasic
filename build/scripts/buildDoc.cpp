@@ -472,7 +472,7 @@ static string insertCp437Diagram(string input, string filename) {
     auto name = filename.substr(0, filename.length() - 4);  // remove ".txt"
 
     auto diagram = indent(readFile(cp437FilePath));
-    
+
     // escape any { symbols in the diagram
     diagram = replace(diagram, "{", "{{");
 
