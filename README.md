@@ -23,3 +23,7 @@ TMBASIC is open source software. The following components are included in the TM
 - [nameof](https://github.com/Neargye/nameof) — _[MIT license](ext/nameof/LICENSE.txt)_
 - [ncurses](https://en.wikipedia.org/wiki/Ncurses) — _[Ncurses license](ext/ncurses/COPYING)_
 - [tvision](https://github.com/magiblot/tvision) — _[Borland license](ext/tvision/COPYRIGHT) (original code), [MIT license](ext/tvision/COPYRIGHT) (Linux port)_
+
+Pay close attention: executables built by TMBASIC are subject to the licenses above. You must obey these licenses if you distribute your compiled executables. These are permissive open source licenses that do not require you to release your BASIC source code. TMBASIC includes a `LICENSE.txt` file that combines these licenses for your convenience.
+
+See [`ext/README.md`](ext/README.md) for links to the original sources of these third party components.
