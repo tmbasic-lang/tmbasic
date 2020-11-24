@@ -63,7 +63,6 @@ RUN cd /tmp && \
     make install
 
 # build tvision
-COPY tvision-*.diff /tmp/
 RUN cd /tmp && \
     curl -L -o tvision.zip https://github.com/magiblot/tvision/archive/df4e5e6e2af1896af2d49050c63886d84d57c27a.zip && \
     unzip -q tvision.zip && \
