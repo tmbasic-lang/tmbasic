@@ -41,13 +41,13 @@ using std::vector;
 using std::regex_constants::match_any;
 
 const char kCharDiamond[] = "\x04";
-const char kHtmlDiamond[] = "&diams;";
+const char kHtmlDiamond[] = "♦";
 const char kCharBullet[] = "\x07";
-const char kHtmlBullet[] = "&bull;";
+const char kHtmlBullet[] = "•";
 const char kCharTriangleRight[] = "\x10";
-const char kHtmlTriangleRight[] = "&#x25ba;";
+const char kHtmlTriangleRight[] = "►";
 const char kCharOpenCircle[] = "\x09";
-const char kHtmlOpenCircle[] = "&#x25cb;";
+const char kHtmlOpenCircle[] = "○";
 
 struct Parameter {
     string name;
@@ -120,10 +120,6 @@ static void writeFile(string filePath, string body) {
     file << body;
 }
 
-static void copyFile(string srcFilePath, string dstFilePath) {
-    writeFile(dstFilePath, readFile(srcFilePath));
-}
-
 static void forEachFile(string path, function<void(string)> func) {
     auto* dir = opendir(path.c_str());
     if (!dir) {
@@ -139,15 +135,6 @@ static void forEachFile(string path, function<void(string)> func) {
         }
         func(entry->d_name);
     }
-}
-
-static void copyDir(string src, string dst) {
-    createDirectory(dst);
-    forEachFile(src, [&src, &dst](string filename) -> void {
-        auto srcFilePath = src + "/" + filename;
-        auto dstFilePath = dst + "/" + filename;
-        copyFile(srcFilePath, dstFilePath);
-    });
 }
 
 static string replace(string haystack, string needle, string replacement) {
@@ -264,7 +251,6 @@ static string processHtml(string str) {
     str = replaceRegex(str, "\n*ul@\n*([^@]+)\n*@\n*", "<ul>$1</ul>");
     str = replaceRegex(str, "\\{([^:]+):([^}]+)\\}", "<a href=\"$2.html\">$1</a>");
     str = replace(str, "{{", "{");
-    str = replace(str, "\n-----\n", "<hr>");
     str = replace(str, "\n", "<br>");
     str = replaceRegex(str, "dia\\[([^\\]]+)\\]", [](auto& match) -> string {
         return string("<pre class=\"diagram\">") + getDiagramHtml(match[1].str()) + "</pre>";
@@ -291,7 +277,7 @@ static void buildTopic(
     const string& htmlPageTemplate) {
     auto inputFilePath = string("topics/") + filename;
     auto input = readFile(inputFilePath);
-    *outputTxt << ".topic " << topic << "\n" << processText(trim_copy(input)) << "\n\n-----\n\n";
+    *outputTxt << ".topic " << topic << "\n" << processText(trim_copy(input)) << "\n\n";
     writeHtmlPage(topic, input, htmlPageTemplate);
 }
 
@@ -410,7 +396,7 @@ static string formatProcedureText(const string& topicName, const Procedure& proc
             if (!isFirstParameter) {
                 o << ", ";
             }
-            o << "i[" << parameter->name << "] as t[" << parameter->type << "]";
+            o << parameter->name << " as t[" << parameter->type << "]";
             isFirstParameter = false;
         }
         o << ")";
@@ -443,7 +429,7 @@ static string formatProcedureText(const string& topicName, const Procedure& proc
             o << "Output:\ncode@" << example->output << "@\n\n";
         }
 
-        o << "-----\n\n";
+        o << "\n\n";
     }
 
     return o.str();
@@ -520,10 +506,6 @@ int main() {
         createDirectory("../obj/doc-temp");
         createDirectory("../obj/doc-temp/diagrams-cp437");
         createDirectory("../obj/doc-html");
-        copyDir("../ext/notoserif", "../obj/doc-html/notoserif");
-        copyDir("../ext/opensans", "../obj/doc-html/opensans");
-        copyDir("../ext/oxygenmono", "../obj/doc-html/oxygenmono");
-        copyFile("html/style.css", "../obj/doc-html/style.css");
         forEachFile("topics", [&outputTxt, &htmlPageTemplate](auto filename) -> void {
             auto topic = filename.substr(0, filename.length() - 4);
             buildTopic(filename, topic, &outputTxt, htmlPageTemplate);

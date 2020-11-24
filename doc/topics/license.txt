@@ -14,10 +14,3 @@ li@{'nameof' License:license_nameof}@
 li@{'ncurses' License:license_ncurses}@
 li@{'tvision' License:license_tvision}@
 @
-
-The following additional components are included in the web-based version of the TMBASIC documentation. These components are not included in builds of user programs.
-
-ul@li@{'notoserif' License:license_notoserif}@
-li@{'opensans' License:license_opensans}@
-li@{'oxygenmono' License:license_oxygenmono}@
-@

@@ -29,17 +29,5 @@ See this repository's readme for license information.
 - Windows: ftp://ftp.invisible-island.net/ncurses/ncurses-6.2.tar.gz ([mirror](https://tmbasic.s3.amazonaws.com/ncurses/ncurses-6.2.tar.gz))
 - macOS: Xcode package
 
-## notoserif
-- https://google-webfonts-helper.herokuapp.com/api/fonts/noto-serif?download=zip&subsets=latin,latin-ext&variants=700,regular,italic,700italic&formats=woff,woff2 ([mirror](https://tmbasic.s3.amazonaws.com/notoserif/noto-serif-v9-latin-ext_latin.zip))
-- https://raw.githubusercontent.com/google/fonts/1c76cff501862d4635fde5bb682c0706b58a66bc/ofl/notoserif/OFL.txt
-
-## opensans
-- https://google-webfonts-helper.herokuapp.com/api/fonts/open-sans?download=zip&subsets=latin,latin-ext&variants=700,regular,italic,700italic,300,300italic,400,400italic,600,600italic&formats=woff,woff2 ([mirror](https://tmbasic.s3.amazonaws.com/opensans/open-sans-v18-latin-ext_latin.zip))
-- https://raw.githubusercontent.com/google/fonts/1c76cff501862d4635fde5bb682c0706b58a66bc/apache/opensans/LICENSE.txt
-
-## oxygenmono
-- https://google-webfonts-helper.herokuapp.com/api/fonts/oxygen-mono?download=zip&subsets=latin,latin-ext&variants=regular&formats=woff,woff2 ([mirror](https://tmbasic.s3.amazonaws.com/oxygenmono/oxygen-mono-v8-latin-ext_latin.zip))
-- https://raw.githubusercontent.com/google/fonts/1c76cff501862d4635fde5bb682c0706b58a66bc/ofl/oxygenmono/OFL.txt
-
 ## tvision
 - https://github.com/magiblot/tvision/archive/df4e5e6e2af1896af2d49050c63886d84d57c27a.zip ([mirror](https://tmbasic.s3.amazonaws.com/tvision/tvision-df4e5e6e2af1896af2d49050c63886d84d57c27a.zip))

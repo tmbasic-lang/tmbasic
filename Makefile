@@ -40,7 +40,7 @@ EXT_HEADER_FILES=$(shell find ext -type f -name "*.h")
 DOC_FILES=$(shell find doc -type f -name "*.txt") $(shell find doc -type f -name "*.html")
 DIAGRAM_SRC_FILES=$(shell find doc/diagrams -type f -name "*.txt")
 DIAGRAM_CP437_FILES=$(patsubst doc/diagrams/%,obj/doc-temp/diagrams-cp437/%,$(DIAGRAM_SRC_FILES))
-LICENSE_DIAGRAM_SRC_FILES=obj/doc-temp/diagrams-license/license_tmbasic.txt obj/doc-temp/diagrams-license/license_boost.txt obj/doc-temp/diagrams-license/license_musl.txt obj/doc-temp/diagrams-license/license_immer.txt obj/doc-temp/diagrams-license/license_libstdc++_gpl3.txt obj/doc-temp/diagrams-license/license_libstdc++_gcc1.txt obj/doc-temp/diagrams-license/license_libstdc++_gcc2.txt obj/doc-temp/diagrams-license/license_mpdecimal.txt obj/doc-temp/diagrams-license/license_nameof.txt obj/doc-temp/diagrams-license/license_ncurses.txt obj/doc-temp/diagrams-license/license_tvision.txt obj/doc-temp/diagrams-license/license_notoserif.txt obj/doc-temp/diagrams-license/license_opensans.txt obj/doc-temp/diagrams-license/license_oxygenmono.txt
+LICENSE_DIAGRAM_SRC_FILES=obj/doc-temp/diagrams-license/license_tmbasic.txt obj/doc-temp/diagrams-license/license_boost.txt obj/doc-temp/diagrams-license/license_musl.txt obj/doc-temp/diagrams-license/license_immer.txt obj/doc-temp/diagrams-license/license_libstdc++_gpl3.txt obj/doc-temp/diagrams-license/license_libstdc++_gcc1.txt obj/doc-temp/diagrams-license/license_libstdc++_gcc2.txt obj/doc-temp/diagrams-license/license_mpdecimal.txt obj/doc-temp/diagrams-license/license_nameof.txt obj/doc-temp/diagrams-license/license_ncurses.txt obj/doc-temp/diagrams-license/license_tvision.txt
 LICENSE_DIAGRAM_CP437_FILES=$(patsubst obj/doc-temp/diagrams-license/%,obj/doc-temp/diagrams-cp437/%,$(LICENSE_DIAGRAM_SRC_FILES))
 
 .PHONY: all
@@ -58,6 +58,7 @@ help:
 	@echo "make clean                Delete build outputs"
 	@echo "make format               Reformat all code"
 	@echo "make lint                 Check code with cpplint"
+	@echo "make docweb               Host the HTML docs on port 5000"
 	@echo ""
 	@echo "MAKE FLAGS"
 	@echo "----------"
@@ -89,6 +90,10 @@ format:
 .PHONY: lint
 lint:
 	@cpplint --quiet --recursive --linelength 120 --filter=-whitespace/indent,-readability/todo,-build/include_what_you_use,-legal/copyright,-readability/fn_size,-build/c++11 --repository=src src build/scripts/buildDoc.cpp
+
+.PHONY: docweb
+docweb:
+	@cd bin/doc-html && python3 -m http.server 5000
 
 # precompiled header
 
@@ -213,21 +218,6 @@ obj/doc-temp/diagrams-license/license_tvision.txt: ext/tvision/COPYRIGHT
 	@mkdir -p $(@D)
 	@cp -f $< $@
 
-obj/doc-temp/diagrams-license/license_notoserif.txt: ext/notoserif/OFL.txt
-	@echo $@
-	@mkdir -p $(@D)
-	@cp -f $< $@
-
-obj/doc-temp/diagrams-license/license_opensans.txt: ext/opensans/LICENSE.txt
-	@echo $@
-	@mkdir -p $(@D)
-	@cp -f $< $@
-
-obj/doc-temp/diagrams-license/license_oxygenmono.txt: ext/oxygenmono/OFL.txt
-	@echo $@
-	@mkdir -p $(@D)
-	@cp -f $< $@
-
 obj/buildDoc: build/scripts/buildDoc.cpp
 	@echo $@
 	@mkdir -p obj
@@ -244,7 +234,7 @@ obj/helpfile.h: obj/help.txt
 obj/help.h32: obj/helpfile.h
 	@echo $@
 
-obj/help.txt: $(DOC_FILES) obj/buildDoc $(DIAGRAM_CP437_FILES) $(LICENSE_DIAGRAM_CP437_FILES)
+obj/help.txt: $(DOC_FILES) obj/buildDoc $(DIAGRAM_CP437_FILES) $(LICENSE_DIAGRAM_CP437_FILES) doc/html/page-template.html
 	@echo $@
 	@mkdir -p obj
 	@cd doc && ../obj/buildDoc

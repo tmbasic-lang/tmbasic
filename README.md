@@ -23,9 +23,3 @@ TMBASIC is open source software. The following components are included in the TM
 - [nameof](https://github.com/Neargye/nameof) — _[MIT license](ext/nameof/LICENSE.txt)_
 - [ncurses](https://en.wikipedia.org/wiki/Ncurses) — _[Ncurses license](ext/ncurses/COPYING)_
 - [tvision](https://github.com/magiblot/tvision) — _[Borland license](ext/tvision/COPYRIGHT) (original code), [MIT license](ext/tvision/COPYRIGHT) (Linux port)_
-
-The TMBASIC web-based documentation includes the following additional components.
-
-- [notoserif](https://github.com/googlefonts/noto-fonts) — _[SIL OFL 1.1 License](ext/notoserif/OFL.txt)_
-- [opensans](https://github.com/googlefonts/opensans) — _[Apache License 2.0](ext/opensans/LICENSE.txt)_
-- [oxygenmono](https://github.com/KDE/oxygen-fonts) — _[SIL OFL 1.1 License](ext/oxygenmono/OFL.txt)_
