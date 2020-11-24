@@ -242,7 +242,7 @@ void App::showNewEditorWindow(SourceMember* member) {
     if (e.window) {
         e.window->select();
     } else {
-        auto window = new EditorWindow(getNewWindowRect(82, 30), member, [this]() -> void {
+        auto window = new EditorWindow(getNewWindowRect(82, 30), member, []() -> void {
             // onUpdated
             auto* programWindow = findProgramWindow(deskTop);
             if (programWindow) {
