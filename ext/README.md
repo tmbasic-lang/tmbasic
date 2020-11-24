@@ -42,4 +42,4 @@ See this repository's readme for license information.
 - https://raw.githubusercontent.com/google/fonts/1c76cff501862d4635fde5bb682c0706b58a66bc/ofl/oxygenmono/OFL.txt
 
 ## tvision
-- https://github.com/magiblot/tvision/archive/75c25953def0ab131312c3526f468fabf3856043.zip ([mirror](https://tmbasic.s3.amazonaws.com/tvision/tvision-75c25953def0ab131312c3526f468fabf3856043.zip))
+- https://github.com/magiblot/tvision/archive/df4e5e6e2af1896af2d49050c63886d84d57c27a.zip ([mirror](https://tmbasic.s3.amazonaws.com/tvision/tvision-df4e5e6e2af1896af2d49050c63886d84d57c27a.zip))

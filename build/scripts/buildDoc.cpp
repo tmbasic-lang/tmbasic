@@ -227,7 +227,6 @@ static string processText(string str) {
     str = replace(str, "<BULLET>", kCharBullet);
     str = replace(str, "<TRIANGLE_RIGHT>", kCharTriangleRight);
     str = replace(str, "<OPEN_CIRCLE>", kCharOpenCircle);
-    str = replaceRegex(str, "\\{[^:\"}]+:[^:\"}]+\\}", "{$0");
     return str;
 }
 
@@ -264,6 +263,7 @@ static string processHtml(string str) {
     str = replaceRegex(str, "\n*li@\n*([^@]+)\n*@\n*", "<li>$1</li>");
     str = replaceRegex(str, "\n*ul@\n*([^@]+)\n*@\n*", "<ul>$1</ul>");
     str = replaceRegex(str, "\\{([^:]+):([^}]+)\\}", "<a href=\"$2.html\">$1</a>");
+    str = replace(str, "{{", "{");
     str = replace(str, "\n-----\n", "<hr>");
     str = replace(str, "\n", "<br>");
     str = replaceRegex(str, "dia\\[([^\\]]+)\\]", [](auto& match) -> string {
@@ -486,6 +486,10 @@ static string insertCp437Diagram(string input, string filename) {
     auto name = filename.substr(0, filename.length() - 4);  // remove ".txt"
 
     auto diagram = indent(readFile(cp437FilePath));
+    
+    // escape any { symbols in the diagram
+    diagram = replace(diagram, "{", "{{");
+
     auto tag = string("dia[") + name + "]";
 
     while (true) {

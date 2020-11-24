@@ -72,11 +72,9 @@ RUN pip3 install cpplint
 
 COPY tvision-*.diff /tmp/
 RUN cd /tmp && \
-    curl -L -o tvision.zip https://github.com/magiblot/tvision/archive/75c25953def0ab131312c3526f468fabf3856043.zip && \
+    curl -L -o tvision.zip https://github.com/magiblot/tvision/archive/df4e5e6e2af1896af2d49050c63886d84d57c27a.zip && \
     unzip -q tvision.zip && \
     mv tvision-*/ tvision/ && \
-    dos2unix tvision/examples/tvhc/tvhc.cpp && \
-    patch tvision/examples/tvhc/tvhc.cpp tvision-tvhc.cpp.diff && \
     mkdir -p tvision/build && \
     cd tvision/build && \
     cmake .. -DTV_BUILD_USING_GPM=OFF -DCMAKE_BUILD_TYPE=Release && \

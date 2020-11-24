@@ -55,17 +55,9 @@ fi
 
 if [ ! -d "tvision" ]
 then
-    curl -L -o tvision.zip https://github.com/magiblot/tvision/archive/dfe7fef52903b80126cf35012ce9f0f05479ef20.zip
+    curl -L -o tvision.zip https://github.com/magiblot/tvision/archive/df4e5e6e2af1896af2d49050c63886d84d57c27a.zip
     unzip tvision.zip
     mv tvision-* tvision
-    dos2unix/dos2unix tvision/source/platform/ncursinp.cpp
-    patch tvision/source/platform/ncursinp.cpp ../build/docker/tvision-ncursinp.cpp.diff
-    dos2unix/dos2unix tvision/include/tvision/internal/ncursinp.h
-    patch tvision/include/tvision/internal/ncursinp.h ../build/docker/tvision-ncursinp.h.diff
-    dos2unix/dos2unix tvision/include/tvision/tv.h
-    patch tvision/include/tvision/tv.h ../build/docker/tvision-tv.h.diff
-    dos2unix/dos2unix tvision/examples/tvhc/tvhc.cpp
-    patch tvision/examples/tvhc/tvhc.cpp ../build/docker/tvision-tvhc.cpp.diff
     pushd tvision
     mkdir build
     cd build
