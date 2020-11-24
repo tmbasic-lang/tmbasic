@@ -86,22 +86,6 @@ RUN cd /tmp && \
     make -j2 && \
     make install
 
-# tvision
-RUN cd /tmp && \
-    curl -L -o tvision.zip https://github.com/magiblot/tvision/archive/df4e5e6e2af1896af2d49050c63886d84d57c27a.zip && \
-    unzip -q tvision.zip && \
-    mv tvision-*/ tvision/ && \
-    mkdir -p tvision/build && \
-    cd tvision/build && \
-    cmake .. \
-        -DCMAKE_PREFIX_PATH=/usr/x86_64-w64-mingw32 \
-        -DCMAKE_INSTALL_PREFIX=/usr/x86_64-w64-mingw32 \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_TOOLCHAIN_FILE=/tmp/toolchain-cross-mingw64-linux.cmake \
-        && \
-    make -j2 && \
-    make install
-
 # gtest
 RUN cd /tmp && \
     curl -L -o gtest.zip https://github.com/google/googletest/archive/release-1.10.0.zip && \
@@ -119,14 +103,45 @@ RUN cd /tmp && \
     make -j2 && \
     make install
 
-# why are these declarations from <io.h> needed? gtest header fails when included in tmbasic otherwise
+# gtest - why are these declarations from <io.h> needed? gtest header fails when included in tmbasic otherwise
 RUN echo "static int _isatty(int) { return 0; }" >> /usr/x86_64-w64-mingw32/include/gtest/internal/custom/gtest-port.h && \
     echo "static int read(int,void*,unsigned int) { return 0; }" >> /usr/x86_64-w64-mingw32/include/gtest/internal/custom/gtest-port.h && \
     echo "static int write(int,const void*,unsigned int) { return 0; }" >> /usr/x86_64-w64-mingw32/include/gtest/internal/custom/gtest-port.h && \
     echo "static int close(int) { return 0; }" >> /usr/x86_64-w64-mingw32/include/gtest/internal/custom/gtest-port.h
 
-USER $HOST_UID
+# immer
+RUN cd /tmp && \
+    curl -L -o immer.zip https://github.com/arximboldi/immer/archive/800ddb04e528a3e83e69e8021d7e872e7c34cbcd.zip && \
+    unzip -q immer.zip && \
+    mv immer-*/ immer/ && \
+    mkdir -p immer/build && \
+    cd immer/build && \
+    cmake .. \
+        -DCMAKE_PREFIX_PATH=/usr/x86_64-w64-mingw32 \
+        -DCMAKE_INSTALL_PREFIX=/usr/x86_64-w64-mingw32 \
+        -DCMAKE_TOOLCHAIN_FILE=/tmp/toolchain-cross-mingw64-linux.cmake \
+        && \
+    make -j2 && \
+    make install
 
+# tvision
+RUN cd /tmp && \
+    curl -L -o tvision.zip https://github.com/magiblot/tvision/archive/df4e5e6e2af1896af2d49050c63886d84d57c27a.zip && \
+    unzip -q tvision.zip && \
+    mv tvision-*/ tvision/ && \
+    mkdir -p tvision/build && \
+    cd tvision/build && \
+    cmake .. \
+        -DCMAKE_PREFIX_PATH=/usr/x86_64-w64-mingw32 \
+        -DCMAKE_INSTALL_PREFIX=/usr/x86_64-w64-mingw32 \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_TOOLCHAIN_FILE=/tmp/toolchain-cross-mingw64-linux.cmake \
+        && \
+    make -j2 && \
+    make install
+
+# environment
+USER $HOST_UID
 COPY bashrc-win /tmp/bashrc
 RUN cat /tmp/bashrc >> /home/$USER/.bashrc && \
     echo "export IMAGE_NAME=\"$IMAGE_NAME\"" >> /home/$USER/.bashrc && \

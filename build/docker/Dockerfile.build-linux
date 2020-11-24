@@ -20,23 +20,23 @@ RUN apk update && \
         python3 \
         dos2unix
 
-# install cpplint
+# cpplint
 RUN python3 -m ensurepip && \
     pip3 install cpplint
 
-# set up unprivileged user
+# unprivileged user
 RUN addgroup -g $HOST_GID $USER && \
     adduser -h /home/$USER -s /bin/bash -G $USER -u $HOST_UID -D $USER && \
     chmod a+w /var/cache/distfiles
 
-# set up the key for signing built .apk packages    
+# key for signing built .apk packages    
 USER $HOST_UID
 RUN abuild-keygen && \
     echo "PACKAGER_PRIVKEY=\"$(ls /home/$USER/.abuild/*.rsa)\"" > /home/$USER/.abuild/abuild.conf
 USER 0
 RUN cp /home/$USER/.abuild/*.rsa.pub /etc/apk/keys/
 
-# build ncurses
+# ncurses
 USER $HOST_UID
 COPY ncurses-APKBUILD.diff /tmp/
 RUN mkdir -p /tmp/aports/main/ncurses && \
@@ -52,8 +52,7 @@ RUN mkdir -p /tmp/aports/main/ncurses && \
 USER 0
 RUN apk add /home/$USER/packages/main/*/*.apk
 
-# build mpdecimal
-USER 0
+# mpdecimal
 RUN cd /tmp && \
     curl -L -o mpdecimal.tar.gz http://www.bytereef.org/software/mpdecimal/releases/mpdecimal-2.5.0.tar.gz && \
     tar zxf mpdecimal.tar.gz && \
@@ -62,7 +61,18 @@ RUN cd /tmp && \
     make -j2 && \
     make install
 
-# build tvision
+# immer
+RUN cd /tmp && \
+    curl -L -o immer.zip https://github.com/arximboldi/immer/archive/800ddb04e528a3e83e69e8021d7e872e7c34cbcd.zip && \
+    unzip -q immer.zip && \
+    mv immer-*/ immer/ && \
+    mkdir -p immer/build && \
+    cd immer/build && \
+    cmake .. && \
+    make -j2 && \
+    make install
+
+# tvision
 RUN cd /tmp && \
     curl -L -o tvision.zip https://github.com/magiblot/tvision/archive/df4e5e6e2af1896af2d49050c63886d84d57c27a.zip && \
     unzip -q tvision.zip && \
@@ -73,7 +83,7 @@ RUN cd /tmp && \
     make -j2 && \
     make install
 
-# set up environment
+# environment
 USER $HOST_UID
 COPY bashrc-linux /tmp/bashrc
 RUN cat /tmp/bashrc >> /home/$USER/.bashrc && \

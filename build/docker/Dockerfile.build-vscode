@@ -22,14 +22,14 @@ RUN apt-get update -y && \
         unzip \
         dos2unix
 
+# clang-format
 RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
     add-apt-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-10 main" && \
     apt-get update -y && \
     apt-get install -y clang-format-10 && \
     update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-10 9999
 
-RUN apt-get build-dep -y ncurses
-
+# unprivileged user
 RUN mkdir -p /code && \
     mkdir -p /pkgsrc && \
     groupadd -g $HOST_GID $USER && \
@@ -39,26 +39,27 @@ RUN mkdir -p /code && \
     mkdir -p /home/$USER && \
     chown $HOST_UID:$HOST_GID /home/$USER
 
+# nurses
+RUN apt-get build-dep -y ncurses
 USER $HOST_UID
-
 COPY ncurses-rules.diff /pkgsrc/
 RUN cd /pkgsrc && \
     apt-get source -y ncurses && \
     mv ncurses*/ ncurses && \
     cd ncurses && \
     patch debian/rules /pkgsrc/ncurses-rules.diff
-
 USER 0
-
 RUN cd /pkgsrc/ncurses && \
     dpkg-buildpackage --build=binary --build-profiles=nobiarch,pkg.ncurses.noexamples && \
     dpkg -i /pkgsrc/*.deb
 
+# gtest
 RUN cd /usr/src/gtest && \
     cmake CMakeLists.txt && \
     make -j 2 && \
     mv lib/*.a /usr/lib/
 
+# mpdecimal
 RUN cd /tmp && \
     curl -L -o mpdecimal.tar.gz http://www.bytereef.org/software/mpdecimal/releases/mpdecimal-2.5.0.tar.gz && \
     tar zxf mpdecimal.tar.gz && \
@@ -68,8 +69,21 @@ RUN cd /tmp && \
     make install && \
     cp -rf /usr/local/lib/libmpdec* /lib/*-linux-gnu/
 
+# cpplint
 RUN pip3 install cpplint
 
+# immer
+RUN cd /tmp && \
+    curl -L -o immer.zip https://github.com/arximboldi/immer/archive/800ddb04e528a3e83e69e8021d7e872e7c34cbcd.zip && \
+    unzip -q immer.zip && \
+    mv immer-*/ immer/ && \
+    mkdir -p immer/build && \
+    cd immer/build && \
+    cmake .. && \
+    make -j2 && \
+    make install
+
+# tvision
 RUN cd /tmp && \
     curl -L -o tvision.zip https://github.com/magiblot/tvision/archive/df4e5e6e2af1896af2d49050c63886d84d57c27a.zip && \
     unzip -q tvision.zip && \
@@ -80,8 +94,8 @@ RUN cd /tmp && \
     make -j2 && \
     make install
 
+# environment
 USER $HOST_UID
-
 COPY bashrc-vscode /tmp/bashrc
 RUN cat /tmp/bashrc >> /home/$USER/.bashrc && \
     echo "export IMAGE_NAME=\"$IMAGE_NAME\"" >> /home/$USER/.bashrc && \

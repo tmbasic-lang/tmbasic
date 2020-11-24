@@ -43,14 +43,11 @@ then
     popd
 fi
 
-if [ ! -d "dos2unix" ]
+if [ ! -d "immer" ]
 then
-    curl -L -o dos2unix.tar.gz https://netactuate.dl.sourceforge.net/project/dos2unix/dos2unix/7.4.2/dos2unix-7.4.2.tar.gz
-    tar zxf dos2unix.tar.gz 
-    mv dos2unix-* dos2unix
-    pushd dos2unix
-    make ENABLE_NLS=
-    popd
+    curl -L -o immer.zip https://github.com/arximboldi/immer/archive/800ddb04e528a3e83e69e8021d7e872e7c34cbcd.zip
+    unzip -q immer.zip
+    mv immer-*/ immer/
 fi
 
 if [ ! -d "tvision" ]
@@ -69,7 +66,7 @@ fi
 set +x
 cd ..
 make help
-MAC_INCLUDE_FLAGS="-I$(PWD)/mac/boost -I$(PWD)/mac/mpdecimal/libmpdec -I$(PWD)/mac/mpdecimal/libmpdec++ -I$(PWD)/mac/ncurses/include -I$(PWD)/mac/googletest/googletest/include -I$(PWD)/mac/tvision/include" \
+MAC_INCLUDE_FLAGS="-I$(PWD)/mac/boost -I$(PWD)/mac/mpdecimal/libmpdec -I$(PWD)/mac/mpdecimal/libmpdec++ -I$(PWD)/mac/ncurses/include -I$(PWD)/mac/googletest/googletest/include -I$(PWD)/mac/tvision/include -I$(PWD)/mac/immer" \
     BUILDDOC_MAC_INCLUDE_FLAGS="-I$(PWD)/mac/boost" \
     MAC_LD_FLAGS="-L$(PWD)/mac/mpdecimal/libmpdec -L$(PWD)/mac/mpdecimal/libmpdec++ -L$(PWD)/mac/tvision/build" \
     HELP_FILE_OBJ="" \
