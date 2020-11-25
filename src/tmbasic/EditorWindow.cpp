@@ -23,10 +23,7 @@ static std::string getEditorWindowTitle(const SourceMember& member) {
     std::ostringstream s;
     s << member.identifier << " - ";
     switch (member.memberType) {
-        case SourceMemberType::kConstant:
-            s << "Constant";
-            break;
-        case SourceMemberType::kGlobalVariable:
+        case SourceMemberType::kGlobal:
             s << "Global";
             break;
         case SourceMemberType::kType:

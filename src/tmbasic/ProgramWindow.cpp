@@ -25,21 +25,21 @@ ProgramWindow::ProgramWindow(
       _dirty(false),
       _openMember(openMember) {
     palette = 0;
-    auto* vScrollBar = new TScrollBar(TRect(size.x - 1, 1, size.x, size.y - 1));
+    auto* vScrollBar = new TScrollBar(TRect(size.x - 1, 3, size.x, size.y - 1));
     insert(vScrollBar);
 
     auto typesListBoxRect = getExtent();
     typesListBoxRect.grow(-1, -1);
-    typesListBoxRect.b.x = 15;
+    typesListBoxRect.b.y = 2;
     _typesListBox = new SourceMemberTypesListBox(
-        typesListBoxRect, 1, [this]() { _contentsListBox->selectType(_typesListBox->getSelectedType()); });
-    _typesListBox->growMode = gfGrowHiY;
+        typesListBoxRect, 4, [this]() { _contentsListBox->selectType(_typesListBox->getSelectedType()); });
+    _typesListBox->growMode = gfGrowHiX;
     _typesListBox->options |= ofFramed;
     insert(_typesListBox);
 
     auto contentsListBoxRect = getExtent();
     contentsListBoxRect.grow(-1, -1);
-    contentsListBoxRect.a.x = 16;
+    contentsListBoxRect.a.y = 3;
     _contentsListBox = new SourceMembersListBox(
         contentsListBoxRect, 1, vScrollBar, *_sourceProgram, [this](auto* member) -> void { _openMember(member); });
     _contentsListBox->growMode = gfGrowHiX | gfGrowHiY;

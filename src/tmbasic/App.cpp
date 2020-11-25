@@ -289,20 +289,20 @@ void App::onProgramAdd(TextEditorType type) {
         return;
     }
 
-    auto memberType = SourceMemberType::kConstant;
+    auto memberType = SourceMemberType::kProcedure;
     auto source = std::string();
     auto selectionStart = 0;
     auto selectionEnd = 0;
 
     switch (type) {
         case TextEditorType::kConstant:
-            memberType = SourceMemberType::kConstant;
+            memberType = SourceMemberType::kGlobal;
             source = "const untitled = 0\n";
             selectionStart = 6;
             selectionEnd = 14;
             break;
         case TextEditorType::kGlobalVariable:
-            memberType = SourceMemberType::kGlobalVariable;
+            memberType = SourceMemberType::kGlobal;
             source = "dim untitled as number\n";
             selectionStart = 4;
             selectionEnd = 12;

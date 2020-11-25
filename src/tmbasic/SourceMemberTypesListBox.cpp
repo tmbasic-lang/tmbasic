@@ -7,10 +7,10 @@ namespace tmbasic {
 
 // matches the order of SourceMemberType
 static const char* kSourceMemberTypeStrings[] = {
-    "Procedures \x10",
-    "Globals    \x10",
-    "Constants  \x10",
-    "Types      \x10",
+    "Procedures",
+    "Globals",
+    "Types",
+    "Forms"
 };
 
 typedef std::function<void()> SourceMemberTypeSelectedFunc;
@@ -21,7 +21,7 @@ SourceMemberTypesListBox::SourceMemberTypesListBox(
     SourceMemberTypeSelectedFunc onSelectedFunc)
     : TListViewer(bounds, numCols, nullptr, nullptr),
       _onSelectedFunc(onSelectedFunc),
-      _selectedType(SourceMemberType::kConstant) {
+      _selectedType(SourceMemberType::kProcedure) {
     setRange(4);
 }
 

@@ -116,11 +116,11 @@ void SourceProgram::load(const std::string& filePath) {
             includeThisLine = false;
         } else if (isDisabledBlock) {
             if (std::regex_match(line, endDisabledConstRegex)) {
-                memberType = SourceMemberType::kConstant;
+                memberType = SourceMemberType::kGlobal;
                 isBlockDone = true;
                 includeThisLine = false;
             } else if (std::regex_match(line, endDisabledDimRegex)) {
-                memberType = SourceMemberType::kGlobalVariable;
+                memberType = SourceMemberType::kGlobal;
                 isBlockDone = true;
                 includeThisLine = false;
             } else if (std::regex_match(line, endDisabledProcedureRegex)) {
@@ -136,10 +136,10 @@ void SourceProgram::load(const std::string& filePath) {
             memberType = SourceMemberType::kProcedure;
             isBlockDone = true;
         } else if (std::regex_match(line, dimRegex)) {
-            memberType = SourceMemberType::kGlobalVariable;
+            memberType = SourceMemberType::kGlobal;
             isBlockDone = true;
         } else if (std::regex_match(line, constRegex)) {
-            memberType = SourceMemberType::kConstant;
+            memberType = SourceMemberType::kGlobal;
             isBlockDone = true;
         } else if (std::regex_match(line, endTypeRegex)) {
             memberType = SourceMemberType::kType;
@@ -173,17 +173,17 @@ void SourceProgram::save(const std::string& filePath) const {
             // of syntax errors in this block
             std::string typeName;
             switch (member->memberType) {
-                case SourceMemberType::kConstant:
-                    typeName = "const";
-                    break;
-                case SourceMemberType::kGlobalVariable:
-                    typeName = "dim";
+                case SourceMemberType::kGlobal:
+                    typeName = "global";
                     break;
                 case SourceMemberType::kProcedure:
                     typeName = "procedure";
                     break;
                 case SourceMemberType::kType:
                     typeName = "type";
+                    break;
+                case SourceMemberType::kForm:
+                    typeName = "form";
                     break;
                 default:
                     assert(false);
