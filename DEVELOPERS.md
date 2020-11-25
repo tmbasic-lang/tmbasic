@@ -11,15 +11,16 @@ sudo usermod -aG docker ubuntu && \
 sudo reboot
 ```
 
-If you want to build ARM64 binaries on an x64 system, install the following prerequisite packages. Skip this step if you only want to build binaries native to your platform.
+If you want to build ARM binaries on an x64 system, run the follow command to install the QEMU emulator. Skip this step if you only want to build binaries native to your platform.
 
 ```
-sudo apt-get install -y qemu binfmt-support qemu-user-static
+sudo apt-get install -y qemu binfmt-support qemu-user-static && \
+docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 ```
 
 Start the build environment and build using the following commands:
 - `cd build`
-- `./linux-x64.sh` or `./linux-arm64.sh` or `./win-x64.sh`
+- `./linux-x64.sh` or `./linux-arm32.sh` or `./linux-arm64.sh` or `./win-x64.sh`
 - `make`
 
 ## Build for macOS

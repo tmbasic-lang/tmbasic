@@ -1,10 +1,10 @@
 #!/bin/bash
 set -euxo pipefail
 
-export IMAGE_NAME="tmbasic-linux-arm64"
+export IMAGE_NAME="tmbasic-linux-arm32"
 export HOST_UID=$(id -u "$USER")
 export HOST_GID=$(id -g "$USER")
-export ARCH="arm64v8"
+export ARCH="arm32v7"
 
 cat files/Dockerfile.build-linux | envsubst | docker build -t $IMAGE_NAME files -f-
 
