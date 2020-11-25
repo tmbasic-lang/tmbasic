@@ -198,4 +198,4 @@ void SourceProgram::save(const std::string& filePath) const {
     }
 }
 
-}  // namespace tmbasic
+}  // namespace compiler

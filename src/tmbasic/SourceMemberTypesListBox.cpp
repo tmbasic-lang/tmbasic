@@ -6,12 +6,7 @@ using compiler::SourceMemberType;
 namespace tmbasic {
 
 // matches the order of SourceMemberType
-static const char* kSourceMemberTypeStrings[] = {
-    "Procedures",
-    "Globals",
-    "Types",
-    "Forms"
-};
+static const char* kSourceMemberTypeStrings[] = { "Procedures", "Globals", "Types", "Forms" };
 
 typedef std::function<void()> SourceMemberTypeSelectedFunc;
 

@@ -1,7 +1,0 @@
-nav@{TMBASIC Documentation:doc}
-
-h1[Getting Started]
-
-ul@
-li@{Program Window:ide_programWindow}@
-@

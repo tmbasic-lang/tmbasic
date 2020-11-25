@@ -2,6 +2,7 @@
 
 #include "../common.h"
 #include "compiler/SourceProgram.h"
+#include "tmbasic/DesignerWindow.h"
 #include "tmbasic/EditorWindow.h"
 
 namespace tmbasic {
@@ -32,6 +33,9 @@ enum : uint16_t {
     // broadcast to find an EditorWindow for the specified member. FindEditorWindowEventArgs* infoPtr
     kCmdFindEditorWindow,
 
+    // broadcast to find a DesignerWindow for the specified member. FindDesignerWindowEventArgs* infoPtr
+    kCmdFindDesignerWindow,
+
     // broadcast to close all program-related windows.
     kCmdCloseProgramRelatedWindows,
 
@@ -41,7 +45,12 @@ enum : uint16_t {
 
 struct FindEditorWindowEventArgs {
     compiler::SourceMember* member;  // input
-    EditorWindow* window;  // output
+    EditorWindow* window;            // output
+};
+
+struct FindDesignerWindowEventArgs {
+    compiler::SourceMember* member;  // input
+    DesignerWindow* window;          // output
 };
 
 }  // namespace tmbasic

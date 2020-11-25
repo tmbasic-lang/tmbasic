@@ -1,4 +1,1 @@
-nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {Getting Started:ide}@
-
-h1[Program Window]
-
+h1[Placeholder]

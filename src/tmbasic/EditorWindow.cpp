@@ -83,10 +83,9 @@ void EditorWindow::handleEvent(TEvent& event) {
                 break;
             }
 
-            case kCmdTimerTick: {
+            case kCmdTimerTick:
                 onTimerTick();
                 break;
-            }
         }
     }
 }
