@@ -6,7 +6,7 @@ using compiler::SourceMemberType;
 namespace tmbasic {
 
 // matches the order of SourceMemberType
-static const char* kSourceMemberTypeStrings[] = { "Procedures", "Globals", "Types", "Forms" };
+static const char* kSourceMemberTypeStrings[] = { "Procedures", "Globals", "Types", "Designs" };
 
 typedef std::function<void()> SourceMemberTypeSelectedFunc;
 
@@ -31,14 +31,6 @@ void SourceMemberTypesListBox::focusItem(int16_t item) {
     TListViewer::focusItem(item);
     _selectedType = static_cast<SourceMemberType>(item);
     _onSelectedFunc();
-}
-
-TPalette& SourceMemberTypesListBox::getPalette() const {
-    // Active, Inactive, Focused, Selected, Divider
-    static const char bytes[] = kWindowPaletteFrameActive kWindowPaletteFramePassive kWindowPaletteScrollerSelectedText
-        kWindowPaletteScrollBarControls kWindowPaletteFrameActive;
-    static auto palette = TPalette(bytes, sizeof(bytes) - 1);
-    return palette;
 }
 
 SourceMemberType SourceMemberTypesListBox::getSelectedType() const {

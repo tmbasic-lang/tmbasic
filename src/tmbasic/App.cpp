@@ -5,6 +5,7 @@
 #include "tmbasic/EditorWindow.h"
 #include "tmbasic/HelpResource.h"
 #include "tmbasic/ProgramWindow.h"
+#include "tmbasic/constants.h"
 #include "tmbasic/events.h"
 
 using compiler::SourceMember;
@@ -17,6 +18,7 @@ namespace tmbasic {
 App::App(int argc, char** argv)
     : TProgInit(initStatusLine, initMenuBar, TApplication::initDeskTop), _newWindowX(2), _newWindowY(1) {
     disableDefaultCommands();
+    onFileNew();
 }
 
 void App::idle() {
@@ -64,10 +66,22 @@ TMenuBar* App::initMenuBar(TRect r) {
     auto& programMenu = *new TSubMenu("~P~rogram", kbAltP) +
         *new TMenuItem("~R~un", kCmdProgramRun, kbF5, hcNoContext, "F5") + newLine() +
         *new TMenuItem("Add ~s~ubroutine", kCmdProgramAddSubroutine, kbNoKey) +
-        *new TMenuItem("Add ~f~unction", kCmdProgramAddFunction, kbNoKey) +
+        *new TMenuItem("Add ~f~unction", kCmdProgramAddFunction, kbNoKey) + newLine() +
         *new TMenuItem("Add ~g~lobal variable", kCmdProgramAddGlobalVariable, kbNoKey) +
-        *new TMenuItem("Add ~c~onstant", kCmdProgramAddConstant, kbNoKey) +
-        *new TMenuItem("Add ~t~ype", kCmdProgramAddType, kbNoKey);
+        *new TMenuItem("Add ~c~onstant", kCmdProgramAddConstant, kbNoKey) + newLine() +
+        *new TMenuItem("Add ~t~ype", kCmdProgramAddType, kbNoKey) + newLine() +
+        *new TMenuItem("Add f~o~rm", kCmdHelpAbout, kbNoKey) +
+        *new TMenuItem("Add c~u~stom control", kCmdHelpAbout, kbNoKey);
+
+    auto& formMenu = *new TSubMenu("~D~esign", kbAltD) + *new TMenuItem("Add ~b~utton", kCmdHelpAbout, kbNoKey) +
+        *new TMenuItem("Add ~c~heck box", kCmdHelpAbout, kbNoKey) +
+        *new TMenuItem("Add ~g~roup box", kCmdHelpAbout, kbNoKey) +
+        *new TMenuItem("Add ~l~abel", kCmdHelpAbout, kbNoKey) +
+        *new TMenuItem("Add list bo~x~", kCmdHelpAbout, kbNoKey) +
+        *new TMenuItem("Add ~r~adio button", kCmdHelpAbout, kbNoKey) +
+        *new TMenuItem("Add ~s~croll bar", kCmdHelpAbout, kbNoKey) +
+        *new TMenuItem("Add ~t~ext box", kCmdHelpAbout, kbNoKey) + newLine() +
+        *new TMenuItem("Add c~u~stom control", kCmdHelpAbout, kbNoKey);
 
     auto& windowMenu = *new TSubMenu("~W~indow", kbAltW) +
         *new TMenuItem("~S~ize/move", cmResize, kbCtrlF5, hcNoContext, "Ctrl+F5") +
@@ -81,7 +95,7 @@ TMenuBar* App::initMenuBar(TRect r) {
         *new TMenuItem("~A~bout TMBASIC", kCmdHelpAbout, kbNoKey);
 
     r.b.y = r.a.y + 1;
-    return new TMenuBar(r, fileMenu + editMenu + viewMenu + programMenu + windowMenu + helpMenu);
+    return new TMenuBar(r, fileMenu + editMenu + viewMenu + programMenu + formMenu + windowMenu + helpMenu);
 }
 
 TStatusLine* App::initStatusLine(TRect r) {
@@ -104,6 +118,64 @@ TStatusLine* App::initStatusLine(TRect r) {
     programWindowStatusDef.next = &editorWindowStatusDef;
 
     return new TStatusLine(r, programWindowStatusDef);
+}
+
+static char getPaletteColor(char* palette, size_t index) {
+    return palette[index - 1];
+}
+
+static void updatePalette(char* appPalette, size_t appPaletteIndex, uint8_t mask, uint8_t newValue) {
+    appPalette[appPaletteIndex - 1] = (appPalette[appPaletteIndex - 1] & ~mask) | newValue;
+}
+
+static void updatePalette(
+    char* appPalette,
+    char* windowPalette,
+    char windowPaletteIndex,
+    uint8_t mask,
+    uint8_t newValue) {
+    auto appIndex = static_cast<size_t>(windowPalette[windowPaletteIndex - 1]);
+    appPalette[appIndex - 1] = (appPalette[appIndex - 1] & ~mask) | newValue;
+}
+
+TPalette& App::getPalette() const {
+    static char array[256] = {};
+    static auto isInitialized = false;
+    if (!isInitialized) {
+        memcpy(array, cpAppColor, sizeof(cpAppColor));
+
+        updatePalette(array, cpBlueDialog, kPaletteListViewerActiveInactive, 0xFF, kBgColorBlue | kFgColorWhite);
+        updatePalette(array, cpBlueDialog, kPaletteListViewerFocused, 0xFF, kBgColorGreen | kFgColorBrightWhite);
+        updatePalette(array, cpBlueDialog, kPaletteListViewerSelected, 0xFF, kBgColorBlue | kFgColorYellow);
+        updatePalette(array, cpBlueDialog, kPaletteListViewerDivider, 0xFF, kBgColorBlue | kFgColorGray);
+
+        updatePalette(array, cpCyanDialog, kPaletteListViewerActiveInactive, 0xFF, kBgColorCyan | kFgColorBrightWhite);
+        updatePalette(array, cpCyanDialog, kPaletteListViewerFocused, 0xFF, kBgColorGreen | kFgColorBrightWhite);
+        updatePalette(array, cpCyanDialog, kPaletteListViewerSelected, 0xFF, kBgColorCyan | kFgColorYellow);
+        updatePalette(array, cpCyanDialog, kPaletteListViewerDivider, 0xFF, kBgColorCyan | kFgColorWhite);
+
+        // black dialog 0xA0 - 0xBF. blue dialog is 0x40 - 0x5F.
+        for (size_t i = 0xA0; i <= 0xBF; i++) {
+            auto color = getPaletteColor(array, i - (0xA0 - 0x40));
+            if ((color & kBgColorMask) == kBgColorBlue) {
+                color = (color & ~kBgColorMask) | kBgColorBlack;
+            } else if ((color & kFgColorMask) == kFgColorBlue) {
+                color = (color & ~kFgColorMask) | kFgColorBlack;
+            }
+            updatePalette(array, i, 0xFF, color);
+        }
+
+        // white text in editors instead of yellow
+        updatePalette(array, cpBlueWindow, kPaletteEditorNormal, kFgColorMask, kFgColorWhite);
+
+        isInitialized = true;
+    }
+
+    static TPalette color(array, sizeof(array) - 1);
+    static TPalette blackwhite(cpAppBlackWhite, sizeof(cpAppBlackWhite) - 1);
+    static TPalette monochrome(cpAppMonochrome, sizeof(cpAppMonochrome) - 1);
+    static TPalette* palettes[] = { &color, &blackwhite, &monochrome };
+    return *(palettes[appPalette]);
 }
 
 bool App::handleCommand(TEvent* event) {
@@ -229,6 +301,9 @@ void App::showNewProgramWindow(std::optional<std::string> filePath) {
             messageBox(std::string("There was an error opening the file."), mfError | mfOKButton);
             return;
         }
+    } else {
+        sourceProgram->members.push_back(
+            std::make_unique<SourceMember>(SourceMemberType::kProcedure, "sub main()\n\nend sub\n", 11, 11));
     }
 
     auto* window = new ProgramWindow(

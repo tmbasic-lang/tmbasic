@@ -13,7 +13,6 @@ class SourceMemberTypesListBox : public TListViewer {
     virtual ~SourceMemberTypesListBox();
     void getText(char* dest, int16_t item, int16_t maxLen) override;
     void focusItem(int16_t item) override;
-    TPalette& getPalette() const override;
     compiler::SourceMemberType getSelectedType() const;
 
    private:

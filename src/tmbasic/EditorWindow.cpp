@@ -44,6 +44,7 @@ EditorWindow::EditorWindow(const TRect& r, SourceMember* member, std::function<v
       TWindowInit(TWindow::initFrame),
       _member(member),
       _onEdited(onEdited) {
+    palette = wpBlueWindow;
     options |= ofTileable;
 
     auto* hScrollBar = new TScrollBar(TRect(18, size.y - 1, size.x - 2, size.y));

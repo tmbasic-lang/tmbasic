@@ -182,7 +182,7 @@ void SourceProgram::save(const std::string& filePath) const {
                 case SourceMemberType::kType:
                     typeName = "type";
                     break;
-                case SourceMemberType::kForm:
+                case SourceMemberType::kDesign:
                     typeName = "form";
                     break;
                 default:

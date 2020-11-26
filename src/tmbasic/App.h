@@ -12,6 +12,7 @@ class App : public TApplication {
     App(int argc, char** argv);
     void idle() override;
     void handleEvent(TEvent& event) override;
+    TPalette& getPalette() const override;
 
    private:
     void disableDefaultCommands();

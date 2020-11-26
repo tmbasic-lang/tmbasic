@@ -72,14 +72,6 @@ void SourceMembersListBox::selectItem(int16_t item) {
     TListViewer::selectItem(item);
 }
 
-TPalette& SourceMembersListBox::getPalette() const {
-    // Active, Inactive, Focused, Selected, Divider
-    static const char bytes[] = kWindowPaletteFrameActive kWindowPaletteFramePassive kWindowPaletteScrollerSelectedText
-        kWindowPaletteScrollBarControls kWindowPaletteFrameActive;
-    static auto palette = TPalette(bytes, sizeof(bytes) - 1);
-    return palette;
-}
-
 void SourceMembersListBox::openMember(int16_t index) {
     if (index >= 0 && static_cast<size_t>(index) < _items.size()) {
         _onMemberOpen(_items[index]);

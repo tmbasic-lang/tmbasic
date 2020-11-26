@@ -18,7 +18,6 @@ class SourceMembersListBox : public TListViewer {
     void updateItems();
     void getText(char* dest, int16_t item, int16_t maxLen) override;
     void selectItem(int16_t item) override;
-    TPalette& getPalette() const override;
 
    private:
     void openMember(int16_t index);

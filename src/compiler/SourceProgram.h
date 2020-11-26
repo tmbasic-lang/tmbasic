@@ -5,7 +5,7 @@
 
 namespace compiler {
 
-enum class SourceMemberType { kProcedure, kGlobal, kType, kForm };
+enum class SourceMemberType { kProcedure, kGlobal, kType, kDesign };
 
 class SourceMember {
    public:

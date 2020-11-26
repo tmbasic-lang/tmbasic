@@ -24,7 +24,6 @@ ProgramWindow::ProgramWindow(
       _sourceProgram(std::move(sourceProgram)),
       _dirty(false),
       _openMember(openMember) {
-    palette = 0;
     auto* vScrollBar = new TScrollBar(TRect(size.x - 1, 3, size.x, size.y - 1));
     insert(vScrollBar);
 
@@ -52,7 +51,7 @@ ProgramWindow::ProgramWindow(
 ProgramWindow::~ProgramWindow() {}
 
 TPalette& ProgramWindow::getPalette() const {
-    static auto palette = TPalette(cpBlueWindow, sizeof(cpBlueWindow) - 1);
+    static auto palette = TPalette(kPaletteBlackDialog, sizeof(kPaletteBlackDialog) - 1);
     return palette;
 }
 

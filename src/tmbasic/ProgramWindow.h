@@ -17,10 +17,10 @@ class ProgramWindow : public TWindow {
         std::optional<std::string> filePath,
         std::function<void(compiler::SourceMember*)> openMember);
     virtual ~ProgramWindow();
-    TPalette& getPalette() const override;
     uint16_t getHelpCtx() override;
     void handleEvent(TEvent& event) override;
     void close() override;
+    TPalette& getPalette() const override;
     bool isDirty();
     bool preClose();
     void addNewSourceMember(std::unique_ptr<compiler::SourceMember> sourceMember);
