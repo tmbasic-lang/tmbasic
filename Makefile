@@ -109,7 +109,7 @@ bin/ghpages/index.html: README.md doc/html/page-template-1.html doc/html/page-te
 	@echo $@
 	@mkdir -p $(@D)
 	@cat doc/html/page-template-1.html > $@
-	@echo "TMBASIC" >> $@
+	@echo -n "TMBASIC" >> $@
 	@cat doc/html/page-template-2.html >> $@
 	@pandoc --from=markdown --to=html $< >> $@
 	@cat doc/html/page-template-3.html >> $@
