@@ -1,7 +1,5 @@
 h1[TMBASIC Documentation]
 
-Welcome to TMBASIC!
-
 ul@li@{BASIC Reference:basic}@
 li@{License:license}@
 @

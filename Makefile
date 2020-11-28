@@ -44,7 +44,7 @@ LICENSE_DIAGRAM_SRC_FILES=obj/doc-temp/diagrams-license/license_tmbasic.txt obj/
 LICENSE_DIAGRAM_CP437_FILES=$(patsubst obj/doc-temp/diagrams-license/%,obj/doc-temp/diagrams-cp437/%,$(LICENSE_DIAGRAM_SRC_FILES))
 
 .PHONY: all
-all: bin/tmbasic$(EXE_EXTENSION) bin/test$(EXE_EXTENSION) bin/runner$(EXE_EXTENSION) bin/LICENSE.txt bin/doc-html
+all: bin/tmbasic$(EXE_EXTENSION) bin/test$(EXE_EXTENSION) bin/runner$(EXE_EXTENSION) bin/LICENSE.txt obj/doc-html
 
 .PHONY: help
 help:
@@ -58,7 +58,8 @@ help:
 	@echo "make clean                Delete build outputs"
 	@echo "make format               Reformat all code"
 	@echo "make lint                 Check code with cpplint"
-	@echo "make docweb               Host the HTML docs on port 5000"
+	@echo "make ghpages              Build tmbasic-gh-pages"
+	@echo "make ghpages-test         Host the website on port 5000"
 	@echo ""
 	@echo "MAKE FLAGS"
 	@echo "----------"
@@ -91,9 +92,25 @@ format:
 lint:
 	@cpplint --quiet --recursive --linelength 120 --filter=-whitespace/indent,-readability/todo,-build/include_what_you_use,-legal/copyright,-readability/fn_size,-build/c++11 --repository=src src build/scripts/buildDoc.cpp
 
-.PHONY: docweb
-docweb:
-	@cd bin/doc-html && python3 -m http.server 5000
+.PHONY: ghpages
+ghpages: obj/help.txt bin/ghpages/index.html
+	@mkdir -p bin/ghpages
+	@cp obj/doc-html/* bin/ghpages/
+
+.PHONY: ghpages-test
+ghpages-test:
+	@cd bin/ghpages && python3 -m http.server 5000
+
+# ghpages
+
+bin/ghpages/index.html: README.md doc/html/page-template-1.html doc/html/page-template-2.html doc/html/page-template-3.html
+	@echo $@
+	@mkdir -p $(@D)
+	@cat doc/html/page-template-1.html > $@
+	@echo "TMBASIC" >> $@
+	@cat doc/html/page-template-2.html >> $@
+	@pandoc --from=markdown --to=html $< >> $@
+	@cat doc/html/page-template-3.html >> $@
 
 # precompiled header
 
@@ -104,9 +121,9 @@ obj/common.h.gch: src/common.h $(EXT_HEADER_FILES)
 
 # help
 
-bin/doc-html: obj/help.h32
+obj/doc-html: obj/help.h32
 	@echo $@
-	@rm -rf bin/doc-html
+	@rm -rf obj/doc-html
 	@cp -rf obj/doc-html bin/
 
 bin/LICENSE.txt: LICENSE ext/boost/LICENSE_1_0.txt ext/immer/LICENSE ext/gcc/GPL-3 ext/gcc/copyright ext/mpdecimal/LICENSE.txt ext/nameof/LICENSE.txt ext/ncurses/COPYING ext/tvision/COPYRIGHT
@@ -234,7 +251,7 @@ obj/helpfile.h: obj/help.txt
 obj/help.h32: obj/helpfile.h
 	@echo $@
 
-obj/help.txt: $(DOC_FILES) obj/buildDoc $(DIAGRAM_CP437_FILES) $(LICENSE_DIAGRAM_CP437_FILES) doc/html/page-template.html
+obj/help.txt: $(DOC_FILES) obj/buildDoc $(DIAGRAM_CP437_FILES) $(LICENSE_DIAGRAM_CP437_FILES) doc/html/page-template-1.html doc/html/page-template-2.html doc/html/page-template-3.html
 	@echo $@
 	@mkdir -p obj
 	@cd doc && ../obj/buildDoc

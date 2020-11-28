@@ -20,7 +20,8 @@ RUN apt-get update -y && \
         python3 \
         python3-pip \
         unzip \
-        dos2unix
+        dos2unix \
+        pandoc
 
 # clang-format
 RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \

@@ -239,13 +239,12 @@ static string processHtml(string str) {
         x = replace(x, "<div></div>", "<pre></pre>");
         return x;
     });
-    str = replaceRegex(str, "nav@([^@]+)@", "<navbar>$1</navbar>");
+    str = replaceRegex(str, "nav@([^@]+)@", "<div class=\"backlinks\">$1</div>");
     str = replaceRegex(str, "`([^`]+)`", "<tt>$1</tt>");
     str = replace(str, "</h1><br>", "</h1>");
     str = replace(str, "</h2><br>", "</h2>");
     str = replace(str, "</h3><br>", "</h3>");
     str = replace(str, "</div><br>", "</div>");
-    str = replace(str, "</navbar><br>", "</navbar>");
     str = replace(str, "</pre><br>", "</pre>");
     str = replaceRegex(str, "\n*li@\n*([^@]+)\n*@\n*", "<li>$1</li>");
     str = replaceRegex(str, "\n*ul@\n*([^@]+)\n*@\n*", "<ul>$1</ul>");
@@ -265,7 +264,7 @@ static void writeHtmlPage(const string& topic, const string& text, const string&
     }
     auto title = match[1].str();
     auto html = htmlPageTemplate;
-    html = replace(html, "[TITLE]", processHtml(title));
+    html = replace(html, "[TITLE]", processHtml(title) + " - TMBASIC Documentation");
     html = replace(html, "[BODY]", processHtml(text));
     writeFile(string("../obj/doc-html/") + topic + ".html", html);
 }
@@ -501,7 +500,10 @@ int main() {
     try {
         ostringstream outputTxt;
         vector<string> procedureNames;
-        auto htmlPageTemplate = readFile("html/page-template.html");
+        auto htmlPageTemplate =
+            readFile("html/page-template-1.html") + "[TITLE]" +
+            readFile("html/page-template-2.html") + "[BODY]" +
+            readFile("html/page-template-3.html");
         createDirectory("../obj");
         createDirectory("../obj/doc-temp");
         createDirectory("../obj/doc-temp/diagrams-cp437");
