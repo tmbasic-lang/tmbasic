@@ -70,10 +70,10 @@ TMenuBar* App::initMenuBar(TRect r) {
     auto& programMenu = *new TSubMenu("~P~rogram", kbAltP) +
         *new TMenuItem("~R~un", kCmdProgramRun, kbF5, hcNoContext, "F5") + newLine() +
         *new TMenuItem("Add ~s~ubroutine", kCmdProgramAddSubroutine, kbNoKey) +
-        *new TMenuItem("Add ~f~unction", kCmdProgramAddFunction, kbNoKey) + newLine() +
+        *new TMenuItem("Add ~f~unction", kCmdProgramAddFunction, kbNoKey) +
         *new TMenuItem("Add ~g~lobal variable", kCmdProgramAddGlobalVariable, kbNoKey) +
-        *new TMenuItem("Add ~c~onstant", kCmdProgramAddConstant, kbNoKey) + newLine() +
-        *new TMenuItem("Add ~t~ype", kCmdProgramAddType, kbNoKey) + newLine() +
+        *new TMenuItem("Add ~c~onstant", kCmdProgramAddConstant, kbNoKey) +
+        *new TMenuItem("Add ~t~ype", kCmdProgramAddType, kbNoKey) +
         *new TMenuItem("Add f~o~rm", kCmdProgramAddForm, kbNoKey) +
         *new TMenuItem("Add c~u~stom control", kCmdProgramAddCustomControl, kbNoKey);
 
