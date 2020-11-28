@@ -44,7 +44,7 @@ LICENSE_DIAGRAM_SRC_FILES=obj/doc-temp/diagrams-license/license_tmbasic.txt obj/
 LICENSE_DIAGRAM_CP437_FILES=$(patsubst obj/doc-temp/diagrams-license/%,obj/doc-temp/diagrams-cp437/%,$(LICENSE_DIAGRAM_SRC_FILES))
 
 .PHONY: all
-all: bin/tmbasic$(EXE_EXTENSION) bin/test$(EXE_EXTENSION) bin/runner$(EXE_EXTENSION) bin/LICENSE.txt obj/doc-html
+all: bin/tmbasic$(EXE_EXTENSION) bin/test$(EXE_EXTENSION) bin/runner$(EXE_EXTENSION) bin/LICENSE.txt
 
 .PHONY: help
 help:
@@ -120,11 +120,6 @@ obj/common.h.gch: src/common.h $(EXT_HEADER_FILES)
 	@$(CXX) $(CXXFLAGS) -x c++-header -o $@ src/common.h
 
 # help
-
-obj/doc-html: obj/help.h32
-	@echo $@
-	@rm -rf obj/doc-html
-	@cp -rf obj/doc-html bin/
 
 bin/LICENSE.txt: LICENSE ext/boost/LICENSE_1_0.txt ext/immer/LICENSE ext/gcc/GPL-3 ext/gcc/copyright ext/mpdecimal/LICENSE.txt ext/nameof/LICENSE.txt ext/ncurses/COPYING ext/tvision/COPYRIGHT
 	@echo $@
@@ -237,7 +232,6 @@ obj/doc-temp/diagrams-license/license_tvision.txt: ext/tvision/COPYRIGHT
 
 obj/buildDoc: build/scripts/buildDoc.cpp
 	@echo $@
-	@mkdir -p obj
 	@$(BUILDCC) $(BUILDDOC_WIN_INCLUDE_FLAGS) $(BUILDDOC_MAC_INCLUDE_FLAGS) -Iext/nameof -Wall -Werror -std=c++17 -o $@ $< -lstdc++
 
 obj/helpfile.h: obj/help.txt

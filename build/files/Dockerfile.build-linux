@@ -18,8 +18,7 @@ RUN apk update && \
         alpine-sdk \
         ncurses \
         python3 \
-        dos2unix \
-        pandoc
+        dos2unix
 
 # cpplint
 RUN python3 -m ensurepip && \
