@@ -32,6 +32,8 @@ TEST_OBJ_FILES=$(patsubst src/%,obj/%,$(TEST_SRC_FILES:.cpp=.o))
 TMBASIC_SRC_FILES=$(shell find src/tmbasic -type f -name "*.cpp")
 TMBASIC_H_FILES=$(shell find src/tmbasic -type f -name "*.h")
 TMBASIC_OBJ_FILES=$(patsubst src/%,obj/%,$(TMBASIC_SRC_FILES:.cpp=.o))
+FAVICON_IN_FILES=$(shell find art/favicon -type f)
+FAVICON_OUT_FILES=$(patsubst art/favicon/%,bin/ghpages/%,$(FAVICON_IN_FILES))
 
 INCLUDE_FILES=$(shell find src -type f -name "*.h")
 
@@ -103,7 +105,7 @@ ghpages-test:
 
 # ghpages
 
-bin/ghpages/index.html: README.md doc/html/page-template-1.html doc/html/page-template-2.html doc/html/page-template-3.html
+bin/ghpages/index.html: README.md doc/html/page-template-1.html doc/html/page-template-2.html doc/html/page-template-3.html $(FAVICON_OUT_FILES)
 	@echo $@
 	@mkdir -p $(@D)
 	@cat doc/html/page-template-1.html > $@
@@ -111,6 +113,11 @@ bin/ghpages/index.html: README.md doc/html/page-template-1.html doc/html/page-te
 	@cat doc/html/page-template-2.html >> $@
 	@pandoc --from=markdown --to=html $< >> $@
 	@cat doc/html/page-template-3.html >> $@
+
+$(FAVICON_OUT_FILES): bin/ghpages/%: art/favicon/%
+	@echo $@
+	@mkdir -p $(@D)
+	@cp -f $< $@
 
 # precompiled header
 
