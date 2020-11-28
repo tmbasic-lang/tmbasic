@@ -19,6 +19,7 @@ DesignerWindow::DesignerWindow(const TRect& r, SourceMember* member, std::functi
       TWindowInit(TWindow::initFrame),
       _member(member),
       _onEdited(onEdited) {
+    palette = wpGrayWindow;
     options |= ofTileable;
 }
 

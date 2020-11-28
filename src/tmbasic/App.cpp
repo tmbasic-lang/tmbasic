@@ -2,8 +2,10 @@
 #include "../../obj/helpfile.h"
 #include "compiler/SourceProgram.h"
 #include "shared/util/membuf.h"
+#include "tmbasic/DesignerWindow.h"
 #include "tmbasic/EditorWindow.h"
 #include "tmbasic/HelpResource.h"
+#include "tmbasic/HelpWindow.h"
 #include "tmbasic/ProgramWindow.h"
 #include "tmbasic/constants.h"
 #include "tmbasic/events.h"
@@ -14,6 +16,8 @@ using compiler::SourceProgram;
 using util::membuf;
 
 namespace tmbasic {
+
+char App::helpWindowPalette[9] = {};
 
 App::App(int argc, char** argv)
     : TProgInit(initStatusLine, initMenuBar, TApplication::initDeskTop), _newWindowX(2), _newWindowY(1) {
@@ -70,8 +74,8 @@ TMenuBar* App::initMenuBar(TRect r) {
         *new TMenuItem("Add ~g~lobal variable", kCmdProgramAddGlobalVariable, kbNoKey) +
         *new TMenuItem("Add ~c~onstant", kCmdProgramAddConstant, kbNoKey) + newLine() +
         *new TMenuItem("Add ~t~ype", kCmdProgramAddType, kbNoKey) + newLine() +
-        *new TMenuItem("Add f~o~rm", kCmdHelpAbout, kbNoKey) +
-        *new TMenuItem("Add c~u~stom control", kCmdHelpAbout, kbNoKey);
+        *new TMenuItem("Add f~o~rm", kCmdProgramAddForm, kbNoKey) +
+        *new TMenuItem("Add c~u~stom control", kCmdProgramAddCustomControl, kbNoKey);
 
     auto& formMenu = *new TSubMenu("~D~esign", kbAltD) + *new TMenuItem("Add ~b~utton", kCmdHelpAbout, kbNoKey) +
         *new TMenuItem("Add ~c~heck box", kCmdHelpAbout, kbNoKey) +
@@ -141,32 +145,55 @@ static void updatePalette(
 TPalette& App::getPalette() const {
     static char array[256] = {};
     static auto isInitialized = false;
+
     if (!isInitialized) {
+        // 0x08 - 0x0F: cpBlueWindow
+        // 0x10 - 0x17: cpCyanWindow
+        // 0x18 - 0x1F: cpGrayWindow
+        // 0x20 - 0x3F: cpGrayDialog
+        // 0x40 - 0x5F: cpBlueDialog
+        // 0x60 - 0x7F: cpCyanDialog
+        // 0x80 - 0x87: cHelpWindow
         memcpy(array, cpAppColor, sizeof(cpAppColor));
 
+        // change the list viewer colors in blue/cyan dialogs
         updatePalette(array, cpBlueDialog, kPaletteListViewerActiveInactive, 0xFF, kBgColorBlue | kFgColorWhite);
         updatePalette(array, cpBlueDialog, kPaletteListViewerFocused, 0xFF, kBgColorGreen | kFgColorBrightWhite);
         updatePalette(array, cpBlueDialog, kPaletteListViewerSelected, 0xFF, kBgColorBlue | kFgColorYellow);
         updatePalette(array, cpBlueDialog, kPaletteListViewerDivider, 0xFF, kBgColorBlue | kFgColorGray);
-
         updatePalette(array, cpCyanDialog, kPaletteListViewerActiveInactive, 0xFF, kBgColorCyan | kFgColorBrightWhite);
         updatePalette(array, cpCyanDialog, kPaletteListViewerFocused, 0xFF, kBgColorGreen | kFgColorBrightWhite);
         updatePalette(array, cpCyanDialog, kPaletteListViewerSelected, 0xFF, kBgColorCyan | kFgColorYellow);
         updatePalette(array, cpCyanDialog, kPaletteListViewerDivider, 0xFF, kBgColorCyan | kFgColorWhite);
 
-        // black dialog 0xA0 - 0xBF. blue dialog is 0x40 - 0x5F.
-        for (size_t i = 0xA0; i <= 0xBF; i++) {
-            auto color = getPaletteColor(array, i - (0xA0 - 0x40));
-            if ((color & kBgColorMask) == kBgColorBlue) {
-                color = (color & ~kBgColorMask) | kBgColorBlack;
-            } else if ((color & kFgColorMask) == kFgColorBlue) {
-                color = (color & ~kFgColorMask) | kFgColorBlack;
+        // white text in editors instead of yellow
+        updatePalette(array, cpBlueWindow, kPaletteEditorNormal, kFgColorMask, kFgColorWhite);
+
+        // gray windows/dialogs: the default foreground doesn't have enough contrast.
+        for (size_t i = 0x18; i <= 0x3F; i++) {
+            auto color = getPaletteColor(array, i);
+            if (color == (kFgColorBrightWhite | kBgColorWhite)) {
+                updatePalette(array, i, kFgColorMask, kFgColorBlack);
+            } else if (color == (kFgColorLightGreen | kBgColorWhite)) {
+                updatePalette(array, i, kFgColorMask, kFgColorGreen);
             }
+        }
+
+        // use 0x80 - 0x100 to represent every possible combination of foreground and background colors. note that
+        // we're trampling on the help viewer's palette at 0x80 - 0x87. also note that the foreground and background
+        // colors are in the low 7 bits, so we can just mask off the MSB to get from the palette entry to the video
+        // attribute byte.
+        for (size_t i = 0x80; i <= 0x100; i++) {
+            auto color = static_cast<char>(i & 0x7F);
             updatePalette(array, i, 0xFF, color);
         }
 
-        // white text in editors instead of yellow
-        updatePalette(array, cpBlueWindow, kPaletteEditorNormal, kFgColorMask, kFgColorWhite);
+        // in order to cope with the help viewer problem, let's convert the help palette to these new custom entries
+        // and then provide it in a place where our custom HelpWindow subclass can read it.
+        for (size_t i = 0x80; i <= 0x87; i++) {
+            auto color = getPaletteColor(cpAppColor, i);
+            helpWindowPalette[i - 0x80] = 0x80 | color;
+        }
 
         isInitialized = true;
     }
@@ -197,23 +224,31 @@ bool App::handleCommand(TEvent* event) {
             return true;
 
         case kCmdProgramAddSubroutine:
-            onProgramAdd(TextEditorType::kSubroutine);
+            onProgramAddTextEditor(EditorType::kSubroutine);
             return true;
 
         case kCmdProgramAddFunction:
-            onProgramAdd(TextEditorType::kFunction);
+            onProgramAddTextEditor(EditorType::kFunction);
             return true;
 
         case kCmdProgramAddGlobalVariable:
-            onProgramAdd(TextEditorType::kGlobalVariable);
+            onProgramAddTextEditor(EditorType::kGlobalVariable);
             return true;
 
         case kCmdProgramAddConstant:
-            onProgramAdd(TextEditorType::kConstant);
+            onProgramAddTextEditor(EditorType::kConstant);
             return true;
 
         case kCmdProgramAddType:
-            onProgramAdd(TextEditorType::kType);
+            onProgramAddTextEditor(EditorType::kType);
+            return true;
+
+        case kCmdProgramAddForm:
+            onProgramAddDesigner(DesignerType::kForm);
+            return true;
+
+        case kCmdProgramAddCustomControl:
+            onProgramAddDesigner(DesignerType::kCustomControl);
             return true;
 
         case kCmdHelpBasicReference:
@@ -331,6 +366,25 @@ void App::showNewEditorWindow(SourceMember* member) {
     }
 }
 
+void App::showNewDesignerWindow(SourceMember* member) {
+    // is there already a designer open for this member?
+    FindDesignerWindowEventArgs e = { 0 };
+    e.member = member;
+    message(deskTop, evBroadcast, kCmdFindDesignerWindow, &e);
+    if (e.window) {
+        e.window->select();
+    } else {
+        auto window = new DesignerWindow(getNewWindowRect(50, 20), member, []() -> void {
+            // onUpdated
+            auto* programWindow = findProgramWindow(deskTop);
+            if (programWindow) {
+                programWindow->updateListItems();
+            }
+        });
+        deskTop->insert(window);
+    }
+}
+
 void App::onFileNew() {
     // close the existing program if there is one
     auto* programWindow = findProgramWindow(deskTop);
@@ -358,7 +412,7 @@ void App::onFileOpen() {
     destroy(d);
 }
 
-void App::onProgramAdd(TextEditorType type) {
+void App::onProgramAddTextEditor(EditorType type) {
     auto* programWindow = findProgramWindow(deskTop);
     if (!programWindow) {
         return;
@@ -370,31 +424,31 @@ void App::onProgramAdd(TextEditorType type) {
     auto selectionEnd = 0;
 
     switch (type) {
-        case TextEditorType::kConstant:
+        case EditorType::kConstant:
             memberType = SourceMemberType::kGlobal;
             source = "const untitled = 0\n";
             selectionStart = 6;
             selectionEnd = 14;
             break;
-        case TextEditorType::kGlobalVariable:
+        case EditorType::kGlobalVariable:
             memberType = SourceMemberType::kGlobal;
             source = "dim untitled as number\n";
             selectionStart = 4;
             selectionEnd = 12;
             break;
-        case TextEditorType::kFunction:
+        case EditorType::kFunction:
             memberType = SourceMemberType::kProcedure;
             source = "function untitled() as integer\n\nend function\n";
             selectionStart = 9;
             selectionEnd = 17;
             break;
-        case TextEditorType::kSubroutine:
+        case EditorType::kSubroutine:
             memberType = SourceMemberType::kProcedure;
             source = "sub untitled()\n\nend sub\n";
             selectionStart = 4;
             selectionEnd = 12;
             break;
-        case TextEditorType::kType:
+        case EditorType::kType:
             memberType = SourceMemberType::kType;
             source = "type Untitled\n\nend type\n";
             selectionStart = 5;
@@ -410,6 +464,33 @@ void App::onProgramAdd(TextEditorType type) {
     programWindow->addNewSourceMember(std::move(sourceMember));
 
     showNewEditorWindow(sourceMemberPtr);
+}
+
+void App::onProgramAddDesigner(DesignerType type) {
+    auto* programWindow = findProgramWindow(deskTop);
+    if (!programWindow) {
+        return;
+    }
+
+    auto source = std::string();
+
+    switch (type) {
+        case DesignerType::kForm:
+            source = "form untitled\nend form\n";
+            break;
+        case DesignerType::kCustomControl:
+            source = "control untitled\nend control\n";
+            break;
+        default:
+            assert(false);
+            break;
+    }
+
+    auto sourceMember = std::make_unique<SourceMember>(SourceMemberType::kDesign, source, 0, 0);
+    auto* sourceMemberPtr = sourceMember.get();
+    programWindow->addNewSourceMember(std::move(sourceMember));
+
+    showNewDesignerWindow(sourceMemberPtr);
 }
 
 void App::onHelpDocumentation() {
@@ -431,7 +512,7 @@ void App::openHelpTopic(uint16_t topic) {
     auto buf = new membuf(reinterpret_cast<char*>(helpResource.start), reinterpret_cast<char*>(helpResource.end));
     auto stream = new iopstream(buf);
     auto helpFile = new THelpFile(*stream);
-    auto helpWindow = new THelpWindow(helpFile, topic);
+    auto helpWindow = new HelpWindow(helpFile, topic);
     deskTop->insert(helpWindow);
     auto width = 85;
     auto maxWidth = deskTop->size.x - 10;

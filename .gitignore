@@ -1,6 +1,7 @@
 .DS_Store
-bin
-obj
-mac
-.vscode/settings.json
-valgrind.txt
+/bin
+/obj
+/mac
+/.vscode/settings.json
+/valgrind.txt
+/tvision

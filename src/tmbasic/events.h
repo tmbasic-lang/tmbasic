@@ -18,6 +18,8 @@ enum : uint16_t {
     kCmdProgramAddGlobalVariable,
     kCmdProgramAddConstant,
     kCmdProgramAddType,
+    kCmdProgramAddForm,
+    kCmdProgramAddCustomControl,
     kCmdProgramRun,
 
     // broadcast in response to cmSave/cmSaveAs

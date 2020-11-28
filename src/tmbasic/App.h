@@ -5,10 +5,14 @@
 
 namespace tmbasic {
 
-enum class TextEditorType { kFunction, kSubroutine, kGlobalVariable, kConstant, kType };
+enum class EditorType { kFunction, kSubroutine, kGlobalVariable, kConstant, kType };
+
+enum class DesignerType { kForm, kCustomControl };
 
 class App : public TApplication {
    public:
+    static char helpWindowPalette[9];
+
     App(int argc, char** argv);
     void idle() override;
     void handleEvent(TEvent& event) override;
@@ -25,13 +29,15 @@ class App : public TApplication {
     void onFileNew();
     void onFileOpen();
     void onViewProgram();
-    void onProgramAdd(TextEditorType type);
+    void onProgramAddTextEditor(EditorType type);
+    void onProgramAddDesigner(DesignerType type);
     void onHelpDocumentation();
     void onHelpBasicReference();
     TRect centeredRect(int width, int height);
     void openHelpTopic(uint16_t topic);
     void showNewProgramWindow(std::optional<std::string> filePath);
     void showNewEditorWindow(compiler::SourceMember* member);
+    void showNewDesignerWindow(compiler::SourceMember* member);
 
     int _newWindowX;
     int _newWindowY;

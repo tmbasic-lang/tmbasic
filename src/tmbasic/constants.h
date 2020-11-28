@@ -43,8 +43,4 @@ const uint8_t kPaletteListViewerDivider = 29;
 const uint8_t kPaletteEditorNormal = 6;
 const uint8_t kPaletteEditorHighlight = 7;
 
-const char kPaletteBlackDialog[] =
-    "\xa0\xa1\xa2\xa3\xa4\xa5\xa6\xa7\xa8\xa9\xaa\xab\xac\xad\xae\xaf"
-    "\xb0\xb1\xb2\xb3\xb4\xb5\xb6\xb7\xb8\xb9\xba\xbb\xbc\xbd\xbe\xbf";
-
 }  // namespace tmbasic

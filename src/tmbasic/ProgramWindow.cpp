@@ -51,7 +51,7 @@ ProgramWindow::ProgramWindow(
 ProgramWindow::~ProgramWindow() {}
 
 TPalette& ProgramWindow::getPalette() const {
-    static auto palette = TPalette(kPaletteBlackDialog, sizeof(kPaletteBlackDialog) - 1);
+    static auto palette = TPalette(cpBlueDialog, sizeof(cpBlueDialog) - 1);
     return palette;
 }
 
