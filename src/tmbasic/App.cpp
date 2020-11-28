@@ -374,7 +374,7 @@ void App::showNewDesignerWindow(SourceMember* member) {
     if (e.window) {
         e.window->select();
     } else {
-        auto window = new DesignerWindow(getNewWindowRect(50, 20), member, []() -> void {
+        auto window = new DesignerWindow(getNewWindowRect(51, 20), member, []() -> void {
             // onUpdated
             auto* programWindow = findProgramWindow(deskTop);
             if (programWindow) {

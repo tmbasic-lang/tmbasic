@@ -1,5 +1,6 @@
 #include "tmbasic/DesignerWindow.h"
 #include "../../obj/helpfile.h"
+#include "tmbasic/DesignerGridView.h"
 #include "tmbasic/events.h"
 
 using compiler::SourceMember;
@@ -19,8 +20,13 @@ DesignerWindow::DesignerWindow(const TRect& r, SourceMember* member, std::functi
       TWindowInit(TWindow::initFrame),
       _member(member),
       _onEdited(onEdited) {
-    palette = wpGrayWindow;
     options |= ofTileable;
+
+    auto gridViewRect = getExtent();
+    gridViewRect.grow(-1, -1);
+    auto* gridView = new DesignerGridView(gridViewRect);
+    gridView->growMode = gfGrowHiX | gfGrowHiY;
+    insert(gridView);
 }
 
 void DesignerWindow::handleEvent(TEvent& event) {
@@ -56,5 +62,10 @@ void DesignerWindow::close() {
 }
 
 void DesignerWindow::onTimerTick() {}
+
+TPalette& DesignerWindow::getPalette() const {
+    static auto palette = TPalette(cpGrayDialog, sizeof(cpGrayDialog) - 1);
+    return palette;
+}
 
 }  // namespace tmbasic

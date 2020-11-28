@@ -11,6 +11,7 @@ class DesignerWindow : public TWindow {
     void handleEvent(TEvent& event) override;
     uint16_t getHelpCtx() override;
     void close() override;
+    TPalette& getPalette() const override;
 
    private:
     void onTimerTick();
