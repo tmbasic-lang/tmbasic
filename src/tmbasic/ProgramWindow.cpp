@@ -139,7 +139,7 @@ void ProgramWindow::updateTitle() {
     } else {
         s << "Untitled";
     }
-    s << " - Program";
+    s << " (Program)";
 
     delete[] title;
     title = strdup(s.str().c_str());

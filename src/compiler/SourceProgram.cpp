@@ -31,7 +31,7 @@ void SourceMember::updateDisplayName() {
         if (!isBlankOrComment(line)) {
             displayName = line;
 
-            std::regex r("^[^ ]+ ([^( ]+)\\(.*$");
+            std::regex r("^[^ ]+ ([^( ]+)[ ]*(:?\\(.*)?$");
             std::smatch match;
             if (std::regex_search(displayName, match, r)) {
                 identifier = match[1].str();

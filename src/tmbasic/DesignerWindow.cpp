@@ -9,10 +9,7 @@ using compiler::SourceMemberType;
 namespace tmbasic {
 
 static std::string getDesignerWindowTitle(const SourceMember& member) {
-    std::ostringstream s;
-    s << member.identifier << " - "
-      << "Form";
-    return s.str();
+    return member.identifier + " (Design)";
 }
 
 DesignerWindow::DesignerWindow(const TRect& r, SourceMember* member, std::function<void()> onEdited)

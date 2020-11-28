@@ -21,7 +21,7 @@ class EditorIndicator : public TIndicator {
 
 static std::string getEditorWindowTitle(const SourceMember& member) {
     std::ostringstream s;
-    s << member.identifier << " - ";
+    s << member.identifier << " (";
     switch (member.memberType) {
         case SourceMemberType::kGlobal:
             s << "Global";
@@ -36,6 +36,7 @@ static std::string getEditorWindowTitle(const SourceMember& member) {
             assert(false);
             break;
     }
+    s << ")";
     return s.str();
 }
 
