@@ -279,30 +279,28 @@ bool App::handleCommand(TEvent* event) {
 }
 
 TRect App::getNewWindowRect(int width, int height) {
+    if (width > deskTop->size.x - 2) {
+        width = deskTop->size.x - 2;
+    }
+    if (height > deskTop->size.y - 2) {
+        height = deskTop->size.y - 2;
+    }
+
     auto maxX = deskTop->size.x - width;
-    auto x = _newWindowX;
-    if (x > maxX) {
-        x = maxX;
-    }
-    if (x < 0) {
-        x = 0;
-    }
-
     auto maxY = deskTop->size.y - height;
-    auto y = _newWindowY;
-    if (y > maxY) {
-        y = maxY;
+
+    auto x = _newWindowX % maxX;
+    auto y = _newWindowY % maxY;
+
+    if (x < 1) {
+        x = 1;
     }
-    if (y < 0) {
-        y = 0;
+    if (y < 1) {
+        y = 1;
     }
 
-    _newWindowX += 2;
-    _newWindowY++;
-    if (_newWindowX > deskTop->size.x / 2)
-        _newWindowX = 0;
-    if (_newWindowY > deskTop->size.y / 2)
-        _newWindowY = 0;
+    _newWindowX = x + 2;
+    _newWindowY = y + 1;
 
     return TRect(x, y, x + width, y + height);
 }
