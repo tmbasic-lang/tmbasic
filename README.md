@@ -2,13 +2,15 @@
 
 TMBASIC is a simple programming language for creating console applications that run on Windows, macOS, and Linux. "TM" stands for "Text Mode." Apps written in TMBASIC can be simple command line tools or complex mouse-driven user interfaces. A single build in TMBASIC produces executables for all supported platforms with no external libraries and no installation required.
 
-TMBASIC is tested on the following platforms:
+TMBASIC supports the following platforms:
 
-- Windows 10 (x64)
-- macOS 10.13 (x64) using [iTerm2](https://www.iterm2.com/)
-- Alpine Linux 3.12 (x64, ARM64)
-- Ubuntu Linux 18.04 (x64, ARM64)
-- Android 10 (ARM64) using [Termux](https://termux.com/)
+Platform | Tested systems
+-- | --
+Windows <span class="github-only">(</span><span class="architecture">x64</span><span class="github-only">)</span> | Windows 10 20H2
+macOS <span class="github-only">(</span><span class="architecture">x64</span><span class="github-only">)</span> | macOS 10.13 with [iTerm2](https://www.iterm2.com/)
+Linux <span class="github-only">(</span><span class="architecture">x64</span><span class="github-only">)</span> | Alpine 3.12, Ubuntu 18.04
+Linux <span class="github-only">(</span><span class="architecture">ARM 32</span><span class="github-only">)</span> | Raspberry Pi OS
+Linux <span class="github-only">(</span><span class="architecture">ARM 64</span><span class="github-only">)</span> | Alpine 3.12, Ubuntu 18.04, Android 10 with [Termux](https://termux.com/)
 
 [Read the documentation online](https://tmbasic.com/doc.html) or in TMBASIC's integrated help viewer.
 

@@ -12,11 +12,12 @@
 a { color: #326ec8; text-decoration: none; }
 a:hover { text-decoration: underline; }
 body { font-family: Calibri, sans-serif; font-size: 17px; color: rgba(0,0,0,.8); margin: 1cm; margin-left: 2cm; margin-bottom: 5cm; padding-top: 1cm; max-width: 208mm; line-height: 160%; text-size-adjust: none; }
+col { width: auto !important; }
 div.backlinks { position: absolute; top: 14mm; left: 1cm; font-size: 10pt; }
 div.code div { text-indent: -2cm; padding-left: 2cm; }
 div.code { padding: 3mm; margin-bottom: 5mm; background: #f8f8f8; }
-h1, h2, h3, h4, h5 { font-family: Consolas, monospace; font-weight: 300; line-height: 100%; }
 h1 { border-left: 3mm solid #363636; margin-left: -2cm; padding-left: 7mm; background: #f8f8f8; font-size: 44px; color: rgba(0,0,0,.85); }
+h1, h2, h3, h4, h5 { font-family: Consolas, monospace; font-weight: 300; line-height: 100%; }
 h2 { border-left: 3mm solid #ba3925; margin-left: -2cm; padding-left: 7mm; background: #fdf9f8; font-size: 27px; color: #ba3925; }
 h3 { color: #ba3925; }
 hr { margin-top: 1cm; margin-bottom: 1cm; margin-left: -1cm; }
@@ -25,10 +26,15 @@ nav>a { margin-right: 3mm; padding-top: 3mm; padding-bottom: 3mm; }
 pre, code, div.code, .tt { font-family: Consolas, monospace; font-size: 16px; color: #19177c; }
 pre, div.code { line-height: 100%; }
 pre.diagram { font-size: 12px; display: inline-block; border: 1px solid black; padding: 1mm; background: #f8f8f8; color: rgba(0,0,0,0.8); cursor: default; user-select: none; line-height: 100%; }
+span.architecture { background: #eff3f9; border-radius: 1mm; border: 0.5px solid #bbcfeb; font-size: 9pt; margin-left: 0.5mm; margin-right: 0.5mm; padding-left: 1mm; padding-right: 1mm; vertical-align: top; }
 span.comment, span.comment span.string { color: #26a135; }
+span.github-only { display: none; }
 span.indent { white-space: pre; }
 span.operator { color: #666666; }
 span.string { color: #ba2121; }
+table { border-collapse: collapse; }
+td, th { border: 1px solid #d5d5d5; padding: 1mm; padding-left: 3mm; padding-right: 4mm; vertical-align: top; }
+th { text-align: left; }
 ul { padding-left: 5mm; }
 @media only screen and (max-width: 600px) {
   body { margin-left: 5mm; margin-right: 5mm; }
