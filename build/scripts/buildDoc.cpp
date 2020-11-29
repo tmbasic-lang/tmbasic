@@ -503,10 +503,8 @@ int main() {
     try {
         ostringstream outputTxt;
         vector<string> procedureNames;
-        auto htmlPageTemplate =
-            readFile("html/page-template-1.html") + "[TITLE]" +
-            readFile("html/page-template-2.html") + "[BODY]" +
-            readFile("html/page-template-3.html");
+        auto htmlPageTemplate = readFile("html/page-template-1.html") + "[TITLE]" +
+            readFile("html/page-template-2.html") + "[BODY]" + readFile("html/page-template-3.html");
         createDirectory("../obj");
         createDirectory("../obj/doc-temp");
         createDirectory("../obj/doc-temp/diagrams-cp437");
