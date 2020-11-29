@@ -10,7 +10,10 @@ TMBASIC is tested on the following platforms:
 - Ubuntu Linux 18.04 (x64, ARM64)
 - Android 10 (ARM64) using [Termux](https://termux.com/)
 
-[Read the documentation!](https://tmbasic.com/doc.html)
+[Read the documentation online](https://tmbasic.com/doc.html) or in TMBASIC's integrated help viewer.
+
+- [Cheat sheet for experienced programmers](https://tmbasic.com/cheatSheet.html)
+- [BASIC reference](https://tmbasic.com/basic.html)
 
 If you want to build TMBASIC from its C++ source, follow the instructions on the [Developers](https://github.com/electroly/tmbasic/blob/master/DEVELOPERS.md) page.
 

@@ -1,0 +1,80 @@
+nav@{TMBASIC Documentation:doc}@
+
+h1[Cheat Sheet for Experienced Programmers]
+
+TMBASIC is a statically- and nominally-typed BASIC language.
+No line numbers, no `GOTO` / `GOSUB`, no `PEEK` / `POKE`, no type suffixes like `$` / `%`.
+Collections and strings are dynamic-sized.
+Errors are handled using exceptions (`throw` and `try` / `catch` / `finally`).
+Uniform function call syntax is supported; that is, `foo(bar, baz)` is the same as `bar.foo(baz)`.
+
+TMBASIC has a visual designer for text user interface (TUI) forms and controls, enabling rapid application development.
+Forms and controls may also be constructed dynamically in BASIC code as needed.
+Simpler apps may eschew a full TUI and use simple `print` / `input` calls if desired.
+
+h2[Data types]
+
+ul@
+li@`boolean` -- `true` / `false`.@
+li@`number` -- Arbitrary precision decimal.@
+li@`text` -- UTF-8 string.@
+li@`date` -- Date without a time.@
+li@`datetime` -- Date and time, without a time zone offset.@
+li@`datetimeoffset` -- Date, time, and time zone offset.@
+li@`timespan` -- Period of time.@
+li@`list of T` -- Generic dynamic-sized array with element type `T`. Example: `list of number`. Literals look like: `[0, 1, 2]`.@
+li@`map from K to V` -- Generic dynamic-sized dictionary with key type `K` and value type `V`. Example: `map from integer to text`.@
+li@`optional T` -- Wrapper for type `T` indicating that the value may or may not be present. Example: `optional number`.@
+li@`record (...)` -- Anonymous record type, containing zero or more named fields. Example: `record (foo as number, bar as text)`. Literals look like `{{foo: 1, bar: "hi"}`.@
+li@Named record types. These are defined using `type` ... `end type` blocks.@
+@
+
+Unlike most BASICs, there are no reference semantics in TMBASIC.
+Everything is a value.
+Assigning to a variable always makes a copy, even for records, lists, and maps.
+Procedure parameters are passed by value.
+Internally, TMBASIC uses immutable data structures to make this efficient.
+
+h2[Sample code]
+
+The following sample code implements the Fibonacci series.
+
+code@
+function fibonacci(count as number) as list of number
+    ' No explicit type needed when providing an initial value.
+    dim a = 0
+    dim b = 1
+
+    ' You can declare lists this way, but...
+    dim seriesVerbose as list of number
+    seriesVerbose = seriesVerbose + a + b
+
+    ' ... it's easier to use "dim list".
+    dim list series
+        ' Use "select" to append when inside "dim list".
+        select a
+        select b
+        for i = 3 to count
+            dim c = a + b
+            select c
+            a = b
+            b = c
+        next
+    end dim
+
+    return series
+end function
+
+sub main()
+    dim count = 50
+    for each n in fibonacci(count)
+        print n
+    next
+    ' "count.fibonacci" is the same as "fibonacci(count)"
+    for each n in count.fibonacci
+        ' "n.print" is the same as "print n"
+        n.print
+    next
+end sub
+@
+

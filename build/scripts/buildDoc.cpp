@@ -175,11 +175,13 @@ static string indent(string str) {
 }
 
 static string replaceIndentCharsWithHtmlSpans(string str) {
-    return replaceRegex(str, "    ", "<span class=\"indent\">$0</span>");
+    return replace(str, "    ", "<span class=\"indent\">    </span>");
 }
 
 static string addHtmlSyntaxColoringToCode(string str) {
-    return replaceRegex(str, "\"[^\"]*\"", "<span class=\"string\">$0</span>");
+    str = replaceRegex(str, "\"[^\"]*\"", "<span class=\"string\">$0</span>");
+    str = replaceRegex(str, "'.*", "<span class=\"comment\">$0</span>");
+    return str;
 }
 
 static string htmlEncode(string str) {
@@ -231,16 +233,16 @@ static string processHtml(string str) {
     str = replaceRegex(str, "\n*h3\\[([^\\]]+)\\]\n*", "<h3>$1</h3>");
     str = replaceRegex(str, "code@\n*([^@]+)\n*@\n*", [](auto& match) -> string {
         auto x = match[1].str();
-        x = replaceIndentCharsWithHtmlSpans(x);
         x = addHtmlSyntaxColoringToCode(x);
+        x = replaceIndentCharsWithHtmlSpans(x);
         x = trim_copy(x);
         x = replace(x, "\n", "</div><div>");
-        x = string("<div class=\"code\"><tt><div>") + x + "</div></tt></div>";
+        x = string("<div class=\"code\"><div>") + x + "</div></div>";
         x = replace(x, "<div></div>", "<pre></pre>");
         return x;
     });
     str = replaceRegex(str, "nav@([^@]+)@", "<div class=\"backlinks\">$1</div>");
-    str = replaceRegex(str, "`([^`]+)`", "<tt>$1</tt>");
+    str = replaceRegex(str, "`([^`]+)`", "<span class=\"tt\">$1</span>");
     str = replace(str, "</h1><br>", "</h1>");
     str = replace(str, "</h2><br>", "</h2>");
     str = replace(str, "</h3><br>", "</h3>");
@@ -248,9 +250,10 @@ static string processHtml(string str) {
     str = replace(str, "</pre><br>", "</pre>");
     str = replaceRegex(str, "\n*li@\n*([^@]+)\n*@\n*", "<li>$1</li>");
     str = replaceRegex(str, "\n*ul@\n*([^@]+)\n*@\n*", "<ul>$1</ul>");
-    str = replaceRegex(str, "\\{([^:]+):([^}]+)\\}", "<a href=\"$2.html\">$1</a>");
+    str = replaceRegex(str, "([^{])\\{([^:{]+):([^}]+)\\}", "$1<a href=\"$3.html\">$2</a>");
     str = replace(str, "{{", "{");
-    str = replace(str, "\n", "<br>");
+    str = replace(str, "--", "—");
+    str = replace(str, "\n\n", "<br><br>");
     str = replaceRegex(str, "dia\\[([^\\]]+)\\]", [](auto& match) -> string {
         return string("<pre class=\"diagram\">") + getDiagramHtml(match[1].str()) + "</pre>";
     });
