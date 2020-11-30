@@ -13,9 +13,10 @@ Platform | Name | Known compatible systems
 -- | -- | --
 Windows (64-bit) | `win-x64` | Windows 10 20H2
 Windows (32-bit) | `win-x86` | Windows 10 20H2
-macOS (64-bit) | `mac-x64` | macOS 10.13 with [iTerm2](https://www.iterm2.com/)
+macOS (64-bit) | `mac-x64` | [iTerm2](https://www.iterm2.com/) on macOS 10.13
 Linux (64-bit) | `linux-x64` | Alpine 3.12, Ubuntu 18.04
-Linux (ARM 64) | `linux-arm64` | Alpine 3.12, Ubuntu 18.04, Android 10 with [Termux](https://termux.com/)
+Linux (32-bit) | `linux-x86` | [iSH Shell](https://apps.apple.com/us/app/ish-shell/id1436902243) on iOS
+Linux (ARM 64) | `linux-arm64` | Alpine 3.12, Ubuntu 18.04, [Termux](https://termux.com/) on Android
 Linux (ARM 32) | `linux-arm32` | Raspbian
 
 ## Project status
