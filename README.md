@@ -2,22 +2,21 @@
 
 TMBASIC is a simple programming language for creating console applications that run on Windows, macOS, and Linux. "TM" stands for "Text Mode." Apps written in TMBASIC can be simple command line tools or complex mouse-driven user interfaces. A single build in TMBASIC produces executables for all supported platforms with no external libraries and no installation required.
 
-TMBASIC supports the following platforms:
-
-Platform | Tested systems
--- | --
-Windows <span class="github-only">(</span><span class="architecture">x64</span><span class="github-only">)</span> | Windows 10 20H2
-macOS <span class="github-only">(</span><span class="architecture">x64</span><span class="github-only">)</span> | macOS 10.13 with [iTerm2](https://www.iterm2.com/)
-Linux <span class="github-only">(</span><span class="architecture">x64</span><span class="github-only">)</span> | Alpine 3.12, Ubuntu 18.04
-Linux <span class="github-only">(</span><span class="architecture">ARM 32</span><span class="github-only">)</span> | Raspberry Pi OS
-Linux <span class="github-only">(</span><span class="architecture">ARM 64</span><span class="github-only">)</span> | Alpine 3.12, Ubuntu 18.04, Android 10 with [Termux](https://termux.com/)
-
 [Read the documentation online](https://tmbasic.com/doc.html) or in TMBASIC's integrated help viewer.
 
 - [Cheat sheet for experienced programmers](https://tmbasic.com/cheatSheet.html)
 - [BASIC reference](https://tmbasic.com/basic.html)
 
-If you want to build TMBASIC from its C++ source, follow the instructions on the [Developers](https://github.com/electroly/tmbasic/blob/master/DEVELOPERS.md) page.
+TMBASIC supports the following platforms:
+
+Platform | Name | Known compatible systems
+-- | -- | --
+Windows (64-bit) | `win-x64` | Windows 10 20H2
+Windows (32-bit) | `win-x86` | Windows 10 20H2
+macOS (64-bit) | `mac-x64` | macOS 10.13 with [iTerm2](https://www.iterm2.com/)
+Linux (64-bit) | `linux-x64` | Alpine 3.12, Ubuntu 18.04
+Linux (ARM 64) | `linux-arm64` | Alpine 3.12, Ubuntu 18.04, Android 10 with [Termux](https://termux.com/)
+Linux (ARM 32) | `linux-arm32` | Raspbian
 
 ## Project status
 TMBASIC is under development. Stay tuned!

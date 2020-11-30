@@ -506,27 +506,32 @@ TRect App::centeredRect(int width, int height) {
 }
 
 void App::openHelpTopic(uint16_t topic) {
-    HelpResource helpResource;
-    auto buf = new membuf(reinterpret_cast<char*>(helpResource.start), reinterpret_cast<char*>(helpResource.end));
-    auto stream = new iopstream(buf);
-    auto helpFile = new THelpFile(*stream);
-    auto helpWindow = new HelpWindow(helpFile, topic);
-    deskTop->insert(helpWindow);
-    auto width = 85;
-    auto maxWidth = deskTop->size.x - 10;
-    if (width > maxWidth) {
-        width = maxWidth;
-    } else if (width < 40) {
-        width = 40;
+    try {
+        HelpResource helpResource;
+        auto buf = new membuf(reinterpret_cast<char*>(helpResource.start), reinterpret_cast<char*>(helpResource.end));
+        auto stream = new iopstream(buf);
+        auto helpFile = new THelpFile(*stream);
+        auto helpWindow = new HelpWindow(helpFile, topic);
+        deskTop->insert(helpWindow);
+        auto width = 85;
+        auto maxWidth = deskTop->size.x - 10;
+        if (width > maxWidth) {
+            width = maxWidth;
+        } else if (width < 40) {
+            width = 40;
+        }
+        auto height = deskTop->size.y * 0.8;
+        if (height > 35) {
+            height = 35;
+        } else if (height < 10) {
+            height = 10;
+        }
+        auto rect = getNewWindowRect(width, height);
+        helpWindow->locate(rect);
+    } catch (std::runtime_error& ex) {
+        messageBox(std::string("There was an error opening help: ") + ex.what(), mfError | mfOKButton);
+        return;
     }
-    auto height = deskTop->size.y * 0.8;
-    if (height > 35) {
-        height = 35;
-    } else if (height < 10) {
-        height = 10;
-    }
-    auto rect = getNewWindowRect(width, height);
-    helpWindow->locate(rect);
 }
 
 void App::onViewProgram() {

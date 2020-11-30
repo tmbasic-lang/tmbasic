@@ -23,27 +23,25 @@ RUN echo "[multilib]" >> /etc/pacman.conf && \
         clang \
         patch
 
-COPY toolchain-cross-mingw64-linux.cmake /tmp/
-
 # mpdecimal
 RUN cd /tmp && \
     curl -L -o mpdecimal.tar.gz http://www.bytereef.org/software/mpdecimal/releases/mpdecimal-2.5.0.tar.gz && \
     tar zxf mpdecimal.tar.gz && \
     cd mpdecimal-2.5.0 && \
-    ./configure --host=x86_64-w64-mingw32 && \
+    ./configure --host=$ARCH-w64-mingw32 && \
     cd libmpdec && \
     make libmpdec.a -j2 && \
-    cp -f libmpdec.a /usr/x86_64-w64-mingw32/lib/ && \
+    cp -f libmpdec.a /usr/$ARCH-w64-mingw32/lib/ && \
     mkdir -p /usr/include/libmpdec && \
     cp -f *.h /usr/include/libmpdec/ && \
     cd ../libmpdec++ && \
     make libmpdec++.a -j2 && \
-    cp -f libmpdec++.a /usr/x86_64-w64-mingw32/lib/ && \
+    cp -f libmpdec++.a /usr/$ARCH-w64-mingw32/lib/ && \
     mkdir -p /usr/include/libmpdec++ && \
     cp -f *.hh /usr/include/libmpdec++/
 
 # boost
-RUN ln -s /usr/include/boost /usr/x86_64-w64-mingw32/include/
+RUN ln -s /usr/include/boost /usr/$ARCH-w64-mingw32/include/
 
 # ncurses
 RUN cd /tmp && \
@@ -52,7 +50,7 @@ RUN cd /tmp && \
     mv ncurses-*/ ncurses/ && \
     cd ncurses && \
     ./configure \
-        --host=x86_64-w64-mingw32 \
+        --host=$ARCH-w64-mingw32 \
         --without-ada \
         --with-static \
         --with-normal \
@@ -78,7 +76,7 @@ RUN cd /tmp && \
         --with-build-cflags=-D_XOPEN_SOURCE_EXTENDED \
         --without-progs \
         --without-tests \
-        --prefix=/usr/x86_64-w64-mingw32 \
+        --prefix=/usr/$ARCH-w64-mingw32 \
         --without-cxx-binding \
         --disable-home-terminfo \
         --enable-interop \
@@ -87,6 +85,7 @@ RUN cd /tmp && \
     make install
 
 # gtest
+COPY toolchain-cross-mingw64-linux-$ARCH.cmake /tmp/
 RUN cd /tmp && \
     curl -L -o gtest.zip https://github.com/google/googletest/archive/release-1.10.0.zip && \
     unzip gtest.zip && \
@@ -95,19 +94,19 @@ RUN cd /tmp && \
     mkdir build && \
     cd build && \
     cmake .. \
-        -DCMAKE_PREFIX_PATH=/usr/x86_64-w64-mingw32 \
-        -DCMAKE_INSTALL_PREFIX=/usr/x86_64-w64-mingw32 \
+        -DCMAKE_PREFIX_PATH=/usr/$ARCH-w64-mingw32 \
+        -DCMAKE_INSTALL_PREFIX=/usr/$ARCH-w64-mingw32 \
         -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_TOOLCHAIN_FILE=/tmp/toolchain-cross-mingw64-linux.cmake \
+        -DCMAKE_TOOLCHAIN_FILE=/tmp/toolchain-cross-mingw64-linux-$ARCH.cmake \
         && \
     make -j2 && \
     make install
 
 # gtest - why are these declarations from <io.h> needed? gtest header fails when included in tmbasic otherwise
-RUN echo "static int _isatty(int) { return 0; }" >> /usr/x86_64-w64-mingw32/include/gtest/internal/custom/gtest-port.h && \
-    echo "static int read(int,void*,unsigned int) { return 0; }" >> /usr/x86_64-w64-mingw32/include/gtest/internal/custom/gtest-port.h && \
-    echo "static int write(int,const void*,unsigned int) { return 0; }" >> /usr/x86_64-w64-mingw32/include/gtest/internal/custom/gtest-port.h && \
-    echo "static int close(int) { return 0; }" >> /usr/x86_64-w64-mingw32/include/gtest/internal/custom/gtest-port.h
+RUN echo "static int _isatty(int) { return 0; }" >> /usr/$ARCH-w64-mingw32/include/gtest/internal/custom/gtest-port.h && \
+    echo "static int read(int,void*,unsigned int) { return 0; }" >> /usr/$ARCH-w64-mingw32/include/gtest/internal/custom/gtest-port.h && \
+    echo "static int write(int,const void*,unsigned int) { return 0; }" >> /usr/$ARCH-w64-mingw32/include/gtest/internal/custom/gtest-port.h && \
+    echo "static int close(int) { return 0; }" >> /usr/$ARCH-w64-mingw32/include/gtest/internal/custom/gtest-port.h
 
 # immer
 RUN cd /tmp && \
@@ -117,9 +116,9 @@ RUN cd /tmp && \
     mkdir -p immer/build && \
     cd immer/build && \
     cmake .. \
-        -DCMAKE_PREFIX_PATH=/usr/x86_64-w64-mingw32 \
-        -DCMAKE_INSTALL_PREFIX=/usr/x86_64-w64-mingw32 \
-        -DCMAKE_TOOLCHAIN_FILE=/tmp/toolchain-cross-mingw64-linux.cmake \
+        -DCMAKE_PREFIX_PATH=/usr/$ARCH-w64-mingw32 \
+        -DCMAKE_INSTALL_PREFIX=/usr/$ARCH-w64-mingw32 \
+        -DCMAKE_TOOLCHAIN_FILE=/tmp/toolchain-cross-mingw64-linux-$ARCH.cmake \
         && \
     make -j2 && \
     make install
@@ -132,10 +131,10 @@ RUN cd /tmp && \
     mkdir -p tvision/build && \
     cd tvision/build && \
     cmake .. \
-        -DCMAKE_PREFIX_PATH=/usr/x86_64-w64-mingw32 \
-        -DCMAKE_INSTALL_PREFIX=/usr/x86_64-w64-mingw32 \
+        -DCMAKE_PREFIX_PATH=/usr/$ARCH-w64-mingw32 \
+        -DCMAKE_INSTALL_PREFIX=/usr/$ARCH-w64-mingw32 \
         -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_TOOLCHAIN_FILE=/tmp/toolchain-cross-mingw64-linux.cmake \
+        -DCMAKE_TOOLCHAIN_FILE=/tmp/toolchain-cross-mingw64-linux-$ARCH.cmake \
         && \
     make -j2 && \
     make install
@@ -143,7 +142,7 @@ RUN cd /tmp && \
 # environment
 USER $HOST_UID
 COPY bashrc-win /tmp/bashrc
-RUN cat /tmp/bashrc >> /home/$USER/.bashrc && \
+RUN cat /tmp/bashrc | sed s/ARCH/$ARCH/g >> /home/$USER/.bashrc && \
     echo "export IMAGE_NAME=\"$IMAGE_NAME\"" >> /home/$USER/.bashrc && \
     echo "export PS1=\"[$IMAGE_NAME] \w\$ \"" >> /home/$USER/.bashrc
 
