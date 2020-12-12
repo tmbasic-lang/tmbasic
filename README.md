@@ -9,6 +9,8 @@ TMBASIC is a simple programming language for creating console applications that 
 
 TMBASIC supports the following platforms:
 
+<div id="platformSupportTable">
+
 Platform | Known compatible systems
 -- | --
 Windows (64-bit) | Windows 10 20H2
@@ -18,6 +20,8 @@ Linux (64-bit) | Alpine 3.12, Ubuntu 18.04
 Linux (32-bit) | [iSH Shell](https://apps.apple.com/us/app/ish-shell/id1436902243) on iOS
 Linux (ARM64) | Alpine 3.12, Ubuntu 18.04, [Termux](https://termux.com/) on Android
 Linux (ARM32) | Raspbian
+
+</div>
 
 ## Project status
 TMBASIC is under development. Stay tuned!
@@ -37,7 +41,7 @@ There are many options for developing rich graphical user interfaces (GUIs) toda
 **TMBASIC makes it easy to get started.** Everything you need to develop and distribute sophisticated apps is included in TMBASIC. No other software is required. The BASIC language will feel familiar to anyone with programming experience and is easy to learn for new programmers.
 
 ## License
-TMBASIC is open source software, but apps written in TMBASIC do not have to be open source. The following components are included in the TMBASIC development environment and in builds of user programs.
+TMBASIC itself is open source software, but apps written in TMBASIC are not required to be open source. The following components are included in the TMBASIC development environment and in builds of user programs.
 
 - tmbasic — _[MIT license](LICENSE)_
 - [boost](https://www.boost.org/) — _[Boost Software License v1.0](https://github.com/electroly/tmbasic/blob/master/ext/boost/LICENSE_1_0.txt)_
