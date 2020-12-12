@@ -16,6 +16,7 @@ class DesignerWindow : public TWindow {
    private:
     void onTimerTick();
     void updateTitle();
+    void openPropertiesDialog();
 
     compiler::SourceMember* _member;
     std::function<void()> _onEdited;

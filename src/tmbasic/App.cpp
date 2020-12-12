@@ -113,13 +113,18 @@ TStatusLine* App::initStatusLine(TRect r) {
         *new TStatusItem("~Ctrl+W~ Close editor", kbNoKey, cmClose);
     editorWindowStatusDef.next = &appStatusDef;
 
+    auto& designerWindowStatusDef = *new TStatusDef(hcide_editorWindow, hcide_editorWindow) +
+        *new TStatusItem("~Ctrl+P~ View program", kbNoKey, kCmdProgramContentsWindow) +
+        *new TStatusItem("~Ctrl+W~ Close editor", kbNoKey, cmClose);
+    designerWindowStatusDef.next = &editorWindowStatusDef;
+
     auto& programWindowStatusDef = *new TStatusDef(hcide_programWindow, hcide_programWindow) +
         *new TStatusItem("~Alt+1~ Add sub", kbAlt1, kCmdProgramAddSubroutine) +
         *new TStatusItem("~Alt+2~ Add function", kbAlt2, kCmdProgramAddFunction) +
         *new TStatusItem("~Alt+3~ Add global", kbAlt3, kCmdProgramAddGlobalVariable) +
         *new TStatusItem("~Alt+4~ Add constant", kbAlt4, kCmdProgramAddConstant) +
         *new TStatusItem("~Alt+5~ Add type", kbAlt5, kCmdProgramAddType);
-    programWindowStatusDef.next = &editorWindowStatusDef;
+    programWindowStatusDef.next = &designerWindowStatusDef;
 
     return new TStatusLine(r, programWindowStatusDef);
 }

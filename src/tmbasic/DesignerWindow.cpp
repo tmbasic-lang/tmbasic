@@ -1,6 +1,7 @@
 #include "tmbasic/DesignerWindow.h"
 #include "../../obj/helpfile.h"
 #include "tmbasic/DesignerGridView.h"
+#include "tmbasic/DesignerFormPropertiesDialog.h"
 #include "tmbasic/events.h"
 
 using compiler::SourceMember;
@@ -28,7 +29,19 @@ DesignerWindow::DesignerWindow(const TRect& r, SourceMember* member, std::functi
 
 void DesignerWindow::handleEvent(TEvent& event) {
     TWindow::handleEvent(event);
-    if (event.what == evBroadcast) {
+    if (event.what == evCommand) {
+        if (event.message.command == kCmdDesignerWindowProperties) {
+            openPropertiesDialog();
+            clearEvent(event);
+        }
+    } else if (event.what == evMouseDown) {
+        if (event.mouse.buttons & mbRightButton) {
+            auto& menu = *new TMenuItem("~P~roperties", kCmdDesignerWindowProperties, kbNoKey);
+            popupMenu(event.mouse.where, menu, owner);
+        } else if (event.mouse.eventFlags & meDoubleClick) {
+            openPropertiesDialog();
+        }
+    } else if (event.what == evBroadcast) {
         switch (event.message.command) {
             case kCmdCloseProgramRelatedWindows:
                 close();
@@ -63,6 +76,13 @@ void DesignerWindow::onTimerTick() {}
 TPalette& DesignerWindow::getPalette() const {
     static auto palette = TPalette(cpGrayDialog, sizeof(cpGrayDialog) - 1);
     return palette;
+}
+
+void DesignerWindow::openPropertiesDialog() {
+    auto* dialog = new DesignerFormPropertiesDialog();
+    dialog->options |= ofCentered;
+    owner->execView(dialog);
+    destroy(dialog);
 }
 
 }  // namespace tmbasic

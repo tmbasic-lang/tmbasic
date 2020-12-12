@@ -6,6 +6,8 @@
 
 #define Uses_MsgBox
 #define Uses_TApplication
+#define Uses_TButton
+#define Uses_TCheckBoxes
 #define Uses_TDeskTop
 #define Uses_TDialog
 #define Uses_TEditor
@@ -13,6 +15,7 @@
 #define Uses_TFileDialog
 #define Uses_TFrame
 #define Uses_TIndicator
+#define Uses_TInputLine
 #define Uses_TKeys
 #define Uses_TLabel
 #define Uses_TListBox
@@ -22,6 +25,7 @@
 #define Uses_TOutlineViewer
 #define Uses_TPalette
 #define Uses_TRect
+#define Uses_TSItem
 #define Uses_TScroller
 #define Uses_TStaticText
 #define Uses_TStatusDef

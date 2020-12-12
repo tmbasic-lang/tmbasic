@@ -21,6 +21,7 @@ enum : uint16_t {
     kCmdProgramAddForm,
     kCmdProgramAddCustomControl,
     kCmdProgramRun,
+    kCmdDesignerWindowProperties,
 
     // broadcast in response to cmSave/cmSaveAs
     kCmdProgramSave,
