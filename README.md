@@ -1,23 +1,23 @@
 # TMBASIC
 
-TMBASIC is a simple programming language for creating console applications that run on Windows, macOS, and Linux. "TM" stands for "Text Mode." Apps written in TMBASIC can be simple command line tools or complex mouse-driven user interfaces. A single build in TMBASIC produces executables for all supported platforms with no external libraries and no installation required.
+TMBASIC is a simple programming language for creating console applications that run on Windows, macOS, and Linux. "TM" stands for "Text Mode." Apps written in TMBASIC can be simple command line tools or complex mouse-driven user interfaces. A build in TMBASIC produces single-file executables for all supported platforms with no external libraries and no installation required.
 
 [Read the documentation online](https://tmbasic.com/doc.html) or in TMBASIC's integrated help viewer.
 
-- [Cheat sheet for experienced programmers](https://tmbasic.com/cheatSheet.html)
-- [BASIC reference](https://tmbasic.com/basic.html)
+- [Cheat Sheet for Experienced Programmers](https://tmbasic.com/cheatSheet.html)
+- [BASIC Reference](https://tmbasic.com/basic.html)
 
 TMBASIC supports the following platforms:
 
-Platform | Name | Known compatible systems
--- | -- | --
-Windows (64-bit) | `win-x64` | Windows 10 20H2
-Windows (32-bit) | `win-x86` | Windows 10 20H2
-macOS (64-bit) | `mac-x64` | [iTerm2](https://www.iterm2.com/) on macOS 10.13
-Linux (64-bit) | `linux-x64` | Alpine 3.12, Ubuntu 18.04
-Linux (32-bit) | `linux-x86` | [iSH Shell](https://apps.apple.com/us/app/ish-shell/id1436902243) on iOS
-Linux (ARM 64) | `linux-arm64` | Alpine 3.12, Ubuntu 18.04, [Termux](https://termux.com/) on Android
-Linux (ARM 32) | `linux-arm32` | Raspbian
+Platform | Known compatible systems
+-- | --
+Windows (64-bit) | Windows 10 20H2
+Windows (32-bit) | Windows 10 20H2
+macOS | [iTerm2](https://www.iterm2.com/) on macOS 10.13
+Linux (64-bit) | Alpine 3.12, Ubuntu 18.04
+Linux (32-bit) | [iSH Shell](https://apps.apple.com/us/app/ish-shell/id1436902243) on iOS
+Linux (ARM64) | Alpine 3.12, Ubuntu 18.04, [Termux](https://termux.com/) on Android
+Linux (ARM32) | Raspbian
 
 ## Project status
 TMBASIC is under development. Stay tuned!
