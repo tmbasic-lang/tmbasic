@@ -79,10 +79,14 @@ TPalette& DesignerWindow::getPalette() const {
 }
 
 void DesignerWindow::openPropertiesDialog() {
-    auto* dialog = new DesignerFormPropertiesDialog();
+    DesignerFormProperties p;
+    auto* dialog = new DesignerFormPropertiesDialog(&p);
     dialog->options |= ofCentered;
-    owner->execView(dialog);
+    auto command = owner->execView(dialog);
     destroy(dialog);
+
+    // if (command == cmOK) {
+    // }
 }
 
 }  // namespace tmbasic

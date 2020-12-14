@@ -92,7 +92,7 @@ format:
 
 .PHONY: lint
 lint:
-	@cpplint --quiet --recursive --linelength 120 --filter=-whitespace/indent,-readability/todo,-build/include_what_you_use,-legal/copyright,-readability/fn_size,-build/c++11 --repository=src src build/scripts/buildDoc.cpp
+	@cpplint --quiet --recursive --linelength 120 --filter=-whitespace/indent,-readability/todo,-build/include_what_you_use,-legal/copyright,-readability/fn_size,-build/c++11,-build/include_subdir --repository=src src build/scripts/buildDoc.cpp
 
 .PHONY: ghpages
 ghpages: obj/help.txt bin/ghpages/index.html
