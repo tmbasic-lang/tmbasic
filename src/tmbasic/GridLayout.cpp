@@ -85,7 +85,7 @@ GridLayout::TableView GridLayout::getCell(int rowIndex, int columnIndex) {
     return { rowIndex, columnIndex, nullptr };
 }
 
-void GridLayout::calculateRowHeights(int finalRowHeights[]) {
+void GridLayout::calculateRowHeights(std::vector<int>* finalRowHeights) {
     for (size_t rowIndex = 0; rowIndex < _rowHeights.size(); rowIndex++) {
         auto isLastRow = rowIndex == _rowHeights.size() - 1;
         auto height = _rowHeights[rowIndex];
@@ -107,18 +107,18 @@ void GridLayout::calculateRowHeights(int finalRowHeights[]) {
             if (!isLastRow) {
                 maxContentHeight += _rowSpacing;
             }
-            finalRowHeights[rowIndex] = maxContentHeight;
+            (*finalRowHeights)[rowIndex] = maxContentHeight;
         } else {
             // fixed size
             if (!isLastRow) {
                 height += _rowSpacing;
             }
-            finalRowHeights[rowIndex] = height;
+            (*finalRowHeights)[rowIndex] = height;
         }
     }
 }
 
-void GridLayout::calculateColumnWidths(int finalColumnWidths[]) {
+void GridLayout::calculateColumnWidths(std::vector<int>* finalColumnWidths) {
     for (size_t columnIndex = 0; columnIndex < _columnWidths.size(); columnIndex++) {
         auto isLastColumn = columnIndex == _columnWidths.size() - 1;
         auto width = _columnWidths[columnIndex];
@@ -140,13 +140,13 @@ void GridLayout::calculateColumnWidths(int finalColumnWidths[]) {
             if (!isLastColumn) {
                 maxContentWidth += _columnSpacing;
             }
-            finalColumnWidths[columnIndex] = maxContentWidth;
+            (*finalColumnWidths)[columnIndex] = maxContentWidth;
         } else {
             // fixed size
             if (!isLastColumn) {
                 width += _columnSpacing;
             }
-            finalColumnWidths[columnIndex] = width;
+            (*finalColumnWidths)[columnIndex] = width;
         }
     }
 }
@@ -156,11 +156,11 @@ TPoint GridLayout::apply(TGroup* group, TPoint upperLeft) {
     auto numRows = _rowHeights.size();
     auto numColumns = _columnWidths.size();
 
-    int rowHeights[numRows] = {};
-    calculateRowHeights(rowHeights);
+    auto rowHeights = std::vector<int>(numRows);
+    calculateRowHeights(&rowHeights);
 
-    int columnWidths[numColumns] = {};
-    calculateColumnWidths(columnWidths);
+    auto columnWidths = std::vector<int>(numColumns);
+    calculateColumnWidths(&columnWidths);
 
     int right = 0;
     int bottom = 0;

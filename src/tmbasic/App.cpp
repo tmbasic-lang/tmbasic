@@ -130,7 +130,7 @@ TStatusLine* App::initStatusLine(TRect r) {
     return new TStatusLine(r, programWindowStatusDef);
 }
 
-static char getPaletteColor(char* palette, size_t index) {
+static char getPaletteColor(const char* palette, size_t index) {
     return palette[index - 1];
 }
 
@@ -140,7 +140,7 @@ static void updatePalette(char* appPalette, size_t appPaletteIndex, uint8_t mask
 
 static void updatePalette(
     char* appPalette,
-    char* windowPalette,
+    const char* windowPalette,
     char windowPaletteIndex,
     uint8_t mask,
     uint8_t newValue) {

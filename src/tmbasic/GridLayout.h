@@ -32,8 +32,8 @@ class GridLayout {
 
     void addVariant(int rowIndex, int columnIndex, std::variant<TView*, RowLayout> item);
     TableView getCell(int rowIndex, int columnIndex);
-    void calculateRowHeights(int finalRowHeights[]);
-    void calculateColumnWidths(int finalColumnWidths[]);
+    void calculateRowHeights(std::vector<int>* finalRowHeights);
+    void calculateColumnWidths(std::vector<int>* finalColumnWidths);
     TPoint apply(TGroup* group, TPoint upperLeft);
 
     int _marginX = 3;
