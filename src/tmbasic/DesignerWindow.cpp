@@ -82,7 +82,7 @@ void DesignerWindow::openPropertiesDialog() {
     DesignerFormProperties p;
     auto* dialog = new DesignerFormPropertiesDialog(&p);
     dialog->options |= ofCentered;
-    auto command = owner->execView(dialog);
+    owner->execView(dialog);
     destroy(dialog);
 
     // if (command == cmOK) {
