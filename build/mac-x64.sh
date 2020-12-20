@@ -69,8 +69,8 @@ make help
 MAC_INCLUDE_FLAGS="-I$(PWD)/mac/boost -I$(PWD)/mac/mpdecimal/libmpdec -I$(PWD)/mac/mpdecimal/libmpdec++ -I$(PWD)/mac/ncurses/include -I$(PWD)/mac/googletest/googletest/include -I$(PWD)/mac/tvision/include -I$(PWD)/mac/immer" \
     BUILDDOC_MAC_INCLUDE_FLAGS="-I$(PWD)/mac/boost" \
     MAC_LD_FLAGS="-L$(PWD)/mac/mpdecimal/libmpdec -L$(PWD)/mac/mpdecimal/libmpdec++ -L$(PWD)/mac/tvision/build" \
-    HELP_FILE_OBJ="" \
-    MAC_HELP_FILE_LINK_FLAG="-Wl,-sectcreate,__DATA,__help_h32,obj/help.h32" \
+    LINUX_RESOURCE_OBJ_FILES="" \
+    MAC_RESOURCES_LINK_FLAGS="-Wl,-sectcreate,__DATA,__help_h32,obj/help.h32 -Wl,-sectcreate,__DATA,__runner_linux_arm32,obj/runner_linux_arm32 -Wl,-sectcreate,__DATA,__runner_linux_arm64,obj/runner_linux_arm64 -Wl,-sectcreate,__DATA,__runner_linux_x64,obj/runner_linux_x64 -Wl,-sectcreate,__DATA,__runner_linux_x86,obj/runner_linux_x86 -Wl,-sectcreate,__DATA,__runner_mac_x64,obj/runner_mac_x64 -Wl,-sectcreate,__DATA,__runner_win_x64,obj/runner_win_x64 -Wl,-sectcreate,__DATA,__runner_win_x86,obj/runner_win_x86" \
     STATIC_FLAG="" \
     LIBTINFO_FLAG="" \
     LIBMPDEC_FLAG="$(PWD)/mac/mpdecimal/libmpdec/libmpdec.a $(PWD)/mac/mpdecimal/libmpdec++/libmpdec++.a " \

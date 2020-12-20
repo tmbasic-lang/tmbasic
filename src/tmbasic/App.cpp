@@ -5,7 +5,7 @@
 #include "tmbasic/AboutDialog.h"
 #include "tmbasic/DesignerWindow.h"
 #include "tmbasic/EditorWindow.h"
-#include "tmbasic/HelpResource.h"
+#include "tmbasic/Resource.h"
 #include "tmbasic/HelpWindow.h"
 #include "tmbasic/ProgramWindow.h"
 #include "tmbasic/constants.h"
@@ -513,7 +513,7 @@ TRect App::centeredRect(int width, int height) {
 
 void App::openHelpTopic(uint16_t topic) {
     try {
-        HelpResource helpResource;
+        auto helpResource = getResource(Resource::kHelp);
         auto buf = new membuf(reinterpret_cast<char*>(helpResource.start), reinterpret_cast<char*>(helpResource.end));
         auto stream = new iopstream(buf);
         auto helpFile = new THelpFile(*stream);

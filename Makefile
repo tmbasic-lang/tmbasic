@@ -1,9 +1,12 @@
+RUNNERS_BIN_FILES=obj/runner_linux_arm32 obj/runner_linux_arm64 obj/runner_linux_x64 obj/runner_linux_x86 obj/runner_mac_x64 obj/runner_win_x64 obj/runner_win_x86
+RUNNERS_OBJ_FILES=obj/runner_linux_arm32.o obj/runner_linux_arm64.o obj/runner_linux_x64.o obj/runner_linux_x86.o obj/runner_mac_x64.o obj/runner_win_x64.o obj/runner_win_x86.o
+
 # environment variable defaults
 TARGET_OS ?= linux
 BUILDCC ?= $(CC)
 TVHC ?= tvhc
 CMAKE ?= cmake
-HELP_FILE_OBJ ?= obj/helpfile.o
+LINUX_RESOURCE_OBJ_FILES ?= obj/helpfile.o $(RUNNERS_OBJ_FILES)
 STATIC_FLAG ?= -static
 LIBMPDEC_FLAG ?= -lmpdec -lmpdec++
 LIBNCURSESW_FLAG ?= -lncursesw
@@ -257,11 +260,6 @@ obj/help.txt: $(DOC_FILES) obj/buildDoc $(DIAGRAM_CP437_FILES) $(LICENSE_DIAGRAM
 	@mkdir -p obj
 	@cd doc && ../obj/buildDoc
 
-obj/helpfile.o: obj/help.h32
-	@echo $@
-	@mkdir -p obj
-	@cd obj && $(LD) -r -b binary -o ../obj/helpfile.o help.h32
-
 $(DIAGRAM_CP437_FILES): obj/doc-temp/diagrams-cp437/%: doc/diagrams/%
 	@echo $@
 	@mkdir -p $(@D)
@@ -296,10 +294,22 @@ obj/shared.a: $(SHARED_OBJ_FILES)
 	@mkdir -p $(@D)
 	@$(AR) rcs $@ $(SHARED_OBJ_FILES)
 
+# resources
+
+obj/helpfile.o: obj/help.h32
+	@echo $@
+	@mkdir -p $(@D)
+	@cd obj && $(LD) -r -b binary -o ../obj/helpfile.o help.h32
+
+$(RUNNERS_OBJ_FILES): obj/%.o: obj/%
+	@echo $@
+	@mkdir -p $(@D)
+	@$(LD) -r -b binary -o $@ $<
+
 # tmbasic
 
 # Windows only
-obj/HelpResource-win.o: src/tmbasic/HelpResource-win.rc obj/helpfile.o
+obj/Resources-win32.o: src/tmbasic/Resources-win32.rc obj/helpfile.o $(RUNNERS_BIN_FILES)
 	@echo $@
 	@$(WINDRES) -i $< -o $@
 
@@ -308,10 +318,10 @@ $(TMBASIC_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch obj/helpfile.h obj/hel
 	@mkdir -p $(@D)
 	@$(CXX) $(CXXFLAGS) -c -include obj/common.h -o $@ $<
 
-bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) obj/shared.a obj/compiler.a obj/common.h.gch obj/helpfile.h obj/help.h32 $(HELP_FILE_OBJ) $(RESOURCE_OBJ_FILES)
+bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) obj/shared.a obj/compiler.a obj/common.h.gch obj/helpfile.h obj/help.h32 $(LINUX_RESOURCE_OBJ_FILES) $(WIN_RESOURCE_OBJ_FILE)
 	@echo $@
 	@mkdir -p $(@D)
-	@$(CXX) $(CXXFLAGS) $(MAC_HELP_FILE_LINK_FLAG) $(STATIC_FLAG) -include obj/common.h -o $@ $(TMBASIC_OBJ_FILES) obj/shared.a obj/compiler.a -ltvision $(HELP_FILE_OBJ) $(RESOURCE_OBJ_FILES) $(LDFLAGS)
+	@$(CXX) $(CXXFLAGS) $(MAC_RESOURCES_LINK_FLAGS) $(STATIC_FLAG) -include obj/common.h -o $@ $(TMBASIC_OBJ_FILES) obj/shared.a obj/compiler.a -ltvision $(LINUX_RESOURCE_OBJ_FILES) $(WIN_RESOURCE_OBJ_FILE) $(LDFLAGS)
 	@$(STRIP) bin/tmbasic$(EXE_EXTENSION)
 
 # test
@@ -321,12 +331,12 @@ $(TEST_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch obj/helpfile.h obj/help.h
 	@mkdir -p $(@D)
 	@$(CXX) $(CXXFLAGS) -c -include obj/common.h -o $@ $<
 
-bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) obj/shared.a obj/compiler.a obj/common.h.gch obj/helpfile.h obj/help.h32 $(HELP_FILE_OBJ)
+bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) obj/shared.a obj/compiler.a obj/common.h.gch obj/helpfile.h obj/help.h32 $(LINUX_RESOURCE_OBJ_FILES)
 	@echo $@
 	@mkdir -p $(@D)
-	@$(CXX) $(CXXFLAGS) $(MAC_HELP_FILE_LINK_FLAG) -include obj/common.h -o $@ $(TEST_OBJ_FILES) obj/shared.a obj/compiler.a -ltvision $(HELP_FILE_OBJ) $(LDFLAGS) $(LIBGTEST_FLAG) -lpthread
+	@$(CXX) $(CXXFLAGS) $(MAC_RESOURCES_LINK_FLAGS) -include obj/common.h -o $@ $(TEST_OBJ_FILES) obj/shared.a obj/compiler.a -ltvision $(LINUX_RESOURCE_OBJ_FILES) $(LDFLAGS) $(LIBGTEST_FLAG) -lpthread
 
-# runner
+# runner (native platform)
 
 $(RUNNER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(SHARED_H_FILES) $(RUNNER_H_FILES)
 	@echo $@
@@ -338,3 +348,10 @@ bin/runner$(EXE_EXTENSION): $(RUNNER_OBJ_FILES) obj/shared.a obj/common.h.gch
 	@mkdir -p $(@D)
 	@$(CXX) $(CXXFLAGS) $(STATIC_FLAG) -include obj/common.h -o $@ $(RUNNER_OBJ_FILES) obj/shared.a -ltvision $(LDFLAGS)
 	@$(STRIP) bin/runner$(EXE_EXTENSION)
+
+# runners for full publish builds
+
+$(RUNNERS_BIN_FILES): obj/%:
+	@echo $@
+	@mkdir -p $(@D)
+	@touch $@

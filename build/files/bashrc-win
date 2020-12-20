@@ -16,4 +16,5 @@ export TARGET_OS=win
 export EXE_EXTENSION=.exe
 export OPTFLAGS=-Os
 export TEST_CMD="WINEPATH=/usr/ARCH-w64-mingw32/bin wine64 test.exe"
-export RESOURCE_OBJ_FILES="obj/HelpResource-win.o"
+export WIN_RESOURCE_OBJ_FILE="obj/Resources-win32.o"
+export LINUX_RESOURCE_OBJ_FILES=""
