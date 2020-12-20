@@ -318,7 +318,7 @@ $(TMBASIC_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch obj/helpfile.h obj/hel
 	@mkdir -p $(@D)
 	@$(CXX) $(CXXFLAGS) -c -include obj/common.h -o $@ $<
 
-bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) obj/shared.a obj/compiler.a obj/common.h.gch obj/helpfile.h obj/help.h32 $(LINUX_RESOURCE_OBJ_FILES) $(WIN_RESOURCE_OBJ_FILE)
+bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) obj/shared.a obj/compiler.a obj/common.h.gch obj/helpfile.h obj/help.h32 $(LINUX_RESOURCE_OBJ_FILES) $(WIN_RESOURCE_OBJ_FILE) $(RUNNERS_BIN_FILES)
 	@echo $@
 	@mkdir -p $(@D)
 	@$(CXX) $(CXXFLAGS) $(MAC_RESOURCES_LINK_FLAGS) $(STATIC_FLAG) -include obj/common.h -o $@ $(TMBASIC_OBJ_FILES) obj/shared.a obj/compiler.a -ltvision $(LINUX_RESOURCE_OBJ_FILES) $(WIN_RESOURCE_OBJ_FILE) $(LDFLAGS)
