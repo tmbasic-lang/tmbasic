@@ -5,10 +5,19 @@
 
 namespace tmbasic {
 
+// std::variant is supported on macOS 10.13 but std::get is not
+class ViewOrRowLayout {
+   public:
+    TView* view = nullptr;
+    std::optional<RowLayout> rowLayout;
+    ViewOrRowLayout(TView* view);          // NOLINT(runtime/explicit)
+    ViewOrRowLayout(RowLayout rowLayout);  // NOLINT(runtime/explicit)
+};
+
 class GridLayout {
    public:
     GridLayout();
-    GridLayout(int numColumns, std::initializer_list<std::variant<TView*, RowLayout>> items);
+    GridLayout(int numColumns, std::initializer_list<ViewOrRowLayout> items);
 
     // setup
     GridLayout& setMarginX(int margin);
@@ -27,10 +36,10 @@ class GridLayout {
     struct TableView {
         int rowIndex;
         int columnIndex;
-        std::variant<TView*, RowLayout> item;
+        ViewOrRowLayout item;
     };
 
-    void addVariant(int rowIndex, int columnIndex, std::variant<TView*, RowLayout> item);
+    void addVariant(int rowIndex, int columnIndex, ViewOrRowLayout item);
     TableView getCell(int rowIndex, int columnIndex);
     void calculateRowHeights(std::vector<int>* finalRowHeights);
     void calculateColumnWidths(std::vector<int>* finalColumnWidths);

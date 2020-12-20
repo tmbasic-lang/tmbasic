@@ -2,14 +2,18 @@
 
 namespace tmbasic {
 
+ViewOrRowLayout::ViewOrRowLayout(TView* view) : view(view) {}
+
+ViewOrRowLayout::ViewOrRowLayout(RowLayout rowLayout) : rowLayout(std::move(rowLayout)) {}
+
 GridLayout::GridLayout() {}
 
-GridLayout::GridLayout(int numColumns, std::initializer_list<std::variant<TView*, RowLayout>> items) {
+GridLayout::GridLayout(int numColumns, std::initializer_list<ViewOrRowLayout> items) {
     int rowIndex = 0;
     int columnIndex = 0;
     for (auto& item : items) {
         // skip null views, used to leave a cell blank
-        if (!std::holds_alternative<TView*>(item) || std::get<TView*>(item)) {
+        if (item.view || item.rowLayout.has_value()) {
             addVariant(rowIndex, columnIndex, item);
         }
 
@@ -70,7 +74,7 @@ GridLayout& GridLayout::add(int rowIndex, int columnIndex, const RowLayout& flow
     return *this;
 }
 
-void GridLayout::addVariant(int rowIndex, int columnIndex, std::variant<TView*, RowLayout> item) {
+void GridLayout::addVariant(int rowIndex, int columnIndex, ViewOrRowLayout item) {
     resizeIfNeeded(&_rowHeights, rowIndex);
     resizeIfNeeded(&_columnWidths, columnIndex);
     _views.push_back({ rowIndex, columnIndex, item });
@@ -94,14 +98,13 @@ void GridLayout::calculateRowHeights(std::vector<int>* finalRowHeights) {
             auto maxContentHeight = 0;
             for (size_t columnIndex = 0; columnIndex < _columnWidths.size(); columnIndex++) {
                 auto tableView = getCell(rowIndex, columnIndex);
-                if (std::holds_alternative<TView*>(tableView.item)) {
-                    auto* view = std::get<TView*>(tableView.item);
-                    if (view) {
-                        maxContentHeight = max(maxContentHeight, view->size.y);
-                    }
-                } else {
-                    auto& flow = std::get<RowLayout>(tableView.item);
+                if (tableView.item.rowLayout.has_value()) {
+                    auto& flow = *tableView.item.rowLayout;
                     maxContentHeight = max(maxContentHeight, flow.getSize().y);
+                } else {
+                    if (tableView.item.view) {
+                        maxContentHeight = max(maxContentHeight, tableView.item.view->size.y);
+                    }
                 }
             }
             if (!isLastRow) {
@@ -127,14 +130,13 @@ void GridLayout::calculateColumnWidths(std::vector<int>* finalColumnWidths) {
             auto maxContentWidth = 0;
             for (size_t rowIndex = 0; rowIndex < _rowHeights.size(); rowIndex++) {
                 auto tableView = getCell(rowIndex, columnIndex);
-                if (std::holds_alternative<TView*>(tableView.item)) {
-                    auto* view = std::get<TView*>(tableView.item);
-                    if (view) {
-                        maxContentWidth = max(maxContentWidth, view->size.x);
-                    }
-                } else {
-                    auto& flow = std::get<RowLayout>(tableView.item);
+                if (tableView.item.rowLayout.has_value()) {
+                    auto& flow = *tableView.item.rowLayout;
                     maxContentWidth = max(maxContentWidth, flow.getSize().x);
+                } else {
+                    if (tableView.item.view) {
+                        maxContentWidth = max(maxContentWidth, tableView.item.view->size.x);
+                    }
                 }
             }
             if (!isLastColumn) {
@@ -173,16 +175,13 @@ TPoint GridLayout::apply(TGroup* group, TPoint upperLeft) {
         for (size_t columnIndex = 0; columnIndex < numColumns; columnIndex++) {
             auto width = columnWidths[columnIndex];
             auto tableView = getCell(rowIndex, columnIndex);
-            if (std::holds_alternative<TView*>(tableView.item)) {
-                auto* view = std::get<TView*>(tableView.item);
-                if (view) {
-                    auto bounds = TRect(x, y, x + width - 1, y + view->size.y);
-                    view->locate(bounds);
-                    group->insert(view);
-                }
-            } else {
-                auto& flow = std::get<RowLayout>(tableView.item);
+            if (tableView.item.rowLayout.has_value()) {
+                auto& flow = *tableView.item.rowLayout;
                 flow.addTo(group, x, x + width - 1, y);
+            } else if (tableView.item.view) {
+                auto bounds = TRect(x, y, x + width - 1, y + tableView.item.view->size.y);
+                tableView.item.view->locate(bounds);
+                group->insert(tableView.item.view);
             }
 
             x += width;
