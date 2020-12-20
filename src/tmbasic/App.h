@@ -33,6 +33,7 @@ class App : public TApplication {
     void onProgramAddDesigner(DesignerType type);
     void onHelpDocumentation();
     void onHelpBasicReference();
+    void onHelpAbout();
     TRect centeredRect(int width, int height);
     void openHelpTopic(uint16_t topic);
     void showNewProgramWindow(std::optional<std::string> filePath);

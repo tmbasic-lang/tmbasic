@@ -11,14 +11,14 @@ class GridLayout {
     GridLayout(int numColumns, std::initializer_list<std::variant<TView*, RowLayout>> items);
 
     // setup
-    void setMarginX(int margin);
-    void setMarginY(int margin);
-    void setRowHeight(int rowIndex, int height);
-    void setColumnWidth(int columnIndex, int width);
-    void setRowSpacing(int spacing);
-    void setColumnSpacing(int spacing);
-    void add(int rowIndex, int columnIndex, TView* view);
-    void add(int rowIndex, int columnIndex, const RowLayout& flow);
+    GridLayout& setMarginX(int margin);
+    GridLayout& setMarginY(int margin);
+    GridLayout& setRowHeight(int rowIndex, int height);
+    GridLayout& setColumnWidth(int columnIndex, int width);
+    GridLayout& setRowSpacing(int spacing);
+    GridLayout& setColumnSpacing(int spacing);
+    GridLayout& add(int rowIndex, int columnIndex, TView* view);
+    GridLayout& add(int rowIndex, int columnIndex, const RowLayout& flow);
 
     // run
     void addTo(TWindow* window);

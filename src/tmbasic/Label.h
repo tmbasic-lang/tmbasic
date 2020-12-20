@@ -6,7 +6,7 @@ namespace tmbasic {
 
 class Label : public TLabel {
    public:
-    Label(TStringView text, TView* link);
+    explicit Label(TStringView text, TView* link = nullptr);
     void draw() override;
 };
 

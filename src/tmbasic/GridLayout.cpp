@@ -21,12 +21,14 @@ GridLayout::GridLayout(int numColumns, std::initializer_list<std::variant<TView*
     }
 }
 
-void GridLayout::setMarginX(int margin) {
+GridLayout& GridLayout::setMarginX(int margin) {
     _marginX = margin;
+    return *this;
 }
 
-void GridLayout::setMarginY(int margin) {
+GridLayout& GridLayout::setMarginY(int margin) {
     _marginY = margin;
+    return *this;
 }
 
 static void resizeIfNeeded(std::vector<int>* vec, int index) {
@@ -36,30 +38,36 @@ static void resizeIfNeeded(std::vector<int>* vec, int index) {
     }
 }
 
-void GridLayout::setRowHeight(int rowIndex, int height) {
+GridLayout& GridLayout::setRowHeight(int rowIndex, int height) {
     resizeIfNeeded(&_rowHeights, rowIndex);
     _rowHeights[rowIndex] = height;
+    return *this;
 }
 
-void GridLayout::setColumnWidth(int columnIndex, int width) {
+GridLayout& GridLayout::setColumnWidth(int columnIndex, int width) {
     resizeIfNeeded(&_columnWidths, columnIndex);
     _columnWidths[columnIndex] = width;
+    return *this;
 }
 
-void GridLayout::setRowSpacing(int spacing) {
+GridLayout& GridLayout::setRowSpacing(int spacing) {
     _rowSpacing = spacing;
+    return *this;
 }
 
-void GridLayout::setColumnSpacing(int spacing) {
+GridLayout& GridLayout::setColumnSpacing(int spacing) {
     _columnSpacing = spacing;
+    return *this;
 }
 
-void GridLayout::add(int rowIndex, int columnIndex, TView* view) {
+GridLayout& GridLayout::add(int rowIndex, int columnIndex, TView* view) {
     addVariant(rowIndex, columnIndex, view);
+    return *this;
 }
 
-void GridLayout::add(int rowIndex, int columnIndex, const RowLayout& flow) {
+GridLayout& GridLayout::add(int rowIndex, int columnIndex, const RowLayout& flow) {
     addVariant(rowIndex, columnIndex, flow);
+    return *this;
 }
 
 void GridLayout::addVariant(int rowIndex, int columnIndex, std::variant<TView*, RowLayout> item) {

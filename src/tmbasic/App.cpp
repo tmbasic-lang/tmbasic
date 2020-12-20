@@ -2,6 +2,7 @@
 #include "../../obj/helpfile.h"
 #include "compiler/SourceProgram.h"
 #include "shared/util/membuf.h"
+#include "tmbasic/AboutDialog.h"
 #include "tmbasic/DesignerWindow.h"
 #include "tmbasic/EditorWindow.h"
 #include "tmbasic/HelpResource.h"
@@ -265,7 +266,7 @@ bool App::handleCommand(TEvent* event) {
             return true;
 
         case kCmdHelpAbout:
-            messageBox("TMBASIC\n(C) 2020 Brian Luft\ngithub.com/electroly/tmbasic", mfInformation | mfOKButton);
+            onHelpAbout();
             return true;
 
         case cmQuit: {
@@ -544,6 +545,13 @@ void App::onViewProgram() {
     if (window) {
         window->select();
     }
+}
+
+void App::onHelpAbout() {
+    auto* dialog = new AboutDialog();
+    dialog->options |= ofCentered;
+    deskTop->execView(dialog);
+    destroy(dialog);
 }
 
 }  // namespace tmbasic
