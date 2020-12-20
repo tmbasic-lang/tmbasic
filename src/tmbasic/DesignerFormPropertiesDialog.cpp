@@ -7,19 +7,21 @@
 #include "GridLayout.h"
 #include "constants.h"
 
+using tui::UserForm;
+
 namespace tmbasic {
 
 enum CheckboxIndex { kShowCloseButtonIndex, kShowMaximizeButtonIndex, kAllowResizeIndex };
 
-DesignerFormPropertiesDialog::DesignerFormPropertiesDialog(DesignerFormProperties* props)
+DesignerFormPropertiesDialog::DesignerFormPropertiesDialog(UserForm* form)
     : TDialog(TRect(0, 0, 0, 0), "Form Properties"),
       TWindowInit(&TDialog::initFrame),
-      _props(props),
-      _nameText(new InputLine(props->name)),
-      _titleText(new InputLine(props->title)),
+      _form(form),
+      _nameText(new InputLine(form->name)),
+      _titleText(new InputLine(form->title)),
       _checkBoxes(new CheckBoxes(
           { "Show ~c~lose button in titlebar", "Show ~m~aximize button in titlebar", "Allow user to ~r~esize" },
-          { props->showCloseButton, props->showMaximizeButton, props->allowResize })) {
+          { form->showCloseButton, form->showMaximizeButton, form->allowResize })) {
     GridLayout(
         2,
         {
@@ -44,11 +46,11 @@ DesignerFormPropertiesDialog::DesignerFormPropertiesDialog(DesignerFormPropertie
 
 void DesignerFormPropertiesDialog::handleEvent(TEvent& event) {
     if (event.what == evCommand && event.message.command == cmOK) {
-        _props->name = _nameText->data;
-        _props->title = _titleText->data;
-        _props->showCloseButton = _checkBoxes->mark(kShowCloseButtonIndex);
-        _props->showMaximizeButton = _checkBoxes->mark(kShowMaximizeButtonIndex);
-        _props->allowResize = _checkBoxes->mark(kAllowResizeIndex);
+        _form->name = _nameText->data;
+        _form->title = _titleText->data;
+        _form->showCloseButton = _checkBoxes->mark(kShowCloseButtonIndex);
+        _form->showMaximizeButton = _checkBoxes->mark(kShowMaximizeButtonIndex);
+        _form->allowResize = _checkBoxes->mark(kAllowResizeIndex);
     }
 
     TDialog::handleEvent(event);

@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../common.h"
+#include "../../common.h"
 
-namespace tmbasic {
+namespace tui {
 
-class DesignerFormProperties {
+class UserForm {
    public:
     std::string name;
     std::string title;
@@ -13,4 +13,4 @@ class DesignerFormProperties {
     bool allowResize = false;
 };
 
-}  // namespace tmbasic
+}  // namespace tui

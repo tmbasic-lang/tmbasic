@@ -1,17 +1,17 @@
 #pragma once
 
 #include "../common.h"
-#include "tmbasic/DesignerFormProperties.h"
+#include "shared/tui/UserForm.h"
 
 namespace tmbasic {
 
 class DesignerFormPropertiesDialog : public TDialog {
    public:
-    explicit DesignerFormPropertiesDialog(DesignerFormProperties* props);
+    explicit DesignerFormPropertiesDialog(tui::UserForm* form);
     void handleEvent(TEvent& event) override;
 
    private:
-    DesignerFormProperties* _props;
+    tui::UserForm* _form;
     TInputLine* _nameText;
     TInputLine* _titleText;
     TCheckBoxes* _checkBoxes;

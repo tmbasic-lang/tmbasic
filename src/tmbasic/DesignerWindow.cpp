@@ -1,11 +1,13 @@
 #include "tmbasic/DesignerWindow.h"
 #include "../../obj/helpfile.h"
-#include "tmbasic/DesignerGridView.h"
+#include "shared/tui/UserForm.h"
 #include "tmbasic/DesignerFormPropertiesDialog.h"
+#include "tmbasic/DesignerGridView.h"
 #include "tmbasic/events.h"
 
 using compiler::SourceMember;
 using compiler::SourceMemberType;
+using tui::UserForm;
 
 namespace tmbasic {
 
@@ -79,14 +81,11 @@ TPalette& DesignerWindow::getPalette() const {
 }
 
 void DesignerWindow::openPropertiesDialog() {
-    DesignerFormProperties p;
-    auto* dialog = new DesignerFormPropertiesDialog(&p);
+    UserForm f;
+    auto* dialog = new DesignerFormPropertiesDialog(&f);
     dialog->options |= ofCentered;
     owner->execView(dialog);
     destroy(dialog);
-
-    // if (command == cmOK) {
-    // }
 }
 
 }  // namespace tmbasic
