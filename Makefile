@@ -88,11 +88,11 @@ valgrind: bin/tmbasic
 .PHONY: format
 format:
 	@cd src && find ./ -type f \( -iname \*.h -o -iname \*.cpp \) | xargs clang-format $(CLANG_FORMAT_FLAGS)
-	@clang-format $(CLANG_FORMAT_FLAGS) build/scripts/buildDoc.cpp
+	@clang-format $(CLANG_FORMAT_FLAGS) build/files/buildDoc.cpp
 
 .PHONY: lint
 lint:
-	@cpplint --quiet --recursive --linelength 120 --filter=-whitespace/indent,-readability/todo,-build/include_what_you_use,-legal/copyright,-readability/fn_size,-build/c++11,-build/include_subdir --repository=src src build/scripts/buildDoc.cpp
+	@cpplint --quiet --recursive --linelength 120 --filter=-whitespace/indent,-readability/todo,-build/include_what_you_use,-legal/copyright,-readability/fn_size,-build/c++11,-build/include_subdir --repository=src src build/files/buildDoc.cpp
 
 .PHONY: ghpages
 ghpages: obj/help.txt bin/ghpages/index.html
@@ -237,7 +237,7 @@ obj/doc-temp/diagrams-license/license_tvision.txt: ext/tvision/COPYRIGHT
 	@mkdir -p $(@D)
 	@cp -f $< $@
 
-obj/buildDoc: build/scripts/buildDoc.cpp
+obj/buildDoc: build/files/buildDoc.cpp
 	@echo $@
 	@$(BUILDCC) $(BUILDDOC_WIN_INCLUDE_FLAGS) $(BUILDDOC_MAC_INCLUDE_FLAGS) -Iext/nameof -Wall -Werror -std=c++17 -o $@ $< -lstdc++
 
