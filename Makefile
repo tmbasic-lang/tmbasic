@@ -108,7 +108,7 @@ ghpages-test:
 
 # ghpages
 
-bin/ghpages/index.html: README.md doc/html/page-template-1.html doc/html/page-template-2.html doc/html/page-template-3.html $(FAVICON_OUT_FILES)
+bin/ghpages/index.html: README.md doc/html/page-template-1.html doc/html/page-template-2.html doc/html/page-template-3.html $(FAVICON_OUT_FILES) bin/ghpages/screenshot.svg
 	@echo $@
 	@mkdir -p $(@D)
 	@cat doc/html/page-template-1.html > $@
@@ -118,6 +118,11 @@ bin/ghpages/index.html: README.md doc/html/page-template-1.html doc/html/page-te
 	@cat doc/html/page-template-3.html >> $@
 
 $(FAVICON_OUT_FILES): bin/ghpages/%: art/favicon/%
+	@echo $@
+	@mkdir -p $(@D)
+	@cp -f $< $@
+
+bin/ghpages/screenshot.svg: art/screenshot.svg
 	@echo $@
 	@mkdir -p $(@D)
 	@cp -f $< $@

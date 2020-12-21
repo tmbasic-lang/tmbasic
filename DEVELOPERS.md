@@ -43,3 +43,17 @@ This development build of TMBASIC will be unable to produce executables from BAS
 
 ## Release builds
 To produce a fully-baked set of distribution files, follow the instructions in [`build/publish/README.md`](build/publish/README.md).
+
+## Take SVG screenshots
+Resize your terminal to 80x24. In the developer container:
+
+```
+pip3 install termtosvg
+python3 -m termtosvg -g 80x24 -s
+```
+
+Post-process the .svg file with:
+
+```
+sed -i'' 's/height="17"/height="18"/g; s/DejaVu Sans Mono/Consolas/g' screenshot.svg
+```
