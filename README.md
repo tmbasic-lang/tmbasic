@@ -1,11 +1,13 @@
-# TMBASIC
+# TMBASIC – "Text Mode" BASIC
 
-TMBASIC is a simple programming language for creating console applications that run on Windows, macOS, and Linux. "TM" stands for "Text Mode." Apps written in TMBASIC can be simple command line tools or complex mouse-driven user interfaces. A build in TMBASIC produces single-file executables for all supported platforms with no external libraries and no installation required.
+TMBASIC is a simple programming language for creating console applications that run on Windows, macOS, and Linux. Apps written in TMBASIC can be simple command line tools or complex mouse-driven user interfaces.
 
 [Read the documentation online](https://tmbasic.com/doc.html) or in TMBASIC's integrated help viewer.
 
 - [Cheat Sheet for Experienced Programmers](https://tmbasic.com/cheatSheet.html)
 - [BASIC Reference](https://tmbasic.com/basic.html)
+
+## Compatibility
 
 TMBASIC supports the following platforms:
 
@@ -13,13 +15,15 @@ TMBASIC supports the following platforms:
 
 Platform | Known compatible systems
 -- | --
-Windows (64-bit) | Windows 10 20H2
-Windows (32-bit) | Windows 10 20H2
+Windows (64-bit) | Windows 10
+Windows (32-bit) | Windows 10
 macOS | [iTerm2](https://www.iterm2.com/) on macOS 10.13
 Linux (64-bit) | Alpine 3.12, Ubuntu 18.04
 Linux (32-bit) | [iSH Shell](https://apps.apple.com/us/app/ish-shell/id1436902243) on iOS
 Linux (ARM64) | Alpine 3.12, Ubuntu 18.04, [Termux](https://termux.com/) on Android
 Linux (ARM32) | Raspbian
+
+A build in TMBASIC produces single-file executables for all supported platforms at once. These compiled programs require no external libraries.
 
 </div>
 
