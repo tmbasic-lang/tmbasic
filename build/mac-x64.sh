@@ -80,4 +80,4 @@ MAC_INCLUDE_FLAGS="-I$(PWD)/mac/boost -I$(PWD)/mac/mpdecimal/libmpdec -I$(PWD)/m
     PS1="[tmbasic-mac-x64] \w\$ " \
     MAKEFLAGS="-j8" \
     TVHC="$(PWD)/mac/tvision/build/tvhc" \
-    bash
+    bash "$@"
