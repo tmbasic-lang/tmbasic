@@ -9,5 +9,5 @@ export ARCH="x86_64"
 cat files/Dockerfile.build-win | envsubst | docker build -t $IMAGE_NAME files -f-
 
 pushd ..
-docker run --rm --tty --interactive --volume "$PWD:/code" --workdir /code --name $IMAGE_NAME $IMAGE_NAME
+docker run --rm ${TTY_FLAG:=--tty --interactive} --volume "$PWD:/code" --workdir /code --name $IMAGE_NAME $DOCKER_FLAGS $IMAGE_NAME "$@"
 popd
