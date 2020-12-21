@@ -12,7 +12,7 @@ On the Linux machines, run the following command to clear all Docker images. Thi
 docker rmi $(docker images -a -q) --force
 ```
 
-Make sure that the two Ubuntu instances are accessible via `ssh` with private key authentication. Copy the private keys (`.pem` files) onto the Mac. Set the permissions on the key files:
+Make sure that the two Ubuntu instances are accessible via `ssh` with public key authentication. Copy the private keys (`.pem` files) onto the Mac. Set the permissions on the key files:
 
 ```
 chmod 600 filename.pem
