@@ -45,15 +45,19 @@ This development build of TMBASIC will be unable to produce executables from BAS
 To produce a fully-baked set of distribution files, follow the instructions in [`build/publish/README.md`](build/publish/README.md).
 
 ## Take SVG screenshots
-Resize your terminal to 80x24. In the developer container:
+SVG screenshots would have been nice, but they get garbled in some browsers (Chrome on Android). Instead, we will just take regular PNG screenshots.
+
+- Windows 10 at 175% scaling
+- PuTTY
+- Terminal size: 80x24
+- Window > Appearance
+    - Cursor appearance: Underline
+    - Font: Consolas 14pt
+    - Font quality: Non-Antialiased
+- Window > Colours > ANSI Cyan: 58, 150, 221
+
+Crop to the console area including the one pixel black outline. Post-process with:
 
 ```
-pip3 install termtosvg
-python3 -m termtosvg -g 80x24 -s
-```
-
-Post-process the .svg file with:
-
-```
-sed -i'' 's/height="17"/height="18"/g; s/DejaVu Sans Mono/Consolas/g' screenshot.svg
+pngcrush -brute -reduce -ow screenshot.png
 ```

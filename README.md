@@ -2,8 +2,8 @@
 
 TMBASIC is a simple programming language for creating console applications that run on Windows, macOS, and Linux. Apps written in TMBASIC can be simple command line tools or complex mouse-driven user interfaces.
 
-<!-- See DEVELOPERS.md for instructions on generating this SVG screenshot. -->
-<img src="https://tmbasic.com/screenshot.svg" alt="Screenshot" class="screenshot">
+<!-- See DEVELOPERS.md for instructions on generating this screenshot. -->
+<img src="https://tmbasic.com/screenshot.png" alt="Screenshot" class="screenshot">
 
 [Read the documentation online](https://tmbasic.com/doc.html) or in TMBASIC's integrated help viewer.
 
