@@ -7,6 +7,9 @@ TMBASIC is a simple programming language for creating console applications that 
 - [Cheat Sheet for Experienced Programmers](https://tmbasic.com/cheatSheet.html)
 - [BASIC Reference](https://tmbasic.com/basic.html)
 
+## Project status
+TMBASIC is under development. Stay tuned!
+
 ## Compatibility
 
 TMBASIC supports the following platforms:
@@ -26,9 +29,6 @@ Linux (ARM32) | Raspbian
 A build in TMBASIC produces single-file executables for all supported platforms at once. These compiled programs require no external libraries.
 
 </div>
-
-## Project status
-TMBASIC is under development. Stay tuned!
 
 ## Motivation
 
