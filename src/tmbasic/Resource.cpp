@@ -39,7 +39,7 @@ static ResourceData getResourceCore(Resource resource, string macName, int winId
     if (size == 0) {
         throw std::runtime_error("SizeofResource failed!");
     }
-    result.end = start + size;
+    result.end = result.start + size;
     return result;
 }
 #endif

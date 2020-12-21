@@ -49,7 +49,7 @@ LICENSE_DIAGRAM_SRC_FILES=obj/doc-temp/diagrams-license/license_tmbasic.txt obj/
 LICENSE_DIAGRAM_CP437_FILES=$(patsubst obj/doc-temp/diagrams-license/%,obj/doc-temp/diagrams-cp437/%,$(LICENSE_DIAGRAM_SRC_FILES))
 
 .PHONY: all
-all: bin/tmbasic$(EXE_EXTENSION) bin/test$(EXE_EXTENSION) bin/runner$(EXE_EXTENSION) bin/LICENSE.txt
+all: bin/tmbasic$(EXE_EXTENSION) bin/test$(EXE_EXTENSION) bin/LICENSE.txt
 
 .PHONY: help
 help:

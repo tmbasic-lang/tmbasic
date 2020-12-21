@@ -2,6 +2,7 @@
 /bin
 /obj
 /mac
+/dist
 /.vscode/settings.json
 /valgrind.txt
 /tvision

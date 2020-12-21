@@ -63,7 +63,6 @@ then
     popd
 fi
 
-set +x
 cd ..
 make help
 MAC_INCLUDE_FLAGS="-I$(PWD)/mac/boost -I$(PWD)/mac/mpdecimal/libmpdec -I$(PWD)/mac/mpdecimal/libmpdec++ -I$(PWD)/mac/ncurses/include -I$(PWD)/mac/googletest/googletest/include -I$(PWD)/mac/tvision/include -I$(PWD)/mac/immer" \
