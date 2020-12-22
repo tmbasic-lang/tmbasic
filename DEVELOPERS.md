@@ -44,7 +44,7 @@ This development build of TMBASIC will be unable to produce executables from BAS
 ## Release builds
 To produce a fully-baked set of distribution files, follow the instructions in [`build/publish/README.md`](build/publish/README.md).
 
-## Take SVG screenshots
+## Take screenshots for the website
 SVG screenshots would have been nice, but they get garbled in some browsers (Chrome on Android). Instead, we will just take regular PNG screenshots.
 
 - Windows 10 at 175% scaling
