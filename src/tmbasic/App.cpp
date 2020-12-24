@@ -22,7 +22,20 @@ char App::helpWindowPalette[9] = {};
 
 App::App(int argc, char** argv)
     : TProgInit(initStatusLine, initMenuBar, TApplication::initDeskTop), _newWindowX(2), _newWindowY(1) {
-    disableDefaultCommands();
+    TCommandSet ts;
+    ts.enableCmd(cmSave);
+    ts.enableCmd(cmSaveAs);
+    ts.enableCmd(kCmdDesignAddButton);
+    ts.enableCmd(kCmdDesignAddCheckBox);
+    ts.enableCmd(kCmdDesignAddGroupBox);
+    ts.enableCmd(kCmdDesignAddLabel);
+    ts.enableCmd(kCmdDesignAddListBox);
+    ts.enableCmd(kCmdDesignAddRadioButton);
+    ts.enableCmd(kCmdDesignAddScrollBar);
+    ts.enableCmd(kCmdDesignAddTextBox);
+    ts.enableCmd(kCmdDesignAddCustomControl);
+    disableCommands(ts);
+
     onFileNew();
 }
 
@@ -42,13 +55,6 @@ void App::handleEvent(TEvent& event) {
         clearEvent(event);
     }
     TApplication::handleEvent(event);
-}
-
-void App::disableDefaultCommands() {
-    TCommandSet ts;
-    ts.enableCmd(cmSave);
-    ts.enableCmd(cmSaveAs);
-    disableCommands(ts);
 }
 
 TMenuBar* App::initMenuBar(TRect r) {
@@ -78,15 +84,16 @@ TMenuBar* App::initMenuBar(TRect r) {
         *new TMenuItem("Add f~o~rm", kCmdProgramAddForm, kbNoKey) +
         *new TMenuItem("Add c~u~stom control", kCmdProgramAddCustomControl, kbNoKey);
 
-    auto& formMenu = *new TSubMenu("~D~esign", kbAltD) + *new TMenuItem("Add ~b~utton", kCmdHelpAbout, kbNoKey) +
-        *new TMenuItem("Add ~c~heck box", kCmdHelpAbout, kbNoKey) +
-        *new TMenuItem("Add ~g~roup box", kCmdHelpAbout, kbNoKey) +
-        *new TMenuItem("Add ~l~abel", kCmdHelpAbout, kbNoKey) +
-        *new TMenuItem("Add list bo~x~", kCmdHelpAbout, kbNoKey) +
-        *new TMenuItem("Add ~r~adio button", kCmdHelpAbout, kbNoKey) +
-        *new TMenuItem("Add ~s~croll bar", kCmdHelpAbout, kbNoKey) +
-        *new TMenuItem("Add ~t~ext box", kCmdHelpAbout, kbNoKey) + newLine() +
-        *new TMenuItem("Add c~u~stom control", kCmdHelpAbout, kbNoKey);
+    auto& designMenu = *new TSubMenu("~D~esign", kbAltD) +
+        *new TMenuItem("Add ~b~utton", kCmdDesignAddButton, kbNoKey) +
+        *new TMenuItem("Add ~c~heck box", kCmdDesignAddCheckBox, kbNoKey) +
+        *new TMenuItem("Add ~g~roup box", kCmdDesignAddGroupBox, kbNoKey) +
+        *new TMenuItem("Add ~l~abel", kCmdDesignAddLabel, kbNoKey) +
+        *new TMenuItem("Add list bo~x~", kCmdDesignAddListBox, kbNoKey) +
+        *new TMenuItem("Add ~r~adio button", kCmdDesignAddRadioButton, kbNoKey) +
+        *new TMenuItem("Add ~s~croll bar", kCmdDesignAddScrollBar, kbNoKey) +
+        *new TMenuItem("Add ~t~ext box", kCmdDesignAddTextBox, kbNoKey) + newLine() +
+        *new TMenuItem("Add c~u~stom control", kCmdDesignAddCustomControl, kbNoKey);
 
     auto& windowMenu = *new TSubMenu("~W~indow", kbAltW) +
         *new TMenuItem("~S~ize/move", cmResize, kbCtrlF5, hcNoContext, "Ctrl+F5") +
@@ -100,7 +107,7 @@ TMenuBar* App::initMenuBar(TRect r) {
         *new TMenuItem("~A~bout TMBASIC", kCmdHelpAbout, kbNoKey);
 
     r.b.y = r.a.y + 1;
-    return new TMenuBar(r, fileMenu + editMenu + viewMenu + programMenu + formMenu + windowMenu + helpMenu);
+    return new TMenuBar(r, fileMenu + editMenu + viewMenu + programMenu + designMenu + windowMenu + helpMenu);
 }
 
 TStatusLine* App::initStatusLine(TRect r) {

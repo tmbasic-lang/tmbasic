@@ -8,7 +8,7 @@
 namespace tmbasic {
 
 enum : uint16_t {
-    // menu commands
+    // top menu commands
     kCmdHelpBasicReference = 100,
     kCmdHelpDocumentation,
     kCmdHelpAbout,
@@ -21,6 +21,17 @@ enum : uint16_t {
     kCmdProgramAddForm,
     kCmdProgramAddCustomControl,
     kCmdProgramRun,
+    kCmdDesignAddButton,
+    kCmdDesignAddCheckBox,
+    kCmdDesignAddGroupBox,
+    kCmdDesignAddLabel,
+    kCmdDesignAddListBox,
+    kCmdDesignAddRadioButton,
+    kCmdDesignAddScrollBar,
+    kCmdDesignAddTextBox,
+    kCmdDesignAddCustomControl,
+
+    // designer window context menu
     kCmdDesignerWindowProperties,
 
     // broadcast in response to cmSave/cmSaveAs
@@ -42,7 +53,7 @@ enum : uint16_t {
     // broadcast to close all program-related windows.
     kCmdCloseProgramRelatedWindows,
 
-    // broadcast every 100msec or so
+    // broadcast every 250msec or so
     kCmdTimerTick,
 };
 

@@ -15,6 +15,26 @@ static std::string getDesignerWindowTitle(const SourceMember& member) {
     return member.identifier + " (Design)";
 }
 
+void DesignerWindow::setState(uint16_t aState, bool enable) {
+    TWindow::setState(aState, enable);
+
+    TCommandSet ts;
+    ts.enableCmd(kCmdDesignAddButton);
+    ts.enableCmd(kCmdDesignAddCheckBox);
+    ts.enableCmd(kCmdDesignAddGroupBox);
+    ts.enableCmd(kCmdDesignAddLabel);
+    ts.enableCmd(kCmdDesignAddListBox);
+    ts.enableCmd(kCmdDesignAddRadioButton);
+    ts.enableCmd(kCmdDesignAddScrollBar);
+    ts.enableCmd(kCmdDesignAddTextBox);
+    ts.enableCmd(kCmdDesignAddCustomControl);
+    if (aState & sfFocused) {
+        enableCommands(ts);
+    } else {
+        disableCommands(ts);
+    }
+}
+
 DesignerWindow::DesignerWindow(const TRect& r, SourceMember* member, std::function<void()> onEdited)
     : TWindow(r, getDesignerWindowTitle(*member), wnNoNumber),
       TWindowInit(TWindow::initFrame),

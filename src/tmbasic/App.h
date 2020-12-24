@@ -19,7 +19,6 @@ class App : public TApplication {
     TPalette& getPalette() const override;
 
    private:
-    void disableDefaultCommands();
     static TMenuBar* initMenuBar(TRect r);
     static TStatusLine* initStatusLine(TRect r);
     bool handleCommand(TEvent* event);

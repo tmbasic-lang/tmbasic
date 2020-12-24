@@ -12,6 +12,7 @@ class DesignerWindow : public TWindow {
     uint16_t getHelpCtx() override;
     void close() override;
     TPalette& getPalette() const override;
+    void setState(uint16_t aState, bool enable) override;
 
    private:
     void onTimerTick();
