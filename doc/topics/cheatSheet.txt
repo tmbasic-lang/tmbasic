@@ -45,11 +45,14 @@ function fibonacci(count as number) as list of number
     dim a = 0
     dim b = 1
 
-    ' You can declare lists this way, but...
+    ' You can declare lists this way and append items with +.
     dim seriesVerbose as list of number
     seriesVerbose = seriesVerbose + a + b
 
-    ' ... it's easier to use "dim list".
+    ' There is a literal syntax for arrays, like JavaScript.
+    dim seriesLessVerbose = [a, b]
+
+    ' But building a list dynamically is easier with "dim list".
     dim list series
         ' Use "select" to append when inside "dim list".
         select a
