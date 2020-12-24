@@ -34,8 +34,8 @@ class GridLayout {
 
    private:
     struct TableView {
-        int rowIndex;
-        int columnIndex;
+        int rowIndex = 0;
+        int columnIndex = 0;
         ViewOrRowLayout item;
     };
 

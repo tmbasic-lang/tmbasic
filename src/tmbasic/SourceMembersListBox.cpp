@@ -16,13 +16,13 @@ SourceMembersListBox::SourceMembersListBox(
     : TListViewer(bounds, numCols, nullptr, vScrollBar),
       _program(program),
       _selectedType(SourceMemberType::kProcedure),
-      _onMemberOpen(onMemberOpen) {
+      _onMemberOpen(std::move(onMemberOpen)) {
     curCommandSet.enableCmd(cmSave);
     curCommandSet.enableCmd(cmSaveAs);
     selectType(SourceMemberType::kProcedure);
 }
 
-SourceMembersListBox::~SourceMembersListBox() {}
+SourceMembersListBox::~SourceMembersListBox() = default;
 
 void SourceMembersListBox::selectType(SourceMemberType type) {
     _selectedType = type;
@@ -34,7 +34,7 @@ void SourceMembersListBox::updateItems() {
 
     _items.clear();
 
-    for (auto& member : _program.members) {
+    for (const auto& member : _program.members) {
         if (member->memberType == _selectedType) {
             _items.push_back(member.get());
         }
@@ -61,9 +61,9 @@ void SourceMembersListBox::updateItems() {
 void SourceMembersListBox::getText(char* dest, int16_t item, int16_t maxLen) {
     if (item >= 0 && static_cast<size_t>(item) < _items.size()) {
         strncpy(dest, _items[item]->displayName.c_str(), maxLen);
-        dest[maxLen] = '\0';
+        dest[maxLen] = '\0';  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     } else {
-        dest[0] = '\0';
+        dest[0] = '\0';  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     }
 }
 

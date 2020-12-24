@@ -18,9 +18,9 @@ template <
     typename TValueList>
 class Map : public Object {
    public:
-    const immer::map<TKey, TValue> pairs;
+    const immer::map<TKey, TValue> pairs = {};
 
-    Map() {}
+    Map() = default;
 
     Map(const Map<TKey, TValue, K, TKeyListBuilder, TKeyList, TValuePointerCompare, TValueListBuilder, TValueList>&
             source,
@@ -47,8 +47,8 @@ class Map : public Object {
             return false;
         }
         TValuePointerCompare equals;
-        for (auto pair : pairs) {
-            auto otherValuePtr = otherMap.pairs.find(pair.first);
+        for (const auto& pair : pairs) {
+            const auto* otherValuePtr = otherMap.pairs.find(pair.first);
             if (otherValuePtr == nullptr) {
                 return false;
             }
@@ -76,48 +76,44 @@ class Map : public Object {
     }
 };
 
-typedef Map<
-    Value,
-    Value,
-    ObjectType::kValueToValueMap,
-    ValueListBuilder,
-    ValueList,
-    ValuePointerCompare,
-    ValueListBuilder,
-    ValueList>
-    ValueToValueMap;
+using ValueToValueMap =
+    Map<Value,
+        Value,
+        ObjectType::kValueToValueMap,
+        ValueListBuilder,
+        ValueList,
+        ValuePointerCompare,
+        ValueListBuilder,
+        ValueList>;
 
-typedef Map<
-    Value,
-    boost::local_shared_ptr<Object>,
-    ObjectType::kValueToObjectMap,
-    ValueListBuilder,
-    ValueList,
-    ObjectPointerCompare,
-    ObjectListBuilder,
-    ObjectList>
-    ValueToObjectMap;
+using ValueToObjectMap =
+    Map<Value,
+        boost::local_shared_ptr<Object>,
+        ObjectType::kValueToObjectMap,
+        ValueListBuilder,
+        ValueList,
+        ObjectPointerCompare,
+        ObjectListBuilder,
+        ObjectList>;
 
-typedef Map<
-    boost::local_shared_ptr<Object>,
-    Value,
-    ObjectType::kObjectToValueMap,
-    ObjectListBuilder,
-    ObjectList,
-    ValuePointerCompare,
-    ValueListBuilder,
-    ValueList>
-    ObjectToValueMap;
+using ObjectToValueMap =
+    Map<boost::local_shared_ptr<Object>,
+        Value,
+        ObjectType::kObjectToValueMap,
+        ObjectListBuilder,
+        ObjectList,
+        ValuePointerCompare,
+        ValueListBuilder,
+        ValueList>;
 
-typedef Map<
-    boost::local_shared_ptr<Object>,
-    boost::local_shared_ptr<Object>,
-    ObjectType::kObjectToObjectMap,
-    ObjectListBuilder,
-    ObjectList,
-    ObjectPointerCompare,
-    ObjectListBuilder,
-    ObjectList>
-    ObjectToObjectMap;
+using ObjectToObjectMap =
+    Map<boost::local_shared_ptr<Object>,
+        boost::local_shared_ptr<Object>,
+        ObjectType::kObjectToObjectMap,
+        ObjectListBuilder,
+        ObjectList,
+        ObjectPointerCompare,
+        ObjectListBuilder,
+        ObjectList>;
 
 }  // namespace vm

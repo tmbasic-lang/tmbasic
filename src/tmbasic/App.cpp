@@ -4,23 +4,25 @@
 #include "shared/util/membuf.h"
 #include "tmbasic/AboutDialog.h"
 #include "tmbasic/DesignerWindow.h"
+#include "tmbasic/DialogPtr.h"
 #include "tmbasic/EditorWindow.h"
-#include "tmbasic/Resource.h"
 #include "tmbasic/HelpWindow.h"
 #include "tmbasic/ProgramWindow.h"
+#include "tmbasic/Resource.h"
+#include "tmbasic/WindowPtr.h"
 #include "tmbasic/constants.h"
 #include "tmbasic/events.h"
 
 using compiler::SourceMember;
 using compiler::SourceMemberType;
 using compiler::SourceProgram;
-using util::membuf;
+using util::MemoryIopstream;
 
 namespace tmbasic {
 
-char App::helpWindowPalette[9] = {};
+std::array<char, 9> App::helpWindowPalette = {};
 
-App::App(int argc, char** argv)
+App::App(int /*argc*/, char** /*argv*/)
     : TProgInit(initStatusLine, initMenuBar, TApplication::initDeskTop), _newWindowX(2), _newWindowY(1) {
     TCommandSet ts;
     ts.enableCmd(cmUndo);
@@ -112,6 +114,7 @@ TMenuBar* App::initMenuBar(TRect r) {
         *new TMenuItem("~A~bout TMBASIC", kCmdHelpAbout, kbNoKey);
 
     r.b.y = r.a.y + 1;
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
     return new TMenuBar(r, fileMenu + editMenu + viewMenu + programMenu + designMenu + windowMenu + helpMenu);
 }
 
@@ -135,29 +138,30 @@ TStatusLine* App::initStatusLine(TRect r) {
         *new TStatusItem("~F10~ Menu", kbF10, cmMenu);
     programWindowStatusDef.next = &designerWindowStatusDef;
 
-    return new TStatusLine(r, programWindowStatusDef);
+    return new TStatusLine(r, programWindowStatusDef);  // NOLINT(cppcoreguidelines-owning-memory)
 }
 
 static char getPaletteColor(const char* palette, size_t index) {
-    return palette[index - 1];
+    return palette[index - 1];  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 }
 
-static void updatePalette(char* appPalette, size_t appPaletteIndex, uint8_t mask, uint8_t newValue) {
-    appPalette[appPaletteIndex - 1] = (appPalette[appPaletteIndex - 1] & ~mask) | newValue;
+static void updatePalette(std::array<char, 256>* appPalette, size_t appPaletteIndex, uint8_t mask, uint8_t newValue) {
+    appPalette->at(appPaletteIndex - 1) = (appPalette->at(appPaletteIndex - 1) & ~mask) | newValue;
 }
 
 static void updatePalette(
-    char* appPalette,
+    std::array<char, 256>* appPalette,
     const char* windowPalette,
     char windowPaletteIndex,
     uint8_t mask,
     uint8_t newValue) {
-    auto appIndex = static_cast<size_t>(windowPalette[windowPaletteIndex - 1]);
-    appPalette[appIndex - 1] = (appPalette[appIndex - 1] & ~mask) | newValue;
+    auto appIndex = static_cast<size_t>(
+        windowPalette[windowPaletteIndex - 1]);  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    appPalette->at(appIndex - 1) = (appPalette->at(appIndex - 1) & ~mask) | newValue;
 }
 
 TPalette& App::getPalette() const {
-    static char array[256] = {};
+    static auto array = std::array<char, 256>();
     static auto isInitialized = false;
 
     if (!isInitialized) {
@@ -168,28 +172,28 @@ TPalette& App::getPalette() const {
         // 0x40 - 0x5F: cpBlueDialog
         // 0x60 - 0x7F: cpCyanDialog
         // 0x80 - 0x87: cHelpWindow
-        memcpy(array, cpAppColor, sizeof(cpAppColor));
+        memcpy(array.data(), cpAppColor, sizeof(cpAppColor));
 
         // change the list viewer colors in blue/cyan dialogs
-        updatePalette(array, cpBlueDialog, kPaletteListViewerActiveInactive, 0xFF, kBgColorBlue | kFgColorWhite);
-        updatePalette(array, cpBlueDialog, kPaletteListViewerFocused, 0xFF, kBgColorGreen | kFgColorBrightWhite);
-        updatePalette(array, cpBlueDialog, kPaletteListViewerSelected, 0xFF, kBgColorBlue | kFgColorYellow);
-        updatePalette(array, cpBlueDialog, kPaletteListViewerDivider, 0xFF, kBgColorBlue | kFgColorGray);
-        updatePalette(array, cpCyanDialog, kPaletteListViewerActiveInactive, 0xFF, kBgColorCyan | kFgColorBrightWhite);
-        updatePalette(array, cpCyanDialog, kPaletteListViewerFocused, 0xFF, kBgColorGreen | kFgColorBrightWhite);
-        updatePalette(array, cpCyanDialog, kPaletteListViewerSelected, 0xFF, kBgColorCyan | kFgColorYellow);
-        updatePalette(array, cpCyanDialog, kPaletteListViewerDivider, 0xFF, kBgColorCyan | kFgColorWhite);
+        updatePalette(&array, cpBlueDialog, kPaletteListViewerActiveInactive, 0xFF, kBgColorBlue | kFgColorWhite);
+        updatePalette(&array, cpBlueDialog, kPaletteListViewerFocused, 0xFF, kBgColorGreen | kFgColorBrightWhite);
+        updatePalette(&array, cpBlueDialog, kPaletteListViewerSelected, 0xFF, kBgColorBlue | kFgColorYellow);
+        updatePalette(&array, cpBlueDialog, kPaletteListViewerDivider, 0xFF, kBgColorBlue | kFgColorGray);
+        updatePalette(&array, cpCyanDialog, kPaletteListViewerActiveInactive, 0xFF, kBgColorCyan | kFgColorBrightWhite);
+        updatePalette(&array, cpCyanDialog, kPaletteListViewerFocused, 0xFF, kBgColorGreen | kFgColorBrightWhite);
+        updatePalette(&array, cpCyanDialog, kPaletteListViewerSelected, 0xFF, kBgColorCyan | kFgColorYellow);
+        updatePalette(&array, cpCyanDialog, kPaletteListViewerDivider, 0xFF, kBgColorCyan | kFgColorWhite);
 
         // white text in editors instead of yellow
-        updatePalette(array, cpBlueWindow, kPaletteEditorNormal, kFgColorMask, kFgColorWhite);
+        updatePalette(&array, cpBlueWindow, kPaletteEditorNormal, kFgColorMask, kFgColorWhite);
 
         // gray windows/dialogs: the default foreground doesn't have enough contrast.
         for (size_t i = 0x18; i <= 0x3F; i++) {
-            auto color = getPaletteColor(array, i);
+            auto color = getPaletteColor(array.data(), i);
             if (color == (kFgColorBrightWhite | kBgColorWhite)) {
-                updatePalette(array, i, kFgColorMask, kFgColorBlack);
+                updatePalette(&array, i, kFgColorMask, kFgColorBlack);
             } else if (color == (kFgColorLightGreen | kBgColorWhite)) {
-                updatePalette(array, i, kFgColorMask, kFgColorGreen);
+                updatePalette(&array, i, kFgColorMask, kFgColorGreen);
             }
         }
 
@@ -199,24 +203,24 @@ TPalette& App::getPalette() const {
         // attribute byte.
         for (size_t i = 0x80; i <= 0x100; i++) {
             auto color = static_cast<char>(i & 0x7F);
-            updatePalette(array, i, 0xFF, color);
+            updatePalette(&array, i, 0xFF, color);
         }
 
         // in order to cope with the help viewer problem, let's convert the help palette to these new custom entries
         // and then provide it in a place where our custom HelpWindow subclass can read it.
         for (size_t i = 0x80; i <= 0x87; i++) {
             auto color = getPaletteColor(cpAppColor, i);
-            helpWindowPalette[i - 0x80] = 0x80 | color;
+            helpWindowPalette.at(i - 0x80) = 0x80 | color;
         }
 
         isInitialized = true;
     }
 
-    static TPalette color(array, sizeof(array) - 1);
+    static TPalette color(array.data(), sizeof(array) - 1);
     static TPalette blackwhite(cpAppBlackWhite, sizeof(cpAppBlackWhite) - 1);
     static TPalette monochrome(cpAppMonochrome, sizeof(cpAppMonochrome) - 1);
-    static TPalette* palettes[] = { &color, &blackwhite, &monochrome };
-    return *(palettes[appPalette]);
+    static std::array<TPalette*, 3> palettes = { &color, &blackwhite, &monochrome };
+    return *palettes.at(appPalette);
 }
 
 bool App::handleCommand(TEvent* event) {
@@ -326,9 +330,9 @@ ProgramWindow* App::findProgramWindow(TDeskTop* deskTop) {
 }
 
 bool App::closeProgramWindow(ProgramWindow* programWindow) {
-    if (programWindow) {
+    if (programWindow != nullptr) {
         programWindow->close();
-        if (programWindow->frame) {
+        if (programWindow->frame != nullptr) {
             // the program window is still open, so the user must have clicked cancel
             return false;
         }
@@ -361,16 +365,16 @@ void App::showNewProgramWindow(std::optional<std::string> filePath) {
 
 void App::showNewEditorWindow(SourceMember* member) {
     // is there already an editor open for this member?
-    FindEditorWindowEventArgs e = { 0 };
+    FindEditorWindowEventArgs e = { nullptr };
     e.member = member;
     message(deskTop, evBroadcast, kCmdFindEditorWindow, &e);
-    if (e.window) {
+    if (e.window != nullptr) {
         e.window->select();
     } else {
-        auto window = new EditorWindow(getNewWindowRect(82, 30), member, []() -> void {
+        auto* window = new EditorWindow(getNewWindowRect(82, 30), member, []() -> void {
             // onUpdated
             auto* programWindow = findProgramWindow(deskTop);
-            if (programWindow) {
+            if (programWindow != nullptr) {
                 programWindow->updateListItems();
             }
         });
@@ -380,16 +384,16 @@ void App::showNewEditorWindow(SourceMember* member) {
 
 void App::showNewDesignerWindow(SourceMember* member) {
     // is there already a designer open for this member?
-    FindDesignerWindowEventArgs e = { 0 };
+    FindDesignerWindowEventArgs e = { nullptr };
     e.member = member;
     message(deskTop, evBroadcast, kCmdFindDesignerWindow, &e);
-    if (e.window) {
+    if (e.window != nullptr) {
         e.window->select();
     } else {
-        auto window = new DesignerWindow(getNewWindowRect(51, 20), member, []() -> void {
+        auto* window = new DesignerWindow(getNewWindowRect(51, 20), member, []() -> void {
             // onUpdated
             auto* programWindow = findProgramWindow(deskTop);
-            if (programWindow) {
+            if (programWindow != nullptr) {
                 programWindow->updateListItems();
             }
         });
@@ -410,23 +414,21 @@ void App::onFileNew() {
 void App::onFileOpen() {
     auto* programWindow = findProgramWindow(deskTop);
 
-    auto* d = new TFileDialog("*.bas", "Open Program (.BAS)", "~N~ame", fdOpenButton, 100);
-    if (deskTop->execView(d) != cmCancel) {
+    auto d = DialogPtr<TFileDialog>("*.bas", "Open Program (.BAS)", "~N~ame", fdOpenButton, 100);
+    if (deskTop->execView(d.get()) != cmCancel) {
         if (!closeProgramWindow(programWindow)) {
-            destroy(d);
             return;
         }
 
-        char fileName[MAXPATH];
-        d->getFileName(fileName);
-        showNewProgramWindow(fileName);
+        auto fileName = std::array<char, MAXPATH>();
+        d.get()->getFileName(fileName.data());
+        showNewProgramWindow(fileName.data());
     }
-    destroy(d);
 }
 
 void App::onProgramAddTextEditor(EditorType type) {
     auto* programWindow = findProgramWindow(deskTop);
-    if (!programWindow) {
+    if (programWindow == nullptr) {
         return;
     }
 
@@ -480,7 +482,7 @@ void App::onProgramAddTextEditor(EditorType type) {
 
 void App::onProgramAddDesigner(DesignerType type) {
     auto* programWindow = findProgramWindow(deskTop);
-    if (!programWindow) {
+    if (programWindow == nullptr) {
         return;
     }
 
@@ -522,11 +524,12 @@ TRect App::centeredRect(int width, int height) {
 void App::openHelpTopic(uint16_t topic) {
     try {
         auto helpResource = getResource(Resource::kHelp);
-        auto buf = new membuf(reinterpret_cast<char*>(helpResource.start), reinterpret_cast<char*>(helpResource.end));
-        auto stream = new iopstream(buf);
-        auto helpFile = new THelpFile(*stream);
-        auto helpWindow = new HelpWindow(helpFile, topic);
-        deskTop->insert(helpWindow);
+        auto* start =
+            reinterpret_cast<char*>(helpResource.start);        // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+        auto* end = reinterpret_cast<char*>(helpResource.end);  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+        auto* stream = new MemoryIopstream(start, end);         // NOLINT(cppcoreguidelines-owning-memory)
+        auto* helpFile = new THelpFile(*stream);                // NOLINT(cppcoreguidelines-owning-memory)
+        auto* helpWindow = WindowPtr<HelpWindow>(helpFile, topic).get();
         auto width = 85;
         auto maxWidth = deskTop->size.x - 10;
         if (width > maxWidth) {
@@ -550,16 +553,15 @@ void App::openHelpTopic(uint16_t topic) {
 
 void App::onViewProgram() {
     auto* window = findProgramWindow(deskTop);
-    if (window) {
+    if (window != nullptr) {
         window->select();
     }
 }
 
 void App::onHelpAbout() {
-    auto* dialog = new AboutDialog();
-    dialog->options |= ofCentered;
-    deskTop->execView(dialog);
-    destroy(dialog);
+    auto dialog = DialogPtr<AboutDialog>();
+    dialog.get()->options |= ofCentered;
+    deskTop->execView(dialog.get());
 }
 
 }  // namespace tmbasic

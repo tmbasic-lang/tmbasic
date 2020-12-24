@@ -41,7 +41,8 @@ CompilerResult compile(Procedure* procedure, Program* program) {
     auto parserResult = parse(ParserRootProduction::kMember, tokens);
     if (!parserResult.isSuccess) {
         return CompilerResult::error(parserResult.message, *parserResult.token);
-    } else if (parserResult.node->getMemberType() != MemberType::kProcedure) {
+    }
+    if (parserResult.node->getMemberType() != MemberType::kProcedure) {
         return CompilerResult::error("This member must be a subroutine or function.", tokens[0]);
     }
     auto procedureNode = dynamic_cast_move<ProcedureNode>(std::move(parserResult.node));

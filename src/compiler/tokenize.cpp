@@ -30,7 +30,7 @@ class Scanner {
     TokenKind classifyToken(const std::string& text);
 };
 
-Scanner::Scanner() {}
+Scanner::Scanner() = default;
 
 std::vector<Token> tokenize(const std::string& input) {
     return Scanner::tokenize(input);
@@ -164,7 +164,7 @@ void Scanner::processChar(char ch, char peek) {
                         append(ch);
                         endCurrentToken();
                     }
-                } else if (isdigit(peek)) {
+                } else if (isdigit(peek) != 0) {
                     // start of a decimal literal
                     append(ch);
                 } else {
@@ -195,7 +195,7 @@ void Scanner::endCurrentToken() {
     if (!isCurrentTokenTextEmpty()) {
         auto text = _currentTokenText.str();
         auto type = classifyToken(text);
-        _tokens.push_back(Token(_lineIndex, _currentTokenColumnIndex, type, std::move(text)));
+        _tokens.emplace_back(_lineIndex, _currentTokenColumnIndex, type, std::move(text));
         _currentTokenText = std::ostringstream();
     }
 }
@@ -459,9 +459,8 @@ TokenKind Scanner::classifyToken(const std::string& text) {
                 break;
         }
         return TokenKind::kIdentifier;
-    } else {
-        return TokenKind::kError;
     }
+    return TokenKind::kError;
 }
 
 }  // namespace compiler

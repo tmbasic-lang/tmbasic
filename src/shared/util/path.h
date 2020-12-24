@@ -4,6 +4,6 @@
 
 namespace util {
 
-std::string getFileName(std::string filePath);
+std::string getFileName(const std::string& filePath);
 
 }  // namespace util

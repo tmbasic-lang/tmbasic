@@ -16,7 +16,7 @@ LICENSE_PROCESS_CMD ?= >/dev/null echo
 OPTFLAGS ?= -Os -flto
 TEST_CMD ?= ./test
 
-CXXFLAGS=$(WIN_INCLUDE_FLAGS) $(MAC_INCLUDE_FLAGS) -Isrc -Iobj -Iext/nameof -I/usr/include/libmpdec -I/usr/include/libmpdec++ -Wall -Werror -Winvalid-pch -Wno-unknown-pragmas -Wno-reorder -std=c++17 $(OPTFLAGS) $(EXTRADEFS)
+CXXFLAGS=$(WIN_INCLUDE_FLAGS) $(MAC_INCLUDE_FLAGS) -Isrc -Iobj -isystem ext/nameof -isystem /usr/include/libmpdec -isystem /usr/include/libmpdec++ -Wall -Werror -Winvalid-pch -Wno-unknown-pragmas -Wno-reorder -std=c++17 $(OPTFLAGS) $(EXTRADEFS)
 LDFLAGS=$(MAC_LD_FLAGS) -lstdc++ $(LIBNCURSESW_FLAG) $(LIBTINFO_FLAG) $(LIBMPDEC_FLAG)
 CLANG_FORMAT_FLAGS=-i --style="{BasedOnStyle: Chromium, IndentWidth: 4, ColumnLimit: 120, SortIncludes: false, AlignAfterOpenBracket: AlwaysBreak, AlignOperands: false, Cpp11BracedListStyle: false, PenaltyReturnTypeOnItsOwnLine: 10000}"
 
@@ -35,6 +35,10 @@ TEST_OBJ_FILES=$(patsubst src/%,obj/%,$(TEST_SRC_FILES:.cpp=.o))
 TMBASIC_SRC_FILES=$(shell find src/tmbasic -type f -name "*.cpp")
 TMBASIC_H_FILES=$(shell find src/tmbasic -type f -name "*.h")
 TMBASIC_OBJ_FILES=$(patsubst src/%,obj/%,$(TMBASIC_SRC_FILES:.cpp=.o))
+
+ALL_NON_TEST_CPP_FILES=$(COMPILER_SRC_FILES) $(RUNNER_SRC_FILES) $(SHARED_SRC_FILES) $(TMBASIC_SRC_FILES)
+TIDY_TARGETS=$(patsubst src/%,obj/tidy/%,$(ALL_NON_TEST_CPP_FILES:.cpp=.tidy))
+
 FAVICON_IN_FILES=$(shell find art/favicon -type f)
 FAVICON_OUT_FILES=$(patsubst art/favicon/%,bin/ghpages/%,$(FAVICON_IN_FILES))
 
@@ -95,7 +99,16 @@ format:
 
 .PHONY: lint
 lint:
-	@cpplint --quiet --recursive --linelength 120 --filter=-whitespace/indent,-readability/todo,-build/include_what_you_use,-legal/copyright,-readability/fn_size,-build/c++11,-build/include_subdir --repository=src src build/files/buildDoc.cpp
+	@cpplint --quiet --recursive --linelength 120 --filter=-whitespace/indent,-readability/todo,-build/include_what_you_use,-legal/copyright,-readability/fn_size,-build/c++11,-build/include_subdir,-readability/nolint --repository=src src build/files/buildDoc.cpp
+
+.PHONY: tidy
+tidy: $(TIDY_TARGETS)
+
+$(TIDY_TARGETS): obj/tidy/%.tidy: src/%.cpp
+	@echo $<
+	@mkdir -p $(@D)
+	@clang-tidy $< --quiet --fix --checks=boost-*,clang-analyzer-*,cppcoreguidelines-*,google-*,misc-*,modernize-*,performance-*,portability-*,readability-*,-clang-analyzer-cplusplus.NewDeleteLeaks,-modernize-use-trailing-return-type,-misc-non-private-member-variables-in-classes,-readability-magic-numbers,-cppcoreguidelines-avoid-magic-numbers,-cppcoreguidelines-non-private-member-variables-in-classes,-modernize-use-nodiscard,-cppcoreguidelines-pro-type-union-access -- $(CXXFLAGS) | tee $@
+	@touch $@
 
 .PHONY: ghpages
 ghpages: obj/help.txt bin/ghpages/index.html

@@ -5,7 +5,7 @@ namespace vm {
 Record::Record(RecordBuilder* builder) : objects(builder->objects.persistent()), values(builder->values.persistent()) {}
 
 Record::Record(const Record& source, int valueIndex, Value newValue)
-    : objects(source.objects), values(source.values.set(valueIndex, newValue)) {}
+    : objects(source.objects), values(source.values.set(valueIndex, std::move(newValue))) {}
 
 Record::Record(const Record& source, int objectIndex, const boost::local_shared_ptr<Object>& newObject)
     : objects(source.objects.set(objectIndex, newObject)), values(source.values) {}
@@ -31,7 +31,7 @@ bool Record::equals(const Object& other) const {
     if (other.getObjectType() != ObjectType::kRecord) {
         return false;
     }
-    auto& otherRecord = (const Record&)other;
+    const auto& otherRecord = dynamic_cast<const Record&>(other);
     if (values.size() != otherRecord.values.size() || objects.size() != otherRecord.objects.size()) {
         return false;
     }

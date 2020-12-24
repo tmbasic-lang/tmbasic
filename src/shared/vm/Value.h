@@ -4,8 +4,8 @@
 
 namespace vm {
 
-typedef decimal::Decimal FloatValue;
-typedef int64_t IntValue;
+using FloatValue = decimal::Decimal;
+using IntValue = int64_t;
 
 struct Value {
     FloatValue num;

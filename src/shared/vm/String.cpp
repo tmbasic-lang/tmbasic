@@ -6,7 +6,11 @@ String::String() : value("") {}
 
 String::String(std::string value) : value(std::move(value)) {}
 
-String::String(const uint8_t* source, int length) : value(reinterpret_cast<const char*>(source), length) {}
+static const char* convertUint8ToInt8(const uint8_t* x) {
+    return reinterpret_cast<const char*>(x);  // NOLINT
+}
+
+String::String(const uint8_t* source, int length) : value(convertUint8ToInt8(source), length) {}
 
 ObjectType String::getObjectType() const {
     return ObjectType::kString;
@@ -20,7 +24,7 @@ bool String::equals(const Object& other) const {
     if (other.getObjectType() != ObjectType::kString) {
         return false;
     }
-    auto& otherString = (const String&)other;
+    const auto& otherString = dynamic_cast<const String&>(other);
     return value == otherString.value;
 }
 

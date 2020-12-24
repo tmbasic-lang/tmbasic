@@ -2,7 +2,7 @@
 
 namespace util {
 
-std::string getFileName(std::string filePath) {
+std::string getFileName(const std::string& filePath) {
     std::ostringstream s;
     for (auto ch : filePath) {
         if (ch == '/' || ch == '\\') {

@@ -6,25 +6,23 @@ using compiler::SourceMemberType;
 namespace tmbasic {
 
 // matches the order of SourceMemberType
-static const char* kSourceMemberTypeStrings[] = { "Procedures", "Globals", "Types", "Designs" };
+static std::vector<std::string> kSourceMemberTypeStrings = { "Procedures", "Globals", "Types", "Designs" };
 
-typedef std::function<void()> SourceMemberTypeSelectedFunc;
+using SourceMemberTypeSelectedFunc = std::function<void()>;
 
 SourceMemberTypesListBox::SourceMemberTypesListBox(
     const TRect& bounds,
     uint16_t numCols,
     SourceMemberTypeSelectedFunc onSelectedFunc)
     : TListViewer(bounds, numCols, nullptr, nullptr),
-      _onSelectedFunc(onSelectedFunc),
+      _onSelectedFunc(std::move(onSelectedFunc)),
       _selectedType(SourceMemberType::kProcedure) {
     setRange(4);
 }
 
-SourceMemberTypesListBox::~SourceMemberTypesListBox() {}
-
 void SourceMemberTypesListBox::getText(char* dest, int16_t item, int16_t maxLen) {
-    strncpy(dest, kSourceMemberTypeStrings[item], maxLen);
-    dest[maxLen] = '\0';
+    strncpy(dest, kSourceMemberTypeStrings[item].c_str(), maxLen);
+    dest[maxLen] = '\0';  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 }
 
 void SourceMemberTypesListBox::focusItem(int16_t item) {

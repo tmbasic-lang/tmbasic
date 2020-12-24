@@ -7,6 +7,11 @@ namespace vm {
 
 class Object {
    public:
+    Object();
+    Object(const Object&) = delete;
+    Object& operator=(const Object&) = delete;
+    Object(Object&&) = delete;
+    Object& operator=(Object&&) = delete;
     virtual ~Object();
     virtual ObjectType getObjectType() const = 0;
     virtual std::size_t getHash() const = 0;

@@ -21,7 +21,7 @@ class ProgramWindow : public TWindow {
     void handleEvent(TEvent& event) override;
     void close() override;
     TPalette& getPalette() const override;
-    bool isDirty();
+    bool isDirty() const;
     bool preClose();
     void addNewSourceMember(std::unique_ptr<compiler::SourceMember> sourceMember);
     void updateListItems();
@@ -30,7 +30,7 @@ class ProgramWindow : public TWindow {
    private:
     bool onSave();
     bool onSaveAs();
-    bool save(std::string filePath);
+    bool save(const std::string& filePath);
     void updateTitle();
     void enableDisableMenuCommands();
 

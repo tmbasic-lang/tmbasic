@@ -14,7 +14,7 @@ bool ProcedureReference::equals(const Object& other) const {
     if (other.getObjectType() != ObjectType::kProcedureReference) {
         return false;
     }
-    auto& otherProcedureReference = (const ProcedureReference&)other;
+    const auto& otherProcedureReference = dynamic_cast<const ProcedureReference&>(other);
     return signature == otherProcedureReference.signature;
 }
 

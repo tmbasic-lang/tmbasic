@@ -23,12 +23,13 @@ RUN apt-get update -y && \
         dos2unix \
         pandoc
 
-# clang-format
+# clang-format, clang-tidy
 RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
     add-apt-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-10 main" && \
     apt-get update -y && \
-    apt-get install -y clang-format-10 && \
-    update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-10 9999
+    apt-get install -y clang-format-10 clang-tidy-10 && \
+    update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-10 9999 && \
+    update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-10 9999
 
 # unprivileged user
 RUN mkdir -p /code && \

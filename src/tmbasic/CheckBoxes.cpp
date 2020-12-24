@@ -3,11 +3,12 @@
 
 namespace tmbasic {
 
-static TSItem* convertLabelsToTSItems(const std::initializer_list<std::string>& labels) {
-    TSItem* item = nullptr;
+static gsl::owner<TSItem*> convertLabelsToTSItems(const std::initializer_list<std::string>& labels) {
+    gsl::owner<TSItem*> item = nullptr;
 
-    for (auto it = labels.end(); it-- != labels.begin();) {
-        auto& label = *it;
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    for (const auto* it = labels.end(); it-- != labels.begin();) {
+        const auto& label = *it;
         item = new TSItem(label, item);
     }
 
@@ -18,7 +19,7 @@ static TRect getSize(const std::initializer_list<std::string>& labels) {
     auto height = 0;
     auto width = 0;
 
-    for (auto& label : labels) {
+    for (const auto& label : labels) {
         width = max(lengthWithoutTildes(label), width);
         height++;
     }

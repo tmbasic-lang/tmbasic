@@ -2,8 +2,6 @@
 
 namespace vm {
 
-Procedure::~Procedure() {}
-
 ProgramMemberType Procedure::getProgramMemberType() const {
     return ProgramMemberType::kProcedure;
 }

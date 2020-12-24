@@ -45,34 +45,34 @@ static ResourceData getResourceCore(Resource resource, string macName, int winId
 #endif
 
 #ifdef __linux__
-extern uint8_t _binary_help_h32_start[];
-extern uint8_t _binary_help_h32_end[];
+extern uint8_t _binary_help_h32_start[];  // NOLINT(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
+extern uint8_t _binary_help_h32_end[];    // NOLINT(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
 
-extern uint8_t _binary_runner_linux_arm32_start[];
-extern uint8_t _binary_runner_linux_arm32_end[];
+extern uint8_t _binary_runner_linux_arm32_start[];  // NOLINT(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
+extern uint8_t _binary_runner_linux_arm32_end[];    // NOLINT(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
 
-extern uint8_t _binary_runner_linux_arm64_start[];
-extern uint8_t _binary_runner_linux_arm64_end[];
+extern uint8_t _binary_runner_linux_arm64_start[];  // NOLINT(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
+extern uint8_t _binary_runner_linux_arm64_end[];    // NOLINT(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
 
-extern uint8_t _binary_runner_linux_x64_start[];
-extern uint8_t _binary_runner_linux_x64_end[];
+extern uint8_t _binary_runner_linux_x64_start[];  // NOLINT(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
+extern uint8_t _binary_runner_linux_x64_end[];    // NOLINT(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
 
-extern uint8_t _binary_runner_linux_x86_start[];
-extern uint8_t _binary_runner_linux_x86_end[];
+extern uint8_t _binary_runner_linux_x86_start[];  // NOLINT(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
+extern uint8_t _binary_runner_linux_x86_end[];    // NOLINT(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
 
-extern uint8_t _binary_runner_mac_x64_start[];
-extern uint8_t _binary_runner_mac_x64_end[];
+extern uint8_t _binary_runner_mac_x64_start[];  // NOLINT(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
+extern uint8_t _binary_runner_mac_x64_end[];    // NOLINT(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
 
-extern uint8_t _binary_runner_win_x64_start[];
-extern uint8_t _binary_runner_win_x64_end[];
+extern uint8_t _binary_runner_win_x64_start[];  // NOLINT(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
+extern uint8_t _binary_runner_win_x64_end[];    // NOLINT(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
 
-extern uint8_t _binary_runner_win_x86_start[];
-extern uint8_t _binary_runner_win_x86_end[];
+extern uint8_t _binary_runner_win_x86_start[];  // NOLINT(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
+extern uint8_t _binary_runner_win_x86_end[];    // NOLINT(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
 
-static ResourceData getResourceCore(Resource resource, string macName, int winId) {
+static ResourceData getResourceCore(Resource resource, const string& /*macName*/, int /*winId*/) {
     switch (resource) {
         case Resource::kHelp:
-            return { _binary_help_h32_start, _binary_help_h32_end };
+            return { static_cast<uint8_t*>(_binary_help_h32_start), static_cast<uint8_t*>(_binary_help_h32_end) };
         default:
             assert(false);
             return {};

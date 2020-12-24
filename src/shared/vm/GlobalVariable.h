@@ -13,7 +13,6 @@ class GlobalVariable : public ProgramMember {
     Value value;
     boost::local_shared_ptr<Object> object;
 
-    virtual ~GlobalVariable();
     ProgramMemberType getProgramMemberType() const override;
 };
 

@@ -10,14 +10,14 @@ decimal::Decimal parseDecimalString(const std::string& str) {
     return decimal::Decimal(str);
 }
 
-std::string decimalToString(decimal::Decimal x) {
+std::string decimalToString(const decimal::Decimal& x) {
     if (x.isinfinite()) {
         return x < decimal::Decimal(0) ? "-Inf" : "Inf";
-    } else if (x.isnan()) {
-        return "NaN";
-    } else {
-        return x.to_eng();
     }
+    if (x.isnan()) {
+        return "NaN";
+    }
+    return x.to_eng();
 }
 
 }  // namespace util

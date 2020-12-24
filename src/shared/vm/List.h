@@ -13,13 +13,13 @@ class ListBuilder {
     immer::vector_transient<TElement> items;
 };
 
-typedef ListBuilder<boost::local_shared_ptr<Object>> ObjectListBuilder;
-typedef ListBuilder<Value> ValueListBuilder;
+using ObjectListBuilder = ListBuilder<boost::local_shared_ptr<Object>>;
+using ValueListBuilder = ListBuilder<Value>;
 
 template <typename TElement, ObjectType K>
 class List : public Object {
    public:
-    const immer::vector<TElement> items;
+    const immer::vector<TElement> items = {};
 
     explicit List(ListBuilder<TElement>* builder) : items(std::move(builder->items.persistent())) {}
 
@@ -83,7 +83,7 @@ class List : public Object {
     }
 };
 
-typedef List<boost::local_shared_ptr<Object>, ObjectType::kObjectList> ObjectList;
-typedef List<Value, ObjectType::kValueList> ValueList;
+using ObjectList = List<boost::local_shared_ptr<Object>, ObjectType::kObjectList>;
+using ValueList = List<Value, ObjectType::kValueList>;
 
 }  // namespace vm

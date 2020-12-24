@@ -1,5 +1,6 @@
 #include "tmbasic/EditorWindow.h"
 #include "../../obj/helpfile.h"
+#include "tmbasic/ViewPtr.h"
 #include "tmbasic/events.h"
 
 using compiler::SourceMember;
@@ -44,28 +45,29 @@ EditorWindow::EditorWindow(const TRect& r, SourceMember* member, std::function<v
     : TWindow(r, getEditorWindowTitle(*member), wnNoNumber),
       TWindowInit(TWindow::initFrame),
       _member(member),
-      _onEdited(onEdited) {
+      _onEdited(std::move(onEdited)) {
     palette = wpBlueWindow;
     options |= ofTileable;
 
-    auto* hScrollBar = new TScrollBar(TRect(18, size.y - 1, size.x - 2, size.y));
-    insert(hScrollBar);
+    auto hScrollBar = ViewPtr<TScrollBar>(TRect(18, size.y - 1, size.x - 2, size.y));
+    hScrollBar.addTo(this);
 
-    auto* vScrollBar = new TScrollBar(TRect(size.x - 1, 1, size.x, size.y - 1));
-    insert(vScrollBar);
+    auto vScrollBar = ViewPtr<TScrollBar>(TRect(size.x - 1, 1, size.x, size.y - 1));
+    vScrollBar.addTo(this);
 
-    auto* indicator = new EditorIndicator(TRect(2, size.y - 1, 16, size.y));
-    insert(indicator);
+    auto indicator = ViewPtr<EditorIndicator>(TRect(2, size.y - 1, 16, size.y));
+    indicator.addTo(this);
 
     auto editorRect = TRect(getExtent());
     editorRect.grow(-1, -1);
-    _editor = new TEditor(editorRect, hScrollBar, vScrollBar, indicator, kBufferSize);
+    auto editor = ViewPtr<TEditor>(editorRect, hScrollBar, vScrollBar, indicator, kBufferSize);
+    _editor = editor;
     _editor->modified = false;
 
     _editor->insertText(member->source.c_str(), member->source.size(), false);
     _editor->setSelect(member->selectionStart, member->selectionEnd, true);
     _editor->trackCursor(false);
-    insert(_editor);
+    editor.addTo(this);
 }
 
 void EditorWindow::handleEvent(TEvent& event) {
@@ -97,8 +99,10 @@ uint16_t EditorWindow::getHelpCtx() {
 }
 
 static std::string getEditorText(TEditor* editor) {
-    return std::string(editor->buffer, editor->curPtr) +
-        std::string(editor->buffer + editor->curPtr + editor->gapLen, editor->bufLen - editor->curPtr);
+    auto prefix = std::string(editor->buffer, editor->curPtr);
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    auto suffix = std::string(editor->buffer + editor->curPtr + editor->gapLen, editor->bufLen - editor->curPtr);
+    return prefix + suffix;
 }
 
 void EditorWindow::close() {

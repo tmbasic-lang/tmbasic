@@ -19,10 +19,10 @@ class Node {
     Token token;
     explicit Node(Token token);
     virtual ~Node();
-    virtual void dump(std::ostringstream& s, int indent) const;
+    virtual void dump(std::ostringstream& s, int n) const;
     virtual MemberType getMemberType() const;
-    virtual bool visitBodies(VisitBodyFunc func) const;
-    virtual bool visitExpressions(VisitExpressionFunc func) const;
+    virtual bool visitBodies(const VisitBodyFunc& func) const;
+    virtual bool visitExpressions(const VisitExpressionFunc& func) const;
     virtual bool isSymbolReference() const;
     virtual TypeNode* getChildTypeNode() const;  // statements and expressions
 
@@ -59,7 +59,7 @@ class FieldNode : public Node {
     std::string name;
     std::unique_ptr<TypeNode> type;
     FieldNode(std::string name, std::unique_ptr<TypeNode> type, Token token);
-    void dump(std::ostringstream& s, int indent) const override;
+    void dump(std::ostringstream& s, int n) const override;
 };
 
 class TypeNode : public Node {
@@ -74,7 +74,11 @@ class TypeNode : public Node {
     std::unique_ptr<TypeNode> mapValueType;       // kind = kMap
     std::unique_ptr<TypeNode> optionalValueType;  // kind = kOptional
     TypeNode(Kind kind, Token token);
-    void dump(std::ostringstream& s, int indent) const override;
+    TypeNode(Kind kind, Token token, std::string recordName);
+    TypeNode(Kind kind, Token token, std::unique_ptr<TypeNode> optionalValueTypeOrListItemType);
+    TypeNode(Kind kind, Token token, std::unique_ptr<TypeNode> mapKeyType, std::unique_ptr<TypeNode> mapValueType);
+    TypeNode(Kind kind, Token token, std::vector<std::unique_ptr<FieldNode>> fields);
+    void dump(std::ostringstream& s, int n) const override;
 };
 
 //
@@ -110,8 +114,8 @@ class BinaryExpressionSuffixNode : public Node {
         BinaryOperator binaryOperator,
         std::unique_ptr<ExpressionNode> rightOperand,
         Token token);
-    void dump(std::ostringstream& s, int indent) const override;
-    bool visitExpressions(VisitExpressionFunc func) const override;
+    void dump(std::ostringstream& s, int n) const override;
+    bool visitExpressions(const VisitExpressionFunc& func) const override;
 };
 
 class BinaryExpressionNode : public ExpressionNode {
@@ -122,8 +126,8 @@ class BinaryExpressionNode : public ExpressionNode {
         std::unique_ptr<ExpressionNode> leftOperand,
         std::vector<std::unique_ptr<BinaryExpressionSuffixNode>> binarySuffixes,
         Token token);
-    void dump(std::ostringstream& s, int indent) const override;
-    bool visitExpressions(VisitExpressionFunc func) const override;
+    void dump(std::ostringstream& s, int n) const override;
+    bool visitExpressions(const VisitExpressionFunc& func) const override;
 };
 
 class CallExpressionNode : public ExpressionNode {
@@ -131,8 +135,8 @@ class CallExpressionNode : public ExpressionNode {
     std::string name;
     std::vector<std::unique_ptr<ExpressionNode>> arguments;
     CallExpressionNode(std::string name, std::vector<std::unique_ptr<ExpressionNode>> arguments, Token token);
-    void dump(std::ostringstream& s, int indent) const override;
-    bool visitExpressions(VisitExpressionFunc func) const override;
+    void dump(std::ostringstream& s, int n) const override;
+    bool visitExpressions(const VisitExpressionFunc& func) const override;
 };
 
 class ConstValueExpressionNode : public ExpressionNode {
@@ -145,8 +149,8 @@ class ConvertExpressionNode : public ExpressionNode {
     std::unique_ptr<ExpressionNode> value;
     std::unique_ptr<TypeNode> type;
     ConvertExpressionNode(std::unique_ptr<ExpressionNode> value, std::unique_ptr<TypeNode> type, Token token);
-    void dump(std::ostringstream& s, int indent) const override;
-    bool visitExpressions(VisitExpressionFunc func) const override;
+    void dump(std::ostringstream& s, int n) const override;
+    bool visitExpressions(const VisitExpressionFunc& func) const override;
     TypeNode* getChildTypeNode() const override;
 };
 
@@ -160,8 +164,8 @@ class DottedExpressionSuffixNode : public Node {
         bool isCall,
         std::vector<std::unique_ptr<ExpressionNode>> callArguments,
         Token token);
-    void dump(std::ostringstream& s, int indent) const override;
-    bool visitExpressions(VisitExpressionFunc func) const override;
+    void dump(std::ostringstream& s, int n) const override;
+    bool visitExpressions(const VisitExpressionFunc& func) const override;
 };
 
 class DottedExpressionNode : public ExpressionNode {
@@ -172,30 +176,30 @@ class DottedExpressionNode : public ExpressionNode {
         std::unique_ptr<ExpressionNode> base,
         std::vector<std::unique_ptr<DottedExpressionSuffixNode>> dottedSuffixes,
         Token token);
-    void dump(std::ostringstream& s, int indent) const override;
-    bool visitExpressions(VisitExpressionFunc func) const override;
+    void dump(std::ostringstream& s, int n) const override;
+    bool visitExpressions(const VisitExpressionFunc& func) const override;
 };
 
 class LiteralArrayExpressionNode : public ConstValueExpressionNode {
    public:
     std::vector<std::unique_ptr<ExpressionNode>> elements;
     LiteralArrayExpressionNode(std::vector<std::unique_ptr<ExpressionNode>> elements, Token token);
-    void dump(std::ostringstream& s, int indent) const override;
-    bool visitExpressions(VisitExpressionFunc func) const override;
+    void dump(std::ostringstream& s, int n) const override;
+    bool visitExpressions(const VisitExpressionFunc& func) const override;
 };
 
 class LiteralBooleanExpressionNode : public ConstValueExpressionNode {
    public:
     bool value;
     LiteralBooleanExpressionNode(bool value, Token token);
-    void dump(std::ostringstream& s, int indent) const override;
+    void dump(std::ostringstream& s, int n) const override;
 };
 
 class LiteralNumberExpressionNode : public ConstValueExpressionNode {
    public:
     decimal::Decimal value;
     LiteralNumberExpressionNode(decimal::Decimal value, Token token);
-    void dump(std::ostringstream& s, int indent) const override;
+    void dump(std::ostringstream& s, int n) const override;
 };
 
 class LiteralRecordFieldNode : public Node {
@@ -203,31 +207,31 @@ class LiteralRecordFieldNode : public Node {
     std::string key;
     std::unique_ptr<ExpressionNode> value;
     LiteralRecordFieldNode(std::string key, std::unique_ptr<ExpressionNode> value, Token token);
-    void dump(std::ostringstream& s, int indent) const override;
-    bool visitExpressions(VisitExpressionFunc func) const override;
+    void dump(std::ostringstream& s, int n) const override;
+    bool visitExpressions(const VisitExpressionFunc& func) const override;
 };
 
 class LiteralRecordExpressionNode : public ConstValueExpressionNode {
    public:
     std::vector<std::unique_ptr<LiteralRecordFieldNode>> fields;
     LiteralRecordExpressionNode(std::vector<std::unique_ptr<LiteralRecordFieldNode>>, Token token);
-    void dump(std::ostringstream& s, int indent) const override;
-    bool visitExpressions(VisitExpressionFunc func) const override;
+    void dump(std::ostringstream& s, int n) const override;
+    bool visitExpressions(const VisitExpressionFunc& func) const override;
 };
 
 class LiteralStringExpressionNode : public ConstValueExpressionNode {
    public:
     std::string value;
     LiteralStringExpressionNode(std::string value, Token token);
-    void dump(std::ostringstream& s, int indent) const override;
+    void dump(std::ostringstream& s, int n) const override;
 };
 
 class NotExpressionNode : public ExpressionNode {
    public:
     std::unique_ptr<ExpressionNode> operand;
     NotExpressionNode(std::unique_ptr<ExpressionNode> operand, Token token);
-    void dump(std::ostringstream& s, int indent) const override;
-    bool visitExpressions(VisitExpressionFunc func) const override;
+    void dump(std::ostringstream& s, int n) const override;
+    bool visitExpressions(const VisitExpressionFunc& func) const override;
 };
 
 class SymbolReferenceExpressionNode : public ExpressionNode {
@@ -235,7 +239,7 @@ class SymbolReferenceExpressionNode : public ExpressionNode {
     std::string name;
     const Node* boundSymbolDeclaration = nullptr;  //  set during symbol binding
     SymbolReferenceExpressionNode(std::string name, Token token);
-    void dump(std::ostringstream& s, int indent) const override;
+    void dump(std::ostringstream& s, int n) const override;
     bool isSymbolReference() const override;
 };
 
@@ -254,8 +258,8 @@ class AssignLocationSuffixNode : public Node {
     std::unique_ptr<ExpressionNode> arrayIndex;  // may be null
     AssignLocationSuffixNode(std::string name, Token token);
     AssignLocationSuffixNode(std::unique_ptr<ExpressionNode> arrayIndex, Token token);
-    void dump(std::ostringstream& s, int indent) const override;
-    bool visitExpressions(VisitExpressionFunc func) const override;
+    void dump(std::ostringstream& s, int n) const override;
+    bool visitExpressions(const VisitExpressionFunc& func) const override;
 };
 
 class AssignStatementNode : public StatementNode {
@@ -268,15 +272,15 @@ class AssignStatementNode : public StatementNode {
         std::vector<std::unique_ptr<AssignLocationSuffixNode>> suffixes,
         std::unique_ptr<ExpressionNode> value,
         Token token);
-    void dump(std::ostringstream& s, int indent) const override;
-    bool visitExpressions(VisitExpressionFunc func) const override;
+    void dump(std::ostringstream& s, int n) const override;
+    bool visitExpressions(const VisitExpressionFunc& func) const override;
 };
 
 class BodyNode : public Node {
    public:
     std::vector<std::unique_ptr<StatementNode>> statements;
     BodyNode(std::vector<std::unique_ptr<StatementNode>> statements, Token token);
-    void dump(std::ostringstream& s, int indent) const override;
+    void dump(std::ostringstream& s, int n) const override;
 };
 
 class CallStatementNode : public StatementNode {
@@ -284,8 +288,8 @@ class CallStatementNode : public StatementNode {
     std::string name;
     std::vector<std::unique_ptr<ExpressionNode>> arguments;
     CallStatementNode(std::string name, std::vector<std::unique_ptr<ExpressionNode>> arguments, Token token);
-    void dump(std::ostringstream& s, int indent) const override;
-    bool visitExpressions(VisitExpressionFunc func) const override;
+    void dump(std::ostringstream& s, int n) const override;
+    bool visitExpressions(const VisitExpressionFunc& func) const override;
 };
 
 class ConstStatementNode : public StatementNode {
@@ -294,7 +298,7 @@ class ConstStatementNode : public StatementNode {
     std::unique_ptr<ConstValueExpressionNode> value;
     ConstStatementNode(std::string name, std::unique_ptr<ConstValueExpressionNode> value, Token token);
     MemberType getMemberType() const override;
-    void dump(std::ostringstream& s, int indent) const override;
+    void dump(std::ostringstream& s, int n) const override;
     std::optional<std::string> getSymbolDeclaration() const override;
 };
 
@@ -304,23 +308,23 @@ class ContinueStatementNode : public StatementNode {
    public:
     ContinueScope scope;
     ContinueStatementNode(ContinueScope scope, Token token);
-    void dump(std::ostringstream& s, int indent) const override;
+    void dump(std::ostringstream& s, int n) const override;
 };
 
 class DimListStatementNode : public StatementNode {
    public:
     std::string name;
     std::unique_ptr<BodyNode> body;
-    void dump(std::ostringstream& s, int indent) const override;
-    bool visitBodies(VisitBodyFunc func) const override;
+    void dump(std::ostringstream& s, int n) const override;
+    bool visitBodies(const VisitBodyFunc& func) const override;
 };
 
 class DimMapStatementNode : public StatementNode {
    public:
     std::string name;
     std::unique_ptr<BodyNode> body;
-    void dump(std::ostringstream& s, int indent) const override;
-    bool visitBodies(VisitBodyFunc func) const override;
+    void dump(std::ostringstream& s, int n) const override;
+    bool visitBodies(const VisitBodyFunc& func) const override;
 };
 
 class DimStatementNode : public StatementNode {
@@ -331,9 +335,9 @@ class DimStatementNode : public StatementNode {
     DimStatementNode(std::string name, std::unique_ptr<TypeNode> type, Token token);
     DimStatementNode(std::string name, std::unique_ptr<ExpressionNode> value, Token token);
     MemberType getMemberType() const override;
-    void dump(std::ostringstream& s, int indent) const override;
+    void dump(std::ostringstream& s, int n) const override;
     std::optional<std::string> getSymbolDeclaration() const override;
-    bool visitExpressions(VisitExpressionFunc func) const override;
+    bool visitExpressions(const VisitExpressionFunc& func) const override;
     TypeNode* getChildTypeNode() const override;
 };
 
@@ -345,8 +349,8 @@ class DimCollectionStatementNode : public StatementNode {
     CollectionType type;
     std::unique_ptr<BodyNode> body;
     DimCollectionStatementNode(std::string name, CollectionType type, std::unique_ptr<BodyNode> body, Token token);
-    void dump(std::ostringstream& s, int indent) const override;
-    bool visitBodies(VisitBodyFunc func) const override;
+    void dump(std::ostringstream& s, int n) const override;
+    bool visitBodies(const VisitBodyFunc& func) const override;
 };
 
 enum class DoConditionPosition { kBeforeBody, kAfterBody };
@@ -358,8 +362,8 @@ class DoConditionNode : public Node {
     std::unique_ptr<ExpressionNode> condition;
     DoConditionType conditionType;
     DoConditionNode(std::unique_ptr<ExpressionNode> condition, DoConditionType conditionType, Token token);
-    void dump(std::ostringstream& s, int indent) const override;
-    bool visitExpressions(VisitExpressionFunc func) const override;
+    void dump(std::ostringstream& s, int n) const override;
+    bool visitExpressions(const VisitExpressionFunc& func) const override;
 };
 
 class DoStatementNode : public StatementNode {
@@ -372,9 +376,9 @@ class DoStatementNode : public StatementNode {
         DoConditionPosition conditionPosition,
         std::unique_ptr<BodyNode> body,
         Token token);
-    void dump(std::ostringstream& s, int indent) const override;
-    bool visitBodies(VisitBodyFunc func) const override;
-    bool visitExpressions(VisitExpressionFunc func) const override;
+    void dump(std::ostringstream& s, int n) const override;
+    bool visitBodies(const VisitBodyFunc& func) const override;
+    bool visitExpressions(const VisitExpressionFunc& func) const override;
 };
 
 enum class ExitScope { kDo, kFor, kSelectCase, kTry, kWhile };
@@ -383,7 +387,7 @@ class ExitStatementNode : public StatementNode {
    public:
     ExitScope scope;
     ExitStatementNode(ExitScope scope, Token token);
-    void dump(std::ostringstream& s, int indent) const override;
+    void dump(std::ostringstream& s, int n) const override;
 };
 
 class ForEachStatementNode : public StatementNode {
@@ -396,10 +400,10 @@ class ForEachStatementNode : public StatementNode {
         std::unique_ptr<ExpressionNode> haystack,
         std::unique_ptr<BodyNode> body,
         Token token);
-    void dump(std::ostringstream& s, int indent) const override;
+    void dump(std::ostringstream& s, int n) const override;
     std::optional<std::string> getSymbolDeclaration() const override;
-    bool visitBodies(VisitBodyFunc func) const override;
-    bool visitExpressions(VisitExpressionFunc func) const override;
+    bool visitBodies(const VisitBodyFunc& func) const override;
+    bool visitExpressions(const VisitExpressionFunc& func) const override;
 };
 
 class ForStepNode : public Node {
@@ -408,8 +412,8 @@ class ForStepNode : public Node {
     std::unique_ptr<SymbolReferenceExpressionNode> stepConstant;  // may be null
     ForStepNode(decimal::Decimal stepImmediate, Token token);
     ForStepNode(std::unique_ptr<SymbolReferenceExpressionNode> stepConstant, Token token);
-    void dump(std::ostringstream& s, int indent) const override;
-    bool visitExpressions(VisitExpressionFunc func) const override;
+    void dump(std::ostringstream& s, int n) const override;
+    bool visitExpressions(const VisitExpressionFunc& func) const override;
 };
 
 class ForStatementNode : public StatementNode {
@@ -426,17 +430,17 @@ class ForStatementNode : public StatementNode {
         std::unique_ptr<ForStepNode> step,
         std::unique_ptr<BodyNode> body,
         Token token);
-    void dump(std::ostringstream& s, int indent) const override;
+    void dump(std::ostringstream& s, int n) const override;
     std::optional<std::string> getSymbolDeclaration() const override;
-    bool visitBodies(VisitBodyFunc func) const override;
-    bool visitExpressions(VisitExpressionFunc func) const override;
+    bool visitBodies(const VisitBodyFunc& func) const override;
+    bool visitExpressions(const VisitExpressionFunc& func) const override;
 };
 
 class GroupKeyNameNode : public Node {
    public:
     std::string name;
     GroupKeyNameNode(std::string name, Token token);
-    void dump(std::ostringstream& s, int indent) const override;
+    void dump(std::ostringstream& s, int n) const override;
     std::optional<std::string> getSymbolDeclaration() const override;
 };
 
@@ -454,10 +458,10 @@ class GroupStatementNode : public StatementNode {
         std::unique_ptr<GroupKeyNameNode> keyName,
         std::unique_ptr<BodyNode> body,
         Token token);
-    void dump(std::ostringstream& s, int indent) const override;
+    void dump(std::ostringstream& s, int n) const override;
     std::optional<std::string> getSymbolDeclaration() const override;
-    bool visitBodies(VisitBodyFunc func) const override;
-    bool visitExpressions(VisitExpressionFunc func) const override;
+    bool visitBodies(const VisitBodyFunc& func) const override;
+    bool visitExpressions(const VisitExpressionFunc& func) const override;
 };
 
 class ElseIfNode : public Node {
@@ -465,9 +469,9 @@ class ElseIfNode : public Node {
     std::unique_ptr<ExpressionNode> condition;
     std::unique_ptr<BodyNode> body;
     ElseIfNode(std::unique_ptr<ExpressionNode> condition, std::unique_ptr<BodyNode> body, Token token);
-    void dump(std::ostringstream& s, int indent) const override;
-    bool visitBodies(VisitBodyFunc func) const override;
-    bool visitExpressions(VisitExpressionFunc func) const override;
+    void dump(std::ostringstream& s, int n) const override;
+    bool visitBodies(const VisitBodyFunc& func) const override;
+    bool visitExpressions(const VisitExpressionFunc& func) const override;
 };
 
 class IfStatementNode : public StatementNode {
@@ -482,9 +486,9 @@ class IfStatementNode : public StatementNode {
         std::vector<std::unique_ptr<ElseIfNode>> elseIfs,
         std::unique_ptr<BodyNode> elseBody,
         Token token);
-    void dump(std::ostringstream& s, int indent) const override;
-    bool visitBodies(VisitBodyFunc func) const override;
-    bool visitExpressions(VisitExpressionFunc func) const override;
+    void dump(std::ostringstream& s, int n) const override;
+    bool visitBodies(const VisitBodyFunc& func) const override;
+    bool visitExpressions(const VisitExpressionFunc& func) const override;
 };
 
 class JoinStatementNode : public StatementNode {
@@ -499,24 +503,24 @@ class JoinStatementNode : public StatementNode {
         std::unique_ptr<ExpressionNode> joinExpression,
         std::unique_ptr<BodyNode> body,
         Token token);
-    void dump(std::ostringstream& s, int indent) const override;
+    void dump(std::ostringstream& s, int n) const override;
     std::optional<std::string> getSymbolDeclaration() const override;
-    bool visitBodies(VisitBodyFunc func) const override;
-    bool visitExpressions(VisitExpressionFunc func) const override;
+    bool visitBodies(const VisitBodyFunc& func) const override;
+    bool visitExpressions(const VisitExpressionFunc& func) const override;
 };
 
 class RethrowStatementNode : public StatementNode {
    public:
     explicit RethrowStatementNode(Token token);
-    void dump(std::ostringstream& s, int indent) const override;
+    void dump(std::ostringstream& s, int n) const override;
 };
 
 class ReturnStatementNode : public StatementNode {
    public:
     std::unique_ptr<ExpressionNode> expression;  // may be null
     ReturnStatementNode(std::unique_ptr<ExpressionNode> expression, Token token);
-    void dump(std::ostringstream& s, int indent) const override;
-    bool visitExpressions(VisitExpressionFunc func) const override;
+    void dump(std::ostringstream& s, int n) const override;
+    bool visitExpressions(const VisitExpressionFunc& func) const override;
 };
 
 class CaseValueNode : public Node {
@@ -527,8 +531,8 @@ class CaseValueNode : public Node {
         std::unique_ptr<ExpressionNode> expression,
         std::unique_ptr<ExpressionNode> toExpression,
         Token token);
-    void dump(std::ostringstream& s, int indent) const override;
-    bool visitExpressions(VisitExpressionFunc func) const override;
+    void dump(std::ostringstream& s, int n) const override;
+    bool visitExpressions(const VisitExpressionFunc& func) const override;
 };
 
 class CaseNode : public Node {
@@ -536,9 +540,9 @@ class CaseNode : public Node {
     std::vector<std::unique_ptr<CaseValueNode>> values;
     std::unique_ptr<BodyNode> body;
     CaseNode(std::vector<std::unique_ptr<CaseValueNode>> values, std::unique_ptr<BodyNode> body, Token token);
-    void dump(std::ostringstream& s, int indent) const override;
-    bool visitBodies(VisitBodyFunc func) const override;
-    bool visitExpressions(VisitExpressionFunc func) const override;
+    void dump(std::ostringstream& s, int n) const override;
+    bool visitBodies(const VisitBodyFunc& func) const override;
+    bool visitExpressions(const VisitExpressionFunc& func) const override;
 };
 
 class SelectCaseStatementNode : public StatementNode {
@@ -549,9 +553,9 @@ class SelectCaseStatementNode : public StatementNode {
         std::unique_ptr<ExpressionNode> expression,
         std::vector<std::unique_ptr<CaseNode>> cases,
         Token token);
-    void dump(std::ostringstream& s, int indent) const override;
-    bool visitBodies(VisitBodyFunc func) const override;
-    bool visitExpressions(VisitExpressionFunc func) const override;
+    void dump(std::ostringstream& s, int n) const override;
+    bool visitBodies(const VisitBodyFunc& func) const override;
+    bool visitExpressions(const VisitExpressionFunc& func) const override;
 };
 
 class SelectStatementNode : public StatementNode {
@@ -562,16 +566,16 @@ class SelectStatementNode : public StatementNode {
         std::unique_ptr<ExpressionNode> expression,
         std::unique_ptr<ExpressionNode> toExpression,
         Token token);
-    void dump(std::ostringstream& s, int indent) const override;
-    bool visitExpressions(VisitExpressionFunc func) const override;
+    void dump(std::ostringstream& s, int n) const override;
+    bool visitExpressions(const VisitExpressionFunc& func) const override;
 };
 
 class ThrowStatementNode : public StatementNode {
    public:
     std::unique_ptr<ExpressionNode> expression;
     ThrowStatementNode(std::unique_ptr<ExpressionNode> expression, Token token);
-    void dump(std::ostringstream& s, int indent) const override;
-    bool visitExpressions(VisitExpressionFunc func) const override;
+    void dump(std::ostringstream& s, int n) const override;
+    bool visitExpressions(const VisitExpressionFunc& func) const override;
 };
 
 class TryStatementNode : public StatementNode {
@@ -584,8 +588,8 @@ class TryStatementNode : public StatementNode {
         std::unique_ptr<BodyNode> catchBody,
         std::unique_ptr<BodyNode> finallyBody,
         Token token);
-    void dump(std::ostringstream& s, int indent) const override;
-    bool visitBodies(VisitBodyFunc func) const override;
+    void dump(std::ostringstream& s, int n) const override;
+    bool visitBodies(const VisitBodyFunc& func) const override;
 };
 
 class WhileStatementNode : public StatementNode {
@@ -593,9 +597,9 @@ class WhileStatementNode : public StatementNode {
     std::unique_ptr<ExpressionNode> condition;
     std::unique_ptr<BodyNode> body;
     WhileStatementNode(std::unique_ptr<ExpressionNode> condition, std::unique_ptr<BodyNode> body, Token token);
-    void dump(std::ostringstream& s, int indent) const override;
-    bool visitBodies(VisitBodyFunc func) const override;
-    bool visitExpressions(VisitExpressionFunc func) const override;
+    void dump(std::ostringstream& s, int n) const override;
+    bool visitBodies(const VisitBodyFunc& func) const override;
+    bool visitExpressions(const VisitExpressionFunc& func) const override;
 };
 
 //
@@ -607,7 +611,7 @@ class ParameterNode : public Node {
     std::string name;
     std::unique_ptr<TypeNode> type;
     ParameterNode(std::string name, std::unique_ptr<TypeNode> type, Token token);
-    void dump(std::ostringstream& s, int indent) const override;
+    void dump(std::ostringstream& s, int n) const override;
     std::optional<std::string> getSymbolDeclaration() const override;
 };
 
@@ -616,7 +620,7 @@ class GlobalVariableNode : public Node {
     std::string name;
     size_t index;
     GlobalVariableNode(std::string name, size_t index);
-    void dump(std::ostringstream& s, int indent) const override;
+    void dump(std::ostringstream& s, int n) const override;
     std::optional<std::string> getSymbolDeclaration() const override;
 };
 
@@ -639,7 +643,7 @@ class ProcedureNode : public Node {
         std::unique_ptr<BodyNode> body,
         Token token);
     MemberType getMemberType() const override;
-    void dump(std::ostringstream& s, int indent) const override;
+    void dump(std::ostringstream& s, int n) const override;
     std::optional<std::string> getSymbolDeclaration() const override;
 };
 
@@ -649,7 +653,7 @@ class TypeDeclarationNode : public Node {
     std::vector<std::unique_ptr<ParameterNode>> fields;
     TypeDeclarationNode(std::string name, std::vector<std::unique_ptr<ParameterNode>> fields, Token token);
     MemberType getMemberType() const override;
-    void dump(std::ostringstream& s, int indent) const override;
+    void dump(std::ostringstream& s, int n) const override;
     std::optional<std::string> getSymbolDeclaration() const override;
 };
 
@@ -657,7 +661,7 @@ class ProgramNode : public Node {
    public:
     std::vector<std::unique_ptr<Node>> members;
     ProgramNode(std::vector<std::unique_ptr<Node>> members, Token token);
-    void dump(std::ostringstream& s, int indent) const override;
+    void dump(std::ostringstream& s, int n) const override;
 };
 
 }  // namespace basic

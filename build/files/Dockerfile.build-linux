@@ -20,10 +20,6 @@ RUN apk update && \
         python3 \
         dos2unix
 
-# cpplint
-RUN python3 -m ensurepip && \
-    pip3 install cpplint
-
 # unprivileged user
 RUN addgroup -g $HOST_GID $USER && \
     adduser -h /home/$USER -s /bin/bash -G $USER -u $HOST_UID -D $USER && \

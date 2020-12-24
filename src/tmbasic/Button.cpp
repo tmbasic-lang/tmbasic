@@ -10,7 +10,7 @@ static int getButtonWidth(TStringView title) {
     auto len = title.size();
     auto width = len + 7;
     if (width < kButtonMinWidth) {
-        if (len % 2) {
+        if ((len % 2) != 0U) {
             width = kButtonMinWidth - 1;
         } else {
             width = kButtonMinWidth;

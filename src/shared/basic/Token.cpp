@@ -2,22 +2,24 @@
 
 namespace basic {
 
-Token::Token() : lineIndex(0), columnIndex(-1), type(TokenKind::kEndOfFile), text({}) {}
+Token::Token() = default;
+
+Token::~Token() = default;
 
 Token::Token(int lineIndex, int columnIndex, TokenKind type, std::string text)
-    : lineIndex(lineIndex), columnIndex(columnIndex), type(type), text(text) {}
+    : lineIndex(lineIndex), columnIndex(columnIndex), type(type), text(std::move(text)) {}
 
-Token::Token(const Token& other)
-    : lineIndex(other.lineIndex), columnIndex(other.columnIndex), type(other.type), text(other.text) {}
+Token::Token(const Token& other) = default;
 
-Token::Token(Token&& other)
+Token::Token(Token&& other) noexcept
     : lineIndex(other.lineIndex), columnIndex(other.columnIndex), type(other.type), text(std::move(other.text)) {}
 
-void Token::operator=(Token&& other) {
+Token& Token::operator=(Token&& other) noexcept {
     lineIndex = other.lineIndex;
     columnIndex = other.columnIndex;
     type = other.type;
     text = std::move(other.text);
+    return *this;
 }
 
 }  // namespace basic

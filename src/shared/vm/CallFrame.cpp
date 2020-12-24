@@ -2,9 +2,9 @@
 
 namespace vm {
 
-CallFrame::CallFrame(const Procedure* procedure, const uint8_t* instruction, int valueStackIndex, int objectStackIndex)
+CallFrame::CallFrame(const Procedure* procedure, size_t instructionIndex, int valueStackIndex, int objectStackIndex)
     : procedure(procedure),
-      instruction(instruction),
+      instructionIndex(instructionIndex),
       valueStackIndex(valueStackIndex),
       objectStackIndex(objectStackIndex) {}
 

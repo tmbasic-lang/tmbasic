@@ -12,7 +12,6 @@ class Procedure : public ProgramMember {
     bool isSystemProcedure;
     std::optional<std::unique_ptr<ProcedureArtifact>> artifact;
 
-    virtual ~Procedure();
     ProgramMemberType getProgramMemberType() const override;
 };
 

@@ -18,21 +18,21 @@ static uint8_t* findAppendedData() {
 
     // the last three bytes are "TM\n"
     file.seekg(-3, std::ios::end);
-    char sentinel[3] = { 0 };
-    file.read(sentinel, 3);
+    auto sentinel = std::array<char, 3>();
+    file.read(sentinel.data(), 3);
     if (sentinel[0] != 'T' || sentinel[1] != 'M' || sentinel[2] != '\n') {
         std::cerr << "Cannot find a compiled program in this executable file." << std::endl;
         exit(-1);
         return nullptr;
     }
 
-    // TODO
+    // TODO(unknown):
     return nullptr;
 }
 
 #endif
 
-int main(int argc, char** argv) {
+int main(int /*argc*/, char** /*argv*/) {
     findAppendedData();
     return 0;
 }

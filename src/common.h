@@ -63,6 +63,7 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <utility>
 #include <variant>
 #include <vector>
 
@@ -70,8 +71,8 @@
 #include <boost/smart_ptr/local_shared_ptr.hpp>
 #include <boost/smart_ptr/make_local_shared.hpp>
 
-#define IMMER_NO_FREE_LIST 1
-#define IMMER_NO_THREAD_SAFETY 1
+#define IMMER_NO_FREE_LIST 1      // NOLINT
+#define IMMER_NO_THREAD_SAFETY 1  // NOLINT
 #include <immer/array.hpp>
 #include <immer/array_transient.hpp>
 #include <immer/map.hpp>
@@ -84,5 +85,21 @@
 #ifdef _WIN32
 #include <windows.h>
 #endif
+
+// clang-tidy gets upset about assert()
+#undef assert
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define assert(expr)                                          \
+    (static_cast<bool>(expr) ? void(0)                        \
+                             : __assert_fail(                 \
+                                   #expr, __FILE__, __LINE__, \
+                                   __ASSERT_FUNCTION))  // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
+
+// clang-tidy likes to see gsl::owner to express ownership of raw pointers, but we don't care about any other part of
+// the C++ Guidelines Support Library. let's just define our own gsl::owner.
+namespace gsl {
+template <class T>
+using owner = T;
+}  // namespace gsl
 
 #endif  // COMMON_H_

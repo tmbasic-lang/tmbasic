@@ -3,10 +3,11 @@
 #include "shared/tui/UserForm.h"
 #include "tmbasic/DesignerFormPropertiesDialog.h"
 #include "tmbasic/DesignerGridView.h"
+#include "tmbasic/DialogPtr.h"
+#include "tmbasic/ViewPtr.h"
 #include "tmbasic/events.h"
 
 using compiler::SourceMember;
-using compiler::SourceMemberType;
 using tui::UserForm;
 
 namespace tmbasic {
@@ -19,14 +20,14 @@ DesignerWindow::DesignerWindow(const TRect& r, SourceMember* member, std::functi
     : TWindow(r, getDesignerWindowTitle(*member), wnNoNumber),
       TWindowInit(TWindow::initFrame),
       _member(member),
-      _onEdited(onEdited) {
+      _onEdited(std::move(onEdited)) {
     options |= ofTileable;
 
     auto gridViewRect = getExtent();
     gridViewRect.grow(-1, -1);
-    auto* gridView = new DesignerGridView(gridViewRect);
+    auto gridView = ViewPtr<DesignerGridView>(gridViewRect);
     gridView->growMode = gfGrowHiX | gfGrowHiY;
-    insert(gridView);
+    gridView.addTo(this);
 }
 
 void DesignerWindow::handleEvent(TEvent& event) {
@@ -37,10 +38,10 @@ void DesignerWindow::handleEvent(TEvent& event) {
             clearEvent(event);
         }
     } else if (event.what == evMouseDown) {
-        if (event.mouse.buttons & mbRightButton) {
+        if ((event.mouse.buttons & mbRightButton) != 0) {
             auto& menu = *new TMenuItem("~P~roperties", kCmdDesignerWindowProperties, kbNoKey);
             popupMenu(event.mouse.where, menu, owner);
-        } else if (event.mouse.eventFlags & meDoubleClick) {
+        } else if ((event.mouse.eventFlags & meDoubleClick) != 0U) {
             openPropertiesDialog();
         }
     } else if (event.what == evBroadcast) {
@@ -82,10 +83,9 @@ TPalette& DesignerWindow::getPalette() const {
 
 void DesignerWindow::openPropertiesDialog() {
     UserForm f;
-    auto* dialog = new DesignerFormPropertiesDialog(&f);
+    auto dialog = DialogPtr<DesignerFormPropertiesDialog>(&f);
     dialog->options |= ofCentered;
     owner->execView(dialog);
-    destroy(dialog);
 }
 
 void DesignerWindow::setState(uint16_t aState, bool enable) {
@@ -101,7 +101,7 @@ void DesignerWindow::setState(uint16_t aState, bool enable) {
     ts.enableCmd(kCmdDesignAddScrollBar);
     ts.enableCmd(kCmdDesignAddTextBox);
     ts.enableCmd(kCmdDesignAddCustomControl);
-    if (aState & sfFocused) {
+    if ((aState & sfFocused) != 0) {
         enableCommands(ts);
     } else {
         disableCommands(ts);

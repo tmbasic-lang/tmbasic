@@ -3,15 +3,16 @@
 namespace compiler {
 
 SourceMember::SourceMember(SourceMemberType memberType, std::string source, int selectionStart, int selectionEnd)
-    : memberType(memberType), source(source), selectionStart(selectionStart), selectionEnd(selectionEnd) {
+    : memberType(memberType), source(std::move(source)), selectionStart(selectionStart), selectionEnd(selectionEnd) {
     updateDisplayName();
 }
 
-static bool isBlankOrComment(std::string str) {
+static bool isBlankOrComment(const std::string& str) {
     for (auto ch : str) {
         if (ch == '\'') {
             return true;
-        } else if (ch != ' ' && ch != '\t') {
+        }
+        if (ch != ' ' && ch != '\t') {
             return false;
         }
     }
@@ -20,7 +21,7 @@ static bool isBlankOrComment(std::string str) {
 
 void SourceMember::setSource(std::string newSource) {
     isCompiledMemberUpToDate = false;
-    source = newSource;
+    source = std::move(newSource);
     updateDisplayName();
 }
 
@@ -49,15 +50,14 @@ void SourceMember::updateDisplayName() {
 
 static std::vector<const SourceMember*> sortMembers(const SourceProgram* program) {
     std::vector<const SourceMember*> sortedMembers;
-    for (auto& x : program->members) {
+    for (const auto& x : program->members) {
         sortedMembers.push_back(x.get());
     }
     std::sort(sortedMembers.begin(), sortedMembers.end(), [](const auto* a, const auto* b) -> bool {
         if (a->memberType == b->memberType) {
             return a->displayName > b->displayName;
-        } else {
-            return a->memberType > b->memberType;
         }
+        return a->memberType > b->memberType;
     });
     return sortedMembers;
 }
@@ -67,12 +67,12 @@ static std::string removeLeadingAndTrailingNonCodeLines(std::list<std::string>* 
     auto whitespaceRegex = std::regex("^[ \t]*$");
 
     // remove leading lines
-    while (lines.size() > 0 && std::regex_match(lines.front(), whitespaceRegex)) {
+    while (!lines.empty() && std::regex_match(lines.front(), whitespaceRegex)) {
         lines.erase(lines.begin());
     }
 
     // remove trailing lines
-    while (lines.size() > 0 && std::regex_match(lines.back(), whitespaceRegex)) {
+    while (!lines.empty() && std::regex_match(lines.back(), whitespaceRegex)) {
         lines.erase(--lines.end());
     }
 
@@ -163,9 +163,9 @@ void SourceProgram::load(const std::string& filePath) {
 void SourceProgram::save(const std::string& filePath) const {
     auto stream = std::ofstream(filePath);
 
-    for (auto* member : sortMembers(this)) {
+    for (const auto* member : sortMembers(this)) {
         auto trimmedSource = boost::trim_copy(member->source);
-        if (member->isCompiledMemberUpToDate && member->compiledMember) {
+        if (member->isCompiledMemberUpToDate && (member->compiledMember != nullptr)) {
             // this code was compiled successfully so we know it's valid
             stream << trimmedSource << "\n\n";
         } else {

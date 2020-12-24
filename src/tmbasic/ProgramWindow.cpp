@@ -2,7 +2,9 @@
 #include "../../obj/helpfile.h"
 #include "shared/util/path.h"
 #include "shared/vm/Program.h"
+#include "tmbasic/DialogPtr.h"
 #include "tmbasic/SourceMemberTypesListBox.h"
+#include "tmbasic/ViewPtr.h"
 #include "tmbasic/constants.h"
 #include "tmbasic/events.h"
 #include "tmbasic/tvutil.h"
@@ -23,37 +25,39 @@ ProgramWindow::ProgramWindow(
       _vmProgram(std::make_unique<Program>()),
       _sourceProgram(std::move(sourceProgram)),
       _dirty(false),
-      _openMember(openMember) {
+      _openMember(std::move(openMember)) {
     TCommandSet ts;
     ts.enableCmd(cmSave);
     ts.enableCmd(cmSaveAs);
     enableCommands(ts);
 
-    auto* vScrollBar = new TScrollBar(TRect(size.x - 1, 3, size.x, size.y - 1));
-    insert(vScrollBar);
+    auto vScrollBar = ViewPtr<TScrollBar>(TRect(size.x - 1, 3, size.x, size.y - 1));
+    vScrollBar.addTo(this);
 
     auto typesListBoxRect = getExtent();
     typesListBoxRect.grow(-1, -1);
     typesListBoxRect.b.y = 2;
-    _typesListBox = new SourceMemberTypesListBox(
+    auto typesListBox = ViewPtr<SourceMemberTypesListBox>(
         typesListBoxRect, 4, [this]() { _contentsListBox->selectType(_typesListBox->getSelectedType()); });
+    _typesListBox = typesListBox;
     _typesListBox->growMode = gfGrowHiX;
     _typesListBox->options |= ofFramed;
-    insert(_typesListBox);
+    typesListBox.addTo(this);
 
     auto contentsListBoxRect = getExtent();
     contentsListBoxRect.grow(-1, -1);
     contentsListBoxRect.a.y = 3;
-    _contentsListBox = new SourceMembersListBox(
+    auto contentsListBox = ViewPtr<SourceMembersListBox>(
         contentsListBoxRect, 1, vScrollBar, *_sourceProgram, [this](auto* member) -> void { _openMember(member); });
+    _contentsListBox = contentsListBox;
     _contentsListBox->growMode = gfGrowHiX | gfGrowHiY;
-    insert(_contentsListBox);
+    contentsListBox.addTo(this);
 
-    _filePath = filePath;
+    _filePath = std::move(filePath);
     updateTitle();
 }
 
-ProgramWindow::~ProgramWindow() {}
+ProgramWindow::~ProgramWindow() = default;
 
 TPalette& ProgramWindow::getPalette() const {
     static auto palette = TPalette(cpBlueDialog, sizeof(cpBlueDialog) - 1);
@@ -94,28 +98,26 @@ void ProgramWindow::handleEvent(TEvent& event) {
 bool ProgramWindow::onSave() {
     if (_filePath.has_value()) {
         return save(*_filePath);
-    } else {
-        return onSaveAs();
     }
+    return onSaveAs();
 }
 
 bool ProgramWindow::onSaveAs() {
-    auto* d = new TFileDialog("*.bas", "Save Program As (.BAS)", "~N~ame", fdOKButton, 101);
+    auto d = DialogPtr<TFileDialog>("*.bas", "Save Program As (.BAS)", "~N~ame", fdOKButton, 101);
     auto result = false;
 
     if (TProgram::deskTop->execView(d) != cmCancel) {
-        char fileName[MAXPATH];
-        d->getFileName(fileName);
-        if (save(fileName)) {
+        auto fileName = std::array<char, MAXPATH>();
+        d->getFileName(fileName.data());
+        if (save(fileName.data())) {
             result = true;
         }
     }
-    destroy(d);
 
     return result;
 }
 
-bool ProgramWindow::save(std::string filePath) {
+bool ProgramWindow::save(const std::string& filePath) {
     try {
         _sourceProgram->save(filePath);
         _filePath = filePath;
@@ -158,7 +160,8 @@ bool ProgramWindow::preClose() {
         auto result = messageBox(s.str(), mfWarning | mfYesNoCancel);
         if (result == cmCancel) {
             return false;
-        } else if (result == cmYes) {
+        }
+        if (result == cmYes) {
             if (!onSave()) {
                 return false;
             }
@@ -182,7 +185,7 @@ void ProgramWindow::close() {
     }
 }
 
-bool ProgramWindow::isDirty() {
+bool ProgramWindow::isDirty() const {
     return _dirty;
 }
 

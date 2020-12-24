@@ -23,34 +23,34 @@ class Interpreter {
     const Program& _program;
 
     std::stack<CallFrame> _callStack;
-    Value _valueStack[kValueStackSize];
-    boost::local_shared_ptr<Object> _objectStack[kObjectStackSize];
+    std::array<Value, kValueStackSize> _valueStack;
+    std::array<boost::local_shared_ptr<Object>, kObjectStackSize> _objectStack;
     std::stack<RecordBuilder> _recordBuilderStack;
     std::stack<ObjectListBuilder> _objectListBuilderStack;
     std::stack<ValueListBuilder> _valueListBuilderStack;
-    bool _hasError;
+    bool _hasError = false;
     boost::local_shared_ptr<Object> _errorMessage;
     Value _errorCode;
 
     // these are a snapshot that is only updated when run() returns
-    const Procedure* _procedure;
-    const uint8_t* _instruction;
+    const Procedure* _procedure = nullptr;
+    size_t _instructionIndex = 0;
     Value _a, _b;
     boost::local_shared_ptr<Object> _x, _y, _z;
-    int _valueStackIndex;
-    int _objectStackIndex;
+    int _valueStackIndex = 0;
+    int _objectStackIndex = 0;
 
     class ReturnResult {
        public:
         const Procedure* const procedure;
         const std::vector<uint8_t>& instructions;
-        const uint8_t* const pc;
+        const size_t instructionIndex;
         const int valueStackIndex;
         const int objectStackIndex;
         ReturnResult(
             const Procedure* procedure,
             const std::vector<uint8_t>& instructions,
-            const uint8_t* pc,
+            size_t instructionIndex,
             int valueStackIndex,
             int objectStackIndex);
     };
