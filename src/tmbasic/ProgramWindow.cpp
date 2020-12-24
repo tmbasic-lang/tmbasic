@@ -24,6 +24,11 @@ ProgramWindow::ProgramWindow(
       _sourceProgram(std::move(sourceProgram)),
       _dirty(false),
       _openMember(openMember) {
+    TCommandSet ts;
+    ts.enableCmd(cmSave);
+    ts.enableCmd(cmSaveAs);
+    enableCommands(ts);
+
     auto* vScrollBar = new TScrollBar(TRect(size.x - 1, 3, size.x, size.y - 1));
     insert(vScrollBar);
 
@@ -168,13 +173,13 @@ void ProgramWindow::close() {
         // close all other program-related windows first
         message(owner, evBroadcast, kCmdCloseProgramRelatedWindows, nullptr);
 
+        TCommandSet ts;
+        ts.enableCmd(cmSave);
+        ts.enableCmd(cmSaveAs);
+        disableCommands(ts);
+
         TWindow::close();
     }
-}
-
-void ProgramWindow::enableDisableMenuCommands() {
-    enableDisableCommand(cmSave, _dirty);
-    enableDisableCommand(cmSaveAs, true);
 }
 
 bool ProgramWindow::isDirty() {

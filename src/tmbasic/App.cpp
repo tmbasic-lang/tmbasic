@@ -23,6 +23,11 @@ char App::helpWindowPalette[9] = {};
 App::App(int argc, char** argv)
     : TProgInit(initStatusLine, initMenuBar, TApplication::initDeskTop), _newWindowX(2), _newWindowY(1) {
     TCommandSet ts;
+    ts.enableCmd(cmUndo);
+    ts.enableCmd(kCmdEditRedo);
+    ts.enableCmd(cmCut);
+    ts.enableCmd(cmCopy);
+    ts.enableCmd(cmPaste);
     ts.enableCmd(cmSave);
     ts.enableCmd(cmSaveAs);
     ts.enableCmd(kCmdDesignAddButton);
@@ -66,7 +71,7 @@ TMenuBar* App::initMenuBar(TRect r) {
 
     auto& editMenu = *new TSubMenu("~E~dit", kbAltE) +
         *new TMenuItem("~U~ndo", cmUndo, kbCtrlZ, hcNoContext, "Ctrl+Z") +
-        *new TMenuItem("~R~edo", cmUndo, kbCtrlY, hcNoContext, "Ctrl+Y") + newLine() +
+        *new TMenuItem("~R~edo", kCmdEditRedo, kbCtrlY, hcNoContext, "Ctrl+Y") + newLine() +
         *new TMenuItem("Cu~t~", cmCut, kbCtrlX, hcNoContext, "Ctrl+X") +
         *new TMenuItem("~C~opy", cmCopy, kbCtrlC, hcNoContext, "Ctrl+C") +
         *new TMenuItem("~P~aste", cmPaste, kbCtrlV, hcNoContext, "Ctrl+V");
@@ -75,7 +80,7 @@ TMenuBar* App::initMenuBar(TRect r) {
         *new TMenuItem("~P~rogram", kCmdProgramContentsWindow, kbCtrlP, hcNoContext, "Ctrl+P");
 
     auto& programMenu = *new TSubMenu("~P~rogram", kbAltP) +
-        *new TMenuItem("~R~un", kCmdProgramRun, kbF5, hcNoContext, "F5") + newLine() +
+        *new TMenuItem("~R~un", kCmdProgramRun, kbCtrlR, hcNoContext, "Ctrl+R") + newLine() +
         *new TMenuItem("Add ~s~ubroutine", kCmdProgramAddSubroutine, kbNoKey) +
         *new TMenuItem("Add ~f~unction", kCmdProgramAddFunction, kbNoKey) +
         *new TMenuItem("Add ~g~lobal variable", kCmdProgramAddGlobalVariable, kbNoKey) +
@@ -113,25 +118,21 @@ TMenuBar* App::initMenuBar(TRect r) {
 TStatusLine* App::initStatusLine(TRect r) {
     r.a.y = r.b.y - 1;
 
-    auto& appStatusDef = *new TStatusDef(0, 0xFFFF) + *new TStatusItem("~Ctrl+N~ New program", kbNoKey, cmNew) +
-        *new TStatusItem("~Ctrl+O~ Open program", kbNoKey, cmOpen) + *new TStatusItem("~Ctrl+Q~ Exit", kbNoKey, cmQuit);
+    auto& appStatusDef = *new TStatusDef(0, 0xFFFF);
 
     auto& editorWindowStatusDef = *new TStatusDef(hcide_editorWindow, hcide_editorWindow) +
         *new TStatusItem("~Ctrl+P~ View program", kbNoKey, kCmdProgramContentsWindow) +
         *new TStatusItem("~Ctrl+W~ Close editor", kbNoKey, cmClose);
     editorWindowStatusDef.next = &appStatusDef;
 
-    auto& designerWindowStatusDef = *new TStatusDef(hcide_editorWindow, hcide_editorWindow) +
+    auto& designerWindowStatusDef = *new TStatusDef(hcide_designerWindow, hcide_designerWindow) +
         *new TStatusItem("~Ctrl+P~ View program", kbNoKey, kCmdProgramContentsWindow) +
-        *new TStatusItem("~Ctrl+W~ Close editor", kbNoKey, cmClose);
+        *new TStatusItem("~Ctrl+W~ Close designer", kbNoKey, cmClose) + *new TStatusItem("~F10~ Menu", kbF10, cmMenu);
     designerWindowStatusDef.next = &editorWindowStatusDef;
 
     auto& programWindowStatusDef = *new TStatusDef(hcide_programWindow, hcide_programWindow) +
-        *new TStatusItem("~Alt+1~ Add sub", kbAlt1, kCmdProgramAddSubroutine) +
-        *new TStatusItem("~Alt+2~ Add function", kbAlt2, kCmdProgramAddFunction) +
-        *new TStatusItem("~Alt+3~ Add global", kbAlt3, kCmdProgramAddGlobalVariable) +
-        *new TStatusItem("~Alt+4~ Add constant", kbAlt4, kCmdProgramAddConstant) +
-        *new TStatusItem("~Alt+5~ Add type", kbAlt5, kCmdProgramAddType);
+        *new TStatusItem("~Ctrl+S~ Save", kbNoKey, cmSave) + *new TStatusItem("~Ctrl+R~ Run", kbNoKey, kCmdProgramRun) +
+        *new TStatusItem("~F10~ Menu", kbF10, cmMenu);
     programWindowStatusDef.next = &designerWindowStatusDef;
 
     return new TStatusLine(r, programWindowStatusDef);

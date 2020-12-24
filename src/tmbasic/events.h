@@ -12,6 +12,7 @@ enum : uint16_t {
     kCmdHelpBasicReference = 100,
     kCmdHelpDocumentation,
     kCmdHelpAbout,
+    kCmdEditRedo,
     kCmdProgramContentsWindow,
     kCmdProgramAddSubroutine,
     kCmdProgramAddFunction,
