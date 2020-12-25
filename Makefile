@@ -1,7 +1,15 @@
+# Run "make help" to get started.
+
+#
+# Configuration
+#
+
+# runner builds, which will be 0-byte files for debug builds. for full release builds, these runners will be built
+# separately and provided ahead of time
 RUNNERS_BIN_FILES=obj/runner_linux_arm32 obj/runner_linux_arm64 obj/runner_linux_x64 obj/runner_linux_x86 obj/runner_mac_x64 obj/runner_win_x64 obj/runner_win_x86
 RUNNERS_OBJ_FILES=obj/runner_linux_arm32.o obj/runner_linux_arm64.o obj/runner_linux_x64.o obj/runner_linux_x86.o obj/runner_mac_x64.o obj/runner_win_x64.o obj/runner_win_x86.o
 
-# environment variable defaults
+# environment variable defaults. these are tweaked for individual platforms in the bashrc files under build/files
 TARGET_OS ?= linux
 BUILDCC ?= $(CC)
 TVHC ?= tvhc
@@ -16,10 +24,12 @@ LICENSE_PROCESS_CMD ?= >/dev/null echo
 OPTFLAGS ?= -Os -flto
 TEST_CMD ?= ./test
 
+# C++ build flags
 CXXFLAGS=$(WIN_INCLUDE_FLAGS) $(MAC_INCLUDE_FLAGS) -Isrc -Iobj -isystem ext/nameof -isystem /usr/include/libmpdec -isystem /usr/include/libmpdec++ -Wall -Werror -Winvalid-pch -Wno-unknown-pragmas -Wno-reorder -std=c++17 $(OPTFLAGS) $(EXTRADEFS)
 LDFLAGS=$(MAC_LD_FLAGS) -lstdc++ $(LIBNCURSESW_FLAG) $(LIBTINFO_FLAG) $(LIBMPDEC_FLAG)
 CLANG_FORMAT_FLAGS=-i --style="{BasedOnStyle: Chromium, IndentWidth: 4, ColumnLimit: 120, SortIncludes: false, AlignAfterOpenBracket: AlwaysBreak, AlignOperands: false, Cpp11BracedListStyle: false, PenaltyReturnTypeOnItsOwnLine: 10000}"
 
+# C++ build files
 COMPILER_SRC_FILES=$(shell find src/compiler -type f -name "*.cpp")
 COMPILER_H_FILES=$(shell find src/compiler -type f -name "*.h")
 COMPILER_OBJ_FILES=$(patsubst src/%,obj/%,$(COMPILER_SRC_FILES:.cpp=.o))
@@ -36,21 +46,24 @@ TMBASIC_SRC_FILES=$(shell find src/tmbasic -type f -name "*.cpp")
 TMBASIC_H_FILES=$(shell find src/tmbasic -type f -name "*.h")
 TMBASIC_OBJ_FILES=$(patsubst src/%,obj/%,$(TMBASIC_SRC_FILES:.cpp=.o))
 
+# tidy files
 ALL_NON_TEST_CPP_FILES=$(COMPILER_SRC_FILES) $(RUNNER_SRC_FILES) $(SHARED_SRC_FILES) $(TMBASIC_SRC_FILES)
 TIDY_TARGETS=$(patsubst src/%,obj/tidy/%,$(ALL_NON_TEST_CPP_FILES:.cpp=.tidy))
 
+# ghpages files
 FAVICON_IN_FILES=$(shell find art/favicon -type f)
 FAVICON_OUT_FILES=$(patsubst art/favicon/%,bin/ghpages/%,$(FAVICON_IN_FILES))
 
-INCLUDE_FILES=$(shell find src -type f -name "*.h")
-
-EXT_HEADER_FILES=$(shell find ext -type f -name "*.h")
-
+# help files
 DOC_FILES=$(shell find doc -type f -name "*.txt") $(shell find doc -type f -name "*.html")
 DIAGRAM_SRC_FILES=$(shell find doc/diagrams -type f -name "*.txt")
 DIAGRAM_CP437_FILES=$(patsubst doc/diagrams/%,obj/doc-temp/diagrams-cp437/%,$(DIAGRAM_SRC_FILES))
 LICENSE_DIAGRAM_SRC_FILES=obj/doc-temp/diagrams-license/license_tmbasic.txt obj/doc-temp/diagrams-license/license_boost.txt obj/doc-temp/diagrams-license/license_musl.txt obj/doc-temp/diagrams-license/license_immer.txt obj/doc-temp/diagrams-license/license_libstdc++_gpl3.txt obj/doc-temp/diagrams-license/license_libstdc++_gcc1.txt obj/doc-temp/diagrams-license/license_libstdc++_gcc2.txt obj/doc-temp/diagrams-license/license_mpdecimal.txt obj/doc-temp/diagrams-license/license_nameof.txt obj/doc-temp/diagrams-license/license_ncurses.txt obj/doc-temp/diagrams-license/license_tvision.txt
 LICENSE_DIAGRAM_CP437_FILES=$(patsubst obj/doc-temp/diagrams-license/%,obj/doc-temp/diagrams-cp437/%,$(LICENSE_DIAGRAM_SRC_FILES))
+
+#
+# Phony targets
+#
 
 .PHONY: all
 all: bin/tmbasic$(EXE_EXTENSION) bin/test$(EXE_EXTENSION) bin/LICENSE.txt
@@ -120,6 +133,10 @@ ghpages: obj/help.txt bin/ghpages/index.html
 ghpages-test:
 	@cd bin/ghpages && python3 -m http.server 5000
 
+#
+# Build targets
+#
+
 # ghpages
 
 bin/ghpages/index.html: README.md doc/html/page-template-1.html doc/html/page-template-2.html doc/html/page-template-3.html $(FAVICON_OUT_FILES) bin/ghpages/screenshot.png
@@ -143,7 +160,7 @@ bin/ghpages/screenshot.png: art/screenshot.png
 
 # precompiled header
 
-obj/common.h.gch: src/common.h $(EXT_HEADER_FILES)
+obj/common.h.gch: src/common.h
 	@echo $@
 	@mkdir -p $(@D)
 	@$(CXX) $(CXXFLAGS) -x c++-header -o $@ src/common.h
