@@ -13,6 +13,7 @@ struct membuf : std::streambuf {
 class MemoryIopstream : public iopstream {
    public:
     MemoryIopstream(char* begin, char* end);
+    inline _Cdecl ~MemoryIopstream() override = default;
 
    private:
     std::unique_ptr<membuf> _membuf = nullptr;

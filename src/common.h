@@ -86,14 +86,12 @@
 #include <windows.h>
 #endif
 
+#ifdef CLANG_TIDY
 // clang-tidy gets upset about assert()
 #undef assert
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
-#define assert(expr)                                          \
-    (static_cast<bool>(expr) ? void(0)                        \
-                             : __assert_fail(                 \
-                                   #expr, __FILE__, __LINE__, \
-                                   __ASSERT_FUNCTION))  // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
+#define assert(expr) void(0)
+#endif
 
 // clang-tidy likes to see gsl::owner to express ownership of raw pointers, but we don't care about any other part of
 // the C++ Guidelines Support Library. let's just define our own gsl::owner.

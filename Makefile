@@ -75,7 +75,7 @@ help:
 
 .PHONY: debug
 debug:
-	@OPTFLAGS='-g -O0' $(MAKE)
+	@OPTFLAGS="-g -O0" EXTRADEFS="-DNDEBUG" $(MAKE)
 
 .PHONY: clean
 clean:
@@ -108,7 +108,7 @@ tidy: $(TIDY_TARGETS)
 $(TIDY_TARGETS): obj/tidy/%.tidy: src/%.cpp
 	@echo $<
 	@mkdir -p $(@D)
-	@clang-tidy $< --quiet --fix --checks=boost-*,clang-analyzer-*,cppcoreguidelines-*,google-*,misc-*,modernize-*,performance-*,portability-*,readability-*,-clang-analyzer-cplusplus.NewDeleteLeaks,-modernize-use-trailing-return-type,-misc-non-private-member-variables-in-classes,-readability-magic-numbers,-cppcoreguidelines-avoid-magic-numbers,-cppcoreguidelines-non-private-member-variables-in-classes,-modernize-use-nodiscard,-cppcoreguidelines-pro-type-union-access -- $(CXXFLAGS) | tee $@
+	@clang-tidy $< --quiet --fix --checks=boost-*,clang-analyzer-*,cppcoreguidelines-*,google-*,misc-*,modernize-*,performance-*,portability-*,readability-*,-clang-analyzer-cplusplus.NewDeleteLeaks,-modernize-use-trailing-return-type,-misc-non-private-member-variables-in-classes,-readability-magic-numbers,-cppcoreguidelines-avoid-magic-numbers,-cppcoreguidelines-non-private-member-variables-in-classes,-modernize-use-nodiscard,-cppcoreguidelines-pro-type-union-access -- $(CXXFLAGS) -DCLANG_TIDY | tee $@
 	@touch $@
 
 .PHONY: ghpages
