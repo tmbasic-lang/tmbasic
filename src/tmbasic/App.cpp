@@ -359,11 +359,23 @@ void App::showNewProgramWindow(std::optional<std::string> filePath) {
 
     auto* window = new ProgramWindow(
         TRect(0, 0, 60, 15), std::move(sourceProgram), filePath,
-        [this](auto* member) -> void { showNewEditorWindow(member); });
+        [this](auto* member) -> void { openEditorOrDesignerWindow(member); });
     deskTop->insert(window);
 }
 
-void App::showNewEditorWindow(SourceMember* member) {
+void App::openEditorOrDesignerWindow(compiler::SourceMember* member) {
+    switch (member->memberType) {
+        case compiler::SourceMemberType::kDesign:
+            showDesignerWindow(member);
+            break;
+
+        default:
+            showEditorWindow(member);
+            break;
+    }
+}
+
+void App::showEditorWindow(SourceMember* member) {
     // is there already an editor open for this member?
     FindEditorWindowEventArgs e = { nullptr };
     e.member = member;
@@ -382,7 +394,7 @@ void App::showNewEditorWindow(SourceMember* member) {
     }
 }
 
-void App::showNewDesignerWindow(SourceMember* member) {
+void App::showDesignerWindow(SourceMember* member) {
     // is there already a designer open for this member?
     FindDesignerWindowEventArgs e = { nullptr };
     e.member = member;
@@ -477,7 +489,7 @@ void App::onProgramAddTextEditor(EditorType type) {
     auto* sourceMemberPtr = sourceMember.get();
     programWindow->addNewSourceMember(std::move(sourceMember));
 
-    showNewEditorWindow(sourceMemberPtr);
+    showEditorWindow(sourceMemberPtr);
 }
 
 void App::onProgramAddDesigner(DesignerType type) {
@@ -504,7 +516,7 @@ void App::onProgramAddDesigner(DesignerType type) {
     auto* sourceMemberPtr = sourceMember.get();
     programWindow->addNewSourceMember(std::move(sourceMember));
 
-    showNewDesignerWindow(sourceMemberPtr);
+    showDesignerWindow(sourceMemberPtr);
 }
 
 void App::onHelpDocumentation() {
