@@ -60,21 +60,22 @@ help:
 	@echo ""
 	@echo "COMMANDS"
 	@echo "--------"
-	@echo "make                      Build TMBASIC"
-	@echo "make run                  Run TMBASIC"
-	@echo "make test                 Run tests"
-	@echo "make valgrind             Run TMBASIC with valgrind (Linux)"
-	@echo "make clean                Delete build outputs"
-	@echo "make format               Reformat all code"
-	@echo "make lint                 Check code with cpplint"
-	@echo "make ghpages              Build tmbasic-gh-pages"
-	@echo "make ghpages-test         Host the website on port 5000"
+	@echo "make               Build TMBASIC (release)"
+	@echo "make debug         Build TMBASIC (debug)"
+	@echo "make run           Run TMBASIC"
+	@echo "make test          Run tests"
+	@echo "make clean         Delete build outputs"
+	@echo "make valgrind      Run TMBASIC with valgrind"
+	@echo "make format        Reformat code"
+	@echo "make lint          Check code with cpplint"
+	@echo "make tidy          Check code with clang-tidy"
+	@echo "make ghpages       Build tmbasic-gh-pages"
+	@echo "make ghpages-test  Host tmbasic-gh-pages on port 5000"
 	@echo ""
-	@echo "MAKE FLAGS"
-	@echo "----------"
-	@echo "OPTFLAGS='-g -O0'         Compile with debugging info"
-	@echo "EXTRADEFS='-DDUMP_PARSE'  Dump parse tree"
-	@echo ""
+
+.PHONY: debug
+debug:
+	@OPTFLAGS='-g -O0' $(MAKE)
 
 .PHONY: clean
 clean:
