@@ -23,6 +23,7 @@ STRIP ?= strip
 LICENSE_PROCESS_CMD ?= >/dev/null echo
 OPTFLAGS ?= -Os -flto
 TEST_CMD ?= ./test
+EXTRADEFS ?= -DNDEBUG
 
 # C++ build flags
 CXXFLAGS=$(WIN_INCLUDE_FLAGS) $(MAC_INCLUDE_FLAGS) -Isrc -Iobj -isystem ext/nameof -isystem /usr/include/libmpdec -isystem /usr/include/libmpdec++ -Wall -Werror -Winvalid-pch -Wno-unknown-pragmas -Wno-reorder -std=c++17 $(OPTFLAGS) $(EXTRADEFS)
@@ -88,7 +89,7 @@ help:
 
 .PHONY: debug
 debug:
-	@OPTFLAGS="-g -O0" EXTRADEFS="-DNDEBUG" $(MAKE)
+	@OPTFLAGS="-g -O0" EXTRADEFS=" " $(MAKE)
 
 .PHONY: clean
 clean:
