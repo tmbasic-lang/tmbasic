@@ -130,10 +130,14 @@ enum class Opcode {
     kObjectToObjectMapKeys,    // X = ObjectList formed from keys of map X
     kObjectToObjectMapValues,  // X = ObjectList formed from values of map X
 
-    kStringMid,      // X=input, A=startIndex, B=length. store "" or substring in X
-    kStringIndexOf,  // X=haystack, Y=needle, A=startIndex. store -1 or index in A
-    kStringChr,      // A=ascii code, only LSB is used. store string in X
-    kStringAsc,      // X=string, A=index. store -1 or X[A] into A
+    kStringMid,        // X=input, A=startIndex, B=length. store "" or substring in X
+    kStringIndexOf,    // X=haystack, Y=needle, A=startIndex. store -1 or index in A
+    kStringChr,        // A=ascii code, only LSB is used. store string in X
+    kStringAsc,        // X=string, A=index. store -1 or X[A] into A
+    kStringPrint,      // X=string (does not print newline)
+    kStringInputLine,  // stores string in X
+    kNumberToString,   // convert number in A to string in X
+    kStringToNumber,   // convert string in X to number in A, with success (0/1) in B
 };
 
 }  // namespace vm

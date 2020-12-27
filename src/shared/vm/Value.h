@@ -4,11 +4,9 @@
 
 namespace vm {
 
-using FloatValue = decimal::Decimal;
-using IntValue = int64_t;
-
 struct Value {
-    FloatValue num;
+    decimal::Decimal num;
+    std::string getString() const;
     bool getBoolean() const;
     void setBoolean(bool value);
     int64_t getInt64() const;

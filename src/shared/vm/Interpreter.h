@@ -15,12 +15,14 @@ const int kObjectStackSize = 10000;
 
 class Interpreter {
    public:
-    explicit Interpreter(const Program& program);
+    explicit Interpreter(const Program& program, std::istream* consoleInputStream, std::ostream* consoleOutputStream);
     void init(int procedureIndex);
     bool run(int maxCycles);
 
    private:
     const Program& _program;
+    std::istream* _consoleInputStream;
+    std::ostream* _consoleOutputStream;
 
     std::stack<CallFrame> _callStack;
     std::array<Value, kValueStackSize> _valueStack;

@@ -128,6 +128,10 @@ static Opcode parseOpcode(string s) {
         { "StringIndexOf", Opcode::kStringIndexOf },
         { "StringChr", Opcode::kStringChr },
         { "StringAsc", Opcode::kStringAsc },
+        { "StringPrint", Opcode::kStringPrint },
+        { "StringInputLine", Opcode::kStringInputLine },
+        { "NumberToString", Opcode::kNumberToString },
+        { "StringToNumber", Opcode::kStringToNumber },
     };
 
     auto it = map.find(s);
@@ -149,7 +153,9 @@ static void appendInt64(vector<uint8_t>* vec, istream* input) {
     }
 }
 
-static void appendUint16(vector<uint8_t>* vec, uint16_t value) {
+static void appendUint16(vector<uint8_t>* vec, istream* input) {
+    uint16_t value = 0;
+    *input >> value;
     auto bytes = array<uint8_t, 2>();
     memcpy(bytes.data(), &value, 2);
     for (auto b : bytes) {
@@ -157,20 +163,18 @@ static void appendUint16(vector<uint8_t>* vec, uint16_t value) {
     }
 }
 
-static void appendUint16(vector<uint8_t>* vec, istream* input) {
-    uint16_t value = 0;
-    *input >> value;
-    appendUint16(vec, value);
-}
-
-static void appendUint32(vector<uint8_t>* vec, istream* input) {
-    uint32_t value = 0;
-    *input >> value;
+static void appendUint32(vector<uint8_t>* vec, uint32_t value) {
     auto bytes = array<uint8_t, 4>();
     memcpy(bytes.data(), &value, 4);
     for (auto b : bytes) {
         vec->push_back(b);
     }
+}
+
+static void appendUint32(vector<uint8_t>* vec, istream* input) {
+    uint32_t value = 0;
+    *input >> value;
+    appendUint32(vec, value);
 }
 
 static void appendLengthTaggedString(vector<uint8_t>* vec, istream* input) {
@@ -183,7 +187,7 @@ static void appendLengthTaggedString(vector<uint8_t>* vec, istream* input) {
     assert(regex_success);
     auto unquoted = match[1].str();
 
-    appendUint16(vec, static_cast<uint16_t>(unquoted.size()));
+    appendUint32(vec, static_cast<uint32_t>(unquoted.size()));
     for (auto ch : unquoted) {
         vec->push_back(static_cast<uint8_t>(ch));
     }

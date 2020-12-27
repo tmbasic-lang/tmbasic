@@ -4,6 +4,7 @@
 #include "Opcode.h"
 #include "Record.h"
 #include "String.h"
+#include "shared/util/decimal.h"
 
 namespace vm {
 
@@ -11,9 +12,9 @@ static uint16_t ReadUint16(const uint8_t* ptr);
 static uint32_t ReadUint32(const uint8_t* ptr);
 static int64_t ReadInt64(const uint8_t* ptr);
 static int16_t ReadInt16(const uint8_t* ptr);
-IntValue ReadIntValue(const uint8_t* ptr);
 
-Interpreter::Interpreter(const Program& program) : _program(program) {}
+Interpreter::Interpreter(const Program& program, std::istream* consoleInputStream, std::ostream* consoleOutputStream)
+    : _program(program), _consoleInputStream(consoleInputStream), _consoleOutputStream(consoleOutputStream) {}
 
 void Interpreter::init(int procedureIndex) {
     _callStack = {};
@@ -362,7 +363,7 @@ bool Interpreter::run(int maxCycles) {
             case Opcode::kAModuloB: {
                 auto intA = a.getInt64();
                 auto intB = b.getInt64();
-                a.num = static_cast<FloatValue>(intA % intB);
+                a.num = static_cast<decimal::Decimal>(intA % intB);
                 instructionIndex++;
                 break;
             }
@@ -925,12 +926,49 @@ bool Interpreter::run(int maxCycles) {
                 assert(x != nullptr);
                 assert(x->getObjectType() == ObjectType::kString);
                 auto& str = dynamic_cast<String&>(*x);
-                FloatValue strLength = str.value.length();
+                decimal::Decimal strLength = str.value.length();
                 auto intA = a.getInt64();
                 if (intA >= 0 && intA < strLength) {
                     a.num = static_cast<int>(str.value[intA]);
                 } else {
                     a.num = -1;
+                }
+                instructionIndex++;
+                break;
+            }
+
+            case Opcode::kStringPrint: {
+                assert(x != nullptr);
+                assert(x->getObjectType() == ObjectType::kString);
+                auto& str = dynamic_cast<String&>(*x);
+                *_consoleOutputStream << str.value;
+                instructionIndex++;
+                break;
+            }
+
+            case Opcode::kStringInputLine: {
+                std::string str;
+                std::getline(*_consoleInputStream, str);
+                x = boost::make_local_shared<String>(str);
+                instructionIndex++;
+                break;
+            }
+
+            case Opcode::kNumberToString:
+                x = boost::make_local_shared<String>(a.getString());
+                instructionIndex++;
+                break;
+
+            case Opcode::kStringToNumber: {
+                assert(x != nullptr);
+                assert(x->getObjectType() == ObjectType::kString);
+                auto& str = dynamic_cast<String&>(*x);
+                if (std::regex_match(str.value, std::regex("^-?[0-9]+\\.?[0-9]*$"))) {
+                    a.num = util::parseDecimalString(str.value);
+                    b.num = 1;
+                } else {
+                    a.num = 0;
+                    b.num = 0;
                 }
                 instructionIndex++;
                 break;
@@ -1013,10 +1051,4 @@ int16_t ReadInt16(const uint8_t* ptr) {
     return value;
 }
 
-IntValue ReadIntValue(const uint8_t* /*ptr*/) {
-    // first byte tells us how many bytes to read
-    //    auto numBytes = *ptr++;
-    // boost::multiprecision::import_bits();
-    return {};
-}
 }  // namespace vm

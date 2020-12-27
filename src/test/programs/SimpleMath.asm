@@ -1,0 +1,8 @@
+LoadConstantA 100
+LoadConstantB 1000
+ADivideB
+LoadConstantB 2
+AAddB
+NumberToString
+StringPrint
+Exit

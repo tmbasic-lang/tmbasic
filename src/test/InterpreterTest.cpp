@@ -10,6 +10,7 @@
 using std::istringstream;
 using std::make_unique;
 using std::move;
+using std::ostringstream;
 using std::string;
 using vm::Interpreter;
 using vm::Procedure;
@@ -18,7 +19,7 @@ using vm::Program;
 
 static void run(string filenameWithoutExtension) {
     auto source = readFile(filenameWithoutExtension + ".asm");
-    auto output = readFile(filenameWithoutExtension + ".txt");
+    auto expectedOutput = readFile(filenameWithoutExtension + ".txt");
     istringstream sourceStream(source);
     auto artifact = make_unique<ProcedureArtifact>();
     artifact->instructions = assemble(&sourceStream);
@@ -26,11 +27,23 @@ static void run(string filenameWithoutExtension) {
     procedure->artifact = move(artifact);
     auto program = make_unique<Program>();
     program->procedures.push_back(move(procedure));
-    auto interpreter = make_unique<Interpreter>(*program);
+    istringstream consoleInputStream("");
+    ostringstream consoleOutputStream;
+    auto interpreter = make_unique<Interpreter>(*program, &consoleInputStream, &consoleOutputStream);
     interpreter->init(0);
     interpreter->run(10000);
+    auto actualOutput = consoleOutputStream.str();
+    ASSERT_EQ(expectedOutput, actualOutput);
 }
 
 TEST(InterpreterTest, ExitOnly) {
     run("ExitOnly");
+}
+
+TEST(InterpreterTest, HelloWorld) {
+    run("HelloWorld");
+}
+
+TEST(InterpreterTest, SimpleMath) {
+    run("SimpleMath");
 }
