@@ -61,3 +61,25 @@ Crop to the console area including the one pixel black outline. Post-process wit
 ```
 pngcrush -brute -reduce -ow screenshot.png
 ```
+
+## Update third party dependencies
+
+### tvision
+1. https://github.com/magiblot/tvision
+    - Click "999 commits"
+    - Click top commit hash
+    - Click "Browse files"
+    - Click "Code"
+    - Right-click "Download ZIP"
+    - Click "Copy link"
+    - Click "Download ZIP" to download it
+1. Edit `ext/README.md` and replace the tvision link.
+1. Upload to S3: `aws s3 cp tvision-____.zip s3://tmbasic/tvision/ --acl public-read` (use the downloaded filename)
+1. Edit `ext/README.md` and replace the mirror link. Test the mirror link to make sure it works.
+1. Update the commit hash in the following files:
+    - `build/mac-x64.sh`
+    - `build/files/Dockerfile.build-dev`
+    - `build/files/Dockerfile.build-linux`
+    - `build/files/Dockerfile.build-win`
+1. Run the publish instructions in `build/publish/README.md` to ensure nothing broke.
+1. Commit as "Update tvision to commit ____"

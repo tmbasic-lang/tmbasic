@@ -30,4 +30,4 @@ See this repository's readme for license information.
 - macOS: Xcode package
 
 ## tvision
-- https://github.com/magiblot/tvision/archive/df4e5e6e2af1896af2d49050c63886d84d57c27a.zip ([mirror](https://tmbasic.s3.amazonaws.com/tvision/tvision-df4e5e6e2af1896af2d49050c63886d84d57c27a.zip))
+- https://github.com/magiblot/tvision/archive/0038ff0d0a1cbe9599e0697e28a1e8e2db1b7b0c.zip ([mirror](https://tmbasic.s3.amazonaws.com/tvision/tvision-0038ff0d0a1cbe9599e0697e28a1e8e2db1b7b0c.zip))
