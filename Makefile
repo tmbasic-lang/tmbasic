@@ -21,9 +21,9 @@ LIBNCURSESW_FLAG ?= -lncursesw
 LIBGTEST_FLAG ?= -lgtest -lgtest_main
 STRIP ?= strip
 LICENSE_PROCESS_CMD ?= >/dev/null echo
-OPTFLAGS ?= -Os -flto
+OPTFLAGS ?= -g -O0
 TEST_CMD ?= ./test
-EXTRADEFS ?= -DNDEBUG
+EXTRADEFS ?=
 
 # C++ build flags
 CXXFLAGS=$(WIN_INCLUDE_FLAGS) $(MAC_INCLUDE_FLAGS) -Isrc -Iobj -isystem ext/nameof -isystem /usr/include/libmpdec -isystem /usr/include/libmpdec++ -Wall -Werror -Winvalid-pch -Wno-unknown-pragmas -Wno-reorder -std=c++17 $(OPTFLAGS) $(EXTRADEFS)
@@ -74,8 +74,8 @@ help:
 	@echo ""
 	@echo "COMMANDS"
 	@echo "--------"
-	@echo "make               Build TMBASIC (release)"
-	@echo "make debug         Build TMBASIC (debug)"
+	@echo "make               Build TMBASIC (debug)"
+	@echo "make release       Build TMBASIC (release)"
 	@echo "make run           Run TMBASIC"
 	@echo "make test          Run tests"
 	@echo "make clean         Delete build outputs"
@@ -87,9 +87,9 @@ help:
 	@echo "make ghpages-test  Host tmbasic-gh-pages on port 5000"
 	@echo ""
 
-.PHONY: debug
-debug:
-	@OPTFLAGS="-g -O0" EXTRADEFS=" " $(MAKE)
+.PHONY: release
+release:
+	@OPTFLAGS="-Os -flto" EXTRADEFS="-DNDEBUG" $(MAKE)
 
 .PHONY: clean
 clean:
