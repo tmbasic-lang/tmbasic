@@ -2,6 +2,7 @@
 #include "compiler/parse.h"
 #include "compiler/tokenize.h"
 #include "gtest/gtest.h"
+#include "helpers.h"
 #include "shared/basic/ast.h"
 #include "shared/util/cast.h"
 
@@ -18,14 +19,6 @@ static std::string dump(const Node& node) {
     std::ostringstream s;
     node.dump(s, 0);
     return s.str();
-}
-
-static std::string readFile(std::string filename) {
-    // this will be executed from the the "bin" directory
-    std::ifstream stream("../src/test/programs/" + filename);
-    std::ostringstream buffer;
-    buffer << stream.rdbuf();
-    return buffer.str();
 }
 
 static void parseMatch(std::string filenameWithoutExtension) {

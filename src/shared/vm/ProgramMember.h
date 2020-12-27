@@ -11,7 +11,7 @@ class ProgramMember {
     std::string name;  // used for display only
     std::optional<std::string> source;
 
-    virtual ~ProgramMember();
+    inline virtual ~ProgramMember() = default;
     virtual ProgramMemberType getProgramMemberType() const = 0;
 };
 

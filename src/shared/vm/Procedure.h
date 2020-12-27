@@ -9,7 +9,7 @@ namespace vm {
 
 class Procedure : public ProgramMember {
    public:
-    bool isSystemProcedure;
+    bool isSystemProcedure = false;
     std::optional<std::unique_ptr<ProcedureArtifact>> artifact;
 
     ProgramMemberType getProgramMemberType() const override;
