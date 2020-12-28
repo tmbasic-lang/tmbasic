@@ -62,7 +62,7 @@ enum class Opcode {
     kBranchIfA,     // <4b> if (A) goto byte index in the current procedure
     kBranchIfNotA,  // <4b> if (!A) goto byte index in the current procedure
 
-    kCall,
+    kCall,               // <2b: proc index, 1b: num val args, 1b: num obj args>
     kReturn,             // restores OSP/VSP to where the caller left them, implicitly returns A and X
     kSetError,           // X=message, A=code, set error flag
     kClearError,         // clear error flag, don't clear message or code

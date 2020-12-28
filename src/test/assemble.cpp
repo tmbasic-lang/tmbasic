@@ -1,15 +1,24 @@
 #include "assemble.h"
 #include "shared/vm/Opcode.h"
+#include "shared/vm/Procedure.h"
+#include "shared/vm/ProcedureArtifact.h"
+#include "shared/vm/Program.h"
 
 using std::array;
 using std::istream;
+using std::make_unique;
+using std::move;
 using std::regex;
 using std::regex_search;
 using std::smatch;
 using std::string;
+using std::unique_ptr;
 using std::unordered_map;
 using std::vector;
 using vm::Opcode;
+using vm::Procedure;
+using vm::ProcedureArtifact;
+using vm::Program;
 
 static Opcode parseOpcode(string s) {
     // generate this map using:
@@ -193,14 +202,28 @@ static void appendLengthTaggedString(vector<uint8_t>* vec, istream* input) {
     }
 }
 
-vector<uint8_t> assemble(istream* input) {
+static void addNewProcedure(Program* program, vector<uint8_t>* instructions) {
+    auto artifact = make_unique<ProcedureArtifact>();
+    artifact->instructions = move(*instructions);
+    instructions->clear();
+    auto procedure = make_unique<Procedure>();
+    procedure->artifact = move(artifact);
+    program->procedures.push_back(move(procedure));
+}
+
+std::unique_ptr<vm::Program> assemble(istream* input) {
+    auto program = make_unique<Program>();
     auto vec = vector<uint8_t>();
 
     while (!input->eof()) {
         string opcodeStr;
         *input >> opcodeStr;
         if (opcodeStr == "") {
-            return vec;
+            break;
+        }
+        if (opcodeStr == "-") {
+            addNewProcedure(program.get(), &vec);
+            continue;
         }
         auto opcode = parseOpcode(opcodeStr);
         vec.push_back(static_cast<uint8_t>(opcode));
@@ -234,6 +257,7 @@ vector<uint8_t> assemble(istream* input) {
             case Opcode::kRecordLoadX:
             case Opcode::kRecordStoreA:
             case Opcode::kRecordStoreY:
+            case Opcode::kCall:
                 appendUint16(&vec, input);
                 break;
 
@@ -260,5 +284,9 @@ vector<uint8_t> assemble(istream* input) {
         }
     }
 
-    return vec;
+    if (!vec.empty()) {
+        addNewProcedure(program.get(), &vec);
+    }
+
+    return program;
 }

@@ -1,5 +1,6 @@
 #pragma once
 
 #include "../common.h"
+#include "shared/vm/Program.h"
 
-std::vector<uint8_t> assemble(std::istream* input);
+std::unique_ptr<vm::Program> assemble(std::istream* input);

@@ -15,8 +15,6 @@ class ProcedureArtifact {
     size_t signatureHash = 0;
     std::optional<std::unique_ptr<basic::TypeNode>> returnType;
     std::vector<std::unique_ptr<basic::TypeNode>> parameterTypes;
-    int numValueParameters = 0;
-    int numObjectParameters = 0;
 };
 
 }  // namespace vm

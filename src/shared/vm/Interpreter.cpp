@@ -8,10 +8,10 @@
 
 namespace vm {
 
-static uint16_t ReadUint16(const uint8_t* ptr);
-static uint32_t ReadUint32(const uint8_t* ptr);
-static int64_t ReadInt64(const uint8_t* ptr);
-static int16_t ReadInt16(const uint8_t* ptr);
+static uint16_t readUint16(const uint8_t* ptr);
+static uint32_t readUint32(const uint8_t* ptr);
+static int64_t readInt64(const uint8_t* ptr);
+static int16_t readInt16(const uint8_t* ptr);
 
 Interpreter::Interpreter(const Program& program, std::istream* consoleInputStream, std::ostream* consoleOutputStream)
     : _program(program), _consoleInputStream(consoleInputStream), _consoleOutputStream(consoleOutputStream) {}
@@ -35,7 +35,7 @@ bool Interpreter::run(int maxCycles) {
     // use local variables for our registers with the hope that the compiler chooses to put them into actual cpu
     // registers and avoids writing them to memory
     const auto* procedure = _procedure;
-    auto& instructions = (*procedure->artifact)->instructions;
+    const auto* instructions = &(*procedure->artifact)->instructions;
     auto instructionIndex = _instructionIndex;
     auto a = _a;
     auto b = _b;
@@ -53,7 +53,7 @@ bool Interpreter::run(int maxCycles) {
     auto stop = false;  // whether to end the loop
 
     for (int cycle = 0; !stop && cycle < maxCycles; cycle++) {
-        switch (static_cast<Opcode>(instructions.at(instructionIndex))) {
+        switch (static_cast<Opcode>(instructions->at(instructionIndex))) {
             case Opcode::kExit:
                 instructionIndex++;
                 more = false;
@@ -62,37 +62,35 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kLoadConstantA:
                 // ABBBBBBBB; A: opcode, B: constant
-                a.num = ReadInt64(&instructions.at(instructionIndex + 1));
+                a.num = readInt64(&instructions->at(instructionIndex + 1));
                 instructionIndex += /*A*/ 1 + /*B*/ 8;
                 break;
 
             case Opcode::kLoadConstantB:
                 // ABBBBBBBB; A: opcode, B: constant
-                b.num = ReadInt64(&instructions.at(instructionIndex + 1));
+                b.num = readInt64(&instructions->at(instructionIndex + 1));
                 instructionIndex += /*A*/ 1 + /*B*/ 8;
                 break;
 
             case Opcode::kLoadConstantStringX: {
                 // ABBBBC...C; A: opcode,  B: string length (no NUL), C: string (no NUL)
-                auto stringLength = ReadUint32(&instructions.at(instructionIndex + 1));
-                x = boost::make_local_shared<String>(&instructions.at(instructionIndex + 5), stringLength);
+                auto stringLength = readUint32(&instructions->at(instructionIndex + 1));
+                x = boost::make_local_shared<String>(&instructions->at(instructionIndex + 5), stringLength);
                 instructionIndex += /*A*/ 1 + /*B*/ 4 + /*C*/ stringLength;
                 break;
             }
 
             case Opcode::kLoadConstantStringY: {
                 // ABBBBC...C; A: opcode,  B: string length (no NUL), C: string (no NUL)
-                auto stringLength = ReadUint32(&instructions.at(instructionIndex + 1));
-                y = boost::make_local_shared<String>(&instructions.at(instructionIndex + 5), stringLength);
+                auto stringLength = readUint32(&instructions->at(instructionIndex + 1));
+                y = boost::make_local_shared<String>(&instructions->at(instructionIndex + 5), stringLength);
                 instructionIndex += /*A*/ 1 + /*B*/ 4 + /*C*/ stringLength;
                 break;
             }
 
             case Opcode::kStoreA: {
                 // ABB; A: opcode, B: index
-                auto index = vsi + ReadInt16(&instructions.at(instructionIndex + 1));
-                assert(index >= 0);
-                assert(index < kValueStackSize);
+                auto index = readInt16(&instructions->at(instructionIndex + 1));
                 _valueStack.at(vsi + index) = a;
                 instructionIndex += /*A*/ 1 + /*B*/ 2;
                 break;
@@ -100,9 +98,7 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kStoreB: {
                 // ABB; A: opcode, B: index
-                auto index = vsi + ReadInt16(&instructions.at(instructionIndex + 1));
-                assert(index >= 0);
-                assert(index < kValueStackSize);
+                auto index = readInt16(&instructions->at(instructionIndex + 1));
                 _valueStack.at(vsi + index) = b;
                 instructionIndex += /*A*/ 1 + /*B*/ 2;
                 break;
@@ -110,9 +106,7 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kStoreX: {
                 // ABB; A: opcode, B: index
-                auto index = osi + ReadInt16(&instructions.at(instructionIndex + 1));
-                assert(index >= 0);
-                assert(index < kObjectStackSize);
+                auto index = readInt16(&instructions->at(instructionIndex + 1));
                 _objectStack.at(osi + index) = x;
                 instructionIndex += /*A*/ 1 + /*B*/ 2;
                 break;
@@ -120,9 +114,7 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kStoreY: {
                 // ABB; A: opcode, B: index
-                auto index = osi + ReadInt16(&instructions.at(instructionIndex + 1));
-                assert(index >= 0);
-                assert(index < kObjectStackSize);
+                auto index = readInt16(&instructions->at(instructionIndex + 1));
                 _objectStack.at(osi + index) = y;
                 instructionIndex += /*A*/ 1 + /*B*/ 2;
                 break;
@@ -130,9 +122,7 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kLoadA: {
                 // ABB; A: opcode, B: index
-                auto index = vsi + ReadInt16(&instructions.at(instructionIndex + 1));
-                assert(index >= 0);
-                assert(index < kValueStackSize);
+                auto index = readInt16(&instructions->at(instructionIndex + 1));
                 a = _valueStack.at(vsi + index);
                 instructionIndex += /*A*/ 1 + /*B*/ 2;
                 break;
@@ -140,9 +130,7 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kLoadB: {
                 // ABB; A: opcode, B: index
-                auto index = vsi + ReadInt16(&instructions.at(instructionIndex + 1));
-                assert(index >= 0);
-                assert(index < kValueStackSize);
+                auto index = readInt16(&instructions->at(instructionIndex + 1));
                 b = _valueStack.at(vsi + index);
                 instructionIndex += /*A*/ 1 + /*B*/ 2;
                 break;
@@ -150,9 +138,7 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kLoadX: {
                 // ABB; A: opcode, B: index
-                auto index = vsi + ReadInt16(&instructions.at(instructionIndex + 1));
-                assert(index >= 0);
-                assert(index < kObjectStackSize);
+                auto index = readInt16(&instructions->at(instructionIndex + 1));
                 x = _objectStack.at(osi + index);
                 instructionIndex += /*A*/ 1 + /*B*/ 2;
                 break;
@@ -160,9 +146,7 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kLoadY: {
                 // ABB; A: opcode, B: index
-                auto index = vsi + ReadInt16(&instructions.at(instructionIndex + 1));
-                assert(index >= 0);
-                assert(index < kObjectStackSize);
+                auto index = readInt16(&instructions->at(instructionIndex + 1));
                 y = _objectStack.at(osi + index);
                 instructionIndex += /*A*/ 1 + /*B*/ 2;
                 break;
@@ -216,7 +200,7 @@ bool Interpreter::run(int maxCycles) {
                 a = _valueStack.at(vsi);
                 _valueStack.at(vsi).num = 0;
                 vsi++;
-                assert(vsi < kValueStackSize);
+                assert(vsi <= kValueStackSize);
                 instructionIndex++;
                 break;
 
@@ -224,7 +208,7 @@ bool Interpreter::run(int maxCycles) {
                 b = _valueStack.at(vsi);
                 _valueStack.at(vsi).num = 0;
                 vsi++;
-                assert(vsi < kValueStackSize);
+                assert(vsi <= kValueStackSize);
                 instructionIndex++;
                 break;
 
@@ -232,7 +216,7 @@ bool Interpreter::run(int maxCycles) {
                 x.swap(_objectStack.at(osi));
                 _objectStack.at(osi) = nullptr;
                 osi++;
-                assert(osi < kObjectStackSize);
+                assert(osi <= kObjectStackSize);
                 instructionIndex++;
                 break;
 
@@ -240,15 +224,15 @@ bool Interpreter::run(int maxCycles) {
                 y.swap(_objectStack.at(osi));
                 _objectStack.at(osi) = nullptr;
                 osi++;
-                assert(osi < kObjectStackSize);
+                assert(osi <= kObjectStackSize);
                 instructionIndex++;
                 break;
 
             case Opcode::kPopValues: {
                 // ABB; A: opcode, B: count
-                auto count = ReadUint16(&instructions.at(instructionIndex + 1));
+                auto count = readUint16(&instructions->at(instructionIndex + 1));
                 auto endIndex = vsi + count;
-                assert(endIndex < kValueStackSize);
+                assert(endIndex <= kValueStackSize);
                 for (auto i = vsi; i < endIndex; i++) {
                     _valueStack.at(i).num = 0;
                 }
@@ -259,9 +243,9 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kPopObjects: {
                 // ABB; A: opcode, B: count
-                auto count = ReadUint16(&instructions.at(instructionIndex + 1));
+                auto count = readUint16(&instructions->at(instructionIndex + 1));
                 auto endIndex = osi + count;
-                assert(endIndex < kObjectStackSize);
+                assert(endIndex <= kObjectStackSize);
                 for (auto i = osi; i < endIndex; i++) {
                     _objectStack.at(i) = nullptr;
                 }
@@ -370,7 +354,7 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kAEqualsConstant: {
                 // ABBBBBBBB; A: opcode, B: int64 constant
-                int64_t constant = ReadInt64(&instructions.at(instructionIndex + 1));
+                int64_t constant = readInt64(&instructions->at(instructionIndex + 1));
                 a.setBoolean(a.num == constant);
                 instructionIndex += /*A*/ 1 + /*B*/ 8;
                 break;
@@ -378,7 +362,7 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kBEqualsConstant: {
                 // ABBBBBBBB; A: opcode, B: int64 constant
-                int64_t constant = ReadInt64(&instructions.at(instructionIndex + 1));
+                int64_t constant = readInt64(&instructions->at(instructionIndex + 1));
                 a.setBoolean(b.num == constant);
                 instructionIndex += /*A*/ 1 + /*B*/ 8;
                 break;
@@ -404,8 +388,7 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kJump: {
                 // ABBBB; A: opcode, B: index
-                auto index = ReadUint32(&instructions.at(instructionIndex + 1));
-                assert(index < instructions.size());
+                auto index = readUint32(&instructions->at(instructionIndex + 1));
                 instructionIndex = index;
                 break;
             }
@@ -413,8 +396,7 @@ bool Interpreter::run(int maxCycles) {
             case Opcode::kBranchIfA:
                 // ABBBB; A: opcode, B: index
                 if (a.getBoolean()) {
-                    auto index = ReadUint32(&instructions.at(instructionIndex + 1));
-                    assert(index < instructions.size());
+                    auto index = readUint32(&instructions->at(instructionIndex + 1));
                     instructionIndex = index;
                 } else {
                     instructionIndex += /*A*/ 1 + /*B*/ 4;
@@ -424,8 +406,7 @@ bool Interpreter::run(int maxCycles) {
             case Opcode::kBranchIfNotA:
                 // ABBBB; A: opcode, B: index
                 if (!a.getBoolean()) {
-                    auto index = ReadUint32(&instructions.at(instructionIndex + 1));
-                    assert(index < instructions.size());
+                    auto index = readUint32(&instructions->at(instructionIndex + 1));
                     instructionIndex = index;
                 } else {
                     instructionIndex += /*A*/ 1 + /*B*/ 4;
@@ -436,9 +417,7 @@ bool Interpreter::run(int maxCycles) {
                 // ABBCD
                 // A: opcode
                 // B: procedure index
-                // C: num value arguments
-                // D: num object arguments
-                auto callProcedureIndex = ReadUint16(&instructions.at(instructionIndex + 1));
+                auto callProcedureIndex = readUint16(&instructions->at(instructionIndex + 1));
                 assert(callProcedureIndex >= 0);
                 assert(callProcedureIndex < _program.procedures.size());
                 auto& callProcedure = *_program.procedures[callProcedureIndex];
@@ -448,14 +427,10 @@ bool Interpreter::run(int maxCycles) {
                     break;
                 }
                 auto& callProcedureArtifact = **callProcedure.artifact;
-                auto callNumValues = instructions.at(instructionIndex + 3);
-                auto callNumObjects = instructions.at(instructionIndex + 4);
-                assert(callNumValues == callProcedureArtifact.numValueParameters);
-                assert(callNumObjects == callProcedureArtifact.numObjectParameters);
-                instructionIndex += /*A*/ 1 + /*B*/ 2 + /*C*/ 1 + /*D*/ 1;
+                instructionIndex += /*A*/ 1 + /*B*/ 2;
                 _callStack.push(CallFrame(procedure, instructionIndex, vsi, osi));
                 procedure = &callProcedure;
-                instructions = callProcedureArtifact.instructions;
+                instructions = &callProcedureArtifact.instructions;
                 instructionIndex = 0;
                 break;
             }
@@ -508,7 +483,7 @@ bool Interpreter::run(int maxCycles) {
             case Opcode::kPopBranchIfError:
                 // ABBCCDDDD; A: opcode, B: num values, C: num objects, D: index
                 if (_hasError) {
-                    auto popValues = ReadUint16(&instructions.at(instructionIndex + 1));
+                    auto popValues = readUint16(&instructions->at(instructionIndex + 1));
                     if (popValues > 0) {
                         auto endIndex = vsi + popValues;
                         assert(endIndex < kValueStackSize);
@@ -517,7 +492,7 @@ bool Interpreter::run(int maxCycles) {
                         }
                         vsi = endIndex;
                     }
-                    auto popObjects = ReadUint16(&instructions.at(instructionIndex + 3));
+                    auto popObjects = readUint16(&instructions->at(instructionIndex + 3));
                     if (popObjects > 0) {
                         auto endIndex = osi + popObjects;
                         assert(endIndex < kObjectStackSize);
@@ -526,8 +501,7 @@ bool Interpreter::run(int maxCycles) {
                         }
                         osi = endIndex;
                     }
-                    auto jumpTarget = ReadUint32(&instructions.at(instructionIndex + 5));
-                    assert(jumpTarget < instructions.size());
+                    auto jumpTarget = readUint32(&instructions->at(instructionIndex + 5));
                     instructionIndex = jumpTarget;
                 } else {
                     instructionIndex += /*A*/ 1 + /*B*/ 2 + /*C*/ 2 + /*D*/ 4;
@@ -537,7 +511,7 @@ bool Interpreter::run(int maxCycles) {
             case Opcode::kBranchIfNotError:
                 // ABBBB; A: opcode, B: index
                 if (_hasError) {
-                    auto index = ReadUint32(&instructions.at(instructionIndex + 1));
+                    auto index = readUint32(&instructions->at(instructionIndex + 1));
                     instructionIndex = index;
                 } else {
                     instructionIndex += /*A*/ 1 + /*B*/ 4;
@@ -557,8 +531,8 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kRecordBuilderBegin: {
                 // ABBCC; A: opcode, B: num values, C: num objects
-                auto numValues = ReadUint16(&instructions.at(instructionIndex + 1));
-                auto numObjects = ReadUint16(&instructions.at(instructionIndex + 3));
+                auto numValues = readUint16(&instructions->at(instructionIndex + 1));
+                auto numObjects = readUint16(&instructions->at(instructionIndex + 3));
                 _recordBuilderStack.push(RecordBuilder(numValues, numObjects));
                 instructionIndex += /*A*/ 1 + /*B*/ 2 + /*C*/ 2;
                 break;
@@ -568,7 +542,7 @@ bool Interpreter::run(int maxCycles) {
                 // ABB; A: opcode, B: index
                 assert(!_recordBuilderStack.empty());
                 auto& recordBuilder = _recordBuilderStack.top();
-                auto index = ReadUint16(&instructions.at(instructionIndex + 1));
+                auto index = readUint16(&instructions->at(instructionIndex + 1));
                 assert(index < recordBuilder.values.size());
                 recordBuilder.values.set(index, a);
                 instructionIndex += /*A*/ 1 + /*B*/ 2;
@@ -579,7 +553,7 @@ bool Interpreter::run(int maxCycles) {
                 // ABB; A: opcode, B: index
                 assert(!_recordBuilderStack.empty());
                 auto& recordBuilder = _recordBuilderStack.top();
-                auto index = ReadUint16(&instructions.at(instructionIndex + 1));
+                auto index = readUint16(&instructions->at(instructionIndex + 1));
                 assert(index < recordBuilder.objects.size());
                 assert(x != nullptr);
                 recordBuilder.objects.set(index, x);
@@ -598,7 +572,7 @@ bool Interpreter::run(int maxCycles) {
                 // ABB; A: opcode, B: index
                 assert(x != nullptr);
                 assert(x->getObjectType() == ObjectType::kRecord);
-                auto index = ReadUint16(&instructions.at(instructionIndex + 1));
+                auto index = readUint16(&instructions->at(instructionIndex + 1));
                 auto& record = dynamic_cast<Record&>(*x);
                 assert(index < record.values.size());
                 a = record.values[index];
@@ -610,7 +584,7 @@ bool Interpreter::run(int maxCycles) {
                 // ABB; A: opcode, B: index
                 assert(x != nullptr);
                 assert(x->getObjectType() == ObjectType::kRecord);
-                auto index = ReadUint16(&instructions.at(instructionIndex + 1));
+                auto index = readUint16(&instructions->at(instructionIndex + 1));
                 auto& record = dynamic_cast<Record&>(*x);
                 assert(index < record.objects.size());
                 x = record.objects[index];
@@ -622,7 +596,7 @@ bool Interpreter::run(int maxCycles) {
                 // ABB; A: opcode, B: index
                 assert(x != nullptr);
                 assert(x->getObjectType() == ObjectType::kRecord);
-                auto index = ReadUint16(&instructions.at(instructionIndex + 1));
+                auto index = readUint16(&instructions->at(instructionIndex + 1));
                 auto& record = dynamic_cast<Record&>(*x);
                 assert(index < record.values.size());
                 x = boost::make_local_shared<Record>(record, index, a);
@@ -634,7 +608,7 @@ bool Interpreter::run(int maxCycles) {
                 // ABB; A: opcode, B: index
                 assert(x != nullptr);
                 assert(x->getObjectType() == ObjectType::kRecord);
-                auto index = ReadUint16(&instructions.at(instructionIndex + 1));
+                auto index = readUint16(&instructions->at(instructionIndex + 1));
                 auto& record = dynamic_cast<Record&>(*x);
                 assert(index < record.objects.size());
                 assert(y != nullptr);
@@ -1000,7 +974,7 @@ bool Interpreter::run(int maxCycles) {
 
 Interpreter::ReturnResult::ReturnResult(
     const Procedure* procedure,
-    const std::vector<uint8_t>& instructions,
+    const std::vector<uint8_t>* instructions,
     size_t instructionIndex,
     int valueStackIndex,
     int objectStackIndex)
@@ -1023,29 +997,29 @@ Interpreter::ReturnResult Interpreter::returnFromProcedure(int valueStackIndex, 
     }
     _callStack.pop();
     return ReturnResult(
-        callFrame.procedure, (*callFrame.procedure->artifact)->instructions, callFrame.instructionIndex,
+        callFrame.procedure, &(*callFrame.procedure->artifact)->instructions, callFrame.instructionIndex,
         callFrame.valueStackIndex, callFrame.objectStackIndex);
 }
 
-uint16_t ReadUint16(const uint8_t* ptr) {
+uint16_t readUint16(const uint8_t* ptr) {
     uint16_t value = 0;
     memcpy(&value, ptr, sizeof(uint16_t));
     return value;
 }
 
-uint32_t ReadUint32(const uint8_t* ptr) {
+uint32_t readUint32(const uint8_t* ptr) {
     uint32_t value = 0;
     memcpy(&value, ptr, sizeof(uint32_t));
     return value;
 }
 
-int64_t ReadInt64(const uint8_t* ptr) {
+int64_t readInt64(const uint8_t* ptr) {
     int64_t value = 0;
     memcpy(&value, ptr, sizeof(int64_t));
     return value;
 }
 
-int16_t ReadInt16(const uint8_t* ptr) {
+int16_t readInt16(const uint8_t* ptr) {
     int16_t value = 0;
     memcpy(&value, ptr, sizeof(int16_t));
     return value;

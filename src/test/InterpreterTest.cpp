@@ -21,12 +21,7 @@ static void run(string filenameWithoutExtension) {
     auto source = readFile(filenameWithoutExtension + ".asm");
     auto expectedOutput = readFile(filenameWithoutExtension + ".txt");
     istringstream sourceStream(source);
-    auto artifact = make_unique<ProcedureArtifact>();
-    artifact->instructions = assemble(&sourceStream);
-    auto procedure = make_unique<Procedure>();
-    procedure->artifact = move(artifact);
-    auto program = make_unique<Program>();
-    program->procedures.push_back(move(procedure));
+    auto program = assemble(&sourceStream);
     istringstream consoleInputStream("");
     ostringstream consoleOutputStream;
     auto interpreter = make_unique<Interpreter>(*program, &consoleInputStream, &consoleOutputStream);
@@ -46,4 +41,8 @@ TEST(InterpreterTest, HelloWorld) {
 
 TEST(InterpreterTest, SimpleMath) {
     run("SimpleMath");
+}
+
+TEST(InterpreterTest, AddFunction) {
+    run("AddFunction");
 }

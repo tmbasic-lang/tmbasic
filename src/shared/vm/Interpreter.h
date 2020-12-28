@@ -45,13 +45,13 @@ class Interpreter {
     class ReturnResult {
        public:
         const Procedure* const procedure;
-        const std::vector<uint8_t>& instructions;
+        const std::vector<uint8_t>* instructions;
         const size_t instructionIndex;
         const int valueStackIndex;
         const int objectStackIndex;
         ReturnResult(
             const Procedure* procedure,
-            const std::vector<uint8_t>& instructions,
+            const std::vector<uint8_t>* instructions,
             size_t instructionIndex,
             int valueStackIndex,
             int objectStackIndex);
