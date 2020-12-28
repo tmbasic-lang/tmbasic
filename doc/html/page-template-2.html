@@ -11,15 +11,16 @@
 * { text-size-adjust: none; }
 a { color: #326ec8; text-decoration: none; }
 a:hover { text-decoration: underline; }
-body { font-family: Calibri, sans-serif; font-size: 17px; color: rgba(0,0,0,.8); margin: 1cm; margin-left: 2cm; margin-bottom: 5cm; padding-top: 1cm; max-width: 208mm; line-height: 160%; }
+body { font-family: Calibri, sans-serif; font-size: 17px; color: rgba(0,0,0,.8); margin: 1cm auto; margin-bottom: 5cm; padding-top: 1cm; max-width: 208mm; line-height: 160%; overflow-y: scroll; }
 col { width: auto !important; }
 div.backlinks { position: absolute; top: 14mm; left: 1cm; font-size: 10pt; }
 div.code div { text-indent: -2cm; padding-left: 2cm; }
 div.code { padding: 3mm; margin-bottom: 5mm; background: #f8f8f8; }
+div#root { margin-left: 1cm; margin-right: 1cm; }
 div#platformSupportTable > table > tbody > tr > td:first-child {  white-space: nowrap; }
-h1 { margin-left: -1cm; font-size: 44px; color: rgba(0,0,0,.85); }
-h1, h2, h3, h4, h5 { font-family: Calibri, sans-serif; font-weight: bold; line-height: 100%; }
-h2 { margin-left: -1cm; font-size: 27px; color: #ba3925; }
+h1 { font-size: 44px; color: rgba(0,0,0,.85); }
+h1, h2, h3, h4, h5 { font-weight: bold; line-height: 100%; }
+h2 { font-size: 27px; color: #ba3925; }
 h3 { color: #ba3925; font-size: 19px; }
 hr { margin-top: 1cm; margin-bottom: 1cm; margin-left: -1cm; }
 iframe#githubStar { width: 170px; height: 20px; position: absolute; top: 5mm; left: 10cm; }
@@ -43,7 +44,7 @@ ul { padding-left: 5mm; }
   img.screenshot { zoom: 0.75; }
 }
 @media only screen and (max-width: 600px) {
-  body { margin-left: 5mm; margin-right: 5mm; }
+  div#root { margin-left: 5mm; margin-right: 5mm; }
   div.backlinks { left: 5mm; }
   h1, h2 { margin-left: 0; }
   nav > div { padding-left: 5mm; }
@@ -57,3 +58,4 @@ ul { padding-left: 5mm; }
 ><a href="doc.html">Documentation</a><a href="https://github.com/electroly/tmbasic">GitHub</a
 >
 </nav>
+<div id="root">
