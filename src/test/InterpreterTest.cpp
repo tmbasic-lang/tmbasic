@@ -26,7 +26,8 @@ static void run(string filenameWithoutExtension) {
     ostringstream consoleOutputStream;
     auto interpreter = make_unique<Interpreter>(*program, &consoleInputStream, &consoleOutputStream);
     interpreter->init(0);
-    interpreter->run(10000);
+    while (interpreter->run(10000)) {
+    }
     auto actualOutput = consoleOutputStream.str();
     ASSERT_EQ(expectedOutput, actualOutput);
 }
@@ -45,4 +46,8 @@ TEST(InterpreterTest, SimpleMath) {
 
 TEST(InterpreterTest, AddFunction) {
     run("AddFunction");
+}
+
+TEST(InterpreterTest, Julia) {
+    run("Julia");
 }

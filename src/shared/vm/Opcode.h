@@ -21,16 +21,18 @@ enum class Opcode {
     kLoadX,   // <2b> X = OSP[operand];
     kLoadY,   // <2b> Y = OSP[operand];
 
-    kPushA,       // --VSP; VSP[0] = A;
-    kPushB,       // --VSP; VSP[0] = B;
-    kPushX,       // --OSP; OSP[0] = X;
-    kPushY,       // --OSP; OSP[0] = Y;
-    kPopA,        // A = VSP[0]; ++VSP;
-    kPopB,        // B = VSP[0]; ++VSP;
-    kPopX,        // X = OSP[0]; ++OSP;
-    kPopY,        // Y = OSP[0]; ++OSP;
-    kPopValues,   // <2b> VSP += operand
-    kPopObjects,  // <2b> OSP += operand
+    kPushA,        // --VSP; VSP[0] = A;
+    kPushB,        // --VSP; VSP[0] = B;
+    kPushX,        // --OSP; OSP[0] = X;
+    kPushY,        // --OSP; OSP[0] = Y;
+    kPopA,         // A = VSP[0]; ++VSP;
+    kPopB,         // B = VSP[0]; ++VSP;
+    kPopX,         // X = OSP[0]; ++OSP;
+    kPopY,         // Y = OSP[0]; ++OSP;
+    kPushValues,   // <2b> VSP -= operand
+    kPushObjects,  // <2b> OSP -= operand
+    kPopValues,    // <2b> VSP += operand
+    kPopObjects,   // <2b> OSP += operand
 
     kClearX,  // X = NULL;
     kClearY,  // Y = NULL;

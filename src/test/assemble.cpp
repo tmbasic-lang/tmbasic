@@ -5,6 +5,7 @@
 #include "shared/vm/Program.h"
 
 using std::array;
+using std::getline;
 using std::istream;
 using std::make_unique;
 using std::move;
@@ -45,6 +46,8 @@ static Opcode parseOpcode(string s) {
         { "PopB", Opcode::kPopB },
         { "PopX", Opcode::kPopX },
         { "PopY", Opcode::kPopY },
+        { "PushValues", Opcode::kPushValues },
+        { "PushObjects", Opcode::kPushObjects },
         { "PopValues", Opcode::kPopValues },
         { "PopObjects", Opcode::kPopObjects },
         { "ClearX", Opcode::kClearX },
@@ -188,7 +191,7 @@ static void appendUint32(vector<uint8_t>* vec, istream* input) {
 
 static void appendLengthTaggedString(vector<uint8_t>* vec, istream* input) {
     string quoted;
-    std::getline(*input, quoted);
+    getline(*input, quoted);
 
     // strip leading and trailing whitespace and quotes
     smatch match;
@@ -202,7 +205,26 @@ static void appendLengthTaggedString(vector<uint8_t>* vec, istream* input) {
     }
 }
 
-static void addNewProcedure(Program* program, vector<uint8_t>* instructions) {
+struct LabelUsage {
+    string label;
+    size_t index;
+};
+
+static void addNewProcedure(
+    Program* program,
+    vector<uint8_t>* instructions,
+    unordered_map<string, size_t>* labels,
+    vector<LabelUsage>* labelUsages) {
+    for (const auto& labelUsage : *labelUsages) {
+        auto it = labels->find(labelUsage.label);
+        assert(it != labels->end());
+        uint32_t jumpTarget = static_cast<uint32_t>(it->second);
+        memcpy(&instructions->at(labelUsage.index), &jumpTarget, sizeof(uint32_t));
+    }
+
+    labelUsages->clear();
+    labels->clear();
+
     auto artifact = make_unique<ProcedureArtifact>();
     artifact->instructions = move(*instructions);
     instructions->clear();
@@ -214,6 +236,8 @@ static void addNewProcedure(Program* program, vector<uint8_t>* instructions) {
 std::unique_ptr<vm::Program> assemble(istream* input) {
     auto program = make_unique<Program>();
     auto vec = vector<uint8_t>();
+    auto labels = unordered_map<string, size_t>();
+    auto labelUsages = vector<LabelUsage>();
 
     while (!input->eof()) {
         string opcodeStr;
@@ -222,7 +246,18 @@ std::unique_ptr<vm::Program> assemble(istream* input) {
             break;
         }
         if (opcodeStr == "-") {
-            addNewProcedure(program.get(), &vec);
+            addNewProcedure(program.get(), &vec, &labels, &labelUsages);
+            continue;
+        }
+        if (opcodeStr == "#") {
+            string dummy;
+            getline(*input, dummy);
+            continue;
+        }
+        if (opcodeStr == "label") {
+            string name;
+            *input >> name;
+            labels[name] = vec.size();
             continue;
         }
         auto opcode = parseOpcode(opcodeStr);
@@ -251,6 +286,8 @@ std::unique_ptr<vm::Program> assemble(istream* input) {
             case Opcode::kLoadY:
             case Opcode::kPopValues:
             case Opcode::kPopObjects:
+            case Opcode::kPushValues:
+            case Opcode::kPushObjects:
             case Opcode::kRecordBuilderStoreA:
             case Opcode::kRecordBuilderStoreX:
             case Opcode::kRecordLoadA:
@@ -264,9 +301,13 @@ std::unique_ptr<vm::Program> assemble(istream* input) {
             case Opcode::kJump:
             case Opcode::kBranchIfA:
             case Opcode::kBranchIfNotA:
-            case Opcode::kBranchIfNotError:
-                appendUint32(&vec, input);
+            case Opcode::kBranchIfNotError: {
+                string label;
+                *input >> label;
+                labelUsages.push_back({ label, vec.size() });
+                appendUint32(&vec, static_cast<uint32_t>(0));
                 break;
+            }
 
             case Opcode::kPopBranchIfError:
                 appendUint32(&vec, input);
@@ -285,7 +326,7 @@ std::unique_ptr<vm::Program> assemble(istream* input) {
     }
 
     if (!vec.empty()) {
-        addNewProcedure(program.get(), &vec);
+        addNewProcedure(program.get(), &vec, &labels, &labelUsages);
     }
 
     return program;

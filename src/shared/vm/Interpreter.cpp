@@ -228,6 +228,22 @@ bool Interpreter::run(int maxCycles) {
                 instructionIndex++;
                 break;
 
+            case Opcode::kPushValues: {
+                // ABB; A: opcode, B: count
+                auto count = readUint16(&instructions->at(instructionIndex + 1));
+                vsi -= count;
+                instructionIndex += /*A*/ 1 + /*B*/ 2;
+                break;
+            }
+
+            case Opcode::kPushObjects: {
+                // ABB; A: opcode, B: count
+                auto count = readUint16(&instructions->at(instructionIndex + 1));
+                osi -= count;
+                instructionIndex += /*A*/ 1 + /*B*/ 2;
+                break;
+            }
+
             case Opcode::kPopValues: {
                 // ABB; A: opcode, B: count
                 auto count = readUint16(&instructions->at(instructionIndex + 1));
