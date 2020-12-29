@@ -13,13 +13,13 @@ a { color: #326ec8; text-decoration: none; }
 a:hover { text-decoration: underline; }
 body { font-family: "Segoe UI", "Helvetica Neue", "Helvetica", Arial, sans-serif; font-size: 16px; color: #444444; margin: 1cm auto; margin-bottom: 5cm; padding-top: 1cm; max-width: 900px; line-height: 180%; overflow-y: scroll; }
 col { width: auto !important; }
-div.backlinks { font-size: 10pt; margin-top: -5mm; }
+div.backlinks { font-size: 10pt; margin-top: -5mm; line-height: 100%; }
 div.code div { text-indent: -2cm; padding-left: 2cm; }
 div.code { padding: 3mm; margin-bottom: 5mm; background: #f8f8f8; }
 div#root { margin-left: 1cm; margin-right: 1cm; }
 div#platformSupportTable > table > tbody > tr > td:first-child {  white-space: nowrap; }
 h1 { font-size: 40px; color: rgba(0,0,0,.85); }
-span.tagline { color: #aaaaaa; font-weight: 100; }
+span.tagline { color: #aaaaaa; font-weight: 300; }
 h1, h2, h3, h4, h5 { font-weight: 400; letter-spacing: -0.38px; line-height: 100%; }
 h2 { font-size: 28px; color: #ba3925; margin-top: 50px; }
 h2:nth-child(3) { margin-top: 0; }
@@ -38,24 +38,25 @@ span.comment, span.comment span.string { color: #26a135; }
 span.indent { white-space: pre; }
 span.operator { color: #666666; }
 span.string { color: #ba2121; }
+strong, th { font-weight: 600; }
 table { border-collapse: collapse; }
 td, th { border: 1px solid #d5d5d5; padding: 1mm; padding-left: 3mm; padding-right: 4mm; vertical-align: top; }
 th { text-align: left; }
 ul { padding-left: 5mm; }
 @media only screen and (max-width: 900px) and (min-width: 750px) {
-  body { font-size: 14px; }
-  h1 { font-size: 34px; }
+  body { font-size: 15px; }
+  h1 { font-size: 32px; }
   h2 { font-size: 24px; }
   h3 { font-size: 18px; }
-  pre, code, div.code, .tt { font-size: 14px; }
+  pre, code, div.code, .tt { font-size: 15px; }
   img.screenshot { zoom: 0.85; }
 }
 @media only screen and (max-width: 750px) {
-  body { font-size: 14px; }
-  h1 { font-size: 34px; }
+  body { font-size: 15px; }
+  h1 { font-size: 32px; }
   h2 { font-size: 24px; }
   h3 { font-size: 18px; }
-  pre, code, div.code, .tt { font-size: 14px; }
+  pre, code, div.code, .tt { font-size: 15px; }
   div#root { margin-left: 5mm; margin-right: 5mm; }
   nav > div > div { margin-left: 5mm; margin-right: 5mm; }
   div.backlinks { left: 5mm; }
