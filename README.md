@@ -1,9 +1,9 @@
-# TMBASIC – Text Mode BASIC
-
-TMBASIC is a simple programming language for creating console applications that run on Windows, macOS, and Linux. Apps written in TMBASIC can be simple command line tools or complex mouse-driven user interfaces.
+# TMBASIC <span class="tagline">(Text Mode BASIC)</span>
 
 <!-- See DEVELOPERS.md for instructions on generating this screenshot. -->
 <img src="https://tmbasic.com/screenshot.png" alt="Screenshot" class="screenshot">
+
+TMBASIC is a simple programming language for creating console applications that run on Windows, macOS, and Linux. Apps written in TMBASIC can be simple command line tools or sophisticated mouse-driven user interfaces.
 
 [Read the documentation online](https://tmbasic.com/doc.html) or in TMBASIC's integrated help viewer.
 

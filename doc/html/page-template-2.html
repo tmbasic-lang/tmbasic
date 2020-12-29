@@ -11,24 +11,26 @@
 * { text-size-adjust: none; }
 a { color: #326ec8; text-decoration: none; }
 a:hover { text-decoration: underline; }
-body { font-family: Calibri, sans-serif; font-size: 17px; color: rgba(0,0,0,.8); margin: 1cm auto; margin-bottom: 5cm; padding-top: 1cm; max-width: 208mm; line-height: 160%; overflow-y: scroll; }
+body { font-family: "Segoe UI", "Helvetica Neue", "Helvetica", Arial, sans-serif; font-size: 16px; color: #444444; margin: 1cm auto; margin-bottom: 5cm; padding-top: 1cm; max-width: 900px; line-height: 180%; overflow-y: scroll; }
 col { width: auto !important; }
-div.backlinks { position: absolute; top: 14mm; left: 1cm; font-size: 10pt; }
+div.backlinks { font-size: 10pt; margin-top: -5mm; }
 div.code div { text-indent: -2cm; padding-left: 2cm; }
 div.code { padding: 3mm; margin-bottom: 5mm; background: #f8f8f8; }
 div#root { margin-left: 1cm; margin-right: 1cm; }
 div#platformSupportTable > table > tbody > tr > td:first-child {  white-space: nowrap; }
-h1 { font-size: 44px; color: rgba(0,0,0,.85); }
-h1, h2, h3, h4, h5 { font-weight: bold; line-height: 100%; }
-h2 { font-size: 27px; color: #ba3925; }
-h3 { color: #ba3925; font-size: 19px; }
+h1 { font-size: 40px; color: rgba(0,0,0,.85); }
+span.tagline { color: #aaaaaa; font-weight: 100; }
+h1, h2, h3, h4, h5 { font-weight: 400; letter-spacing: -0.38px; line-height: 100%; }
+h2 { font-size: 28px; color: #ba3925; margin-top: 50px; }
+h2:nth-child(3) { margin-top: 0; }
+h3 { color: #ba3925; font-size: 20px; }
 hr { margin-top: 1cm; margin-bottom: 1cm; margin-left: -1cm; }
-iframe#githubStar { width: 170px; height: 20px; position: absolute; top: 5mm; left: 10cm; }
-img.screenshot { margin-top: 3mm; margin-bottom: 3mm; height: 410px; }
-nav { background: #eff3f9; border-bottom: 1px solid #d0e7f9; position: absolute; top: 0; left: 0; width: 100%; }
-nav > div { padding: 3mm; padding-left: 1cm; }
-nav > div > a { margin-left: 5mm; padding-top: 3mm; padding-bottom: 3mm; }
-nav > div > a:first-child { margin-left: 0mm; }
+img.screenshot { margin-top: 2mm; height: 275px; width: 434px; float: right; margin-left: 1cm; background: #bbbbbb; }
+nav { background: #0000bb; border-bottom: 2px solid #000000; position: absolute; top: 0; left: 0; width: 100%; padding-top: 2mm; padding-bottom: 2mm; }
+nav > div { max-width: 900px; margin: 0 auto; }
+nav > div > div { margin-left: 1cm; margin-right: 1cm; }
+nav > div > div > a { margin-left: 5mm; padding-top: 6mm; padding-bottom: 6mm; color: #ffffff; }
+nav > div > div > a:first-child { margin-left: 0mm; }
 pre, code, div.code, .tt { font-family: Consolas, monospace; font-size: 16px; color: #19177c; }
 pre, div.code { line-height: 100%; }
 pre.diagram { font-size: 12px; display: inline-block; border: 1px solid black; padding: 1mm; background: #f8f8f8; color: rgba(0,0,0,0.8); cursor: default; user-select: none; line-height: 100%; }
@@ -40,22 +42,30 @@ table { border-collapse: collapse; }
 td, th { border: 1px solid #d5d5d5; padding: 1mm; padding-left: 3mm; padding-right: 4mm; vertical-align: top; }
 th { text-align: left; }
 ul { padding-left: 5mm; }
-@media only screen and (max-width: 800px) and (min-width: 600px) {
-  img.screenshot { zoom: 0.75; }
+@media only screen and (max-width: 900px) and (min-width: 750px) {
+  body { font-size: 14px; }
+  h1 { font-size: 34px; }
+  h2 { font-size: 24px; }
+  h3 { font-size: 18px; }
+  pre, code, div.code, .tt { font-size: 14px; }
+  img.screenshot { zoom: 0.85; }
 }
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 750px) {
+  body { font-size: 14px; }
+  h1 { font-size: 34px; }
+  h2 { font-size: 24px; }
+  h3 { font-size: 18px; }
+  pre, code, div.code, .tt { font-size: 14px; }
   div#root { margin-left: 5mm; margin-right: 5mm; }
+  nav > div > div { margin-left: 5mm; margin-right: 5mm; }
   div.backlinks { left: 5mm; }
   h1, h2 { margin-left: 0; }
-  nav > div { padding-left: 5mm; }
-  img.screenshot { zoom: 0.6; }
+  img.screenshot { zoom: 0.8; float: none; margin-left: 0; margin-top: 0; }
 }
 </style>
 </head>
 <body>
 <nav>
-<div><a href="/" style="font-weight: bold;">TMBASIC</a
-><a href="doc.html">Documentation</a><a href="https://github.com/electroly/tmbasic">GitHub</a
->
+<div><div><a href="/" style="font-weight: 600;">TMBASIC</a><a href="doc.html">Documentation</a><a href="https://github.com/electroly/tmbasic">GitHub</a></div></div>
 </nav>
 <div id="root">
