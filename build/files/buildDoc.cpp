@@ -225,6 +225,7 @@ static string processHtml(string str) {
     str = replace(str, "<TRIANGLE_RIGHT>", kHtmlTriangleRight);
     str = replace(str, "<OPEN_CIRCLE>", kHtmlOpenCircle);
     str = htmlEncode(str);
+    str = replace(str, kHtmlTriangleRight, string("<wbr>") + kHtmlTriangleRight);
     str = replaceRegex(str, "t\\[(([^\\] ]+)[^\\]]*)\\]", "<a href=\"type_$2.html\">$1</a>");
     str = replaceRegex(str, "p\\[([^\\]]+)\\]", "<a href=\"procedure_$1.html\">$1</a>");
     str = replaceRegex(str, "i\\[([^\\]]+)\\]", "<i>$1</i>");

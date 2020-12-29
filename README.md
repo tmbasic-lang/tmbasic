@@ -1,4 +1,4 @@
-# TMBASIC <span class="tagline">(Text Mode BASIC)</span>
+# TMBASIC <wbr><span class="tagline">(Text Mode BASIC)</span>
 
 <!-- See DEVELOPERS.md for instructions on generating this screenshot. -->
 <img src="https://tmbasic.com/screenshot.png" alt="Screenshot" class="screenshot">
