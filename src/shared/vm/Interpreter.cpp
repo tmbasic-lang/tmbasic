@@ -697,6 +697,70 @@ bool Interpreter::run(int maxCycles) {
                 break;
             }
 
+            case Opcode::kObjectListBuilderBegin: {
+                _objectListBuilderStack.push(ObjectListBuilder());
+                instructionIndex++;
+                break;
+            }
+
+            case Opcode::kObjectListBuilderAddX:
+                assert(!_objectListBuilderStack.empty());
+                _objectListBuilderStack.top().items.push_back(x);
+                instructionIndex++;
+                break;
+
+            case Opcode::kObjectListBuilderEnd:
+                assert(!_objectListBuilderStack.empty());
+                x = boost::make_local_shared<ObjectList>(&_objectListBuilderStack.top());
+                _objectListBuilderStack.pop();
+                instructionIndex++;
+                break;
+
+            case Opcode::kObjectListGet: {
+                assert(x != nullptr);
+                assert(x->getObjectType() == ObjectType::kObjectList);
+                auto& objectList = dynamic_cast<ObjectList&>(*x);
+                x = objectList.items.at(static_cast<size_t>(a.getInt64()));
+                instructionIndex++;
+                break;
+            }
+
+            case Opcode::kObjectListSet: {
+                assert(x != nullptr);
+                assert(x->getObjectType() == ObjectType::kObjectList);
+                auto& objectList = dynamic_cast<ObjectList&>(*x);
+                x = boost::make_local_shared<ObjectList>(objectList, false, static_cast<size_t>(a.getInt64()), y);
+                instructionIndex++;
+                break;
+            }
+
+            case Opcode::kObjectListCount: {
+                assert(x != nullptr);
+                assert(x->getObjectType() == ObjectType::kObjectList);
+                auto& objectList = dynamic_cast<ObjectList&>(*x);
+                a.num = objectList.items.size();
+                instructionIndex++;
+                break;
+            }
+
+            case Opcode::kObjectListInsert: {
+                assert(x != nullptr);
+                assert(x->getObjectType() == ObjectType::kObjectList);
+                auto& objectList = dynamic_cast<ObjectList&>(*x);
+                x = boost::make_local_shared<ObjectList>(objectList, true, static_cast<size_t>(a.getInt64()), y);
+                instructionIndex++;
+                break;
+            }
+
+            case Opcode::kObjectListRemove: {
+                assert(x != nullptr);
+                assert(x->getObjectType() == ObjectType::kObjectList);
+                auto& objectList = dynamic_cast<ObjectList&>(*x);
+                x = boost::make_local_shared<ObjectList>(objectList, static_cast<size_t>(a.getInt64()));
+                instructionIndex++;
+                break;
+            }
+
             case Opcode::kValueToValueMapNew:
                 x = boost::make_local_shared<ValueToValueMap>();
                 instructionIndex++;

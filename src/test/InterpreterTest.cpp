@@ -63,3 +63,7 @@ TEST(InterpreterTest, Record) {
 TEST(InterpreterTest, ValueList) {
     run("ValueList");
 }
+
+TEST(InterpreterTest, ObjectList) {
+    run("ValueList");
+}
