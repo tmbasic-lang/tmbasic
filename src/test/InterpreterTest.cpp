@@ -55,3 +55,11 @@ TEST(InterpreterTest, Julia) {
 TEST(InterpreterTest, Errors) {
     run("Errors");
 }
+
+TEST(InterpreterTest, Record) {
+    run("Record");
+}
+
+TEST(InterpreterTest, ValueList) {
+    run("ValueList");
+}

@@ -23,10 +23,10 @@ class List : public Object {
 
     explicit List(ListBuilder<TElement>* builder) : items(std::move(builder->items.persistent())) {}
 
-    List(List<TElement, K>& source, int removeIndex) : items(std::move(removeAt(source, removeIndex))) {}
+    List(const List<TElement, K>& source, size_t removeIndex) : items(std::move(removeAt(source.items, removeIndex))) {}
 
-    List(List<TElement, K>& source, bool insert, int index, TElement newElement)
-        : items(std::move(insertOrSetAt(source, insert, index, newElement))) {}
+    List(const List<TElement, K>& source, bool insert, size_t index, TElement newElement)
+        : items(std::move(insertOrSetAt(source.items, insert, index, newElement))) {}
 
     ObjectType getObjectType() const override { return K; }
 
@@ -58,9 +58,9 @@ class List : public Object {
     }
 
    private:
-    static immer::vector<TElement> removeAt(const immer::vector<TElement>& source, int removeIndex) {
+    static immer::vector<TElement> removeAt(const immer::vector<TElement>& source, size_t removeIndex) {
         auto t = source.take(removeIndex).transient();
-        for (int i = removeIndex + 1; i < source.size(); i++) {
+        for (size_t i = removeIndex + 1; i < source.size(); i++) {
             t.push_back(source[i]);
         }
         return t.persistent();
@@ -69,14 +69,14 @@ class List : public Object {
     static immer::vector<TElement> insertOrSetAt(
         const immer::vector<TElement>& source,
         bool insert,
-        int index,
+        size_t index,
         TElement newElement) {
         if (insert && index == source.size()) {
             return source.push_back(newElement);
         }
         auto t = source.take(index).transient();
         t.push_back(newElement);
-        for (int i = insert ? index : index + 1; i < source.size(); i++) {
+        for (size_t i = insert ? index : index + 1; i < source.size(); i++) {
             t.push_back(source[i]);
         }
         return t.persistent();

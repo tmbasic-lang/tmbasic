@@ -88,6 +88,7 @@ enum class Opcode {
     kValueListBuilderAddA,   // append A to topmost ValueListBuilder
     kValueListBuilderEnd,    // X = new ValueList, ValueListBuilder is popped
     kValueListGet,           // A = X[A]
+    kValueListSet,           // X[A] = B
     kValueListCount,         // A = X.count
     kValueListInsert,        // insert A into index B in list X, store new list in X
     kValueListRemove,        // remove index A from list X
@@ -96,6 +97,7 @@ enum class Opcode {
     kObjectListBuilderAddX,   // append X to topmost ObjectListBuilder
     kObjectListBuilderEnd,    // X = new ObjectList, ObjectListBuilder is popped
     kObjectListGet,           // X = X[A]
+    kObjectListSet,           // X[A] = Y
     kObjectListCount,         // A = X.count
     kObjectListInsert,        // insert Y into index B in list X, store new list in X
     kObjectListRemove,        // remove index A from list X

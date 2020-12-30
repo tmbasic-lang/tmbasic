@@ -652,6 +652,51 @@ bool Interpreter::run(int maxCycles) {
                 instructionIndex++;
                 break;
 
+            case Opcode::kValueListGet: {
+                assert(x != nullptr);
+                assert(x->getObjectType() == ObjectType::kValueList);
+                auto& valueList = dynamic_cast<ValueList&>(*x);
+                a = valueList.items.at(static_cast<size_t>(a.getInt64()));
+                instructionIndex++;
+                break;
+            }
+
+            case Opcode::kValueListSet: {
+                assert(x != nullptr);
+                assert(x->getObjectType() == ObjectType::kValueList);
+                auto& valueList = dynamic_cast<ValueList&>(*x);
+                x = boost::make_local_shared<ValueList>(valueList, false, static_cast<size_t>(a.getInt64()), b);
+                instructionIndex++;
+                break;
+            }
+
+            case Opcode::kValueListCount: {
+                assert(x != nullptr);
+                assert(x->getObjectType() == ObjectType::kValueList);
+                auto& valueList = dynamic_cast<ValueList&>(*x);
+                a.num = valueList.items.size();
+                instructionIndex++;
+                break;
+            }
+
+            case Opcode::kValueListInsert: {
+                assert(x != nullptr);
+                assert(x->getObjectType() == ObjectType::kValueList);
+                auto& valueList = dynamic_cast<ValueList&>(*x);
+                x = boost::make_local_shared<ValueList>(valueList, true, static_cast<size_t>(a.getInt64()), a);
+                instructionIndex++;
+                break;
+            }
+
+            case Opcode::kValueListRemove: {
+                assert(x != nullptr);
+                assert(x->getObjectType() == ObjectType::kValueList);
+                auto& valueList = dynamic_cast<ValueList&>(*x);
+                x = boost::make_local_shared<ValueList>(valueList, static_cast<size_t>(a.getInt64()));
+                instructionIndex++;
+                break;
+            }
+
             case Opcode::kValueToValueMapNew:
                 x = boost::make_local_shared<ValueToValueMap>();
                 instructionIndex++;
@@ -965,6 +1010,8 @@ bool Interpreter::run(int maxCycles) {
             }
 
             default:
+                std::cerr << "Unimplemented opcode: "
+                          << NAMEOF_ENUM(static_cast<Opcode>(instructions->at(instructionIndex))) << std::endl;
                 assert(false);
                 break;
         }
