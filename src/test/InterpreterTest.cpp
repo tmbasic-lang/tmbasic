@@ -51,3 +51,7 @@ TEST(InterpreterTest, AddFunction) {
 TEST(InterpreterTest, Julia) {
     run("Julia");
 }
+
+TEST(InterpreterTest, Errors) {
+    run("Errors");
+}

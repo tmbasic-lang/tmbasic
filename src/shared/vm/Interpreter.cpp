@@ -526,7 +526,7 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kBranchIfNotError:
                 // ABBBB; A: opcode, B: index
-                if (_hasError) {
+                if (!_hasError) {
                     auto index = readUint32(&instructions->at(instructionIndex + 1));
                     instructionIndex = index;
                 } else {
