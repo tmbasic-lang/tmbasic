@@ -1,12 +1,17 @@
 # create this structure:
-# ["ABC", {v0:123}, [456,789], ["DEF","GHI"]]
+# ["ABC", {v0:123}, [456,789], ["DEF","GHI"], "JKL"]
 ObjectListBuilderBegin
-LoadConstantStringX "ZZZ" # overwrite later to test ObjectListSet
+# remove "AAA" later to test ObjectListRemove
+LoadConstantStringX "AAA"
+ObjectListBuilderAddX
+
+# overwrite "ZZZ" later to test ObjectListSet
+LoadConstantStringX "ZZZ"
 ObjectListBuilderAddX
 
 RecordBuilderBegin 1 0
 LoadConstantA 123
-RecordBuilderStoreA
+RecordBuilderStoreA 0
 RecordBuilderEnd
 ObjectListBuilderAddX
 
@@ -28,8 +33,13 @@ ObjectListBuilderAddX
 
 ObjectListBuilderEnd
 LoadConstantA 0
-LoadConstantStringX "ABC"
+ObjectListRemove
+LoadConstantA 0
+LoadConstantStringY "ABC"
 ObjectListSet
+LoadConstantA 4
+LoadConstantStringY "JKL"
+ObjectListInsert
 PushX
 
 LoadConstantA 0
@@ -44,7 +54,7 @@ NumberToString
 StringPrint
 
 LoadX 0
-LoadConstant 2
+LoadConstantA 2
 ObjectListGet
 LoadConstantA 0
 ValueListGet
@@ -52,7 +62,7 @@ NumberToString
 StringPrint
 
 LoadX 0
-LoadConstant 2
+LoadConstantA 2
 ObjectListGet
 LoadConstantA 1
 ValueListGet
@@ -60,17 +70,26 @@ NumberToString
 StringPrint
 
 LoadX 0
-LoadConstant 3
+LoadConstantA 3
 ObjectListGet
 LoadConstantA 0
 ObjectListGet
 StringPrint
 
 LoadX 0
-LoadConstant 3
+LoadConstantA 3
 ObjectListGet
 LoadConstantA 1
 ObjectListGet
 StringPrint
 
+LoadX 0
+LoadConstantA 4
+ObjectListGet
+StringPrint
+
+LoadX 0
+ObjectListCount
+NumberToString
+StringPrint
 Exit

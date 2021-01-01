@@ -65,5 +65,5 @@ TEST(InterpreterTest, ValueList) {
 }
 
 TEST(InterpreterTest, ObjectList) {
-    run("ValueList");
+    run("ObjectList");
 }
