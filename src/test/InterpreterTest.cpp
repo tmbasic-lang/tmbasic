@@ -67,3 +67,7 @@ TEST(InterpreterTest, ValueList) {
 TEST(InterpreterTest, ObjectList) {
     run("ObjectList");
 }
+
+TEST(InterpreterTest, ValueToValueMap) {
+    run("ValueToValueMap");
+}
