@@ -387,7 +387,7 @@ static string formatProcedureText(const string& topicName, const Procedure& proc
     ostringstream o;
     o << "nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {BASIC Reference:basic} <TRIANGLE_RIGHT> {Procedure "
          "Index:procedure}@\n\n";
-    o << "h1['" << procedure.name << "' Procedure]\n\n";
+    o << "h1[\"" << procedure.name << "\" Procedure]\n\n";
 
     for (auto& overload : procedure.overloads) {
         auto isFunction = overload->returns != nullptr;
@@ -462,7 +462,7 @@ static void buildProcedureIndex(
     o << "ul@";
     sort(procedureNames.begin(), procedureNames.end());
     for (auto& name : procedureNames) {
-        o << "li@{'" << name << "' Procedure:procedure_" << name << "}@\n";
+        o << "li@{\"" << name << "\" Procedure:procedure_" << name << "}@\n";
     }
     o << "@\n";
     auto filePath = "../obj/doc-temp/procedure.txt";

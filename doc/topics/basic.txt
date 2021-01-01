@@ -12,7 +12,7 @@ li@{Language Grammar:ref_grammar}@
 h2[Types]
 
 ul@
-li@{'boolean' Type:type_boolean}@
-li@{'integer' Type:type_integer}@
-li@{'optional' Type:type_optional}@
+li@{"boolean" Type:type_boolean}@
+li@{"integer" Type:type_integer}@
+li@{"optional" Type:type_optional}@
 @
