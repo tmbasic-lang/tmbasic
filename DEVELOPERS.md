@@ -26,7 +26,9 @@ This development build of TMBASIC will be unable to produce executables from BAS
 ### Use Visual Studio Code for debugging in Linux
 1. Install the `ms-vscode.cpptools` and `ms-vscode-remote.remote-containers` extensions in Visual Studio Code.
 1. Start the container using the instructions above.
-1. In Visual Studio Code, click "View" > "Command Palette..." and run the "Remote-Containers: Attach to Running Container..." command. Choose the `/tmbasic-dev` container.
+1. In Visual Studio Code, click "View" > "Command Palette..." and run the "Remote-Containers: Attach to Running Container..." command.
+1. Choose the `/tmbasic-dev` container.
+1. Choose the `/code` directory.
 
 ## Build for macOS
 1. Install Xcode (version 10 or higher).
