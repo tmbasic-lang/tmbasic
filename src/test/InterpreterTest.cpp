@@ -91,3 +91,7 @@ TEST(InterpreterTest, StringMid) {
 TEST(InterpreterTest, StringIndexOf) {
     run("StringIndexOf");
 }
+
+TEST(InterpreterTest, StringChr) {
+    run("StringChr");
+}

@@ -973,7 +973,11 @@ bool Interpreter::run(int maxCycles) {
             case Opcode::kStringChr: {
                 auto value = a.getInt64();
                 char ch = static_cast<char>(value & 0xFF);
-                x = boost::make_local_shared<String>(std::string(&ch, 1));
+                if (ch > 0) {
+                    x = boost::make_local_shared<String>(std::string(&ch, 1));
+                } else {
+                    x = boost::make_local_shared<String>(std::string());
+                }
                 instructionIndex++;
                 break;
             }
