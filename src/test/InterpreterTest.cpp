@@ -95,3 +95,7 @@ TEST(InterpreterTest, StringIndexOf) {
 TEST(InterpreterTest, StringChr) {
     run("StringChr");
 }
+
+TEST(InterpreterTest, StringAsc) {
+    run("StringAsc");
+}

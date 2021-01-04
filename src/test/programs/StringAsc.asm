@@ -1,0 +1,88 @@
+PushObjects 1
+
+# asc("ABC",0).print : ",".print
+LoadConstantStringX "ABC"
+LoadConstantA 0
+StringAsc
+NumberToString
+StringPrint
+LoadConstantStringX ","
+StringPrint
+
+# asc("ABC",1).print : ",".print
+LoadConstantStringX "ABC"
+LoadConstantA 1
+StringAsc
+NumberToString
+StringPrint
+LoadConstantStringX ","
+StringPrint
+
+# asc("ABC",-1).print : ",".print
+LoadConstantStringX "ABC"
+LoadConstantA -1
+StringAsc
+NumberToString
+StringPrint
+LoadConstantStringX ","
+StringPrint
+
+# asc("ABC",3).print : ",".print
+LoadConstantStringX "ABC"
+LoadConstantA 3
+StringAsc
+NumberToString
+StringPrint
+LoadConstantStringX ","
+StringPrint
+
+# o0 = "💩"
+LoadConstantStringX "💩"
+StoreX 0
+
+# asc(o0),0).print : ",".print
+LoadX 0
+LoadConstantA 0
+StringAsc
+NumberToString
+StringPrint
+LoadConstantStringX ","
+StringPrint
+
+# asc(o0,1).print : ",".print
+LoadX 0
+LoadConstantA 1
+StringAsc
+NumberToString
+StringPrint
+LoadConstantStringX ","
+StringPrint
+
+# asc(o0,2).print : ",".print
+LoadX 0
+LoadConstantA 2
+StringAsc
+NumberToString
+StringPrint
+LoadConstantStringX ","
+StringPrint
+
+# asc(o0,3).print : ",".print
+LoadX 0
+LoadConstantA 3
+StringAsc
+NumberToString
+StringPrint
+LoadConstantStringX ","
+StringPrint
+
+# asc(o0,4).print : ",".print
+LoadX 0
+LoadConstantA 4
+StringAsc
+NumberToString
+StringPrint
+LoadConstantStringX ","
+StringPrint
+
+Exit
