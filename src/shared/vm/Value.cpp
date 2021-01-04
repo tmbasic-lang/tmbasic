@@ -1,15 +1,11 @@
 #include "Value.h"
-
-#include <utility>
-
-#include <utility>
 #include "shared/util/decimal.h"
 
 namespace vm {
 
 Value::Value() = default;
 
-Value::Value(decimal::Decimal num) : num(std::move(std::move(num))) {}
+Value::Value(decimal::Decimal num) : num(std::move(num)) {}
 
 bool Value::operator==(const Value& rhs) const {
     return num == rhs.num;

@@ -88,6 +88,14 @@ bool Interpreter::run(int maxCycles) {
                 break;
             }
 
+            case Opcode::kLoadConstantStringZ: {
+                // ABBBBC...C; A: opcode,  B: string length (no NUL), C: string (no NUL)
+                auto stringLength = readUint32(&instructions->at(instructionIndex + 1));
+                z = boost::make_local_shared<String>(&instructions->at(instructionIndex + 5), stringLength);
+                instructionIndex += /*A*/ 1 + /*B*/ 4 + /*C*/ stringLength;
+                break;
+            }
+
             case Opcode::kStoreA: {
                 // ABB; A: opcode, B: index
                 auto index = readInt16(&instructions->at(instructionIndex + 1));
@@ -116,6 +124,14 @@ bool Interpreter::run(int maxCycles) {
                 // ABB; A: opcode, B: index
                 auto index = readInt16(&instructions->at(instructionIndex + 1));
                 _objectStack.at(osi + index) = y;
+                instructionIndex += /*A*/ 1 + /*B*/ 2;
+                break;
+            }
+
+            case Opcode::kStoreZ: {
+                // ABB; A: opcode, B: index
+                auto index = readInt16(&instructions->at(instructionIndex + 1));
+                _objectStack.at(osi + index) = z;
                 instructionIndex += /*A*/ 1 + /*B*/ 2;
                 break;
             }
@@ -152,81 +168,13 @@ bool Interpreter::run(int maxCycles) {
                 break;
             }
 
-            case Opcode::kPushA:
-                vsi--;
-                if (vsi < 0) {
-                    fatalError = "Stack overflow";
-                    stop = true;
-                    break;
-                }
-                _valueStack.at(vsi) = a;
-                instructionIndex++;
+            case Opcode::kLoadZ: {
+                // ABB; A: opcode, B: index
+                auto index = readInt16(&instructions->at(instructionIndex + 1));
+                z = _objectStack.at(osi + index);
+                instructionIndex += /*A*/ 1 + /*B*/ 2;
                 break;
-
-            case Opcode::kPushB:
-                vsi--;
-                if (vsi < 0) {
-                    fatalError = "Stack overflow";
-                    stop = true;
-                    break;
-                }
-                _valueStack.at(vsi) = b;
-                instructionIndex++;
-                break;
-
-            case Opcode::kPushX:
-                osi--;
-                if (osi < 0) {
-                    fatalError = "Stack overflow";
-                    stop = true;
-                    break;
-                }
-                _objectStack.at(osi) = x;
-                instructionIndex++;
-                break;
-
-            case Opcode::kPushY:
-                osi--;
-                if (osi < 0) {
-                    fatalError = "Stack overflow";
-                    stop = true;
-                    break;
-                }
-                _objectStack.at(osi) = y;
-                instructionIndex++;
-                break;
-
-            case Opcode::kPopA:
-                a = _valueStack.at(vsi);
-                _valueStack.at(vsi).num = 0;
-                vsi++;
-                assert(vsi <= kValueStackSize);
-                instructionIndex++;
-                break;
-
-            case Opcode::kPopB:
-                b = _valueStack.at(vsi);
-                _valueStack.at(vsi).num = 0;
-                vsi++;
-                assert(vsi <= kValueStackSize);
-                instructionIndex++;
-                break;
-
-            case Opcode::kPopX:
-                x.swap(_objectStack.at(osi));
-                _objectStack.at(osi) = nullptr;
-                osi++;
-                assert(osi <= kObjectStackSize);
-                instructionIndex++;
-                break;
-
-            case Opcode::kPopY:
-                y.swap(_objectStack.at(osi));
-                _objectStack.at(osi) = nullptr;
-                osi++;
-                assert(osi <= kObjectStackSize);
-                instructionIndex++;
-                break;
+            }
 
             case Opcode::kPushValues: {
                 // ABB; A: opcode, B: count
@@ -277,6 +225,11 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kClearY:
                 y = nullptr;
+                instructionIndex++;
+                break;
+
+            case Opcode::kClearZ:
+                z = nullptr;
                 instructionIndex++;
                 break;
 

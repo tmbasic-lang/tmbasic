@@ -1,3 +1,5 @@
+PushObjects 1
+
 # create this structure:
 # { v0: 123, o0: "hi", o1: { v0: 456 } }
 RecordBuilderBegin 1 2 # outer record
@@ -11,7 +13,7 @@ RecordBuilderStoreA 0
 RecordBuilderEnd
 RecordBuilderStoreX 1
 RecordBuilderEnd
-PushX
+StoreX 0
 RecordLoadA 0
 NumberToString
 StringPrint

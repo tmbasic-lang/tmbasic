@@ -1,3 +1,5 @@
+PushObjects 1
+
 # create this structure:
 # [123, 456, 789]
 ValueListBuilderBegin
@@ -17,7 +19,7 @@ ValueListSet
 LoadConstantA 789
 LoadConstantB 2
 ValueListInsert
-PushX
+StoreX 0
 LoadConstantA 0
 ValueListGet
 NumberToString

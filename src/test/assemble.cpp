@@ -30,28 +30,24 @@ static Opcode parseOpcode(string s) {
         { "LoadConstantB", Opcode::kLoadConstantB },
         { "LoadConstantStringX", Opcode::kLoadConstantStringX },
         { "LoadConstantStringY", Opcode::kLoadConstantStringY },
+        { "LoadConstantStringZ", Opcode::kLoadConstantStringZ },
         { "StoreA", Opcode::kStoreA },
         { "StoreB", Opcode::kStoreB },
         { "StoreX", Opcode::kStoreX },
         { "StoreY", Opcode::kStoreY },
+        { "StoreZ", Opcode::kStoreZ },
         { "LoadA", Opcode::kLoadA },
         { "LoadB", Opcode::kLoadB },
         { "LoadX", Opcode::kLoadX },
         { "LoadY", Opcode::kLoadY },
-        { "PushA", Opcode::kPushA },
-        { "PushB", Opcode::kPushB },
-        { "PushX", Opcode::kPushX },
-        { "PushY", Opcode::kPushY },
-        { "PopA", Opcode::kPopA },
-        { "PopB", Opcode::kPopB },
-        { "PopX", Opcode::kPopX },
-        { "PopY", Opcode::kPopY },
+        { "LoadZ", Opcode::kLoadZ },
         { "PushValues", Opcode::kPushValues },
         { "PushObjects", Opcode::kPushObjects },
         { "PopValues", Opcode::kPopValues },
         { "PopObjects", Opcode::kPopObjects },
         { "ClearX", Opcode::kClearX },
         { "ClearY", Opcode::kClearY },
+        { "ClearZ", Opcode::kClearZ },
         { "SetAFromB", Opcode::kSetAFromB },
         { "SetBFromA", Opcode::kSetBFromA },
         { "SetXFromY", Opcode::kSetXFromY },
@@ -275,6 +271,7 @@ std::unique_ptr<vm::Program> assemble(istream* input) {
 
             case Opcode::kLoadConstantStringX:
             case Opcode::kLoadConstantStringY:
+            case Opcode::kLoadConstantStringZ:
                 appendLengthTaggedString(&vec, input);
                 break;
 
@@ -282,10 +279,12 @@ std::unique_ptr<vm::Program> assemble(istream* input) {
             case Opcode::kStoreB:
             case Opcode::kStoreX:
             case Opcode::kStoreY:
+            case Opcode::kStoreZ:
             case Opcode::kLoadA:
             case Opcode::kLoadB:
             case Opcode::kLoadX:
             case Opcode::kLoadY:
+            case Opcode::kLoadZ:
             case Opcode::kPopValues:
             case Opcode::kPopObjects:
             case Opcode::kPushValues:

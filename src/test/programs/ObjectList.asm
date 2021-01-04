@@ -1,3 +1,5 @@
+PushObjects 1
+
 # create this structure:
 # ["ABC", {v0:123}, [456,789], ["DEF","GHI"], "JKL"]
 ObjectListBuilderBegin
@@ -40,7 +42,7 @@ ObjectListSet
 LoadConstantA 4
 LoadConstantStringY "JKL"
 ObjectListInsert
-PushX
+StoreX 0
 
 LoadConstantA 0
 ObjectListGet

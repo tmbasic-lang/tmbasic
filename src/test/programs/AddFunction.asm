@@ -1,7 +1,8 @@
+PushValues 2
 LoadConstantA 100
-PushA
+StoreA 0
 LoadConstantA 5
-PushA
+StoreA 1
 Call 1
 PopValues 2
 NumberToString

@@ -79,3 +79,7 @@ TEST(InterpreterTest, ValueToObjectMap) {
 TEST(InterpreterTest, ObjectToValueMap) {
     run("ObjectToValueMap");
 }
+
+TEST(InterpreterTest, ObjectToObjectMap) {
+    run("ObjectToObjectMap");
+}

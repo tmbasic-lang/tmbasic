@@ -11,24 +11,19 @@ enum class Opcode {
     kLoadConstantB,        // <8b operand> B = (int64)operand;
     kLoadConstantStringX,  // <4b length, string> X = new string
     kLoadConstantStringY,  // <4b length, string> Y = new string
+    kLoadConstantStringZ,  // <4b length, string> Z = new string
 
     kStoreA,  // <2b> VSP[operand] = A;
     kStoreB,  // <2b> VSP[operand] = B;
     kStoreX,  // <2b> OSP[operand] = X;
     kStoreY,  // <2b> OSP[operand] = Y;
+    kStoreZ,  // <2b> OSP[operand] = Z;
     kLoadA,   // <2b> A = VSP[operand];
     kLoadB,   // <2b> B = VSP[operand];
     kLoadX,   // <2b> X = OSP[operand];
     kLoadY,   // <2b> Y = OSP[operand];
+    kLoadZ,   // <2b> Z = OSP[operand];
 
-    kPushA,        // --VSP; VSP[0] = A;
-    kPushB,        // --VSP; VSP[0] = B;
-    kPushX,        // --OSP; OSP[0] = X;
-    kPushY,        // --OSP; OSP[0] = Y;
-    kPopA,         // A = VSP[0]; ++VSP;
-    kPopB,         // B = VSP[0]; ++VSP;
-    kPopX,         // X = OSP[0]; ++OSP;
-    kPopY,         // Y = OSP[0]; ++OSP;
     kPushValues,   // <2b> VSP -= operand
     kPushObjects,  // <2b> OSP -= operand
     kPopValues,    // <2b> VSP += operand
@@ -36,6 +31,7 @@ enum class Opcode {
 
     kClearX,  // X = NULL;
     kClearY,  // Y = NULL;
+    kClearZ,  // Y = NULL;
 
     kSetAFromB,  // A = B;
     kSetBFromA,  // B = A;
