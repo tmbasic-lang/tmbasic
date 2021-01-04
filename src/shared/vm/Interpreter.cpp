@@ -964,7 +964,7 @@ bool Interpreter::run(int maxCycles) {
                     }
                     auto& needle = dynamic_cast<String&>(*y);
                     auto found = haystack.value.find(needle.value, startIndex);
-                    a.num = found == std::string::npos ? -1 : found;
+                    a.num = found == std::string::npos ? -1 : decimal::Decimal(found);
                 }
                 instructionIndex++;
                 break;

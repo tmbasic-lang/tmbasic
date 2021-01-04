@@ -87,3 +87,7 @@ TEST(InterpreterTest, ObjectToObjectMap) {
 TEST(InterpreterTest, StringMid) {
     run("StringMid");
 }
+
+TEST(InterpreterTest, StringIndexOf) {
+    run("StringIndexOf");
+}
