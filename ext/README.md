@@ -13,7 +13,6 @@ See this repository's readme for license information.
 ## libstdc++
 - Linux: `libstdc++` package from Alpine Linux
 - Windows: `mingw-w64-gcc` package from Arch Linux
-- macOS: Xcode package
 
 ## mpdecimal
 - http://www.bytereef.org/software/mpdecimal/releases/mpdecimal-2.5.0.tar.gz ([mirror](https://tmbasic.s3.amazonaws.com/mpdecimal/mpdecimal-2.5.0.tar.gz))
