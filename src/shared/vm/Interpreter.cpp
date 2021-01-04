@@ -934,10 +934,14 @@ bool Interpreter::run(int maxCycles) {
                 assert(x != nullptr);
                 assert(x->getObjectType() == ObjectType::kString);
                 auto& str = dynamic_cast<String&>(*x);
-                auto intA = a.getInt64();
-                auto intB = b.getInt64();
-                if (intA >= 0 && intA < static_cast<int64_t>(str.value.length()) && intB > 0) {
-                    x = boost::make_local_shared<String>(str.value.substr(intA, intB));
+                auto midOffset = a.getInt64();
+                auto midLength = b.getInt64();
+                if (midOffset < 0) {
+                    midLength += midOffset;
+                    midOffset = 0;
+                }
+                if (midOffset < static_cast<int64_t>(str.value.length()) && midLength > 0) {
+                    x = boost::make_local_shared<String>(str.value.substr(midOffset, midLength));
                 } else {
                     x = boost::make_local_shared<String>(std::string());
                 }

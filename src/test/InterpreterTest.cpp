@@ -83,3 +83,7 @@ TEST(InterpreterTest, ObjectToValueMap) {
 TEST(InterpreterTest, ObjectToObjectMap) {
     run("ObjectToObjectMap");
 }
+
+TEST(InterpreterTest, StringMid) {
+    run("StringMid");
+}
