@@ -13,23 +13,43 @@ template <
     ObjectType K,
     typename TKeyListBuilder,
     typename TKeyList,
+    typename TKeyHash,
+    typename TKeyEqual,
     typename TValuePointerCompare,
     typename TValueListBuilder,
     typename TValueList>
 class Map : public Object {
    public:
-    const immer::map<TKey, TValue> pairs = {};
+    const immer::map<TKey, TValue, TKeyHash, TKeyEqual> pairs = {};
 
     Map() = default;
 
-    Map(const Map<TKey, TValue, K, TKeyListBuilder, TKeyList, TValuePointerCompare, TValueListBuilder, TValueList>&
-            source,
+    Map(const Map<
+            TKey,
+            TValue,
+            K,
+            TKeyListBuilder,
+            TKeyList,
+            TKeyHash,
+            TKeyEqual,
+            TValuePointerCompare,
+            TValueListBuilder,
+            TValueList>& source,
         TKey newKey,
         TValue newValue)
         : pairs(std::move(source.pairs.set(newKey, newValue))) {}
 
-    Map(const Map<TKey, TValue, K, TKeyListBuilder, TKeyList, TValuePointerCompare, TValueListBuilder, TValueList>&
-            source,
+    Map(const Map<
+            TKey,
+            TValue,
+            K,
+            TKeyListBuilder,
+            TKeyList,
+            TKeyHash,
+            TKeyEqual,
+            TValuePointerCompare,
+            TValueListBuilder,
+            TValueList>& source,
         TKey removeKey)
         : pairs(std::move(source.pairs.erase(removeKey))) {}
 
@@ -42,7 +62,8 @@ class Map : public Object {
             return false;
         }
         auto& otherMap = static_cast<const Map<
-            TKey, TValue, K, TKeyListBuilder, TKeyList, TValuePointerCompare, TValueListBuilder, TValueList>&>(other);
+            TKey, TValue, K, TKeyListBuilder, TKeyList, TKeyHash, TKeyEqual, TValuePointerCompare, TValueListBuilder,
+            TValueList>&>(other);
         if (pairs.size() != otherMap.pairs.size()) {
             return false;
         }
@@ -82,6 +103,8 @@ using ValueToValueMap =
         ObjectType::kValueToValueMap,
         ValueListBuilder,
         ValueList,
+        std::hash<Value>,
+        std::equal_to<Value>,
         ValuePointerCompare,
         ValueListBuilder,
         ValueList>;
@@ -92,6 +115,8 @@ using ValueToObjectMap =
         ObjectType::kValueToObjectMap,
         ValueListBuilder,
         ValueList,
+        std::hash<Value>,
+        std::equal_to<Value>,
         ObjectPointerCompare,
         ObjectListBuilder,
         ObjectList>;
@@ -102,6 +127,8 @@ using ObjectToValueMap =
         ObjectType::kObjectToValueMap,
         ObjectListBuilder,
         ObjectList,
+        std::hash<boost::local_shared_ptr<Object>>,
+        ObjectReferenceCompare,
         ValuePointerCompare,
         ValueListBuilder,
         ValueList>;
@@ -112,6 +139,8 @@ using ObjectToObjectMap =
         ObjectType::kObjectToObjectMap,
         ObjectListBuilder,
         ObjectList,
+        std::hash<boost::local_shared_ptr<Object>>,
+        ObjectReferenceCompare,
         ObjectPointerCompare,
         ObjectListBuilder,
         ObjectList>;

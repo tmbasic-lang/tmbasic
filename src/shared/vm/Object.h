@@ -24,6 +24,12 @@ struct ObjectPointerCompare {
     }
 };
 
+struct ObjectReferenceCompare {
+    bool operator()(const boost::local_shared_ptr<vm::Object>& lhs, const boost::local_shared_ptr<vm::Object>& rhs) {
+        return lhs->equals(*rhs);
+    }
+};
+
 }  // namespace vm
 
 bool operator==(const boost::local_shared_ptr<vm::Object>& lhs, const boost::local_shared_ptr<vm::Object>& rhs);
