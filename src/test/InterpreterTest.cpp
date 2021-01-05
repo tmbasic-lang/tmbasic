@@ -18,9 +18,9 @@ using vm::ProcedureArtifact;
 using vm::Program;
 
 static void run(string filenameWithoutExtension) {
-    auto source = readFile(filenameWithoutExtension + ".asm");
+    auto source = readFile(filenameWithoutExtension + ".pcode");
     auto input = readFile(filenameWithoutExtension + ".input");
-    auto expectedOutput = readFile(filenameWithoutExtension + ".txt");
+    auto expectedOutput = readFile(filenameWithoutExtension + ".output");
     istringstream sourceStream(source);
     auto program = assemble(&sourceStream);
     istringstream consoleInputStream(input);
