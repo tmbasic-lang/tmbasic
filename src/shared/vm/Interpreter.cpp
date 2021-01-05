@@ -10,8 +10,8 @@ namespace vm {
 
 static uint16_t readUint16(const uint8_t* ptr);
 static uint32_t readUint32(const uint8_t* ptr);
-static int64_t readInt64(const uint8_t* ptr);
 static int16_t readInt16(const uint8_t* ptr);
+static int64_t readInt64(const uint8_t* ptr);
 
 Interpreter::Interpreter(const Program& program, std::istream* consoleInputStream, std::ostream* consoleOutputStream)
     : _program(program), _consoleInputStream(consoleInputStream), _consoleOutputStream(consoleOutputStream) {}
@@ -21,7 +21,7 @@ void Interpreter::init(int procedureIndex) {
     _recordBuilderStack = {};
     _objectListBuilderStack = {};
     _valueListBuilderStack = {};
-    _procedure = &*_program.procedures[procedureIndex];
+    _procedure = _program.procedures[procedureIndex].get();
     _a = {};
     _b = {};
     _x = nullptr;
