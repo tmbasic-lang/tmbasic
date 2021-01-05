@@ -19,10 +19,11 @@ using vm::Program;
 
 static void run(string filenameWithoutExtension) {
     auto source = readFile(filenameWithoutExtension + ".asm");
+    auto input = readFile(filenameWithoutExtension + ".input");
     auto expectedOutput = readFile(filenameWithoutExtension + ".txt");
     istringstream sourceStream(source);
     auto program = assemble(&sourceStream);
-    istringstream consoleInputStream("");
+    istringstream consoleInputStream(input);
     ostringstream consoleOutputStream;
     auto interpreter = make_unique<Interpreter>(*program, &consoleInputStream, &consoleOutputStream);
     interpreter->init(0);
@@ -98,4 +99,8 @@ TEST(InterpreterTest, StringChr) {
 
 TEST(InterpreterTest, StringAsc) {
     run("StringAsc");
+}
+
+TEST(InterpreterTest, StringInputLine) {
+    run("StringInputLine");
 }
