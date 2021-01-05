@@ -29,6 +29,8 @@ void Interpreter::init(int procedureIndex) {
     _z = nullptr;
     _valueStackIndex = kValueStackSize;
     _objectStackIndex = kObjectStackSize;
+
+    decimal::context = decimal::IEEEContext(decimal::DECIMAL128);
 }
 
 bool Interpreter::run(int maxCycles) {

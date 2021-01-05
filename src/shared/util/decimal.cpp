@@ -17,7 +17,8 @@ std::string decimalToString(const decimal::Decimal& x) {
     if (x.isnan()) {
         return "NaN";
     }
-    return x.to_eng();
+
+    return x.format("f");
 }
 
 }  // namespace util

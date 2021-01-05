@@ -104,3 +104,7 @@ TEST(InterpreterTest, StringAsc) {
 TEST(InterpreterTest, StringInputLine) {
     run("StringInputLine");
 }
+
+TEST(InterpreterTest, NumberToString) {
+    run("NumberToString");
+}

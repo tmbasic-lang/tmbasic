@@ -16,7 +16,7 @@ h2[Data types]
 
 ul@
 li@`boolean` -- `true` / `false`.@
-li@`number` -- Arbitrary precision decimal.@
+li@`number` -- 128-bit decimal.@
 li@`text` -- UTF-8 string.@
 li@`date` -- Date without a time.@
 li@`datetime` -- Date and time, without a time zone offset.@

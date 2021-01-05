@@ -1,0 +1,39 @@
+# 100
+LoadConstantA 100
+NumberToString
+StringPrint
+LoadConstantStringX ","
+StringPrint
+
+# 0.01
+LoadConstantA 1
+LoadConstantB 100
+ADivideB
+NumberToString
+StringPrint
+LoadConstantStringX ","
+StringPrint
+
+# -0.000000000000000000000000000001
+LoadConstantA 1
+LoadConstantB 10000000000
+AMultiplyB
+AMultiplyB
+AMultiplyB
+SetBFromA
+LoadConstantA -1
+ADivideB
+NumberToString
+StringPrint
+LoadConstantStringX ","
+StringPrint
+
+# -1.000000000000000000000000000001
+LoadConstantB -1
+AAddB
+NumberToString
+StringPrint
+LoadConstantStringX ","
+StringPrint
+
+Exit
