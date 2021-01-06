@@ -21,7 +21,12 @@ RUN apt-get update -y && \
         python3-pip \
         unzip \
         dos2unix \
-        pandoc
+        pandoc \
+        pmake \
+        subversion \
+        libarchive-dev \
+        flex \
+        bison
 
 # clang-format, clang-tidy
 RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
@@ -96,9 +101,29 @@ RUN cd /tmp && \
     make -j2 && \
     make install
 
+# elftoolchain
+COPY elfcopy-main.c.diff /tmp/
+RUN cd /tmp && \
+    svn co svn://svn.code.sf.net/p/elftoolchain/code/trunk@3916 elftc && \
+    cd /tmp/elftc && \
+    cd libelf && \
+    CFLAGS="-Os -fPIC" pmake -j2 && \
+    pmake install && \
+    cd ../libelftc && \
+    CFLAGS="-Os -fPIC" pmake -j2 && \
+    pmake install && \
+    cd ../libpe && \
+    CFLAGS="-Os -fPIC" pmake -j2 && \
+    pmake install && \
+    cd ../elfcopy && \
+    patch main.c /tmp/elfcopy-main.c.diff && \
+    gcc -c -Os -fPIC -DWITH_PE=1 -I. -I../common -I../libelf -I../libelftc -I../libpe *.c && \
+    ar rcs libelfcopy.a *.o && \
+    cp libelfcopy.a /usr/lib/$(gcc -dumpmachine)/
+
 # environment
 USER $HOST_UID
-COPY bashrc-dev /tmp/bashrc
+COPY bashrc-dev /tmp/bashrc 
 RUN cat /tmp/bashrc >> /home/$USER/.bashrc && \
     echo "export IMAGE_NAME=\"$IMAGE_NAME\"" >> /home/$USER/.bashrc && \
     echo "export PS1=\"[$IMAGE_NAME] \w\$ \"" >> /home/$USER/.bashrc

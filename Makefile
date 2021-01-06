@@ -19,6 +19,7 @@ STATIC_FLAG ?= -static
 LIBMPDEC_FLAG ?= -lmpdec -lmpdec++
 LIBNCURSESW_FLAG ?= -lncursesw
 LIBGTEST_FLAG ?= -lgtest -lgtest_main
+LIBELFTC_FLAG ?= -lelfcopy -lelf -lelftc -lpe -larchive
 STRIP ?= strip
 LICENSE_PROCESS_CMD ?= >/dev/null echo
 OPTFLAGS ?= -g -O0
@@ -67,7 +68,7 @@ LICENSE_DIAGRAM_CP437_FILES=$(patsubst obj/doc-temp/diagrams-license/%,obj/doc-t
 #
 
 .PHONY: all
-all: bin/tmbasic$(EXE_EXTENSION) bin/test$(EXE_EXTENSION) bin/LICENSE.txt
+all: bin/tmbasic$(EXE_EXTENSION) bin/test$(EXE_EXTENSION) bin/LICENSE.txt bin/LICENSE.tmbasic.txt
 
 .PHONY: help
 help:
@@ -172,54 +173,49 @@ bin/LICENSE.txt: LICENSE ext/boost/LICENSE_1_0.txt ext/immer/LICENSE ext/gcc/GPL
 	@echo $@
 	@mkdir -p bin
 	@rm -f $@
-	@echo tmbasic license >> $@
-	@echo =============== >> $@
-	@echo >> $@
+	@echo === tmbasic license === >> $@
 	@cat LICENSE >> $@
 	@echo >> $@
-	@echo boost license >> $@
-	@echo ============= >> $@
-	@echo >> $@
+	@echo === boost license === >> $@
 	@cat ext/boost/LICENSE_1_0.txt >> $@
 	@echo >> $@
-	@echo immer license >> $@
-	@echo ============= >> $@
-	@echo >> $@
+	@echo === immer license === >> $@
 	@cat ext/immer/LICENSE >> $@
 	@echo >> $@
-	@echo libstdc++ license >> $@
-	@echo ================= >> $@
-	@echo >> $@
+	@echo === libstdc++ license === >> $@
 	@cat ext/gcc/GPL-3 >> $@
 	@cat ext/gcc/copyright >> $@
 	@echo >> $@
-	@echo mpdecimal license >> $@
-	@echo ================= >> $@
-	@echo >> $@
+	@echo === mpdecimal license === >> $@
 	@cat ext/mpdecimal/LICENSE.txt >> $@
 	@echo >> $@
-	@echo musl license >> $@
-	@echo ================= >> $@
-	@echo >> $@
+	@echo === musl license === >> $@
 	@cat ext/musl/COPYRIGHT >> $@
 	@echo >> $@
-	@echo nameof license >> $@
-	@echo ============== >> $@
-	@echo >> $@
+	@echo === nameof license === >> $@
 	@cat ext/nameof/LICENSE.txt >> $@
 	@echo >> $@
-	@echo ncurses license >> $@
-	@echo =============== >> $@
-	@echo >> $@
+	@echo === ncurses license === >> $@
 	@cat ext/ncurses/COPYING >> $@
 	@echo >> $@
-	@echo tvision license >> $@
-	@echo =============== >> $@
-	@echo >> $@
+	@echo === tvision license === >> $@
 	@cat ext/tvision/COPYRIGHT >> $@
 	@echo >> $@
+	@$(LICENSE_PROCESS_CMD) $@
+
+bin/LICENSE.tmbasic.txt: bin/LICENSE.txt ext/elftoolchain/LICENSE.txt ext/libarchive/COPYING ext/libarchive/LICENSE.archive_read_support_filter_compress.txt ext/libarchive/LICENSE.archive_write_add_filter_compress.txt ext/libarchive/LICENSE.mtree.txt
+	@echo $@
+	@mkdir -p bin
+	@cp -f $< $@
+	@echo === elftoolchain license === >> $@
+	@cat ext/elftoolchain/LICENSE.txt >> $@
 	@echo >> $@
-	@echo == End == >> $@
+	@echo === libarchive license === >> $@
+	@cat ext/libarchive/COPYING >> $@
+	@cat ext/libarchive/LICENSE.archive_read_support_filter_compress.txt >> $@
+	@cat ext/libarchive/LICENSE.archive_write_add_filter_compress.txt >> $@
+	@cat ext/libarchive/LICENSE.mtree.txt >> $@
+	@echo >> $@
 	@$(LICENSE_PROCESS_CMD) $@
 
 obj/doc-temp/diagrams-license/license_tmbasic.txt: LICENSE
@@ -358,7 +354,7 @@ $(TMBASIC_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch obj/helpfile.h obj/hel
 bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) obj/shared.a obj/compiler.a obj/common.h.gch obj/helpfile.h obj/help.h32 $(LINUX_RESOURCE_OBJ_FILES) $(WIN_RESOURCE_OBJ_FILE) $(RUNNERS_BIN_FILES)
 	@echo $@
 	@mkdir -p $(@D)
-	@$(CXX) $(CXXFLAGS) $(MAC_RESOURCES_LINK_FLAGS) $(STATIC_FLAG) -include obj/common.h -o $@ $(TMBASIC_OBJ_FILES) obj/shared.a obj/compiler.a -ltvision $(LINUX_RESOURCE_OBJ_FILES) $(WIN_RESOURCE_OBJ_FILE) $(LDFLAGS)
+	@$(CXX) $(CXXFLAGS) $(MAC_RESOURCES_LINK_FLAGS) $(STATIC_FLAG) -include obj/common.h -o $@ $(TMBASIC_OBJ_FILES) obj/shared.a obj/compiler.a -ltvision $(LINUX_RESOURCE_OBJ_FILES) $(WIN_RESOURCE_OBJ_FILE) $(LDFLAGS) $(LIBELFTC_FLAG)
 	@$(STRIP) bin/tmbasic$(EXE_EXTENSION)
 
 # test

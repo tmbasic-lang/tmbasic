@@ -1,0 +1,49 @@
+*** main.c.old	2021-01-06 07:07:08.355072396 +0000
+--- main.c	2021-01-06 07:16:10.873230274 +0000
+***************
+*** 1574,1580 ****
+  }
+  
+  int
+! main(int argc, char **argv)
+  {
+  	struct elfcopy *ecp;
+  
+--- 1574,1580 ----
+  }
+  
+  int
+! elfcopy_run(int argc, char **argv)
+  {
+  	struct elfcopy *ecp;
+  
+***************
+*** 1602,1620 ****
+  	STAILQ_INIT(&ecp->v_arobj);
+  	TAILQ_INIT(&ecp->v_sec);
+  
+! 	if ((ecp->progname = ELFTC_GETPROGNAME()) == NULL)
+! 		ecp->progname = "elfcopy";
+! 
+! 	if (strrcmp(ecp->progname, "strip") == 0)
+! 		strip_main(ecp, argc, argv);
+! 	else if (strrcmp(ecp->progname, "mcs") == 0)
+! 		mcs_main(ecp, argc, argv);
+! 	else {
+! 		if (strrcmp(ecp->progname, "elfcopy") != 0 &&
+! 		    strrcmp(ecp->progname, "objcopy") != 0)
+! 			warnx("program mode not known, defaulting to elfcopy");
+! 		elfcopy_main(ecp, argc, argv);
+! 	}
+  
+  	free_sec_add(ecp);
+  	free_sec_act(ecp);
+--- 1602,1609 ----
+  	STAILQ_INIT(&ecp->v_arobj);
+  	TAILQ_INIT(&ecp->v_sec);
+  
+! 	ecp->progname = "elfcopy";
+! 	elfcopy_main(ecp, argc, argv);
+  
+  	free_sec_add(ecp);
+  	free_sec_act(ecp);
