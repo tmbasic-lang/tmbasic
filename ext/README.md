@@ -30,7 +30,7 @@
 ## ncurses
 - License: [Ncurses license](https://github.com/electroly/tmbasic/blob/master/ext/ncurses/COPYING)
 - Linux: `ncurses` package from Alpine Linux
-- Windows: ftp://ftp.invisible-island.net/ncurses/ncurses-6.2.tar.gz ([mirror](https://tmbasic.s3.amazonaws.com/ncurses/ncurses-6.2.tar.gz))
+- Windows: `ftp://ftp.invisible-island.net/ncurses/ncurses-6.2.tar.gz` ([mirror](https://tmbasic.s3.amazonaws.com/ncurses/ncurses-6.2.tar.gz))
 - macOS: Xcode package
 
 ## tvision
