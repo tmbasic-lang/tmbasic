@@ -48,7 +48,7 @@ There are many options for developing rich graphical user interfaces (GUIs) toda
 **TMBASIC makes it easy to get started.** Everything you need to develop and distribute sophisticated apps is included in TMBASIC. No other software is required. The BASIC language will feel familiar to anyone with programming experience and is easy to learn for new programmers.
 
 ## License
-TMBASIC itself is open source software, but apps written in TMBASIC are not required to be open source. The following components are included in the TMBASIC development environment and in builds of user programs.
+TMBASIC itself is open source software, but apps written in TMBASIC are not required to be open source. The following components are included in builds of user programs.
 
 - tmbasic — _[MIT license](LICENSE)_
 - [boost](https://www.boost.org/) — _[Boost Software License v1.0](https://github.com/electroly/tmbasic/blob/master/ext/boost/LICENSE_1_0.txt)_
@@ -61,3 +61,5 @@ TMBASIC itself is open source software, but apps written in TMBASIC are not requ
 - [tvision](https://github.com/magiblot/tvision) — _[Borland license](https://github.com/electroly/tmbasic/blob/master/ext/tvision/COPYRIGHT) (original code), [MIT license](https://github.com/electroly/tmbasic/blob/master/ext/tvision/COPYRIGHT) (additions)_
 
 Pay close attention: executables built by TMBASIC are subject to the licenses above. You must obey these licenses if you distribute your compiled executables. These are permissive open source licenses that do not require you to release your BASIC source code. TMBASIC includes a `LICENSE.txt` file that combines these licenses for your convenience. Include this license file along with your executable when you distribute your TMBASIC apps.
+
+See [`ext/README.md`](ext/README.md) for more information about the third party libraries used in TMBASIC.
