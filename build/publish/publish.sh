@@ -70,7 +70,7 @@ cp -f $PUBLISHDIR/runners/runner* obj/
 cd build
 ./mac-x64.sh -ic "make && make test"
 cd ..
-zip -9 dist/tmbasic-mac-x64.zip bin/tmbasic bin/LICENSE.txt bin/LICENSE.tmbasic.txt
+zip -9 dist/tmbasic-mac-x64.zip bin/tmbasic bin/LICENSE.txt
 popd
 
 #

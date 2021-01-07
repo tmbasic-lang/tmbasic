@@ -36,19 +36,3 @@
 ## tvision
 - License: [Borland license](https://github.com/electroly/tmbasic/blob/master/ext/tvision/COPYRIGHT) (original code), [MIT license](https://github.com/electroly/tmbasic/blob/master/ext/tvision/COPYRIGHT) (additions)
 - https://github.com/magiblot/tvision/archive/0038ff0d0a1cbe9599e0697e28a1e8e2db1b7b0c.zip ([mirror](https://tmbasic.s3.amazonaws.com/tvision/tvision-0038ff0d0a1cbe9599e0697e28a1e8e2db1b7b0c.zip))
-
-# Libraries included only in TMBASIC
-
-## elftoolchain
-- License: [MIT license](https://github.com/electroly/tmbasic/blob/master/ext/elftoolchain/LICENSE.txt)
-- Website: https://sourceforge.net/p/elftoolchain/wiki/Home/
-- Source: `svn://svn.code.sf.net/p/elftoolchain/code/trunk@3916` ([mirror](https://tmbasic.s3.amazonaws.com/elftc/elftc_3916.tar.gz))
-
-## libarchive
-- License: BSD license
-    - [libarchive license](https://github.com/electroly/tmbasic/blob/master/ext/libarchive/COPYING)
-    - [archive_read_support_filter_compress.c license](https://github.com/electroly/tmbasic/blob/master/ext/libarchive/LICENSE.archive_read_support_filter_compress.txt)
-    - [archive_write_add_filter_compress.c license](https://github.com/electroly/tmbasic/blob/master/ext/libarchive/LICENSE.archive_write_add_filter_compress.txt)
-    - [mtree.5 license](https://github.com/electroly/tmbasic/blob/master/ext/libarchive/LICENSE.mtree.txt)
-- Website: http://www.libarchive.org/
-- Linux: `libarchive-static` package from Alpine Linux

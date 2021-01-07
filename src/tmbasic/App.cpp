@@ -13,8 +13,6 @@
 #include "tmbasic/constants.h"
 #include "tmbasic/events.h"
 
-#include "tmbasic/elfcopy.h"
-
 using compiler::SourceMember;
 using compiler::SourceMemberType;
 using compiler::SourceProgram;
@@ -581,10 +579,8 @@ void App::onHelpAbout() {
 }  // namespace tmbasic
 
 int main(int argc, char** argv) {
-    /*tmbasic::App app(argc, argv);
+    tmbasic::App app(argc, argv);
     app.run();
-    app.shutDown();*/
-    char* elfcopyArgs[] = { strdup("elfcopy"), strdup("--help"), nullptr };
-    elfcopy_run(2, elfcopyArgs);
+    app.shutDown();
     return 0;
 }

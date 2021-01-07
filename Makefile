@@ -19,7 +19,6 @@ STATIC_FLAG ?= -static
 LIBMPDEC_FLAG ?= -lmpdec -lmpdec++
 LIBNCURSESW_FLAG ?= -lncursesw
 LIBGTEST_FLAG ?= -lgtest -lgtest_main
-LIBELFTC_FLAG ?= -lelfcopy -lelf -lelftc -lpe -larchive
 STRIP ?= strip
 LICENSE_PROCESS_CMD ?= >/dev/null echo
 OPTFLAGS ?= -g -O0
@@ -68,7 +67,7 @@ LICENSE_DIAGRAM_CP437_FILES=$(patsubst obj/doc-temp/diagrams-license/%,obj/doc-t
 #
 
 .PHONY: all
-all: bin/tmbasic$(EXE_EXTENSION) bin/test$(EXE_EXTENSION) bin/LICENSE.txt bin/LICENSE.tmbasic.txt
+all: bin/tmbasic$(EXE_EXTENSION) bin/test$(EXE_EXTENSION) bin/LICENSE.txt
 
 .PHONY: help
 help:
@@ -200,21 +199,6 @@ bin/LICENSE.txt: LICENSE ext/boost/LICENSE_1_0.txt ext/immer/LICENSE ext/gcc/GPL
 	@echo >> $@
 	@echo === tvision license === >> $@
 	@cat ext/tvision/COPYRIGHT >> $@
-	@echo >> $@
-	@$(LICENSE_PROCESS_CMD) $@
-
-bin/LICENSE.tmbasic.txt: bin/LICENSE.txt ext/elftoolchain/LICENSE.txt ext/libarchive/COPYING ext/libarchive/LICENSE.archive_read_support_filter_compress.txt ext/libarchive/LICENSE.archive_write_add_filter_compress.txt ext/libarchive/LICENSE.mtree.txt
-	@echo $@
-	@mkdir -p bin
-	@cp -f $< $@
-	@echo === elftoolchain license === >> $@
-	@cat ext/elftoolchain/LICENSE.txt >> $@
-	@echo >> $@
-	@echo === libarchive license === >> $@
-	@cat ext/libarchive/COPYING >> $@
-	@cat ext/libarchive/LICENSE.archive_read_support_filter_compress.txt >> $@
-	@cat ext/libarchive/LICENSE.archive_write_add_filter_compress.txt >> $@
-	@cat ext/libarchive/LICENSE.mtree.txt >> $@
 	@echo >> $@
 	@$(LICENSE_PROCESS_CMD) $@
 
@@ -354,7 +338,7 @@ $(TMBASIC_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch obj/helpfile.h obj/hel
 bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) obj/shared.a obj/compiler.a obj/common.h.gch obj/helpfile.h obj/help.h32 $(LINUX_RESOURCE_OBJ_FILES) $(WIN_RESOURCE_OBJ_FILE) $(RUNNERS_BIN_FILES)
 	@echo $@
 	@mkdir -p $(@D)
-	@$(CXX) $(CXXFLAGS) $(MAC_RESOURCES_LINK_FLAGS) $(STATIC_FLAG) -include obj/common.h -o $@ $(TMBASIC_OBJ_FILES) obj/shared.a obj/compiler.a -ltvision $(LINUX_RESOURCE_OBJ_FILES) $(WIN_RESOURCE_OBJ_FILE) $(LDFLAGS) $(LIBELFTC_FLAG)
+	@$(CXX) $(CXXFLAGS) $(MAC_RESOURCES_LINK_FLAGS) $(STATIC_FLAG) -include obj/common.h -o $@ $(TMBASIC_OBJ_FILES) obj/shared.a obj/compiler.a -ltvision $(LINUX_RESOURCE_OBJ_FILES) $(WIN_RESOURCE_OBJ_FILE) $(LDFLAGS)
 	@$(STRIP) bin/tmbasic$(EXE_EXTENSION)
 
 # test

@@ -18,13 +18,7 @@ RUN apk update && \
         alpine-sdk \
         ncurses \
         python3 \
-        dos2unix \
-        bmake \
-        subversion \
-        libarchive \
-        flex \
-        bison \
-        libbsd
+        dos2unix
 
 # unprivileged user
 RUN addgroup -g $HOST_GID $USER && \
@@ -84,29 +78,6 @@ RUN cd /tmp && \
     cmake .. -DTV_BUILD_USING_GPM=OFF -DCMAKE_BUILD_TYPE=Release && \
     make -j2 && \
     make install
-
-# elftoolchain
-RUN cd /tmp && \
-    svn co svn://svn.code.sf.net/p/elftoolchain/code/trunk@3916 elftc
-RUN apk add libbsd-dev groff libarchive-dev libarchive-static
-COPY elfcopy-main.c.diff /tmp/
-COPY elftc-os.Linux.mk.diff /tmp/
-RUN cd /tmp/elftc && \
-    patch mk/os.Linux.mk /tmp/elftc-os.Linux.mk.diff && \
-    cd libelf && \
-    CFLAGS="-Os" bmake -j2 && \
-    cp libelf.a /usr/lib/ && \
-    cd ../libelftc && \
-    CFLAGS="-Os" bmake -j2 && \
-    cp libelftc.a /usr/lib/ && \
-    cd ../libpe && \
-    CFLAGS="-Os" bmake -j2 && \
-    cp libpe.a /usr/lib/ && \
-    cd ../elfcopy && \
-    patch main.c /tmp/elfcopy-main.c.diff && \
-    gcc -c -Os -DWITH_PE=1 -I. -I../common -I../libelf -I../libelftc -I../libpe *.c && \
-    ar rcs libelfcopy.a *.o && \
-    cp libelfcopy.a /usr/lib/
 
 # environment
 USER $HOST_UID
