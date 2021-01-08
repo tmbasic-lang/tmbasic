@@ -35,4 +35,4 @@
 
 ## tvision
 - License: [Borland license](https://github.com/electroly/tmbasic/blob/master/ext/tvision/COPYRIGHT) (original code), [MIT license](https://github.com/electroly/tmbasic/blob/master/ext/tvision/COPYRIGHT) (additions)
-- https://github.com/magiblot/tvision/archive/0038ff0d0a1cbe9599e0697e28a1e8e2db1b7b0c.zip ([mirror](https://tmbasic.s3.amazonaws.com/tvision/tvision-0038ff0d0a1cbe9599e0697e28a1e8e2db1b7b0c.zip))
+- https://github.com/magiblot/tvision/archive/ccf1841f7ea3fc4ca0cb00f30a3ef49c60d5ff12.zip ([mirror](https://tmbasic.s3.amazonaws.com/tvision/tvision-ccf1841f7ea3fc4ca0cb00f30a3ef49c60d5ff12.zip))

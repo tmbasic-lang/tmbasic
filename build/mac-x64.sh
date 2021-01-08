@@ -52,7 +52,7 @@ fi
 
 if [ ! -d "tvision" ]
 then
-    curl -L -o tvision.zip https://github.com/magiblot/tvision/archive/0038ff0d0a1cbe9599e0697e28a1e8e2db1b7b0c.zip
+    curl -L -o tvision.zip https://github.com/magiblot/tvision/archive/ccf1841f7ea3fc4ca0cb00f30a3ef49c60d5ff12.zip
     unzip tvision.zip
     mv tvision-* tvision
     pushd tvision
