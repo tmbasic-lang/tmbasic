@@ -1,0 +1,8 @@
+BasedOnStyle: Chromium
+IndentWidth: 4
+ColumnLimit: 120
+SortIncludes: false
+AlignAfterOpenBracket: AlwaysBreak
+AlignOperands: false
+Cpp11BracedListStyle: false
+PenaltyReturnTypeOnItsOwnLine: 10000

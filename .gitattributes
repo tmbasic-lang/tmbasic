@@ -1,16 +1,20 @@
 * text=auto
-Makefile text eol=lf
-Dockerfile* text eol=lf
 *.c text eol=lf
+*.cfg text eol=lf
 *.cpp text eol=lf
 *.diff text eol=lf
+*.h text eol=lf
 *.html text eol=lf
 *.js text eol=lf
 *.json text eol=lf
 *.md text eol=lf
+*.rc text eol=crlf
 *.sh text eol=lf
 *.txt text eol=lf
+.clang-format text eol=lf
+.clang-tidy text eol=lf
 .gitattributes text eol=lf
 .gitignore text eol=lf
-*.rc text eol=crlf
+Dockerfile* text eol=lf
+Makefile text eol=lf
 ext/* linguist-vendored

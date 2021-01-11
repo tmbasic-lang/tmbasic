@@ -64,19 +64,5 @@ then
 fi
 
 cd ..
-make help
-MAC_INCLUDE_FLAGS="-I$(PWD)/mac/boost -I$(PWD)/mac/mpdecimal/libmpdec -I$(PWD)/mac/mpdecimal/libmpdec++ -I$(PWD)/mac/ncurses/include -I$(PWD)/mac/googletest/googletest/include -I$(PWD)/mac/tvision/include -I$(PWD)/mac/immer" \
-    BUILDDOC_MAC_INCLUDE_FLAGS="-I$(PWD)/mac/boost" \
-    MAC_LD_FLAGS="-L$(PWD)/mac/mpdecimal/libmpdec -L$(PWD)/mac/mpdecimal/libmpdec++ -L$(PWD)/mac/tvision/build" \
-    LINUX_RESOURCE_OBJ_FILES="" \
-    MAC_RESOURCES_LINK_FLAGS="-Wl,-sectcreate,__DATA,__help_h32,obj/help.h32 -Wl,-sectcreate,__DATA,__rla32,obj/runner_linux_arm32 -Wl,-sectcreate,__DATA,__rla64,obj/runner_linux_arm64 -Wl,-sectcreate,__DATA,__rlx64,obj/runner_linux_x64 -Wl,-sectcreate,__DATA,__rlx86,obj/runner_linux_x86 -Wl,-sectcreate,__DATA,__rmx64,obj/runner_mac_x64 -Wl,-sectcreate,__DATA,__rwx64,obj/runner_win_x64 -Wl,-sectcreate,__DATA,__rwx86,obj/runner_win_x86" \
-    STATIC_FLAG="" \
-    LIBTINFO_FLAG="" \
-    LIBMPDEC_FLAG="$(PWD)/mac/mpdecimal/libmpdec/libmpdec.a $(PWD)/mac/mpdecimal/libmpdec++/libmpdec++.a " \
-    LIBNCURSESW_FLAG="-lncurses" \
-    LIBGTEST_FLAG="$(PWD)/mac/googletest/build/lib/libgtest.a $(PWD)/mac/googletest/build/lib/libgtest_main.a" \
-    TARGET_OS=mac \
-    PS1="[tmbasic-mac-x64] \w\$ " \
-    MAKEFLAGS="-j8" \
-    TVHC="$(PWD)/mac/tvision/build/tvhc" \
-    bash "$@"
+TARGET_OS=mac make help
+TARGET_OS=mac PS1="[tmbasic-mac-x64] \w\$ " MAKEFLAGS="-j8" bash "$@"

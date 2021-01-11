@@ -1,34 +1,69 @@
 # Run "make help" to get started.
 
-#
-# Configuration
-#
+OPTFLAGS ?= -g -O0
+
+
+### Input validation ##################################################################################################
+
+# TARGET_OS
+ifneq ($(TARGET_OS),linux)
+ifneq ($(TARGET_OS),windows)
+ifneq ($(TARGET_OS),mac)
+$(error Unknown TARGET_OS '$(TARGET_OS)')
+endif
+endif
+endif
+
+# LINUX_DISTRO
+ifeq ($(TARGET_OS),linux)
+ifneq ($(LINUX_DISTRO),alpine)
+ifneq ($(LINUX_DISTRO),ubuntu)
+$(error Unknown LINUX_DISTRO '$(LINUX_DISTRO)')
+endif
+endif
+endif
+
+# ARCH
+ifneq ($(ARCH),i686)
+ifneq ($(ARCH),x86_64)
+ifneq ($(ARCH),arm32v7)
+ifneq ($(ARCH),arm64v8)
+$(error Unknown ARCH '$(ARCH)')
+endif
+endif
+endif
+endif
+
+
+
+### Source files ######################################################################################################
+
+ifeq ($(TARGET_OS),win)
+EXE_EXTENSION=.exe
+endif
 
 # runner builds, which will be 0-byte files for debug builds. for full release builds, these runners will be built
 # separately and provided ahead of time
-RUNNERS_BIN_FILES=obj/runner_linux_arm32 obj/runner_linux_arm64 obj/runner_linux_x64 obj/runner_linux_x86 obj/runner_mac_x64 obj/runner_win_x64 obj/runner_win_x86
-RUNNERS_OBJ_FILES=obj/runner_linux_arm32.o obj/runner_linux_arm64.o obj/runner_linux_x64.o obj/runner_linux_x86.o obj/runner_mac_x64.o obj/runner_win_x64.o obj/runner_win_x86.o
+RUNNERS_BIN_FILES=\
+	obj/runner_linux_arm32 \
+	obj/runner_linux_arm64 \
+	obj/runner_linux_x64 \
+	obj/runner_linux_x86 \
+	obj/runner_mac_x64 \
+	obj/runner_win_x64 \
+	obj/runner_win_x86
+RUNNERS_OBJ_FILES=\
+	obj/runner_linux_arm32.o \
+	obj/runner_linux_arm64.o \
+	obj/runner_linux_x64.o \
+	obj/runner_linux_x86.o \
+	obj/runner_mac_x64.o \
+	obj/runner_win_x64.o \
+	obj/runner_win_x86.o
 
-# environment variable defaults. these are tweaked for individual platforms in the bashrc files under build/files
-TARGET_OS ?= linux
-BUILDCC ?= $(CC)
-TVHC ?= tvhc
-CMAKE ?= cmake
+ifeq ($(TARGET_OS),linux)
 LINUX_RESOURCE_OBJ_FILES ?= obj/helpfile.o $(RUNNERS_OBJ_FILES)
-STATIC_FLAG ?= -static
-LIBMPDEC_FLAG ?= -lmpdec -lmpdec++
-LIBNCURSESW_FLAG ?= -lncursesw
-LIBGTEST_FLAG ?= -lgtest -lgtest_main
-STRIP ?= strip
-LICENSE_PROCESS_CMD ?= >/dev/null echo
-OPTFLAGS ?= -g -O0
-TEST_CMD ?= ./test
-EXTRADEFS ?=
-
-# C++ build flags
-CXXFLAGS=$(WIN_INCLUDE_FLAGS) $(MAC_INCLUDE_FLAGS) -Isrc -Iobj -isystem ext/nameof -isystem /usr/include/libmpdec -isystem /usr/include/libmpdec++ -Wall -Werror -Winvalid-pch -Wno-unknown-pragmas -Wno-reorder -std=c++17 $(OPTFLAGS) $(EXTRADEFS)
-LDFLAGS=$(MAC_LD_FLAGS) -lstdc++ $(LIBNCURSESW_FLAG) $(LIBTINFO_FLAG) $(LIBMPDEC_FLAG)
-CLANG_FORMAT_FLAGS=-i --style="{BasedOnStyle: Chromium, IndentWidth: 4, ColumnLimit: 120, SortIncludes: false, AlignAfterOpenBracket: AlwaysBreak, AlignOperands: false, Cpp11BracedListStyle: false, PenaltyReturnTypeOnItsOwnLine: 10000}"
+endif
 
 # C++ build files
 COMPILER_SRC_FILES=$(shell find src/compiler -type f -name "*.cpp")
@@ -59,18 +94,182 @@ FAVICON_OUT_FILES=$(patsubst art/favicon/%,bin/ghpages/%,$(FAVICON_IN_FILES))
 DOC_FILES=$(shell find doc -type f -name "*.txt") $(shell find doc -type f -name "*.html")
 DIAGRAM_SRC_FILES=$(shell find doc/diagrams -type f -name "*.txt")
 DIAGRAM_CP437_FILES=$(patsubst doc/diagrams/%,obj/doc-temp/diagrams-cp437/%,$(DIAGRAM_SRC_FILES))
-LICENSE_DIAGRAM_SRC_FILES=obj/doc-temp/diagrams-license/license_tmbasic.txt obj/doc-temp/diagrams-license/license_boost.txt obj/doc-temp/diagrams-license/license_musl.txt obj/doc-temp/diagrams-license/license_immer.txt obj/doc-temp/diagrams-license/license_libstdc++_gpl3.txt obj/doc-temp/diagrams-license/license_libstdc++_gcc1.txt obj/doc-temp/diagrams-license/license_libstdc++_gcc2.txt obj/doc-temp/diagrams-license/license_mpdecimal.txt obj/doc-temp/diagrams-license/license_nameof.txt obj/doc-temp/diagrams-license/license_ncurses.txt obj/doc-temp/diagrams-license/license_tvision.txt
-LICENSE_DIAGRAM_CP437_FILES=$(patsubst obj/doc-temp/diagrams-license/%,obj/doc-temp/diagrams-cp437/%,$(LICENSE_DIAGRAM_SRC_FILES))
+LICENSE_DIAGRAM_SRC_FILES=\
+	obj/doc-temp/diagrams-license/license_tmbasic.txt \
+	obj/doc-temp/diagrams-license/license_boost.txt \
+	obj/doc-temp/diagrams-license/license_musl.txt \
+	obj/doc-temp/diagrams-license/license_immer.txt \
+	obj/doc-temp/diagrams-license/license_libstdc++_gpl3.txt \
+	obj/doc-temp/diagrams-license/license_libstdc++_gcc1.txt \
+	obj/doc-temp/diagrams-license/license_libstdc++_gcc2.txt \
+	obj/doc-temp/diagrams-license/license_mpdecimal.txt \
+	obj/doc-temp/diagrams-license/license_nameof.txt \
+	obj/doc-temp/diagrams-license/license_ncurses.txt \
+	obj/doc-temp/diagrams-license/license_tvision.txt
+LICENSE_DIAGRAM_CP437_FILES=\
+	$(patsubst obj/doc-temp/diagrams-license/%,obj/doc-temp/diagrams-cp437/%,$(LICENSE_DIAGRAM_SRC_FILES))
 
-#
-# Phony targets
-#
+
+
+### Commands ##########################################################################################################
+
+# Toolchain: We use cross-compilation to build the Windows binaries on Linux.
+ifeq ($(TARGET_OS),win)
+BUILDCC=gcc
+CC=$(ARCH)-w64-mingw32-gcc
+CXX=$(ARCH)-w64-mingw32-g++
+AR=$(ARCH)-w64-mingw32-ar
+LD=$(ARCH)-w64-mingw32-ld
+STRIP=$(ARCH)-w64-mingw32-strip
+WINDRES=$(ARCH)-w64-mingw32-windres
+else
+BUILDCC=$(CC)
+STRIP=strip
+endif
+
+# TVHC_CMD: We run tvhc to generate our help file.
+ifeq ($(TARGET_OS),linux)
+TVHC_CMD=tvhc
+endif
+ifeq ($(TARGET_OS),win)
+TVHC_CMD=wine64 /usr/$(ARCH)-w64-mingw32/bin/tvhc.exe
+endif
+ifeq ($(TARGET_OS),mac)
+TVHC_CMD=$(PWD)/mac/tvision/build/tvhc
+endif
+
+# TEST_CMD: We run our unit test executable in "make test". For the Windows target, we use Wine since we cross-compile
+# from Linux. This command is executed from the "bin" directory.
+ifeq ($(TARGET_OS),win)
+TEST_CMD="WINEPATH=/usr/$(ARCH)-w64-mingw32/bin wine64 test.exe"
+else
+TEST_CMD=./test
+endif
+
+# LICENSE_PROCESS_CMD: This command is applied to the license text file to produce the release-ready file for this
+# platform. On Windows we use this to get CRLF line endings.
+ifeq ($(TARGET_OS),win)
+LICENSE_PROCESS_CMD=unix2dos
+else
+LICENSE_PROCESS_CMD=>/dev/null echo
+endif
+
+
+
+### Compiler flags ####################################################################################################
+
+# macOS header search paths.
+ifeq ($(TARGET_OS),mac)
+CXXFLAGS += \
+	-I$(PWD)/mac/boost \
+	-I$(PWD)/mac/mpdecimal/libmpdec \
+	-I$(PWD)/mac/mpdecimal/libmpdec++ \
+	-I$(PWD)/mac/ncurses/include \
+	-I$(PWD)/mac/googletest/googletest/include \
+	-I$(PWD)/mac/tvision/include \
+	-I$(PWD)/mac/immer
+endif
+
+# Windows header search paths.
+ifeq ($(TARGET_OS),win)
+CXXFLAGS += -I/usr/share/mingw-w64/include/
+endif
+
+CXXFLAGS += \
+	-Isrc \
+	-Iobj \
+	-isystem ext/nameof \
+	-isystem /usr/include/libmpdec \
+	-isystem /usr/include/libmpdec++ \
+	-Wall \
+	-Werror \
+	-Winvalid-pch \
+	-Wno-unknown-pragmas \
+	-Wno-reorder \
+	-std=c++17 \
+	$(OPTFLAGS) \
+	$(EXTRADEFS)
+
+
+
+### Linker flags ######################################################################################################
+
+# LDFLAGS: Linker flags used for all binaries.
+LDFLAGS=-lstdc++
+
+# TMBASIC_LDFLAGS: Additional linker flags used only for the "tmbasic" binary.
+TMBASIC_LDFLAGS=
+
+# STATIC_FLAG: We statically link on Linux and Windows. On macOS, static linking isn't an option.
+ifeq ($(TARGET_OS),mac)
+STATIC_FLAG=
+else
+STATIC_FLAG=-static
+endif
+
+# On macOS we need to add some search paths.
+ifeq ($(TARGET_OS),mac)
+LDFLAGS += -L$(PWD)/mac/mpdecimal/libmpdec -L$(PWD)/mac/mpdecimal/libmpdec++ -L$(PWD)/mac/tvision/build
+endif
+
+# Linker flag to include libncursesw. On macOS, tvision uses libncurses instead because libncursesw isn't distributed
+# on that platform.
+ifeq ($(TARGET_OS),mac)
+LDFLAGS += -lncurses
+else
+LDFLAGS += -lncursesw
+endif
+
+# Linker flag to include libtinfo. We don't normally need libtinfo because we build ncurses without it, but for
+# development builds we use an Ubuntu package that does need it.
+ifeq ($(TARGET_OS),linux)
+ifeq ($(LINUX_DISTRO),ubuntu)
+LDFLAGS += -ltinfo
+endif
+endif
+
+# Linker flag to include libmpdec and libmpdec++ (mpdecimal).
+ifeq ($(TARGET_OS),linux)
+LDFLAGS += -lmpdec -lmpdec++
+endif
+ifeq ($(TARGET_OS),win)
+LDFLAGS += /usr/$(ARCH)-w64-mingw32/lib/libmpdec.a /usr/$(ARCH)-w64-mingw32/lib/libmpdec++.a
+endif
+ifeq ($(TARGET_OS),mac)
+LDFLAGS += $(PWD)/mac/mpdecimal/libmpdec/libmpdec.a $(PWD)/mac/mpdecimal/libmpdec++/libmpdec++.a
+endif
+
+# Linker flag to include libgtest (googletest).
+ifeq ($(TARGET_OS),mac)
+LDFLAGS += $(PWD)/mac/googletest/build/lib/libgtest.a $(PWD)/mac/googletest/build/lib/libgtest_main.a
+else
+LDFLAGS += -lgtest -lgtest_main
+endif
+
+# macOS-specific resource objects to be linked into the "tmbasic" binary.
+ifeq ($(TARGET_OS),mac)
+TMBASIC_LDFLAGS += \
+	-Wl,-sectcreate,__DATA,__help_h32,obj/help.h32 \
+	-Wl,-sectcreate,__DATA,__rla32,obj/runner_linux_arm32 \
+	-Wl,-sectcreate,__DATA,__rla64,obj/runner_linux_arm64 \
+	-Wl,-sectcreate,__DATA,__rlx64,obj/runner_linux_x64 \
+	-Wl,-sectcreate,__DATA,__rlx86,obj/runner_linux_x86 \
+	-Wl,-sectcreate,__DATA,__rmx64,obj/runner_mac_x64 \
+	-Wl,-sectcreate,__DATA,__rwx64,obj/runner_win_x64 \
+	-Wl,-sectcreate,__DATA,__rwx86,obj/runner_win_x86
+endif
+
+
+
+### Phony targets #####################################################################################################
 
 .PHONY: all
 all: bin/tmbasic$(EXE_EXTENSION) bin/test$(EXE_EXTENSION) bin/LICENSE.txt
 
 .PHONY: help
 help:
+	@echo ""
+	@echo "Target: $(TARGET_OS) $(ARCH)"
 	@echo ""
 	@echo "COMMANDS"
 	@echo "--------"
@@ -109,21 +308,15 @@ valgrind: bin/tmbasic
 
 .PHONY: format
 format:
-	@cd src && find ./ -type f \( -iname \*.h -o -iname \*.cpp \) | xargs clang-format $(CLANG_FORMAT_FLAGS)
-	@clang-format $(CLANG_FORMAT_FLAGS) build/files/buildDoc.cpp
+	@find src/ -type f \( -iname \*.h -o -iname \*.cpp \) | xargs clang-format -i
+	@clang-format -i build/files/buildDoc.cpp
 
 .PHONY: lint
 lint:
-	@cpplint --quiet --recursive --linelength 120 --filter=-whitespace/indent,-readability/todo,-build/include_what_you_use,-legal/copyright,-readability/fn_size,-build/c++11,-build/include_subdir,-readability/nolint --repository=src src build/files/buildDoc.cpp
+	@cpplint --quiet --recursive --repository=src src build/files/buildDoc.cpp
 
 .PHONY: tidy
 tidy: $(TIDY_TARGETS)
-
-$(TIDY_TARGETS): obj/tidy/%.tidy: src/%.cpp
-	@echo $<
-	@mkdir -p $(@D)
-	@clang-tidy $< --quiet --fix --checks=boost-*,clang-analyzer-*,cppcoreguidelines-*,google-*,misc-*,modernize-*,performance-*,portability-*,readability-*,-clang-analyzer-cplusplus.NewDeleteLeaks,-modernize-use-trailing-return-type,-misc-non-private-member-variables-in-classes,-readability-magic-numbers,-cppcoreguidelines-avoid-magic-numbers,-cppcoreguidelines-non-private-member-variables-in-classes,-modernize-use-nodiscard,-cppcoreguidelines-pro-type-union-access -- $(CXXFLAGS) -DCLANG_TIDY | tee $@
-	@touch $@
 
 .PHONY: ghpages
 ghpages: obj/help.txt bin/ghpages/index.html
@@ -134,13 +327,26 @@ ghpages: obj/help.txt bin/ghpages/index.html
 ghpages-test:
 	@cd bin/ghpages && python3 -m http.server 5000
 
-#
-# Build targets
-#
+
+
+### Build targets #####################################################################################################
+
+# tidy
+
+$(TIDY_TARGETS): obj/tidy/%.tidy: src/%.cpp
+	@echo $<
+	@mkdir -p $(@D)
+	@clang-tidy $< --quiet --fix $(CXXFLAGS) -DCLANG_TIDY | tee $@
+	@touch $@
 
 # ghpages
 
-bin/ghpages/index.html: README.md doc/html/page-template-1.html doc/html/page-template-2.html doc/html/page-template-3.html $(FAVICON_OUT_FILES) bin/ghpages/screenshot.png
+bin/ghpages/index.html: README.md \
+		doc/html/page-template-1.html \
+		doc/html/page-template-2.html \
+		doc/html/page-template-3.html \
+		$(FAVICON_OUT_FILES) \
+		bin/ghpages/screenshot.png
 	@echo $@
 	@mkdir -p $(@D)
 	@cat doc/html/page-template-1.html > $@
@@ -168,7 +374,15 @@ obj/common.h.gch: src/common.h
 
 # help
 
-bin/LICENSE.txt: LICENSE ext/boost/LICENSE_1_0.txt ext/immer/LICENSE ext/gcc/GPL-3 ext/gcc/copyright ext/mpdecimal/LICENSE.txt ext/nameof/LICENSE.txt ext/ncurses/COPYING ext/tvision/COPYRIGHT
+bin/LICENSE.txt: LICENSE \
+		ext/boost/LICENSE_1_0.txt \
+		ext/immer/LICENSE \
+		ext/gcc/GPL-3 \
+		ext/gcc/copyright \
+		ext/mpdecimal/LICENSE.txt \
+		ext/nameof/LICENSE.txt \
+		ext/ncurses/COPYING \
+		ext/tvision/COPYRIGHT
 	@echo $@
 	@mkdir -p bin
 	@rm -f $@
@@ -259,7 +473,14 @@ obj/doc-temp/diagrams-license/license_tvision.txt: ext/tvision/COPYRIGHT
 
 obj/buildDoc: build/files/buildDoc.cpp
 	@echo $@
-	@$(BUILDCC) $(BUILDDOC_WIN_INCLUDE_FLAGS) $(BUILDDOC_MAC_INCLUDE_FLAGS) -Iext/nameof -Wall -Werror -std=c++17 -o $@ $< -lstdc++
+	@$(BUILDCC) \
+		-I$(PWD)/mac/boost \
+		-Iext/nameof \
+		-Wall \
+		-Werror \
+		-std=c++17 \
+		-o $@ $< \
+		-lstdc++
 
 obj/helpfile.h: obj/help.txt
 	@echo $@
@@ -267,12 +488,18 @@ obj/helpfile.h: obj/help.txt
 	@mkdir -p bin
 	@rm -f obj/help.h32
 	@rm -f obj/helpfile.h
-	@$(TVHC) obj/help.txt obj/help.h32 obj/helpfile.h
+	@$(TVHC_CMD) obj/help.txt obj/help.h32 obj/helpfile.h
 
 obj/help.h32: obj/helpfile.h
 	@echo $@
 
-obj/help.txt: $(DOC_FILES) obj/buildDoc $(DIAGRAM_CP437_FILES) $(LICENSE_DIAGRAM_CP437_FILES) doc/html/page-template-1.html doc/html/page-template-2.html doc/html/page-template-3.html
+obj/help.txt: $(DOC_FILES) \
+		obj/buildDoc \
+		$(DIAGRAM_CP437_FILES) \
+		$(LICENSE_DIAGRAM_CP437_FILES) \
+		doc/html/page-template-1.html \
+		doc/html/page-template-2.html \
+		doc/html/page-template-3.html
 	@echo $@
 	@mkdir -p obj
 	@cd doc && ../obj/buildDoc
@@ -325,33 +552,86 @@ $(RUNNERS_OBJ_FILES): obj/%.o: obj/%
 
 # tmbasic
 
-# Windows only
+ifeq ($(TARGET_OS),win)
 obj/Resources-win32.o: src/tmbasic/Resources-win32.rc obj/helpfile.o $(RUNNERS_BIN_FILES)
 	@echo $@
 	@$(WINDRES) -i $< -o $@
+else
+obj/Resources-win32.o: src/tmbasic/Resources-win32.rc obj/helpfile.o $(RUNNERS_BIN_FILES)
+	@echo $@
+	@echo -n > obj/Resources-win32.cpp && $(CXX) -c obj/Resources-win32.cpp -o $@
+endif
 
-$(TMBASIC_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch obj/helpfile.h obj/help.h32 $(COMPILER_H_FILES) $(SHARED_H_FILES) $(TMBASIC_H_FILES)
+$(TMBASIC_OBJ_FILES): obj/%.o: src/%.cpp \
+		obj/common.h.gch \
+		obj/helpfile.h \
+		obj/help.h32 \
+		$(COMPILER_H_FILES) \
+		$(SHARED_H_FILES) \
+		$(TMBASIC_H_FILES)
 	@echo $@
 	@mkdir -p $(@D)
 	@$(CXX) $(CXXFLAGS) -c -include obj/common.h -o $@ $<
 
-bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) obj/shared.a obj/compiler.a obj/common.h.gch obj/helpfile.h obj/help.h32 $(LINUX_RESOURCE_OBJ_FILES) $(WIN_RESOURCE_OBJ_FILE) $(RUNNERS_BIN_FILES)
+bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
+		obj/shared.a \
+		obj/compiler.a \
+		obj/common.h.gch \
+		obj/helpfile.h \
+		obj/help.h32 \
+		$(LINUX_RESOURCE_OBJ_FILES) \
+		obj/Resources-win32.o \
+		$(RUNNERS_BIN_FILES)
 	@echo $@
 	@mkdir -p $(@D)
-	@$(CXX) $(CXXFLAGS) $(MAC_RESOURCES_LINK_FLAGS) $(STATIC_FLAG) -include obj/common.h -o $@ $(TMBASIC_OBJ_FILES) obj/shared.a obj/compiler.a -ltvision $(LINUX_RESOURCE_OBJ_FILES) $(WIN_RESOURCE_OBJ_FILE) $(LDFLAGS)
+	@$(CXX) \
+		$(CXXFLAGS) \
+		$(TMBASIC_LDFLAGS) \
+		$(STATIC_FLAG) \
+		-include obj/common.h \
+		-o $@ $(TMBASIC_OBJ_FILES) \
+		obj/shared.a \
+		obj/compiler.a \
+		-ltvision \
+		$(LINUX_RESOURCE_OBJ_FILES) \
+		obj/Resources-win32.o \
+		$(LDFLAGS)
 	@$(STRIP) bin/tmbasic$(EXE_EXTENSION)
 
 # test
 
-$(TEST_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch obj/helpfile.h obj/help.h32 $(COMPILER_H_FILES) $(SHARED_H_FILES)
+$(TEST_OBJ_FILES): obj/%.o: src/%.cpp \
+		obj/common.h.gch \
+		obj/helpfile.h \
+		obj/help.h32 \
+		$(COMPILER_H_FILES) \
+		$(SHARED_H_FILES)
 	@echo $@
 	@mkdir -p $(@D)
 	@$(CXX) $(CXXFLAGS) -c -include obj/common.h -o $@ $<
 
-bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) obj/shared.a obj/compiler.a obj/common.h.gch obj/helpfile.h obj/help.h32 $(LINUX_RESOURCE_OBJ_FILES)
+bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) \
+		obj/shared.a \
+		obj/compiler.a \
+		obj/common.h.gch \
+		obj/helpfile.h \
+		obj/help.h32 \
+		$(LINUX_RESOURCE_OBJ_FILES)
 	@echo $@
 	@mkdir -p $(@D)
-	@$(CXX) $(CXXFLAGS) $(MAC_RESOURCES_LINK_FLAGS) -include obj/common.h -o $@ $(TEST_OBJ_FILES) obj/shared.a obj/compiler.a -ltvision $(LINUX_RESOURCE_OBJ_FILES) $(LDFLAGS) $(LIBGTEST_FLAG) -lpthread
+	@$(CXX) \
+		$(CXXFLAGS) \
+		$(TMBASIC_LDFLAGS) \
+		-include obj/common.h \
+		-o $@ \
+		$(TEST_OBJ_FILES) \
+		obj/shared.a \
+		obj/compiler.a \
+		-ltvision \
+		$(LINUX_RESOURCE_OBJ_FILES) \
+		$(LDFLAGS) \
+		$(LIBGTEST_FLAG) \
+		-lpthread
 
 # runner (native platform)
 
@@ -363,7 +643,15 @@ $(RUNNER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(SHARED_H_FILES) $(RUN
 bin/runner$(EXE_EXTENSION): $(RUNNER_OBJ_FILES) obj/shared.a obj/common.h.gch
 	@echo $@
 	@mkdir -p $(@D)
-	@$(CXX) $(CXXFLAGS) $(STATIC_FLAG) -include obj/common.h -o $@ $(RUNNER_OBJ_FILES) obj/shared.a -ltvision $(LDFLAGS)
+	@$(CXX) \
+		$(CXXFLAGS) \
+		$(STATIC_FLAG) \
+		-include obj/common.h \
+		-o $@ \
+		$(RUNNER_OBJ_FILES) \
+		obj/shared.a \
+		-ltvision \
+		$(LDFLAGS)
 	@$(STRIP) bin/runner$(EXE_EXTENSION)
 
 # runners for full publish builds

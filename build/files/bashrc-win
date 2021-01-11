@@ -1,20 +1,3 @@
-make -f /code/Makefile help
 export MAKEFLAGS="-j2"
-export BUILDCC=gcc
-export CC=ARCH-w64-mingw32-gcc
-export CXX=ARCH-w64-mingw32-g++
-export AR=ARCH-w64-mingw32-ar
-export LD=ARCH-w64-mingw32-ld
-export STRIP=ARCH-w64-mingw32-strip
-export WINDRES=ARCH-w64-mingw32-windres
-export WIN_INCLUDE_FLAGS="-I/usr/share/mingw-w64/include/"
-export TVHC="wine64 /usr/ARCH-w64-mingw32/bin/tvhc.exe"
-export LIBTINFO_FLAG=""
-export LIBMPDEC_FLAG="/usr/ARCH-w64-mingw32/lib/libmpdec.a /usr/ARCH-w64-mingw32/lib/libmpdec++.a"
-export LICENSE_PROCESS_CMD=unix2dos
 export TARGET_OS=win
-export EXE_EXTENSION=.exe
-export OPTFLAGS=-Os
-export TEST_CMD="WINEPATH=/usr/ARCH-w64-mingw32/bin wine64 test.exe"
-export WIN_RESOURCE_OBJ_FILE="obj/Resources-win32.o"
-export LINUX_RESOURCE_OBJ_FILES=""
+make -f /code/Makefile help

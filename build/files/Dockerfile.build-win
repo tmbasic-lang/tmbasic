@@ -142,8 +142,9 @@ RUN cd /tmp && \
 # environment
 USER $HOST_UID
 COPY bashrc-win /tmp/bashrc
-RUN cat /tmp/bashrc | sed s/ARCH/$ARCH/g >> /home/$USER/.bashrc && \
+RUN echo "export ARCH=\"$ARCH\"" >> /home/$USER/.bashrc && \
     echo "export IMAGE_NAME=\"$IMAGE_NAME\"" >> /home/$USER/.bashrc && \
-    echo "export PS1=\"[$IMAGE_NAME] \w\$ \"" >> /home/$USER/.bashrc
+    echo "export PS1=\"[$IMAGE_NAME] \w\$ \"" >> /home/$USER/.bashrc && \
+    cat /tmp/bashrc >> /home/$USER/.bashrc
 
 ENTRYPOINT "/bin/bash"
