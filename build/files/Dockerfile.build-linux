@@ -18,7 +18,8 @@ RUN apk update && \
         alpine-sdk \
         ncurses \
         python3 \
-        dos2unix
+        dos2unix \
+        xxd
 
 # unprivileged user
 RUN addgroup -g $HOST_GID $USER && \

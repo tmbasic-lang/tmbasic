@@ -9,6 +9,7 @@ Start the following three machines. Prepare them for building per [DEVELOPERS.md
 On the Linux machines, run the following command to clear all Docker images. This ensures that we build using the latest versions of our dependencies.
 
 ```
+docker container rm $(docker container ls -aq)
 docker rmi $(docker images -a -q) --force
 ```
 

@@ -231,9 +231,9 @@ endif
 
 # Linker flag to include libgtest (googletest).
 ifeq ($(TARGET_OS),mac)
-LDFLAGS += $(PWD)/mac/googletest/build/lib/libgtest.a $(PWD)/mac/googletest/build/lib/libgtest_main.a
+LIBGTEST_FLAG += $(PWD)/mac/googletest/build/lib/libgtest.a $(PWD)/mac/googletest/build/lib/libgtest_main.a
 else
-LDFLAGS += -lgtest -lgtest_main
+LIBGTEST_FLAG += -lgtest -lgtest_main
 endif
 
 
