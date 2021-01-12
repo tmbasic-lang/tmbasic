@@ -3,6 +3,7 @@
 OPTFLAGS ?= -g -O0
 
 
+
 ### Input validation ##################################################################################################
 
 # TARGET_OS
@@ -44,14 +45,6 @@ endif
 
 # runner builds, which will be 0-byte files for debug builds. for full release builds, these runners will be built
 # separately and provided ahead of time
-RUNNERS_BIN_FILES=\
-	obj/runner_linux_arm32 \
-	obj/runner_linux_arm64 \
-	obj/runner_linux_x64 \
-	obj/runner_linux_x86 \
-	obj/runner_mac_x64 \
-	obj/runner_win_x64 \
-	obj/runner_win_x86
 RUNNERS_OBJ_FILES=\
 	obj/runner_linux_arm32.o \
 	obj/runner_linux_arm64.o \
@@ -60,6 +53,7 @@ RUNNERS_OBJ_FILES=\
 	obj/runner_mac_x64.o \
 	obj/runner_win_x64.o \
 	obj/runner_win_x86.o
+RUNNERS_BIN_FILES=$(RUNNERS_OBJ_FILES:.o=)
 
 ifeq ($(TARGET_OS),linux)
 LINUX_RESOURCE_OBJ_FILES ?= obj/helpfile.o $(RUNNERS_OBJ_FILES)
@@ -370,7 +364,7 @@ bin/ghpages/screenshot.png: art/screenshot.png
 obj/common.h.gch: src/common.h
 	@echo $@
 	@mkdir -p $(@D)
-	@$(CXX) $(CXXFLAGS) -x c++-header -o $@ src/common.h
+	@$(CXX) -o $@ $(CXXFLAGS) -x c++-header src/common.h
 
 # help
 
@@ -474,12 +468,12 @@ obj/doc-temp/diagrams-license/license_tvision.txt: ext/tvision/COPYRIGHT
 obj/buildDoc: build/files/buildDoc.cpp
 	@echo $@
 	@$(BUILDCC) \
+		-o $@ $< \
 		-I$(PWD)/mac/boost \
 		-Iext/nameof \
 		-Wall \
 		-Werror \
 		-std=c++17 \
-		-o $@ $< \
 		-lstdc++
 
 obj/helpfile.h: obj/help.txt
@@ -519,7 +513,7 @@ $(LICENSE_DIAGRAM_CP437_FILES): obj/doc-temp/diagrams-cp437/%: obj/doc-temp/diag
 $(COMPILER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(SHARED_H_FILES) $(COMPILER_H_FILES)
 	@echo $@
 	@mkdir -p $(@D)
-	@$(CXX) $(CXXFLAGS) -c -include obj/common.h -o $@ $<
+	@$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
 
 obj/compiler.a: $(COMPILER_OBJ_FILES)
 	@echo $@
@@ -531,7 +525,7 @@ obj/compiler.a: $(COMPILER_OBJ_FILES)
 $(SHARED_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(SHARED_H_FILES)
 	@echo $@
 	@mkdir -p $(@D)
-	@$(CXX) $(CXXFLAGS) -c -include obj/common.h -o $@ $<
+	@$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
 
 obj/shared.a: $(SHARED_OBJ_FILES)
 	@echo $@
@@ -543,19 +537,19 @@ obj/shared.a: $(SHARED_OBJ_FILES)
 obj/helpfile.o: obj/help.h32
 	@echo $@
 	@mkdir -p $(@D)
-	@cd obj && $(LD) -r -b binary -o ../obj/helpfile.o help.h32
+	@cd obj && $(LD) -o ../obj/helpfile.o -r -b binary help.h32
 
 $(RUNNERS_OBJ_FILES): obj/%.o: obj/%
 	@echo $@
 	@mkdir -p $(@D)
-	@$(LD) -r -b binary -o $@ $<
+	@$(LD) -o $@ -r -b binary $<
 
 # tmbasic
 
 ifeq ($(TARGET_OS),win)
 obj/Resources-win32.o: src/tmbasic/Resources-win32.rc obj/helpfile.o $(RUNNERS_BIN_FILES)
 	@echo $@
-	@$(WINDRES) -i $< -o $@
+	@$(WINDRES) -o $@ -i $< 
 else
 obj/Resources-win32.o: src/tmbasic/Resources-win32.rc obj/helpfile.o $(RUNNERS_BIN_FILES)
 	@echo $@
@@ -571,7 +565,7 @@ $(TMBASIC_OBJ_FILES): obj/%.o: src/%.cpp \
 		$(TMBASIC_H_FILES)
 	@echo $@
 	@mkdir -p $(@D)
-	@$(CXX) $(CXXFLAGS) -c -include obj/common.h -o $@ $<
+	@$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
 
 bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
 		obj/shared.a \
@@ -585,11 +579,11 @@ bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
 	@echo $@
 	@mkdir -p $(@D)
 	@$(CXX) \
+		-o $@ $(TMBASIC_OBJ_FILES) \
 		$(CXXFLAGS) \
 		$(TMBASIC_LDFLAGS) \
 		$(STATIC_FLAG) \
 		-include obj/common.h \
-		-o $@ $(TMBASIC_OBJ_FILES) \
 		obj/shared.a \
 		obj/compiler.a \
 		-ltvision \
@@ -608,7 +602,7 @@ $(TEST_OBJ_FILES): obj/%.o: src/%.cpp \
 		$(SHARED_H_FILES)
 	@echo $@
 	@mkdir -p $(@D)
-	@$(CXX) $(CXXFLAGS) -c -include obj/common.h -o $@ $<
+	@$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
 
 bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) \
 		obj/shared.a \
@@ -620,10 +614,10 @@ bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) \
 	@echo $@
 	@mkdir -p $(@D)
 	@$(CXX) \
+		-o $@ \
 		$(CXXFLAGS) \
 		$(TMBASIC_LDFLAGS) \
 		-include obj/common.h \
-		-o $@ \
 		$(TEST_OBJ_FILES) \
 		obj/shared.a \
 		obj/compiler.a \
@@ -638,16 +632,16 @@ bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) \
 $(RUNNER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(SHARED_H_FILES) $(RUNNER_H_FILES)
 	@echo $@
 	@mkdir -p $(@D)
-	@$(CXX) $(CXXFLAGS) -c -include obj/common.h -o $@ $<
+	@$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
 
 bin/runner$(EXE_EXTENSION): $(RUNNER_OBJ_FILES) obj/shared.a obj/common.h.gch
 	@echo $@
 	@mkdir -p $(@D)
 	@$(CXX) \
+		-o $@ \
 		$(CXXFLAGS) \
 		$(STATIC_FLAG) \
 		-include obj/common.h \
-		-o $@ \
 		$(RUNNER_OBJ_FILES) \
 		obj/shared.a \
 		-ltvision \
