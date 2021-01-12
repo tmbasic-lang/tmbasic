@@ -8,7 +8,7 @@ OPTFLAGS ?= -g -O0
 
 # TARGET_OS
 ifneq ($(TARGET_OS),linux)
-ifneq ($(TARGET_OS),windows)
+ifneq ($(TARGET_OS),win)
 ifneq ($(TARGET_OS),mac)
 $(error Unknown TARGET_OS '$(TARGET_OS)')
 endif

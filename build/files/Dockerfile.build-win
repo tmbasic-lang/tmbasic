@@ -21,7 +21,8 @@ RUN echo "[multilib]" >> /etc/pacman.conf && \
         dos2unix \
         unzip \
         clang \
-        patch
+        patch \
+        xxd
 
 # mpdecimal
 RUN cd /tmp && \
