@@ -64,5 +64,5 @@ then
 fi
 
 cd ..
-TARGET_OS=mac make help
-TARGET_OS=mac PS1="[tmbasic-mac-x64] \w\$ " MAKEFLAGS="-j8" bash "$@"
+TARGET_OS=mac ARCH=x86_64 make help
+TARGET_OS=mac ARCH=x86_64 PS1="[tmbasic-mac-x64] \w\$ " MAKEFLAGS="-j8" bash "$@"
