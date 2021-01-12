@@ -23,7 +23,7 @@ li@`datetime` -- Date and time, without a time zone offset.@
 li@`datetimeoffset` -- Date, time, and time zone offset.@
 li@`timespan` -- Period of time.@
 li@`list of T` -- Generic dynamic-sized array with element type `T`. Example: `list of number`. Literals look like: `[0, 1, 2]`.@
-li@`map from K to V` -- Generic dynamic-sized dictionary with key type `K` and value type `V`. Example: `map from integer to text`.@
+li@`map from K to V` -- Generic dynamic-sized dictionary with key type `K` and value type `V`. Example: `map from number to text`.@
 li@`optional T` -- Wrapper for type `T` indicating that the value may or may not be present. Example: `optional number`.@
 li@`record (...)` -- Anonymous record type, containing zero or more named fields. Example: `record (foo as number, bar as text)`. Literals look like `{{foo: 1, bar: "hi"}`.@
 li@Named record types. These are defined using `type` ... `end type` blocks.@
