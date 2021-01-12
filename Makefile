@@ -46,18 +46,14 @@ endif
 # runner builds, which will be 0-byte files for debug builds. for full release builds, these runners will be built
 # separately and provided ahead of time
 RUNNERS_OBJ_FILES=\
-	obj/runner_linux_arm32.o \
 	obj/runner_linux_arm64.o \
+	obj/runner_linux_arm32.o \
 	obj/runner_linux_x64.o \
 	obj/runner_linux_x86.o \
 	obj/runner_mac_x64.o \
 	obj/runner_win_x64.o \
 	obj/runner_win_x86.o
 RUNNERS_BIN_FILES=$(RUNNERS_OBJ_FILES:.o=)
-
-ifeq ($(TARGET_OS),linux)
-LINUX_RESOURCE_OBJ_FILES ?= obj/helpfile.o $(RUNNERS_OBJ_FILES)
-endif
 
 # C++ build files
 COMPILER_SRC_FILES=$(shell find src/compiler -type f -name "*.cpp")
@@ -240,19 +236,6 @@ else
 LDFLAGS += -lgtest -lgtest_main
 endif
 
-# macOS-specific resource objects to be linked into the "tmbasic" binary.
-ifeq ($(TARGET_OS),mac)
-TMBASIC_LDFLAGS += \
-	-Wl,-sectcreate,__DATA,__help_h32,obj/help.h32 \
-	-Wl,-sectcreate,__DATA,__rla32,obj/runner_linux_arm32 \
-	-Wl,-sectcreate,__DATA,__rla64,obj/runner_linux_arm64 \
-	-Wl,-sectcreate,__DATA,__rlx64,obj/runner_linux_x64 \
-	-Wl,-sectcreate,__DATA,__rlx86,obj/runner_linux_x86 \
-	-Wl,-sectcreate,__DATA,__rmx64,obj/runner_mac_x64 \
-	-Wl,-sectcreate,__DATA,__rwx64,obj/runner_win_x64 \
-	-Wl,-sectcreate,__DATA,__rwx86,obj/runner_win_x86
-endif
-
 
 
 ### Phony targets #####################################################################################################
@@ -330,7 +313,7 @@ ghpages-test:
 $(TIDY_TARGETS): obj/tidy/%.tidy: src/%.cpp
 	@echo $<
 	@mkdir -p $(@D)
-	@clang-tidy $< --quiet --fix $(CXXFLAGS) -DCLANG_TIDY | tee $@
+	@clang-tidy $< --quiet --fix -- $(CXXFLAGS) -DCLANG_TIDY | tee $@
 	@touch $@
 
 # ghpages
@@ -537,24 +520,52 @@ obj/shared.a: $(SHARED_OBJ_FILES)
 obj/helpfile.o: obj/help.h32
 	@echo $@
 	@mkdir -p $(@D)
-	@cd obj && $(LD) -o ../obj/helpfile.o -r -b binary help.h32
+	@xxd -i $< | sed s/obj_help_h32/kResourceHelp/g > obj/kResourceHelp.cpp
+	@$(CXX) -o $@ -c obj/kResourceHelp.cpp
 
-$(RUNNERS_OBJ_FILES): obj/%.o: obj/%
+obj/runner_linux_arm64.o: obj/runner_linux_arm64
 	@echo $@
 	@mkdir -p $(@D)
-	@$(LD) -o $@ -r -b binary $<
+	@xxd -i $< | sed s/obj_runner_linux_arm64/kResourceRunnerLinuxArm64/g > obj/kResourceRunnerLinuxArm64.cpp
+	@$(CXX) -o $@ -c obj/kResourceRunnerLinuxArm64.cpp
+
+obj/runner_linux_arm32.o: obj/runner_linux_arm32
+	@echo $@
+	@mkdir -p $(@D)
+	@xxd -i $< | sed s/obj_runner_linux_arm32/kResourceRunnerLinuxArm32/g > obj/kResourceRunnerLinuxArm32.cpp
+	@$(CXX) -o $@ -c obj/kResourceRunnerLinuxArm32.cpp
+
+obj/runner_linux_x64.o: obj/runner_linux_x64
+	@echo $@
+	@mkdir -p $(@D)
+	@xxd -i $< | sed s/obj_runner_linux_x64/kResourceRunnerLinuxX64/g > obj/kResourceRunnerLinuxX64.cpp
+	@$(CXX) -o $@ -c obj/kResourceRunnerLinuxX64.cpp
+
+obj/runner_linux_x86.o: obj/runner_linux_x86
+	@echo $@
+	@mkdir -p $(@D)
+	@xxd -i $< | sed s/obj_runner_linux_x86/kResourceRunnerLinuxX86/g > obj/kResourceRunnerLinuxX86.cpp
+	@$(CXX) -o $@ -c obj/kResourceRunnerLinuxX86.cpp
+
+obj/runner_mac_x64.o: obj/runner_mac_x64
+	@echo $@
+	@mkdir -p $(@D)
+	@xxd -i $< | sed s/obj_runner_mac_x64/kResourceRunnerMacX64/g > obj/kResourceRunnerMacX64.cpp
+	@$(CXX) -o $@ -c obj/kResourceRunnerMacX64.cpp
+
+obj/runner_win_x64.o: obj/runner_win_x64
+	@echo $@
+	@mkdir -p $(@D)
+	@xxd -i $< | sed s/obj_runner_win_x64/kResourceRunnerWinX64/g > obj/kResourceRunnerWinX64.cpp
+	@$(CXX) -o $@ -c obj/kResourceRunnerWinX64.cpp
+
+obj/runner_win_x86.o: obj/runner_win_x86
+	@echo $@
+	@mkdir -p $(@D)
+	@xxd -i $< | sed s/obj_runner_win_x86/kResourceRunnerWinX86/g > obj/kResourceRunnerWinX86.cpp
+	@$(CXX) -o $@ -c obj/kResourceRunnerWinX86.cpp
 
 # tmbasic
-
-ifeq ($(TARGET_OS),win)
-obj/Resources-win32.o: src/tmbasic/Resources-win32.rc obj/helpfile.o $(RUNNERS_BIN_FILES)
-	@echo $@
-	@$(WINDRES) -o $@ -i $< 
-else
-obj/Resources-win32.o: src/tmbasic/Resources-win32.rc obj/helpfile.o $(RUNNERS_BIN_FILES)
-	@echo $@
-	@echo -n > obj/Resources-win32.cpp && $(CXX) -c obj/Resources-win32.cpp -o $@
-endif
 
 $(TMBASIC_OBJ_FILES): obj/%.o: src/%.cpp \
 		obj/common.h.gch \
@@ -573,8 +584,8 @@ bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
 		obj/common.h.gch \
 		obj/helpfile.h \
 		obj/help.h32 \
-		$(LINUX_RESOURCE_OBJ_FILES) \
-		obj/Resources-win32.o \
+		obj/helpfile.o \
+		$(RUNNERS_OBJ_FILES) \
 		$(RUNNERS_BIN_FILES)
 	@echo $@
 	@mkdir -p $(@D)
@@ -587,8 +598,8 @@ bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
 		obj/shared.a \
 		obj/compiler.a \
 		-ltvision \
-		$(LINUX_RESOURCE_OBJ_FILES) \
-		obj/Resources-win32.o \
+		obj/helpfile.o \
+		$(RUNNERS_OBJ_FILES) \
 		$(LDFLAGS)
 	@$(STRIP) bin/tmbasic$(EXE_EXTENSION)
 
@@ -610,7 +621,8 @@ bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) \
 		obj/common.h.gch \
 		obj/helpfile.h \
 		obj/help.h32 \
-		$(LINUX_RESOURCE_OBJ_FILES)
+		obj/helpfile.o \
+		$(RUNNERS_OBJ_FILES)
 	@echo $@
 	@mkdir -p $(@D)
 	@$(CXX) \
@@ -622,7 +634,8 @@ bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) \
 		obj/shared.a \
 		obj/compiler.a \
 		-ltvision \
-		$(LINUX_RESOURCE_OBJ_FILES) \
+		obj/helpfile.o \
+		$(RUNNERS_OBJ_FILES) \
 		$(LDFLAGS) \
 		$(LIBGTEST_FLAG) \
 		-lpthread

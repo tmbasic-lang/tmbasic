@@ -1,7 +1,5 @@
 FROM ubuntu:20.04
 
-RUN sed -i "s/# deb-src/deb-src/g" /etc/apt/sources.list
-
 RUN apt-get update -y && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
         curl \
@@ -21,15 +19,10 @@ RUN apt-get update -y && \
         python3-pip \
         unzip \
         dos2unix \
-        pandoc
-
-# clang-format, clang-tidy
-RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
-    add-apt-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-10 main" && \
-    apt-get update -y && \
-    apt-get install -y clang-format-10 clang-tidy-10 && \
-    update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-10 9999 && \
-    update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-10 9999
+        pandoc \
+        xxd \
+        libncursesw5 \
+        libncursesw5-dev
 
 # unprivileged user
 RUN mkdir -p /code && \
@@ -41,19 +34,13 @@ RUN mkdir -p /code && \
     mkdir -p /home/$USER && \
     chown $HOST_UID:$HOST_GID /home/$USER
 
-# nurses
-RUN apt-get build-dep -y ncurses
-USER $HOST_UID
-COPY ncurses-rules.diff /pkgsrc/
-RUN cd /pkgsrc && \
-    apt-get source -y ncurses && \
-    mv ncurses*/ ncurses && \
-    cd ncurses && \
-    patch debian/rules /pkgsrc/ncurses-rules.diff
-USER 0
-RUN cd /pkgsrc/ncurses && \
-    dpkg-buildpackage --build=binary --build-profiles=nobiarch,pkg.ncurses.noexamples && \
-    dpkg -i /pkgsrc/*.deb
+# clang-format, clang-tidy
+RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
+    add-apt-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-10 main" && \
+    apt-get update -y && \
+    apt-get install -y clang-format-10 clang-tidy-10 && \
+    update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-10 9999 && \
+    update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-10 9999
 
 # gtest
 RUN cd /usr/src/gtest && \

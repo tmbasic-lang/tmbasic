@@ -1,8 +1,0 @@
-1000 RCDATA "../../obj/help.h32"
-1001 RCDATA "../../obj/runner_linux_arm32"
-1002 RCDATA "../../obj/runner_linux_arm64"
-1003 RCDATA "../../obj/runner_linux_x64"
-1004 RCDATA "../../obj/runner_linux_x86"
-1005 RCDATA "../../obj/runner_mac_x64"
-1006 RCDATA "../../obj/runner_win_x64"
-1007 RCDATA "../../obj/runner_win_x86"

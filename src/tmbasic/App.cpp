@@ -535,12 +535,12 @@ TRect App::centeredRect(int width, int height) {
 
 void App::openHelpTopic(uint16_t topic) {
     try {
-        auto helpResource = getResource(Resource::kHelp);
-        auto* start =
-            reinterpret_cast<char*>(helpResource.start);        // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
-        auto* end = reinterpret_cast<char*>(helpResource.end);  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
-        auto* stream = new MemoryIopstream(start, end);         // NOLINT(cppcoreguidelines-owning-memory)
-        auto* helpFile = new THelpFile(*stream);                // NOLINT(cppcoreguidelines-owning-memory)
+        assert(kResourceHelp_len == 141202);
+        auto* start = reinterpret_cast<char*>(kResourceHelp);  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+        auto* end = reinterpret_cast<char*>(
+            &kResourceHelp[kResourceHelp_len]);          // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+        auto* stream = new MemoryIopstream(start, end);  // NOLINT(cppcoreguidelines-owning-memory)
+        auto* helpFile = new THelpFile(*stream);         // NOLINT(cppcoreguidelines-owning-memory)
         auto* helpWindow = WindowPtr<HelpWindow>(helpFile, topic).get();
         auto width = 85;
         auto maxWidth = deskTop->size.x - 10;
