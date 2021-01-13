@@ -640,14 +640,40 @@ bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) \
 		$(LIBGTEST_FLAG) \
 		-lpthread
 
-# runner (native platform)
+# runner: We build three versions that are identical except for the pcode they have embedded:
+# - runner: 8-byte pcode
+# - runner16: 16-byte pcode
+# - runner24: 24-byte pcode
+# The 8-byte version is the one we actually ship. All three are used for analysis to determine how to dynamically
+# rewrite the 8-byte version to include an arbitrary chunk of pcode at runtime.
 
 $(RUNNER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(SHARED_H_FILES) $(RUNNER_H_FILES)
 	@echo $@
 	@mkdir -p $(@D)
 	@$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
 
-bin/runner$(EXE_EXTENSION): $(RUNNER_OBJ_FILES) obj/shared.a obj/common.h.gch
+obj/kResourcePcode8.o:
+	@echo $@
+	@mkdir -p $(@D)
+	@echo -n 12345678 > obj/pcode8
+	@xxd -i obj/pcode8 | sed s/obj_pcode8/kResourcePcode/g > obj/kResourcePcode8.cpp
+	@$(CXX) -o $@ -c obj/kResourcePcode8.cpp
+
+obj/kResourcePcode16.o:
+	@echo $@
+	@mkdir -p $(@D)
+	@echo -n 1234567890123456 > obj/pcode16
+	@xxd -i obj/pcode16 | sed s/obj_pcode16/kResourcePcode/g > obj/kResourcePcode16.cpp
+	@$(CXX) -o $@ -c obj/kResourcePcode16.cpp
+
+obj/kResourcePcode24.o:
+	@echo $@
+	@mkdir -p $(@D)
+	@echo -n 123456789012345678901234 > obj/pcode24
+	@xxd -i obj/pcode24 | sed s/obj_pcode24/kResourcePcode/g > obj/kResourcePcode24.cpp
+	@$(CXX) -o $@ -c obj/kResourcePcode24.cpp
+
+bin/runner$(EXE_EXTENSION): $(RUNNER_OBJ_FILES) obj/shared.a obj/common.h.gch obj/kResourcePcode8.o
 	@echo $@
 	@mkdir -p $(@D)
 	@$(CXX) \
@@ -656,10 +682,41 @@ bin/runner$(EXE_EXTENSION): $(RUNNER_OBJ_FILES) obj/shared.a obj/common.h.gch
 		$(STATIC_FLAG) \
 		-include obj/common.h \
 		$(RUNNER_OBJ_FILES) \
+		obj/kResourcePcode8.o \
 		obj/shared.a \
 		-ltvision \
 		$(LDFLAGS)
-	@$(STRIP) bin/runner$(EXE_EXTENSION)
+	@$(STRIP) $@
+
+bin/runner16$(EXE_EXTENSION): $(RUNNER_OBJ_FILES) obj/shared.a obj/common.h.gch obj/kResourcePcode16.o
+	@echo $@
+	@mkdir -p $(@D)
+	@$(CXX) \
+		-o $@ \
+		$(CXXFLAGS) \
+		$(STATIC_FLAG) \
+		-include obj/common.h \
+		$(RUNNER_OBJ_FILES) \
+		obj/kResourcePcode16.o \
+		obj/shared.a \
+		-ltvision \
+		$(LDFLAGS)
+	@$(STRIP) $@
+
+bin/runner24$(EXE_EXTENSION): $(RUNNER_OBJ_FILES) obj/shared.a obj/common.h.gch obj/kResourcePcode24.o
+	@echo $@
+	@mkdir -p $(@D)
+	@$(CXX) \
+		-o $@ \
+		$(CXXFLAGS) \
+		$(STATIC_FLAG) \
+		-include obj/common.h \
+		$(RUNNER_OBJ_FILES) \
+		obj/kResourcePcode24.o \
+		obj/shared.a \
+		-ltvision \
+		$(LDFLAGS)
+	@$(STRIP) $@
 
 # runners for full publish builds
 
