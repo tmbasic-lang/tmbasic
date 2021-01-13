@@ -1,5 +1,5 @@
 nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {License:license}@
 
-h1['immer' License]
+h1["immer" License]
 
 dia[license_immer]

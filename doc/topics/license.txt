@@ -4,15 +4,15 @@ h1[License]
 
 TMBASIC is open source software. The following components are included in the TMBASIC development environment and in builds of user programs.
 
-ul@li@{'tmbasic' License:license_tmbasic}@
-li@{'boost' License:license_boost}@
-li@{'immer' License:license_immer}@
-li@'libstdc++' License - {Part 1:license_libstdcxx1}, {Part 2:license_libstdcxx2}, {Part 3:license_libstdcxx3}@
-li@{'mpdecimal' License:license_mpdecimal}@
-li@{'musl' License:license_musl}@
-li@{'nameof' License:license_nameof}@
-li@{'ncurses' License:license_ncurses}@
-li@{'tvision' License:license_tvision}@
+ul@li@{"tmbasic" License:license_tmbasic}@
+li@{"boost" License:license_boost}@
+li@{"immer" License:license_immer}@
+li@"libstdc++" License - {Part 1:license_libstdcxx1}, {Part 2:license_libstdcxx2}, {Part 3:license_libstdcxx3}@
+li@{"mpdecimal" License:license_mpdecimal}@
+li@{"musl" License:license_musl}@
+li@{"nameof" License:license_nameof}@
+li@{"ncurses" License:license_ncurses}@
+li@{"tvision" License:license_tvision}@
 @
 
 Pay close attention: executables built by TMBASIC are subject to the licenses above. You must obey these licenses if you distribute your compiled executables. These are permissive open source

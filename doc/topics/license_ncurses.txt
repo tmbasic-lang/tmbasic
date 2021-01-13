@@ -1,5 +1,5 @@
 nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {License:license}@
 
-h1['ncurses' License]
+h1["ncurses" License]
 
 dia[license_ncurses]
