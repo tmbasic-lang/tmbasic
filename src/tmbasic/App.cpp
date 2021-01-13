@@ -535,7 +535,6 @@ TRect App::centeredRect(int width, int height) {
 
 void App::openHelpTopic(uint16_t topic) {
     try {
-        assert(kResourceHelp_len == 141202);
         auto* start = reinterpret_cast<char*>(kResourceHelp);  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
         auto* end = reinterpret_cast<char*>(&kResourceHelp[kResourceHelp_len]);
