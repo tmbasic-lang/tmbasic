@@ -62,4 +62,4 @@ TMBASIC itself is open source software, but apps written in TMBASIC are not requ
 
 Pay close attention: executables built by TMBASIC are subject to the licenses above. You must obey these licenses if you distribute your compiled executables. These are permissive open source licenses that do not require you to release your BASIC source code. TMBASIC includes a `LICENSE.txt` file that combines these licenses for your convenience. Include this license file along with your executable when you distribute your TMBASIC apps.
 
-See [`ext/README.md`](ext/README.md) for more information about the third party libraries used in TMBASIC.
+See [`ext/README.md`](https://github.com/electroly/tmbasic/blob/master/ext/README.md) for more information about the third party libraries used in TMBASIC.
