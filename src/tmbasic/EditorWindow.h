@@ -17,7 +17,7 @@ class EditorWindow : public TWindow {
     void onTimerTick();
     void updateTitle();
 
-    TEditor* _editor;
+    TEditor* _editor = nullptr;
     compiler::SourceMember* _member;
     std::function<void()> _onEdited;
     int _pendingUpdate = -1;   // -1=no edit pending, 0+=number of ticks since the last edit
