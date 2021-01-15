@@ -85,10 +85,14 @@ RUN cd /tmp && \
 
 # environment
 USER $HOST_UID
-COPY bashrc-dev /tmp/bashrc
+COPY devPrompt.sh /home/$USER/
 RUN echo "export ARCH=\"$ARCH\"" >> /home/$USER/.bashrc && \
     echo "export IMAGE_NAME=\"$IMAGE_NAME\"" >> /home/$USER/.bashrc && \
     echo "export PS1=\"[$IMAGE_NAME] \w\$ \"" >> /home/$USER/.bashrc && \
-    cat /tmp/bashrc >> /home/$USER/.bashrc
+    echo "export MAKEFLAGS=\"-j2\"" >> /home/$USER/.bashrc && \
+    echo "export TARGET_OS=linux" >> /home/$USER/.bashrc && \
+    echo "export LINUX_DISTRO=ubuntu" >> /home/$USER/.bashrc && \
+    echo "alias dev='/home/$USER/devPrompt.sh'" >> /home/$USER/.bashrc && \
+    echo "make -f /code/Makefile help" >> /home/$USER/.bashrc
 
 ENTRYPOINT "/bin/bash"

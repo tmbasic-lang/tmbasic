@@ -1,4 +1,0 @@
-export MAKEFLAGS="-j2"
-export TARGET_OS=linux
-export LINUX_DISTRO=alpine
-make -f /code/Makefile help
