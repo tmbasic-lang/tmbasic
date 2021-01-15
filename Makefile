@@ -46,13 +46,13 @@ endif
 # runner builds, which will be 0-byte files for debug builds. for full release builds, these runners will be built
 # separately and provided ahead of time
 RUNNERS_OBJ_FILES=\
-	obj/runner_linux_arm64.o \
-	obj/runner_linux_arm32.o \
-	obj/runner_linux_x64.o \
-	obj/runner_linux_x86.o \
-	obj/runner_mac_x64.o \
-	obj/runner_win_x64.o \
-	obj/runner_win_x86.o
+	obj/resources/runner_linux_arm64.o \
+	obj/resources/runner_linux_arm32.o \
+	obj/resources/runner_linux_x64.o \
+	obj/resources/runner_linux_x86.o \
+	obj/resources/runner_mac_x64.o \
+	obj/resources/runner_win_x64.o \
+	obj/resources/runner_win_x86.o
 RUNNERS_BIN_FILES=$(RUNNERS_OBJ_FILES:.o=)
 
 # C++ build files
@@ -517,53 +517,53 @@ obj/shared.a: $(SHARED_OBJ_FILES)
 
 # resources
 
-obj/helpfile.o: obj/help.h32
+obj/resources/helpfile.o: obj/help.h32
 	@echo $@
 	@mkdir -p $(@D)
-	@xxd -i $< | sed s/obj_help_h32/kResourceHelp/g > obj/kResourceHelp.cpp
-	@$(CXX) -o $@ -c obj/kResourceHelp.cpp
+	@xxd -i $< | sed s/obj_help_h32/kResourceHelp/g > obj/resources/kResourceHelp.cpp
+	@$(CXX) -o $@ -c obj/resources/kResourceHelp.cpp
 
-obj/runner_linux_arm64.o: obj/runner_linux_arm64
+obj/resources/runner_linux_arm64.o: obj/resources/runner_linux_arm64
 	@echo $@
 	@mkdir -p $(@D)
-	@xxd -i $< | sed s/obj_runner_linux_arm64/kResourceRunnerLinuxArm64/g > obj/kResourceRunnerLinuxArm64.cpp
-	@$(CXX) -o $@ -c obj/kResourceRunnerLinuxArm64.cpp
+	@xxd -i $< | sed s/obj_runner_linux_arm64/kResourceRunnerLinuxArm64/g > obj/resources/kResourceRunnerLinuxArm64.cpp
+	@$(CXX) -o $@ -c obj/resources/kResourceRunnerLinuxArm64.cpp
 
-obj/runner_linux_arm32.o: obj/runner_linux_arm32
+obj/resources/runner_linux_arm32.o: obj/resources/runner_linux_arm32
 	@echo $@
 	@mkdir -p $(@D)
-	@xxd -i $< | sed s/obj_runner_linux_arm32/kResourceRunnerLinuxArm32/g > obj/kResourceRunnerLinuxArm32.cpp
-	@$(CXX) -o $@ -c obj/kResourceRunnerLinuxArm32.cpp
+	@xxd -i $< | sed s/obj_runner_linux_arm32/kResourceRunnerLinuxArm32/g > obj/resources/kResourceRunnerLinuxArm32.cpp
+	@$(CXX) -o $@ -c obj/resources/kResourceRunnerLinuxArm32.cpp
 
-obj/runner_linux_x64.o: obj/runner_linux_x64
+obj/resources/runner_linux_x64.o: obj/resources/runner_linux_x64
 	@echo $@
 	@mkdir -p $(@D)
-	@xxd -i $< | sed s/obj_runner_linux_x64/kResourceRunnerLinuxX64/g > obj/kResourceRunnerLinuxX64.cpp
-	@$(CXX) -o $@ -c obj/kResourceRunnerLinuxX64.cpp
+	@xxd -i $< | sed s/obj_runner_linux_x64/kResourceRunnerLinuxX64/g > obj/resources/kResourceRunnerLinuxX64.cpp
+	@$(CXX) -o $@ -c obj/resources/kResourceRunnerLinuxX64.cpp
 
-obj/runner_linux_x86.o: obj/runner_linux_x86
+obj/resources/runner_linux_x86.o: obj/resources/runner_linux_x86
 	@echo $@
 	@mkdir -p $(@D)
-	@xxd -i $< | sed s/obj_runner_linux_x86/kResourceRunnerLinuxX86/g > obj/kResourceRunnerLinuxX86.cpp
-	@$(CXX) -o $@ -c obj/kResourceRunnerLinuxX86.cpp
+	@xxd -i $< | sed s/obj_runner_linux_x86/kResourceRunnerLinuxX86/g > obj/resources/kResourceRunnerLinuxX86.cpp
+	@$(CXX) -o $@ -c obj/resources/kResourceRunnerLinuxX86.cpp
 
-obj/runner_mac_x64.o: obj/runner_mac_x64
+obj/resources/runner_mac_x64.o: obj/resources/runner_mac_x64
 	@echo $@
 	@mkdir -p $(@D)
-	@xxd -i $< | sed s/obj_runner_mac_x64/kResourceRunnerMacX64/g > obj/kResourceRunnerMacX64.cpp
-	@$(CXX) -o $@ -c obj/kResourceRunnerMacX64.cpp
+	@xxd -i $< | sed s/obj_runner_mac_x64/kResourceRunnerMacX64/g > obj/resources/kResourceRunnerMacX64.cpp
+	@$(CXX) -o $@ -c obj/resources/kResourceRunnerMacX64.cpp
 
-obj/runner_win_x64.o: obj/runner_win_x64
+obj/resources/runner_win_x64.o: obj/resources/runner_win_x64
 	@echo $@
 	@mkdir -p $(@D)
-	@xxd -i $< | sed s/obj_runner_win_x64/kResourceRunnerWinX64/g > obj/kResourceRunnerWinX64.cpp
-	@$(CXX) -o $@ -c obj/kResourceRunnerWinX64.cpp
+	@xxd -i $< | sed s/obj_runner_win_x64/kResourceRunnerWinX64/g > obj/resources/kResourceRunnerWinX64.cpp
+	@$(CXX) -o $@ -c obj/resources/kResourceRunnerWinX64.cpp
 
-obj/runner_win_x86.o: obj/runner_win_x86
+obj/resources/runner_win_x86.o: obj/resources/runner_win_x86
 	@echo $@
 	@mkdir -p $(@D)
-	@xxd -i $< | sed s/obj_runner_win_x86/kResourceRunnerWinX86/g > obj/kResourceRunnerWinX86.cpp
-	@$(CXX) -o $@ -c obj/kResourceRunnerWinX86.cpp
+	@xxd -i $< | sed s/obj_runner_win_x86/kResourceRunnerWinX86/g > obj/resources/kResourceRunnerWinX86.cpp
+	@$(CXX) -o $@ -c obj/resources/kResourceRunnerWinX86.cpp
 
 # tmbasic
 
@@ -584,7 +584,7 @@ bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
 		obj/common.h.gch \
 		obj/helpfile.h \
 		obj/help.h32 \
-		obj/helpfile.o \
+		obj/resources/helpfile.o \
 		$(RUNNERS_OBJ_FILES) \
 		$(RUNNERS_BIN_FILES)
 	@echo $@
@@ -598,7 +598,7 @@ bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
 		obj/shared.a \
 		obj/compiler.a \
 		-ltvision \
-		obj/helpfile.o \
+		obj/resources/helpfile.o \
 		$(RUNNERS_OBJ_FILES) \
 		$(LDFLAGS)
 	@$(STRIP) bin/tmbasic$(EXE_EXTENSION)
@@ -621,7 +621,7 @@ bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) \
 		obj/common.h.gch \
 		obj/helpfile.h \
 		obj/help.h32 \
-		obj/helpfile.o \
+		obj/resources/helpfile.o \
 		$(RUNNERS_OBJ_FILES)
 	@echo $@
 	@mkdir -p $(@D)
@@ -634,46 +634,53 @@ bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) \
 		obj/shared.a \
 		obj/compiler.a \
 		-ltvision \
-		obj/helpfile.o \
+		obj/resources/helpfile.o \
 		$(RUNNERS_OBJ_FILES) \
 		$(LDFLAGS) \
 		$(LIBGTEST_FLAG) \
 		-lpthread
 
-# runner: We build three versions that are identical except for the pcode they have embedded:
+# runner: We build several versions that are identical except for the pcode they have embedded:
 # - runner: 8-byte pcode
-# - runner16: 16-byte pcode
-# - runner24: 24-byte pcode
-# The 8-byte version is the one we actually ship. All three are used for analysis to determine how to dynamically
-# rewrite the 8-byte version to include an arbitrary chunk of pcode at runtime.
+# - runner100KB: 102400-byte pcode
+# - runner1MB: 1048576-byte pcode
+# - runner5MB: 5242880-byte pcode
+# We ship the 8-byte runner and a set of binary patches to convert the 8-byte runner to the other sizes.
 
 $(RUNNER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(SHARED_H_FILES) $(RUNNER_H_FILES)
 	@echo $@
 	@mkdir -p $(@D)
 	@$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
 
-obj/kResourcePcode8.o:
+obj/resources/kResourcePcode8.o:
 	@echo $@
 	@mkdir -p $(@D)
-	@echo -n 12345678 > obj/pcode8
-	@xxd -i obj/pcode8 | sed s/obj_pcode8/kResourcePcode/g > obj/kResourcePcode8.cpp
-	@$(CXX) -o $@ -c obj/kResourcePcode8.cpp
+	@head -c 8 /dev/zero | tr '\0' 'T' > obj/pcode8
+	@xxd -i obj/pcode8 | sed s/obj_pcode8/kResourcePcode/g > obj/resources/kResourcePcode8.cpp
+	@$(CXX) -o $@ -c obj/resources/kResourcePcode8.cpp
 
-obj/kResourcePcode16.o:
+obj/resources/kResourcePcode100KB.o:
 	@echo $@
 	@mkdir -p $(@D)
-	@echo -n 1234567890123456 > obj/pcode16
-	@xxd -i obj/pcode16 | sed s/obj_pcode16/kResourcePcode/g > obj/kResourcePcode16.cpp
-	@$(CXX) -o $@ -c obj/kResourcePcode16.cpp
+	@head -c 102400 /dev/zero | tr '\0' 'T' > obj/pcode100KB
+	@xxd -i obj/pcode100KB | sed s/obj_pcode100KB/kResourcePcode/g > obj/resources/kResourcePcode100KB.cpp
+	@$(CXX) -o $@ -c obj/resources/kResourcePcode100KB.cpp
 
-obj/kResourcePcode24.o:
+obj/resources/kResourcePcode1MB.o:
 	@echo $@
 	@mkdir -p $(@D)
-	@echo -n 123456789012345678901234 > obj/pcode24
-	@xxd -i obj/pcode24 | sed s/obj_pcode24/kResourcePcode/g > obj/kResourcePcode24.cpp
-	@$(CXX) -o $@ -c obj/kResourcePcode24.cpp
+	@head -c 1048576 /dev/zero | tr '\0' 'T' > obj/pcode1MB
+	@xxd -i obj/pcode1MB | sed s/obj_pcode1MB/kResourcePcode/g > obj/resources/kResourcePcode1MB.cpp
+	@$(CXX) -o $@ -c obj/resources/kResourcePcode1MB.cpp
 
-bin/runner$(EXE_EXTENSION): $(RUNNER_OBJ_FILES) obj/shared.a obj/common.h.gch obj/kResourcePcode8.o
+obj/resources/kResourcePcode5MB.o:
+	@echo $@
+	@mkdir -p $(@D)
+	@head -c 5242880 /dev/zero | tr '\0' 'T' > obj/pcode5MB
+	@xxd -i obj/pcode5MB | sed s/obj_pcode5MB/kResourcePcode/g > obj/resources/kResourcePcode5MB.cpp
+	@$(CXX) -o $@ -c obj/resources/kResourcePcode5MB.cpp
+
+bin/runner$(EXE_EXTENSION): $(RUNNER_OBJ_FILES) obj/shared.a obj/common.h.gch obj/resources/kResourcePcode8.o
 	@echo $@
 	@mkdir -p $(@D)
 	@$(CXX) \
@@ -682,13 +689,13 @@ bin/runner$(EXE_EXTENSION): $(RUNNER_OBJ_FILES) obj/shared.a obj/common.h.gch ob
 		$(STATIC_FLAG) \
 		-include obj/common.h \
 		$(RUNNER_OBJ_FILES) \
-		obj/kResourcePcode8.o \
+		obj/resources/kResourcePcode8.o \
 		obj/shared.a \
 		-ltvision \
 		$(LDFLAGS)
 	@$(STRIP) $@
 
-bin/runner16$(EXE_EXTENSION): $(RUNNER_OBJ_FILES) obj/shared.a obj/common.h.gch obj/kResourcePcode16.o
+bin/runner100KB$(EXE_EXTENSION): $(RUNNER_OBJ_FILES) obj/shared.a obj/common.h.gch obj/resources/kResourcePcode100KB.o
 	@echo $@
 	@mkdir -p $(@D)
 	@$(CXX) \
@@ -697,13 +704,13 @@ bin/runner16$(EXE_EXTENSION): $(RUNNER_OBJ_FILES) obj/shared.a obj/common.h.gch 
 		$(STATIC_FLAG) \
 		-include obj/common.h \
 		$(RUNNER_OBJ_FILES) \
-		obj/kResourcePcode16.o \
+		obj/resources/kResourcePcode100KB.o \
 		obj/shared.a \
 		-ltvision \
 		$(LDFLAGS)
 	@$(STRIP) $@
 
-bin/runner24$(EXE_EXTENSION): $(RUNNER_OBJ_FILES) obj/shared.a obj/common.h.gch obj/kResourcePcode24.o
+bin/runner1MB$(EXE_EXTENSION): $(RUNNER_OBJ_FILES) obj/shared.a obj/common.h.gch obj/resources/kResourcePcode1MB.o
 	@echo $@
 	@mkdir -p $(@D)
 	@$(CXX) \
@@ -712,7 +719,22 @@ bin/runner24$(EXE_EXTENSION): $(RUNNER_OBJ_FILES) obj/shared.a obj/common.h.gch 
 		$(STATIC_FLAG) \
 		-include obj/common.h \
 		$(RUNNER_OBJ_FILES) \
-		obj/kResourcePcode24.o \
+		obj/resources/kResourcePcode1MB.o \
+		obj/shared.a \
+		-ltvision \
+		$(LDFLAGS)
+	@$(STRIP) $@
+
+bin/runner5MB$(EXE_EXTENSION): $(RUNNER_OBJ_FILES) obj/shared.a obj/common.h.gch obj/resources/kResourcePcode5MB.o
+	@echo $@
+	@mkdir -p $(@D)
+	@$(CXX) \
+		-o $@ \
+		$(CXXFLAGS) \
+		$(STATIC_FLAG) \
+		-include obj/common.h \
+		$(RUNNER_OBJ_FILES) \
+		obj/resources/kResourcePcode5MB.o \
 		obj/shared.a \
 		-ltvision \
 		$(LDFLAGS)
