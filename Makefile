@@ -95,7 +95,9 @@ LICENSE_DIAGRAM_SRC_FILES=\
 	obj/doc-temp/diagrams-license/license_mpdecimal.txt \
 	obj/doc-temp/diagrams-license/license_nameof.txt \
 	obj/doc-temp/diagrams-license/license_ncurses.txt \
-	obj/doc-temp/diagrams-license/license_tvision.txt
+	obj/doc-temp/diagrams-license/license_tvision.txt \
+	obj/doc-temp/diagrams-license/license_bsdiff.txt \
+	obj/doc-temp/diagrams-license/license_bzip2.txt
 LICENSE_DIAGRAM_CP437_FILES=\
 	$(patsubst obj/doc-temp/diagrams-license/%,obj/doc-temp/diagrams-cp437/%,$(LICENSE_DIAGRAM_SRC_FILES))
 
@@ -444,6 +446,16 @@ obj/doc-temp/diagrams-license/license_ncurses.txt: ext/ncurses/COPYING
 	@cp -f $< $@
 
 obj/doc-temp/diagrams-license/license_tvision.txt: ext/tvision/COPYRIGHT
+	@echo $@
+	@mkdir -p $(@D)
+	@cp -f $< $@
+
+obj/doc-temp/diagrams-license/license_bsdiff.txt: ext/bsdiff/LICENSE
+	@echo $@
+	@mkdir -p $(@D)
+	@cp -f $< $@
+
+obj/doc-temp/diagrams-license/license_bzip2.txt: ext/bzip2/COPYING
 	@echo $@
 	@mkdir -p $(@D)
 	@cp -f $< $@

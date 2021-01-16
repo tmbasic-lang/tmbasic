@@ -44,3 +44,15 @@
 - Website: https://github.com/magiblot/tvision
 - License: [Borland license](https://github.com/electroly/tmbasic/blob/master/ext/tvision/COPYRIGHT) (original code), [MIT license](https://github.com/electroly/tmbasic/blob/master/ext/tvision/COPYRIGHT) (additions)
 - Source: https://github.com/magiblot/tvision/archive/ccf1841f7ea3fc4ca0cb00f30a3ef49c60d5ff12.zip ([mirror](https://tmbasic.s3.amazonaws.com/tvision/tvision-ccf1841f7ea3fc4ca0cb00f30a3ef49c60d5ff12.zip))
+
+# Libraries included only in TMBASIC
+
+## bsdiff
+- Website: https://github.com/mendsley/bsdiff
+- License: [BSD license](https://github.com/electroly/tmbasic/blob/master/ext/bsdiff/LICENSE)
+- Source: https://github.com/mendsley/bsdiff/archive/b817e9491cf7b8699c8462ef9e2657ca4ccd7667.zip ([mirror](https://tmbasic.s3.amazonaws.com/bsdiff/bsdiff-b817e9491cf7b8699c8462ef9e2657ca4ccd7667.zip))
+
+## bzip2
+- Website: https://gitlab.com/federicomenaquintero/bzip2
+- License: [BSD license](https://github.com/electroly/tmbasic/blob/master/ext/bzip2/COPYING)
+- Source: https://gitlab.com/federicomenaquintero/bzip2/-/archive/6211b6500c8bec13a17707440d3a84ca8b34eed5/bzip2-6211b6500c8bec13a17707440d3a84ca8b34eed5.zip ([mirror](https://tmbasic.s3.amazonaws.com/bzip2/bzip2-6211b6500c8bec13a17707440d3a84ca8b34eed5.zip))

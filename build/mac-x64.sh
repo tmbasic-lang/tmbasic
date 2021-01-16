@@ -58,8 +58,35 @@ then
     pushd tvision
     mkdir build
     cd build
-    ../../cmake/CMake.app/Contents/bin/cmake -D CMAKE_PREFIX_PATH=../../ncurses ..
+    ../../cmake/CMake.app/Contents/bin/cmake -D CMAKE_PREFIX_PATH=../../ncurses -DCMAKE_BUILD_TYPE=Release ..
     make -j8
+    popd
+fi
+
+if [ ! -d "bzip2" ]
+then
+    curl -L -o bzip2.zip https://gitlab.com/federicomenaquintero/bzip2/-/archive/6211b6500c8bec13a17707440d3a84ca8b34eed5/bzip2-6211b6500c8bec13a17707440d3a84ca8b34eed5.zip
+    unzip -q bzip2.zip
+    mv bzip2-*/ bzip2/
+    mkdir -p bzip2/build
+    pushd bzip2/build
+    ../../cmake/CMake.app/Contents/bin/cmake .. -DENABLE_STATIC_LIB=ON -DCMAKE_BUILD_TYPE=Release
+    make -j8
+    popd
+fi
+
+if [ ! -d "bsdiff" ]
+then
+    curl -L -o bsdiff.zip https://github.com/mendsley/bsdiff/archive/b817e9491cf7b8699c8462ef9e2657ca4ccd7667.zip
+    unzip -q bsdiff.zip
+    mv bsdiff-*/ bsdiff/
+    pushd bsdiff
+    gcc -o bsdiff -isystem ../bzip2 bsdiff.c -DBSDIFF_EXECUTABLE -L../bzip2/build -lbz2_static
+    gcc -o bspatch -isystem ../bzip2 bspatch.c -DBSPATCH_EXECUTABLE -L../bzip2/build -lbz2_static
+    gcc -c bsdiff.c
+    ar rcs libbsdiff.a bsdiff.o
+    gcc -c bspatch.c
+    ar rcs libbspatch.a bspatch.o
     popd
 fi
 

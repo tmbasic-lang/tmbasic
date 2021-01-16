@@ -140,6 +140,46 @@ RUN cd /tmp && \
     make -j2 && \
     make install
 
+# bzip2
+RUN cd /tmp && \
+    curl -L -o bzip2.zip https://gitlab.com/federicomenaquintero/bzip2/-/archive/6211b6500c8bec13a17707440d3a84ca8b34eed5/bzip2-6211b6500c8bec13a17707440d3a84ca8b34eed5.zip && \
+    unzip -q bzip2.zip && \
+    mv bzip2-*/ bzip2/ && \
+    mkdir -p bzip2/build-linux && \
+    cd bzip2/build-linux && \
+    cmake .. -DCMAKE_BUILD_TYPE=Release && \
+    make -j2 && \
+    make install && \
+    mkdir -p /tmp/bzip2/build-win && \
+    cd /tmp/bzip2/build-win && \
+    cmake .. \
+        -DENABLE_STATIC_LIB=ON \
+        -DCMAKE_PREFIX_PATH=/usr/$ARCH-w64-mingw32 \
+        -DCMAKE_INSTALL_PREFIX=/usr/$ARCH-w64-mingw32 \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_TOOLCHAIN_FILE=/tmp/toolchain-cross-mingw64-linux-$ARCH.cmake \
+        && \
+    make -j2 && \
+    make install
+
+# bsdiff
+RUN cd /tmp && \
+    curl -L -o bsdiff.zip https://github.com/mendsley/bsdiff/archive/b817e9491cf7b8699c8462ef9e2657ca4ccd7667.zip && \
+    unzip -q bsdiff.zip && \
+    mv bsdiff-*/ bsdiff/ && \
+    cd bsdiff && \
+    gcc -o bsdiff bsdiff.c -DBSDIFF_EXECUTABLE -lbz2 && \
+    gcc -o bspatch bspatch.c -DBSPATCH_EXECUTABLE -lbz2 && \
+    mv bsdiff bspatch /usr/bin/ && \
+    $ARCH-w64-mingw32-gcc -c bsdiff.c && \
+    $ARCH-w64-mingw32-ar rcs libbsdiff.a bsdiff.o && \
+    mv libbsdiff.a /usr/$ARCH-w64-mingw32/lib/ && \
+    $ARCH-w64-mingw32-gcc -c bspatch.c && \
+    $ARCH-w64-mingw32-ar rcs libbspatch.a bspatch.o && \
+    mv libbspatch.a /usr/$ARCH-w64-mingw32/lib/ && \
+    mkdir -p /usr/$ARCH-w64-mingw32/include/bsdiff && \
+    cp *.h /usr/$ARCH-w64-mingw32/include/bsdiff/
+
 # environment
 USER $HOST_UID
 RUN echo "export ARCH=\"$ARCH\"" >> /home/$USER/.bashrc && \

@@ -83,6 +83,35 @@ RUN cd /tmp && \
     make -j2 && \
     make install
 
+# bzip2
+RUN cd /tmp && \
+    curl -L -o bzip2.zip https://gitlab.com/federicomenaquintero/bzip2/-/archive/6211b6500c8bec13a17707440d3a84ca8b34eed5/bzip2-6211b6500c8bec13a17707440d3a84ca8b34eed5.zip && \
+    unzip -q bzip2.zip && \
+    mv bzip2-*/ bzip2/ && \
+    mkdir -p bzip2/build && \
+    cd bzip2/build && \
+    cmake .. -DENABLE_STATIC_LIB=ON && \
+    make -j2 && \
+    make install
+
+# bsdiff
+RUN cd /tmp && \
+    curl -L -o bsdiff.zip https://github.com/mendsley/bsdiff/archive/b817e9491cf7b8699c8462ef9e2657ca4ccd7667.zip && \
+    unzip -q bsdiff.zip && \
+    mv bsdiff-*/ bsdiff/ && \
+    cd bsdiff && \
+    gcc -o bsdiff bsdiff.c -DBSDIFF_EXECUTABLE -lbz2 && \
+    gcc -o bspatch bspatch.c -DBSPATCH_EXECUTABLE -lbz2 && \
+    mv bsdiff bspatch /usr/bin/ && \
+    gcc -c bsdiff.c && \
+    ar rcs libbsdiff.a bsdiff.o && \
+    mv libbsdiff.a /usr/lib/ && \
+    gcc -c bspatch.c && \
+    ar rcs libbspatch.a bspatch.o && \
+    mv libbspatch.a /usr/lib/ && \
+    mkdir -p /usr/include/bsdiff && \
+    cp *.h /usr/include/bsdiff/
+
 # environment
 USER $HOST_UID
 COPY devPrompt.sh /home/$USER/
