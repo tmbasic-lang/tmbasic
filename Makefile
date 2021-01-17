@@ -55,6 +55,12 @@ RUNNERS_OBJ_FILES=\
 	obj/resources/runner_win_x86.o
 RUNNERS_BIN_FILES=$(RUNNERS_OBJ_FILES:.o=)
 
+# We build several runners for each platform, each with a different length of dummy pcode. These sizes refer to the
+# length of that pcode in bytes.
+BZIPPED_RUNNER_SIZE=102400
+BSDIFFED_RUNNER_SIZES=524288 1048576 5242880
+RUNNER_SIZES=$(BZIPPED_RUNNER_SIZE) $(BSDIFFED_RUNNER_SIZES)
+
 # C++ build files
 COMPILER_SRC_FILES=$(shell find src/compiler -type f -name "*.cpp")
 COMPILER_H_FILES=$(shell find src/compiler -type f -name "*.h")
@@ -305,6 +311,9 @@ ghpages: obj/help.txt bin/ghpages/index.html
 .PHONY: ghpages-test
 ghpages-test:
 	@cd bin/ghpages && python3 -m http.server 5000
+
+.PHONY: runners
+runners: $(patsubst %,bin/runners/%,$(BZIPPED_RUNNER_SIZE:=.bz2)) $(patsubst %,bin/runners/%,$(BSDIFFED_RUNNER_SIZES:=.bsdiff))
 
 
 
@@ -652,47 +661,20 @@ bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) \
 		$(LIBGTEST_FLAG) \
 		-lpthread
 
-# runner: We build several versions that are identical except for the pcode they have embedded:
-# - runner: 8-byte pcode
-# - runner100KB: 102400-byte pcode
-# - runner1MB: 1048576-byte pcode
-# - runner5MB: 5242880-byte pcode
-# We ship the 8-byte runner and a set of binary patches to convert the 8-byte runner to the other sizes.
+# runner: We build several versions that are identical except for the length of the dummy pcode they have embedded.
+# We ship the 100KB runner and a set of binary patches to convert the 100KB runner to the other sizes.
 
 $(RUNNER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(SHARED_H_FILES) $(RUNNER_H_FILES)
 	@echo $@
 	@mkdir -p $(@D)
 	@$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
 
-obj/resources/kResourcePcode8.o:
+$(patsubst %,obj/resources/pcode/%,$(RUNNER_SIZES:=.o)): %:
 	@echo $@
 	@mkdir -p $(@D)
-	@head -c 8 /dev/zero | tr '\0' 'T' > obj/pcode8
-	@xxd -i obj/pcode8 | sed s/obj_pcode8/kResourcePcode/g > obj/resources/kResourcePcode8.cpp
-	@$(CXX) -o $@ -c obj/resources/kResourcePcode8.cpp
+	@OBJ_FILE=$@ CXX=$(CXX) build/scripts/generatePcode.sh
 
-obj/resources/kResourcePcode100KB.o:
-	@echo $@
-	@mkdir -p $(@D)
-	@head -c 102400 /dev/zero | tr '\0' 'T' > obj/pcode100KB
-	@xxd -i obj/pcode100KB | sed s/obj_pcode100KB/kResourcePcode/g > obj/resources/kResourcePcode100KB.cpp
-	@$(CXX) -o $@ -c obj/resources/kResourcePcode100KB.cpp
-
-obj/resources/kResourcePcode1MB.o:
-	@echo $@
-	@mkdir -p $(@D)
-	@head -c 1048576 /dev/zero | tr '\0' 'T' > obj/pcode1MB
-	@xxd -i obj/pcode1MB | sed s/obj_pcode1MB/kResourcePcode/g > obj/resources/kResourcePcode1MB.cpp
-	@$(CXX) -o $@ -c obj/resources/kResourcePcode1MB.cpp
-
-obj/resources/kResourcePcode5MB.o:
-	@echo $@
-	@mkdir -p $(@D)
-	@head -c 5242880 /dev/zero | tr '\0' 'T' > obj/pcode5MB
-	@xxd -i obj/pcode5MB | sed s/obj_pcode5MB/kResourcePcode/g > obj/resources/kResourcePcode5MB.cpp
-	@$(CXX) -o $@ -c obj/resources/kResourcePcode5MB.cpp
-
-bin/runner$(EXE_EXTENSION): $(RUNNER_OBJ_FILES) obj/shared.a obj/common.h.gch obj/resources/kResourcePcode8.o
+$(patsubst %,bin/runners/%,$(RUNNER_SIZES)): bin/runners/%: obj/resources/pcode/%.o $(RUNNER_OBJ_FILES) obj/shared.a
 	@echo $@
 	@mkdir -p $(@D)
 	@$(CXX) \
@@ -701,56 +683,24 @@ bin/runner$(EXE_EXTENSION): $(RUNNER_OBJ_FILES) obj/shared.a obj/common.h.gch ob
 		$(STATIC_FLAG) \
 		-include obj/common.h \
 		$(RUNNER_OBJ_FILES) \
-		obj/resources/kResourcePcode8.o \
+		obj/resources/pcode/$(patsubst bin/runners/%,%,$@).o \
 		obj/shared.a \
 		-ltvision \
 		$(LDFLAGS)
 	@$(STRIP) $@
 
-bin/runner100KB$(EXE_EXTENSION): $(RUNNER_OBJ_FILES) obj/shared.a obj/common.h.gch obj/resources/kResourcePcode100KB.o
+$(patsubst %,bin/runners/%,$(BSDIFFED_RUNNER_SIZES:=.bsdiff)): bin/runners/%.bsdiff: bin/runners/%$(EXE_EXTENSION) \
+		bin/runners/$(BZIPPED_RUNNER_SIZE)$(EXE_EXTENSION)
 	@echo $@
 	@mkdir -p $(@D)
-	@$(CXX) \
-		-o $@ \
-		$(CXXFLAGS) \
-		$(STATIC_FLAG) \
-		-include obj/common.h \
-		$(RUNNER_OBJ_FILES) \
-		obj/resources/kResourcePcode100KB.o \
-		obj/shared.a \
-		-ltvision \
-		$(LDFLAGS)
-	@$(STRIP) $@
+	@bsdiff bin/runners/$(BZIPPED_RUNNER_SIZE)$(EXE_EXTENSION) $< $@
 
-bin/runner1MB$(EXE_EXTENSION): $(RUNNER_OBJ_FILES) obj/shared.a obj/common.h.gch obj/resources/kResourcePcode1MB.o
+$(patsubst %,bin/runners/%,$(BZIPPED_RUNNER_SIZE:=.bz2)): bin/runners/%.bz2: bin/runners/%$(EXE_EXTENSION)
 	@echo $@
 	@mkdir -p $(@D)
-	@$(CXX) \
-		-o $@ \
-		$(CXXFLAGS) \
-		$(STATIC_FLAG) \
-		-include obj/common.h \
-		$(RUNNER_OBJ_FILES) \
-		obj/resources/kResourcePcode1MB.o \
-		obj/shared.a \
-		-ltvision \
-		$(LDFLAGS)
-	@$(STRIP) $@
-
-bin/runner5MB$(EXE_EXTENSION): $(RUNNER_OBJ_FILES) obj/shared.a obj/common.h.gch obj/resources/kResourcePcode5MB.o
-	@echo $@
-	@mkdir -p $(@D)
-	@$(CXX) \
-		-o $@ \
-		$(CXXFLAGS) \
-		$(STATIC_FLAG) \
-		-include obj/common.h \
-		$(RUNNER_OBJ_FILES) \
-		obj/resources/kResourcePcode5MB.o \
-		obj/shared.a \
-		-ltvision \
-		$(LDFLAGS)
-	@$(STRIP) $@
+	@rm -f $@
+	@bzip2 --keep --best $<
+	@touch $@
 
 # runners for full publish builds
 
