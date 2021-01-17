@@ -125,6 +125,15 @@ BUILDCC=$(CC)
 STRIP=strip
 endif
 
+# bsdiff and bzip2: On Mac we install these locally on Mac.
+ifeq ($(TARGET_OS),mac)
+BSDIFF=$(PWD)/mac/bsdiff/bsdiff
+BZIP2=$(PWD)/mac/bzip2/build/bzip2
+else
+BSDIFF=bsdiff
+BZIP2=bzip2
+endif
+
 # TVHC_CMD: We run tvhc to generate our help file.
 ifeq ($(TARGET_OS),linux)
 TVHC_CMD=tvhc
@@ -695,13 +704,13 @@ $(patsubst %,bin/runners/%,$(BSDIFFED_RUNNER_SIZES:=.bsdiff)): bin/runners/%.bsd
 		bin/runners/$(BZIPPED_RUNNER_SIZE)$(EXE_EXTENSION)
 	@echo $@
 	@mkdir -p $(@D)
-	@bsdiff bin/runners/$(BZIPPED_RUNNER_SIZE)$(EXE_EXTENSION) $< $@
+	@$(BSDIFF) bin/runners/$(BZIPPED_RUNNER_SIZE)$(EXE_EXTENSION) $< $@
 
 $(patsubst %,bin/runners/%,$(BZIPPED_RUNNER_SIZE:=.bz2)): bin/runners/%.bz2: bin/runners/%$(EXE_EXTENSION)
 	@echo $@
 	@mkdir -p $(@D)
 	@rm -f $@
-	@cat $< | bzip2 --keep --best > $@
+	@cat $< | $(BZIP2) --keep --best > $@
 	@[ -e "$@" ] && touch $@
 
 # runners for full publish builds
