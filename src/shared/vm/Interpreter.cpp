@@ -1037,8 +1037,7 @@ bool Interpreter::run(int maxCycles) {
             }
 
             default:
-                std::cerr << "Unimplemented opcode: "
-                          << NAMEOF_ENUM(static_cast<Opcode>(instructions->at(instructionIndex))) << std::endl;
+                std::cerr << "Unimplemented opcode: " << instructions->at(instructionIndex) << std::endl;
                 assert(false);
                 break;
         }

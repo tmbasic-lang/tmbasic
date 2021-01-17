@@ -378,7 +378,6 @@ bin/LICENSE.txt: LICENSE \
 		ext/gcc/GPL-3 \
 		ext/gcc/copyright \
 		ext/mpdecimal/LICENSE.txt \
-		ext/nameof/LICENSE.txt \
 		ext/ncurses/COPYING \
 		ext/tvision/COPYRIGHT
 	@echo $@
@@ -402,9 +401,6 @@ bin/LICENSE.txt: LICENSE \
 	@echo >> $@
 	@echo === musl license === >> $@
 	@cat ext/musl/COPYRIGHT >> $@
-	@echo >> $@
-	@echo === nameof license === >> $@
-	@cat ext/nameof/LICENSE.txt >> $@
 	@echo >> $@
 	@echo === ncurses license === >> $@
 	@cat ext/ncurses/COPYING >> $@

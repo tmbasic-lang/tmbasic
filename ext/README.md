@@ -1,58 +1,60 @@
-# Libraries included in both TMBASIC and user programs
+# External libraries
 
-## boost
+## Libraries included in both TMBASIC and user programs
+
+### boost
 - Website: https://www.boost.org/
 - License: [Boost Software License v1.0](https://github.com/electroly/tmbasic/blob/master/ext/boost/LICENSE_1_0.txt)
 - Source (Linux): `boost-dev` package from Alpine Linux
 - Source (Windows): `boost` package from Arch Linux
 - Source (macOS): https://dl.bintray.com/boostorg/release/1.74.0/source/boost_1_74_0.tar.gz ([mirror](https://tmbasic.s3.amazonaws.com/boost/boost_1_74_0.tar.gz))
 
-## immer
+### immer
 - Website: https://github.com/arximboldi/immer
 - License: [Boost Software License v1.0](https://github.com/electroly/tmbasic/blob/master/ext/immer/LICENSE)
 - Source: https://github.com/arximboldi/immer/archive/800ddb04e528a3e83e69e8021d7e872e7c34cbcd.zip ([mirror](https://tmbasic.s3.amazonaws.com/immer/immer-800ddb04e528a3e83e69e8021d7e872e7c34cbcd.zip))
 
-## libstdc++
+### libstdc++
 - Website: https://gcc.gnu.org/onlinedocs/libstdc++/
 - License: [GNU General Public License v3](https://github.com/electroly/tmbasic/blob/master/ext/gcc/GPL-3) with [GCC Runtime Library Exception v3.1](https://github.com/electroly/tmbasic/blob/master/ext/gcc/copyright)
 - Source (Linux): `libstdc++` package from Alpine Linux
 - Source (Windows): `mingw-w64-gcc` package from Arch Linux
 
-## mpdecimal
+### mpdecimal
 - Website: https://www.bytereef.org/mpdecimal/
 - License: [BSD license](https://github.com/electroly/tmbasic/blob/master/ext/mpdecimal/LICENSE.txt)
 - Source: http://www.bytereef.org/software/mpdecimal/releases/mpdecimal-2.5.0.tar.gz ([mirror](https://tmbasic.s3.amazonaws.com/mpdecimal/mpdecimal-2.5.0.tar.gz))
 
-## musl
+### musl
 - Website: https://musl.libc.org/
 - License: [MIT license](https://github.com/electroly/tmbasic/blob/master/ext/musl/COPYRIGHT)
 - Source (Linux): `musl-dev` package from Alpine Linux
 
-## nameof
-- Website: https://github.com/Neargye/nameof
-- License: [MIT license](https://github.com/electroly/tmbasic/blob/master/ext/nameof/LICENSE.txt)
-- Source: https://github.com/Neargye/nameof/releases/download/v0.9.4/nameof.hpp (included in this repository)
-
-## ncurses
+### ncurses
 - Website: https://invisible-island.net/ncurses/
 - License: [Ncurses license](https://github.com/electroly/tmbasic/blob/master/ext/ncurses/COPYING)
 - Source (Linux): `ncurses` package from Alpine Linux
 - Source (Windows): `ftp://ftp.invisible-island.net/ncurses/ncurses-6.2.tar.gz` ([mirror](https://tmbasic.s3.amazonaws.com/ncurses/ncurses-6.2.tar.gz))
 - Source (macOS): Xcode package
 
-## tvision
+### tvision
 - Website: https://github.com/magiblot/tvision
 - License: [Borland license](https://github.com/electroly/tmbasic/blob/master/ext/tvision/COPYRIGHT) (original code), [MIT license](https://github.com/electroly/tmbasic/blob/master/ext/tvision/COPYRIGHT) (additions)
 - Source: https://github.com/magiblot/tvision/archive/ccf1841f7ea3fc4ca0cb00f30a3ef49c60d5ff12.zip ([mirror](https://tmbasic.s3.amazonaws.com/tvision/tvision-ccf1841f7ea3fc4ca0cb00f30a3ef49c60d5ff12.zip))
 
-# Libraries included only in TMBASIC
+## Libraries included only in TMBASIC
 
-## bsdiff
+### bsdiff
 - Website: https://github.com/mendsley/bsdiff
 - License: [BSD license](https://github.com/electroly/tmbasic/blob/master/ext/bsdiff/LICENSE)
 - Source: https://github.com/mendsley/bsdiff/archive/b817e9491cf7b8699c8462ef9e2657ca4ccd7667.zip ([mirror](https://tmbasic.s3.amazonaws.com/bsdiff/bsdiff-b817e9491cf7b8699c8462ef9e2657ca4ccd7667.zip))
 
-## bzip2
+### bzip2
 - Website: https://gitlab.com/federicomenaquintero/bzip2
 - License: [BSD license](https://github.com/electroly/tmbasic/blob/master/ext/bzip2/COPYING)
 - Source: https://gitlab.com/federicomenaquintero/bzip2/-/archive/6211b6500c8bec13a17707440d3a84ca8b34eed5/bzip2-6211b6500c8bec13a17707440d3a84ca8b34eed5.zip ([mirror](https://tmbasic.s3.amazonaws.com/bzip2/bzip2-6211b6500c8bec13a17707440d3a84ca8b34eed5.zip))
+
+### nameof
+- Website: https://github.com/Neargye/nameof
+- License: [MIT license](https://github.com/electroly/tmbasic/blob/master/ext/nameof/LICENSE.txt)
+- Source: https://github.com/Neargye/nameof/releases/download/v0.9.4/nameof.hpp (included in this repository)

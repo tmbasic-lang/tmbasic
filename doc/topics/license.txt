@@ -10,7 +10,6 @@ li@{"immer" License:license_immer}@
 li@"libstdc++" License - {Part 1:license_libstdcxx1}, {Part 2:license_libstdcxx2}, {Part 3:license_libstdcxx3}@
 li@{"mpdecimal" License:license_mpdecimal}@
 li@{"musl" License:license_musl}@
-li@{"nameof" License:license_nameof}@
 li@{"ncurses" License:license_ncurses}@
 li@{"tvision" License:license_tvision}@
 @
@@ -23,4 +22,5 @@ The following additional components are included in the TMBASIC development envi
 
 ul@li@{"bsdiff" License:license_bsdiff}@
 li@{"bzip2" License:license_bzip2}@
+li@{"nameof" License:license_nameof}@
 @

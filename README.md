@@ -56,7 +56,6 @@ TMBASIC itself is open source software, but apps written in TMBASIC are not requ
 - [libstdc++](https://gcc.gnu.org/onlinedocs/libstdc++/) — _[GNU General Public License v3](https://github.com/electroly/tmbasic/blob/master/ext/gcc/GPL-3) with [GCC Runtime Library Exception v3.1](https://github.com/electroly/tmbasic/blob/master/ext/gcc/copyright)_
 - [mpdecimal](https://www.bytereef.org/mpdecimal/) — _[BSD license](https://github.com/electroly/tmbasic/blob/master/ext/mpdecimal/LICENSE.txt)_
 - [musl](https://musl.libc.org/) — _[MIT license](https://github.com/electroly/tmbasic/blob/master/ext/musl/COPYRIGHT)_
-- [nameof](https://github.com/Neargye/nameof) — _[MIT license](https://github.com/electroly/tmbasic/blob/master/ext/nameof/LICENSE.txt)_
 - [ncurses](https://en.wikipedia.org/wiki/Ncurses) — _[Ncurses license](https://github.com/electroly/tmbasic/blob/master/ext/ncurses/COPYING)_
 - [tvision](https://github.com/magiblot/tvision) — _[Borland license](https://github.com/electroly/tmbasic/blob/master/ext/tvision/COPYRIGHT) (original code), [MIT license](https://github.com/electroly/tmbasic/blob/master/ext/tvision/COPYRIGHT) (additions)_
 
