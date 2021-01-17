@@ -313,7 +313,8 @@ ghpages-test:
 	@cd bin/ghpages && python3 -m http.server 5000
 
 .PHONY: runners
-runners: $(patsubst %,bin/runners/%,$(BZIPPED_RUNNER_SIZE:=.bz2)) $(patsubst %,bin/runners/%,$(BSDIFFED_RUNNER_SIZES:=.bsdiff))
+runners: $(patsubst %,bin/runners/%,$(BZIPPED_RUNNER_SIZE:=.bz2)) \
+		$(patsubst %,bin/runners/%,$(BSDIFFED_RUNNER_SIZES:=.bsdiff))
 
 
 
@@ -674,7 +675,8 @@ $(patsubst %,obj/resources/pcode/%,$(RUNNER_SIZES:=.o)): %:
 	@mkdir -p $(@D)
 	@OBJ_FILE=$@ CXX=$(CXX) build/scripts/generatePcode.sh
 
-$(patsubst %,bin/runners/%,$(RUNNER_SIZES)): bin/runners/%: obj/resources/pcode/%.o $(RUNNER_OBJ_FILES) obj/shared.a
+$(patsubst %,bin/runners/%,$(RUNNER_SIZES:=$(EXE_EXTENSION))): bin/runners/%$(EXE_EXTENSION): \
+		obj/resources/pcode/%.o $(RUNNER_OBJ_FILES) obj/shared.a
 	@echo $@
 	@mkdir -p $(@D)
 	@$(CXX) \
@@ -683,7 +685,7 @@ $(patsubst %,bin/runners/%,$(RUNNER_SIZES)): bin/runners/%: obj/resources/pcode/
 		$(STATIC_FLAG) \
 		-include obj/common.h \
 		$(RUNNER_OBJ_FILES) \
-		obj/resources/pcode/$(patsubst bin/runners/%,%,$@).o \
+		obj/resources/pcode/$(patsubst bin/runners/%$(EXE_EXTENSION),%,$@).o \
 		obj/shared.a \
 		-ltvision \
 		$(LDFLAGS)
@@ -699,8 +701,8 @@ $(patsubst %,bin/runners/%,$(BZIPPED_RUNNER_SIZE:=.bz2)): bin/runners/%.bz2: bin
 	@echo $@
 	@mkdir -p $(@D)
 	@rm -f $@
-	@bzip2 --keep --best $<
-	@touch $@
+	@cat $< | bzip2 --keep --best > $@
+	@[ -e "$@" ] && touch $@
 
 # runners for full publish builds
 
