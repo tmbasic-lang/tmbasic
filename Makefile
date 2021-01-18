@@ -299,11 +299,11 @@ valgrind: bin/tmbasic
 .PHONY: format
 format:
 	@find src/ -type f \( -iname \*.h -o -iname \*.cpp \) | xargs clang-format -i
-	@clang-format -i build/files/buildDoc.cpp
+	@clang-format -i build/scripts/buildDoc.cpp
 
 .PHONY: lint
 lint:
-	@cpplint --quiet --recursive --repository=src src build/files/buildDoc.cpp
+	@cpplint --quiet --recursive --repository=src src build/scripts/buildDoc.cpp
 
 .PHONY: tidy
 tidy: $(TIDY_TARGETS)
@@ -471,7 +471,7 @@ obj/doc-temp/diagrams-license/license_bzip2.txt: ext/bzip2/COPYING
 	@mkdir -p $(@D)
 	@cp -f $< $@
 
-obj/buildDoc: build/files/buildDoc.cpp
+obj/buildDoc: build/scripts/buildDoc.cpp
 	@echo $@
 	@$(BUILDCC) \
 		-o $@ $< \
