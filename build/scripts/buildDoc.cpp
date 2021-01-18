@@ -518,7 +518,7 @@ int main() {
             buildProcedure(filename, &procedureNames, &outputTxt, htmlPageTemplate);
         });
         buildProcedureIndex(procedureNames, &outputTxt, htmlPageTemplate);
-        writeFile("../obj/help.txt", insertCp437Diagrams(outputTxt.str()));
+        writeFile("../obj/resources/help/help.txt", insertCp437Diagrams(outputTxt.str()));
     } catch (const regex_error& ex) {
         ostringstream s;
         cerr << ex.what() << ": " << NAMEOF_ENUM(ex.code()) << endl;

@@ -1,5 +1,5 @@
 #include "tmbasic/EditorWindow.h"
-#include "../../obj/helpfile.h"
+#include "../../obj/resources/help/helpfile.h"
 #include "tmbasic/ViewPtr.h"
 #include "tmbasic/events.h"
 

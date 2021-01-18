@@ -1,5 +1,5 @@
 #include "AboutDialog.h"
-#include "../../obj/helpfile.h"
+#include "../../obj/resources/help/helpfile.h"
 #include "Button.h"
 #include "Label.h"
 #include "GridLayout.h"

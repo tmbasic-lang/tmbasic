@@ -1,5 +1,5 @@
 #include "tmbasic/ProgramWindow.h"
-#include "../../obj/helpfile.h"
+#include "../../obj/resources/help/helpfile.h"
 #include "shared/util/path.h"
 #include "shared/vm/Program.h"
 #include "tmbasic/DialogPtr.h"

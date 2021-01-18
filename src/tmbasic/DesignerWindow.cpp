@@ -1,5 +1,5 @@
 #include "tmbasic/DesignerWindow.h"
-#include "../../obj/helpfile.h"
+#include "../../obj/resources/help/helpfile.h"
 #include "shared/tui/UserForm.h"
 #include "tmbasic/DesignerFormPropertiesDialog.h"
 #include "tmbasic/DesignerGridView.h"

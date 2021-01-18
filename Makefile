@@ -326,7 +326,7 @@ lint:
 tidy: $(TIDY_TARGETS)
 
 .PHONY: ghpages
-ghpages: obj/help.txt bin/ghpages/index.html
+ghpages: obj/resources/help/help.txt bin/ghpages/index.html
 	@mkdir -p bin/ghpages
 	@cp obj/doc-html/* bin/ghpages/
 
@@ -439,18 +439,18 @@ obj/buildDoc: build/scripts/buildDoc.cpp
 		-std=c++17 \
 		-lstdc++
 
-obj/helpfile.h: obj/help.txt
+obj/resources/help/helpfile.h: obj/resources/help/help.txt
 	@echo $@
-	@mkdir -p obj
+	@mkdir -p obj/resources/help
 	@mkdir -p bin
-	@rm -f obj/help.h32
-	@rm -f obj/helpfile.h
-	@$(TVHC_CMD) obj/help.txt obj/help.h32 obj/helpfile.h
+	@rm -f obj/resources/help/help.h32
+	@rm -f obj/resources/help/helpfile.h
+	@$(TVHC_CMD) obj/resources/help/help.txt obj/resources/help/help.h32 obj/resources/help/helpfile.h
 
-obj/help.h32: obj/helpfile.h
+obj/resources/help/help.h32: obj/resources/help/helpfile.h
 	@echo $@
 
-obj/help.txt: $(DOC_FILES) \
+obj/resources/help/help.txt: $(DOC_FILES) \
 		obj/buildDoc \
 		$(DIAGRAM_CP437_FILES) \
 		$(LICENSE_DIAGRAM_CP437_FILES) \
@@ -458,7 +458,7 @@ obj/help.txt: $(DOC_FILES) \
 		doc/html/page-template-2.html \
 		doc/html/page-template-3.html
 	@echo $@
-	@mkdir -p obj
+	@mkdir -p $(@D)
 	@cd doc && ../obj/buildDoc
 
 $(DIAGRAM_CP437_FILES): obj/doc-temp/diagrams-cp437/%: doc/diagrams/%
@@ -497,11 +497,11 @@ obj/shared.a: $(SHARED_OBJ_FILES)
 
 # resources
 
-obj/resources/helpfile.o: obj/help.h32
+obj/resources/help/helpfile.o: obj/resources/help/help.h32
 	@echo $@
 	@mkdir -p $(@D)
-	@xxd -i $< | sed s/obj_help_h32/kResourceHelp/g > obj/resources/kResourceHelp.cpp
-	@$(CXX) -o $@ -c obj/resources/kResourceHelp.cpp
+	@xxd -i $< | sed s/obj_resources_help_help_h32/kResourceHelp/g > obj/resources/help/kResourceHelp.cpp
+	@$(CXX) -o $@ -c obj/resources/help/kResourceHelp.cpp
 
 $(RUNNERS_BIN_FILES): %: 
 	@echo $@
@@ -517,8 +517,8 @@ $(RUNNERS_OBJ_FILES): obj/resources/runners/%.o: obj/resources/runners/%
 
 $(TMBASIC_OBJ_FILES): obj/%.o: src/%.cpp \
 		obj/common.h.gch \
-		obj/helpfile.h \
-		obj/help.h32 \
+		obj/resources/help/helpfile.h \
+		obj/resources/help/help.h32 \
 		$(COMPILER_H_FILES) \
 		$(SHARED_H_FILES) \
 		$(TMBASIC_H_FILES)
@@ -530,9 +530,9 @@ bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
 		obj/shared.a \
 		obj/compiler.a \
 		obj/common.h.gch \
-		obj/helpfile.h \
-		obj/help.h32 \
-		obj/resources/helpfile.o \
+		obj/resources/help/helpfile.h \
+		obj/resources/help/help.h32 \
+		obj/resources/help/helpfile.o \
 		$(RUNNERS_OBJ_FILES)
 	@echo $@
 	@mkdir -p $(@D)
@@ -545,7 +545,7 @@ bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
 		obj/shared.a \
 		obj/compiler.a \
 		-ltvision \
-		obj/resources/helpfile.o \
+		obj/resources/help/helpfile.o \
 		$(RUNNERS_OBJ_FILES) \
 		$(LDFLAGS)
 	@$(STRIP) bin/tmbasic$(EXE_EXTENSION)
@@ -554,8 +554,8 @@ bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
 
 $(TEST_OBJ_FILES): obj/%.o: src/%.cpp \
 		obj/common.h.gch \
-		obj/helpfile.h \
-		obj/help.h32 \
+		obj/resources/help/helpfile.h \
+		obj/resources/help/help.h32 \
 		$(COMPILER_H_FILES) \
 		$(SHARED_H_FILES)
 	@echo $@
@@ -566,9 +566,9 @@ bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) \
 		obj/shared.a \
 		obj/compiler.a \
 		obj/common.h.gch \
-		obj/helpfile.h \
-		obj/help.h32 \
-		obj/resources/helpfile.o \
+		obj/resources/help/helpfile.h \
+		obj/resources/help/help.h32 \
+		obj/resources/help/helpfile.o \
 		$(RUNNERS_OBJ_FILES)
 	@echo $@
 	@mkdir -p $(@D)
@@ -581,7 +581,7 @@ bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) \
 		obj/shared.a \
 		obj/compiler.a \
 		-ltvision \
-		obj/resources/helpfile.o \
+		obj/resources/help/helpfile.o \
 		$(RUNNERS_OBJ_FILES) \
 		$(LDFLAGS) \
 		$(LIBGTEST_FLAG) \
