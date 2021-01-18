@@ -86,7 +86,21 @@ FAVICON_OUT_FILES=$(patsubst art/favicon/%,bin/ghpages/%,$(FAVICON_IN_FILES))
 DOC_FILES=$(shell find doc -type f -name "*.txt") $(shell find doc -type f -name "*.html")
 DIAGRAM_SRC_FILES=$(shell find doc/diagrams -type f -name "*.txt")
 DIAGRAM_CP437_FILES=$(patsubst doc/diagrams/%,obj/doc-temp/diagrams-cp437/%,$(DIAGRAM_SRC_FILES))
-LICENSE_DIAGRAM_SRC_FILES=\
+LICENSE_FILES=\
+	LICENSE \
+	ext/boost/LICENSE_1_0.txt \
+	ext/musl/COPYRIGHT \
+	ext/immer/LICENSE \
+	ext/gcc/GPL-3 \
+	ext/gcc/copyright1 \
+	ext/gcc/copyright2 \
+	ext/mpdecimal/LICENSE.txt \
+	ext/nameof/LICENSE.txt \
+	ext/ncurses/COPYING \
+	ext/tvision/COPYRIGHT \
+	ext/bsdiff/LICENSE \
+	ext/bzip2/COPYING
+LICENSE_DIAGRAM_TXT_FILES=\
 	obj/doc-temp/diagrams-license/license_tmbasic.txt \
 	obj/doc-temp/diagrams-license/license_boost.txt \
 	obj/doc-temp/diagrams-license/license_musl.txt \
@@ -101,7 +115,7 @@ LICENSE_DIAGRAM_SRC_FILES=\
 	obj/doc-temp/diagrams-license/license_bsdiff.txt \
 	obj/doc-temp/diagrams-license/license_bzip2.txt
 LICENSE_DIAGRAM_CP437_FILES=\
-	$(patsubst obj/doc-temp/diagrams-license/%,obj/doc-temp/diagrams-cp437/%,$(LICENSE_DIAGRAM_SRC_FILES))
+	$(patsubst obj/doc-temp/diagrams-license/%,obj/doc-temp/diagrams-cp437/%,$(LICENSE_DIAGRAM_TXT_FILES))
 
 
 
@@ -121,7 +135,7 @@ BUILDCC=$(CC)
 STRIP=strip
 endif
 
-# bsdiff and bzip2: On Mac we install these locally on Mac.
+# bsdiff and bzip2: On Mac we install these locally.
 ifeq ($(TARGET_OS),mac)
 BSDIFF=$(PWD)/mac/bsdiff/bsdiff
 BZIP2=$(PWD)/mac/bzip2/build/bzip2
@@ -406,70 +420,10 @@ bin/LICENSE.txt: LICENSE \
 	@echo >> $@
 	@$(LICENSE_PROCESS_CMD) $@
 
-obj/doc-temp/diagrams-license/license_tmbasic.txt: LICENSE
+$(LICENSE_DIAGRAM_TXT_FILES): $(LICENSE_FILES)
 	@echo $@
 	@mkdir -p $(@D)
-	@cp -f $< $@
-
-obj/doc-temp/diagrams-license/license_boost.txt: ext/boost/LICENSE_1_0.txt
-	@echo $@
-	@mkdir -p $(@D)
-	@cp -f $< $@
-
-obj/doc-temp/diagrams-license/license_musl.txt: ext/musl/COPYRIGHT
-	@echo $@
-	@mkdir -p $(@D)
-	@cp -f $< $@
-
-obj/doc-temp/diagrams-license/license_immer.txt: ext/immer/LICENSE
-	@echo $@
-	@mkdir -p $(@D)
-	@cp -f $< $@
-
-obj/doc-temp/diagrams-license/license_libstdc++_gpl3.txt: ext/gcc/GPL-3
-	@echo $@
-	@mkdir -p $(@D)
-	@cp -f $< $@
-
-obj/doc-temp/diagrams-license/license_libstdc++_gcc1.txt: ext/gcc/copyright1
-	@echo $@
-	@mkdir -p $(@D)
-	@cp -f $< $@
-
-obj/doc-temp/diagrams-license/license_libstdc++_gcc2.txt: ext/gcc/copyright2
-	@echo $@
-	@mkdir -p $(@D)
-	@cp -f $< $@
-
-obj/doc-temp/diagrams-license/license_mpdecimal.txt: ext/mpdecimal/LICENSE.txt
-	@echo $@
-	@mkdir -p $(@D)
-	@cp -f $< $@
-
-obj/doc-temp/diagrams-license/license_nameof.txt: ext/nameof/LICENSE.txt
-	@echo $@
-	@mkdir -p $(@D)
-	@cp -f $< $@
-
-obj/doc-temp/diagrams-license/license_ncurses.txt: ext/ncurses/COPYING
-	@echo $@
-	@mkdir -p $(@D)
-	@cp -f $< $@
-
-obj/doc-temp/diagrams-license/license_tvision.txt: ext/tvision/COPYRIGHT
-	@echo $@
-	@mkdir -p $(@D)
-	@cp -f $< $@
-
-obj/doc-temp/diagrams-license/license_bsdiff.txt: ext/bsdiff/LICENSE
-	@echo $@
-	@mkdir -p $(@D)
-	@cp -f $< $@
-
-obj/doc-temp/diagrams-license/license_bzip2.txt: ext/bzip2/COPYING
-	@echo $@
-	@mkdir -p $(@D)
-	@cp -f $< $@
+	@build/scripts/copyLicenseDiagrams.sh
 
 obj/buildDoc: build/scripts/buildDoc.cpp
 	@echo $@
