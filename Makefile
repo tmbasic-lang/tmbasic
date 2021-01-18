@@ -43,16 +43,12 @@ ifeq ($(TARGET_OS),win)
 EXE_EXTENSION=.exe
 endif
 
-# runner builds, which will be 0-byte files for debug builds. for full release builds, these runners will be built
+# Operating system + architecture pairs
+PLATFORMS=linux_arm64 linux_arm32 linux_x64 linux_x86 mac_x64 win_x64 win_x86
+
+# Runner builds, which will be 0-byte files for debug builds. for full release builds, these runners will be built
 # separately and provided ahead of time
-RUNNERS_OBJ_FILES=\
-	obj/resources/runner_linux_arm64.o \
-	obj/resources/runner_linux_arm32.o \
-	obj/resources/runner_linux_x64.o \
-	obj/resources/runner_linux_x86.o \
-	obj/resources/runner_mac_x64.o \
-	obj/resources/runner_win_x64.o \
-	obj/resources/runner_win_x86.o
+RUNNERS_OBJ_FILES=$(patsubst %,obj/resources/runners/%,$(PLATFORMS:=.o))
 RUNNERS_BIN_FILES=$(RUNNERS_OBJ_FILES:.o=)
 
 # We build several runners for each platform, each with a different length of dummy pcode. These sizes refer to the
@@ -550,47 +546,15 @@ obj/resources/helpfile.o: obj/help.h32
 	@xxd -i $< | sed s/obj_help_h32/kResourceHelp/g > obj/resources/kResourceHelp.cpp
 	@$(CXX) -o $@ -c obj/resources/kResourceHelp.cpp
 
-obj/resources/runner_linux_arm64.o: obj/resources/runner_linux_arm64
+$(RUNNERS_BIN_FILES): %:
 	@echo $@
 	@mkdir -p $(@D)
-	@xxd -i $< | sed s/obj_runner_linux_arm64/kResourceRunnerLinuxArm64/g > obj/resources/kResourceRunnerLinuxArm64.cpp
-	@$(CXX) -o $@ -c obj/resources/kResourceRunnerLinuxArm64.cpp
+	@touch $@
 
-obj/resources/runner_linux_arm32.o: obj/resources/runner_linux_arm32
+$(RUNNERS_OBJ_FILES): obj/resources/runners/%.o: obj/resources/runners/%
 	@echo $@
 	@mkdir -p $(@D)
-	@xxd -i $< | sed s/obj_runner_linux_arm32/kResourceRunnerLinuxArm32/g > obj/resources/kResourceRunnerLinuxArm32.cpp
-	@$(CXX) -o $@ -c obj/resources/kResourceRunnerLinuxArm32.cpp
-
-obj/resources/runner_linux_x64.o: obj/resources/runner_linux_x64
-	@echo $@
-	@mkdir -p $(@D)
-	@xxd -i $< | sed s/obj_runner_linux_x64/kResourceRunnerLinuxX64/g > obj/resources/kResourceRunnerLinuxX64.cpp
-	@$(CXX) -o $@ -c obj/resources/kResourceRunnerLinuxX64.cpp
-
-obj/resources/runner_linux_x86.o: obj/resources/runner_linux_x86
-	@echo $@
-	@mkdir -p $(@D)
-	@xxd -i $< | sed s/obj_runner_linux_x86/kResourceRunnerLinuxX86/g > obj/resources/kResourceRunnerLinuxX86.cpp
-	@$(CXX) -o $@ -c obj/resources/kResourceRunnerLinuxX86.cpp
-
-obj/resources/runner_mac_x64.o: obj/resources/runner_mac_x64
-	@echo $@
-	@mkdir -p $(@D)
-	@xxd -i $< | sed s/obj_runner_mac_x64/kResourceRunnerMacX64/g > obj/resources/kResourceRunnerMacX64.cpp
-	@$(CXX) -o $@ -c obj/resources/kResourceRunnerMacX64.cpp
-
-obj/resources/runner_win_x64.o: obj/resources/runner_win_x64
-	@echo $@
-	@mkdir -p $(@D)
-	@xxd -i $< | sed s/obj_runner_win_x64/kResourceRunnerWinX64/g > obj/resources/kResourceRunnerWinX64.cpp
-	@$(CXX) -o $@ -c obj/resources/kResourceRunnerWinX64.cpp
-
-obj/resources/runner_win_x86.o: obj/resources/runner_win_x86
-	@echo $@
-	@mkdir -p $(@D)
-	@xxd -i $< | sed s/obj_runner_win_x86/kResourceRunnerWinX86/g > obj/resources/kResourceRunnerWinX86.cpp
-	@$(CXX) -o $@ -c obj/resources/kResourceRunnerWinX86.cpp
+	@OBJ_FILE=$@ CXX=$(CXX) build/scripts/buildRunnerResource.sh
 
 # tmbasic
 
@@ -612,8 +576,7 @@ bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
 		obj/helpfile.h \
 		obj/help.h32 \
 		obj/resources/helpfile.o \
-		$(RUNNERS_OBJ_FILES) \
-		$(RUNNERS_BIN_FILES)
+		$(RUNNERS_OBJ_FILES)
 	@echo $@
 	@mkdir -p $(@D)
 	@$(CXX) \
@@ -678,7 +641,7 @@ $(RUNNER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(SHARED_H_FILES) $(RUN
 $(patsubst %,obj/resources/pcode/%,$(RUNNER_SIZES:=.o)): %:
 	@echo $@
 	@mkdir -p $(@D)
-	@OBJ_FILE=$@ CXX=$(CXX) build/scripts/generatePcode.sh
+	@OBJ_FILE=$@ CXX=$(CXX) build/scripts/buildPcodeResource.sh
 
 $(patsubst %,bin/runners/%,$(RUNNER_SIZES:=$(EXE_EXTENSION))): bin/runners/%$(EXE_EXTENSION): \
 		obj/resources/pcode/%.o $(RUNNER_OBJ_FILES) obj/shared.a
@@ -708,10 +671,3 @@ $(patsubst %,bin/runners/%,$(BZIPPED_RUNNER_SIZE:=.bz2)): bin/runners/%.bz2: bin
 	@rm -f $@
 	@cat $< | $(BZIP2) --keep --best > $@
 	@[ -e "$@" ] && touch $@
-
-# runners for full publish builds
-
-$(RUNNERS_BIN_FILES): obj/%:
-	@echo $@
-	@mkdir -p $(@D)
-	@touch $@
