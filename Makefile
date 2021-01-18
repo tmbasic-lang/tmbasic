@@ -46,16 +46,19 @@ endif
 # Operating system + architecture pairs
 PLATFORMS=linux_arm64 linux_arm32 linux_x64 linux_x86 mac_x64 win_x64 win_x86
 
-# Runner builds, which will be 0-byte files for debug builds. for full release builds, these runners will be built
-# separately and provided ahead of time
-RUNNERS_OBJ_FILES=$(patsubst %,obj/resources/runners/%,$(PLATFORMS:=.o))
-RUNNERS_BIN_FILES=$(RUNNERS_OBJ_FILES:.o=)
-
 # We build several runners for each platform, each with a different length of dummy pcode. These sizes refer to the
 # length of that pcode in bytes.
 BZIPPED_RUNNER_SIZE=102400
 BSDIFFED_RUNNER_SIZES=524288 1048576 5242880
 RUNNER_SIZES=$(BZIPPED_RUNNER_SIZE) $(BSDIFFED_RUNNER_SIZES)
+
+# Runner builds, which will be 0-byte files for debug builds. for full release builds, these runners will be built
+# separately and provided ahead of time
+RUNNER_FILES=\
+	$(foreach X,$(PLATFORMS),$(foreach Y,$(BZIPPED_RUNNER_SIZE),$X_$Y.bz2)) \
+	$(foreach X,$(PLATFORMS),$(foreach Y,$(BSDIFFED_RUNNER_SIZES),$X_$Y.bsdiff))
+RUNNERS_OBJ_FILES=$(patsubst %,obj/resources/runners/%,$(RUNNER_FILES:=.o))
+RUNNERS_BIN_FILES=$(RUNNERS_OBJ_FILES:.o=)
 
 # C++ build files
 COMPILER_SRC_FILES=$(shell find src/compiler -type f -name "*.cpp")
@@ -500,7 +503,7 @@ obj/resources/helpfile.o: obj/help.h32
 	@xxd -i $< | sed s/obj_help_h32/kResourceHelp/g > obj/resources/kResourceHelp.cpp
 	@$(CXX) -o $@ -c obj/resources/kResourceHelp.cpp
 
-$(RUNNERS_BIN_FILES): %:
+$(RUNNERS_BIN_FILES): %: 
 	@echo $@
 	@mkdir -p $(@D)
 	@touch $@
