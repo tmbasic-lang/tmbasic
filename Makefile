@@ -52,13 +52,19 @@ BZIPPED_RUNNER_SIZE=102400
 BSDIFFED_RUNNER_SIZES=524288 1048576 5242880
 RUNNER_SIZES=$(BZIPPED_RUNNER_SIZE) $(BSDIFFED_RUNNER_SIZES)
 
-# Runner builds, which will be 0-byte files for debug builds. for full release builds, these runners will be built
-# separately and provided ahead of time
-RUNNER_FILES=\
+# Input runner builds, which will be 0-byte files for debug builds. for full release builds, these runners will be built
+# separately and provided ahead of time.
+ALL_PLATFORM_RUNNER_BIN_FILES=$(foreach X,$(PLATFORMS),$(foreach Y,$(RUNNER_SIZES),$X_$Y))
+ALL_PLATFORM_RUNNER_COMPRESSED_FILENAMES=\
 	$(foreach X,$(PLATFORMS),$(foreach Y,$(BZIPPED_RUNNER_SIZE),$X_$Y.bz2)) \
 	$(foreach X,$(PLATFORMS),$(foreach Y,$(BSDIFFED_RUNNER_SIZES),$X_$Y.bsdiff))
-RUNNERS_OBJ_FILES=$(patsubst %,obj/resources/runners/%,$(RUNNER_FILES:=.o))
-RUNNERS_BIN_FILES=$(RUNNERS_OBJ_FILES:.o=)
+ALL_PLATFORM_RUNNER_OBJ_FILES=$(patsubst %,obj/resources/runners/%,$(ALL_PLATFORM_RUNNER_COMPRESSED_FILENAMES:=.o))
+ALL_PLATFORM_RUNNER_COMPRESSED_FILES=$(ALL_PLATFORM_RUNNER_OBJ_FILES:.o=)
+
+# Output runner builds for the particular platform targeted by this build.
+THIS_PLATFORM_RUNNER_BIN_FILES=$(patsubst %,bin/runners/%,$(RUNNER_SIZES:=$(EXE_EXTENSION)))
+THIS_PLATFORM_RUNNER_BSDIFF_FILES=$(patsubst %,bin/runners/%,$(BSDIFFED_RUNNER_SIZES:=.bsdiff))
+THIS_PLATFORM_RUNNER_BZIP_FILES=$(patsubst %,bin/runners/%,$(BZIPPED_RUNNER_SIZE:=.bz2))
 
 # C++ build files
 COMPILER_SRC_FILES=$(shell find src/compiler -type f -name "*.cpp")
@@ -316,11 +322,11 @@ valgrind: bin/tmbasic
 .PHONY: format
 format:
 	@find src/ -type f \( -iname \*.h -o -iname \*.cpp \) | xargs clang-format -i
-	@clang-format -i build/scripts/buildDoc.cpp
+	@clang-format -i build/scripts/buildDoc.cpp build/scripts/buildRunnerHeader.cpp
 
 .PHONY: lint
 lint:
-	@cpplint --quiet --recursive --repository=src src build/scripts/buildDoc.cpp
+	@cpplint --quiet --recursive --repository=src src build/scripts/buildDoc.cpp build/scripts/buildRunnerHeader.cpp
 
 .PHONY: tidy
 tidy: $(TIDY_TARGETS)
@@ -503,15 +509,30 @@ obj/resources/help/helpfile.o: obj/resources/help/help.h32
 	@xxd -i $< | sed s/obj_resources_help_help_h32/kResourceHelp/g > obj/resources/help/kResourceHelp.cpp
 	@$(CXX) -o $@ -c obj/resources/help/kResourceHelp.cpp
 
-$(RUNNERS_BIN_FILES): %: 
+$(ALL_PLATFORM_RUNNER_COMPRESSED_FILES): %:
 	@echo $@
 	@mkdir -p $(@D)
 	@touch $@
 
-$(RUNNERS_OBJ_FILES): obj/resources/runners/%.o: obj/resources/runners/%
+$(ALL_PLATFORM_RUNNER_OBJ_FILES): obj/resources/runners/%.o: obj/resources/runners/%
 	@echo $@
 	@mkdir -p $(@D)
 	@OBJ_FILE=$@ CXX=$(CXX) build/scripts/buildRunnerResource.sh
+
+obj/resources/runners/runners_$(TARGET_OS)_$(ARCH).h: $(ALL_PLATFORM_RUNNER_BIN_FILES) obj/buildRunnerHeader
+	@echo $@
+	@mkdir -p $(@D)
+	@obj/buildRunnerHeader $(ALL_PLATFORM_RUNNER_BIN_FILES)
+
+obj/buildRunnerHeader: build/scripts/buildRunnerHeader.cpp
+	@echo $@
+	@mkdir -p $(@D)
+	@$(BUILDCC) \
+		-o $@ $< \
+		-Wall \
+		-Werror \
+		-std=c++17 \
+		-lstdc++
 
 # tmbasic
 
@@ -533,7 +554,7 @@ bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
 		obj/resources/help/helpfile.h \
 		obj/resources/help/help.h32 \
 		obj/resources/help/helpfile.o \
-		$(RUNNERS_OBJ_FILES)
+		$(ALL_PLATFORM_RUNNER_OBJ_FILES)
 	@echo $@
 	@mkdir -p $(@D)
 	@$(CXX) \
@@ -546,7 +567,7 @@ bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
 		obj/compiler.a \
 		-ltvision \
 		obj/resources/help/helpfile.o \
-		$(RUNNERS_OBJ_FILES) \
+		$(ALL_PLATFORM_RUNNER_OBJ_FILES) \
 		$(LDFLAGS)
 	@$(STRIP) bin/tmbasic$(EXE_EXTENSION)
 
@@ -569,7 +590,7 @@ bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) \
 		obj/resources/help/helpfile.h \
 		obj/resources/help/help.h32 \
 		obj/resources/help/helpfile.o \
-		$(RUNNERS_OBJ_FILES)
+		$(ALL_PLATFORM_RUNNER_OBJ_FILES)
 	@echo $@
 	@mkdir -p $(@D)
 	@$(CXX) \
@@ -582,7 +603,7 @@ bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) \
 		obj/compiler.a \
 		-ltvision \
 		obj/resources/help/helpfile.o \
-		$(RUNNERS_OBJ_FILES) \
+		$(ALL_PLATFORM_RUNNER_OBJ_FILES) \
 		$(LDFLAGS) \
 		$(LIBGTEST_FLAG) \
 		-lpthread
@@ -600,7 +621,7 @@ $(patsubst %,obj/resources/pcode/%,$(RUNNER_SIZES:=.o)): %:
 	@mkdir -p $(@D)
 	@OBJ_FILE=$@ CXX=$(CXX) build/scripts/buildPcodeResource.sh
 
-$(patsubst %,bin/runners/%,$(RUNNER_SIZES:=$(EXE_EXTENSION))): bin/runners/%$(EXE_EXTENSION): \
+$(THIS_PLATFORM_RUNNER_BIN_FILES): bin/runners/%$(EXE_EXTENSION): \
 		obj/resources/pcode/%.o $(RUNNER_OBJ_FILES) obj/shared.a
 	@echo $@
 	@mkdir -p $(@D)
@@ -616,13 +637,13 @@ $(patsubst %,bin/runners/%,$(RUNNER_SIZES:=$(EXE_EXTENSION))): bin/runners/%$(EX
 		$(LDFLAGS)
 	@$(STRIP) $@
 
-$(patsubst %,bin/runners/%,$(BSDIFFED_RUNNER_SIZES:=.bsdiff)): bin/runners/%.bsdiff: bin/runners/%$(EXE_EXTENSION) \
+$(THIS_PLATFORM_RUNNER_BSDIFF_FILES): bin/runners/%.bsdiff: bin/runners/%$(EXE_EXTENSION) \
 		bin/runners/$(BZIPPED_RUNNER_SIZE)$(EXE_EXTENSION)
 	@echo $@
 	@mkdir -p $(@D)
 	@$(BSDIFF) bin/runners/$(BZIPPED_RUNNER_SIZE)$(EXE_EXTENSION) $< $@
 
-$(patsubst %,bin/runners/%,$(BZIPPED_RUNNER_SIZE:=.bz2)): bin/runners/%.bz2: bin/runners/%$(EXE_EXTENSION)
+$(THIS_PLATFORM_RUNNER_BZIP_FILES): bin/runners/%.bz2: bin/runners/%$(EXE_EXTENSION)
 	@echo $@
 	@mkdir -p $(@D)
 	@rm -f $@
