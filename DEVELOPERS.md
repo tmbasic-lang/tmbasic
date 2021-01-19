@@ -85,3 +85,9 @@ pngcrush -brute -reduce -ow screenshot.png
     - `build/files/Dockerfile.build-win`
 1. Run the publish instructions in `build/publish/README.md` to ensure nothing broke.
 1. Commit as "Update tvision to commit ____"
+
+### nameof
+1. https://github.com/Neargye/nameof/releases/
+1. Copy the `nameof.hpp` link. Use `wget` to download, overwriting `ext/nameof/nameof.hpp`.
+1. Update link in `ext/README.md`.
+1. Commit as "Update nameof to version ____"

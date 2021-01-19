@@ -57,4 +57,4 @@
 ### nameof
 - Website: https://github.com/Neargye/nameof
 - License: [MIT license](https://github.com/electroly/tmbasic/blob/master/ext/nameof/LICENSE.txt)
-- Source: https://github.com/Neargye/nameof/releases/download/v0.9.4/nameof.hpp (included in this repository)
+- Source: https://github.com/Neargye/nameof/releases/download/v0.10.0/nameof.hpp (included in this repository)
