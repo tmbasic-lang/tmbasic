@@ -451,7 +451,7 @@ obj/resources/help/helpfile.h: obj/resources/help/help.txt
 	@mkdir -p bin
 	@rm -f obj/resources/help/help.h32
 	@rm -f obj/resources/help/helpfile.h
-	@$(TVHC_CMD) obj/resources/help/help.txt obj/resources/help/help.h32 obj/resources/help/helpfile.h
+	@$(TVHC_CMD) obj/resources/help/help.txt obj/resources/help/help.h32 obj/resources/help/helpfile.h >/dev/null
 
 obj/resources/help/help.h32: obj/resources/help/helpfile.h
 	@echo $@
