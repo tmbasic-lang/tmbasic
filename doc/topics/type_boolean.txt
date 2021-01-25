@@ -1,3 +1,25 @@
-nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {BASIC Reference:basic}@
+nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {BASIC Reference:ref}@
 
 h1["boolean" Type]
+
+A t[boolean] value can be either `true` or `false`.
+The name "boolean" comes from George Boole, a 19th century mathematician who invented the algebraic system for these `true` and `false` values.
+
+Boolean values are used to make decisions.
+For instance, an {`if` statement:ref_if} uses a boolean value to decide whether to run one block of statements or another.
+A {`while` statement:ref_while} uses a boolean value at the end of each loop to decide whether to loop again.
+
+The values `true` and `false` can be used directly, as in the following example.
+
+code@
+dim x as boolean
+x = true
+x = false
+@
+
+The {`not` operator:ref_not} will change a `true` value to `false`, or a `false` value to `true`.
+
+code@
+dim x = not false  ' x is true
+dim y = not x      ' y is false
+@

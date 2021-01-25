@@ -524,7 +524,7 @@ void App::onHelpDocumentation() {
 }
 
 void App::onHelpBasicReference() {
-    openHelpTopic(hcbasic);
+    openHelpTopic(hcref);
 }
 
 TRect App::centeredRect(int width, int height) {

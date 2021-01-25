@@ -1,7 +1,7 @@
 h1[TMBASIC Documentation]
 
-ul@li@{BASIC Reference:basic}@
-li@{Cheat Sheet for Experienced Programmers:cheatSheet}@
+ul@li@{BASIC Reference:ref}@
+li@{Cheat Sheet for Experienced Programmers:cheat}@
 li@{License:license}@
 @
 

@@ -1,4 +1,4 @@
-nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {BASIC Reference:basic}@
+nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {BASIC Reference:ref}@
 
 h1[Language Grammar]
 

@@ -16,3 +16,16 @@ li@{"boolean" Type:type_boolean}@
 li@{"integer" Type:type_integer}@
 li@{"optional" Type:type_optional}@
 @
+
+h2[Statements]
+
+ul@
+li@{"if" Statement:ref_if}@
+li@{"while" Statement:ref_while}@
+@
+
+h2[Operators]
+
+ul@
+li@{"not" Operator:ref_not}@
+@

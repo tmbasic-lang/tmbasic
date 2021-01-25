@@ -209,7 +209,7 @@ static string processText(string str) {
     str = replaceRegex(str, "h3\\[([^\\]]+)\\]", "$1");
     str = replaceRegex(str, "code@([^@]+)@", [](auto& match) -> string { return indent(match[1].str()); });
     str = replaceRegex(str, "nav@([^@]+)@", "$1");
-    str = replaceRegex(str, "`([^`]+)`", "'$1'");
+    str = replaceRegex(str, "`([^`]+)`", "\"$1\"");
     str = replaceRegex(str, "li@([^@]+)@\n*", string(kCharBullet) + " $1\n\n");
     str = replaceRegex(str, "ul@\n*([^@]+)\n*@\n*", "$1");
     str = replace(str, "<DIAMOND>", kCharDiamond);
@@ -385,7 +385,7 @@ static unique_ptr<Procedure> parseProcedure(const string& input) {
 
 static string formatProcedureText(const string& topicName, const Procedure& procedure) {
     ostringstream o;
-    o << "nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {BASIC Reference:basic} <TRIANGLE_RIGHT> {Procedure "
+    o << "nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {BASIC Reference:ref} <TRIANGLE_RIGHT> {Procedure "
          "Index:procedure}@\n\n";
     o << "h1[\"" << procedure.name << "\" Procedure]\n\n";
 
@@ -458,7 +458,7 @@ static void buildProcedureIndex(
     ostringstream* outputTxt,
     const string& htmlPageTemplate) {
     ostringstream o;
-    o << "nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {BASIC Reference:basic}@\n\nh1[Procedure Index]\n\n";
+    o << "nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {BASIC Reference:ref}@\n\nh1[Procedure Index]\n\n";
     o << "ul@";
     sort(procedureNames.begin(), procedureNames.end());
     for (auto& name : procedureNames) {
