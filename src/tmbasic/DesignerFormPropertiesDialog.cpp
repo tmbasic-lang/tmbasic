@@ -1,11 +1,10 @@
 #include "DesignerFormPropertiesDialog.h"
 #include "Button.h"
-#include "CheckBoxes.h"
 #include "RowLayout.h"
-#include "InputLine.h"
 #include "Label.h"
 #include "GridLayout.h"
 #include "constants.h"
+#include "tvutil.h"
 
 using tui::UserForm;
 
@@ -19,7 +18,13 @@ DesignerFormPropertiesDialog::DesignerFormPropertiesDialog(UserForm* form)
       _form(form),
       _nameText(new InputLine(form->name)),
       _titleText(new InputLine(form->title)),
-      _checkBoxes(new CheckBoxes(
+      _minWidthText(new InputLine(form->minWidth, 6, 4)),
+      _minHeightText(new InputLine(form->minHeight, 6, 4)),
+      _initialWidthText(new InputLine(form->initialWidth, 6, 4)),
+      _initialHeightText(new InputLine(form->initialHeight, 6, 4)),
+      _maxWidthText(new InputLine(form->maxWidth, 6, 4)),
+      _maxHeightText(new InputLine(form->maxHeight, 6, 4)),
+      _frameCheckBoxes(new CheckBoxes(
           { "Show ~c~lose button in titlebar", "Show ~m~aximize button in titlebar", "Allow user to ~r~esize" },
           { form->showCloseButton, form->showMaximizeButton, form->allowResize })) {
     GridLayout(
@@ -29,8 +34,14 @@ DesignerFormPropertiesDialog::DesignerFormPropertiesDialog(UserForm* form)
             _nameText,
             new Label("~T~itle:", _titleText),
             _titleText,
-            new Label("Frame:", _checkBoxes),
-            _checkBoxes,
+            new Label("Frame:", _frameCheckBoxes),
+            _frameCheckBoxes,
+            new Label("~M~inimum size:", _minWidthText),
+            RowLayout(false, { _minWidthText, new Label("x"), _minHeightText }),
+            new Label("Initial ~s~ize:", _initialWidthText),
+            RowLayout(false, { _initialWidthText, new Label("x"), _initialHeightText }),
+            new Label("Ma~x~imum size:", _maxWidthText),
+            RowLayout(false, { _maxWidthText, new Label("x"), _maxHeightText }),
             nullptr,
             RowLayout(
                 true,
@@ -46,11 +57,30 @@ DesignerFormPropertiesDialog::DesignerFormPropertiesDialog(UserForm* form)
 
 void DesignerFormPropertiesDialog::handleEvent(TEvent& event) {
     if (event.what == evCommand && event.message.command == cmOK) {
-        _form->name = _nameText->data;
-        _form->title = _titleText->data;
-        _form->showCloseButton = _checkBoxes->mark(kShowCloseButtonIndex);
-        _form->showMaximizeButton = _checkBoxes->mark(kShowMaximizeButtonIndex);
-        _form->allowResize = _checkBoxes->mark(kAllowResizeIndex);
+        try {
+            // these can fail so do them first and don't update the structure until after they are confirmed valid
+            auto minWidth = parseUserInt(_minWidthText->data, "minimum width", 0, 1000);
+            auto minHeight = parseUserInt(_minHeightText->data, "minimum height", 0, 1000);
+            auto initialWidth = parseUserInt(_initialWidthText->data, "initial width", 1, 1000);
+            auto initialHeight = parseUserInt(_initialHeightText->data, "initial height", 1, 1000);
+            auto maxWidth = parseUserInt(_maxWidthText->data, "maximum width", 0, 1000);
+            auto maxHeight = parseUserInt(_maxHeightText->data, "maximum height", 0, 1000);
+
+            _form->name = _nameText->data;
+            _form->title = _titleText->data;
+            _form->showCloseButton = _frameCheckBoxes->mark(kShowCloseButtonIndex);
+            _form->showMaximizeButton = _frameCheckBoxes->mark(kShowMaximizeButtonIndex);
+            _form->allowResize = _frameCheckBoxes->mark(kAllowResizeIndex);
+            _form->minWidth = minWidth;
+            _form->minHeight = minHeight;
+            _form->initialWidth = initialWidth;
+            _form->initialHeight = initialHeight;
+            _form->maxWidth = maxWidth;
+            _form->maxHeight = maxHeight;
+        } catch (std::runtime_error& ex) {
+            messageBox(ex.what(), mfError | mfOKButton);
+            clearEvent(event);
+        }
     }
 
     TDialog::handleEvent(event);

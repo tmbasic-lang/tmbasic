@@ -1,6 +1,8 @@
 #pragma once
 
 #include "../common.h"
+#include "CheckBoxes.h"
+#include "InputLine.h"
 #include "shared/tui/UserForm.h"
 
 namespace tmbasic {
@@ -12,9 +14,15 @@ class DesignerFormPropertiesDialog : public TDialog {
 
    private:
     tui::UserForm* _form;
-    TInputLine* _nameText;
-    TInputLine* _titleText;
-    TCheckBoxes* _checkBoxes;
+    InputLine* _nameText;
+    InputLine* _titleText;
+    CheckBoxes* _frameCheckBoxes;
+    InputLine* _minWidthText;
+    InputLine* _minHeightText;
+    InputLine* _initialWidthText;
+    InputLine* _initialHeightText;
+    InputLine* _maxWidthText;
+    InputLine* _maxHeightText;
 };
 
 }  // namespace tmbasic
