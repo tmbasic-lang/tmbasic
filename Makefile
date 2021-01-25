@@ -348,7 +348,9 @@ runners: $(patsubst %,bin/runners/%,$(BZIPPED_RUNNER_SIZE:=.bz2)) \
 
 ### Build targets #####################################################################################################
 
-# tidy
+
+
+# tidy ----------------------------------------------------------------------------------------------------------------
 
 $(TIDY_TARGETS): obj/tidy/%.tidy: src/%.cpp
 	@echo $<
@@ -356,7 +358,9 @@ $(TIDY_TARGETS): obj/tidy/%.tidy: src/%.cpp
 	@clang-tidy $< --quiet --fix -- $(CXXFLAGS) -DCLANG_TIDY | tee $@
 	@touch $@
 
-# ghpages
+
+
+# ghpages -------------------------------------------------------------------------------------------------------------
 
 bin/ghpages/index.html: README.md \
 		doc/html/page-template-1.html \
@@ -382,14 +386,18 @@ bin/ghpages/screenshot.png: art/screenshot.png
 	@mkdir -p $(@D)
 	@cp -f $< $@
 
-# precompiled header
+
+
+# precompiled header --------------------------------------------------------------------------------------------------
 
 obj/common.h.gch: src/common.h
 	@echo $@
 	@mkdir -p $(@D)
 	@$(CXX) -o $@ $(CXXFLAGS) -x c++-header src/common.h
 
-# help
+
+
+# help ----------------------------------------------------------------------------------------------------------------
 
 bin/LICENSE.txt: LICENSE \
 		ext/boost/LICENSE_1_0.txt \
@@ -477,7 +485,9 @@ $(LICENSE_DIAGRAM_CP437_FILES): obj/doc-temp/diagrams-cp437/%: obj/doc-temp/diag
 	@mkdir -p $(@D)
 	@iconv -f utf8 -t cp437 $< > $@
 
-# compiler
+
+
+# compiler ------------------------------------------------------------------------------------------------------------
 
 $(COMPILER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(SHARED_H_FILES) $(COMPILER_H_FILES)
 	@echo $@
@@ -489,7 +499,9 @@ obj/compiler.a: $(COMPILER_OBJ_FILES)
 	@mkdir -p $(@D)
 	@$(AR) rcs $@ $(COMPILER_OBJ_FILES)
 
-# shared
+
+
+# shared --------------------------------------------------------------------------------------------------------------
 
 $(SHARED_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(SHARED_H_FILES)
 	@echo $@
@@ -501,7 +513,9 @@ obj/shared.a: $(SHARED_OBJ_FILES)
 	@mkdir -p $(@D)
 	@$(AR) rcs $@ $(SHARED_OBJ_FILES)
 
-# resources
+
+
+# resources -----------------------------------------------------------------------------------------------------------
 
 obj/resources/help/helpfile.o: obj/resources/help/help.h32
 	@echo $@
@@ -534,7 +548,9 @@ obj/buildRunnerHeader: build/scripts/buildRunnerHeader.cpp
 		-std=c++17 \
 		-lstdc++
 
-# tmbasic
+
+
+# tmbasic -------------------------------------------------------------------------------------------------------------
 
 $(TMBASIC_OBJ_FILES): obj/%.o: src/%.cpp \
 		obj/common.h.gch \
@@ -571,7 +587,9 @@ bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
 		$(LDFLAGS)
 	@$(STRIP) bin/tmbasic$(EXE_EXTENSION)
 
-# test
+
+
+# test ----------------------------------------------------------------------------------------------------------------
 
 $(TEST_OBJ_FILES): obj/%.o: src/%.cpp \
 		obj/common.h.gch \
@@ -608,7 +626,10 @@ bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) \
 		$(LIBGTEST_FLAG) \
 		-lpthread
 
-# runner: We build several versions that are identical except for the length of the dummy pcode they have embedded.
+
+
+# runner (this platform) ----------------------------------------------------------------------------------------------
+# We build several versions that are identical except for the length of the dummy pcode they have embedded.
 # We ship the 100KB runner and a set of binary patches to convert the 100KB runner to the other sizes.
 
 $(RUNNER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(SHARED_H_FILES) $(RUNNER_H_FILES)
