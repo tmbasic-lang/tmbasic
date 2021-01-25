@@ -22,7 +22,9 @@ RUN apt-get update -y && \
         pandoc \
         xxd \
         libncursesw5 \
-        libncursesw5-dev
+        libncursesw5-dev \
+        nodejs \
+        npm
 
 # unprivileged user
 RUN mkdir -p /code && \
@@ -111,6 +113,9 @@ RUN cd /tmp && \
     mv libbspatch.a /usr/lib/ && \
     mkdir -p /usr/include/bsdiff && \
     cp *.h /usr/include/bsdiff/
+
+# doctoc
+RUN npm install -g doctoc
 
 # environment
 USER $HOST_UID
