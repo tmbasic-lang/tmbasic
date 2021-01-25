@@ -41,7 +41,7 @@ static string getConstName(string filePath) {
 
 int main(int argc, const char* argv[]) {
     // argv[1] = platform (e.g. linux_arm64)
-    
+
     auto outputStream = ofstream("obj/resources/runners/runners.h");
     outputStream << "#pragma once\n";
     outputStream << "#include <cstddef>\n";
