@@ -7,8 +7,8 @@ TMBASIC is a simple programming language for creating console applications that 
 
 [Read the documentation online](https://tmbasic.com/doc.html) or in TMBASIC's integrated help viewer.
 
-- [Cheat Sheet for Experienced Programmers](https://tmbasic.com/cheatSheet.html)
-- [BASIC Reference](https://tmbasic.com/basic.html)
+- [Cheat Sheet for Experienced Programmers](https://tmbasic.com/cheat.html)
+- [BASIC Reference](https://tmbasic.com/ref.html)
 
 ## Project status
 TMBASIC is under development. Stay tuned!
