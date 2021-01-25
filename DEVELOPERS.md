@@ -6,8 +6,8 @@
 **Table of Contents**
 
 - [Build for Linux and Windows](#build-for-linux-and-windows)
-  - [Use Visual Studio Code for debugging in Linux](#use-visual-studio-code-for-debugging-in-linux)
 - [Build for macOS](#build-for-macos)
+- [Use Visual Studio Code for development and debugging](#use-visual-studio-code-for-development-and-debugging)
 - [Take screenshots for the website](#take-screenshots-for-the-website)
 - [Update third party dependencies](#update-third-party-dependencies)
   - [tvision](#tvision)
@@ -97,7 +97,6 @@ pngcrush -brute -reduce -ow screenshot.png
     - `build/files/Dockerfile.build-dev`
     - `build/files/Dockerfile.build-linux`
     - `build/files/Dockerfile.build-win`
-1. Run the publish instructions in `build/publish/README.md` to ensure nothing broke.
 1. Commit as "Update tvision to commit ____"
 
 ### nameof
@@ -107,7 +106,6 @@ pngcrush -brute -reduce -ow screenshot.png
 1. Commit as "Update nameof to version ____"
 
 ## Make a release build
-
 Start the following three machines. Prepare them for building using the instructions at the beginning of this document.
 
 - Ubuntu 18.04 on ARM64 (AWS `c6g.large`)

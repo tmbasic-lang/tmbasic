@@ -57,8 +57,8 @@ TMBASIC itself is open source software, but apps written in TMBASIC are not requ
 - [mpdecimal](https://www.bytereef.org/mpdecimal/) — _[BSD license](https://github.com/electroly/tmbasic/blob/master/ext/mpdecimal/LICENSE.txt)_
 - [musl](https://musl.libc.org/) — _[MIT license](https://github.com/electroly/tmbasic/blob/master/ext/musl/COPYRIGHT)_
 - [ncurses](https://en.wikipedia.org/wiki/Ncurses) — _[Ncurses license](https://github.com/electroly/tmbasic/blob/master/ext/ncurses/COPYING)_
-- [tvision](https://github.com/magiblot/tvision) — _[Borland license](https://github.com/electroly/tmbasic/blob/master/ext/tvision/COPYRIGHT) (original code), [MIT license](https://github.com/electroly/tmbasic/blob/master/ext/tvision/COPYRIGHT) (additions)_
+- [tvision](https://github.com/magiblot/tvision) — _[Borland license (original code), MIT license (additions)](https://github.com/electroly/tmbasic/blob/master/ext/tvision/COPYRIGHT)_
 
 Pay close attention: executables built by TMBASIC are subject to the licenses above. You must obey these licenses if you distribute your compiled executables. These are permissive open source licenses that do not require you to release your BASIC source code. TMBASIC includes a `LICENSE.txt` file that combines these licenses for your convenience. Include this license file along with your executable when you distribute your TMBASIC apps.
 
-See [`ext/README.md`](https://github.com/electroly/tmbasic/blob/master/ext/README.md) for more information about the third party libraries used in TMBASIC.
+Read the [External Libraries](https://github.com/electroly/tmbasic/blob/master/ext/README.md) document for a list of third party components used in TMBASIC itself.
