@@ -2,16 +2,6 @@
 
 namespace tmbasic {
 
-size_t lengthWithoutTildes(TStringView text) {
-    size_t len = 0;
-    for (auto ch : text) {
-        if (ch != '~') {
-            len++;
-        }
-    }
-    return len;
-}
-
 bool tryParseInt(const std::string& text, int* output) {
     for (auto ch : text) {
         if (ch != '-' && (std::isdigit(ch) == 0)) {

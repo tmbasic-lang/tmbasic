@@ -20,7 +20,7 @@ static TRect getSize(const std::initializer_list<std::string>& labels) {
     auto width = 0;
 
     for (const auto& label : labels) {
-        width = max(lengthWithoutTildes(label), width);
+        width = max(cstrlen(label), width);
         height++;
     }
 

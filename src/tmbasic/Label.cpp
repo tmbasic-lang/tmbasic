@@ -4,7 +4,7 @@
 namespace tmbasic {
 
 Label::Label(TStringView text, TView* link)
-    : TLabel(TRect(0, 0, static_cast<int>(lengthWithoutTildes(text) + 1), 1), text, link) {}
+    : TLabel(TRect(0, 0, static_cast<int>(cstrlen(text) + 1), 1), text, link) {}
 
 // this is the same as TLabel::draw() except we don't indent the text. we don't want any extra padding on the left.
 void Label::draw() {
