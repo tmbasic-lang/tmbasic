@@ -15,7 +15,8 @@ body { font-family: "Segoe UI", "Helvetica Neue", "Helvetica", Arial, sans-serif
 col { width: auto !important; }
 div.backlinks { font-size: 10pt; position: absolute; margin-top: -1cm; line-height: 100%; white-space: nowrap; }
 div.code div { text-indent: -2cm; padding-left: 2cm; }
-div.code { padding: 3mm; margin-bottom: 5mm; background: #f8f8f8; }
+div.code { padding: 3mm; margin-bottom: 5mm; background: #f8f8f8; margin-top: 8px; white-space: pre; }
+div.paragraphBreak { height: 16px; }
 div#root { margin-left: 1cm; margin-right: 1cm; }
 div#platformSupportTable > table > tbody > tr > td:first-child {  white-space: nowrap; }
 h1 { font-size: 40px; color: rgba(0,0,0,.85); }
@@ -31,20 +32,20 @@ nav > div { max-width: 900px; margin: 0 auto; }
 nav > div > div { margin-left: 1cm; margin-right: 1cm; }
 nav > div > div > a { margin-left: 5mm; padding-top: 3mm; padding-bottom: 3mm; color: #ffffff; }
 nav > div > div > a:first-child { margin-left: 0mm; }
-pre, code, div.code, .tt { font-family: Consolas, monospace; font-size: 16px; color: #19177c; }
+pre, code, div.code, span.tt { font-family: Consolas, monospace; color: #19177c; }
 pre, div.code { line-height: 100%; }
 pre.diagram { font-size: 12px; display: inline-block; border: 1px solid black; padding: 1mm; background: #f8f8f8; color: rgba(0,0,0,0.8); cursor: default; user-select: none; line-height: 100%; }
-span.comment, span.comment span.string { color: #26a135; }
+span.comment, span.comment span.string { color: #26a135; white-space: normal; }
 span.indent { white-space: pre; }
 span.operator { color: #666666; }
 span.string { color: #ba2121; }
+span.tt { line-height: 0; }
 strong, th { font-weight: 600; }
 table { border-collapse: collapse; }
 td, th { border: 1px solid #d5d5d5; padding: 1mm; padding-left: 3mm; padding-right: 4mm; vertical-align: top; }
 th { text-align: left; }
 ul { padding-left: 5mm; }
 @media only screen and (max-width: 900px) and (min-width: 750px) {
-  body { font-size: 16px; }
   h1 { font-size: 32px; }
   h2 { font-size: 24px; }
   h3 { font-size: 18px; }
@@ -52,7 +53,6 @@ ul { padding-left: 5mm; }
   img.screenshot { zoom: 0.85; }
 }
 @media only screen and (max-width: 750px) {
-  body { font-size: 16px; }
   h1 { font-size: 32px; }
   h2 { font-size: 24px; }
   h3 { font-size: 18px; }

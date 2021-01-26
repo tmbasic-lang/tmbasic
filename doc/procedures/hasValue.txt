@@ -7,9 +7,9 @@ Any t[optional] value.
 .return boolean
 If i[this] contains a value (of type i[T]), then p[hasValue] returns `true`. Otherwise, it returns `false`.
 .example
-This example shows how p[hasValue] responds to changes in an t[optional] t[integer] variable.
+This example shows how p[hasValue] responds to changes in an t[optional] t[number] variable.
 .example-code
-dim x as optional integer
+dim x as optional number
 if not x.hasValue then print "x.hasValue is initially false"
 
 let x = 123

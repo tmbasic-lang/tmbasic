@@ -1,0 +1,35 @@
+nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {BASIC Reference:ref}@
+
+h1[`number` Type]
+
+Numbers in TMBASIC are decimal {floating-point:https://en.wikipedia.org/wiki/Floating-point_arithmetic} numbers.
+This means that all numbers are stored using the scientific notation, `A * 10^B`.
+For example, the number 456 can be written as `4.56 * 10^2`.
+In this notation, `A` is called the "significand" and `B` is called the "exponent."
+
+In TMBASIC, the significand has one digit to the left of the decimal point (the whole number) and up to 33 digits to the right (the fraction).
+The exponent may be any integer from -6143 to 6144.
+The {IEEE 754:https://en.wikipedia.org/wiki/IEEE_754} standard calls this representation {"decimal128":https://en.wikipedia.org/wiki/Decimal128_floating-point_format} because it uses 128 bits (or 16 bytes) of storage.
+
+Literal decimals can be written directly, as in the following example.
+code@
+dim x as number
+x = 5
+x = -9.1
+@
+
+Algebraic operators like {`+` (plus):ref_algebraic} and {`-` (minus):ref_algebraic} perform mathematical operations on numbers.
+code@
+dim x = 5 * 10  ' x is 50
+dim y = x / 4   ' y is 12.5
+dim z = -y      ' z is -12.5
+@
+
+Comparison operators like {`<` (less than):ref_comparison} and {`>` (greater than):ref_comparison} produce t[boolean] values that allow you to make decisions.
+code@
+dim x = 50
+dim y = x < 100  ' y is true
+if x > 10 then
+    print "Greater!"  ' this will print
+end if
+@

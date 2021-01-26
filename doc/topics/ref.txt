@@ -12,20 +12,22 @@ li@{Language Grammar:ref_grammar}@
 h2[Types]
 
 ul@
-li@{"boolean" Type:type_boolean}@
-li@{"integer" Type:type_integer}@
-li@{"optional" Type:type_optional}@
+li@{`boolean` Type:type_boolean}@
+li@{`number` Type:type_number}@
+li@{`optional` Type:type_optional}@
 @
 
 h2[Statements]
 
 ul@
-li@{"if" Statement:ref_if}@
-li@{"while" Statement:ref_while}@
+li@{`if` Statement:ref_if}@
+li@{`while` Statement:ref_while}@
 @
 
 h2[Operators]
 
 ul@
-li@{"not" Operator:ref_not}@
+li@{Algebraic Operators:ref_algebraic}@
+li@{Comparison Operators:ref_comparison}@
+li@{Logical Operators:ref_logical}@
 @

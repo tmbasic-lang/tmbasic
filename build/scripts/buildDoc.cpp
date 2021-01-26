@@ -200,6 +200,11 @@ static string getDiagramHtml(string name) {
     }
 }
 
+static string processTitle(string str) {
+    str = replaceRegex(str, "`([^`]+)`", "\"$1\"");
+    return str;
+}
+
 static string processText(string str) {
     str = replaceRegex(str, "t\\[(([^\\] ]+)[^\\]]*)\\]", "{$1:type_$2}");
     str = replaceRegex(str, "p\\[([^\\]]+)\\]", "{$1:procedure_$1}");
@@ -212,6 +217,7 @@ static string processText(string str) {
     str = replaceRegex(str, "`([^`]+)`", "\"$1\"");
     str = replaceRegex(str, "li@([^@]+)@\n*", string(kCharBullet) + " $1\n\n");
     str = replaceRegex(str, "ul@\n*([^@]+)\n*@\n*", "$1");
+    str = replaceRegex(str, "([^{])\\{([^:{]+):(http[^}]+)\\}", "$1$2");
     str = replace(str, "<DIAMOND>", kCharDiamond);
     str = replace(str, "<BULLET>", kCharBullet);
     str = replace(str, "<TRIANGLE_RIGHT>", kCharTriangleRight);
@@ -251,10 +257,11 @@ static string processHtml(string str) {
     str = replace(str, "</pre><br>", "</pre>");
     str = replaceRegex(str, "\n*li@\n*([^@]+)\n*@\n*", "<li>$1</li>");
     str = replaceRegex(str, "\n*ul@\n*([^@]+)\n*@\n*", "<ul>$1</ul>");
+    str = replaceRegex(str, "([^{])\\{([^:{]+):(http[^}]+)\\}", "$1<a href=\"$3\">$2</a>");
     str = replaceRegex(str, "([^{])\\{([^:{]+):([^}]+)\\}", "$1<a href=\"$3.html\">$2</a>");
     str = replace(str, "{{", "{");
     str = replace(str, "--", "—");
-    str = replace(str, "\n\n", "<br><br>");
+    str = replace(str, "\n\n", "<div class=\"paragraphBreak\"></div>");
     str = replaceRegex(str, "dia\\[([^\\]]+)\\]", [](auto& match) -> string {
         return string("<pre class=\"diagram\">") + getDiagramHtml(match[1].str()) + "</pre>";
     });
@@ -268,7 +275,7 @@ static void writeHtmlPage(const string& topic, const string& text, const string&
     }
     auto title = match[1].str();
     auto html = htmlPageTemplate;
-    html = replace(html, "[TITLE]", processHtml(title) + " - TMBASIC Documentation");
+    html = replace(html, "[TITLE]", processTitle(title) + " - TMBASIC Documentation");
     html = replace(html, "[BODY]", processHtml(text));
     writeFile(string("../obj/doc-html/") + topic + ".html", html);
 }
@@ -387,7 +394,7 @@ static string formatProcedureText(const string& topicName, const Procedure& proc
     ostringstream o;
     o << "nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {BASIC Reference:ref} <TRIANGLE_RIGHT> {Procedure "
          "Index:procedure}@\n\n";
-    o << "h1[\"" << procedure.name << "\" Procedure]\n\n";
+    o << "h1[`" << procedure.name << "` Procedure]\n\n";
 
     for (auto& overload : procedure.overloads) {
         auto isFunction = overload->returns != nullptr;
@@ -462,7 +469,7 @@ static void buildProcedureIndex(
     o << "ul@";
     sort(procedureNames.begin(), procedureNames.end());
     for (auto& name : procedureNames) {
-        o << "li@{\"" << name << "\" Procedure:procedure_" << name << "}@\n";
+        o << "li@{`" << name << "` Procedure:procedure_" << name << "}@\n";
     }
     o << "@\n";
     auto filePath = "../obj/doc-temp/procedure.txt";
