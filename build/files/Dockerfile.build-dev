@@ -24,7 +24,8 @@ RUN apt-get update -y && \
         libncursesw5 \
         libncursesw5-dev \
         nodejs \
-        npm
+        npm \
+        language-pack-en
 
 # unprivileged user
 RUN mkdir -p /code && \
