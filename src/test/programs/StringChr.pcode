@@ -1,14 +1,5 @@
-# 'PILE OF POO' (U+1F4A9) in UTF-8 is: 240 159 146 169
-LoadConstantA 240
-StringChr
-StringPrint
-LoadConstantA 159
-StringChr
-StringPrint
-LoadConstantA 146
-StringChr
-StringPrint
-LoadConstantA 169
+# 'PILE OF POO' (U+1F4A9) in UTF-32 is: 128169
+LoadConstantA 128169
 StringChr
 StringPrint
 

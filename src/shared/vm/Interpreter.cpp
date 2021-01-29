@@ -974,11 +974,11 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kStringChr: {
                 auto value = a.getInt64();
-                char ch = static_cast<char>(value & 0xFF);
+                char32_t ch = static_cast<char32_t>(value);
                 if (ch > 0) {
-                    x = boost::make_local_shared<String>(std::string(&ch, 1));
+                    x = boost::make_local_shared<String>(std::u32string(&ch, 1));
                 } else {
-                    x = boost::make_local_shared<String>(std::string());
+                    x = boost::make_local_shared<String>(std::u32string());
                 }
                 instructionIndex++;
                 break;
@@ -1003,7 +1003,7 @@ bool Interpreter::run(int maxCycles) {
                 assert(x != nullptr);
                 assert(x->getObjectType() == ObjectType::kString);
                 auto& str = dynamic_cast<String&>(*x);
-                *_consoleOutputStream << str.value;
+                *_consoleOutputStream << str.toUtf8();
                 instructionIndex++;
                 break;
             }
@@ -1025,8 +1025,9 @@ bool Interpreter::run(int maxCycles) {
                 assert(x != nullptr);
                 assert(x->getObjectType() == ObjectType::kString);
                 auto& str = dynamic_cast<String&>(*x);
-                if (std::regex_match(str.value, std::regex("^-?[0-9]+\\.?[0-9]*$"))) {
-                    a.num = util::parseDecimalString(str.value);
+                auto utf8 = str.toUtf8();
+                if (std::regex_match(utf8, std::regex("^-?[0-9]+\\.?[0-9]*$"))) {
+                    a.num = util::parseDecimalString(utf8);
                     b.num = 1;
                 } else {
                     a.num = 0;

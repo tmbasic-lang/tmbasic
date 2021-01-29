@@ -58,31 +58,4 @@ StringPrint
 LoadConstantStringX ","
 StringPrint
 
-# asc(o0,2).print : ",".print
-LoadX 0
-LoadConstantA 2
-StringAsc
-NumberToString
-StringPrint
-LoadConstantStringX ","
-StringPrint
-
-# asc(o0,3).print : ",".print
-LoadX 0
-LoadConstantA 3
-StringAsc
-NumberToString
-StringPrint
-LoadConstantStringX ","
-StringPrint
-
-# asc(o0,4).print : ",".print
-LoadX 0
-LoadConstantA 4
-StringAsc
-NumberToString
-StringPrint
-LoadConstantStringX ","
-StringPrint
-
 Exit
