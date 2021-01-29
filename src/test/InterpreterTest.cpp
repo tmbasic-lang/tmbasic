@@ -97,6 +97,10 @@ TEST(InterpreterTest, StringChr) {
     run("StringChr");
 }
 
+TEST(InterpreterTest, StringChrCombiningDiacritic) {
+    run("StringChrCombiningDiacritic");
+}
+
 TEST(InterpreterTest, StringAsc) {
     run("StringAsc");
 }

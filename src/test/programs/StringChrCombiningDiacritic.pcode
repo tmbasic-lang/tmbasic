@@ -1,0 +1,10 @@
+# "e" with combining acute accent in UTF-32 is: 101 769
+LoadConstantA 101
+StringChr
+StringPrint
+
+LoadConstantA 769
+StringChr
+StringPrint
+
+Exit
