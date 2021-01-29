@@ -1,0 +1,15 @@
+.procedure chr
+.overload
+.description
+Returns the character that corresponds to the specified Unicode code point number.
+.parameter this: number
+A Unicode code point number.
+.return number
+The corresponding character.
+.example
+.example-code
+dim x = chr(65)  ' code point for "LATIN CAPITAL LETTER A"
+print x
+.example-output
+A
+.

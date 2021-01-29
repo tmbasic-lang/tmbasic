@@ -15,6 +15,7 @@ ul@
 li@{`boolean` Type:type_boolean}@
 li@{`number` Type:type_number}@
 li@{`optional` Type:type_optional}@
+li@{`text` Type:type_text}@
 @
 
 h2[Statements]

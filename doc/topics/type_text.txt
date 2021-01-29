@@ -1,0 +1,45 @@
+nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {BASIC Reference:ref}@
+
+h1[`text` Type]
+
+A text value is a sequence of charaters: numbers, letters, punctuation, symbols, and whitespace.
+In other programming languages, they are called {strings:https://en.wikipedia.org/wiki/String_(computer_science)}.
+Examples include "fish" and "entrée."
+Emojis can be used, but the Windows console does not have the font support necessary to display them.
+Terminals on macOS and Linux can display emojis.
+
+Literal strings are written with double quotes around them, as shown below.
+code@
+dim x as string
+x = "hello"
+print x
+x = " world!"
+print x  ' prints: hello world!
+@
+
+Text values support {Unicode:https://en.wikipedia.org/wiki/Unicode}, a standard for representing world writing systems on computers.
+Each character is a Unicode {code point:https://en.wikipedia.org/wiki/Code_point}.
+Unicode assigns a code point number to every character.
+In plain English text, a single letter or digit is one code point.
+
+The p[chr] procedure will produce the character corresponding to a given code point number.
+code@
+dim x = chr(65)  ' code point for "LATIN CAPITAL LETTER A"
+print x          ' prints: A
+@
+
+Some emojis, such as national flag emojis, are represented as a series of multiple code points.
+Accents may be represented by multiple Unicode code points known as {combining diacritical marks:https://en.wikipedia.org/wiki/Combining_Diacritical_Marks}.
+The following example demonstrates how combining marks may appear in text values.
+code@
+dim x = chr(101)  ' code point for "LATIN SMALL LETTER E"
+dim y = chr(769)  ' code point for "COMBINING ACUTE ACCENT"
+dim z = x + y     ' z is "é"
+@
+
+The p[len] procedure returns the number of code points in a text value.
+Keep in mind the caveats above about letters and symbols that are represented using multiple code points.
+code@
+dim x = "hello"
+dim y = x.len  ' y is 5
+@

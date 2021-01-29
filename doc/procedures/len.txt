@@ -1,0 +1,15 @@
+.procedure len
+.overload
+.description
+Returns the number of characters (Unicode code points) in a text value.
+.parameter this: text
+Any t[text] value.
+.return number
+The number of Unicode code points in i[this].
+.example
+.example-code
+dim x = "hello"
+x.len.print
+.example-output
+5
+.
