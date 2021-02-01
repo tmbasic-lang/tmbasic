@@ -8,6 +8,10 @@
 - Source (Windows): `boost` package from Arch Linux
 - Source (macOS): https://dl.bintray.com/boostorg/release/1.74.0/source/boost_1_74_0.tar.gz ([mirror](https://tmbasic.s3.amazonaws.com/boost/boost_1_74_0.tar.gz))
 
+### [icu](http://site.icu-project.org/)
+- License: [ICU License](https://github.com/electroly/tmbasic/blob/master/ext/icu/LICENSE)
+- Source: https://github.com/unicode-org/icu/releases/download/release-68-2/icu4c-68_2-src.tgz ([mirror](https://tmbasic.s3.amazonaws.com/icu/icu4c-68_2-src.tgz))
+
 ### [immer](https://github.com/arximboldi/immer)
 - License: [Boost Software License v1.0](https://github.com/electroly/tmbasic/blob/master/ext/immer/LICENSE)
 - Source: https://github.com/arximboldi/immer/archive/800ddb04e528a3e83e69e8021d7e872e7c34cbcd.zip ([mirror](https://tmbasic.s3.amazonaws.com/immer/immer-800ddb04e528a3e83e69e8021d7e872e7c34cbcd.zip))

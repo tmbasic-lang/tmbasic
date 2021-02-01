@@ -90,6 +90,17 @@ then
     popd
 fi
 
+if [ ! -d "icu" ]
+then
+    curl -L -o icu.tar.gz https://github.com/unicode-org/icu/releases/download/release-68-2/icu4c-68_2-src.tgz
+    tar zxf icu.tar.gz
+    cd icu/source
+    CXXFLAGS="-DU_USING_ICU_NAMESPACE=0 -DU_NO_DEFAULT_INCLUDE_UTF_HEADERS=1 -DU_HIDE_OBSOLETE_UTF_OLD_H=1 -std=c++17" \
+        ./runConfigureICU "MacOSX" --enable-static --disable-shared --disable-tests --disable-samples \
+        --with-data-packaging=static
+    make -j2
+fi
+
 set +x
 
 cd ..

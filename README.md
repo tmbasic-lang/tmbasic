@@ -52,6 +52,7 @@ TMBASIC itself is open source software, but apps written in TMBASIC are not requ
 
 - tmbasic — _[MIT license](LICENSE)_
 - [boost](https://www.boost.org/) — _[Boost Software License v1.0](https://github.com/electroly/tmbasic/blob/master/ext/boost/LICENSE_1_0.txt)_
+- [icu](http://site.icu-project.org/) — _[ICU License](https://github.com/electroly/tmbasic/blob/master/ext/icu/LICENSE)_
 - [immer](https://github.com/arximboldi/immer) — _[Boost Software License v1.0](https://github.com/electroly/tmbasic/blob/master/ext/immer/LICENSE)_
 - [libstdc++](https://gcc.gnu.org/onlinedocs/libstdc++/) — _[GNU General Public License v3](https://github.com/electroly/tmbasic/blob/master/ext/gcc/GPL-3) with [GCC Runtime Library Exception v3.1](https://github.com/electroly/tmbasic/blob/master/ext/gcc/copyright)_
 - [mpdecimal](https://www.bytereef.org/mpdecimal/) — _[BSD license](https://github.com/electroly/tmbasic/blob/master/ext/mpdecimal/LICENSE.txt)_
