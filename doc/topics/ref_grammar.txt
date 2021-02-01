@@ -3,105 +3,111 @@ nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {BASIC Reference:ref}@
 h1[Language Grammar]
 
 h2[Top Level]
+
 ul@
-li@`Program ::= Member*`@
-li@`Member ::= Subroutine | Function | DimStatement | ConstStatement | TypeDeclaration`@
-li@`Subroutine ::= "sub" identifier "(" ParameterList ")" "\n" Body "end" "sub" "\n"`@
-li@`Function ::= "function" identifier "(" ParameterList ")" "as" Type "\n" Body "end" "function" "\n"`@
-li@`TypeDeclaration ::= "type" identifier "\n" (Parameter "\n")* "end" "type" "\n"`@
-li@`Statement ::= DeclarationStatement | BlockStatement | CommandStatement`@
+li@Program ::= Member*@
+li@Member ::= Subroutine | Function | DimStatement | ConstStatement | TypeDeclaration@
+li@Subroutine ::= "sub" identifier "(" ParameterList ")" "\n" Body "end" "sub" "\n"@
+li@Function ::= "function" identifier "(" ParameterList ")" "as" Type "\n" Body "end" "function" "\n"@
+li@TypeDeclaration ::= "type" identifier "\n" (Parameter "\n")* "end" "type" "\n"@
+li@Statement ::= DeclarationStatement | BlockStatement | CommandStatement@
 @
 
 h2[Statements]
+
 ul@
-li@`Statement ::= CommandStatement | ForStatement | ForEachStatement | WhileStatement | DoStatement | IfStatement | JoinStatement | GroupStatement | SelectCaseStatement | TryStatement | DimStatement | DimCollectionStatement | ConstStatement`@
-li@`CommandStatement ::= AssignStatement | SelectStatement | ReturnStatement | CallStatement | ContinueStatement | ExitStatement | ThrowStatement | RethrowStatement`@
-li@`AssignStatement ::= identifier AssignLocationSuffix* "=" expression "\n"`@
-li@`AssignLocationSuffix ::= "." identifier | "(" expression ")"`@
-li@`ForStatement ::= "for" identifier "=" Expression "to" Expression ForStep? "\n" Body "next" "\n"`@
-li@`ForStep ::= "step" (number | identifier)`@
-li@`ForEachStatement ::= "for" "each" identifier "in" Expression "\n" Body "next" "\n"`@
-li@`WhileStatement ::= "while" Expression "\n" Body "wend" "\n"`@
-li@`IfStatement ::= "if" Expression "then" ("\n" Body ElseIf* Else? "end" "if" | CommandStatement) "\n"`@
-li@`ElseIf ::= "else" "if" Expression "then" "\n" Body`@
-li@`Else ::= "else" "\n" Body`@
-li@`DoStatement ::= "do" (DoCondition "\n" Body "loop" | "\n" Body "loop" DoCondition) "\n"`@
-li@`DoCondition ::= ("while" | "until") Expression`@
-li@`JoinStatement ::= "join" identifier "in" Expression "on" Expression "\n" Body "next" "\n"`@
-li@`GroupStatement ::= "group" Expression "by" Expression "into" identifier ("with" "key" identifier)? "\n" Body "next" "\n"`@
-li@`SelectCaseStatement ::= "select" "case" Expression "\n" Case* "end" "select" "\n"`@
-li@`Case ::= "case" (CaseValueList | "else") "\n" Body`@
-li@`CaseValueList ::= CaseValue ("," CaseValue)*`@
-li@`CaseValue ::= Expression ("to" Expression)?`@
-li@`DeclarationStatement ::= DimStatement | ConstStatement`@
-li@`TryStatement ::= "try" "\n" Body CatchBlock? FinallyBlock? "end" "try"`@
-li@`CatchBlock ::= "catch" "\n" Body`@
-li@`FinallyBlock ::= "finally" "\n" Body`@
-li@`DimStatement ::= "dim" identifier ("as" Type | "=" expression) "\n"`@
-li@`DimCollectionStatement ::= "dim" ("list" | "map") identifier "\n" Body "end" "dim" "\n"`@
-li@`ConstStatement ::= "const" identifier "=" LiteralValue "\n"`@
-li@`SelectStatement ::= "select" Expression ("to" Expression)? "\n"`@
-li@`ReturnStatement ::= "return" Expression? "\n"`@
-li@`CallStatement ::= identifier ArgumentList "\n"`@
-li@`ContinueStatement ::= "continue" ("do" | "for" | "while") "\n"`@
-li@`ExitStatement ::= "exit" ("do" | "for" | "select" | "try" | "while") "\n"`@
-li@`ThrowStatement ::= "throw" Expression "\n"`@
-li@`RethrowStatement ::= "rethrow" "\n"`@
+li@Statement ::= CommandStatement | ForStatement | ForEachStatement | WhileStatement | DoStatement | IfStatement | JoinStatement | GroupStatement | SelectCaseStatement | TryStatement | DimStatement | DimCollectionStatement | ConstStatement@
+li@CommandStatement ::= AssignStatement | SelectStatement | ReturnStatement | CallStatement | ContinueStatement | ExitStatement | ThrowStatement | RethrowStatement@
+li@AssignStatement ::= identifier AssignLocationSuffix* "=" expression "\n"@
+li@AssignLocationSuffix ::= "." identifier | "(" expression ")"@
+li@ForStatement ::= "for" identifier "=" Expression "to" Expression ForStep? "\n" Body "next" "\n"@
+li@ForStep ::= "step" (number | identifier)@
+li@ForEachStatement ::= "for" "each" identifier "in" Expression "\n" Body "next" "\n"@
+li@WhileStatement ::= "while" Expression "\n" Body "wend" "\n"@
+li@IfStatement ::= "if" Expression "then" ("\n" Body ElseIf* Else? "end" "if" | CommandStatement) "\n"@
+li@ElseIf ::= "else" "if" Expression "then" "\n" Body@
+li@Else ::= "else" "\n" Body@
+li@DoStatement ::= "do" (DoCondition "\n" Body "loop" | "\n" Body "loop" DoCondition) "\n"@
+li@DoCondition ::= ("while" | "until") Expression@
+li@JoinStatement ::= "join" identifier "in" Expression "on" Expression "\n" Body "next" "\n"@
+li@GroupStatement ::= "group" Expression "by" Expression "into" identifier ("with" "key" identifier)? "\n" Body "next" "\n"@
+li@SelectCaseStatement ::= "select" "case" Expression "\n" Case* "end" "select" "\n"@
+li@Case ::= "case" (CaseValueList | "else") "\n" Body@
+li@CaseValueList ::= CaseValue ("," CaseValue)*@
+li@CaseValue ::= Expression ("to" Expression)?@
+li@DeclarationStatement ::= DimStatement | ConstStatement@
+li@TryStatement ::= "try" "\n" Body CatchBlock? FinallyBlock? "end" "try"@
+li@CatchBlock ::= "catch" "\n" Body@
+li@FinallyBlock ::= "finally" "\n" Body@
+li@DimStatement ::= "dim" identifier ("as" Type | "=" expression) "\n"@
+li@DimCollectionStatement ::= "dim" ("list" | "map") identifier "\n" Body "end" "dim" "\n"@
+li@ConstStatement ::= "const" identifier "=" LiteralValue "\n"@
+li@SelectStatement ::= "select" Expression ("to" Expression)? "\n"@
+li@ReturnStatement ::= "return" Expression? "\n"@
+li@CallStatement ::= identifier ArgumentList "\n"@
+li@ContinueStatement ::= "continue" ("do" | "for" | "while") "\n"@
+li@ExitStatement ::= "exit" ("do" | "for" | "select" | "try" | "while") "\n"@
+li@ThrowStatement ::= "throw" Expression "\n"@
+li@RethrowStatement ::= "rethrow" "\n"@
 @
 
 h2[Expressions]
+
 ul@
-li@`Expression ::= OrExpression`@
-li@`OrExpression ::= AndExpression OrExpressionSuffix*`@
-li@`OrExpressionSuffix ::= "or" AndExpression`@
-li@`AndExpression ::= EqualityExpression AndExpressionSuffix*`@
-li@`AndExpressionSuffix ::= "and" EqualityExpression`@
-li@`EqualityExpression ::= InequalityExpression EqualityExpressionSuffix*`@
-li@`EqualityExpressionSuffix ::= ("=" | "<>") InequalityExpression`@
-li@`InequalityExpression ::= AddExpression InequalityExpressionSuffix*`@
-li@`InequalityExpressionSuffix ::= ("<" | "<=" | ">" | ">=") AddExpression`@
-li@`AddExpression ::= MultiplyExpression AddExpressionSuffix*`@
-li@`AddExpressionSuffix ::= ("+" | "-") MultiplyExpression`@
-li@`MultiplyExpression ::= UnaryExpression MultiplyExpressionSuffix*`@
-li@`MultiplyExpressionSuffix ::= ("*" | "/" | "mod") UnaryExpression`@
-li@`UnaryExpression ::= "not"? ConvertExpression`@
-li@`ConvertExpression ::= DottedExpression ("as" Type)?`@
-li@`DottedExpression ::= ExpressionTerm DottedExpressionSuffix*`@
-li@`DottedExpressionSuffix ::= "." identifier ("(" ArgumentList ")")?`@
-li@`ExpressionTerm ::= LiteralValue | identifier | ParenthesesTerm | FunctionCallTerm | LiteralArrayTerm | LiteralRecordTerm`@
-li@`ParenthesesTerm ::= "(" Expression ")"`@
-li@`FunctionCallTerm ::= identifier "(" ArgumentList ")"`@
-li@`LiteralArrayTerm ::= "[" ArgumentList "]"`@
-li@`LiteralRecordTerm ::= "{{" LiteralRecordFieldList "}"`@
-li@`LiteralRecordFieldList ::= (LiteralRecordField ("," LiteralRecordField)*)?`@
-li@`LiteralRecordField ::= identifier ":" Expression`@
-li@`LiteralValue ::= boolean | number | string`@
+li@Expression ::= OrExpression@
+li@OrExpression ::= AndExpression OrExpressionSuffix*@
+li@OrExpressionSuffix ::= "or" AndExpression@
+li@AndExpression ::= EqualityExpression AndExpressionSuffix*@
+li@AndExpressionSuffix ::= "and" EqualityExpression@
+li@EqualityExpression ::= InequalityExpression EqualityExpressionSuffix*@
+li@EqualityExpressionSuffix ::= ("=" | "<>") InequalityExpression@
+li@InequalityExpression ::= AddExpression InequalityExpressionSuffix*@
+li@InequalityExpressionSuffix ::= ("<" | "<=" | ">" | ">=") AddExpression@
+li@AddExpression ::= MultiplyExpression AddExpressionSuffix*@
+li@AddExpressionSuffix ::= ("+" | "-") MultiplyExpression@
+li@MultiplyExpression ::= UnaryExpression MultiplyExpressionSuffix*@
+li@MultiplyExpressionSuffix ::= ("*" | "/" | "mod") UnaryExpression@
+li@UnaryExpression ::= "not"? ConvertExpression@
+li@ConvertExpression ::= DottedExpression ("as" Type)?@
+li@DottedExpression ::= ExpressionTerm DottedExpressionSuffix*@
+li@DottedExpressionSuffix ::= "." identifier ("(" ArgumentList ")")?@
+li@ExpressionTerm ::= LiteralValue | identifier | ParenthesesTerm | FunctionCallTerm | LiteralArrayTerm | LiteralRecordTerm@
+li@ParenthesesTerm ::= "(" Expression ")"@
+li@FunctionCallTerm ::= identifier "(" ArgumentList ")"@
+li@LiteralArrayTerm ::= "[" ArgumentList "]"@
+li@LiteralRecordTerm ::= "{{" LiteralRecordFieldList "}"@
+li@LiteralRecordFieldList ::= (LiteralRecordField ("," LiteralRecordField)*)?@
+li@LiteralRecordField ::= identifier ":" Expression@
+li@LiteralValue ::= boolean | number | string@
 @
 
 h2[Type Signatures]
+
 ul@
-li@`Type ::= PrimitiveType | RecordType | ListType | MapType | OptionalType | NamedType`@
-li@`PrimitiveType ::= "boolean" | "number" | "text" | "date" | "datetime" | "datetimeoffset" | "timespan"`@
-li@`RecordType ::= "record" "(" ParameterList ")"`@
-li@`ListType ::= "list" "of" TypeWithParentheses`@
-li@`MapType ::= "map" "from" TypeWithParentheses "to" TypeWithParentheses`@
-li@`OptionalType ::= "optional" TypeWithParentheses`@
-li@`TypeWithParentheses ::= "(" Type ")" | Type`@
-li@`NamedType ::= identifier`@
+li@Type ::= PrimitiveType | RecordType | ListType | MapType | OptionalType | NamedType@
+li@PrimitiveType ::= "boolean" | "number" | "text" | "date" | "datetime" | "datetimeoffset" | "timespan"@
+li@RecordType ::= "record" "(" ParameterList ")"@
+li@ListType ::= "list" "of" TypeWithParentheses@
+li@MapType ::= "map" "from" TypeWithParentheses "to" TypeWithParentheses@
+li@OptionalType ::= "optional" TypeWithParentheses@
+li@TypeWithParentheses ::= "(" Type ")" | Type@
+li@NamedType ::= identifier@
 @
 
 h2[Common]
+
 ul@
-li@`ParameterList ::= (Parameter ("," Parameter)*)?`@
-li@`Parameter ::= identifier "as" Type`@
-li@`ArgumentList ::= (Expression ("," Expression)*)?`@
-li@`Body ::= Statement*`@
+li@ParameterList ::= (Parameter ("," Parameter)*)?@
+li@Parameter ::= identifier "as" Type@
+li@ArgumentList ::= (Expression ("," Expression)*)?@
+li@Body ::= Statement*@
 @
 
 h2[Terminals]
+
 ul@
-li@`identifier ::= /[A-Za-z_][A-Za-z0-9_]*/`@
-li@`boolean ::= "true" | "false"`@
-li@`number ::= /-?[0-9]+\.?[0-9]*/`@
-li@`string ::= /"(""|[^"])*"/`@
+li@identifier ::= /[A-Za-z_][A-Za-z0-9_]*/@
+li@boolean ::= "true" | "false"@
+li@number ::= /-?[0-9]+\.?[0-9]*/@
+li@string ::= /"(""|[^"])*"/@
 @

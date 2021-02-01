@@ -2,7 +2,7 @@ nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {BASIC Reference:ref}@
 
 h1[`text` Type]
 
-A text value is a sequence of charaters: numbers, letters, punctuation, symbols, and whitespace.
+A text value is a sequence of characters: numbers, letters, punctuation, symbols, and whitespace.
 In other programming languages, they are called {strings:https://en.wikipedia.org/wiki/String_(computer_science)}.
 Examples include "fish" and "entrée."
 Emojis can be used, but the Windows console does not have the font support necessary to display them.
