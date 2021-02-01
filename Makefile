@@ -108,7 +108,8 @@ LICENSE_FILES=\
 	ext/ncurses/COPYING \
 	ext/tvision/COPYRIGHT \
 	ext/bsdiff/LICENSE \
-	ext/bzip2/COPYING
+	ext/bzip2/COPYING \
+	ext/icu/LICENSE
 LICENSE_DIAGRAM_TXT_FILES=\
 	obj/doc-temp/diagrams-license/license_tmbasic.txt \
 	obj/doc-temp/diagrams-license/license_boost.txt \
@@ -122,7 +123,8 @@ LICENSE_DIAGRAM_TXT_FILES=\
 	obj/doc-temp/diagrams-license/license_ncurses.txt \
 	obj/doc-temp/diagrams-license/license_tvision.txt \
 	obj/doc-temp/diagrams-license/license_bsdiff.txt \
-	obj/doc-temp/diagrams-license/license_bzip2.txt
+	obj/doc-temp/diagrams-license/license_bzip2.txt \
+	obj/doc-temp/diagrams-license/license_icu.txt
 LICENSE_DIAGRAM_CP437_FILES=\
 	$(patsubst obj/doc-temp/diagrams-license/%,obj/doc-temp/diagrams-cp437/%,$(LICENSE_DIAGRAM_TXT_FILES))
 
@@ -406,7 +408,8 @@ bin/LICENSE.txt: LICENSE \
 		ext/gcc/copyright \
 		ext/mpdecimal/LICENSE.txt \
 		ext/ncurses/COPYING \
-		ext/tvision/COPYRIGHT
+		ext/tvision/COPYRIGHT \
+		ext/icu/LICENSE
 	@echo $@
 	@mkdir -p bin
 	@rm -f $@
@@ -415,6 +418,9 @@ bin/LICENSE.txt: LICENSE \
 	@echo >> $@
 	@echo === boost license === >> $@
 	@cat ext/boost/LICENSE_1_0.txt >> $@
+	@echo >> $@
+	@echo === icu license === >> $@
+	@cat ext/icu/LICENSE >> $@
 	@echo >> $@
 	@echo === immer license === >> $@
 	@cat ext/immer/LICENSE >> $@

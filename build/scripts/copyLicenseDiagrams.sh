@@ -13,3 +13,4 @@ cp -f ext/ncurses/COPYING obj/doc-temp/diagrams-license/license_ncurses.txt
 cp -f ext/tvision/COPYRIGHT obj/doc-temp/diagrams-license/license_tvision.txt
 cp -f ext/bsdiff/LICENSE obj/doc-temp/diagrams-license/license_bsdiff.txt
 cp -f ext/bzip2/COPYING obj/doc-temp/diagrams-license/license_bzip2.txt
+cp -f ext/icu/LICENSE obj/doc-temp/diagrams-license/license_icu.txt
