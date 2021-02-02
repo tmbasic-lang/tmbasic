@@ -281,14 +281,13 @@ static void writeHtmlPage(const string& topic, const string& text, const string&
 }
 
 static void buildTopic(
-    const string& filename,
+    const string& cp437Filename,
+    const string& utf8Filename,
     const string& topic,
     ostringstream* outputTxt,
     const string& htmlPageTemplate) {
-    auto inputFilePath = string("topics/") + filename;
-    auto input = readFile(inputFilePath);
-    *outputTxt << ".topic " << topic << "\n" << processText(trim_copy(input)) << "\n\n";
-    writeHtmlPage(topic, input, htmlPageTemplate);
+    *outputTxt << ".topic " << topic << "\n" << processText(trim_copy(readFile(cp437Filename))) << "\n\n";
+    writeHtmlPage(topic, readFile(utf8Filename), htmlPageTemplate);
 }
 
 static vector<string> splitStringIntoLines(const string& input) {
@@ -446,18 +445,18 @@ static string formatProcedureText(const string& topicName, const Procedure& proc
 }
 
 static void buildProcedure(
-    const string& filename,
+    const string& cp437Filename,
+    const string& utf8Filename,
     vector<string>* procedureNames,
     ostringstream* outputTxt,
     const string& htmlPageTemplate) {
-    auto inputFilePath = string("procedures/") + filename;
-    auto input = readFile(inputFilePath);
-    auto procedure = parseProcedure(input);
-    auto topicName = string("procedure_") + procedure->name;
-    procedureNames->push_back(procedure->name);
-    auto text = formatProcedureText(topicName, *procedure);
-    *outputTxt << ".topic " << topicName << "\n" << processText(text) << "\n";
-    writeHtmlPage(topicName, text, htmlPageTemplate);
+    auto cp437Procedure = parseProcedure(readFile(cp437Filename));
+    auto topicName = string("procedure_") + cp437Procedure->name;
+    procedureNames->push_back(cp437Procedure->name);
+    *outputTxt << ".topic " << topicName << "\n"
+               << processText(formatProcedureText(topicName, *cp437Procedure)) << "\n";
+    auto utf8Procedure = parseProcedure(readFile(utf8Filename));
+    writeHtmlPage(topicName, formatProcedureText(topicName, *utf8Procedure), htmlPageTemplate);
 }
 
 static void buildProcedureIndex(
@@ -474,7 +473,7 @@ static void buildProcedureIndex(
     o << "@\n";
     auto filePath = "../obj/doc-temp/procedure.txt";
     writeFile(filePath, o.str());
-    buildTopic(string("../") + filePath, "procedure", outputTxt, htmlPageTemplate);
+    buildTopic(filePath, filePath, "procedure", outputTxt, htmlPageTemplate);
 }
 
 static string insertCp437Diagram(string input, string filename) {
@@ -517,13 +516,19 @@ int main() {
         createDirectory("../obj/doc-temp");
         createDirectory("../obj/doc-temp/diagrams-cp437");
         createDirectory("../obj/doc-html");
-        forEachFile("topics", [&outputTxt, &htmlPageTemplate](auto filename) -> void {
+        forEachFile("../obj/doc-temp/topics-cp437", [&outputTxt, &htmlPageTemplate](auto filename) -> void {
             auto topic = filename.substr(0, filename.length() - 4);
-            buildTopic(filename, topic, &outputTxt, htmlPageTemplate);
+            buildTopic(
+                string("../obj/doc-temp/topics-cp437/") + filename, string("topics/") + filename, topic, &outputTxt,
+                htmlPageTemplate);
         });
-        forEachFile("procedures", [&outputTxt, &htmlPageTemplate, &procedureNames](auto filename) -> void {
-            buildProcedure(filename, &procedureNames, &outputTxt, htmlPageTemplate);
-        });
+        forEachFile(
+            "../obj/doc-temp/procedures-cp437",
+            [&outputTxt, &htmlPageTemplate, &procedureNames](auto filename) -> void {
+                buildProcedure(
+                    string("../obj/doc-temp/procedures-cp437/") + filename, string("procedures/") + filename,
+                    &procedureNames, &outputTxt, htmlPageTemplate);
+            });
         buildProcedureIndex(procedureNames, &outputTxt, htmlPageTemplate);
         writeFile("../obj/resources/help/help.txt", insertCp437Diagrams(outputTxt.str()));
     } catch (const regex_error& ex) {

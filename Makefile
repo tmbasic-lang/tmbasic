@@ -92,6 +92,10 @@ FAVICON_IN_FILES=$(shell find art/favicon -type f)
 FAVICON_OUT_FILES=$(patsubst art/favicon/%,bin/ghpages/%,$(FAVICON_IN_FILES))
 
 # help files
+TOPIC_UTF8_FILES=$(shell find doc/topics -type f -name "*.txt")
+TOPIC_CP437_FILES=$(patsubst doc/topics/%,obj/doc-temp/topics-cp437/%,$(TOPIC_UTF8_FILES))
+PROCEDURES_UTF8_FILES=$(shell find doc/procedures -type f -name "*.txt")
+PROCEDURES_CP437_FILES=$(patsubst doc/procedures/%,obj/doc-temp/procedures-cp437/%,$(PROCEDURES_UTF8_FILES))
 DOC_FILES=$(shell find doc -type f -name "*.txt") $(shell find doc -type f -name "*.html")
 DIAGRAM_SRC_FILES=$(shell find doc/diagrams -type f -name "*.txt")
 DIAGRAM_CP437_FILES=$(patsubst doc/diagrams/%,obj/doc-temp/diagrams-cp437/%,$(DIAGRAM_SRC_FILES))
@@ -470,7 +474,7 @@ obj/resources/help/helpfile.h: obj/resources/help/help.txt
 obj/resources/help/help.h32: obj/resources/help/helpfile.h
 	@echo $@
 
-obj/resources/help/help.txt: $(DOC_FILES) \
+obj/resources/help/help.txt: $(DOC_FILES) $(TOPIC_CP437_FILES) $(PROCEDURES_CP437_FILES) \
 		obj/buildDoc \
 		$(DIAGRAM_CP437_FILES) \
 		$(LICENSE_DIAGRAM_CP437_FILES) \
@@ -487,6 +491,16 @@ $(DIAGRAM_CP437_FILES): obj/doc-temp/diagrams-cp437/%: doc/diagrams/%
 	@iconv -f utf8 -t cp437 $< > $@
 
 $(LICENSE_DIAGRAM_CP437_FILES): obj/doc-temp/diagrams-cp437/%: obj/doc-temp/diagrams-license/%
+	@echo $@
+	@mkdir -p $(@D)
+	@iconv -f utf8 -t cp437 $< > $@
+
+$(TOPIC_CP437_FILES): obj/doc-temp/topics-cp437/%: doc/topics/%
+	@echo $@
+	@mkdir -p $(@D)
+	@iconv -f utf8 -t cp437 $< > $@
+
+$(PROCEDURES_CP437_FILES): obj/doc-temp/procedures-cp437/%: doc/procedures/%
 	@echo $@
 	@mkdir -p $(@D)
 	@iconv -f utf8 -t cp437 $< > $@
