@@ -13,6 +13,7 @@ h2[Types]
 
 ul@
 li@{`boolean` Type:type_boolean}@
+li@{`list` Type:type_list}@
 li@{`number` Type:type_number}@
 li@{`optional` Type:type_optional}@
 li@{`text` Type:type_text}@

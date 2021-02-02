@@ -1,0 +1,30 @@
+.procedure graphemeClusters
+.overload
+.description
+Converts a t[text] value into a list of "grapheme clusters," or what human readers would intuitively understand as "characters."
+
+In languages using a Latin script, a letter or an accent are considered separate graphemes.
+A grapheme cluster is the Latin letter combined with its accents.
+
+For example, consider the text value "né" formed by three code points:
+code@
+"n" + "e" + chr(769)
+' 769 is the code point for "COMBINING ACUTE ACCENT"
+@
+
+The function p[len] returns 3 for this text because there are three code points.
+However, there are only two grapheme clusters: `n` and `é`.
+The p[graphemeClusters] function returns `["n", "é"]` for this text.
+.parameter this: text
+Any text value.
+.return list of text
+A list of the grapheme clusters in i[this].
+.example
+.example-code
+dim x = graphemeClusters("n" + "e" + chr(769))
+print x(0).len  ' one code point: "n"
+print x(1).len  ' two code points: "e" + chr(769)
+.example-output
+1
+2
+.
