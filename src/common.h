@@ -2,6 +2,8 @@
 #ifndef COMMON_H_
 #define COMMON_H_
 
+#include <unicode/brkiter.h>
+
 #include <decimal.hh>
 
 #define Uses_MsgBox

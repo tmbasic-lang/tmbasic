@@ -1,0 +1,17 @@
+.procedure availableLocales
+.overload
+.description
+Returns a list of the locales available to TMBASIC.
+A locale is either a language code like `en` or `fr`, or a combination of language and region like `en_US` or `fr_FR`.
+Functions like p[graphemeClusters] that operate on text values accept an optional locale.
+
+The default locale is `en_US`.
+.return list of string
+List of locale names.
+.example
+.example-code
+dim x = availableLocales
+print x(0)
+.example-output
+af
+.

@@ -271,6 +271,12 @@ ifeq ($(TARGET_OS),mac)
 LDFLAGS += $(PWD)/mac/mpdecimal/libmpdec/libmpdec.a $(PWD)/mac/mpdecimal/libmpdec++/libmpdec++.a
 endif
 
+# Linker flag to include ICU.
+LDFLAGS += -licuuc -licudata
+ifeq ($(TARGET_OS),linux)
+LDFLAGS += -ldl
+endif
+
 # Linker flag to include libgtest (googletest).
 ifeq ($(TARGET_OS),mac)
 LIBGTEST_FLAG += $(PWD)/mac/googletest/build/lib/libgtest.a $(PWD)/mac/googletest/build/lib/libgtest_main.a

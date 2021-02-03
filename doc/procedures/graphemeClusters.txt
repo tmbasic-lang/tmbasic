@@ -15,6 +15,8 @@ code@
 The function p[len] returns 3 for this text because there are three code points.
 However, there are only two grapheme clusters: `n` and `é`.
 The p[graphemeClusters] function returns `["n", "é"]` for this text.
+
+This overload of p[graphemeClusters] uses the `en_US` locale.
 .parameter this: text
 Any text value.
 .return list of text
@@ -22,6 +24,25 @@ A list of the grapheme clusters in i[this].
 .example
 .example-code
 dim x = graphemeClusters("n" + "e" + chr(769))
+print x(0).len  ' one code point: "n"
+print x(1).len  ' two code points: "e" + chr(769)
+.example-output
+1
+2
+.overload
+.description
+Converts a t[text] value into a list of "grapheme clusters" using the specified locale.
+.parameter this: text
+Any text value.
+.parameter locale: text
+The locale to use.
+This is either a language code like `en` or a combination of language and region like `en_US`.
+Use the p[availableLocales] function to retrieve the list of all possible locales.
+.return list of text
+A list of the grapheme clusters in i[this].
+.example
+.example-code
+dim x = graphemeClusters("n" + "e" + chr(769), "fr_FR")
 print x(0).len  ' one code point: "n"
 print x(1).len  ' two code points: "e" + chr(769)
 .example-output
