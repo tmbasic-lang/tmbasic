@@ -37,7 +37,7 @@
 
 ### [tvision](https://github.com/magiblot/tvision)
 - License: [Borland license (original code), MIT license (additions)](https://github.com/electroly/tmbasic/blob/master/ext/tvision/COPYRIGHT)
-- Source: https://github.com/magiblot/tvision/archive/40e616d968c872745f22c217da87a779dc8738f2.zip ([mirror](https://tmbasic.s3.amazonaws.com/tvision/tvision-40e616d968c872745f22c217da87a779dc8738f2.zip))
+- Source: https://github.com/magiblot/tvision/archive/c5b5fb7427c5b488a63271b0a280541de03caf5c.zip ([mirror](https://tmbasic.s3.amazonaws.com/tvision/tvision-c5b5fb7427c5b488a63271b0a280541de03caf5c.zip))
 
 ## Libraries included only in TMBASIC
 
