@@ -328,11 +328,11 @@ valgrind: bin/tmbasic
 .PHONY: format
 format:
 	@find src/ -type f \( -iname \*.h -o -iname \*.cpp \) | xargs clang-format -i
-	@clang-format -i build/scripts/buildDoc.cpp build/scripts/buildRunnerHeader.cpp
+	@clang-format -i build/scripts/buildDoc.cpp build/scripts/runnerHeader.cpp
 
 .PHONY: lint
 lint:
-	@cpplint --quiet --recursive --repository=src src build/scripts/buildDoc.cpp build/scripts/buildRunnerHeader.cpp
+	@cpplint --quiet --recursive --repository=src src build/scripts/buildDoc.cpp build/scripts/runnerHeader.cpp
 
 .PHONY: tidy
 tidy: $(TIDY_TARGETS)
@@ -359,7 +359,7 @@ runners: $(patsubst %,bin/runners/%,$(BZIPPED_RUNNER_SIZE:=.bz2)) \
 # tidy ----------------------------------------------------------------------------------------------------------------
 
 $(TIDY_TARGETS): obj/tidy/%.tidy: src/%.cpp
-	@echo $<
+	@printf "%16s  %s\n" "clang-tidy" "$<"
 	@mkdir -p $(@D)
 	@clang-tidy $< --quiet --fix -- $(CXXFLAGS) -DCLANG_TIDY | tee $@
 	@touch $@
@@ -374,7 +374,7 @@ bin/ghpages/index.html: README.md \
 		doc/html/page-template-3.html \
 		$(FAVICON_OUT_FILES) \
 		bin/ghpages/screenshot.png
-	@echo $@
+	@printf "%16s  %s\n" "pandoc" "$@"
 	@mkdir -p $(@D)
 	@cat doc/html/page-template-1.html > $@
 	@echo -n "TMBASIC" >> $@
@@ -383,12 +383,12 @@ bin/ghpages/index.html: README.md \
 	@cat doc/html/page-template-3.html >> $@
 
 $(FAVICON_OUT_FILES): bin/ghpages/%: art/favicon/%
-	@echo $@
+	@printf "%16s  %s\n" "cp" "$@"
 	@mkdir -p $(@D)
 	@cp -f $< $@
 
 bin/ghpages/screenshot.png: art/screenshot.png
-	@echo $@
+	@printf "%16s  %s\n" "cp" "$@"
 	@mkdir -p $(@D)
 	@cp -f $< $@
 
@@ -397,7 +397,7 @@ bin/ghpages/screenshot.png: art/screenshot.png
 # precompiled header --------------------------------------------------------------------------------------------------
 
 obj/common.h.gch: src/common.h
-	@echo $@
+	@printf "%16s  %s\n" "$(CXX)" "$@"
 	@mkdir -p $(@D)
 	@$(CXX) -o $@ $(CXXFLAGS) -x c++-header src/common.h
 
@@ -414,7 +414,7 @@ bin/LICENSE.txt: LICENSE \
 		ext/ncurses/COPYING \
 		ext/tvision/COPYRIGHT \
 		ext/icu/LICENSE
-	@echo $@
+	@printf "%16s  %s\n" "cat" "$@"
 	@mkdir -p bin
 	@rm -f $@
 	@echo === tmbasic license === >> $@
@@ -448,12 +448,13 @@ bin/LICENSE.txt: LICENSE \
 	@$(LICENSE_PROCESS_CMD) $@
 
 $(LICENSE_DIAGRAM_TXT_FILES): $(LICENSE_FILES)
-	@echo $@
+	@printf "%16s  %s\n" "copyLicenses.sh" "$@"
 	@mkdir -p $(@D)
-	@build/scripts/copyLicenseDiagrams.sh
+	@build/scripts/copyLicenses.sh
 
 obj/buildDoc: build/scripts/buildDoc.cpp
-	@echo $@
+	@printf "%16s  %s\n" "$(BUILDCC)" "$@"
+	@mkdir -p $(@D)
 	@$(BUILDCC) \
 		-o $@ $< \
 		-I$(PWD)/mac/boost \
@@ -464,7 +465,7 @@ obj/buildDoc: build/scripts/buildDoc.cpp
 		-lstdc++
 
 obj/resources/help/helpfile.h: obj/resources/help/help.txt
-	@echo $@
+	@printf "%16s  %s\n" "tvhc" "$@"
 	@mkdir -p obj/resources/help
 	@mkdir -p bin
 	@rm -f obj/resources/help/help.h32
@@ -472,7 +473,7 @@ obj/resources/help/helpfile.h: obj/resources/help/help.txt
 	@$(TVHC_CMD) obj/resources/help/help.txt obj/resources/help/help.h32 obj/resources/help/helpfile.h >/dev/null
 
 obj/resources/help/help.h32: obj/resources/help/helpfile.h
-	@echo $@
+	@# noop
 
 obj/resources/help/help.txt: $(DOC_FILES) $(TOPIC_CP437_FILES) $(PROCEDURES_CP437_FILES) \
 		obj/buildDoc \
@@ -481,27 +482,27 @@ obj/resources/help/help.txt: $(DOC_FILES) $(TOPIC_CP437_FILES) $(PROCEDURES_CP43
 		doc/html/page-template-1.html \
 		doc/html/page-template-2.html \
 		doc/html/page-template-3.html
-	@echo $@
+	@printf "%16s  %s\n" "buildDoc" "$@"
 	@mkdir -p $(@D)
 	@cd doc && ../obj/buildDoc
 
 $(DIAGRAM_CP437_FILES): obj/doc-temp/diagrams-cp437/%: doc/diagrams/%
-	@echo $@
+	@printf "%16s  %s\n" "iconv" "$@"
 	@mkdir -p $(@D)
 	@iconv -f utf8 -t cp437 $< > $@
 
 $(LICENSE_DIAGRAM_CP437_FILES): obj/doc-temp/diagrams-cp437/%: obj/doc-temp/diagrams-license/%
-	@echo $@
+	@printf "%16s  %s\n" "iconv" "$@"
 	@mkdir -p $(@D)
 	@iconv -f utf8 -t cp437 $< > $@
 
 $(TOPIC_CP437_FILES): obj/doc-temp/topics-cp437/%: doc/topics/%
-	@echo $@
+	@printf "%16s  %s\n" "iconv" "$@"
 	@mkdir -p $(@D)
 	@iconv -f utf8 -t cp437 $< > $@
 
 $(PROCEDURES_CP437_FILES): obj/doc-temp/procedures-cp437/%: doc/procedures/%
-	@echo $@
+	@printf "%16s  %s\n" "iconv" "$@"
 	@mkdir -p $(@D)
 	@iconv -f utf8 -t cp437 $< > $@
 
@@ -510,12 +511,12 @@ $(PROCEDURES_CP437_FILES): obj/doc-temp/procedures-cp437/%: doc/procedures/%
 # compiler ------------------------------------------------------------------------------------------------------------
 
 $(COMPILER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(SHARED_H_FILES) $(COMPILER_H_FILES)
-	@echo $@
+	@printf "%16s  %s\n" "$(CXX)" "$@"
 	@mkdir -p $(@D)
 	@$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
 
 obj/compiler.a: $(COMPILER_OBJ_FILES)
-	@echo $@
+	@printf "%16s  %s\n" "$(AR)" "$@"
 	@mkdir -p $(@D)
 	@$(AR) rcs $@ $(COMPILER_OBJ_FILES)
 
@@ -524,12 +525,12 @@ obj/compiler.a: $(COMPILER_OBJ_FILES)
 # shared --------------------------------------------------------------------------------------------------------------
 
 $(SHARED_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(SHARED_H_FILES)
-	@echo $@
+	@printf "%16s  %s\n" "$(CXX)" "$@"
 	@mkdir -p $(@D)
 	@$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
 
 obj/shared.a: $(SHARED_OBJ_FILES)
-	@echo $@
+	@printf "%16s  %s\n" "$(AR)" "$@"
 	@mkdir -p $(@D)
 	@$(AR) rcs $@ $(SHARED_OBJ_FILES)
 
@@ -538,28 +539,28 @@ obj/shared.a: $(SHARED_OBJ_FILES)
 # resources -----------------------------------------------------------------------------------------------------------
 
 obj/resources/help/helpfile.o: obj/resources/help/help.h32
-	@echo $@
+	@printf "%16s  %s\n" "$(CXX)" "$@"
 	@mkdir -p $(@D)
 	@xxd -i $< | sed s/obj_resources_help_help_h32/kResourceHelp/g > obj/resources/help/kResourceHelp.cpp
 	@$(CXX) -o $@ -c obj/resources/help/kResourceHelp.cpp
 
 $(ALL_PLATFORM_RUNNER_COMPRESSED_FILES): %:
-	@echo $@
+	@printf "%16s  %s\n" "touch" "$@"
 	@mkdir -p $(@D)
 	@touch $@
 
 $(ALL_PLATFORM_RUNNER_OBJ_FILES): obj/resources/runners/%.o: obj/resources/runners/%
-	@echo $@
+	@printf "%16s  %s\n" "runnerRes.sh" "$@"
 	@mkdir -p $(@D)
-	@OBJ_FILE=$@ CXX=$(CXX) build/scripts/buildRunnerResource.sh
+	@OBJ_FILE=$@ CXX=$(CXX) build/scripts/runnerRes.sh
 
-obj/resources/runners/runners_$(TARGET_OS)_$(ARCH).h: $(ALL_PLATFORM_RUNNER_BIN_FILES) obj/buildRunnerHeader
-	@echo $@
+obj/resources/runners/runners_$(TARGET_OS)_$(ARCH).h: $(ALL_PLATFORM_RUNNER_BIN_FILES) obj/runnerHeader
+	@printf "%16s  %s\n" "runnerHeader" "$@"
 	@mkdir -p $(@D)
-	@obj/buildRunnerHeader $(ALL_PLATFORM_RUNNER_BIN_FILES)
+	@obj/runnerHeader $(ALL_PLATFORM_RUNNER_BIN_FILES)
 
-obj/buildRunnerHeader: build/scripts/buildRunnerHeader.cpp
-	@echo $@
+obj/runnerHeader: build/scripts/runnerHeader.cpp
+	@printf "%16s  %s\n" "$(BUILDCC)" "$@"
 	@mkdir -p $(@D)
 	@$(BUILDCC) \
 		-o $@ $< \
@@ -579,7 +580,7 @@ $(TMBASIC_OBJ_FILES): obj/%.o: src/%.cpp \
 		$(COMPILER_H_FILES) \
 		$(SHARED_H_FILES) \
 		$(TMBASIC_H_FILES)
-	@echo $@
+	@printf "%16s  %s\n" "$(CXX)" "$@"
 	@mkdir -p $(@D)
 	@$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
 
@@ -591,7 +592,7 @@ bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
 		obj/resources/help/help.h32 \
 		obj/resources/help/helpfile.o \
 		$(ALL_PLATFORM_RUNNER_OBJ_FILES)
-	@echo $@
+	@printf "%16s  %s\n" "$(CXX)" "$@"
 	@mkdir -p $(@D)
 	@$(CXX) \
 		-o $@ $(TMBASIC_OBJ_FILES) \
@@ -617,7 +618,7 @@ $(TEST_OBJ_FILES): obj/%.o: src/%.cpp \
 		obj/resources/help/help.h32 \
 		$(COMPILER_H_FILES) \
 		$(SHARED_H_FILES)
-	@echo $@
+	@printf "%16s  %s\n" "$(CXX)" "$@"
 	@mkdir -p $(@D)
 	@$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
 
@@ -629,7 +630,7 @@ bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) \
 		obj/resources/help/help.h32 \
 		obj/resources/help/helpfile.o \
 		$(ALL_PLATFORM_RUNNER_OBJ_FILES)
-	@echo $@
+	@printf "%16s  %s\n" "$(CXX)" "$@"
 	@mkdir -p $(@D)
 	@$(CXX) \
 		-o $@ \
@@ -653,18 +654,18 @@ bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) \
 # We ship the 100KB runner and a set of binary patches to convert the 100KB runner to the other sizes.
 
 $(RUNNER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(SHARED_H_FILES) $(RUNNER_H_FILES)
-	@echo $@
+	@printf "%16s  %s\n" "$(CXX)" "$@"
 	@mkdir -p $(@D)
 	@$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
 
 $(patsubst %,obj/resources/pcode/%,$(RUNNER_SIZES:=.o)): %:
-	@echo $@
+	@printf "%16s  %s\n" "pcodeRes.sh" "$@"
 	@mkdir -p $(@D)
-	@OBJ_FILE=$@ CXX=$(CXX) build/scripts/buildPcodeResource.sh
+	@OBJ_FILE=$@ CXX=$(CXX) build/scripts/pcodeRes.sh
 
 $(THIS_PLATFORM_RUNNER_BIN_FILES): bin/runners/%$(EXE_EXTENSION): \
 		obj/resources/pcode/%.o $(RUNNER_OBJ_FILES) obj/shared.a
-	@echo $@
+	@printf "%16s  %s\n" "$(CXX)" "$@"
 	@mkdir -p $(@D)
 	@$(CXX) \
 		-o $@ \
@@ -680,12 +681,12 @@ $(THIS_PLATFORM_RUNNER_BIN_FILES): bin/runners/%$(EXE_EXTENSION): \
 
 $(THIS_PLATFORM_RUNNER_BSDIFF_FILES): bin/runners/%.bsdiff: bin/runners/%$(EXE_EXTENSION) \
 		bin/runners/$(BZIPPED_RUNNER_SIZE)$(EXE_EXTENSION)
-	@echo $@
+	@printf "%16s  %s\n" "bsdiff" "$@"
 	@mkdir -p $(@D)
 	@$(BSDIFF) bin/runners/$(BZIPPED_RUNNER_SIZE)$(EXE_EXTENSION) $< $@
 
 $(THIS_PLATFORM_RUNNER_BZIP_FILES): bin/runners/%.bz2: bin/runners/%$(EXE_EXTENSION)
-	@echo $@
+	@printf "%16s  %s\n" "bzip2" "$@"
 	@mkdir -p $(@D)
 	@rm -f $@
 	@cat $< | $(BZIP2) --keep --best > $@
