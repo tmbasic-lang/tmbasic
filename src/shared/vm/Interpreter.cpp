@@ -974,7 +974,7 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kStringChr: {
                 auto value = a.getInt64();
-                char32_t ch = static_cast<char32_t>(value);
+                auto ch = static_cast<char32_t>(value);
                 if (ch > 0) {
                     x = boost::make_local_shared<String>(std::u32string(&ch, 1));
                 } else {
