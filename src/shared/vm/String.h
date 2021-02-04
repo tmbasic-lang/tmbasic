@@ -7,10 +7,10 @@ namespace vm {
 
 class String : public Object {
    public:
-    const std::u32string value;
+    const icu::UnicodeString value;
     String();
-    explicit String(const std::string& value);
-    explicit String(std::u32string value);
+    explicit String(const std::string& utf8);
+    explicit String(icu::UnicodeString utf16);
     String(const uint8_t* source, int length);
     ObjectType getObjectType() const override;
     size_t getHash() const override;

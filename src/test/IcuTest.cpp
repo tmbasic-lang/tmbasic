@@ -8,10 +8,11 @@ using icu::UnicodeString;
 
 TEST(IcuTest, GraphemeClusters1) {
     auto status = U_ZERO_ERROR;
+    // e + COMBINING ACUTE ACCENT
     auto ustr = UnicodeString::fromUTF8(
         "n"
         "e\xCC\x81"
-        "e");  // e + COMBINING ACUTE ACCENT
+        "e");
     auto iter = std::unique_ptr<BreakIterator>(BreakIterator::createCharacterInstance(Locale::getUS(), status));
     iter->setText(ustr);
     auto index = iter->first();

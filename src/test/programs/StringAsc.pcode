@@ -58,4 +58,13 @@ StringPrint
 LoadConstantStringX ","
 StringPrint
 
+# asc(o0,2).print : ",".print
+LoadX 0
+LoadConstantA 2
+StringAsc
+NumberToString
+StringPrint
+LoadConstantStringX ","
+StringPrint
+
 Exit

@@ -943,9 +943,9 @@ bool Interpreter::run(int maxCycles) {
                     midOffset = 0;
                 }
                 if (midOffset < static_cast<int64_t>(str.value.length()) && midLength > 0) {
-                    x = boost::make_local_shared<String>(str.value.substr(midOffset, midLength));
+                    x = boost::make_local_shared<String>(icu::UnicodeString(str.value, midOffset, midLength));
                 } else {
-                    x = boost::make_local_shared<String>(std::string());
+                    x = boost::make_local_shared<String>(icu::UnicodeString());
                 }
                 instructionIndex++;
                 break;
@@ -958,15 +958,14 @@ bool Interpreter::run(int maxCycles) {
                 assert(y->getObjectType() == ObjectType::kString);
                 auto& haystack = dynamic_cast<String&>(*x);
                 auto startIndex = a.getInt64();
-                if (startIndex >= static_cast<int64_t>(haystack.value.size())) {
+                if (startIndex >= static_cast<int64_t>(haystack.value.length())) {
                     a.num = -1;
                 } else {
                     if (startIndex < 0) {
                         startIndex = 0;
                     }
                     auto& needle = dynamic_cast<String&>(*y);
-                    auto found = haystack.value.find(needle.value, startIndex);
-                    a.num = found == std::string::npos ? -1 : decimal::Decimal(found);
+                    a.num = haystack.value.indexOf(needle.value, startIndex);
                 }
                 instructionIndex++;
                 break;
@@ -974,11 +973,11 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kStringChr: {
                 auto value = a.getInt64();
-                auto ch = static_cast<char32_t>(value);
+                auto ch = static_cast<UChar32>(value);
                 if (ch > 0) {
-                    x = boost::make_local_shared<String>(std::u32string(&ch, 1));
+                    x = boost::make_local_shared<String>(icu::UnicodeString(ch));
                 } else {
-                    x = boost::make_local_shared<String>(std::u32string());
+                    x = boost::make_local_shared<String>(icu::UnicodeString());
                 }
                 instructionIndex++;
                 break;
