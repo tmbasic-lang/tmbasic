@@ -15,17 +15,17 @@ Simpler apps may eschew a full TUI and use simple `print` / `input` calls if des
 h2[Data types]
 
 ul@
-li@`boolean` -- `true` / `false`.@
-li@`number` -- 128-bit decimal.@
-li@`text` -- UTF-16 string.@
-li@`date` -- Date without a time.@
-li@`datetime` -- Date and time, without a time zone offset.@
-li@`datetimeoffset` -- Date, time, and time zone offset.@
-li@`timespan` -- Period of time.@
-li@`list of T` -- Generic dynamic-sized array with element type `T`. Example: `list of number`. Literals look like: `[0, 1, 2]`.@
-li@`map from K to V` -- Generic dynamic-sized dictionary with key type `K` and value type `V`. Example: `map from number to text`.@
-li@`optional T` -- Wrapper for type `T` indicating that the value may or may not be present. Example: `optional number`.@
-li@`record (...)` -- Anonymous record type, containing zero or more named fields. Example: `record (foo as number, bar as text)`. Literals look like `{{foo: 1, bar: "hi"}`.@
+li@`Boolean` -- `true` / `false`.@
+li@`Number` -- 128-bit decimal.@
+li@`String` -- UTF-16 text.@
+li@`Date` -- Date without a time.@
+li@`DateTime` -- Date and time, without a time zone offset.@
+li@`DateTimeOffset` -- Date, time, and time zone offset.@
+li@`TimeSpan` -- Period of time.@
+li@`List of T` -- Generic dynamic-sized array with element type `T`. Example: `List of Number`. Literals look like: `[0, 1, 2]`.@
+li@`Map from K to V` -- Generic dynamic-sized dictionary with key type `K` and value type `V`. Example: `Map from Number to Text`.@
+li@`Optional T` -- Wrapper for type `T` indicating that the value may or may not be present. Example: `Optional Number`.@
+li@`Record (...)` -- Anonymous record type, containing zero or more named fields. Example: `Record (foo as Number, bar as String)`. Literals look like `{{foo: 1, bar: "hi"}`.@
 li@Named record types. These are defined using `type` ... `end type` blocks.@
 @
 
@@ -40,13 +40,13 @@ h2[Sample code]
 The following sample code implements the Fibonacci series.
 
 code@
-function fibonacci(count as number) as list of number
+function Fibonacci(count as Number) as List of Number
     ' No explicit type needed when providing an initial value.
     dim a = 0
     dim b = 1
 
     ' You can declare lists this way and append items with +.
-    dim seriesVerbose as list of number
+    dim seriesVerbose as List of Number
     seriesVerbose = seriesVerbose + a + b
 
     ' There is a literal syntax for arrays, like JavaScript.
@@ -70,14 +70,13 @@ end function
 
 sub main()
     dim count = 50
-    for each n in fibonacci(count)
-        print n
+    for each n in Fibonacci(count)
+        Print n
     next
-    ' "count.fibonacci" is the same as "fibonacci(count)"
-    for each n in count.fibonacci
-        ' "n.print" is the same as "print n"
-        n.print
+    ' "count.Fibonacci" is the same as "Fibonacci(count)"
+    for each n in count.Fibonacci
+        ' "n.Print" is the same as "Print n"
+        n.Print
     next
 end sub
 @
-

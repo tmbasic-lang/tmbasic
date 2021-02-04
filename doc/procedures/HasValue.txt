@@ -1,0 +1,24 @@
+.procedure HasValue
+.overload
+.description
+Determines whether an t[Optional] value has been provided, or whether it is `none`.
+.parameter this: Optional T
+Any t[Optional] value.
+.return Boolean
+If i[this] contains a value (of type i[T]), then p[HasValue] returns `true`. Otherwise, it returns `false`.
+.example
+This example shows how p[HasValue] responds to changes in an t[Optional] t[Number] variable.
+.example-code
+dim x as Optional Number
+if not x.HasValue then Print "x.HasValue is initially false"
+
+let x = 123
+if x.HasValue then Print "x.HasValue is now true"
+
+let x = none
+if not x.HasValue then Print "x.HasValue is false again"
+.example-output
+x.HasValue is initially false
+x.HasValue is now true
+x.HasValue is false again
+.

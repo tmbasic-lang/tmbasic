@@ -1,6 +1,6 @@
 nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {BASIC Reference:ref}@
 
-h1[`number` Type]
+h1[`Number` Type]
 
 Numbers in TMBASIC are decimal {floating-point:https://en.wikipedia.org/wiki/Floating-point_arithmetic} numbers.
 This means that all numbers are stored using the scientific notation, `A * 10^B`.
@@ -13,7 +13,7 @@ The {IEEE 754:https://en.wikipedia.org/wiki/IEEE_754} standard calls this repres
 
 Literal decimals can be written directly, as in the following example.
 code@
-dim x as number
+dim x as Number
 x = 5
 x = -9.1
 @
@@ -25,11 +25,11 @@ dim y = x / 4   ' y is 12.5
 dim z = -y      ' z is -12.5
 @
 
-Comparison operators like {`<` (less than):ref_comparison} and {`>` (greater than):ref_comparison} produce t[boolean] values that allow you to make decisions.
+Comparison operators like {`<` (less than):ref_comparison} and {`>` (greater than):ref_comparison} produce t[Boolean] values that allow you to make decisions.
 code@
 dim x = 50
 dim y = x < 100  ' y is true
 if x > 10 then
-    print "Greater!"  ' this will print
+    "Greater!".Print  ' this will print
 end if
 @

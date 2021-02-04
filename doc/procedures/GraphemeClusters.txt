@@ -1,7 +1,7 @@
-.procedure graphemeClusters
+.procedure GraphemeClusters
 .overload
 .description
-Converts a t[text] value into a list of "grapheme clusters," or what human readers would intuitively understand as "characters."
+Converts a t[String] value into a list of "grapheme clusters," or what human readers would intuitively understand as "characters."
 
 In languages using a Latin script, a letter or an accent are considered separate graphemes.
 A grapheme cluster is the Latin letter combined with its accents.
@@ -12,14 +12,14 @@ code@
 ' 769 is the code point for "COMBINING ACUTE ACCENT"
 @
 
-The function p[len] returns 3 for this text because there are three code points.
+The function p[Len] returns 3 for this text because there are three code points.
 However, there are only two grapheme clusters: `n` and `é`.
-The p[graphemeClusters] function returns `["n", "é"]` for this text.
+The p[GraphemeClusters] function returns `["n", "é"]` for this text.
 
-This overload of p[graphemeClusters] uses the `en_US` locale.
-.parameter this: text
+This overload of p[GraphemeClusters] uses the `en_US` locale.
+.parameter this: String
 Any text value.
-.return list of text
+.return List of String
 A list of the grapheme clusters in i[this].
 .example
 .example-code
@@ -31,14 +31,14 @@ print x(1).len  ' two code points: "e" + chr(769)
 2
 .overload
 .description
-Converts a t[text] value into a list of "grapheme clusters" using the specified locale.
-.parameter this: text
+Converts a t[String] value into a list of "grapheme clusters" using the specified locale.
+.parameter this: String
 Any text value.
-.parameter locale: text
+.parameter locale: String
 The locale to use.
 This is either a language code like `en` or a combination of language and region like `en_US`.
-Use the p[availableLocales] function to retrieve the list of all possible locales.
-.return list of text
+Use the p[AvailableLocales] function to retrieve the list of all possible locales.
+.return List of String
 A list of the grapheme clusters in i[this].
 .example
 .example-code

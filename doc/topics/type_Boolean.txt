@@ -1,8 +1,8 @@
 nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {BASIC Reference:ref}@
 
-h1[`boolean` Type]
+h1[`Boolean` Type]
 
-A boolean value can be either `true` or `false`.
+A `Boolean` value can be either `true` or `false`.
 The name "boolean" comes from George Boole, a 19th century mathematician who invented the algebraic system for these `true` and `false` values.
 
 Boolean values are used to make decisions.
@@ -11,7 +11,7 @@ A {`while` statement:ref_while} uses a boolean value at the end of each loop to 
 
 The values `true` and `false` can be used directly, as in the following example.
 code@
-dim x as boolean
+dim x as Boolean
 x = true
 x = false
 @
@@ -42,9 +42,9 @@ dim e = b or c  ' e is false
 @
 
 It is often useful to write a function that inspects its parameters and returns a boolean based on some criteria.
-In the following example, the `isMedicalProfession` function returns `true` if the input is "doctor" or "nurse", but `false` for "programmer".
+In the following example, the `IsMedicalProfession` function returns `true` if the input is "doctor" or "nurse", but `false` for "programmer".
 code@
-function isMedicalProfession(profession as text) as boolean
+function IsMedicalProfession(profession as String) as Boolean
     return profession = "doctor" or profession = "nurse"
 end function
 @

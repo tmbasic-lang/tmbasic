@@ -1,15 +1,15 @@
-.procedure len
+.procedure Len
 .overload
 .description
 Returns the number of characters (Unicode code points) in a text value.
-.parameter this: text
-Any t[text] value.
-.return number
+.parameter this: String
+Any t[String] value.
+.return Number
 The number of Unicode code points in i[this].
 .example
 .example-code
 dim x = "hello"
-x.len.print
+x.Len.Print
 .example-output
 5
 .

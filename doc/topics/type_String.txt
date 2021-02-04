@@ -1,9 +1,9 @@
 nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {BASIC Reference:ref}@
 
-h1[`text` Type]
+h1[`String` Type]
 
-A text value is a sequence of characters: numbers, letters, punctuation, symbols, and whitespace.
-In other programming languages, they are called {strings:https://en.wikipedia.org/wiki/String_(computer_science)}.
+A `String` value is a sequence of characters: numbers, letters, punctuation, symbols, and whitespace.
+In other programming languages, this type may be called "text" or "varchar".
 Examples include "fish" and "entrée."
 Emojis can be used, but the Windows console does not have the font support necessary to display them.
 Terminals on macOS and Linux can display emojis.
@@ -12,36 +12,37 @@ Literal strings are written with double quotes around them, as shown below.
 code@
 dim x as string
 x = "hello"
-print x
+x.Print
 x = " world!"
-print x  ' prints: hello world!
+x.Print
+' prints: hello world!
 @
 
-Text values support {Unicode:https://en.wikipedia.org/wiki/Unicode}, a standard for representing world writing systems on computers.
+TMBASIC supports {Unicode:https://en.wikipedia.org/wiki/Unicode}, a standard for representing world writing systems on computers.
 Strings are stored in memory using the {UTF-16:https://en.wikipedia.org/wiki/UTF-16} encoding.
 This means that each distinct element in a string is a 16-bit "code unit."
 Either one or two 16-bit code unit units form a Unicode {"code point.":https://en.wikipedia.org/wiki/Code_point}
 Unicode assigns a code point number to every character, accent, and symbol.
 In plain English text, a single letter or digit is one Unicode code point and is encoded in a single 16-bit code unit.
 
-The p[chr] procedure will produce the character corresponding to a given code point number.
+The p[Chr] procedure will produce the character corresponding to a given code point number.
 code@
-dim x = chr(65)  ' code point for "LATIN CAPITAL LETTER A"
-print x          ' prints: A
+dim x = Chr(65)  ' code point for "LATIN CAPITAL LETTER A"
+x.Print          ' prints: A
 @
 
 Some emojis, such as national flag emojis, are represented as a series of multiple code points.
 Accents may be represented by multiple Unicode code points known as {combining diacritical marks:https://en.wikipedia.org/wiki/Combining_Diacritical_Marks}.
-The following example demonstrates how combining marks may appear in text values.
+The following example demonstrates how combining marks may appear in strings.
 code@
-dim x = chr(101)  ' code point for "LATIN SMALL LETTER E"
-dim y = chr(769)  ' code point for "COMBINING ACUTE ACCENT"
+dim x = Chr(101)  ' code point for "LATIN SMALL LETTER E"
+dim y = Chr(769)  ' code point for "COMBINING ACUTE ACCENT"
 dim z = x + y     ' z is "é"
 @
 
-The p[len] procedure returns the number of 16-bit code units in a text value.
+The p[Len] procedure returns the number of 16-bit code units in a string.
 Keep in mind the caveats above about letters and symbols that are represented using multiple code points.
 code@
 dim x = "hello"
-dim y = x.len  ' y is 5
+dim y = x.Len  ' y is 5
 @
