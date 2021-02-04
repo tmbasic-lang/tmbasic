@@ -3,6 +3,7 @@
 #define COMMON_H_
 
 #include <unicode/brkiter.h>
+#include <unicode/coll.h>
 
 #include <decimal.hh>
 

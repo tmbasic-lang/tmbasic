@@ -272,7 +272,7 @@ LDFLAGS += $(PWD)/mac/mpdecimal/libmpdec/libmpdec.a $(PWD)/mac/mpdecimal/libmpde
 endif
 
 # Linker flag to include ICU.
-LDFLAGS += -licuuc -licudata
+LDFLAGS += -licui18n -licuuc -licudata
 ifeq ($(TARGET_OS),linux)
 LDFLAGS += -ldl
 endif

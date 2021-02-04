@@ -1,16 +1,19 @@
 #include "../common.h"
-#include "../shared/util/UTextPtr.h"
 #include "gtest/gtest.h"
 
 using icu::BreakIterator;
+using icu::Collator;
 using icu::Locale;
-using util::UTextPtr;
+using icu::UnicodeString;
 
 TEST(IcuTest, GraphemeClusters1) {
     auto status = U_ZERO_ERROR;
-    auto utext = UTextPtr("née");
+    auto ustr = UnicodeString::fromUTF8(
+        "n"
+        "e\xCC\x81"
+        "e");  // e + COMBINING ACUTE ACCENT
     auto iter = std::unique_ptr<BreakIterator>(BreakIterator::createCharacterInstance(Locale::getUS(), status));
-    iter->setText(utext.get(), status);
+    iter->setText(ustr);
     auto index = iter->first();
     std::vector<int32_t> indices;
     while (index != BreakIterator::DONE) {
@@ -29,9 +32,9 @@ TEST(IcuTest, GraphemeClusters2) {
     auto status = U_ZERO_ERROR;
     const auto* str = "ᄀᅶ섀ᇧ";  // composed using separate jamo code points, not precomposed syllables
     ASSERT_EQ(15, strlen(str));      // double check that it's separate jamo code points
-    auto utext = UTextPtr(str);
+    auto ustr = UnicodeString::fromUTF8(str);
     auto iter = std::unique_ptr<BreakIterator>(BreakIterator::createCharacterInstance(Locale::getKorean(), status));
-    iter->setText(utext.get(), status);
+    iter->setText(ustr);
     auto index = iter->first();
     std::vector<int32_t> indices;
     while (index != BreakIterator::DONE) {
@@ -41,8 +44,8 @@ TEST(IcuTest, GraphemeClusters2) {
 
     ASSERT_EQ(3, indices.size());
     ASSERT_EQ(0, indices.at(0));
-    ASSERT_EQ(6, indices.at(1));
-    ASSERT_EQ(15, indices.at(2));
+    ASSERT_EQ(2, indices.at(1));
+    ASSERT_EQ(5, indices.at(2));
 }
 
 TEST(IcuTest, AvailableLocales) {
@@ -61,4 +64,16 @@ TEST(IcuTest, AvailableLocales) {
     ASSERT_TRUE(en_US);
     ASSERT_TRUE(fr_FR);
     ASSERT_TRUE(ja_JP);
+}
+
+TEST(IcuTest, StringComparison) {
+    auto str1 = UnicodeString::fromUTF8("\xC3\xA9");   // LATIN SMALL LETTER E WITH ACUTE
+    auto str2 = UnicodeString::fromUTF8("e\xCC\x81");  // e + COMBINING ACUTE ACCENT
+
+    // verify that bitwise comparison fails to see that they are equal, and that we need ICU to do this
+    ASSERT_FALSE(str1 == str2);
+
+    auto status = U_ZERO_ERROR;
+    auto collator = std::unique_ptr<Collator>(Collator::createInstance(Locale::getUS(), status));
+    ASSERT_EQ(UCOL_EQUAL, collator->compare(str1, str2));
 }
