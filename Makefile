@@ -138,7 +138,7 @@ LICENSE_DIAGRAM_CP437_FILES=\
 
 # Toolchain: We use cross-compilation to build the Windows binaries on Linux.
 ifeq ($(TARGET_OS),win)
-BUILDCC=gcc
+BUILDCXX=g++
 CC=$(ARCH)-w64-mingw32-gcc
 CXX=$(ARCH)-w64-mingw32-g++
 AR=$(ARCH)-w64-mingw32-ar
@@ -146,7 +146,7 @@ LD=$(ARCH)-w64-mingw32-ld
 STRIP=$(ARCH)-w64-mingw32-strip
 WINDRES=$(ARCH)-w64-mingw32-windres
 else
-BUILDCC=$(CC)
+BUILDCXX=$(CXX)
 STRIP=strip
 endif
 
@@ -459,9 +459,9 @@ $(LICENSE_DIAGRAM_TXT_FILES): $(LICENSE_FILES)
 	@build/scripts/copyLicenses.sh
 
 obj/buildDoc: build/scripts/buildDoc.cpp
-	@printf "%16s  %s\n" "$(BUILDCC)" "$@"
+	@printf "%16s  %s\n" "$(BUILDCXX)" "$@"
 	@mkdir -p $(@D)
-	@$(BUILDCC) \
+	@$(BUILDCXX) \
 		-o $@ $< \
 		-I$(PWD)/mac/boost \
 		-Iext/nameof \
@@ -566,9 +566,9 @@ obj/resources/runners/runners_$(TARGET_OS)_$(ARCH).h: $(ALL_PLATFORM_RUNNER_BIN_
 	@obj/runnerHeader $(ALL_PLATFORM_RUNNER_BIN_FILES)
 
 obj/runnerHeader: build/scripts/runnerHeader.cpp
-	@printf "%16s  %s\n" "$(BUILDCC)" "$@"
+	@printf "%16s  %s\n" "$(BUILDCXX)" "$@"
 	@mkdir -p $(@D)
-	@$(BUILDCC) \
+	@$(BUILDCXX) \
 		-o $@ $< \
 		-Wall \
 		-Werror \

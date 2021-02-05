@@ -12,6 +12,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 #include <boost/algorithm/string/trim.hpp>
@@ -37,6 +38,7 @@ using std::sort;
 using std::string;
 using std::system_error;
 using std::unique_ptr;
+using std::unordered_set;
 using std::vector;
 using std::regex_constants::match_any;
 
@@ -444,33 +446,76 @@ static string formatProcedureText(const string& topicName, const Procedure& proc
     return o.str();
 }
 
-static void buildProcedure(
+static unique_ptr<Procedure> buildProcedure(
     const string& cp437Filename,
     const string& utf8Filename,
-    vector<string>* procedureNames,
     ostringstream* outputTxt,
     const string& htmlPageTemplate) {
     auto cp437Procedure = parseProcedure(readFile(cp437Filename));
     auto topicName = string("procedure_") + cp437Procedure->name;
-    procedureNames->push_back(cp437Procedure->name);
     *outputTxt << ".topic " << topicName << "\n"
                << processText(formatProcedureText(topicName, *cp437Procedure)) << "\n";
     auto utf8Procedure = parseProcedure(readFile(utf8Filename));
     writeHtmlPage(topicName, formatProcedureText(topicName, *utf8Procedure), htmlPageTemplate);
+    return utf8Procedure;
+}
+
+static int compareProceduresByName(const unique_ptr<Procedure>& lhs, const unique_ptr<Procedure>& rhs) {
+    return lhs->name.compare(rhs->name);
 }
 
 static void buildProcedureIndex(
-    vector<string> procedureNames,
+    vector<unique_ptr<Procedure>> procedures,
     ostringstream* outputTxt,
     const string& htmlPageTemplate) {
+    sort(procedures.begin(), procedures.end(), compareProceduresByName);
+
     ostringstream o;
     o << "nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {BASIC Reference:ref}@\n\nh1[Procedure Index]\n\n";
-    o << "ul@";
-    sort(procedureNames.begin(), procedureNames.end());
+
+    o << "h2[By Name]\n\nul@";
+    vector<string> procedureNames;
+    for (auto& x : procedures) {
+        procedureNames.push_back(x->name);
+    }
     for (auto& name : procedureNames) {
         o << "li@{`" << name << "` Procedure:procedure_" << name << "}@\n";
     }
-    o << "@\n";
+    o << "@\n\n";
+
+    unordered_set<string> typeNamesSet;
+    for (auto& p : procedures) {
+        for (auto& o : p->overloads) {
+            if (o->parameters.size() == 0) {
+                typeNamesSet.insert("(None)");
+            } else {
+                typeNamesSet.insert(o->parameters[0]->type);
+            }
+        }
+    }
+
+    vector<string> typeNames;
+    for (auto& s : typeNamesSet) {
+        typeNames.push_back(s);
+    }
+    sort(typeNames.begin(), typeNames.end());
+
+    o << "h2[By Parameter Type]\n\n";
+    for (auto& t : typeNames) {
+        o << "h3[" << t << "]\n\nul@";
+        for (auto& p : procedures) {
+            auto includeThisProcedure = false;
+            for (auto& o : p->overloads) {
+                includeThisProcedure |= (o->parameters.size() == 0 && t == "(None)") ||
+                    (o->parameters.size() > 0 && t == o->parameters[0]->type);
+            }
+            if (includeThisProcedure) {
+                o << "li@{`" << p->name << "` Procedure:procedure_" << p->name << "}@\n";
+            }
+        }
+        o << "@\n\n";
+    }
+
     auto filePath = "../obj/doc-temp/procedure.txt";
     writeFile(filePath, o.str());
     buildTopic(filePath, filePath, "procedure", outputTxt, htmlPageTemplate);
@@ -509,7 +554,7 @@ static string insertCp437Diagrams(string text) {
 int main() {
     try {
         ostringstream outputTxt;
-        vector<string> procedureNames;
+        vector<unique_ptr<Procedure>> procedures;
         auto htmlPageTemplate = readFile("html/page-template-1.html") + "[TITLE]" +
             readFile("html/page-template-2.html") + "[BODY]" + readFile("html/page-template-3.html");
         createDirectory("../obj");
@@ -523,13 +568,12 @@ int main() {
                 htmlPageTemplate);
         });
         forEachFile(
-            "../obj/doc-temp/procedures-cp437",
-            [&outputTxt, &htmlPageTemplate, &procedureNames](auto filename) -> void {
-                buildProcedure(
+            "../obj/doc-temp/procedures-cp437", [&outputTxt, &htmlPageTemplate, &procedures](auto filename) -> void {
+                procedures.push_back(buildProcedure(
                     string("../obj/doc-temp/procedures-cp437/") + filename, string("procedures/") + filename,
-                    &procedureNames, &outputTxt, htmlPageTemplate);
+                    &outputTxt, htmlPageTemplate));
             });
-        buildProcedureIndex(procedureNames, &outputTxt, htmlPageTemplate);
+        buildProcedureIndex(move(procedures), &outputTxt, htmlPageTemplate);
         writeFile("../obj/resources/help/help.txt", insertCp437Diagrams(outputTxt.str()));
     } catch (const regex_error& ex) {
         ostringstream s;

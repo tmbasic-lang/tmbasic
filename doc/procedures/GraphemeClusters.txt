@@ -4,11 +4,11 @@
 Converts a t[String] value into a list of "grapheme clusters," or what human readers would intuitively understand as "characters."
 
 In languages using a Latin script, a letter or an accent are considered separate graphemes.
-A grapheme cluster is the Latin letter combined with its accents.
+A grapheme i[cluster] is the Latin letter combined with its accents.
 
 For example, consider the text value "né" formed by three code points:
 code@
-"n" + "e" + chr(769)
+"n" + "e" + Chr(769)
 ' 769 is the code point for "COMBINING ACUTE ACCENT"
 @
 
@@ -23,9 +23,10 @@ Any text value.
 A list of the grapheme clusters in i[this].
 .example
 .example-code
-dim x = graphemeClusters("n" + "e" + chr(769))
+dim s = "n" + "e" + Chr(769)
+dim x = s.GraphemeClusters
 print x(0).len  ' one code point: "n"
-print x(1).len  ' two code points: "e" + chr(769)
+print x(1).len  ' two code points: "e" + Chr(769)
 .example-output
 1
 2
@@ -42,9 +43,10 @@ Use the p[AvailableLocales] function to retrieve the list of all possible locale
 A list of the grapheme clusters in i[this].
 .example
 .example-code
-dim x = graphemeClusters("n" + "e" + chr(769), "fr_FR")
+dim s = "n" + "e" + Chr(769)
+dim x = s.GraphemeClusters("fr_FR")
 print x(0).len  ' one code point: "n"
-print x(1).len  ' two code points: "e" + chr(769)
+print x(1).len  ' two code points: "e" + Chr(769)
 .example-output
 1
 2
