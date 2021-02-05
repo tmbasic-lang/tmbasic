@@ -23,7 +23,7 @@ li@`DateTime` -- Date and time, without a time zone offset.@
 li@`DateTimeOffset` -- Date, time, and time zone offset.@
 li@`TimeSpan` -- Period of time.@
 li@`List of T` -- Generic dynamic-sized array with element type `T`. Example: `List of Number`. Literals look like: `[0, 1, 2]`.@
-li@`Map from K to V` -- Generic dynamic-sized dictionary with key type `K` and value type `V`. Example: `Map from Number to Text`.@
+li@`Map from K to V` -- Generic dynamic-sized dictionary with key type `K` and value type `V`. Example: `Map from Number to String`.@
 li@`Optional T` -- Wrapper for type `T` indicating that the value may or may not be present. Example: `Optional Number`.@
 li@`Record (...)` -- Anonymous record type, containing zero or more named fields. Example: `Record (foo as Number, bar as String)`. Literals look like `{{foo: 1, bar: "hi"}`.@
 li@Named record types. These are defined using `type` ... `end type` blocks.@
@@ -49,7 +49,7 @@ function Fibonacci(count as Number) as List of Number
     dim seriesVerbose as List of Number
     seriesVerbose = seriesVerbose + a + b
 
-    ' There is a literal syntax for arrays, like JavaScript.
+    ' There is a literal syntax for lists, like JavaScript.
     dim seriesLessVerbose = [a, b]
 
     ' But building a list dynamically is easier with "dim list".
@@ -68,7 +68,7 @@ function Fibonacci(count as Number) as List of Number
     return series
 end function
 
-sub main()
+sub Main()
     dim count = 50
     for each n in Fibonacci(count)
         Print n

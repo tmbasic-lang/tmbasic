@@ -10,12 +10,9 @@ Terminals on macOS and Linux can display emojis.
 
 Literal strings are written with double quotes around them, as shown below.
 code@
-dim x as string
-x = "hello"
-x.Print
-x = " world!"
-x.Print
-' prints: hello world!
+dim x as String
+x = "foo bar"
+Print "hello world!"
 @
 
 TMBASIC supports {Unicode:https://en.wikipedia.org/wiki/Unicode}, a standard for representing world writing systems on computers.
