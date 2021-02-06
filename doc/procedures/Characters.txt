@@ -1,4 +1,4 @@
-.procedure GraphemeClusters
+.procedure Characters
 .overload
 .description
 Converts a t[String] value into a list of "grapheme clusters," or what human readers would intuitively understand as "characters."
@@ -14,17 +14,17 @@ code@
 
 The function p[Len] returns 3 for this text because there are three code points.
 However, there are only two grapheme clusters: `n` and `é`.
-The p[GraphemeClusters] function returns `["n", "é"]` for this text.
+The p[Characters] function returns `["n", "é"]` for this text.
 
-This overload of p[GraphemeClusters] uses the `en_US` locale.
+This overload of p[Characters] uses the `en_US` locale.
 .parameter this: String
 Any text value.
 .return List of String
-A list of the grapheme clusters in i[this].
+A list of the characters (grapheme clusters) in i[this].
 .example
 .example-code
 dim s = "n" + "e" + Chr(769)
-dim x = s.GraphemeClusters
+dim x = s.Characters
 print x(0).len  ' one code point: "n"
 print x(1).len  ' two code points: "e" + Chr(769)
 .example-output
@@ -40,11 +40,11 @@ The locale to use.
 This is either a language code like `en` or a combination of language and region like `en_US`.
 Use the p[AvailableLocales] function to retrieve the list of all possible locales.
 .return List of String
-A list of the grapheme clusters in i[this].
+A list of the characters (grapheme clusters) in i[this].
 .example
 .example-code
 dim s = "n" + "e" + Chr(769)
-dim x = s.GraphemeClusters("fr_FR")
+dim x = s.Characters("fr_FR")
 print x(0).len  ' one code point: "n"
 print x(1).len  ' two code points: "e" + Chr(769)
 .example-output

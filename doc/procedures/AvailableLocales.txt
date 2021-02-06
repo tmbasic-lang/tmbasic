@@ -3,7 +3,7 @@
 .description
 Returns a list of the locales available to TMBASIC.
 A locale is either a language code like `en` or `fr`, or a combination of language and region like `en_US` or `fr_FR`.
-Functions like p[GraphemeClusters] that operate on text values accept an optional locale.
+Functions like p[Characters] that operate on text values accept an optional locale.
 
 The default locale is `en_US`.
 .return List of String
