@@ -354,7 +354,7 @@ void App::showNewProgramWindow(std::optional<std::string> filePath) {
         }
     } else {
         sourceProgram->members.push_back(
-            std::make_unique<SourceMember>(SourceMemberType::kProcedure, "sub main()\n\nend sub\n", 11, 11));
+            std::make_unique<SourceMember>(SourceMemberType::kProcedure, "sub Main()\n\nend sub\n", 11, 11));
     }
 
     auto* window = new ProgramWindow(
@@ -458,19 +458,19 @@ void App::onProgramAddTextEditor(EditorType type) {
             break;
         case EditorType::kGlobalVariable:
             memberType = SourceMemberType::kGlobal;
-            source = "dim untitled as number\n";
+            source = "dim untitled as Number\n";
             selectionStart = 4;
             selectionEnd = 12;
             break;
         case EditorType::kFunction:
             memberType = SourceMemberType::kProcedure;
-            source = "function untitled() as integer\n\nend function\n";
+            source = "function Untitled() as Number\n\nend function\n";
             selectionStart = 9;
             selectionEnd = 17;
             break;
         case EditorType::kSubroutine:
             memberType = SourceMemberType::kProcedure;
-            source = "sub untitled()\n\nend sub\n";
+            source = "sub Untitled()\n\nend sub\n";
             selectionStart = 4;
             selectionEnd = 12;
             break;
@@ -502,10 +502,10 @@ void App::onProgramAddDesigner(DesignerType type) {
 
     switch (type) {
         case DesignerType::kForm:
-            source = "form untitled\nend form\n";
+            source = "form Untitled\nend form\n";
             break;
         case DesignerType::kCustomControl:
-            source = "control untitled\nend control\n";
+            source = "control Untitled\nend control\n";
             break;
         default:
             assert(false);
