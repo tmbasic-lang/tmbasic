@@ -4,6 +4,8 @@
 using icu::BreakIterator;
 using icu::Collator;
 using icu::Locale;
+using icu::StringEnumeration;
+using icu::TimeZone;
 using icu::UnicodeString;
 
 TEST(IcuTest, GraphemeClusters1) {
@@ -145,4 +147,29 @@ TEST(IcuTest, Words2) {
     ASSERT_EQ(3, indices.at(2));
     ASSERT_EQ(6, indices.at(3));
     ASSERT_EQ(8, indices.at(4));
+}
+
+TEST(IcuTest, AvailableTimeZones) {
+    auto iter = std::unique_ptr<StringEnumeration>(TimeZone::createEnumeration());
+    const char* item = nullptr;
+    auto status = U_ZERO_ERROR;
+    auto americaChicago = false;
+    auto cst = false;
+    auto etcGmtMinus4 = false;
+    auto usCentral = false;
+    auto utc = false;
+
+    while ((item = iter->next(nullptr, status)) != nullptr) {
+        americaChicago |= strcmp(item, "America/Chicago") == 0;
+        cst |= strcmp(item, "CST") == 0;
+        etcGmtMinus4 |= strcmp(item, "Etc/GMT-4") == 0;
+        usCentral |= strcmp(item, "US/Central") == 0;
+        utc |= strcmp(item, "UTC") == 0;
+    }
+
+    ASSERT_TRUE(americaChicago);
+    ASSERT_TRUE(cst);
+    ASSERT_TRUE(etcGmtMinus4);
+    ASSERT_TRUE(usCentral);
+    ASSERT_TRUE(utc);
 }
