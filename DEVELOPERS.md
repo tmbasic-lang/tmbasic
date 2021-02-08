@@ -173,3 +173,4 @@ pngcrush -brute -reduce -ow screenshot.png
     ```
 
     Output files will appear in the `dist` directory.
+    If using MacinCloud, be sure to move the mouse periodically during the build, as the build takes longer than MacinCloud's idle timeout.
