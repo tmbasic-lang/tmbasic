@@ -348,7 +348,7 @@ help:
 
 .PHONY: release
 release:
-	@OPTFLAGS="-Os -flto" EXTRADEFS="-DNDEBUG" $(MAKE)
+	@OPTFLAGS="-Os" EXTRADEFS="-DNDEBUG" $(MAKE)
 
 .PHONY: clean
 clean:
