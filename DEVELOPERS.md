@@ -19,17 +19,38 @@
 ___
 
 ## Build for Linux and Windows
-1. Install Docker and give your user account permission to run `docker`. The following command will prepare a fresh AWS Ubuntu instance for building TMBASIC.
+Linux and Windows builds must be produced on a Linux build machine.
+
+1. Install Docker and give your user account permission to run `docker`.
+
+    **Ubuntu Linux** (on AWS, use an official AMI)
 
     ```
     sudo apt-get update -y && \
     sudo apt-get upgrade -y && \
-    sudo apt-get install -y docker.io && \
+    sudo apt-get install -y docker.io git && \
     sudo usermod -aG docker ubuntu && \
     sudo reboot
     ```
 
-1. Start the build environment and build using the following commands:
+    **Arch Linux** (on AWS, use a community AMI from [Uplink Laboratories](https://www.uplinklabs.net/projects/arch-linux-on-ec2/))
+
+    ```
+    sudo pacman -Syu --noconfirm && \
+    sudo pacman -S --noconfirm docker git && \
+    sudo usermod -aG docker arch && \
+    sudo systemctl enable docker && \
+    sudo reboot
+    ```
+
+1. Clone the git repository.
+
+    ```
+    git clone https://github.com/electroly/tmbasic.git
+    cd tmbasic
+    ```
+
+1. Start the build environment and compile TMBASIC.
 
     ```
     cd build
@@ -37,9 +58,15 @@ ___
     make
     ```
 
-1. Type `exit` to leave the build environment.
+    This will create a development build for Linux suitable for debugging.
+    This build of TMBASIC will be unable to produce executables for other platforms because it does not contain the necessary builds of the interpreter. See the "Release builds" instructions below to produce a TMBASIC build that can produce executables for all platforms.
 
-This development build of TMBASIC will be unable to produce executables from BASIC programs because it does not contain the necessary builds of the interpreter for all platforms. See the "Release builds" instructions below to produce a TMBASIC build that can itself produce executables.
+    Use one of the `linux-*.sh` or `win-*.sh` scripts instead of `dev.sh` to produce a release build for Linux or Windows.
+
+    **Troubleshooting**: If you get an error from `pacman` when starting the Docker environment for Windows, try an Arch Linux host machine.
+    Fatal incompatibilities have occurred when running the Arch-based container on an Ubuntu host.
+
+1. Type `exit` to leave the build environment.
 
 ## Build for macOS
 1. Install Xcode (version 10 or higher).
@@ -108,8 +135,8 @@ pngcrush -brute -reduce -ow screenshot.png
 ## Make a release build
 Start the following three machines. Prepare them for building using the instructions at the beginning of this document.
 
-- Ubuntu 18.04 on ARM64 (AWS `c6g.large`)
-- Ubuntu 18.04 on x64 (AWS `c5a.large`)
+- Ubuntu Linux on ARM64 (AWS `c6g.large`)
+- Arch Linux on x64 (AWS `c5a.large`)
 - macOS 10.13 on x64 (MacinCloud PAYG)
 
 On the Linux machines, run the following command to clear all Docker images. This ensures that we build using the latest versions of our dependencies.
