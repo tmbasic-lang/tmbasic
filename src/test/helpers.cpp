@@ -1,12 +1,26 @@
 #include "helpers.h"
 
-std::string readFile(std::string filename) {
+using std::ifstream;
+using std::ostringstream;
+using std::string;
+using std::vector;
+
+string readFile(string filename) {
     // this will be executed from the the "bin" directory
-    std::ifstream stream("../src/test/programs/" + filename);
+    ifstream stream("../src/test/programs/" + filename);
     if (!stream.is_open()) {
         return {};
     }
-    std::ostringstream buffer;
+    ostringstream buffer;
     buffer << stream.rdbuf();
     return buffer.str();
+}
+
+vector<uint8_t> readBinaryFile(string filename) {
+    ifstream stream("../src/test/files/" + filename, ios::binary | ios::ate);
+    auto pos = stream.tellg();
+    vector<uint8_t> result(pos);
+    stream.seekg(0, ios::beg);
+    stream.read(reinterpret_cast<char*>(&result[0]), pos);
+    return result;
 }

@@ -35,6 +35,20 @@ endif
 endif
 endif
 
+# SHORT_ARCH
+ifeq ($(ARCH),i686)
+SHORT_ARCH=x86
+endif
+ifeq ($(ARCH),x86_64)
+SHORT_ARCH=x64
+endif
+ifeq ($(ARCH),arm32v7)
+SHORT_ARCH=arm32
+endif
+ifeq ($(ARCH),arm64v8)
+SHORT_ARCH=arm64
+endif
+
 
 
 ### Source files ######################################################################################################
@@ -54,7 +68,7 @@ RUNNER_SIZES=$(BZIPPED_RUNNER_SIZE) $(BSDIFFED_RUNNER_SIZES)
 
 # Input runner builds, which will be 0-byte files for debug builds. for full release builds, these runners will be built
 # separately and provided ahead of time.
-ALL_PLATFORM_RUNNER_BIN_FILES=$(foreach X,$(PLATFORMS),$(foreach Y,$(RUNNER_SIZES),$X_$Y))
+ALL_PLATFORM_RUNNER_BIN_FILENAMES=$(foreach X,$(PLATFORMS),$(foreach Y,$(RUNNER_SIZES),$X_$Y))
 ALL_PLATFORM_RUNNER_COMPRESSED_FILENAMES=\
 	$(foreach X,$(PLATFORMS),$(foreach Y,$(BZIPPED_RUNNER_SIZE),$X_$Y.bz2)) \
 	$(foreach X,$(PLATFORMS),$(foreach Y,$(BSDIFFED_RUNNER_SIZES),$X_$Y.bsdiff))
@@ -277,6 +291,12 @@ ifeq ($(TARGET_OS),linux)
 LDFLAGS += -ldl
 endif
 
+# Linker flag to include bzip2 in tmbasic/test only.
+TMBASIC_LDFLAGS += -lbz2_static
+
+# Linker flag to include libbspatch in tmbasic/test only.
+TMBASIC_LDFLAGS += -lbspatch
+
 # Linker flag to include libgtest (googletest).
 ifeq ($(TARGET_OS),mac)
 LIBGTEST_FLAG += $(PWD)/mac/googletest/build/lib/libgtest.a $(PWD)/mac/googletest/build/lib/libgtest_main.a
@@ -289,7 +309,7 @@ endif
 ### Phony targets #####################################################################################################
 
 .PHONY: all
-all: bin/tmbasic$(EXE_EXTENSION) bin/test$(EXE_EXTENSION) bin/LICENSE.txt
+all: bin/tmbasic$(EXE_EXTENSION) bin/test$(EXE_EXTENSION) bin/LICENSE.txt runners
 
 .PHONY: help
 help:
@@ -334,11 +354,11 @@ valgrind: bin/tmbasic
 .PHONY: format
 format:
 	@find src/ -type f \( -iname \*.h -o -iname \*.cpp \) | xargs clang-format -i
-	@clang-format -i build/scripts/buildDoc.cpp build/scripts/runnerHeader.cpp
+	@clang-format -i build/scripts/buildDoc.cpp
 
 .PHONY: lint
 lint:
-	@cpplint --quiet --recursive --repository=src src build/scripts/buildDoc.cpp build/scripts/runnerHeader.cpp
+	@cpplint --quiet --recursive --repository=src src build/scripts/buildDoc.cpp
 
 .PHONY: tidy
 tidy: $(TIDY_TARGETS)
@@ -550,30 +570,16 @@ obj/resources/help/helpfile.o: obj/resources/help/help.h32
 	@xxd -i $< | sed s/obj_resources_help_help_h32/kResourceHelp/g > obj/resources/help/kResourceHelp.cpp
 	@$(CXX) -o $@ -c obj/resources/help/kResourceHelp.cpp
 
-$(ALL_PLATFORM_RUNNER_COMPRESSED_FILES): %:
-	@printf "%16s  %s\n" "touch" "$@"
+$(ALL_PLATFORM_RUNNER_COMPRESSED_FILES): %: $(THIS_PLATFORM_RUNNER_BSDIFF_FILES) $(THIS_PLATFORM_RUNNER_BZIP_FILES)
+	@printf "%16s  %s\n" "runnerFile.sh" "$@"
 	@mkdir -p $(@D)
-	@touch $@
+	@TARGET_OS=$(TARGET_OS) SHORT_ARCH=$(SHORT_ARCH) RUNNER_FILE=$@ build/scripts/runnerFile.sh
 
-$(ALL_PLATFORM_RUNNER_OBJ_FILES): obj/resources/runners/%.o: obj/resources/runners/%
+$(ALL_PLATFORM_RUNNER_OBJ_FILES): obj/resources/runners/%.o: obj/resources/runners/% \
+		$(ALL_PLATFORM_RUNNER_COMPRESSED_FILES)
 	@printf "%16s  %s\n" "runnerRes.sh" "$@"
 	@mkdir -p $(@D)
 	@OBJ_FILE=$@ CXX=$(CXX) build/scripts/runnerRes.sh
-
-obj/resources/runners/runners_$(TARGET_OS)_$(ARCH).h: $(ALL_PLATFORM_RUNNER_BIN_FILES) obj/runnerHeader
-	@printf "%16s  %s\n" "runnerHeader" "$@"
-	@mkdir -p $(@D)
-	@obj/runnerHeader $(ALL_PLATFORM_RUNNER_BIN_FILES)
-
-obj/runnerHeader: build/scripts/runnerHeader.cpp
-	@printf "%16s  %s\n" "$(BUILDCXX)" "$@"
-	@mkdir -p $(@D)
-	@$(BUILDCXX) \
-		-o $@ $< \
-		-Wall \
-		-Werror \
-		-std=c++17 \
-		-lstdc++
 
 
 
@@ -603,7 +609,6 @@ bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
 	@$(CXX) \
 		-o $@ $(TMBASIC_OBJ_FILES) \
 		$(CXXFLAGS) \
-		$(TMBASIC_LDFLAGS) \
 		$(STATIC_FLAG) \
 		-include obj/common.h \
 		obj/shared.a \
@@ -611,6 +616,7 @@ bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
 		-ltvision \
 		obj/resources/help/helpfile.o \
 		$(ALL_PLATFORM_RUNNER_OBJ_FILES) \
+		$(TMBASIC_LDFLAGS) \
 		$(LDFLAGS)
 	@$(STRIP) bin/tmbasic$(EXE_EXTENSION)
 
@@ -641,7 +647,6 @@ bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) \
 	@$(CXX) \
 		-o $@ \
 		$(CXXFLAGS) \
-		$(TMBASIC_LDFLAGS) \
 		-include obj/common.h \
 		$(TEST_OBJ_FILES) \
 		obj/shared.a \
@@ -649,6 +654,7 @@ bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) \
 		-ltvision \
 		obj/resources/help/helpfile.o \
 		$(ALL_PLATFORM_RUNNER_OBJ_FILES) \
+		$(TMBASIC_LDFLAGS) \
 		$(LDFLAGS) \
 		$(LIBGTEST_FLAG) \
 		-lpthread

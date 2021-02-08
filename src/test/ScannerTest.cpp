@@ -1,17 +1,11 @@
 #include "../common.h"
 #include "compiler/tokenize.h"
 #include "gtest/gtest.h"
+#include "helpers.h"
 #include "shared/basic/TokenKind.h"
 
 using basic::TokenKind;
 using compiler::tokenize;
-
-static std::string readFile(std::string filename) {
-    std::ifstream stream("/code/src/test/programs/" + filename);
-    std::ostringstream buffer;
-    buffer << stream.rdbuf();
-    return buffer.str();
-}
 
 static void scanMatch(std::string filenameWithoutExtension) {
     auto tok = readFile(filenameWithoutExtension + ".tok");
