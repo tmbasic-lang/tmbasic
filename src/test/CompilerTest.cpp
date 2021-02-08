@@ -23,7 +23,7 @@ static TargetPlatform getCurrentPlatform() {
         return TargetPlatform::kMacX64;
     } else if (platform == "win/i686") {
         return TargetPlatform::kWinX86;
-    } else if (platform == "linux/x86_64") {
+    } else if (platform == "win/x86_64") {
         return TargetPlatform::kWinX64;
     } else {
         throw runtime_error(string("Invalid platform: ") + platform);
