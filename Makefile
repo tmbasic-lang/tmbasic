@@ -213,7 +213,9 @@ CXXFLAGS += \
 	-I$(PWD)/mac/ncurses/include \
 	-I$(PWD)/mac/googletest/googletest/include \
 	-I$(PWD)/mac/tvision/include \
-	-I$(PWD)/mac/immer
+	-I$(PWD)/mac/immer \
+	-I$(PWD)/mac/icu/source/common \
+	-I$(PWD)/mac/icu/source/i18n
 endif
 
 # Windows header search paths.
@@ -286,15 +288,24 @@ LDFLAGS += $(PWD)/mac/mpdecimal/libmpdec/libmpdec.a $(PWD)/mac/mpdecimal/libmpde
 endif
 
 # Linker flag to include ICU.
+ifeq ($(TARGET_OS),mac)
+LDFLAGS += -L$(PWD)/mac/icu/source/lib
+endif
 LDFLAGS += -licui18n -licuuc -licudata
 ifeq ($(TARGET_OS),linux)
 LDFLAGS += -ldl
 endif
 
 # Linker flag to include bzip2 in tmbasic/test only.
+ifeq ($(TARGET_OS),mac)
+TMBASIC_LDFLAGS += -L$(PWD)/mac/bzip2/build
+endif
 TMBASIC_LDFLAGS += -lbz2_static
 
 # Linker flag to include libbspatch in tmbasic/test only.
+ifeq ($(TARGET_OS),mac)
+TMBASIC_LDFLAGS += -L$(PWD)/mac/bsdiff
+endif
 TMBASIC_LDFLAGS += -lbspatch
 
 # Linker flag to include libgtest (googletest).
