@@ -72,7 +72,7 @@ mkdir -p ../../dist
 pushd ../../  # root of repository
 cp -f $PUBLISHDIR/runners/*.bz2 $PUBLISHDIR/runners/*.bsdiff obj/
 cd build
-./mac-x64.sh -ic "make && make test"
+./mac-x64.sh -ic "make"
 cd ..
 zip -9 dist/tmbasic-mac-x64.zip bin/tmbasic bin/LICENSE.txt
 popd

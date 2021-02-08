@@ -7,7 +7,7 @@ export DOCKER_FLAGS="--entrypoint /bin/bash"
 export TTY_FLAG=" "
 
 export CLEAN_CMD="make clean && mkdir obj"
-export BUILD_CMD="make release && make test"
+export BUILD_CMD="make release"
 
 ./win-x64.sh -ic "$CLEAN_CMD"
 pushd $PUBLISHDIR/tmbasic/obj/resources/runners && tar xf $PUBLISHDIR/runners.tar && popd
