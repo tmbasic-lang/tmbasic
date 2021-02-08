@@ -37,7 +37,7 @@ Linux and Windows builds must be produced on a Linux build machine.
 
     ```
     sudo pacman -Syu --noconfirm && \
-    sudo pacman -S --noconfirm docker git && \
+    sudo pacman -S --noconfirm docker git zip && \
     sudo usermod -aG docker arch && \
     sudo systemctl enable docker && \
     sudo reboot
