@@ -16,8 +16,12 @@ rm -rf ../../dist
 #
 
 pushd ../  # build directory
-./mac-x64.sh -ic "make clean && make bin/runner"
-cp -f ../bin/runner $PUBLISHDIR/runners/runner_mac_x64
+./mac-x64.sh -ic "make clean && make runners"
+cp -f ../bin/runners/102400.bz2     $PUBLISHDIR/runners/mac_x64_102400.bz2
+cp -f ../bin/runners/524288.bsdiff  $PUBLISHDIR/runners/mac_x64_524288.bsdiff
+cp -f ../bin/runners/1048576.bsdiff $PUBLISHDIR/runners/mac_x64_1048576.bsdiff
+cp -f ../bin/runners/5242880.bsdiff $PUBLISHDIR/runners/mac_x64_5242880.bsdiff
+
 popd
 
 #
@@ -51,12 +55,12 @@ ssh -i $X64_KEY $X64_USER@$X64_HOST "bash -is" < buildIntelRunners.sh
 
 # copy the runners from the Linux machines
 pushd $PUBLISHDIR/runners
-scp -i $ARM_KEY $ARM_USER@$ARM_HOST:$PUBLISHDIR/runner_linux_arm32 runner_linux_arm32
-scp -i $ARM_KEY $ARM_USER@$ARM_HOST:$PUBLISHDIR/runner_linux_arm64 runner_linux_arm64
-scp -i $X64_KEY $X64_USER@$X64_HOST:$PUBLISHDIR/runner_linux_x64 runner_linux_x64
-scp -i $X64_KEY $X64_USER@$X64_HOST:$PUBLISHDIR/runner_linux_x86 runner_linux_x86
-scp -i $X64_KEY $X64_USER@$X64_HOST:$PUBLISHDIR/runner_win_x64 runner_win_x64
-scp -i $X64_KEY $X64_USER@$X64_HOST:$PUBLISHDIR/runner_win_x86 runner_win_x86
+scp -i $ARM_KEY $ARM_USER@$ARM_HOST:$PUBLISHDIR/runners_arm.tar runners_arm.tar
+tar xf runners_arm.tar
+rm -f runners_arm.tar
+scp -i $X64_KEY $X64_USER@$X64_HOST:$PUBLISHDIR/runners_intel.tar runners_intel.tar
+tar xf runners_intel.tar
+rm -f runners_intel.tar
 popd
 
 #
@@ -66,7 +70,7 @@ popd
 mkdir -p ../../dist
 
 pushd ../../  # root of repository
-cp -f $PUBLISHDIR/runners/runner* obj/
+cp -f $PUBLISHDIR/runners/*.bz2 $PUBLISHDIR/runners/*.bsdiff obj/
 cd build
 ./mac-x64.sh -ic "make && make test"
 cd ..
@@ -79,9 +83,9 @@ popd
 
 # copy the runners to the Linux machines
 pushd $PUBLISHDIR/runners
-tar zcf $PUBLISHDIR/runners.tar.gz runner_*
-scp -i $ARM_KEY $PUBLISHDIR/runners.tar.gz $ARM_USER@$ARM_HOST:$PUBLISHDIR/runners.tar.gz
-scp -i $X64_KEY $PUBLISHDIR/runners.tar.gz $X64_USER@$X64_HOST:$PUBLISHDIR/runners.tar.gz
+tar cf $PUBLISHDIR/runners.tar *.bz2 *.bsdiff
+scp -i $ARM_KEY $PUBLISHDIR/runners.tar $ARM_USER@$ARM_HOST:$PUBLISHDIR/runners.tar
+scp -i $X64_KEY $PUBLISHDIR/runners.tar $X64_USER@$X64_HOST:$PUBLISHDIR/runners.tar
 popd
 
 # build tmbasic
