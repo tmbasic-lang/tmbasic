@@ -4,7 +4,8 @@ set -euxo pipefail
 export IMAGE_NAME="tmbasic-linux-x86"
 export HOST_UID=$(id -u "$USER")
 export HOST_GID=$(id -g "$USER")
-export ARCH="i386"
+export DOCKER_ARCH="i386"
+export ARCH="i686"
 
 cat files/Dockerfile.build-linux | envsubst | docker build -t $IMAGE_NAME files -f-
 
