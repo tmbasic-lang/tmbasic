@@ -133,35 +133,43 @@ pngcrush -brute -reduce -ow screenshot.png
 1. Commit as "Update nameof to version ____"
 
 ## Make a release build
-Start the following three machines. Prepare them for building using the instructions at the beginning of this document.
+1. Start the following three build machines. Prepare them for building using the instructions at the beginning of this document.
 
-- Ubuntu Linux on ARM64 (AWS `c6g.large`)
-- Arch Linux on x64 (AWS `c5a.large`)
-- macOS 10.13 on x64 (MacinCloud PAYG)
+    - Ubuntu Linux on ARM64 (AWS `c6g.large`)
+    - Arch Linux on x64 (AWS `c5a.large`)
+    - macOS 10.13 on x64 (MacinCloud PAYG)
 
-On the Linux machines, run the following command to clear all Docker images. This ensures that we build using the latest versions of our dependencies.
+1. Clear any existing dependencies on the three build machines so that we perform a fresh build using the latest versions.
 
-```
-docker container rm $(docker container ls -aq)
-docker rmi $(docker images -a -q) --force
-```
+    **Linux**
 
-Make sure that the two Ubuntu instances are accessible via `ssh` with public key authentication. Copy the private keys (`.pem` files) onto the Mac. Set the permissions on the key files:
+    ```
+    docker container rm $(docker container ls -aq)
+    docker rmi $(docker images -a -q) --force
+    ```
 
-```
-chmod 600 filename.pem
-```
+    **Mac**
 
-On the Mac, run the following commands from the `build/publish/` directory. Fill in all the environment variables with the `ssh` connection details for the Ubuntu ARM64 and x64 build machines.
+    ```
+    rm -rf mac
+    ```
 
-```
-export ARM_KEY=/path/to/arm64-ssh-key.pem
-export ARM_USER=ubuntu
-export ARM_HOST=arm64-hostname-or-ip
-export X64_KEY=/path/to/x64-ssh-key.pem
-export X64_USER=ubuntu
-export X64_HOST=x64-hostname-or-ip
-./publish.sh
-```
+1. Make sure that the two Linux instances are accessible via `ssh` with public key authentication. Copy the private keys (`.pem` files) onto the Mac. Set the permissions on the key files:
 
-Output files will appear in the `dist` directory.
+    ```
+    chmod 600 filename.pem
+    ```
+
+1. On the Mac, run the following commands from the `build/publish/` directory. Fill in all the environment variables with the `ssh` connection details for the Linux ARM64 and x64 build machines.
+
+    ```
+    export ARM_KEY=/path/to/arm64-ssh-key.pem
+    export ARM_USER=ubuntu
+    export ARM_HOST=arm64-hostname-or-ip
+    export X64_KEY=/path/to/x64-ssh-key.pem
+    export X64_USER=arch
+    export X64_HOST=x64-hostname-or-ip
+    ./publish.sh
+    ```
+
+    Output files will appear in the `dist` directory.
