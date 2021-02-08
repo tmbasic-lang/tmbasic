@@ -195,6 +195,7 @@ static void appendLengthTaggedString(vector<uint8_t>* vec, istream* input) {
     smatch match;
     auto regex_success = regex_search(quoted, match, regex("^\\s*\"([^\"]*)\"\\s*$"));
     assert(regex_success);
+    (void)regex_success; // avoid unused variable error in release builds
     auto unquoted = match[1].str();
 
     appendUint32(vec, static_cast<uint32_t>(unquoted.size()));
