@@ -204,7 +204,7 @@ RUN cd /tmp && \
     make install
 
 # environment
-# USER $HOST_UID
+USER $HOST_UID
 RUN echo "export ARCH=\"$ARCH\"" >> /home/$USER/.bashrc && \
     echo "export IMAGE_NAME=\"$IMAGE_NAME\"" >> /home/$USER/.bashrc && \
     echo "export PS1=\"[$IMAGE_NAME] \w\$ \"" >> /home/$USER/.bashrc && \
