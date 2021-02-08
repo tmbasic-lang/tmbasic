@@ -199,7 +199,7 @@ RUN cd /tmp && \
         LDFLAGS="-L/tmp/icu/source/lib" \
         ./runConfigureICU "MinGW" --enable-static --enable-shared --disable-tests --disable-samples \
         --with-data-packaging=static \
-        --host=$ARCH-w64-mingw32 --with-cross-build=/tmp/icu-linux/source/ && \
+        --host=$ARCH-w64-mingw32 --with-cross-build=/tmp/icu-linux/source/ --prefix=/usr/$ARCH-w64-mingw32 && \
     make -j2 && \
     make install
 

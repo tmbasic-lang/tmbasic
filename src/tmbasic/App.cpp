@@ -578,7 +578,9 @@ void App::onHelpAbout() {
 }  // namespace tmbasic
 
 int main(int argc, char** argv) {
+#ifndef _WIN32
     setenv("LANG", "en_US.UTF-8", 1);
+#endif
     tmbasic::App app(argc, argv);
     app.run();
     app.shutDown();

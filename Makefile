@@ -291,7 +291,11 @@ endif
 ifeq ($(TARGET_OS),mac)
 LDFLAGS += -L$(PWD)/mac/icu/source/lib
 endif
+ifeq ($(TARGET_OS),win)
+LDFLAGS += -lsicuin -lsicuuc -lsicudt
+else
 LDFLAGS += -licui18n -licuuc -licudata
+endif
 ifeq ($(TARGET_OS),linux)
 LDFLAGS += -ldl
 endif
