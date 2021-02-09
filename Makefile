@@ -187,7 +187,7 @@ endif
 # TEST_CMD: We run our unit test executable in "make test". For the Windows target, we use Wine since we cross-compile
 # from Linux. This command is executed from the "bin" directory.
 ifeq ($(TARGET_OS),win)
-TEST_CMD="WINEPATH=/usr/$(ARCH)-w64-mingw32/bin wine64 test.exe"
+TEST_CMD=WINEPATH=/usr/$(ARCH)-w64-mingw32/bin wine64 test.exe
 else
 TEST_CMD=./test
 endif
@@ -292,7 +292,7 @@ ifeq ($(TARGET_OS),mac)
 LDFLAGS += -L$(PWD)/mac/icu/source/lib
 endif
 ifeq ($(TARGET_OS),win)
-LDFLAGS += -lsicuin -lsicuuc -lsicudt
+LDFLAGS += -lsicuin -lsicuuc /usr/$(ARCH)-w64-mingw32/bin/icudt.a
 else
 LDFLAGS += -licui18n -licuuc -licudata
 endif
