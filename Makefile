@@ -292,7 +292,11 @@ ifeq ($(TARGET_OS),mac)
 LDFLAGS += -L$(PWD)/mac/icu/source/lib
 endif
 ifeq ($(TARGET_OS),win)
+ifeq ($(ARCH),i686)
+LDFLAGS += -lsicuin -lsicuuc /usr/$(ARCH)-w64-mingw32/bin/libicudt.a
+else
 LDFLAGS += -lsicuin -lsicuuc /usr/$(ARCH)-w64-mingw32/bin/icudt.a
+endif
 else
 LDFLAGS += -licui18n -licuuc -licudata
 endif
