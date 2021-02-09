@@ -154,13 +154,13 @@ pngcrush -brute -reduce -ow screenshot.png
     rm -rf mac
     ```
 
-1. Make sure that the two Linux instances are accessible via `ssh` with public key authentication. Copy the private keys (`.pem` files) onto the Mac. Set the permissions on the key files:
+1. Perform the rest of these instructions on the Mac. Make sure that the two Linux instances are accessible via `ssh` with public key authentication. Copy the private keys (`.pem` files) onto the Mac. Set the permissions on the key files:
 
     ```
     chmod 600 filename.pem
     ```
 
-1. On the Mac, run the following commands from the `build/publish/` directory. Fill in all the environment variables with the `ssh` connection details for the Linux ARM64 and x64 build machines.
+1. Configure your bash session with the `ssh` connection details for the Linux ARM64 and x64 build machines using the following commands.
 
     ```
     export ARM_KEY=/path/to/arm64-ssh-key.pem
@@ -169,8 +169,18 @@ pngcrush -brute -reduce -ow screenshot.png
     export X64_KEY=/path/to/x64-ssh-key.pem
     export X64_USER=arch
     export X64_HOST=x64-hostname-or-ip
-    ./publish.sh
+    ```
+
+1. Run all tests on all platforms by running the following command.
+
+    ```
+    pushd build/test && ./test.sh && popd
+    ```
+
+1. Produce a distribution-ready production build for each platform by run the following command.
+
+    ```
+    pushd build/publish && ./publish.sh && popd
     ```
 
     Output files will appear in the `dist` directory.
-    If using MacinCloud, be sure to move the mouse periodically during the build, as the build takes longer than MacinCloud's idle timeout.

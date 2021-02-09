@@ -21,7 +21,6 @@ cp -f ../bin/runners/102400.bz2     $PUBLISHDIR/runners/mac_x64_102400.bz2
 cp -f ../bin/runners/524288.bsdiff  $PUBLISHDIR/runners/mac_x64_524288.bsdiff
 cp -f ../bin/runners/1048576.bsdiff $PUBLISHDIR/runners/mac_x64_1048576.bsdiff
 cp -f ../bin/runners/5242880.bsdiff $PUBLISHDIR/runners/mac_x64_5242880.bsdiff
-
 popd
 
 #
