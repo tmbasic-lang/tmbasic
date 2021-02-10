@@ -6,6 +6,7 @@
 #include "shared/vm/Object.h"
 #include "shared/vm/Program.h"
 #include "shared/vm/RecordBuilder.h"
+#include "shared/vm/SystemCall.h"
 #include "shared/vm/Value.h"
 
 namespace vm {

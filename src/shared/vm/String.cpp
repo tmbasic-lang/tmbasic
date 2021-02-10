@@ -28,7 +28,7 @@ bool String::equals(const Object& other) const {
         return false;
     }
     const auto& otherString = dynamic_cast<const String&>(other);
-    return value == otherString.value;
+    return (value == otherString.value) != 0;
 }
 
 std::string String::toUtf8() const {

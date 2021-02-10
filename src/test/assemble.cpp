@@ -3,6 +3,7 @@
 #include "shared/vm/Procedure.h"
 #include "shared/vm/ProcedureArtifact.h"
 #include "shared/vm/Program.h"
+#include "shared/vm/SystemCall.h"
 
 using std::array;
 using std::getline;
@@ -20,6 +21,7 @@ using vm::Opcode;
 using vm::Procedure;
 using vm::ProcedureArtifact;
 using vm::Program;
+using vm::SystemCall;
 
 static Opcode parseOpcode(string s) {
     // generate this map using:
@@ -73,6 +75,7 @@ static Opcode parseOpcode(string s) {
         { "BranchIfA", Opcode::kBranchIfA },
         { "BranchIfNotA", Opcode::kBranchIfNotA },
         { "Call", Opcode::kCall },
+        { "SystemCall", Opcode::kSystemCall },
         { "Return", Opcode::kReturn },
         { "SetError", Opcode::kSetError },
         { "ClearError", Opcode::kClearError },
@@ -153,6 +156,24 @@ static Opcode parseOpcode(string s) {
     return {};
 }
 
+static SystemCall parseSystemCall(string s) {
+    // generate this map using:
+    /* grep , src/shared/vm/SystemCall.h | sed s/,//g | awk '{ print "{\"" $1 "\",SystemCall::" $1 "}," }' | sed \
+     's/"k/"/g'
+    */
+    static const std::unordered_map<string, SystemCall> map = {
+        { "AvailableLocales", SystemCall::kAvailableLocales },
+    };
+
+    auto it = map.find(s);
+    if (it != map.end()) {
+        return it->second;
+    }
+
+    assert(false);
+    return {};
+}
+
 static void appendInt64(vector<uint8_t>* vec, istream* input) {
     int64_t value = 0;
     *input >> value;
@@ -167,6 +188,14 @@ static void appendUint16(vector<uint8_t>* vec, istream* input) {
     uint16_t value = 0;
     *input >> value;
     auto bytes = array<uint8_t, 2>();
+    memcpy(bytes.data(), &value, 2);
+    for (auto b : bytes) {
+        vec->push_back(b);
+    }
+}
+
+static void appendUint16(vector<uint8_t>* vec, uint16_t value) {
+    auto bytes = array<uint16_t, 2>();
     memcpy(bytes.data(), &value, 2);
     for (auto b : bytes) {
         vec->push_back(b);
@@ -195,7 +224,7 @@ static void appendLengthTaggedString(vector<uint8_t>* vec, istream* input) {
     smatch match;
     auto regex_success = regex_search(quoted, match, regex("^\\s*\"([^\"]*)\"\\s*$"));
     assert(regex_success);
-    (void)regex_success; // avoid unused variable error in release builds
+    (void)regex_success;  // avoid unused variable error in release builds
     auto unquoted = match[1].str();
 
     appendUint32(vec, static_cast<uint32_t>(unquoted.size()));
@@ -321,6 +350,13 @@ std::unique_ptr<vm::Program> assemble(istream* input) {
                 appendUint16(&vec, input);
                 appendUint16(&vec, input);
                 break;
+
+            case Opcode::kSystemCall: {
+                string systemCallStr;
+                *input >> systemCallStr;
+                appendUint16(&vec, static_cast<uint16_t>(parseSystemCall(systemCallStr)));
+                break;
+            }
 
             default:
                 break;

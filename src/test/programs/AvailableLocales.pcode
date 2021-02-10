@@ -1,0 +1,18 @@
+PushObjects 1
+
+SystemCall AvailableLocales
+StoreX 0
+
+LoadConstantA 0
+ObjectListGet
+StringPrint
+
+LoadConstantStringX ","
+StringPrint
+
+LoadX 0
+ObjectListCount
+NumberToString
+StringPrint
+
+Exit

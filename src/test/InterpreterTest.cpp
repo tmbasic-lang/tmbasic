@@ -112,3 +112,7 @@ TEST(InterpreterTest, StringInputLine) {
 TEST(InterpreterTest, NumberToString) {
     run("NumberToString");
 }
+
+TEST(InterpreterTest, AvailableLocales) {
+    run("AvailableLocales");
+}

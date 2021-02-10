@@ -57,7 +57,7 @@ static Scope makeProcedureGlobalScope(ProcedureNode* procedure, const vm::Progra
         auto node = std::make_unique<GlobalVariableNode>(globalVariable->name, i);
         auto result = scope.addSymbol(*node);
         assert(result == AddSymbolResult::kSuccess);
-        (void)result; // avoid unused variable error in release builds
+        (void)result;  // avoid unused variable error in release builds
         procedure->globalVariables.push_back(std::move(node));
     }
     return scope;

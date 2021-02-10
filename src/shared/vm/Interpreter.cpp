@@ -8,10 +8,61 @@
 
 namespace vm {
 
-static uint16_t readUint16(const uint8_t* ptr);
-static uint32_t readUint32(const uint8_t* ptr);
-static int16_t readInt16(const uint8_t* ptr);
-static int64_t readInt64(const uint8_t* ptr);
+static uint16_t readUint16(const uint8_t* ptr) {
+    uint16_t value = 0;
+    memcpy(&value, ptr, sizeof(uint16_t));
+    return value;
+}
+
+static uint32_t readUint32(const uint8_t* ptr) {
+    uint32_t value = 0;
+    memcpy(&value, ptr, sizeof(uint32_t));
+    return value;
+}
+
+static int64_t readInt64(const uint8_t* ptr) {
+    int64_t value = 0;
+    memcpy(&value, ptr, sizeof(int64_t));
+    return value;
+}
+
+static int16_t readInt16(const uint8_t* ptr) {
+    int16_t value = 0;
+    memcpy(&value, ptr, sizeof(int16_t));
+    return value;
+}
+
+class SystemCallResult {
+   public:
+    Value a;
+    boost::local_shared_ptr<Object> x;
+    explicit SystemCallResult(Value newA) : a(std::move(newA)) {}
+    explicit SystemCallResult(boost::local_shared_ptr<Object> newX) : x(std::move(newX)) {}
+};
+
+static SystemCallResult systemCallAvailableLocales() {
+    // no parameters. returns ObjectList of String in X
+    int32_t count = 0;
+    const auto* locales = icu::Locale::getAvailableLocales(count);
+
+    auto objectListBuilder = ObjectListBuilder();
+    for (int32_t i = 0; i < count; i++) {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        objectListBuilder.items.push_back(boost::make_local_shared<String>(std::string(locales[i].getName())));
+    }
+
+    return SystemCallResult(boost::make_local_shared<ObjectList>(&objectListBuilder));
+}
+
+static SystemCallResult systemCall(SystemCall which) {
+    switch (which) {
+        case SystemCall::kAvailableLocales:
+            return systemCallAvailableLocales();
+        default:
+            assert(false);
+            return SystemCallResult(Value(decimal::Decimal(0)));
+    }
+}
 
 Interpreter::Interpreter(const Program& program, std::istream* consoleInputStream, std::ostream* consoleOutputStream)
     : _program(program), _consoleInputStream(consoleInputStream), _consoleOutputStream(consoleOutputStream) {}
@@ -344,7 +395,7 @@ bool Interpreter::run(int maxCycles) {
                 assert(y != nullptr);
                 assert(x->getObjectType() == ObjectType::kString);
                 assert(y->getObjectType() == ObjectType::kString);
-                a.setBoolean(dynamic_cast<String&>(*x).value == dynamic_cast<String&>(*y).value);
+                a.setBoolean((dynamic_cast<String&>(*x).value == dynamic_cast<String&>(*y).value) != 0);
                 instructionIndex++;
                 break;
 
@@ -403,6 +454,18 @@ bool Interpreter::run(int maxCycles) {
                 procedure = &callProcedure;
                 instructions = &callProcedureArtifact.instructions;
                 instructionIndex = 0;
+                break;
+            }
+
+            case Opcode::kSystemCall: {
+                // ABBCD
+                // A: opcode
+                // B: system call index
+                auto systemCallNumber = readUint16(&instructions->at(instructionIndex + 1));
+                auto result = systemCall(static_cast<SystemCall>(systemCallNumber));
+                a = result.a;
+                x = std::move(result.x);
+                instructionIndex += /*A*/ 1 + /*B*/ 2;
                 break;
             }
 
@@ -1088,30 +1151,6 @@ Interpreter::ReturnResult Interpreter::returnFromProcedure(int valueStackIndex, 
     return ReturnResult(
         callFrame.procedure, &(*callFrame.procedure->artifact)->instructions, callFrame.instructionIndex,
         callFrame.valueStackIndex, callFrame.objectStackIndex);
-}
-
-uint16_t readUint16(const uint8_t* ptr) {
-    uint16_t value = 0;
-    memcpy(&value, ptr, sizeof(uint16_t));
-    return value;
-}
-
-uint32_t readUint32(const uint8_t* ptr) {
-    uint32_t value = 0;
-    memcpy(&value, ptr, sizeof(uint32_t));
-    return value;
-}
-
-int64_t readInt64(const uint8_t* ptr) {
-    int64_t value = 0;
-    memcpy(&value, ptr, sizeof(int64_t));
-    return value;
-}
-
-int16_t readInt16(const uint8_t* ptr) {
-    int16_t value = 0;
-    memcpy(&value, ptr, sizeof(int16_t));
-    return value;
 }
 
 }  // namespace vm
