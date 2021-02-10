@@ -59,9 +59,9 @@ Linux and Windows builds must be produced on a Linux build machine.
     ```
 
     This will create a development build for Linux suitable for debugging.
-    This build of TMBASIC will be unable to produce executables for other platforms because it does not contain the necessary builds of the interpreter. See the "Release builds" instructions below to produce a TMBASIC build that can produce executables for all platforms.
+    This build of TMBASIC will be unable to produce executables for other platforms because it does not contain the necessary builds of the interpreter. See the "Make a release build" instructions below to produce a TMBASIC build that can produce executables for all platforms.
 
-    Use one of the `linux-*.sh` or `win-*.sh` scripts instead of `dev.sh` to produce a release build for Linux or Windows.
+    Use one of the `linux-*.sh` or `win-*.sh` scripts instead of `dev.sh` to produce a non-debug build for Linux or Windows on a particular architecture.
 
     **Troubleshooting**: If you get an error from `pacman` when starting the Docker environment for Windows, try an Arch Linux host machine.
     Fatal incompatibilities have occurred when running the Arch-based container on an Ubuntu host.
@@ -177,7 +177,7 @@ pngcrush -brute -reduce -ow screenshot.png
     pushd build/test && ./test.sh && popd
     ```
 
-1. Produce a distribution-ready production build for each platform by run the following command.
+1. Produce a distribution-ready production build for each platform by running the following command.
 
     ```
     pushd build/publish && ./publish.sh && popd
