@@ -5,6 +5,7 @@
 #include "Record.h"
 #include "String.h"
 #include "shared/util/decimal.h"
+#include "systemCall.h"
 
 namespace vm {
 
@@ -30,38 +31,6 @@ static int16_t readInt16(const uint8_t* ptr) {
     int16_t value = 0;
     memcpy(&value, ptr, sizeof(int16_t));
     return value;
-}
-
-class SystemCallResult {
-   public:
-    Value a;
-    boost::local_shared_ptr<Object> x;
-    explicit SystemCallResult(Value newA) : a(std::move(newA)) {}
-    explicit SystemCallResult(boost::local_shared_ptr<Object> newX) : x(std::move(newX)) {}
-};
-
-static SystemCallResult systemCallAvailableLocales() {
-    // no parameters. returns ObjectList of String in X
-    int32_t count = 0;
-    const auto* locales = icu::Locale::getAvailableLocales(count);
-
-    auto objectListBuilder = ObjectListBuilder();
-    for (int32_t i = 0; i < count; i++) {
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-        objectListBuilder.items.push_back(boost::make_local_shared<String>(std::string(locales[i].getName())));
-    }
-
-    return SystemCallResult(boost::make_local_shared<ObjectList>(&objectListBuilder));
-}
-
-static SystemCallResult systemCall(SystemCall which) {
-    switch (which) {
-        case SystemCall::kAvailableLocales:
-            return systemCallAvailableLocales();
-        default:
-            assert(false);
-            return SystemCallResult(Value(decimal::Decimal(0)));
-    }
 }
 
 Interpreter::Interpreter(const Program& program, std::istream* consoleInputStream, std::ostream* consoleOutputStream)
@@ -462,9 +431,26 @@ bool Interpreter::run(int maxCycles) {
                 // A: opcode
                 // B: system call index
                 auto systemCallNumber = readUint16(&instructions->at(instructionIndex + 1));
-                auto result = systemCall(static_cast<SystemCall>(systemCallNumber));
+                auto systemCallInput = SystemCallInput(_valueStack, _objectStack, vsi, osi);
+                auto result = systemCall(static_cast<SystemCall>(systemCallNumber), systemCallInput);
                 a = result.a;
                 x = std::move(result.x);
+                if (result.popValues > 0) {
+                    auto endIndex = vsi + result.popValues;
+                    assert(endIndex <= kValueStackSize);
+                    for (int i = 0; i < result.popValues; i++) {
+                        _valueStack.at(vsi + i).num = 0;
+                    }
+                    vsi = endIndex;
+                }
+                if (result.popObjects > 0) {
+                    auto endIndex = osi + result.popObjects;
+                    assert(endIndex <= kObjectStackSize);
+                    for (int i = 0; i < result.popObjects; i++) {
+                        _objectStack.at(osi + i) = nullptr;
+                    }
+                    osi = endIndex;
+                }
                 instructionIndex += /*A*/ 1 + /*B*/ 2;
                 break;
             }
@@ -520,7 +506,7 @@ bool Interpreter::run(int maxCycles) {
                     auto popValues = readUint16(&instructions->at(instructionIndex + 1));
                     if (popValues > 0) {
                         auto endIndex = vsi + popValues;
-                        assert(endIndex < kValueStackSize);
+                        assert(endIndex <= kValueStackSize);
                         for (int i = 0; i < popValues; i++) {
                             _valueStack.at(vsi + i).num = 0;
                         }
@@ -529,7 +515,7 @@ bool Interpreter::run(int maxCycles) {
                     auto popObjects = readUint16(&instructions->at(instructionIndex + 3));
                     if (popObjects > 0) {
                         auto endIndex = osi + popObjects;
-                        assert(endIndex < kObjectStackSize);
+                        assert(endIndex <= kObjectStackSize);
                         for (int i = 0; i < popObjects; i++) {
                             _objectStack.at(osi + i) = nullptr;
                         }
@@ -1029,18 +1015,6 @@ bool Interpreter::run(int maxCycles) {
                     }
                     auto& needle = dynamic_cast<String&>(*y);
                     a.num = haystack.value.indexOf(needle.value, startIndex);
-                }
-                instructionIndex++;
-                break;
-            }
-
-            case Opcode::kStringChr: {
-                auto value = a.getInt64();
-                auto ch = static_cast<UChar32>(value);
-                if (ch > 0) {
-                    x = boost::make_local_shared<String>(icu::UnicodeString(ch));
-                } else {
-                    x = boost::make_local_shared<String>(icu::UnicodeString());
                 }
                 instructionIndex++;
                 break;

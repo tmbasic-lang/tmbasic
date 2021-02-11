@@ -6,13 +6,10 @@
 #include "shared/vm/Object.h"
 #include "shared/vm/Program.h"
 #include "shared/vm/RecordBuilder.h"
-#include "shared/vm/SystemCall.h"
 #include "shared/vm/Value.h"
+#include "shared/vm/constants.h"
 
 namespace vm {
-
-const int kValueStackSize = 10000;
-const int kObjectStackSize = 10000;
 
 class Interpreter {
    public:

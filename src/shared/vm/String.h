@@ -12,6 +12,7 @@ class String : public Object {
     explicit String(const std::string& utf8);
     explicit String(icu::UnicodeString utf16);
     String(const uint8_t* source, int length);
+    String(const char* source, int length);
     ObjectType getObjectType() const override;
     size_t getHash() const override;
     bool equals(const Object& other) const override;

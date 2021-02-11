@@ -133,7 +133,6 @@ enum class Opcode {
 
     kStringMid,        // X=input, A=startIndex, B=length. store "" or substring in X
     kStringIndexOf,    // X=haystack, Y=needle, A=startIndex. store -1 or index in A
-    kStringChr,        // A=ascii code, only LSB is used. store string in X
     kStringAsc,        // X=string, A=index. store -1 or X[A] into A
     kStringPrint,      // X=string (does not print newline)
     kStringInputLine,  // stores string in X

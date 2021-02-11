@@ -1,10 +1,14 @@
 # "e" with combining acute accent in UTF-32 is: 101 769
 LoadConstantA 101
-StringChr
+PushValues 1
+StoreA 0
+SystemCall Chr
 StringPrint
 
 LoadConstantA 769
-StringChr
+PushValues 1
+StoreA 0
+SystemCall Chr
 StringPrint
 
 Exit

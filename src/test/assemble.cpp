@@ -3,7 +3,7 @@
 #include "shared/vm/Procedure.h"
 #include "shared/vm/ProcedureArtifact.h"
 #include "shared/vm/Program.h"
-#include "shared/vm/SystemCall.h"
+#include "shared/vm/systemCall.h"
 
 using std::array;
 using std::getline;
@@ -139,7 +139,6 @@ static Opcode parseOpcode(string s) {
         { "ObjectToObjectMapValues", Opcode::kObjectToObjectMapValues },
         { "StringMid", Opcode::kStringMid },
         { "StringIndexOf", Opcode::kStringIndexOf },
-        { "StringChr", Opcode::kStringChr },
         { "StringAsc", Opcode::kStringAsc },
         { "StringPrint", Opcode::kStringPrint },
         { "StringInputLine", Opcode::kStringInputLine },
@@ -158,11 +157,12 @@ static Opcode parseOpcode(string s) {
 
 static SystemCall parseSystemCall(string s) {
     // generate this map using:
-    /* grep , src/shared/vm/SystemCall.h | sed s/,//g | awk '{ print "{\"" $1 "\",SystemCall::" $1 "}," }' | sed \
-     's/"k/"/g'
+    /* grep "^    k" src/shared/vm/systemCall.h | sed s/,//g | awk '{ print "{\"" $1 "\",SystemCall::" $1 "}," }' | \
+     sed 's/"k/"/g'
     */
     static const std::unordered_map<string, SystemCall> map = {
         { "AvailableLocales", SystemCall::kAvailableLocales },
+        { "Chr", SystemCall::kChr },
     };
 
     auto it = map.find(s);

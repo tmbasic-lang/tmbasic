@@ -242,7 +242,9 @@ BranchIfNotA y_loop_end
 
     # image += "\n"
     LoadConstantA 10
-    StringChr
+    PushValues 1
+    StoreA 0
+    SystemCall Chr
     SetYFromX
     LoadX 1 # image
     StringXConcatenateY
