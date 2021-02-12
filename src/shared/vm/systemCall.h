@@ -8,8 +8,10 @@
 namespace vm {
 
 enum class SystemCall {
-    kAvailableLocales,
-    kChr,
+    kAvailableLocales,  // AvailableLocales() as List of String
+    kCharacters1,       // Characters(input as String) as List of String
+    kCharacters2,       // Characters(input as String, locale as String) as List of String
+    kChr,               // Chr(input as Number) as String
 };
 
 class SystemCallInput {
@@ -27,13 +29,13 @@ class SystemCallInput {
 
 class SystemCallResult {
    public:
-    Value a;
-    boost::local_shared_ptr<Object> x;
-    int popValues;
-    int popObjects;
-    SystemCallResult(int popValues, int popObjects);
-    SystemCallResult(Value a, int popValues, int popObjects);
-    SystemCallResult(boost::local_shared_ptr<Object> x, int popValues, int popObjects);
+    Value a = {};
+    boost::local_shared_ptr<Object> x = nullptr;
+    int popValues = 0;
+    int popObjects = 0;
+    bool hasError = false;
+    std::string errorMessage = "";
+    int errorCode = 0;
 };
 
 SystemCallResult systemCall(SystemCall which, const SystemCallInput& input);

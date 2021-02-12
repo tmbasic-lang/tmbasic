@@ -162,6 +162,8 @@ static SystemCall parseSystemCall(string s) {
     */
     static const std::unordered_map<string, SystemCall> map = {
         { "AvailableLocales", SystemCall::kAvailableLocales },
+        { "Characters1", SystemCall::kCharacters1 },
+        { "Characters2", SystemCall::kCharacters2 },
         { "Chr", SystemCall::kChr },
     };
 

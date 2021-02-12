@@ -173,3 +173,13 @@ TEST(IcuTest, AvailableTimeZones) {
     ASSERT_TRUE(usCentral);
     ASSERT_TRUE(utc);
 }
+
+TEST(IcuTest, GetLocaleByName_Success) {
+    auto locale = Locale("en_US");
+    ASSERT_EQ("en_US", std::string(locale.getName()));
+}
+
+TEST(IcuTest, GetLocaleByName_Failure) {
+    auto locale = Locale("asdf");
+    ASSERT_EQ("", std::string(locale.getLanguage()));
+}
