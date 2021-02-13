@@ -1,7 +1,7 @@
 .procedure Chr
-.overload
 .description
 Returns the character that corresponds to the specified Unicode code point number.
+.overload
 .parameter this: Number
 A Unicode code point number.
 .return String

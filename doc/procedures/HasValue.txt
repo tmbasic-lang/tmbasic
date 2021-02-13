@@ -1,7 +1,7 @@
 .procedure HasValue
-.overload
 .description
 Determines whether an t[Optional] value has been provided, or whether it is `none`.
+.overload
 .parameter this: Optional T
 Any t[Optional] value.
 .return Boolean

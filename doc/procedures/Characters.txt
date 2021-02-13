@@ -1,5 +1,4 @@
 .procedure Characters
-.overload
 .description
 Converts a t[String] value into a list of "grapheme clusters," or what human readers would intuitively understand as "characters."
 
@@ -16,7 +15,8 @@ The function p[Len] returns 3 for this text because there are three code points.
 However, there are only two grapheme clusters: `n` and `é`.
 The p[Characters] function returns `["n", "é"]` for this text.
 
-This overload of p[Characters] uses the `en_US` locale.
+By default, p[Characters] uses the `en_US` locale unless a i[locale] is specified.
+.overload
 .parameter this: String
 Any text value.
 .return List of String
@@ -31,8 +31,6 @@ print x(1).len  ' two code points: "e" + Chr(769)
 1
 2
 .overload
-.description
-Converts a t[String] value into a list of "grapheme clusters" using the specified locale.
 .parameter this: String
 Any text value.
 .parameter locale: String

@@ -69,7 +69,6 @@ struct ReturnType {
 };
 
 struct Overload {
-    string description;
     vector<unique_ptr<Parameter>> parameters;
     vector<unique_ptr<Example>> examples;
     unique_ptr<ReturnType> returns;  // nullable
@@ -77,6 +76,7 @@ struct Overload {
 
 struct Procedure {
     string name;
+    string description;
     vector<unique_ptr<Overload>> overloads;
 };
 
@@ -341,10 +341,10 @@ static unique_ptr<Procedure> parseProcedure(const string& input) {
                 overload = newOverload.get();
                 procedure->overloads.push_back(move(newOverload));
             } else if (section == ".description") {
-                if (overload->description.length() > 0) {
+                if (procedure->description.length() > 0) {
                     throw runtime_error(string("Duplicate description in procedure ") + procedure->name);
                 }
-                overload->description = readProcedureBlock(lines, &i);
+                procedure->description = readProcedureBlock(lines, &i);
             } else if (section == ".parameter") {
                 // like ".parameter this: optional T"
                 smatch parameterMatch;
@@ -395,7 +395,7 @@ static string formatProcedureText(const string& topicName, const Procedure& proc
     ostringstream o;
     o << "nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {BASIC Reference:ref} <TRIANGLE_RIGHT> {Procedure "
          "Index:procedure}@\n\n";
-    o << "h1[`" << procedure.name << "` Procedure]\n\n";
+    o << "h1[`" << procedure.name << "` Procedure]\n\n" << procedure.description << "\n\n";
 
     for (auto& overload : procedure.overloads) {
         auto isFunction = overload->returns != nullptr;
@@ -415,8 +415,6 @@ static string formatProcedureText(const string& topicName, const Procedure& proc
             o << " as t[" << overload->returns->type << "]";
         }
         o << "]\n\n";
-
-        o << overload->description << "\n\n";
 
         if (overload->parameters.size() > 0) {
             o << "h3[Parameters]\n\nul@";
