@@ -161,3 +161,7 @@ TEST(InterpreterTest, StringCharacters2_English) {
 TEST(InterpreterTest, StringCharacters2_InvalidLocale) {
     run("StringCharacters2_InvalidLocale");
 }
+
+TEST(InterpreterTest, StringLen) {
+    run("StringLen");
+}

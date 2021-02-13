@@ -12,6 +12,7 @@ enum class SystemCall {
     kCharacters1,       // Characters(input as String) as List of String
     kCharacters2,       // Characters(input as String, locale as String) as List of String
     kChr,               // Chr(input as Number) as String
+    kLen,               // Len(input as String) as Number
 };
 
 class SystemCallInput {

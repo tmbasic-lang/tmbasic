@@ -92,6 +92,11 @@ static void systemCallChr(const SystemCallInput& input, SystemCallResult* result
     result->x = boost::make_local_shared<String>(ch > 0 ? icu::UnicodeString(ch) : icu::UnicodeString());
 }
 
+static void systemCallLen(const SystemCallInput& input, SystemCallResult* result) {
+    auto& str = dynamic_cast<String&>(*input.objectStack.at(input.objectStackIndex)).value;
+    result->a.num = str.length();
+}
+
 SystemCallResult systemCall(SystemCall which, const SystemCallInput& input) {
     SystemCallResult result;
 
@@ -111,6 +116,10 @@ SystemCallResult systemCall(SystemCall which, const SystemCallInput& input) {
             case SystemCall::kChr:
                 result.popValues = 1;
                 systemCallChr(input, &result);
+                break;
+            case SystemCall::kLen:
+                result.popObjects = 1;
+                systemCallLen(input, &result);
                 break;
             default:
                 assert(false);

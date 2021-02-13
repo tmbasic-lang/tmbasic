@@ -166,6 +166,7 @@ static SystemCall parseSystemCall(string s) {
         { "Characters1", SystemCall::kCharacters1 },
         { "Characters2", SystemCall::kCharacters2 },
         { "Chr", SystemCall::kChr },
+        { "Len", SystemCall::kLen },
     };
 
     auto it = map.find(s);
