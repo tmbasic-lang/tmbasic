@@ -1,6 +1,7 @@
 #include "systemCall.h"
 #include "ErrorCode.h"
 #include "List.h"
+#include "Optional.h"
 #include "String.h"
 
 namespace vm {
@@ -97,6 +98,16 @@ static void systemCallLen(const SystemCallInput& input, SystemCallResult* result
     result->a.num = str.length();
 }
 
+static void systemCallHasValueV(const SystemCallInput& input, SystemCallResult* result) {
+    auto& opt = dynamic_cast<ValueOptional&>(*input.objectStack.at(input.objectStackIndex));
+    result->a.setBoolean(opt.item.has_value());
+}
+
+static void systemCallHasValueO(const SystemCallInput& input, SystemCallResult* result) {
+    auto& opt = dynamic_cast<ObjectOptional&>(*input.objectStack.at(input.objectStackIndex));
+    result->a.setBoolean(opt.item.has_value());
+}
+
 SystemCallResult systemCall(SystemCall which, const SystemCallInput& input) {
     SystemCallResult result;
 
@@ -116,6 +127,14 @@ SystemCallResult systemCall(SystemCall which, const SystemCallInput& input) {
             case SystemCall::kChr:
                 result.popValues = 1;
                 systemCallChr(input, &result);
+                break;
+            case SystemCall::kHasValueV:
+                result.popObjects = 1;
+                systemCallHasValueV(input, &result);
+                break;
+            case SystemCall::kHasValueO:
+                result.popObjects = 1;
+                systemCallHasValueO(input, &result);
                 break;
             case SystemCall::kLen:
                 result.popObjects = 1;

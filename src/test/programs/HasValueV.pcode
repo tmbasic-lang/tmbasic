@@ -1,0 +1,22 @@
+ValueOptionalNewMissing
+PushObjects 1
+StoreX 0
+SystemCall HasValueV
+NumberToString
+StringPrint
+
+LoadConstantStringX ","
+StringPrint
+
+LoadConstantA 999
+ValueOptionalNewPresent
+PushObjects 1
+StoreX 0
+SystemCall HasValueV
+NumberToString
+StringPrint
+
+Exit
+
+--output--
+0,1

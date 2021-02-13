@@ -131,6 +131,11 @@ enum class Opcode {
     kObjectToObjectMapKeys,    // X = ObjectList formed from keys of map X
     kObjectToObjectMapValues,  // X = ObjectList formed from values of map X
 
+    kValueOptionalNewMissing,   // X = new ValueOptional
+    kValueOptionalNewPresent,   // X = new ValueOptional, item = A
+    kObjectOptionalNewMissing,  // X = new ObjectOptional
+    kObjectOptionalNewPresent,  // X = new ObjectOptional, item = X
+
     kStringMid,        // X=input, A=startIndex, B=length. store "" or substring in X
     kStringIndexOf,    // X=haystack, Y=needle, A=startIndex. store -1 or index in A
     kStringAsc,        // X=string, A=index. store -1 or X[A] into A

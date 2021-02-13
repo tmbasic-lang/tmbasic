@@ -13,7 +13,9 @@ enum class ObjectType {
     kObjectToValueMap,
     kObjectToObjectMap,
     kRecord,
-    kProcedureReference
+    kProcedureReference,
+    kValueOptional,
+    kObjectOptional,
 };
 
 }  // namespace vm

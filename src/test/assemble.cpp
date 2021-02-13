@@ -137,6 +137,10 @@ static Opcode parseOpcode(string s) {
         { "ObjectToObjectMapRemove", Opcode::kObjectToObjectMapRemove },
         { "ObjectToObjectMapKeys", Opcode::kObjectToObjectMapKeys },
         { "ObjectToObjectMapValues", Opcode::kObjectToObjectMapValues },
+        { "ValueOptionalNewMissing", Opcode::kValueOptionalNewMissing },
+        { "ValueOptionalNewPresent", Opcode::kValueOptionalNewPresent },
+        { "ObjectOptionalNewMissing", Opcode::kObjectOptionalNewMissing },
+        { "ObjectOptionalNewPresent", Opcode::kObjectOptionalNewPresent },
         { "StringMid", Opcode::kStringMid },
         { "StringIndexOf", Opcode::kStringIndexOf },
         { "StringAsc", Opcode::kStringAsc },
@@ -166,6 +170,8 @@ static SystemCall parseSystemCall(string s) {
         { "Characters1", SystemCall::kCharacters1 },
         { "Characters2", SystemCall::kCharacters2 },
         { "Chr", SystemCall::kChr },
+        { "HasValueV", SystemCall::kHasValueV },
+        { "HasValueO", SystemCall::kHasValueO },
         { "Len", SystemCall::kLen },
     };
 

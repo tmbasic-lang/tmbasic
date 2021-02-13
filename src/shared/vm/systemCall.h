@@ -12,6 +12,8 @@ enum class SystemCall {
     kCharacters1,       // Characters(input as String) as List of String
     kCharacters2,       // Characters(input as String, locale as String) as List of String
     kChr,               // Chr(input as Number) as String
+    kHasValueV,         // HasValue(input as Optional Value) as Boolean
+    kHasValueO,         // HasValue(input as Optional Object) as Boolean
     kLen,               // Len(input as String) as Number
 };
 

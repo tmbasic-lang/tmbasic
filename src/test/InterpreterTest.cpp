@@ -165,3 +165,11 @@ TEST(InterpreterTest, StringCharacters2_InvalidLocale) {
 TEST(InterpreterTest, StringLen) {
     run("StringLen");
 }
+
+TEST(InterpreterTest, HasValueV) {
+    run("HasValueV");
+}
+
+TEST(InterpreterTest, HasValueO) {
+    run("HasValueO");
+}

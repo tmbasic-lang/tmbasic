@@ -13,6 +13,7 @@ struct Value {
     void setBoolean(bool value);
     int64_t getInt64() const;
     bool operator==(const Value& rhs) const;
+    std::size_t getHash() const;
 };
 
 struct ValuePointerCompare {
@@ -25,7 +26,7 @@ namespace std {
 
 template <>
 struct hash<vm::Value> {
-    std::size_t operator()(vm::Value const& k) const noexcept { return hash<int64_t>{}(k.num.floor().i64()); }
+    std::size_t operator()(vm::Value const& k) const noexcept { return k.getHash(); }
 };
 
 }  // namespace std

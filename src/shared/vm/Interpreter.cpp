@@ -2,6 +2,7 @@
 #include "List.h"
 #include "Map.h"
 #include "Opcode.h"
+#include "Optional.h"
 #include "Record.h"
 #include "String.h"
 #include "shared/util/decimal.h"
@@ -983,6 +984,27 @@ bool Interpreter::run(int maxCycles) {
                 assert(x != nullptr);
                 assert(x->getObjectType() == ObjectType::kObjectToObjectMap);
                 x = dynamic_cast<ObjectToObjectMap&>(*x).values();
+                instructionIndex++;
+                break;
+
+            case Opcode::kValueOptionalNewMissing:
+                x = boost::make_local_shared<ValueOptional>();
+                instructionIndex++;
+                break;
+
+            case Opcode::kValueOptionalNewPresent:
+                x = boost::make_local_shared<ValueOptional>(a);
+                instructionIndex++;
+                break;
+
+            case Opcode::kObjectOptionalNewMissing:
+                x = boost::make_local_shared<ObjectOptional>();
+                instructionIndex++;
+                break;
+
+            case Opcode::kObjectOptionalNewPresent:
+                assert(x != nullptr);
+                x = boost::make_local_shared<ObjectOptional>(x);
                 instructionIndex++;
                 break;
 
