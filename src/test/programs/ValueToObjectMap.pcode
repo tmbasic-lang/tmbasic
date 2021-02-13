@@ -122,3 +122,6 @@ LoadConstantStringX ","
 StringPrint
 
 Exit
+
+--output--
+2,AB,1,CD,1,0,2,10,20,2,AB,CD,

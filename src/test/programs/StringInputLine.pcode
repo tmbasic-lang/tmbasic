@@ -13,3 +13,9 @@ LoadConstantStringX "',"
 StringPrint
 
 Exit
+
+--input--
+ABC
+💩
+--output--
+'ABC','💩',

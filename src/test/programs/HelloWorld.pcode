@@ -1,3 +1,6 @@
 LoadConstantStringX "Hello, world!"
 StringPrint
 Exit
+
+--output--
+Hello, world!

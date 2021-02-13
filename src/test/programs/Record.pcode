@@ -26,3 +26,6 @@ RecordLoadA 0
 NumberToString
 StringPrint
 Exit
+
+--output--
+123hi456

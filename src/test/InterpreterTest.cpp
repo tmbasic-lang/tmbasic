@@ -18,9 +18,38 @@ using vm::ProcedureArtifact;
 using vm::Program;
 
 static void run(string filenameWithoutExtension) {
-    auto source = readFile(filenameWithoutExtension + ".pcode");
-    auto input = readFile(filenameWithoutExtension + ".input");
-    auto expectedOutput = readFile(filenameWithoutExtension + ".output");
+    auto pcodeFile = readFile(filenameWithoutExtension + ".pcode");
+
+    std::string inputSentinel = "--input--\n";
+    auto inputStart = pcodeFile.find(inputSentinel);
+
+    std::string outputSentinel = "--output--\n";
+    auto outputStart = pcodeFile.find(outputSentinel);
+
+    std::string input;
+    if (inputStart != std::string::npos) {
+        if (outputStart == std::string::npos) {
+            input = pcodeFile.substr(inputStart + inputSentinel.size());
+        } else {
+            input =
+                pcodeFile.substr(inputStart + inputSentinel.size(), outputStart - inputStart - inputSentinel.size());
+        }
+    }
+
+    std::string expectedOutput;
+    if (outputStart != std::string::npos) {
+        expectedOutput = pcodeFile.substr(outputStart + outputSentinel.size());
+    }
+
+    std::string source;
+    if (inputStart != std::string::npos) {
+        source = pcodeFile.substr(0, inputStart);
+    } else if (outputStart != std::string::npos) {
+        source = pcodeFile.substr(0, outputStart);
+    } else {
+        source = pcodeFile;
+    }
+
     istringstream sourceStream(source);
     auto program = assemble(&sourceStream);
     istringstream consoleInputStream(input);

@@ -33,3 +33,6 @@ LoadConstantStringX ";"
 StringPrint
 
 Exit
+
+--output--
+h,i,2;

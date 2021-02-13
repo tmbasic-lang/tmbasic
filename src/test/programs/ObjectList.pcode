@@ -95,3 +95,6 @@ ObjectListCount
 NumberToString
 StringPrint
 Exit
+
+--output--
+ABC123456789DEFGHIJKL5

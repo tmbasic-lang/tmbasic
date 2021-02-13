@@ -20,3 +20,6 @@ SetError
 ClearX
 LoadConstantA 0
 ReturnIfError
+
+--output--
+123this is the error message

@@ -44,3 +44,6 @@ LoadConstantStringX ","
 StringPrint
 
 Exit
+
+--output--
+A,,,ABC,A,

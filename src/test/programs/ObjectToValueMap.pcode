@@ -133,3 +133,6 @@ LoadConstantStringX ","
 StringPrint
 
 Exit
+
+--output--
+3,1,1,3,1,6,1,0,3,3,

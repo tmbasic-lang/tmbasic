@@ -13,3 +13,6 @@ LoadA 0
 LoadB 1
 AAddB
 Return
+
+--output--
+105
