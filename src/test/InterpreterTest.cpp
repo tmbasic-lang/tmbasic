@@ -116,3 +116,19 @@ TEST(InterpreterTest, NumberToString) {
 TEST(InterpreterTest, AvailableLocales) {
     run("AvailableLocales");
 }
+
+TEST(InterpreterTest, StringCharacters1_English) {
+    run("StringCharacters1_English");
+}
+
+TEST(InterpreterTest, StringCharacters1_Empty) {
+    run("StringCharacters1_Empty");
+}
+
+TEST(InterpreterTest, StringCharacters2_English) {
+    run("StringCharacters2_English");
+}
+
+TEST(InterpreterTest, StringCharacters2_InvalidLocale) {
+    run("StringCharacters2_InvalidLocale");
+}

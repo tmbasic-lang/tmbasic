@@ -1,0 +1,33 @@
+# Characters("hi") = ["h", "i"]
+LoadConstantStringX "hi"
+PushObjects 1
+StoreX 0
+SystemCall Characters1
+PushObjects 1
+StoreX 0
+
+LoadX 0
+LoadConstantA 0
+ObjectListGet
+StringPrint
+
+LoadConstantStringX ","
+StringPrint
+
+LoadX 0
+LoadConstantA 1
+ObjectListGet
+StringPrint
+
+LoadConstantStringX ","
+StringPrint
+
+LoadX 0
+ObjectListCount
+NumberToString
+StringPrint
+
+LoadConstantStringX ";"
+StringPrint
+
+Exit

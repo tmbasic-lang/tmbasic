@@ -1,0 +1,17 @@
+# Characters("hi", "asdf") -> error 1000
+PushObjects 2
+LoadConstantStringX "hi"
+StoreX 0
+LoadConstantStringX "asdf"
+StoreX 1
+SystemCall Characters2
+
+# branch will not be taken
+BranchIfNotError end
+
+LoadErrorCodeA
+NumberToString
+StringPrint
+
+label end
+Exit

@@ -151,6 +151,7 @@ static Opcode parseOpcode(string s) {
         return it->second;
     }
 
+    std::cerr << "Unknown opcode: " << s << std::endl;
     assert(false);
     return {};
 }

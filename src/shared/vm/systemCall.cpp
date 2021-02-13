@@ -5,11 +5,10 @@
 
 namespace vm {
 
-class Error : public std::exception {
+class Error : public std::runtime_error {
    public:
     ErrorCode code;
-    std::string message;
-    Error(ErrorCode code, std::string message) : code(code), message(std::move(message)) {}
+    Error(ErrorCode code, const char* message) : code(code), std::runtime_error(message) {}
 };
 
 SystemCallInput::SystemCallInput(
@@ -41,15 +40,15 @@ static const icu::Locale& getBreakIteratorLocale(const icu::UnicodeString& name)
     name.toUTF8String(nameUtf8);
 
     int32_t count = 0;
-    auto locales = icu::BreakIterator::getAvailableLocales(count);
+    const auto* locales = icu::BreakIterator::getAvailableLocales(count);
     for (int32_t i = 0; i < count; i++) {
-        auto& locale = locales[i];  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        const auto& locale = locales[i];  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
         if (nameUtf8 == locale.getName()) {
             return locale;
         }
     }
 
-    throw Error(ErrorCode::kInvalidLocaleName, std::string("The locale name \"") + nameUtf8 + "\" is invalid.");
+    throw Error(ErrorCode::kInvalidLocaleName, "The locale name is invalid or unsupported.");
 }
 
 static void systemCallCharactersCore(
@@ -82,7 +81,7 @@ static void systemCallCharacters1(const SystemCallInput& input, SystemCallResult
 }
 
 static void systemCallCharacters2(const SystemCallInput& input, SystemCallResult* result) {
-    auto& localeName = dynamic_cast<String&>(*input.objectStack.at(input.objectStackIndex));
+    auto& localeName = dynamic_cast<String&>(*input.objectStack.at(input.objectStackIndex + 1));
     const auto& locale = getBreakIteratorLocale(localeName.value);
     systemCallCharactersCore(input, locale, result);
 }
@@ -117,9 +116,11 @@ SystemCallResult systemCall(SystemCall which, const SystemCallInput& input) {
                 assert(false);
         }
     } catch (Error& ex) {
+        result.hasError = true;
         result.errorCode = static_cast<int>(ex.code);
-        result.errorMessage = std::move(ex.message);
+        result.errorMessage = ex.what();
     } catch (std::exception& ex) {
+        result.hasError = true;
         result.errorCode = -1;
         result.errorMessage = ex.what();
     }

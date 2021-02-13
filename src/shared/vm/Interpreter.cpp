@@ -435,6 +435,11 @@ bool Interpreter::run(int maxCycles) {
                 auto result = systemCall(static_cast<SystemCall>(systemCallNumber), systemCallInput);
                 a = result.a;
                 x = std::move(result.x);
+                if (result.hasError) {
+                    _hasError = result.hasError;
+                    _errorMessage = boost::make_local_shared<String>(result.errorMessage);
+                    _errorCode.num = result.errorCode;
+                }
                 if (result.popValues > 0) {
                     auto endIndex = vsi + result.popValues;
                     assert(endIndex <= kValueStackSize);
