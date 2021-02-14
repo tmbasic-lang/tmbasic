@@ -173,6 +173,8 @@ static SystemCall parseSystemCall(string s) {
         { "HasValueV", SystemCall::kHasValueV },
         { "HasValueO", SystemCall::kHasValueO },
         { "Len", SystemCall::kLen },
+        { "ValueV", SystemCall::kValueV },
+        { "ValueO", SystemCall::kValueO },
     };
 
     auto it = map.find(s);

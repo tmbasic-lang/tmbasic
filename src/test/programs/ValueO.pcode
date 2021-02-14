@@ -1,0 +1,27 @@
+# Value(missing) -> error 1001
+ObjectOptionalNewMissing
+PushObjects 1
+StoreX 0
+SystemCall ValueO
+BranchIfNotError end  # branch should not be taken
+LoadErrorCodeA
+NumberToString
+StringPrint
+
+LoadConstantStringX ","
+StringPrint
+
+# Value("hi") -> "hi"
+LoadConstantStringX "hi"
+ObjectOptionalNewPresent
+PushObjects 1
+StoreX 0
+SystemCall ValueO
+StringPrint
+
+label end
+
+Exit
+
+--output--
+1001,hi

@@ -173,3 +173,11 @@ TEST(InterpreterTest, HasValueV) {
 TEST(InterpreterTest, HasValueO) {
     run("HasValueO");
 }
+
+TEST(InterpreterTest, ValueV) {
+    run("ValueV");
+}
+
+TEST(InterpreterTest, ValueO) {
+    run("ValueO");
+}

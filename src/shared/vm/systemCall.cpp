@@ -108,6 +108,22 @@ static void systemCallHasValueO(const SystemCallInput& input, SystemCallResult* 
     result->a.setBoolean(opt.item.has_value());
 }
 
+static void systemCallValueV(const SystemCallInput& input, SystemCallResult* result) {
+    auto& opt = dynamic_cast<ValueOptional&>(*input.objectStack.at(input.objectStackIndex));
+    if (!opt.item.has_value()) {
+        throw Error(ErrorCode::kValueNotPresent, "Optional value is not present.");
+    }
+    result->a = opt.item.value();
+}
+
+static void systemCallValueO(const SystemCallInput& input, SystemCallResult* result) {
+    auto& opt = dynamic_cast<ObjectOptional&>(*input.objectStack.at(input.objectStackIndex));
+    if (!opt.item.has_value()) {
+        throw Error(ErrorCode::kValueNotPresent, "Optional value is not present.");
+    }
+    result->x = opt.item.value();
+}
+
 SystemCallResult systemCall(SystemCall which, const SystemCallInput& input) {
     SystemCallResult result;
 
@@ -139,6 +155,14 @@ SystemCallResult systemCall(SystemCall which, const SystemCallInput& input) {
             case SystemCall::kLen:
                 result.popObjects = 1;
                 systemCallLen(input, &result);
+                break;
+            case SystemCall::kValueV:
+                result.popObjects = 1;
+                systemCallValueV(input, &result);
+                break;
+            case SystemCall::kValueO:
+                result.popObjects = 1;
+                systemCallValueO(input, &result);
                 break;
             default:
                 assert(false);

@@ -1,0 +1,32 @@
+.procedure Value
+.description
+If an t[Optional] contains a value, then it is returned. If not, an error is thrown. Use p[HasValue] first to determine whether a value is present before calling p[Value].
+.overload
+.parameter this: Optional T
+Any t[Optional] value.
+.return T
+The value contained in i[this].
+.example
+This example program shows how to use p[HasValue] and p[Value] together.
+.example-code
+sub PrintIfPresent(x as Optional String)
+    if x.HasValue then
+        Print x.Value
+    else
+        Print "no value"
+    end if
+end sub
+
+sub Main()
+    dim present as Optional String
+    present = "hello"
+
+    dim missing as Optional String
+    
+    PrintIfPresent present
+    PrintIfPresent missing
+end sub
+.example-output
+hello
+no value
+.

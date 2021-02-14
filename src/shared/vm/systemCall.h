@@ -15,6 +15,8 @@ enum class SystemCall {
     kHasValueV,         // HasValue(input as Optional Value) as Boolean
     kHasValueO,         // HasValue(input as Optional Object) as Boolean
     kLen,               // Len(input as String) as Number
+    kValueV,            // ValueV(input as Optional Value) as Boolean
+    kValueO,            // ValueO(input as Optional Object) as Boolean
 };
 
 class SystemCallInput {
