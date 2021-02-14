@@ -5,7 +5,13 @@
 
 namespace basic {
 
-enum class MemberType { kNonMember, kProcedure, kDimStatement, kConstStatement, kTypeDeclaration };
+enum class MemberType {
+    kNonMember,
+    kProcedure,
+    kDimStatement,
+    kConstStatement,
+    kTypeDeclaration,
+};
 
 class BodyNode;
 class ExpressionNode;
@@ -49,7 +55,7 @@ enum class Kind {
     kRecord,
     kProcedureReference,
     kGenericPlaceholder,
-    kOptional
+    kOptional,
 };
 
 class TypeNode;
@@ -103,7 +109,7 @@ enum class BinaryOperator {
     kSubtract,
     kMultiply,
     kDivide,
-    kModulus
+    kModulus,
 };
 
 class BinaryExpressionSuffixNode : public Node {
@@ -247,9 +253,35 @@ class SymbolReferenceExpressionNode : public ExpressionNode {
 // statements
 //
 
+enum class StatementType {
+    kAssign,
+    kCall,
+    kConst,
+    kContinue,
+    kDimList,
+    kDimMap,
+    kDim,
+    kDimCollection,
+    kDo,
+    kExit,
+    kForEach,
+    kFor,
+    kGroup,
+    kIf,
+    kJoin,
+    kRethrow,
+    kReturn,
+    kSelectCase,
+    kSelect,
+    kThrow,
+    kTry,
+    kWhile,
+};
+
 class StatementNode : public Node {
    public:
-    explicit StatementNode(Token token);
+    const StatementType type;
+    explicit StatementNode(StatementType type, Token token);
 };
 
 class AssignLocationSuffixNode : public Node {
@@ -302,7 +334,11 @@ class ConstStatementNode : public StatementNode {
     std::optional<std::string> getSymbolDeclaration() const override;
 };
 
-enum class ContinueScope { kDo, kFor, kWhile };
+enum class ContinueScope {
+    kDo,
+    kFor,
+    kWhile,
+};
 
 class ContinueStatementNode : public StatementNode {
    public:
@@ -341,7 +377,10 @@ class DimStatementNode : public StatementNode {
     TypeNode* getChildTypeNode() const override;
 };
 
-enum class CollectionType { kList, kMap };
+enum class CollectionType {
+    kList,
+    kMap,
+};
 
 class DimCollectionStatementNode : public StatementNode {
    public:
@@ -353,9 +392,15 @@ class DimCollectionStatementNode : public StatementNode {
     bool visitBodies(const VisitBodyFunc& func) const override;
 };
 
-enum class DoConditionPosition { kBeforeBody, kAfterBody };
+enum class DoConditionPosition {
+    kBeforeBody,
+    kAfterBody,
+};
 
-enum class DoConditionType { kWhile, kUntil };
+enum class DoConditionType {
+    kWhile,
+    kUntil,
+};
 
 class DoConditionNode : public Node {
    public:
@@ -381,7 +426,13 @@ class DoStatementNode : public StatementNode {
     bool visitExpressions(const VisitExpressionFunc& func) const override;
 };
 
-enum class ExitScope { kDo, kFor, kSelectCase, kTry, kWhile };
+enum class ExitScope {
+    kDo,
+    kFor,
+    kSelectCase,
+    kTry,
+    kWhile,
+};
 
 class ExitStatementNode : public StatementNode {
    public:
