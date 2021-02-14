@@ -58,7 +58,7 @@ bool Interpreter::run(int maxCycles) {
     // use local variables for our registers with the hope that the compiler chooses to put them into actual cpu
     // registers and avoids writing them to memory
     const auto* procedure = _procedure;
-    const auto* instructions = &(*procedure->artifact)->instructions;
+    const auto* instructions = &procedure->instructions;
     auto instructionIndex = _instructionIndex;
     auto a = _a;
     auto b = _b;
@@ -413,16 +413,10 @@ bool Interpreter::run(int maxCycles) {
                 assert(callProcedureIndex >= 0);
                 assert(callProcedureIndex < _program.procedures.size());
                 auto& callProcedure = *_program.procedures[callProcedureIndex];
-                if (!callProcedure.artifact.has_value()) {
-                    fatalError = "Call to procedure that contains an error";
-                    stop = true;
-                    break;
-                }
-                auto& callProcedureArtifact = **callProcedure.artifact;
                 instructionIndex += /*A*/ 1 + /*B*/ 2;
                 _callStack.push(CallFrame(procedure, instructionIndex, vsi, osi));
                 procedure = &callProcedure;
-                instructions = &callProcedureArtifact.instructions;
+                instructions = &callProcedure.instructions;
                 instructionIndex = 0;
                 break;
             }
@@ -1150,8 +1144,8 @@ Interpreter::ReturnResult Interpreter::returnFromProcedure(int valueStackIndex, 
     }
     _callStack.pop();
     return ReturnResult(
-        callFrame.procedure, &(*callFrame.procedure->artifact)->instructions, callFrame.instructionIndex,
-        callFrame.valueStackIndex, callFrame.objectStackIndex);
+        callFrame.procedure, &callFrame.procedure->instructions, callFrame.instructionIndex, callFrame.valueStackIndex,
+        callFrame.objectStackIndex);
 }
 
 }  // namespace vm

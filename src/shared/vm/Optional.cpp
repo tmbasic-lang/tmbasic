@@ -2,7 +2,7 @@
 
 namespace vm {
 
-ValueOptional::ValueOptional() {}
+ValueOptional::ValueOptional() = default;
 
 ValueOptional::ValueOptional(Value value) : item(std::move(value)) {}
 
@@ -18,12 +18,12 @@ bool ValueOptional::equals(const Object& other) const {
     if (other.getObjectType() != ObjectType::kValueOptional) {
         return false;
     }
-    auto& otherOptional = static_cast<const ValueOptional&>(other);
+    const auto& otherOptional = dynamic_cast<const ValueOptional&>(other);
     return item.has_value() == otherOptional.item.has_value() &&
         (item.has_value() ? item.value() == otherOptional.item.value() : true);
 }
 
-ObjectOptional::ObjectOptional() {}
+ObjectOptional::ObjectOptional() = default;
 
 ObjectOptional::ObjectOptional(boost::local_shared_ptr<Object> object) : item(std::move(object)) {}
 
@@ -39,7 +39,7 @@ bool ObjectOptional::equals(const Object& other) const {
     if (other.getObjectType() != ObjectType::kObjectOptional) {
         return false;
     }
-    auto& otherOptional = static_cast<const ObjectOptional&>(other);
+    const auto& otherOptional = dynamic_cast<const ObjectOptional&>(other);
     return item.has_value() == otherOptional.item.has_value() &&
         (item.has_value() ? item.value()->equals(*otherOptional.item.value()) : true);
 }

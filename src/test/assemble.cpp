@@ -1,7 +1,6 @@
 #include "assemble.h"
 #include "shared/vm/Opcode.h"
 #include "shared/vm/Procedure.h"
-#include "shared/vm/ProcedureArtifact.h"
 #include "shared/vm/Program.h"
 #include "shared/vm/systemCall.h"
 
@@ -19,7 +18,6 @@ using std::unordered_map;
 using std::vector;
 using vm::Opcode;
 using vm::Procedure;
-using vm::ProcedureArtifact;
 using vm::Program;
 using vm::SystemCall;
 
@@ -262,15 +260,13 @@ static void addNewProcedure(
         memcpy(&instructions->at(labelUsage.index), &jumpTarget, sizeof(uint32_t));
     }
 
+    auto procedure = make_unique<Procedure>();
+    procedure->instructions = move(*instructions);
+    program->procedures.push_back(move(procedure));
+
     labelUsages->clear();
     labels->clear();
-
-    auto artifact = make_unique<ProcedureArtifact>();
-    artifact->instructions = move(*instructions);
     instructions->clear();
-    auto procedure = make_unique<Procedure>();
-    procedure->artifact = move(artifact);
-    program->procedures.push_back(move(procedure));
 }
 
 std::unique_ptr<vm::Program> assemble(istream* input) {

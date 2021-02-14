@@ -94,7 +94,7 @@ static void systemCallChr(const SystemCallInput& input, SystemCallResult* result
 }
 
 static void systemCallLen(const SystemCallInput& input, SystemCallResult* result) {
-    auto& str = dynamic_cast<String&>(*input.objectStack.at(input.objectStackIndex)).value;
+    const auto& str = dynamic_cast<String&>(*input.objectStack.at(input.objectStackIndex)).value;
     result->a.num = str.length();
 }
 

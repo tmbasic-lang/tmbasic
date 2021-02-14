@@ -4,7 +4,6 @@
 #include "helpers.h"
 #include "shared/vm/Interpreter.h"
 #include "shared/vm/Procedure.h"
-#include "shared/vm/ProcedureArtifact.h"
 #include "shared/vm/Program.h"
 
 using std::istringstream;
@@ -14,7 +13,6 @@ using std::ostringstream;
 using std::string;
 using vm::Interpreter;
 using vm::Procedure;
-using vm::ProcedureArtifact;
 using vm::Program;
 
 static void run(string filenameWithoutExtension) {
