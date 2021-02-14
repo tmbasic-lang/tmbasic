@@ -20,15 +20,15 @@ using vm::Program;
 static void run(string filenameWithoutExtension) {
     auto pcodeFile = readFile(filenameWithoutExtension + ".pcode");
 
-    std::string inputSentinel = "--input--\n";
+    string inputSentinel = "--input--\n";
     auto inputStart = pcodeFile.find(inputSentinel);
 
-    std::string outputSentinel = "--output--\n";
+    string outputSentinel = "--output--\n";
     auto outputStart = pcodeFile.find(outputSentinel);
 
-    std::string input;
-    if (inputStart != std::string::npos) {
-        if (outputStart == std::string::npos) {
+    string input;
+    if (inputStart != string::npos) {
+        if (outputStart == string::npos) {
             input = pcodeFile.substr(inputStart + inputSentinel.size());
         } else {
             input =
@@ -36,15 +36,15 @@ static void run(string filenameWithoutExtension) {
         }
     }
 
-    std::string expectedOutput;
-    if (outputStart != std::string::npos) {
+    string expectedOutput;
+    if (outputStart != string::npos) {
         expectedOutput = pcodeFile.substr(outputStart + outputSentinel.size());
     }
 
-    std::string source;
-    if (inputStart != std::string::npos) {
+    string source;
+    if (inputStart != string::npos) {
         source = pcodeFile.substr(0, inputStart);
-    } else if (outputStart != std::string::npos) {
+    } else if (outputStart != string::npos) {
         source = pcodeFile.substr(0, outputStart);
     } else {
         source = pcodeFile;
@@ -62,122 +62,99 @@ static void run(string filenameWithoutExtension) {
     ASSERT_EQ(expectedOutput, actualOutput);
 }
 
-TEST(InterpreterTest, ExitOnly) {
-    run("ExitOnly");
-}
-
-TEST(InterpreterTest, HelloWorld) {
-    run("HelloWorld");
-}
-
-TEST(InterpreterTest, SimpleMath) {
-    run("SimpleMath");
-}
+// Regenerate with:
+/*
+ls src/test/programs/ | grep "\.pcode$" | xargs -n 1 basename | sed "s/\.pcode//g" | \
+awk '{ print "TEST(InterpreterTest, " $1 ") { run(\"" $1 "\"); }" }'
+*/
 
 TEST(InterpreterTest, AddFunction) {
     run("AddFunction");
 }
-
-TEST(InterpreterTest, Julia) {
-    run("Julia");
-}
-
-TEST(InterpreterTest, Errors) {
-    run("Errors");
-}
-
-TEST(InterpreterTest, Record) {
-    run("Record");
-}
-
-TEST(InterpreterTest, ValueList) {
-    run("ValueList");
-}
-
-TEST(InterpreterTest, ObjectList) {
-    run("ObjectList");
-}
-
-TEST(InterpreterTest, ValueToValueMap) {
-    run("ValueToValueMap");
-}
-
-TEST(InterpreterTest, ValueToObjectMap) {
-    run("ValueToObjectMap");
-}
-
-TEST(InterpreterTest, ObjectToValueMap) {
-    run("ObjectToValueMap");
-}
-
-TEST(InterpreterTest, ObjectToObjectMap) {
-    run("ObjectToObjectMap");
-}
-
-TEST(InterpreterTest, StringMid) {
-    run("StringMid");
-}
-
-TEST(InterpreterTest, StringIndexOf) {
-    run("StringIndexOf");
-}
-
-TEST(InterpreterTest, StringChr) {
-    run("StringChr");
-}
-
-TEST(InterpreterTest, StringChrCombiningDiacritic) {
-    run("StringChrCombiningDiacritic");
-}
-
-TEST(InterpreterTest, StringAsc) {
-    run("StringAsc");
-}
-
-TEST(InterpreterTest, StringInputLine) {
-    run("StringInputLine");
-}
-
-TEST(InterpreterTest, NumberToString) {
-    run("NumberToString");
-}
-
 TEST(InterpreterTest, AvailableLocales) {
     run("AvailableLocales");
 }
-
-TEST(InterpreterTest, StringCharacters1_English) {
-    run("StringCharacters1_English");
+TEST(InterpreterTest, Errors) {
+    run("Errors");
 }
-
-TEST(InterpreterTest, StringCharacters1_Empty) {
-    run("StringCharacters1_Empty");
+TEST(InterpreterTest, ExitOnly) {
+    run("ExitOnly");
 }
-
-TEST(InterpreterTest, StringCharacters2_English) {
-    run("StringCharacters2_English");
-}
-
-TEST(InterpreterTest, StringCharacters2_InvalidLocale) {
-    run("StringCharacters2_InvalidLocale");
-}
-
-TEST(InterpreterTest, StringLen) {
-    run("StringLen");
-}
-
-TEST(InterpreterTest, HasValueV) {
-    run("HasValueV");
-}
-
 TEST(InterpreterTest, HasValueO) {
     run("HasValueO");
 }
-
-TEST(InterpreterTest, ValueV) {
-    run("ValueV");
+TEST(InterpreterTest, HasValueV) {
+    run("HasValueV");
 }
-
+TEST(InterpreterTest, HelloWorld) {
+    run("HelloWorld");
+}
+TEST(InterpreterTest, Julia) {
+    run("Julia");
+}
+TEST(InterpreterTest, NumberToString) {
+    run("NumberToString");
+}
+TEST(InterpreterTest, ObjectList) {
+    run("ObjectList");
+}
+TEST(InterpreterTest, ObjectToObjectMap) {
+    run("ObjectToObjectMap");
+}
+TEST(InterpreterTest, ObjectToValueMap) {
+    run("ObjectToValueMap");
+}
+TEST(InterpreterTest, Record) {
+    run("Record");
+}
+TEST(InterpreterTest, SimpleMath) {
+    run("SimpleMath");
+}
+TEST(InterpreterTest, StringAsc) {
+    run("StringAsc");
+}
+TEST(InterpreterTest, StringCharacters1_Empty) {
+    run("StringCharacters1_Empty");
+}
+TEST(InterpreterTest, StringCharacters1_English) {
+    run("StringCharacters1_English");
+}
+TEST(InterpreterTest, StringCharacters2_English) {
+    run("StringCharacters2_English");
+}
+TEST(InterpreterTest, StringCharacters2_InvalidLocale) {
+    run("StringCharacters2_InvalidLocale");
+}
+TEST(InterpreterTest, StringChr) {
+    run("StringChr");
+}
+TEST(InterpreterTest, StringChrCombiningDiacritic) {
+    run("StringChrCombiningDiacritic");
+}
+TEST(InterpreterTest, StringIndexOf) {
+    run("StringIndexOf");
+}
+TEST(InterpreterTest, StringInputLine) {
+    run("StringInputLine");
+}
+TEST(InterpreterTest, StringLen) {
+    run("StringLen");
+}
+TEST(InterpreterTest, StringMid) {
+    run("StringMid");
+}
+TEST(InterpreterTest, ValueList) {
+    run("ValueList");
+}
 TEST(InterpreterTest, ValueO) {
     run("ValueO");
+}
+TEST(InterpreterTest, ValueToObjectMap) {
+    run("ValueToObjectMap");
+}
+TEST(InterpreterTest, ValueToValueMap) {
+    run("ValueToValueMap");
+}
+TEST(InterpreterTest, ValueV) {
+    run("ValueV");
 }
