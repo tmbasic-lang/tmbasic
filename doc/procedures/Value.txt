@@ -18,12 +18,8 @@ sub PrintIfPresent(x as Optional String)
 end sub
 
 sub Main()
-    dim present as Optional String
-    present = "hello"
-
     dim missing as Optional String
-    
-    PrintIfPresent present
+    PrintIfPresent "hello"
     PrintIfPresent missing
 end sub
 .example-output
