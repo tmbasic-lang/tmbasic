@@ -407,12 +407,22 @@ static string formatProcedureText(const string& topicName, const Procedure& proc
             if (!isFirstParameter) {
                 o << ", ";
             }
-            o << parameter->name << " as t[" << parameter->type << "]";
+            o << parameter->name << " as ";
+            if (parameter->type == "T") {
+                o << "T";
+            } else {
+                o << "t[" << parameter->type << "]";
+            }
             isFirstParameter = false;
         }
         o << ")";
         if (isFunction) {
-            o << " as t[" << overload->returns->type << "]";
+            o << " as ";
+            if (overload->returns->type == "T") {
+                o << "T";
+            } else {
+                o << "t[" << overload->returns->type << "]";
+            }
         }
         o << "]\n\n";
 
@@ -458,8 +468,8 @@ static unique_ptr<Procedure> buildProcedure(
     return utf8Procedure;
 }
 
-static int compareProceduresByName(const unique_ptr<Procedure>& lhs, const unique_ptr<Procedure>& rhs) {
-    return lhs->name.compare(rhs->name);
+static bool compareProceduresByName(const unique_ptr<Procedure>& lhs, const unique_ptr<Procedure>& rhs) {
+    return lhs->name.compare(rhs->name) < 0;
 }
 
 static void buildProcedureIndex(
