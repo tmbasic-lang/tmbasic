@@ -489,6 +489,9 @@ void ContinueStatementNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_ENUM(scope);
 }
 
+DimListStatementNode::DimListStatementNode(std::string name, std::unique_ptr<BodyNode> body, Token token)
+    : StatementNode(StatementType::kDimList, std::move(token)), name(std::move(name)), body(std::move(body)) {}
+
 void DimListStatementNode::dump(std::ostringstream& s, int n) const {
     DUMP_TYPE(DimListStatementNode);
     DUMP_VAR(name);
@@ -498,6 +501,9 @@ void DimListStatementNode::dump(std::ostringstream& s, int n) const {
 bool DimListStatementNode::visitBodies(const VisitBodyFunc& func) const {
     return func(*body);
 }
+
+DimMapStatementNode::DimMapStatementNode(std::string name, std::unique_ptr<BodyNode> body, Token token)
+    : StatementNode(StatementType::kDimMap, std::move(token)), name(std::move(name)), body(std::move(body)) {}
 
 void DimMapStatementNode::dump(std::ostringstream& s, int n) const {
     DUMP_TYPE(DimMapStatementNode);
@@ -550,27 +556,6 @@ TypeNode* DimStatementNode::getChildTypeNode() const {
         return type.get();
     }
     return nullptr;
-}
-
-DimCollectionStatementNode::DimCollectionStatementNode(
-    std::string name,
-    CollectionType type,
-    std::unique_ptr<BodyNode> body,
-    Token token)
-    : StatementNode(StatementType::kDimCollection, std::move(token)),
-      name(std::move(name)),
-      type(type),
-      body(std::move(body)) {}
-
-void DimCollectionStatementNode::dump(std::ostringstream& s, int n) const {
-    DUMP_TYPE(DimCollectionStatementNode);
-    DUMP_VAR(name);
-    DUMP_VAR_ENUM(type);
-    DUMP_VAR_NODE(body);
-}
-
-bool DimCollectionStatementNode::visitBodies(const VisitBodyFunc& func) const {
-    return func(*body);
 }
 
 DoConditionNode::DoConditionNode(std::unique_ptr<ExpressionNode> condition, DoConditionType conditionType, Token token)

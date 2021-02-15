@@ -13,26 +13,45 @@ class ProcedureState {
 };
 
 static void emitAssignStatement(const basic::AssignStatementNode& statementNode, ProcedureState* state) {}
+
 static void emitCallStatement(const basic::CallStatementNode& statementNode, ProcedureState* state) {}
+
 static void emitConstStatement(const basic::ConstStatementNode& statementNode, ProcedureState* state) {}
+
 static void emitContinueStatement(const basic::ContinueStatementNode& statementNode, ProcedureState* state) {}
+
 static void emitDimListStatement(const basic::DimListStatementNode& statementNode, ProcedureState* state) {}
+
 static void emitDimMapStatement(const basic::DimMapStatementNode& statementNode, ProcedureState* state) {}
+
 static void emitDimStatement(const basic::DimStatementNode& statementNode, ProcedureState* state) {}
-static void emitDimCollectionStatement(const basic::DimCollectionStatementNode& statementNode, ProcedureState* state) {}
+
 static void emitDoStatement(const basic::DoStatementNode& statementNode, ProcedureState* state) {}
+
 static void emitExitStatement(const basic::ExitStatementNode& statementNode, ProcedureState* state) {}
+
 static void emitForEachStatement(const basic::ForEachStatementNode& statementNode, ProcedureState* state) {}
+
 static void emitForStatement(const basic::ForStatementNode& statementNode, ProcedureState* state) {}
+
 static void emitGroupStatement(const basic::GroupStatementNode& statementNode, ProcedureState* state) {}
+
 static void emitIfStatement(const basic::IfStatementNode& statementNode, ProcedureState* state) {}
+
 static void emitJoinStatement(const basic::JoinStatementNode& statementNode, ProcedureState* state) {}
+
 static void emitRethrowStatement(const basic::RethrowStatementNode& statementNode, ProcedureState* state) {}
+
 static void emitReturnStatement(const basic::ReturnStatementNode& statementNode, ProcedureState* state) {}
+
 static void emitSelectCaseStatement(const basic::SelectCaseStatementNode& statementNode, ProcedureState* state) {}
+
 static void emitSelectStatement(const basic::SelectStatementNode& statementNode, ProcedureState* state) {}
+
 static void emitThrowStatement(const basic::ThrowStatementNode& statementNode, ProcedureState* state) {}
+
 static void emitTryStatement(const basic::TryStatementNode& statementNode, ProcedureState* state) {}
+
 static void emitWhileStatement(const basic::WhileStatementNode& statementNode, ProcedureState* state) {}
 
 static void emitStatement(const basic::StatementNode& statementNode, ProcedureState* state) {
@@ -57,9 +76,6 @@ static void emitStatement(const basic::StatementNode& statementNode, ProcedureSt
             break;
         case basic::StatementType::kDim:
             emitDimStatement(dynamic_cast<const basic::DimStatementNode&>(statementNode), state);
-            break;
-        case basic::StatementType::kDimCollection:
-            emitDimCollectionStatement(dynamic_cast<const basic::DimCollectionStatementNode&>(statementNode), state);
             break;
         case basic::StatementType::kDo:
             emitDoStatement(dynamic_cast<const basic::DoStatementNode&>(statementNode), state);
@@ -102,6 +118,9 @@ static void emitStatement(const basic::StatementNode& statementNode, ProcedureSt
             break;
         case basic::StatementType::kWhile:
             emitWhileStatement(dynamic_cast<const basic::WhileStatementNode&>(statementNode), state);
+            break;
+        default:
+            assert(false);
             break;
     }
 }

@@ -261,7 +261,6 @@ enum class StatementType {
     kDimList,
     kDimMap,
     kDim,
-    kDimCollection,
     kDo,
     kExit,
     kForEach,
@@ -351,6 +350,7 @@ class DimListStatementNode : public StatementNode {
    public:
     std::string name;
     std::unique_ptr<BodyNode> body;
+    DimListStatementNode(std::string name, std::unique_ptr<BodyNode> body, Token token);
     void dump(std::ostringstream& s, int n) const override;
     bool visitBodies(const VisitBodyFunc& func) const override;
 };
@@ -359,6 +359,7 @@ class DimMapStatementNode : public StatementNode {
    public:
     std::string name;
     std::unique_ptr<BodyNode> body;
+    DimMapStatementNode(std::string name, std::unique_ptr<BodyNode> body, Token token);
     void dump(std::ostringstream& s, int n) const override;
     bool visitBodies(const VisitBodyFunc& func) const override;
 };
@@ -375,21 +376,6 @@ class DimStatementNode : public StatementNode {
     std::optional<std::string> getSymbolDeclaration() const override;
     bool visitExpressions(const VisitExpressionFunc& func) const override;
     TypeNode* getChildTypeNode() const override;
-};
-
-enum class CollectionType {
-    kList,
-    kMap,
-};
-
-class DimCollectionStatementNode : public StatementNode {
-   public:
-    std::string name;
-    CollectionType type;
-    std::unique_ptr<BodyNode> body;
-    DimCollectionStatementNode(std::string name, CollectionType type, std::unique_ptr<BodyNode> body, Token token);
-    void dump(std::ostringstream& s, int n) const override;
-    bool visitBodies(const VisitBodyFunc& func) const override;
 };
 
 enum class DoConditionPosition {

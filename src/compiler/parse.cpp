@@ -14,13 +14,13 @@ using basic::CallExpressionNode;
 using basic::CallStatementNode;
 using basic::CaseNode;
 using basic::CaseValueNode;
-using basic::CollectionType;
 using basic::ConstStatementNode;
 using basic::ConstValueExpressionNode;
 using basic::ContinueScope;
 using basic::ContinueStatementNode;
 using basic::ConvertExpressionNode;
-using basic::DimCollectionStatementNode;
+using basic::DimListStatementNode;
+using basic::DimMapStatementNode;
 using basic::DimStatementNode;
 using basic::DoConditionNode;
 using basic::DoConditionPosition;
@@ -1504,22 +1504,21 @@ class DimCollectionStatementProduction : public Production {
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
-        CollectionType type;
         switch (captureTokenKind(std::move((*captures)[0]))) {
             case TokenKind::kList:
-                type = CollectionType::kList;
+                return nodeBox<DimListStatementNode>(
+                    captureTokenText(std::move((*captures)[1])), captureSingleNode<BodyNode>(std::move((*captures)[2])),
+                    firstToken);
                 break;
             case TokenKind::kMap:
-                type = CollectionType::kMap;
+                return nodeBox<DimMapStatementNode>(
+                    captureTokenText(std::move((*captures)[1])), captureSingleNode<BodyNode>(std::move((*captures)[2])),
+                    firstToken);
                 break;
             default:
                 assert(false);
-                type = {};
-                break;
+                return {};
         }
-        return nodeBox<DimCollectionStatementNode>(
-            captureTokenText(std::move((*captures)[1])), type, captureSingleNode<BodyNode>(std::move((*captures)[2])),
-            firstToken);
     }
 };
 
