@@ -93,6 +93,7 @@ class TypeNode : public Node {
 
 class ExpressionNode : public Node {
    public:
+    boost::local_shared_ptr<TypeNode> evaluatedType = nullptr;  // set during type checking
     explicit ExpressionNode(Token token);
 };
 
@@ -327,6 +328,7 @@ class ConstStatementNode : public StatementNode {
    public:
     std::string name;
     std::unique_ptr<ConstValueExpressionNode> value;
+    boost::local_shared_ptr<TypeNode> evaluatedType = nullptr;  // set during type checking
     ConstStatementNode(std::string name, std::unique_ptr<ConstValueExpressionNode> value, Token token);
     MemberType getMemberType() const override;
     void dump(std::ostringstream& s, int n) const override;
@@ -350,6 +352,7 @@ class DimListStatementNode : public StatementNode {
    public:
     std::string name;
     std::unique_ptr<BodyNode> body;
+    boost::local_shared_ptr<TypeNode> evaluatedType = nullptr;  // set during type checking
     DimListStatementNode(std::string name, std::unique_ptr<BodyNode> body, Token token);
     void dump(std::ostringstream& s, int n) const override;
     bool visitBodies(const VisitBodyFunc& func) const override;
@@ -359,6 +362,7 @@ class DimMapStatementNode : public StatementNode {
    public:
     std::string name;
     std::unique_ptr<BodyNode> body;
+    boost::local_shared_ptr<TypeNode> evaluatedType = nullptr;  // set during type checking
     DimMapStatementNode(std::string name, std::unique_ptr<BodyNode> body, Token token);
     void dump(std::ostringstream& s, int n) const override;
     bool visitBodies(const VisitBodyFunc& func) const override;
@@ -367,8 +371,9 @@ class DimMapStatementNode : public StatementNode {
 class DimStatementNode : public StatementNode {
    public:
     std::string name;
-    std::unique_ptr<TypeNode> type;         // may be null
-    std::unique_ptr<ExpressionNode> value;  // may be null
+    std::unique_ptr<TypeNode> type;                             // may be null
+    std::unique_ptr<ExpressionNode> value;                      // may be null
+    boost::local_shared_ptr<TypeNode> evaluatedType = nullptr;  // set during type checking
     DimStatementNode(std::string name, std::unique_ptr<TypeNode> type, Token token);
     DimStatementNode(std::string name, std::unique_ptr<ExpressionNode> value, Token token);
     MemberType getMemberType() const override;
@@ -655,9 +660,8 @@ class ParameterNode : public Node {
 class GlobalVariableNode : public Node {
    public:
     std::string name;
-    bool isValue;
-    size_t index;
-    GlobalVariableNode(std::string name, bool isValue, size_t index);
+    std::unique_ptr<TypeNode> type;
+    GlobalVariableNode(std::string name, std::unique_ptr<TypeNode> type);
     void dump(std::ostringstream& s, int n) const override;
     std::optional<std::string> getSymbolDeclaration() const override;
 };

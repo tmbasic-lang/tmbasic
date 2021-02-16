@@ -1052,12 +1052,13 @@ std::optional<std::string> ParameterNode::getSymbolDeclaration() const {
     return name;
 }
 
-GlobalVariableNode::GlobalVariableNode(std::string name, bool isValue, size_t index)
-    : Node(Token(0, 0, TokenKind::kError, "")), name(std::move(name)), isValue(isValue), index(index) {}
+GlobalVariableNode::GlobalVariableNode(std::string name, std::unique_ptr<TypeNode> type)
+    : Node(Token(0, 0, TokenKind::kError, "")), name(std::move(name)), type(std::move(type)) {}
 
 void GlobalVariableNode::dump(std::ostringstream& s, int n) const {
     DUMP_TYPE(GlobalVariableNode);
-    DUMP_VAR(index);
+    DUMP_VAR(name);
+    DUMP_VAR_NODE(type);
 }
 
 std::optional<std::string> GlobalVariableNode::getSymbolDeclaration() const {

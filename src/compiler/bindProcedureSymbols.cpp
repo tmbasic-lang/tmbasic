@@ -42,7 +42,7 @@ class Scope {
     std::unordered_map<std::string, const Node&> _symbolDeclarations;
 };
 
-static Scope makeProcedureGlobalScope(ProcedureNode* /*procedure*/, const SourceProgram& /*program*/) {
+static Scope makeProcedureGlobalScope(ProcedureNode* /*procedure*/, const CompiledProgram& /*program*/) {
     auto scope = Scope();
     /*for (auto& sourceMember : program.members) {
         const auto& globalVariable = program.globalVariables[i];
@@ -143,7 +143,7 @@ CompilerResult bindBodySymbols(BodyNode* node, Scope* scope) {
     return CompilerResult::success();
 }
 
-CompilerResult bindProcedureSymbols(ProcedureNode* procedure, const SourceProgram& program) {
+CompilerResult bindProcedureSymbols(ProcedureNode* procedure, const CompiledProgram& program) {
     auto globalScope = makeProcedureGlobalScope(procedure, program);
     auto procedureScope = Scope(&globalScope);
 

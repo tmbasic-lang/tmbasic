@@ -2,6 +2,7 @@
 #include "compiler/bindProcedureSymbols.h"
 #include "compiler/parse.h"
 #include "compiler/tokenize.h"
+#include "compiler/typeCheck.h"
 #include "util/cast.h"
 
 using util::dynamic_cast_move;
@@ -24,8 +25,13 @@ static void removeBlankLines(std::vector<Token>* tokens) {
     }
 }
 
-CompilerResult compile(const SourceMember& member, const SourceProgram& program) {
-    auto tokens = tokenize(member.source);
+static CompilerResult compileGlobal(const SourceMember& sourceMember, CompiledProgram* compiledProgram) {
+    return CompilerResult::success();
+}
+
+// precondition: all global variables must be compiled first
+static CompilerResult compileProcedure(const SourceMember& sourceMember, CompiledProgram* compiledProgram) {
+    auto tokens = tokenize(sourceMember.source);
     removeComments(&tokens);
     removeBlankLines(&tokens);
 
@@ -38,12 +44,29 @@ CompilerResult compile(const SourceMember& member, const SourceProgram& program)
     }
     auto procedureNode = dynamic_cast_move<ProcedureNode>(std::move(parserResult.node));
 
-    auto compilerResult = bindProcedureSymbols(procedureNode.get(), program);
+    auto compilerResult = bindProcedureSymbols(procedureNode.get(), *compiledProgram);
+    if (!compilerResult.isSuccess) {
+        return compilerResult;
+    }
+
+    compilerResult = typeCheck(procedureNode.get());
     if (!compilerResult.isSuccess) {
         return compilerResult;
     }
 
     return CompilerResult::success();
+}
+
+CompilerResult compile(const SourceMember& sourceMember, CompiledProgram* compiledProgram) {
+    switch (sourceMember.memberType) {
+        case SourceMemberType::kProcedure:
+            return compileProcedure(sourceMember, compiledProgram);
+        case SourceMemberType::kGlobal:
+            return compileGlobal(sourceMember, compiledProgram);
+        default:
+            assert(false);
+            throw std::runtime_error("Not implemented");
+    }
 }
 
 }  // namespace compiler
