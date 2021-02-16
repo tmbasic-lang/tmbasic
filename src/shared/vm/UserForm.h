@@ -3,7 +3,7 @@
 #include "../../common.h"
 #include "UserControl.h"
 
-namespace tui {
+namespace vm {
 
 class UserForm {
    public:
@@ -21,4 +21,4 @@ class UserForm {
     int maxHeight = 0;
 };
 
-}  // namespace tui
+}  // namespace vm

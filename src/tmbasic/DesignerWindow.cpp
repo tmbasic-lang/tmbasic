@@ -1,6 +1,6 @@
 #include "tmbasic/DesignerWindow.h"
 #include "../../obj/resources/help/helpfile.h"
-#include "shared/tui/UserForm.h"
+#include "shared/vm/UserForm.h"
 #include "tmbasic/DesignerFormPropertiesDialog.h"
 #include "tmbasic/DesignerGridView.h"
 #include "tmbasic/DialogPtr.h"
@@ -8,7 +8,7 @@
 #include "tmbasic/events.h"
 
 using compiler::SourceMember;
-using tui::UserForm;
+using vm::UserForm;
 
 namespace tmbasic {
 

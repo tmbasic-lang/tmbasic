@@ -1,12 +1,13 @@
 #include "DesignerFormPropertiesDialog.h"
 #include "Button.h"
-#include "RowLayout.h"
-#include "Label.h"
 #include "GridLayout.h"
+#include "Label.h"
+#include "RowLayout.h"
 #include "constants.h"
+#include "shared/vm/UserForm.h"
 #include "tvutil.h"
 
-using tui::UserForm;
+using vm::UserForm;
 
 namespace tmbasic {
 

@@ -2,8 +2,8 @@
 
 #include "../../common.h"
 
-namespace tui {
+namespace vm {
 
 class UserControl {};
 
-}  // namespace tui
+}  // namespace vm
