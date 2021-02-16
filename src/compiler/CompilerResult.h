@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../common.h"
-#include "shared/basic/Token.h"
+#include "compiler/Token.h"
 
 namespace compiler {
 
@@ -9,13 +9,13 @@ class CompilerResult {
    public:
     bool isSuccess;
     std::string message;
-    basic::Token token;
+    Token token;
 
     static CompilerResult success();
-    static CompilerResult error(std::string message, basic::Token token);
+    static CompilerResult error(std::string message, Token token);
 
    private:
-    CompilerResult(bool isSuccess, std::string message, basic::Token token);
+    CompilerResult(bool isSuccess, std::string message, Token token);
 };
 
 }  // namespace compiler

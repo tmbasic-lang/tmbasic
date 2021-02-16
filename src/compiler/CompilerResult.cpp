@@ -1,8 +1,5 @@
 #include "CompilerResult.h"
 
-using basic::Token;
-using basic::TokenKind;
-
 namespace compiler {
 
 CompilerResult::CompilerResult(bool isSuccess, std::string message, Token token)

@@ -1,13 +1,5 @@
 #include "bindProcedureSymbols.h"
 
-using basic::BodyNode;
-using basic::ExpressionNode;
-using basic::GlobalVariableNode;
-using basic::Node;
-using basic::ProcedureNode;
-using basic::StatementNode;
-using basic::SymbolReferenceExpressionNode;
-
 namespace compiler {
 
 enum class AddSymbolResult { kSuccess, kNoSymbolDeclaration, kDuplicateName };
@@ -50,7 +42,7 @@ class Scope {
     std::unordered_map<std::string, const Node&> _symbolDeclarations;
 };
 
-static Scope makeProcedureGlobalScope(ProcedureNode* procedure, const SourceProgram& program) {
+static Scope makeProcedureGlobalScope(ProcedureNode* /*procedure*/, const SourceProgram& /*program*/) {
     auto scope = Scope();
     /*for (auto& sourceMember : program.members) {
         const auto& globalVariable = program.globalVariables[i];
@@ -60,7 +52,7 @@ static Scope makeProcedureGlobalScope(ProcedureNode* procedure, const SourceProg
         (void)result;  // avoid unused variable error in release builds
         procedure->globalVariables.push_back(std::move(node));
     }*/
-    //TODO
+    // TODO(unknown):
     return scope;
 }
 

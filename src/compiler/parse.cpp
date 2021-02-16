@@ -4,67 +4,6 @@
 #include "shared/util/decimal.h"
 #include "shared/util/cast.h"
 
-using basic::AssignLocationSuffixNode;
-using basic::AssignStatementNode;
-using basic::BinaryExpressionNode;
-using basic::BinaryExpressionSuffixNode;
-using basic::BinaryOperator;
-using basic::BodyNode;
-using basic::CallExpressionNode;
-using basic::CallStatementNode;
-using basic::CaseNode;
-using basic::CaseValueNode;
-using basic::ConstStatementNode;
-using basic::ConstValueExpressionNode;
-using basic::ContinueScope;
-using basic::ContinueStatementNode;
-using basic::ConvertExpressionNode;
-using basic::DimListStatementNode;
-using basic::DimMapStatementNode;
-using basic::DimStatementNode;
-using basic::DoConditionNode;
-using basic::DoConditionPosition;
-using basic::DoConditionType;
-using basic::DoStatementNode;
-using basic::DottedExpressionNode;
-using basic::DottedExpressionSuffixNode;
-using basic::ElseIfNode;
-using basic::ExitScope;
-using basic::ExitStatementNode;
-using basic::ExpressionNode;
-using basic::FieldNode;
-using basic::ForEachStatementNode;
-using basic::ForStatementNode;
-using basic::ForStepNode;
-using basic::GroupKeyNameNode;
-using basic::GroupStatementNode;
-using basic::IfStatementNode;
-using basic::JoinStatementNode;
-using basic::Kind;
-using basic::LiteralArrayExpressionNode;
-using basic::LiteralBooleanExpressionNode;
-using basic::LiteralNumberExpressionNode;
-using basic::LiteralRecordExpressionNode;
-using basic::LiteralRecordFieldNode;
-using basic::LiteralStringExpressionNode;
-using basic::Node;
-using basic::NotExpressionNode;
-using basic::ParameterNode;
-using basic::ProcedureNode;
-using basic::ProgramNode;
-using basic::RethrowStatementNode;
-using basic::ReturnStatementNode;
-using basic::SelectCaseStatementNode;
-using basic::SelectStatementNode;
-using basic::StatementNode;
-using basic::SymbolReferenceExpressionNode;
-using basic::ThrowStatementNode;
-using basic::Token;
-using basic::TokenKind;
-using basic::TryStatementNode;
-using basic::TypeDeclarationNode;
-using basic::TypeNode;
-using basic::WhileStatementNode;
 using util::dynamic_cast_borrow;
 using util::dynamic_cast_move;
 using util::parseDecimalString;
@@ -2717,7 +2656,7 @@ static void pumpParse(std::stack<std::unique_ptr<ParseStackFrame>>* stack, Input
     }
 }
 
-static ParserResult parseRootProduction(const Production& production, const std::vector<basic::Token>& tokens) {
+static ParserResult parseRootProduction(const Production& production, const std::vector<Token>& tokens) {
     auto inputState = InputState(tokens);
     auto stack = std::stack<std::unique_ptr<ParseStackFrame>>();
 
@@ -2745,7 +2684,7 @@ static ParserResult parseRootProduction(const Production& production, const std:
     return ParserResult("This token was unexpected.", inputState.tokens[inputState.tokenIndex]);
 }
 
-ParserResult parse(ParserRootProduction rootProduction, const std::vector<basic::Token>& tokens) {
+ParserResult parse(ParserRootProduction rootProduction, const std::vector<Token>& tokens) {
     switch (rootProduction) {
         case ParserRootProduction::kMember:
             return parseRootProduction(*_productionCollection.memberProduction, tokens);

@@ -1,15 +1,15 @@
-ProgramNode
+compiler::ProgramNode
  members
-  ProcedureNode
+  compiler::ProcedureNode
    name=identity
    parameters
-    ParameterNode
+    compiler::ParameterNode
      name=x
      type
-      TypeNode
+      compiler::TypeNode
        kind=kNumber
    returnType
-    TypeNode
+    compiler::TypeNode
      kind=kNumber
    body
-    BodyNode
+    compiler::BodyNode

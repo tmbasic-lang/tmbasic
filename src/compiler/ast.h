@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../../common.h"
-#include "shared/basic/Token.h"
+#include "../common.h"
+#include "compiler/Token.h"
 
-namespace basic {
+namespace compiler {
 
 enum class MemberType {
     kNonMember,
@@ -702,4 +702,4 @@ class ProgramNode : public Node {
     void dump(std::ostringstream& s, int n) const override;
 };
 
-}  // namespace basic
+}  // namespace compiler

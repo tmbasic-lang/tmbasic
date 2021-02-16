@@ -2,10 +2,10 @@
 #include "compiler/tokenize.h"
 #include "gtest/gtest.h"
 #include "helpers.h"
-#include "shared/basic/TokenKind.h"
+#include "compiler/TokenKind.h"
 
-using basic::TokenKind;
 using compiler::tokenize;
+using compiler::TokenKind;
 
 static void scanMatch(std::string filenameWithoutExtension) {
     auto tok = readFile(filenameWithoutExtension + ".tok");

@@ -1,9 +1,9 @@
-#include "shared/basic/ast.h"
+#include "compiler/ast.h"
 #include "shared/util/decimal.h"
 
 using util::decimalToString;
 
-namespace basic {
+namespace compiler {
 
 static std::string indent(int n) {
     return std::string(n, ' ');
@@ -11,7 +11,7 @@ static std::string indent(int n) {
 
 static std::string stripNamespace(std::string_view sv) {
     auto s = std::string(sv);
-    return std::regex_replace(s, std::regex("^basic::"), "");
+    return std::regex_replace(s, std::regex("^"), "");
 }
 
 // NOLINTNEXTLINE
@@ -1127,4 +1127,4 @@ void ProgramNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODES(members);
 }
 
-}  // namespace basic
+}  // namespace compiler

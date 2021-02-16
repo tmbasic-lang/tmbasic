@@ -3,16 +3,16 @@
 #include "compiler/tokenize.h"
 #include "gtest/gtest.h"
 #include "helpers.h"
-#include "shared/basic/ast.h"
+#include "compiler/ast.h"
 #include "shared/util/cast.h"
 
-using basic::Node;
-using basic::ProgramNode;
-using basic::Token;
-using basic::TokenKind;
+using compiler::Node;
 using compiler::parse;
 using compiler::ParserRootProduction;
+using compiler::ProgramNode;
+using compiler::Token;
 using compiler::tokenize;
+using compiler::TokenKind;
 using util::dynamic_cast_borrow;
 
 static std::string dump(const Node& node) {
@@ -41,7 +41,7 @@ static void parseMatch(std::string filenameWithoutExtension) {
 
 TEST(ParserTest, SingleProgramNodeDump) {
     auto n = ProgramNode(std::vector<std::unique_ptr<Node>>(), Token(0, 0, TokenKind::kEndOfFile, ""));
-    ASSERT_EQ("ProgramNode\n", dump(n));
+    ASSERT_EQ("compiler::ProgramNode\n", dump(n));
 }
 
 TEST(ParserTest, ParseEmpty) {

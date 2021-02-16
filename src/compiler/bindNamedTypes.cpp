@@ -1,9 +1,5 @@
 #include "compiler/bindNamedTypes.h"
 
-using basic::BodyNode;
-using basic::ProcedureNode;
-using basic::TypeNode;
-
 namespace compiler {
 
 static CompilerResult bindNamedTypesInType(TypeNode* typeNode, const vm::Program& program) {
@@ -50,9 +46,9 @@ static CompilerResult bindNamedTypesInType(TypeNode* typeNode, const vm::Program
     return CompilerResult::success();
 }
 
-static CompilerResult bindNamedTypesInBody(basic::BodyNode* body, const vm::Program& program);
+static CompilerResult bindNamedTypesInBody(BodyNode* body, const vm::Program& program);
 
-static CompilerResult bindNamedTypesInStatement(basic::StatementNode* node, const vm::Program& program) {
+static CompilerResult bindNamedTypesInStatement(StatementNode* node, const vm::Program& program) {
     auto result = CompilerResult::success();
 
     auto* childTypeNode = node->getChildTypeNode();

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../../common.h"
-#include "shared/basic/TokenKind.h"
+#include "../common.h"
+#include "compiler/TokenKind.h"
 
-namespace basic {
+namespace compiler {
 
 class Token {
    public:
@@ -21,4 +21,4 @@ class Token {
     Token& operator=(const Token&) = delete;
 };
 
-}  // namespace basic
+}  // namespace compiler

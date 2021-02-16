@@ -1,10 +1,10 @@
 #pragma once
 
 #include "../common.h"
-#include "shared/basic/Token.h"
+#include "compiler/Token.h"
 
 namespace compiler {
 
-std::vector<basic::Token> tokenize(const std::string& input);
+std::vector<Token> tokenize(const std::string& input);
 
 }  // namespace compiler

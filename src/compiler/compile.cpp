@@ -4,10 +4,6 @@
 #include "compiler/tokenize.h"
 #include "shared/util/cast.h"
 
-using basic::MemberType;
-using basic::ProcedureNode;
-using basic::Token;
-using basic::TokenKind;
 using util::dynamic_cast_move;
 
 namespace compiler {

@@ -1,8 +1,5 @@
 #include "ParserResult.h"
 
-using basic::Node;
-using basic::Token;
-
 namespace compiler {
 
 ParserResult::ParserResult(std::string message, Token token)

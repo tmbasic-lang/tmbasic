@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../../common.h"
+#include "../common.h"
 
-namespace basic {
+namespace compiler {
 
 enum class TokenKind {
     kError,
@@ -98,4 +98,4 @@ enum class TokenKind {
     kWith
 };
 
-}  // namespace basic
+}  // namespace compiler

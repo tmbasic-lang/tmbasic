@@ -1,6 +1,6 @@
 #include "Token.h"
 
-namespace basic {
+namespace compiler {
 
 Token::Token() = default;
 
@@ -22,4 +22,4 @@ Token& Token::operator=(Token&& other) noexcept {
     return *this;
 }
 
-}  // namespace basic
+}  // namespace compiler

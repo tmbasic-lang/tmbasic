@@ -1,8 +1,5 @@
 #include "compiler/tokenize.h"
 
-using basic::Token;
-using basic::TokenKind;
-
 namespace compiler {
 
 class Scanner {
