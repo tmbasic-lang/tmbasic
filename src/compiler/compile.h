@@ -2,11 +2,10 @@
 
 #include "../common.h"
 #include "compiler/CompilerResult.h"
-#include "shared/vm/Procedure.h"
-#include "shared/vm/Program.h"
+#include "compiler/SourceProgram.h"
 
 namespace compiler {
 
-CompilerResult compile(vm::Procedure* procedure, vm::Program* program);
+CompilerResult compile(const SourceMember& member, const SourceProgram& program);
 
 }  // namespace compiler

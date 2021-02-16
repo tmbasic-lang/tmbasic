@@ -9,8 +9,6 @@ using basic::ProcedureNode;
 using basic::Token;
 using basic::TokenKind;
 using util::dynamic_cast_move;
-using vm::Procedure;
-using vm::Program;
 
 namespace compiler {
 
@@ -30,11 +28,8 @@ static void removeBlankLines(std::vector<Token>* tokens) {
     }
 }
 
-CompilerResult compile(Procedure* procedure, Program* program) {
-    // source is missing if we're executing a precompiled program, which shouldn't run the compiler
-    assert(procedure->source.has_value());
-
-    auto tokens = tokenize(*procedure->source);
+CompilerResult compile(const SourceMember& member, const SourceProgram& program) {
+    auto tokens = tokenize(member.source);
     removeComments(&tokens);
     removeBlankLines(&tokens);
 
@@ -47,7 +42,7 @@ CompilerResult compile(Procedure* procedure, Program* program) {
     }
     auto procedureNode = dynamic_cast_move<ProcedureNode>(std::move(parserResult.node));
 
-    auto compilerResult = bindProcedureSymbols(procedureNode.get(), *program);
+    auto compilerResult = bindProcedureSymbols(procedureNode.get(), program);
     if (!compilerResult.isSuccess) {
         return compilerResult;
     }

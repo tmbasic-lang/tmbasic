@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../common.h"
-#include "shared/vm/ProgramMember.h"
 
 namespace compiler {
 
@@ -17,7 +16,6 @@ class SourceMember {
     int selectionStart;
     int selectionEnd;
 
-    vm::ProgramMember* compiledMember = nullptr;
     bool isCompiledMemberUpToDate = false;
 
     SourceMember(SourceMemberType memberType, std::string source, int selectionStart, int selectionEnd);

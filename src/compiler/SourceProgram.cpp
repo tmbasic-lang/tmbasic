@@ -165,7 +165,7 @@ void SourceProgram::save(const std::string& filePath) const {
 
     for (const auto* member : sortMembers(this)) {
         auto trimmedSource = boost::trim_copy(member->source);
-        if (member->isCompiledMemberUpToDate && (member->compiledMember != nullptr)) {
+        if (member->isCompiledMemberUpToDate) {
             // this code was compiled successfully so we know it's valid
             stream << trimmedSource << "\n\n";
         } else {

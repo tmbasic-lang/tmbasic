@@ -655,8 +655,9 @@ class ParameterNode : public Node {
 class GlobalVariableNode : public Node {
    public:
     std::string name;
+    bool isValue;
     size_t index;
-    GlobalVariableNode(std::string name, size_t index);
+    GlobalVariableNode(std::string name, bool isValue, size_t index);
     void dump(std::ostringstream& s, int n) const override;
     std::optional<std::string> getSymbolDeclaration() const override;
 };

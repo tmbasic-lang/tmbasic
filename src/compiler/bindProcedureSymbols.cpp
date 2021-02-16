@@ -50,16 +50,17 @@ class Scope {
     std::unordered_map<std::string, const Node&> _symbolDeclarations;
 };
 
-static Scope makeProcedureGlobalScope(ProcedureNode* procedure, const vm::Program& program) {
+static Scope makeProcedureGlobalScope(ProcedureNode* procedure, const SourceProgram& program) {
     auto scope = Scope();
-    for (size_t i = 0; i < program.globalVariables.size(); i++) {
+    /*for (auto& sourceMember : program.members) {
         const auto& globalVariable = program.globalVariables[i];
         auto node = std::make_unique<GlobalVariableNode>(globalVariable->name, i);
         auto result = scope.addSymbol(*node);
         assert(result == AddSymbolResult::kSuccess);
         (void)result;  // avoid unused variable error in release builds
         procedure->globalVariables.push_back(std::move(node));
-    }
+    }*/
+    //TODO
     return scope;
 }
 
@@ -150,7 +151,7 @@ CompilerResult bindBodySymbols(BodyNode* node, Scope* scope) {
     return CompilerResult::success();
 }
 
-CompilerResult bindProcedureSymbols(ProcedureNode* procedure, const vm::Program& program) {
+CompilerResult bindProcedureSymbols(ProcedureNode* procedure, const SourceProgram& program) {
     auto globalScope = makeProcedureGlobalScope(procedure, program);
     auto procedureScope = Scope(&globalScope);
 

@@ -1052,8 +1052,8 @@ std::optional<std::string> ParameterNode::getSymbolDeclaration() const {
     return name;
 }
 
-GlobalVariableNode::GlobalVariableNode(std::string name, size_t index)
-    : Node(Token(0, 0, TokenKind::kError, "")), name(std::move(name)), index(index) {}
+GlobalVariableNode::GlobalVariableNode(std::string name, bool isValue, size_t index)
+    : Node(Token(0, 0, TokenKind::kError, "")), name(std::move(name)), isValue(isValue), index(index) {}
 
 void GlobalVariableNode::dump(std::ostringstream& s, int n) const {
     DUMP_TYPE(GlobalVariableNode);
