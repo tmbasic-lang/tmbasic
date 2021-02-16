@@ -52,7 +52,7 @@ static void run(string filenameWithoutExtension) {
     auto program = assemble(&sourceStream);
     istringstream consoleInputStream(input);
     ostringstream consoleOutputStream;
-    auto interpreter = make_unique<Interpreter>(*program, &consoleInputStream, &consoleOutputStream);
+    auto interpreter = make_unique<Interpreter>(program.get(), &consoleInputStream, &consoleOutputStream);
     interpreter->init(0);
     while (interpreter->run(10000)) {
     }

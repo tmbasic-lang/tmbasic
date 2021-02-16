@@ -136,6 +136,11 @@ enum class Opcode {
     kObjectOptionalNewMissing,  // X = new ObjectOptional
     kObjectOptionalNewPresent,  // X = new ObjectOptional, item = X
 
+    kValueGlobalStore,   // <2b> GlobalValues[operand] = A
+    kValueGlobalLoad,    // <2b> A = GlobalValues[operand]
+    kObjectGlobalStore,  // <2b> GlobalObjects[operand] = X
+    kObjectGlobalLoad,   // <2b> X = GlobalObjects[operand]
+
     kStringMid,        // X=input, A=startIndex, B=length. store "" or substring in X
     kStringIndexOf,    // X=haystack, Y=needle, A=startIndex. store -1 or index in A
     kStringAsc,        // X=string, A=index. store -1 or X[A] into A

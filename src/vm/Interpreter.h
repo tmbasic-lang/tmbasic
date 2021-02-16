@@ -13,12 +13,12 @@ namespace vm {
 
 class Interpreter {
    public:
-    explicit Interpreter(const Program& program, std::istream* consoleInputStream, std::ostream* consoleOutputStream);
+    Interpreter(Program* program, std::istream* consoleInputStream, std::ostream* consoleOutputStream);
     void init(int procedureIndex);
     bool run(int maxCycles);
 
    private:
-    const Program& _program;
+    Program* _program;
     std::istream* _consoleInputStream;
     std::ostream* _consoleOutputStream;
 

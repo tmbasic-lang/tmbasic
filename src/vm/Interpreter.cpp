@@ -34,7 +34,7 @@ static int16_t readInt16(const uint8_t* ptr) {
     return value;
 }
 
-Interpreter::Interpreter(const Program& program, std::istream* consoleInputStream, std::ostream* consoleOutputStream)
+Interpreter::Interpreter(Program* program, std::istream* consoleInputStream, std::ostream* consoleOutputStream)
     : _program(program), _consoleInputStream(consoleInputStream), _consoleOutputStream(consoleOutputStream) {}
 
 void Interpreter::init(int procedureIndex) {
@@ -42,7 +42,7 @@ void Interpreter::init(int procedureIndex) {
     _recordBuilderStack = {};
     _objectListBuilderStack = {};
     _valueListBuilderStack = {};
-    _procedure = _program.procedures[procedureIndex].get();
+    _procedure = _program->procedures[procedureIndex].get();
     _a = {};
     _b = {};
     _x = nullptr;
@@ -411,8 +411,8 @@ bool Interpreter::run(int maxCycles) {
                 // B: procedure index
                 auto callProcedureIndex = readUint16(&instructions->at(instructionIndex + 1));
                 assert(callProcedureIndex >= 0);
-                assert(callProcedureIndex < _program.procedures.size());
-                auto& callProcedure = *_program.procedures[callProcedureIndex];
+                assert(callProcedureIndex < _program->procedures.size());
+                auto& callProcedure = *_program->procedures[callProcedureIndex];
                 instructionIndex += /*A*/ 1 + /*B*/ 2;
                 _callStack.push(CallFrame(procedure, instructionIndex, vsi, osi));
                 procedure = &callProcedure;
@@ -1001,6 +1001,38 @@ bool Interpreter::run(int maxCycles) {
                 x = boost::make_local_shared<ObjectOptional>(x);
                 instructionIndex++;
                 break;
+
+            case Opcode::kValueGlobalStore: {
+                // ABB; A: opcode, B: index
+                auto index = readUint16(&instructions->at(instructionIndex + 1));
+                _program->globalValues.at(index) = a;
+                instructionIndex += /*A*/ 1 + /*B*/ 2;
+                break;
+            }
+
+            case Opcode::kValueGlobalLoad: {
+                // ABB; A: opcode, B: index
+                auto index = readUint16(&instructions->at(instructionIndex + 1));
+                a = _program->globalValues.at(index);
+                instructionIndex += /*A*/ 1 + /*B*/ 2;
+                break;
+            }
+
+            case Opcode::kObjectGlobalStore: {
+                // ABB; A: opcode, B: index
+                auto index = readUint16(&instructions->at(instructionIndex + 1));
+                _program->globalObjects.at(index) = x;
+                instructionIndex += /*A*/ 1 + /*B*/ 2;
+                break;
+            }
+
+            case Opcode::kObjectGlobalLoad: {
+                // ABB; A: opcode, B: index
+                auto index = readUint16(&instructions->at(instructionIndex + 1));
+                x = _program->globalObjects.at(index);
+                instructionIndex += /*A*/ 1 + /*B*/ 2;
+                break;
+            }
 
             case Opcode::kStringMid: {
                 assert(x != nullptr);
