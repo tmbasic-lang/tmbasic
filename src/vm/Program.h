@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../../common.h"
-#include "shared/vm/Object.h"
-#include "shared/vm/Procedure.h"
-#include "shared/vm/Value.h"
+#include "../common.h"
+#include "vm/Object.h"
+#include "vm/Procedure.h"
+#include "vm/Value.h"
 
 namespace vm {
 

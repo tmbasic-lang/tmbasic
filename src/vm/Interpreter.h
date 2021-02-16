@@ -1,13 +1,13 @@
 #pragma once
 
-#include "../../common.h"
-#include "shared/vm/CallFrame.h"
-#include "shared/vm/List.h"
-#include "shared/vm/Object.h"
-#include "shared/vm/Program.h"
-#include "shared/vm/RecordBuilder.h"
-#include "shared/vm/Value.h"
-#include "shared/vm/constants.h"
+#include "../common.h"
+#include "vm/CallFrame.h"
+#include "vm/List.h"
+#include "vm/Object.h"
+#include "vm/Program.h"
+#include "vm/RecordBuilder.h"
+#include "vm/Value.h"
+#include "vm/constants.h"
 
 namespace vm {
 

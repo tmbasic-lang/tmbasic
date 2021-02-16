@@ -3,7 +3,7 @@
 #include "../common.h"
 #include "compiler/CompilerResult.h"
 #include "compiler/ast.h"
-#include "shared/vm/Program.h"
+#include "vm/Program.h"
 
 namespace compiler {
 

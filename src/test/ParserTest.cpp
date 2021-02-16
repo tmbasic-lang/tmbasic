@@ -4,7 +4,7 @@
 #include "gtest/gtest.h"
 #include "helpers.h"
 #include "compiler/ast.h"
-#include "shared/util/cast.h"
+#include "util/cast.h"
 
 using compiler::Node;
 using compiler::parse;

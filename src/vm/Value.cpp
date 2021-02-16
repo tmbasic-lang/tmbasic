@@ -1,5 +1,5 @@
 #include "Value.h"
-#include "shared/util/decimal.h"
+#include "util/decimal.h"
 
 namespace vm {
 

@@ -1,7 +1,7 @@
 #include "tmbasic/App.h"
 #include "../../obj/resources/help/helpfile.h"
 #include "compiler/SourceProgram.h"
-#include "shared/util/membuf.h"
+#include "util/membuf.h"
 #include "tmbasic/AboutDialog.h"
 #include "tmbasic/DesignerWindow.h"
 #include "tmbasic/DialogPtr.h"

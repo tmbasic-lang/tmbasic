@@ -1,5 +1,5 @@
 #include "compiler/ast.h"
-#include "shared/util/decimal.h"
+#include "util/decimal.h"
 
 using util::decimalToString;
 

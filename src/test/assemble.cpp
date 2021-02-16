@@ -1,8 +1,8 @@
 #include "assemble.h"
-#include "shared/vm/Opcode.h"
-#include "shared/vm/Procedure.h"
-#include "shared/vm/Program.h"
-#include "shared/vm/systemCall.h"
+#include "vm/Opcode.h"
+#include "vm/Procedure.h"
+#include "vm/Program.h"
+#include "vm/systemCall.h"
 
 using std::array;
 using std::getline;
@@ -23,7 +23,7 @@ using vm::SystemCall;
 
 static Opcode parseOpcode(string s) {
     // generate this map using:
-    // grep , src/shared/vm/Opcode.h | sed s/,//g | awk '{ print "{\"" $1 "\",Opcode::" $1 "}," }' | sed 's/"k/"/g'
+    // grep , src/vm/Opcode.h | sed s/,//g | awk '{ print "{\"" $1 "\",Opcode::" $1 "}," }' | sed 's/"k/"/g'
     static const std::unordered_map<string, Opcode> map = {
         { "Exit", Opcode::kExit },
         { "LoadConstantA", Opcode::kLoadConstantA },
@@ -160,7 +160,7 @@ static Opcode parseOpcode(string s) {
 
 static SystemCall parseSystemCall(string s) {
     // generate this map using:
-    /* grep "^    k" src/shared/vm/systemCall.h | sed s/,//g | awk '{ print "{\"" $1 "\",SystemCall::" $1 "}," }' | \
+    /* grep "^    k" src/vm/systemCall.h | sed s/,//g | awk '{ print "{\"" $1 "\",SystemCall::" $1 "}," }' | \
      sed 's/"k/"/g'
     */
     static const std::unordered_map<string, SystemCall> map = {

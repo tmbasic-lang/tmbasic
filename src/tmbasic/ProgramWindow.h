@@ -2,7 +2,7 @@
 
 #include "../common.h"
 #include "compiler/SourceProgram.h"
-#include "shared/vm/Program.h"
+#include "vm/Program.h"
 #include "tmbasic/EditorWindow.h"
 #include "tmbasic/SourceMemberTypesListBox.h"
 #include "tmbasic/SourceMembersListBox.h"

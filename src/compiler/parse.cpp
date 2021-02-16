@@ -1,8 +1,8 @@
 // compile with -DDUMP_PARSE to dump AST parse tree to std::cerr
 
 #include "compiler/parse.h"
-#include "shared/util/decimal.h"
-#include "shared/util/cast.h"
+#include "util/decimal.h"
+#include "util/cast.h"
 
 using util::dynamic_cast_borrow;
 using util::dynamic_cast_move;

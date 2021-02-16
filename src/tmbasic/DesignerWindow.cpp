@@ -1,6 +1,6 @@
 #include "tmbasic/DesignerWindow.h"
 #include "../../obj/resources/help/helpfile.h"
-#include "shared/vm/UserForm.h"
+#include "vm/UserForm.h"
 #include "tmbasic/DesignerFormPropertiesDialog.h"
 #include "tmbasic/DesignerGridView.h"
 #include "tmbasic/DialogPtr.h"

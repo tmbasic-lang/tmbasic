@@ -87,9 +87,12 @@ COMPILER_OBJ_FILES=$(patsubst src/%,obj/%,$(COMPILER_SRC_FILES:.cpp=.o))
 RUNNER_SRC_FILES=$(shell find src/runner -type f -name "*.cpp")
 RUNNER_H_FILES=$(shell find src/runner -type f -name "*.h")
 RUNNER_OBJ_FILES=$(patsubst src/%,obj/%,$(RUNNER_SRC_FILES:.cpp=.o))
-SHARED_SRC_FILES=$(shell find src/shared -type f -name "*.cpp")
-SHARED_H_FILES=$(shell find src/shared -type f -name "*.h")
-SHARED_OBJ_FILES=$(patsubst src/%,obj/%,$(SHARED_SRC_FILES:.cpp=.o))
+VM_SRC_FILES=$(shell find src/vm -type f -name "*.cpp")
+VM_H_FILES=$(shell find src/vm -type f -name "*.h")
+VM_OBJ_FILES=$(patsubst src/%,obj/%,$(VM_SRC_FILES:.cpp=.o))
+UTIL_SRC_FILES=$(shell find src/util -type f -name "*.cpp")
+UTIL_H_FILES=$(shell find src/util -type f -name "*.h")
+UTIL_OBJ_FILES=$(patsubst src/%,obj/%,$(UTIL_SRC_FILES:.cpp=.o))
 TEST_SRC_FILES=$(shell find src/test -type f -name "*.cpp")
 TEST_H_FILES=$(shell find src/test -type f -name "*.h")
 TEST_OBJ_FILES=$(patsubst src/%,obj/%,$(TEST_SRC_FILES:.cpp=.o))
@@ -98,7 +101,7 @@ TMBASIC_H_FILES=$(shell find src/tmbasic -type f -name "*.h")
 TMBASIC_OBJ_FILES=$(patsubst src/%,obj/%,$(TMBASIC_SRC_FILES:.cpp=.o))
 
 # tidy files
-ALL_NON_TEST_CPP_FILES=$(COMPILER_SRC_FILES) $(RUNNER_SRC_FILES) $(SHARED_SRC_FILES) $(TMBASIC_SRC_FILES)
+ALL_NON_TEST_CPP_FILES=$(COMPILER_SRC_FILES) $(RUNNER_SRC_FILES) $(UTIL_SRC_FILES) $(VM_SRC_FILES) $(TMBASIC_SRC_FILES)
 TIDY_TARGETS=$(patsubst src/%,obj/tidy/%,$(ALL_NON_TEST_CPP_FILES:.cpp=.tidy))
 
 # ghpages files
@@ -555,7 +558,7 @@ $(PROCEDURES_CP437_FILES): obj/doc-temp/procedures-cp437/%: doc/procedures/%
 
 # compiler ------------------------------------------------------------------------------------------------------------
 
-$(COMPILER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(SHARED_H_FILES) $(COMPILER_H_FILES)
+$(COMPILER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(UTIL_H_FILES) $(VM_H_FILES) $(COMPILER_H_FILES)
 	@printf "%16s  %s\n" "$(CXX)" "$@"
 	@mkdir -p $(@D)
 	@$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
@@ -567,17 +570,31 @@ obj/compiler.a: $(COMPILER_OBJ_FILES)
 
 
 
-# shared --------------------------------------------------------------------------------------------------------------
+# util ----------------------------------------------------------------------------------------------------------------
 
-$(SHARED_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(SHARED_H_FILES)
+$(UTIL_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(UTIL_H_FILES)
 	@printf "%16s  %s\n" "$(CXX)" "$@"
 	@mkdir -p $(@D)
 	@$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
 
-obj/shared.a: $(SHARED_OBJ_FILES)
+obj/util.a: $(UTIL_OBJ_FILES)
 	@printf "%16s  %s\n" "$(AR)" "$@"
 	@mkdir -p $(@D)
-	@$(AR) rcs $@ $(SHARED_OBJ_FILES)
+	@$(AR) rcs $@ $(UTIL_OBJ_FILES)
+
+
+
+# vm ------------------------------------------------------------------------------------------------------------------
+
+$(VM_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(VM_H_FILES)
+	@printf "%16s  %s\n" "$(CXX)" "$@"
+	@mkdir -p $(@D)
+	@$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
+
+obj/vm.a: $(VM_OBJ_FILES)
+	@printf "%16s  %s\n" "$(AR)" "$@"
+	@mkdir -p $(@D)
+	@$(AR) rcs $@ $(VM_OBJ_FILES)
 
 
 
@@ -609,14 +626,16 @@ $(TMBASIC_OBJ_FILES): obj/%.o: src/%.cpp \
 		obj/resources/help/helpfile.h \
 		obj/resources/help/help.h32 \
 		$(COMPILER_H_FILES) \
-		$(SHARED_H_FILES) \
+		$(UTIL_H_FILES) \
+		$(VM_H_FILES) \
 		$(TMBASIC_H_FILES)
 	@printf "%16s  %s\n" "$(CXX)" "$@"
 	@mkdir -p $(@D)
 	@$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
 
 bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
-		obj/shared.a \
+		obj/util.a \
+		obj/vm.a \
 		obj/compiler.a \
 		obj/common.h.gch \
 		obj/resources/help/helpfile.h \
@@ -630,7 +649,8 @@ bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
 		$(CXXFLAGS) \
 		$(STATIC_FLAG) \
 		-include obj/common.h \
-		obj/shared.a \
+		obj/util.a \
+		obj/vm.a \
 		obj/compiler.a \
 		-ltvision \
 		obj/resources/help/helpfile.o \
@@ -648,13 +668,15 @@ $(TEST_OBJ_FILES): obj/%.o: src/%.cpp \
 		obj/resources/help/helpfile.h \
 		obj/resources/help/help.h32 \
 		$(COMPILER_H_FILES) \
-		$(SHARED_H_FILES)
+		$(UTIL_H_FILES) \
+		$(VM_H_FILES)
 	@printf "%16s  %s\n" "$(CXX)" "$@"
 	@mkdir -p $(@D)
 	@$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
 
 bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) \
-		obj/shared.a \
+		obj/util.a \
+		obj/vm.a \
 		obj/compiler.a \
 		obj/common.h.gch \
 		obj/resources/help/helpfile.h \
@@ -668,7 +690,8 @@ bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) \
 		$(CXXFLAGS) \
 		-include obj/common.h \
 		$(TEST_OBJ_FILES) \
-		obj/shared.a \
+		obj/util.a \
+		obj/vm.a \
 		obj/compiler.a \
 		-ltvision \
 		obj/resources/help/helpfile.o \
@@ -684,7 +707,7 @@ bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) \
 # We build several versions that are identical except for the length of the dummy pcode they have embedded.
 # We ship the 100KB runner and a set of binary patches to convert the 100KB runner to the other sizes.
 
-$(RUNNER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(SHARED_H_FILES) $(RUNNER_H_FILES)
+$(RUNNER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(UTIL_H_FILES) $(VM_H_FILES) $(RUNNER_H_FILES)
 	@printf "%16s  %s\n" "$(CXX)" "$@"
 	@mkdir -p $(@D)
 	@$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
@@ -695,7 +718,7 @@ $(patsubst %,obj/resources/pcode/%,$(RUNNER_SIZES:=.o)): %:
 	@OBJ_FILE=$@ CXX=$(CXX) build/scripts/pcodeRes.sh
 
 $(THIS_PLATFORM_RUNNER_BIN_FILES): bin/runners/%$(EXE_EXTENSION): \
-		obj/resources/pcode/%.o $(RUNNER_OBJ_FILES) obj/shared.a
+		obj/resources/pcode/%.o $(RUNNER_OBJ_FILES) obj/util.a obj/vm.a
 	@printf "%16s  %s\n" "$(CXX)" "$@"
 	@mkdir -p $(@D)
 	@$(CXX) \
@@ -705,7 +728,8 @@ $(THIS_PLATFORM_RUNNER_BIN_FILES): bin/runners/%$(EXE_EXTENSION): \
 		-include obj/common.h \
 		$(RUNNER_OBJ_FILES) \
 		obj/resources/pcode/$(patsubst bin/runners/%$(EXE_EXTENSION),%,$@).o \
-		obj/shared.a \
+		obj/util.a \
+		obj/vm.a \
 		-ltvision \
 		$(LDFLAGS)
 	@$(STRIP) $@

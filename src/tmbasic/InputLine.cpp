@@ -1,5 +1,5 @@
 #include "InputLine.h"
-#include "shared/util/minmax.h"
+#include "util/minmax.h"
 
 namespace tmbasic {
 

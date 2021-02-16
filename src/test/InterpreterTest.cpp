@@ -2,9 +2,9 @@
 #include "assemble.h"
 #include "gtest/gtest.h"
 #include "helpers.h"
-#include "shared/vm/Interpreter.h"
-#include "shared/vm/Procedure.h"
-#include "shared/vm/Program.h"
+#include "vm/Interpreter.h"
+#include "vm/Procedure.h"
+#include "vm/Program.h"
 
 using std::istringstream;
 using std::make_unique;

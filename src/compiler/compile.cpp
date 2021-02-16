@@ -2,7 +2,7 @@
 #include "compiler/bindProcedureSymbols.h"
 #include "compiler/parse.h"
 #include "compiler/tokenize.h"
-#include "shared/util/cast.h"
+#include "util/cast.h"
 
 using util::dynamic_cast_move;
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../common.h"
-#include "shared/vm/Procedure.h"
+#include "vm/Procedure.h"
 #include "compiler/ast.h"
 
 namespace compiler {

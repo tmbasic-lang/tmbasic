@@ -4,7 +4,7 @@
 #include "Label.h"
 #include "RowLayout.h"
 #include "constants.h"
-#include "shared/vm/UserForm.h"
+#include "vm/UserForm.h"
 #include "tvutil.h"
 
 using vm::UserForm;

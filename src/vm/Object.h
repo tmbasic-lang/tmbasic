@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../common.h"
-#include "shared/vm/ObjectType.h"
+#include "../common.h"
+#include "vm/ObjectType.h"
 
 namespace vm {
 

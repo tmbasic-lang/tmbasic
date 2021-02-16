@@ -5,7 +5,7 @@
 #include "Optional.h"
 #include "Record.h"
 #include "String.h"
-#include "shared/util/decimal.h"
+#include "util/decimal.h"
 #include "systemCall.h"
 
 namespace vm {

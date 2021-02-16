@@ -3,7 +3,7 @@
 #include "../common.h"
 #include "CheckBoxes.h"
 #include "InputLine.h"
-#include "shared/vm/UserForm.h"
+#include "vm/UserForm.h"
 
 namespace tmbasic {
 
