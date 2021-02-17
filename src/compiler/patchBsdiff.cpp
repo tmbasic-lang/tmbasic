@@ -13,7 +13,7 @@ struct BspatchState {
 // bspatch.h isn't valid C++ so let's just define the necessary stuff here ourselves in a C++-friendly format.
 // while we're at it, we can substitute our own opaque pointer type in place of the void* used in the original.
 struct bspatch_stream {
-    BspatchState* opaque;  // handle to the current location in the data
+    BspatchState* opaque;
     int (*read)(const bspatch_stream* stream, void* buffer, int length);
 };
 
