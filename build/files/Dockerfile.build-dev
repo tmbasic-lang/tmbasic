@@ -29,11 +29,9 @@ RUN apt-get update -y && \
 
 # unprivileged user
 RUN mkdir -p /code && \
-    mkdir -p /pkgsrc && \
     groupadd -g $HOST_GID $USER && \
     useradd -r -u $HOST_UID -g $HOST_GID $USER && \
     chown $HOST_UID:$HOST_GID /code && \
-    chown $HOST_UID:$HOST_GID /pkgsrc && \
     mkdir -p /home/$USER && \
     chown $HOST_UID:$HOST_GID /home/$USER
 
