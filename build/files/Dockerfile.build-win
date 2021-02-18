@@ -26,9 +26,9 @@ RUN echo "[multilib]" >> /etc/pacman.conf && \
 
 # mpdecimal
 RUN cd /tmp && \
-    curl -L -o mpdecimal.tar.gz http://www.bytereef.org/software/mpdecimal/releases/mpdecimal-2.5.0.tar.gz && \
+    curl -L -o mpdecimal.tar.gz https://www.bytereef.org/software/mpdecimal/releases/mpdecimal-2.5.1.tar.gz && \
     tar zxf mpdecimal.tar.gz && \
-    cd mpdecimal-2.5.0 && \
+    cd mpdecimal-*/ && \
     ./configure --host=$ARCH-w64-mingw32 && \
     cd libmpdec && \
     make libmpdec.a -j2 && \

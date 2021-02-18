@@ -126,6 +126,20 @@ pngcrush -brute -reduce -ow screenshot.png
     - `build/files/Dockerfile.build-win`
 1. Commit as "Update tvision to commit ____"
 
+### mpdecimal
+1. https://www.bytereef.org/mpdecimal/download.html
+    - Download the stable version tarball.
+    - Copy the link.
+1. Edit `ext/README.md` and replace the mpdecimal link.
+1. Upload to S3: `aws s3 cp mpdecimal-X.X.X.tar.gz s3://tmbasic/mpdecimal/ --acl public-read` (use the downloaded filename)
+1. Edit `ext/README.md` and replace the mirror link. Test the mirror link to make sure it works.
+1. Update the URL in the following files:
+    - `build/mac-x64.sh`
+    - `build/files/Dockerfile.build-dev`
+    - `build/files/Dockerfile.build-linux`
+    - `build/files/Dockerfile.build-win`
+1. Commit as "Update mpdecimal to version ____"
+
 ### nameof
 1. https://github.com/Neargye/nameof/releases/
 1. Copy the `nameof.hpp` link. Use `wget` to download, overwriting `ext/nameof/nameof.hpp`.

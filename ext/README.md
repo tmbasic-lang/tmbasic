@@ -28,8 +28,8 @@ A mirror of all external library sources is stored in a requester-pays S3 bucket
 
 ### [mpdecimal](https://www.bytereef.org/mpdecimal/)
 - License: [BSD license](https://github.com/electroly/tmbasic/blob/master/ext/mpdecimal/LICENSE.txt)
-- Source: http://www.bytereef.org/software/mpdecimal/releases/mpdecimal-2.5.0.tar.gz
-    - Mirror: `s3://tmbasic/mpdecimal/mpdecimal-2.5.0.tar.gz`
+- Source: https://www.bytereef.org/software/mpdecimal/releases/mpdecimal-2.5.1.tar.gz
+    - Mirror: `s3://tmbasic/mpdecimal/mpdecimal-2.5.1.tar.gz`
 
 ### [musl](https://musl.libc.org/)
 - License: [MIT license](https://github.com/electroly/tmbasic/blob/master/ext/musl/COPYRIGHT)
