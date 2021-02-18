@@ -12,7 +12,6 @@ RUN apk update && \
         openssl \
         openssl-dev \
         cmake \
-        boost-dev \
         valgrind \
         gtest-dev \
         alpine-sdk \
@@ -32,6 +31,12 @@ RUN abuild-keygen && \
     echo "PACKAGER_PRIVKEY=\"$(ls /home/$USER/.abuild/*.rsa)\"" > /home/$USER/.abuild/abuild.conf
 USER 0
 RUN cp /home/$USER/.abuild/*.rsa.pub /etc/apk/keys/
+
+# boost
+RUN cd /tmp && \
+    curl -L -o boost.tar.gz https://dl.bintray.com/boostorg/release/1.75.0/source/boost_1_75_0.tar.gz && \
+    tar zxf boost.tar.gz && \
+    mv boost_*/boost /usr/include/
 
 # ncurses
 USER $HOST_UID

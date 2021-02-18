@@ -14,7 +14,7 @@ fi
 
 if [ ! -d "boost" ]
 then
-    curl -L -o boost.tar.gz https://dl.bintray.com/boostorg/release/1.74.0/source/boost_1_74_0.tar.gz
+    curl -L -o boost.tar.gz https://dl.bintray.com/boostorg/release/1.75.0/source/boost_1_75_0.tar.gz
     tar zxf boost.tar.gz
     mv boost_* boost
 fi

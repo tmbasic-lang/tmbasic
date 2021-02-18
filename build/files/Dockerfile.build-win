@@ -42,7 +42,10 @@ RUN cd /tmp && \
     cp -f *.hh /usr/include/libmpdec++/
 
 # boost
-RUN ln -s /usr/include/boost /usr/$ARCH-w64-mingw32/include/
+RUN cd /tmp && \
+    curl -L -o boost.tar.gz https://dl.bintray.com/boostorg/release/1.75.0/source/boost_1_75_0.tar.gz && \
+    tar zxf boost.tar.gz && \
+    mv boost_*/boost /usr/$ARCH-w64-mingw32/include/
 
 # ncurses
 RUN cd /tmp && \

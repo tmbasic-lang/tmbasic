@@ -108,6 +108,24 @@ pngcrush -brute -reduce -ow screenshot.png
 
 ## Update third party dependencies
 
+Download links for libraries are located in the following files:
+
+- `build/mac-x64.sh`
+- `build/files/Dockerfile.build-dev`
+- `build/files/Dockerfile.build-linux`
+- `build/files/Dockerfile.build-win`
+
+### boost
+1. https://www.boost.org/
+    - Click "Download" under "Current Release".
+    - Download the tarball.
+    - Copy the link.
+1. Edit `ext/README.md` and replace the boost link.
+1. Upload to S3: `aws s3 cp boost_X_X_X.tar.gz s3://tmbasic/boost/ --acl public-read` (use the downloaded filename)
+1. Edit `ext/README.md` and replace the mirror link.
+1. Update the URL in the files listed above.
+1. Commit as "Update boost to version ____"
+
 ### tvision
 1. https://github.com/magiblot/tvision
     - Click commit hash
@@ -118,12 +136,8 @@ pngcrush -brute -reduce -ow screenshot.png
     - Click "Download ZIP" to download it
 1. Edit `ext/README.md` and replace the tvision link.
 1. Upload to S3: `aws s3 cp tvision-____.zip s3://tmbasic/tvision/ --acl public-read` (use the downloaded filename)
-1. Edit `ext/README.md` and replace the mirror link. Test the mirror link to make sure it works.
-1. Update the commit hash in the following files:
-    - `build/mac-x64.sh`
-    - `build/files/Dockerfile.build-dev`
-    - `build/files/Dockerfile.build-linux`
-    - `build/files/Dockerfile.build-win`
+1. Edit `ext/README.md` and replace the mirror link.
+1. Update the URL in the files listed above.
 1. Commit as "Update tvision to commit ____"
 
 ### mpdecimal
@@ -132,12 +146,8 @@ pngcrush -brute -reduce -ow screenshot.png
     - Copy the link.
 1. Edit `ext/README.md` and replace the mpdecimal link.
 1. Upload to S3: `aws s3 cp mpdecimal-X.X.X.tar.gz s3://tmbasic/mpdecimal/ --acl public-read` (use the downloaded filename)
-1. Edit `ext/README.md` and replace the mirror link. Test the mirror link to make sure it works.
-1. Update the URL in the following files:
-    - `build/mac-x64.sh`
-    - `build/files/Dockerfile.build-dev`
-    - `build/files/Dockerfile.build-linux`
-    - `build/files/Dockerfile.build-win`
+1. Edit `ext/README.md` and replace the mirror link.
+1. Update the URL in the files listed above.
 1. Commit as "Update mpdecimal to version ____"
 
 ### nameof

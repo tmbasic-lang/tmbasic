@@ -6,10 +6,8 @@ A mirror of all external library sources is stored in a requester-pays S3 bucket
 
 ### [boost](https://www.boost.org/)
 - License: [Boost Software License v1.0](https://github.com/electroly/tmbasic/blob/master/ext/boost/LICENSE_1_0.txt)
-- Source (Linux): `boost-dev` package from Alpine Linux
-- Source (Windows): `boost` package from Arch Linux
-- Source (macOS): https://dl.bintray.com/boostorg/release/1.74.0/source/boost_1_74_0.tar.gz
-    - Mirror: `s3://tmbasic/boost/boost_1_74_0.tar.gz`
+- Source: https://dl.bintray.com/boostorg/release/1.75.0/source/boost_1_75_0.tar.gz
+    - Mirror: `s3://tmbasic/boost/boost_1_75_0.tar.gz`
 
 ### [icu](http://site.icu-project.org/)
 - License: [ICU License](https://github.com/electroly/tmbasic/blob/master/ext/icu/LICENSE)
