@@ -10,7 +10,9 @@
 - [Use Visual Studio Code for development and debugging](#use-visual-studio-code-for-development-and-debugging)
 - [Take screenshots for the website](#take-screenshots-for-the-website)
 - [Update third party dependencies](#update-third-party-dependencies)
+  - [boost](#boost)
   - [tvision](#tvision)
+  - [mpdecimal](#mpdecimal)
   - [nameof](#nameof)
 - [Make a release build](#make-a-release-build)
 
