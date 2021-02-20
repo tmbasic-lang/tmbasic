@@ -18,7 +18,8 @@ RUN apk update && \
         ncurses \
         python3 \
         dos2unix \
-        xxd
+        xxd \
+        linux-headers
 
 # unprivileged user
 RUN addgroup -g $HOST_GID $USER && \
