@@ -15,7 +15,6 @@ RUN apk update && \
         valgrind \
         gtest-dev \
         alpine-sdk \
-        ncurses \
         python3 \
         dos2unix \
         xxd \
