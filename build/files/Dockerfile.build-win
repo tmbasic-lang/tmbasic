@@ -9,6 +9,8 @@ RUN mkdir -p /code && \
 
 RUN echo "[multilib]" >> /etc/pacman.conf && \
     echo "Include = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf && \
+    echo "Server = https://iad.mirror.rackspace.com/archlinux/_repo/os/_arch" | tr '_' '$' > /etc/pacman.d/mirrorlist && \
+    pacman -Syy --noconfirm && \
     pacman -Syu --noconfirm && \
     pacman -S --noconfirm \
         wget \
