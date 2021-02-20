@@ -11,7 +11,7 @@ ObjectType ValueOptional::getObjectType() const {
 }
 
 size_t ValueOptional::getHash() const {
-    return item.has_value() ? item.value().getHash() : 0;
+    return item.has_value() ? (*item).getHash() : 0;
 }
 
 bool ValueOptional::equals(const Object& other) const {
@@ -20,7 +20,7 @@ bool ValueOptional::equals(const Object& other) const {
     }
     const auto& otherOptional = dynamic_cast<const ValueOptional&>(other);
     return item.has_value() == otherOptional.item.has_value() &&
-        (item.has_value() ? item.value() == otherOptional.item.value() : true);
+        (item.has_value() ? *item == *otherOptional.item : true);
 }
 
 ObjectOptional::ObjectOptional() = default;
@@ -32,7 +32,7 @@ ObjectType ObjectOptional::getObjectType() const {
 }
 
 size_t ObjectOptional::getHash() const {
-    return item.has_value() ? item.value()->getHash() : 0;
+    return item.has_value() ? (*item)->getHash() : 0;
 }
 
 bool ObjectOptional::equals(const Object& other) const {
@@ -41,7 +41,7 @@ bool ObjectOptional::equals(const Object& other) const {
     }
     const auto& otherOptional = dynamic_cast<const ObjectOptional&>(other);
     return item.has_value() == otherOptional.item.has_value() &&
-        (item.has_value() ? item.value()->equals(*otherOptional.item.value()) : true);
+        (item.has_value() ? (*item)->equals(**otherOptional.item) : true);
 }
 
 }  // namespace vm

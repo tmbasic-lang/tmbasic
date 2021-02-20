@@ -113,7 +113,7 @@ static void systemCallValueV(const SystemCallInput& input, SystemCallResult* res
     if (!opt.item.has_value()) {
         throw Error(ErrorCode::kValueNotPresent, "Optional value is not present.");
     }
-    result->a = opt.item.value();
+    result->a = *opt.item;
 }
 
 static void systemCallValueO(const SystemCallInput& input, SystemCallResult* result) {
@@ -121,7 +121,7 @@ static void systemCallValueO(const SystemCallInput& input, SystemCallResult* res
     if (!opt.item.has_value()) {
         throw Error(ErrorCode::kValueNotPresent, "Optional value is not present.");
     }
-    result->x = opt.item.value();
+    result->x = *opt.item;
 }
 
 SystemCallResult systemCall(SystemCall which, const SystemCallInput& input) {
