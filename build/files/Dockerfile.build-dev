@@ -78,17 +78,6 @@ RUN cd /tmp && \
     make -j2 && \
     make install
 
-# tvision
-RUN cd /tmp && \
-    curl -L -o tvision.zip https://github.com/magiblot/tvision/archive/c5b5fb7427c5b488a63271b0a280541de03caf5c.zip && \
-    unzip -q tvision.zip && \
-    mv tvision-*/ tvision/ && \
-    mkdir -p tvision/build && \
-    cd tvision/build && \
-    cmake .. -DTV_BUILD_USING_GPM=OFF -DCMAKE_BUILD_TYPE=Release && \
-    make -j2 && \
-    make install
-
 # bzip2
 RUN cd /tmp && \
     curl -L -o bzip2.zip https://gitlab.com/federicomenaquintero/bzip2/-/archive/6211b6500c8bec13a17707440d3a84ca8b34eed5/bzip2-6211b6500c8bec13a17707440d3a84ca8b34eed5.zip && \
@@ -129,6 +118,17 @@ RUN cd /tmp && \
     CXXFLAGS="-DU_USING_ICU_NAMESPACE=0 -DU_NO_DEFAULT_INCLUDE_UTF_HEADERS=1 -DU_HIDE_OBSOLETE_UTF_OLD_H=1 -std=c++17" \
         ./runConfigureICU "Linux/gcc" --enable-static --disable-shared --disable-tests --disable-samples \
         --with-data-packaging=static && \
+    make -j2 && \
+    make install
+
+# tvision
+RUN cd /tmp && \
+    curl -L -o tvision.zip https://github.com/magiblot/tvision/archive/761d813bf6e0317296545be77a6142198f33ace3.zip && \
+    unzip -q tvision.zip && \
+    mv tvision-*/ tvision/ && \
+    mkdir -p tvision/build && \
+    cd tvision/build && \
+    cmake .. -DTV_BUILD_USING_GPM=OFF -DCMAKE_BUILD_TYPE=Release && \
     make -j2 && \
     make install
 
