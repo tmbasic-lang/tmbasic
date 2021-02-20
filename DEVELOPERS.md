@@ -28,7 +28,9 @@ Linux and Windows builds must be produced on a Linux build machine.
     ```
     sudo apt-get update -y && \
     sudo apt-get upgrade -y && \
-    sudo apt-get install -y docker.io git && \
+    sudo apt-get install -y git && \
+    sudo curl -fsSL https://get.docker.com -o get-docker.sh && \
+    sudo sh get-docker.sh && \
     sudo usermod -aG docker ubuntu && \
     sudo reboot
     ```
