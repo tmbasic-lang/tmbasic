@@ -1052,17 +1052,15 @@ std::optional<std::string> ParameterNode::getSymbolDeclaration() const {
     return name;
 }
 
-GlobalVariableNode::GlobalVariableNode(std::string name, std::unique_ptr<TypeNode> type)
-    : Node(Token(0, 0, TokenKind::kError, "")), name(std::move(name)), type(std::move(type)) {}
+GlobalVariableNode::GlobalVariableNode(const CompiledGlobalVariable& compiledGlobalVariable)
+    : Node(Token(0, 0, TokenKind::kError, "")), compiledGlobalVariable(compiledGlobalVariable) {}
 
 void GlobalVariableNode::dump(std::ostringstream& s, int n) const {
     DUMP_TYPE(GlobalVariableNode);
-    DUMP_VAR(name);
-    DUMP_VAR_NODE(type);
 }
 
 std::optional<std::string> GlobalVariableNode::getSymbolDeclaration() const {
-    return name;
+    return compiledGlobalVariable.lowercaseName;
 }
 
 ProcedureNode::ProcedureNode(

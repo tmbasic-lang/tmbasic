@@ -42,17 +42,15 @@ class Scope {
     std::unordered_map<std::string, const Node&> _symbolDeclarations;
 };
 
-static Scope makeProcedureGlobalScope(ProcedureNode* /*procedure*/, const CompiledProgram& /*program*/) {
+static Scope makeProcedureGlobalScope(ProcedureNode* procedure, const CompiledProgram& program) {
     auto scope = Scope();
-    /*for (auto& sourceMember : program.members) {
-        const auto& globalVariable = program.globalVariables[i];
-        auto node = std::make_unique<GlobalVariableNode>(globalVariable->name, i);
+    for (auto& globalVariable : program.globalVariables) {
+        auto node = std::make_unique<GlobalVariableNode>(globalVariable);
         auto result = scope.addSymbol(*node);
         assert(result == AddSymbolResult::kSuccess);
         (void)result;  // avoid unused variable error in release builds
         procedure->globalVariables.push_back(std::move(node));
-    }*/
-    // TODO(unknown):
+    }
     return scope;
 }
 

@@ -1,10 +1,11 @@
 #pragma once
 
 #include "../common.h"
-#include "compiler/ast.h"
 #include "vm/Program.h"
 
 namespace compiler {
+
+class TypeNode;
 
 class CompiledGlobalVariable {
    public:

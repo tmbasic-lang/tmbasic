@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../common.h"
+#include "compiler/CompiledProgram.h"
 #include "compiler/Token.h"
 
 namespace compiler {
@@ -659,9 +660,8 @@ class ParameterNode : public Node {
 
 class GlobalVariableNode : public Node {
    public:
-    std::string name;
-    std::unique_ptr<TypeNode> type;
-    GlobalVariableNode(std::string name, std::unique_ptr<TypeNode> type);
+    const CompiledGlobalVariable& compiledGlobalVariable;
+    GlobalVariableNode(const CompiledGlobalVariable& compiledGlobalVariable);
     void dump(std::ostringstream& s, int n) const override;
     std::optional<std::string> getSymbolDeclaration() const override;
 };
