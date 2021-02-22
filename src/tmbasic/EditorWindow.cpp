@@ -1,7 +1,9 @@
-#include "tmbasic/EditorWindow.h"
+#include "EditorWindow.h"
 #include "../../obj/resources/help/helpfile.h"
-#include "tmbasic/ViewPtr.h"
-#include "tmbasic/events.h"
+#include "DialogPtr.h"
+#include "InsertSymbolDialog.h"
+#include "ViewPtr.h"
+#include "events.h"
 
 using compiler::SourceMember;
 using compiler::SourceMemberType;
@@ -91,6 +93,13 @@ void EditorWindow::handleEvent(TEvent& event) {
                 onTimerTick();
                 break;
         }
+    } else if (event.what == evCommand) {
+        switch (event.message.command) {
+            case kCmdEditInsertSymbol:
+                onEditInsertSymbol();
+                clearEvent(event);
+                break;
+        }
     }
 }
 
@@ -136,6 +145,23 @@ void EditorWindow::onTimerTick() {
 void EditorWindow::updateTitle() {
     delete[] title;
     title = strdup(getEditorWindowTitle(*_member).c_str());
+}
+
+void EditorWindow::setState(uint16_t aState, bool enable) {
+    TWindow::setState(aState, enable);
+
+    if (aState == sfActive) {
+        TCommandSet ts;
+        ts.enableCmd(kCmdEditInsertSymbol);
+        (enable ? enableCommands : disableCommands)(ts);
+    }
+}
+
+void EditorWindow::onEditInsertSymbol() {
+    auto dialog = DialogPtr<InsertSymbolDialog>();
+    if (TProgram::deskTop->execView(dialog) == cmOK && dialog->selection != nullptr) {
+        _editor->insertText(dialog->selection, strlen(dialog->selection), false);
+    }
 }
 
 }  // namespace tmbasic

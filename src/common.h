@@ -14,6 +14,7 @@
 #define Uses_TCheckBoxes
 #define Uses_TDeskTop
 #define Uses_TDialog
+#define Uses_TDrawBuffer
 #define Uses_TEditor
 #define Uses_TEvent
 #define Uses_TFileDialog
@@ -56,6 +57,7 @@
 #include <exception>
 #include <fstream>
 #include <initializer_list>
+#include <iomanip>
 #include <ios>
 #include <iostream>
 #include <list>
@@ -104,5 +106,16 @@ namespace gsl {
 template <class T>
 using owner = T;
 }  // namespace gsl
+
+#ifdef NDEBUG
+#define debugLog(x)
+#else
+inline void debugLog(std::function<void(std::ofstream* stream)> x) {
+    auto fileStream = std::ofstream("debug.log", std::ios::out | std::ios::app);
+    x(&fileStream);
+    fileStream << "\n";
+    fileStream.close();
+}
+#endif
 
 #endif  // COMMON_H_

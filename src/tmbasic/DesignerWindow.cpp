@@ -91,20 +91,18 @@ void DesignerWindow::openPropertiesDialog() {
 void DesignerWindow::setState(uint16_t aState, bool enable) {
     TWindow::setState(aState, enable);
 
-    TCommandSet ts;
-    ts.enableCmd(kCmdDesignAddButton);
-    ts.enableCmd(kCmdDesignAddCheckBox);
-    ts.enableCmd(kCmdDesignAddGroupBox);
-    ts.enableCmd(kCmdDesignAddLabel);
-    ts.enableCmd(kCmdDesignAddListBox);
-    ts.enableCmd(kCmdDesignAddRadioButton);
-    ts.enableCmd(kCmdDesignAddScrollBar);
-    ts.enableCmd(kCmdDesignAddTextBox);
-    ts.enableCmd(kCmdDesignAddCustomControl);
-    if ((aState & sfFocused) != 0) {
-        enableCommands(ts);
-    } else {
-        disableCommands(ts);
+    if (aState == sfActive) {
+        TCommandSet ts;
+        ts.enableCmd(kCmdDesignAddButton);
+        ts.enableCmd(kCmdDesignAddCheckBox);
+        ts.enableCmd(kCmdDesignAddGroupBox);
+        ts.enableCmd(kCmdDesignAddLabel);
+        ts.enableCmd(kCmdDesignAddListBox);
+        ts.enableCmd(kCmdDesignAddRadioButton);
+        ts.enableCmd(kCmdDesignAddScrollBar);
+        ts.enableCmd(kCmdDesignAddTextBox);
+        ts.enableCmd(kCmdDesignAddCustomControl);
+        (enable ? enableCommands : disableCommands)(ts);
     }
 }
 
