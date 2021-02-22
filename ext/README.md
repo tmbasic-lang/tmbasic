@@ -35,10 +35,8 @@ A mirror of all external library sources is stored in a requester-pays S3 bucket
 
 ### [ncurses](https://invisible-island.net/ncurses/)
 - License: [Ncurses license](https://github.com/electroly/tmbasic/blob/master/ext/ncurses/COPYING)
-- Source (Linux): `ncurses` package from Alpine Linux
-- Source (Windows): `ftp://ftp.invisible-island.net/ncurses/ncurses-6.2.tar.gz`
+- Source: `ftp://ftp.invisible-island.net/ncurses/ncurses-6.2.tar.gz`
     - Mirror: `s3://tmbasic/ncurses/ncurses-6.2.tar.gz`
-- Source (macOS): Xcode package
 
 ### [tvision](https://github.com/magiblot/tvision)
 - License: [Borland license (original code), MIT license (additions)](https://github.com/electroly/tmbasic/blob/master/ext/tvision/COPYRIGHT)

@@ -6,7 +6,6 @@ RUN apk update && \
         curl \
         wget \
         build-base \
-        clang \
         make \
         git \
         openssl \
@@ -14,7 +13,6 @@ RUN apk update && \
         cmake \
         valgrind \
         gtest-dev \
-        alpine-sdk \
         python3 \
         dos2unix \
         xxd \
@@ -22,15 +20,7 @@ RUN apk update && \
 
 # unprivileged user
 RUN addgroup -g $HOST_GID $USER && \
-    adduser -h /home/$USER -s /bin/bash -G $USER -u $HOST_UID -D $USER && \
-    chmod a+w /var/cache/distfiles
-
-# key for signing built .apk packages    
-USER $HOST_UID
-RUN abuild-keygen && \
-    echo "PACKAGER_PRIVKEY=\"$(ls /home/$USER/.abuild/*.rsa)\"" > /home/$USER/.abuild/abuild.conf
-USER 0
-RUN cp /home/$USER/.abuild/*.rsa.pub /etc/apk/keys/
+    adduser -h /home/$USER -s /bin/bash -G $USER -u $HOST_UID -D $USER
 
 # boost
 RUN cd /tmp && \
@@ -39,20 +29,38 @@ RUN cd /tmp && \
     mv boost_*/boost /usr/include/
 
 # ncurses
-USER $HOST_UID
-COPY ncurses-APKBUILD.diff /tmp/
-RUN mkdir -p /tmp/aports/main/ncurses && \
-    cd /tmp/aports/main/ncurses && \
-    curl -o APKBUILD https://git.alpinelinux.org/aports/plain/main/ncurses/APKBUILD && \
-    patch APKBUILD /tmp/ncurses-APKBUILD.diff && \
-    abuild fetch && \
-    abuild unpack && \
-    abuild prepare && \
-    abuild build && \
-    abuild rootpkg && \
-    abuild index
-USER 0
-RUN apk add /home/$USER/packages/main/*/*.apk
+RUN cd /tmp && \
+    curl -L -o ncurses.tar.gz ftp://ftp.invisible-island.net/ncurses/ncurses-6.2.tar.gz && \
+    tar zxf ncurses.tar.gz && \
+    mv ncurses-*/ ncurses && \
+    cd ncurses && \
+    mkdir build && \
+    cd build && \
+    ../configure && \
+    make -j2 -C include && \
+    make -j2 -C progs tic && \
+    make -j2 -C progs infocmp && \
+    cd /tmp/ncurses && \
+    ./configure \
+        --with-fallbacks=ansi,cons25,cons25-debian,dumb,hurd,linux,rxvt,screen,screen-256color,screen-256color-bce,screen-bce,screen-s,screen-w,screen.xterm-256color,tmux,tmux-256color,vt100,vt102,vt220,vt52,xterm,xterm-256color,xterm-color,xterm-mono,xterm-r5,xterm-r6,xterm-vt220,xterm-xfree86,Eterm \
+        --disable-database \
+        --without-ada \
+        --without-tests \
+        --disable-termcap \
+        --disable-rpath-hack \
+        --disable-stripping \
+        --with-pkg-config-libdir=/usr/lib/pkgconfig \
+        --without-cxx-binding \
+        --with-terminfo-dirs="/usr/share/terminfo" \
+        --enable-pc-files \
+        --with-static \
+        --enable-widec \
+        --without-debug \
+        --with-infocmp-path=/tmp/ncurses/build/progs/infocmp \
+        --with-tic-path=/tmp/ncurses/build/progs/tic \
+        && \
+    make -j2 && \
+    make install
 
 # mpdecimal
 RUN cd /tmp && \
