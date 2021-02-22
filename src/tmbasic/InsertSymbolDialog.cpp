@@ -139,8 +139,7 @@ void TReport::draw() {
     if (asciiChar == 0 || asciiChar == 255) {
         statusStr << std::left << std::setw(32) << "  No character selected";
     } else {
-        statusStr << "  Selected: " << static_cast<char>(asciiChar) << "         Chr(" << std::left << std::setw(3)
-                  << asciiChar << ") ";
+        statusStr << "  Selected: " << static_cast<char>(asciiChar) << "                  ";
     }
 
     buf.moveStr(0, statusStr.str(), color);
