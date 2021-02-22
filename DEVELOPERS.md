@@ -172,8 +172,7 @@ Download links for libraries are located in the following files:
     **Linux**
 
     ```
-    docker container rm $(docker container ls -aq)
-    docker rmi $(docker images -a -q) --force
+    docker system prune -a
     ```
 
     **Mac**

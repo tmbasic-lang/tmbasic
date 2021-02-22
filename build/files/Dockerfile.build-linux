@@ -1,6 +1,7 @@
 FROM $DOCKER_ARCH/alpine:3.12
 
 RUN apk update && \
+    apk upgrade && \
     apk add \
         bash \
         curl \
@@ -21,12 +22,6 @@ RUN apk update && \
 # unprivileged user
 RUN addgroup -g $HOST_GID $USER && \
     adduser -h /home/$USER -s /bin/bash -G $USER -u $HOST_UID -D $USER
-
-# boost
-RUN cd /tmp && \
-    curl -L -o boost.tar.gz https://dl.bintray.com/boostorg/release/1.75.0/source/boost_1_75_0.tar.gz && \
-    tar zxf boost.tar.gz && \
-    mv boost_*/boost /usr/include/
 
 # ncurses
 RUN cd /tmp && \
@@ -59,26 +54,6 @@ RUN cd /tmp && \
         --with-infocmp-path=/tmp/ncurses/build/progs/infocmp \
         --with-tic-path=/tmp/ncurses/build/progs/tic \
         && \
-    make -j2 && \
-    make install
-
-# mpdecimal
-RUN cd /tmp && \
-    curl -L -o mpdecimal.tar.gz https://www.bytereef.org/software/mpdecimal/releases/mpdecimal-2.5.1.tar.gz && \
-    tar zxf mpdecimal.tar.gz && \
-    cd mpdecimal-*/ && \
-    ./configure && \
-    make -j2 && \
-    make install
-
-# immer
-RUN cd /tmp && \
-    curl -L -o immer.zip https://github.com/arximboldi/immer/archive/800ddb04e528a3e83e69e8021d7e872e7c34cbcd.zip && \
-    unzip -q immer.zip && \
-    mv immer-*/ immer/ && \
-    mkdir -p immer/build && \
-    cd immer/build && \
-    cmake .. && \
     make -j2 && \
     make install
 
@@ -119,6 +94,32 @@ RUN cd /tmp && \
     CXXFLAGS="-DU_USING_ICU_NAMESPACE=0 -DU_NO_DEFAULT_INCLUDE_UTF_HEADERS=1 -DU_HIDE_OBSOLETE_UTF_OLD_H=1 -std=c++17" \
         ./runConfigureICU "Linux/gcc" --enable-static --disable-shared --disable-tests --disable-samples \
         --with-data-packaging=static && \
+    make -j2 && \
+    make install
+
+# immer
+RUN cd /tmp && \
+    curl -L -o immer.zip https://github.com/arximboldi/immer/archive/800ddb04e528a3e83e69e8021d7e872e7c34cbcd.zip && \
+    unzip -q immer.zip && \
+    mv immer-*/ immer/ && \
+    mkdir -p immer/build && \
+    cd immer/build && \
+    cmake .. && \
+    make -j2 && \
+    make install
+
+# boost
+RUN cd /tmp && \
+    curl -L -o boost.tar.gz https://dl.bintray.com/boostorg/release/1.75.0/source/boost_1_75_0.tar.gz && \
+    tar zxf boost.tar.gz && \
+    mv boost_*/boost /usr/include/
+
+# mpdecimal
+RUN cd /tmp && \
+    curl -L -o mpdecimal.tar.gz https://www.bytereef.org/software/mpdecimal/releases/mpdecimal-2.5.1.tar.gz && \
+    tar zxf mpdecimal.tar.gz && \
+    cd mpdecimal-*/ && \
+    ./configure && \
     make -j2 && \
     make install
 

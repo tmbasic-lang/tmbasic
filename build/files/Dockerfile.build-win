@@ -26,29 +26,6 @@ RUN echo "[multilib]" >> /etc/pacman.conf && \
         patch \
         xxd
 
-# mpdecimal
-RUN cd /tmp && \
-    curl -L -o mpdecimal.tar.gz https://www.bytereef.org/software/mpdecimal/releases/mpdecimal-2.5.1.tar.gz && \
-    tar zxf mpdecimal.tar.gz && \
-    cd mpdecimal-*/ && \
-    ./configure --host=$ARCH-w64-mingw32 && \
-    cd libmpdec && \
-    make libmpdec.a -j2 && \
-    cp -f libmpdec.a /usr/$ARCH-w64-mingw32/lib/ && \
-    mkdir -p /usr/include/libmpdec && \
-    cp -f *.h /usr/include/libmpdec/ && \
-    cd ../libmpdec++ && \
-    make libmpdec++.a -j2 && \
-    cp -f libmpdec++.a /usr/$ARCH-w64-mingw32/lib/ && \
-    mkdir -p /usr/include/libmpdec++ && \
-    cp -f *.hh /usr/include/libmpdec++/
-
-# boost
-RUN cd /tmp && \
-    curl -L -o boost.tar.gz https://dl.bintray.com/boostorg/release/1.75.0/source/boost_1_75_0.tar.gz && \
-    tar zxf boost.tar.gz && \
-    mv boost_*/boost /usr/$ARCH-w64-mingw32/include/
-
 # ncurses
 RUN cd /tmp && \
     wget -q ftp://ftp.invisible-island.net/ncurses/ncurses-6.2.tar.gz && \
@@ -114,21 +91,6 @@ RUN echo "static int _isatty(int) { return 0; }" >> /usr/$ARCH-w64-mingw32/inclu
     echo "static int write(int,const void*,unsigned int) { return 0; }" >> /usr/$ARCH-w64-mingw32/include/gtest/internal/custom/gtest-port.h && \
     echo "static int close(int) { return 0; }" >> /usr/$ARCH-w64-mingw32/include/gtest/internal/custom/gtest-port.h
 
-# immer
-RUN cd /tmp && \
-    curl -L -o immer.zip https://github.com/arximboldi/immer/archive/800ddb04e528a3e83e69e8021d7e872e7c34cbcd.zip && \
-    unzip -q immer.zip && \
-    mv immer-*/ immer/ && \
-    mkdir -p immer/build && \
-    cd immer/build && \
-    cmake .. \
-        -DCMAKE_PREFIX_PATH=/usr/$ARCH-w64-mingw32 \
-        -DCMAKE_INSTALL_PREFIX=/usr/$ARCH-w64-mingw32 \
-        -DCMAKE_TOOLCHAIN_FILE=/tmp/toolchain-cross-mingw64-linux-$ARCH.cmake \
-        && \
-    make -j2 && \
-    make install
-
 # bzip2
 RUN cd /tmp && \
     curl -L -o bzip2.zip https://gitlab.com/federicomenaquintero/bzip2/-/archive/6211b6500c8bec13a17707440d3a84ca8b34eed5/bzip2-6211b6500c8bec13a17707440d3a84ca8b34eed5.zip && \
@@ -191,6 +153,44 @@ RUN cd /tmp && \
         --host=$ARCH-w64-mingw32 --with-cross-build=/tmp/icu-linux/source/ --prefix=/usr/$ARCH-w64-mingw32 && \
     make -j2 && \
     make install
+
+# immer
+RUN cd /tmp && \
+    curl -L -o immer.zip https://github.com/arximboldi/immer/archive/800ddb04e528a3e83e69e8021d7e872e7c34cbcd.zip && \
+    unzip -q immer.zip && \
+    mv immer-*/ immer/ && \
+    mkdir -p immer/build && \
+    cd immer/build && \
+    cmake .. \
+        -DCMAKE_PREFIX_PATH=/usr/$ARCH-w64-mingw32 \
+        -DCMAKE_INSTALL_PREFIX=/usr/$ARCH-w64-mingw32 \
+        -DCMAKE_TOOLCHAIN_FILE=/tmp/toolchain-cross-mingw64-linux-$ARCH.cmake \
+        && \
+    make -j2 && \
+    make install
+
+# boost
+RUN cd /tmp && \
+    curl -L -o boost.tar.gz https://dl.bintray.com/boostorg/release/1.75.0/source/boost_1_75_0.tar.gz && \
+    tar zxf boost.tar.gz && \
+    mv boost_*/boost /usr/$ARCH-w64-mingw32/include/
+
+# mpdecimal
+RUN cd /tmp && \
+    curl -L -o mpdecimal.tar.gz https://www.bytereef.org/software/mpdecimal/releases/mpdecimal-2.5.1.tar.gz && \
+    tar zxf mpdecimal.tar.gz && \
+    cd mpdecimal-*/ && \
+    ./configure --host=$ARCH-w64-mingw32 && \
+    cd libmpdec && \
+    make libmpdec.a -j2 && \
+    cp -f libmpdec.a /usr/$ARCH-w64-mingw32/lib/ && \
+    mkdir -p /usr/include/libmpdec && \
+    cp -f *.h /usr/include/libmpdec/ && \
+    cd ../libmpdec++ && \
+    make libmpdec++.a -j2 && \
+    cp -f libmpdec++.a /usr/$ARCH-w64-mingw32/lib/ && \
+    mkdir -p /usr/include/libmpdec++ && \
+    cp -f *.hh /usr/include/libmpdec++/
 
 # tvision
 RUN cd /tmp && \
