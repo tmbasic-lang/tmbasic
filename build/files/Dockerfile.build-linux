@@ -1,21 +1,14 @@
-FROM $DOCKER_ARCH/alpine:3.12
+FROM $DOCKER_ARCH/alpine:3.13
 
 RUN apk update && \
     apk upgrade && \
     apk add \
         bash \
         curl \
-        wget \
         build-base \
         make \
-        git \
-        openssl \
-        openssl-dev \
         cmake \
-        valgrind \
         gtest-dev \
-        python3 \
-        dos2unix \
         xxd \
         linux-headers
 

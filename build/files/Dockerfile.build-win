@@ -13,23 +13,18 @@ RUN echo "[multilib]" >> /etc/pacman.conf && \
     pacman -Syy --noconfirm && \
     pacman -Syu --noconfirm && \
     pacman -S --noconfirm \
-        wget \
         make \
         git \
         cmake \
-        boost \
         mingw-w64 \
         wine \
-        dos2unix \
         unzip \
-        clang \
-        patch \
         xxd
 
 # ncurses
 RUN cd /tmp && \
-    wget -q ftp://ftp.invisible-island.net/ncurses/ncurses-6.2.tar.gz && \
-    tar xf ncurses*.tar.gz && \
+    curl -L -o ncurses.tar.gz ftp://ftp.invisible-island.net/ncurses/ncurses-6.2.tar.gz && \
+    tar zxf ncurses.tar.gz && \
     mv ncurses-*/ ncurses/ && \
     cd ncurses && \
     ./configure \

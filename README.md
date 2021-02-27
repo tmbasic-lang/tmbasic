@@ -19,14 +19,14 @@ TMBASIC supports the following platforms:
 
 <div id="platformSupportTable">
 
-Platform | Known compatible systems
+Platform | Tested systems
 -- | --
 Windows (64-bit) | Windows 10
 Windows (32-bit) | Windows 10
 macOS | [iTerm2](https://www.iterm2.com/) on macOS 10.13
-Linux (64-bit) | Alpine 3.12, Ubuntu 18.04
+Linux (64-bit) | Alpine 3.13, Ubuntu 18.04
 Linux (32-bit) | [iSH Shell](https://apps.apple.com/us/app/ish-shell/id1436902243) on iOS
-Linux (ARM64) | Alpine 3.12, Ubuntu 18.04, [Termux](https://termux.com/) on Android
+Linux (ARM64) | Alpine 3.13, Ubuntu 18.04, [Termux](https://termux.com/) on Android
 Linux (ARM32) | Raspbian
 
 A build in TMBASIC produces single-file executables for all supported platforms at once. These compiled programs require no external libraries.
