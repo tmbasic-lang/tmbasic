@@ -19,7 +19,10 @@ RUN echo "[multilib]" >> /etc/pacman.conf && \
         mingw-w64 \
         wine \
         unzip \
-        xxd
+        xxd \
+        diffutils \
+        base-devel \
+        dos2unix
 
 # ncurses
 RUN cd /tmp && \
@@ -168,7 +171,8 @@ RUN cd /tmp && \
 RUN cd /tmp && \
     curl -L -o boost.tar.gz https://dl.bintray.com/boostorg/release/1.75.0/source/boost_1_75_0.tar.gz && \
     tar zxf boost.tar.gz && \
-    mv boost_*/boost /usr/$ARCH-w64-mingw32/include/
+    mv boost_*/boost /usr/include/ && \
+    ln -s /usr/include/boost /usr/$ARCH-w64-mingw32/include/boost
 
 # mpdecimal
 RUN cd /tmp && \

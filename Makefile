@@ -221,11 +221,6 @@ CXXFLAGS += \
 	-I$(PWD)/mac/icu/source/i18n
 endif
 
-# Windows header search paths.
-ifeq ($(TARGET_OS),win)
-CXXFLAGS += -I/usr/share/mingw-w64/include/
-endif
-
 CXXFLAGS += \
 	-Isrc \
 	-Iobj \
