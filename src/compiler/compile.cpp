@@ -25,7 +25,7 @@ static void removeBlankLines(std::vector<Token>* tokens) {
     }
 }
 
-static CompilerResult compileGlobal(const SourceMember& sourceMember, CompiledProgram* compiledProgram) {
+static CompilerResult compileGlobal(const SourceMember& /*sourceMember*/, CompiledProgram* /*compiledProgram*/) {
     return CompilerResult::success();
 }
 

@@ -6,7 +6,7 @@ CompilerResult typeCheckBody(BodyNode* bodyNode) {
     auto result = CompilerResult::success();
 
     for (auto& statementNode : bodyNode->statements) {
-        statementNode->visitExpressions([](ExpressionNode& expr) -> bool { return true; });
+        statementNode->visitExpressions([](ExpressionNode&) -> bool { return true; });
     }
 
     return result;
