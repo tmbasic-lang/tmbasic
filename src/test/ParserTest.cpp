@@ -7,13 +7,13 @@
 #include "util/cast.h"
 
 using compiler::Node;
+using compiler::parse;
 using compiler::ParserRootProduction;
 using compiler::ProgramNode;
 using compiler::Token;
-using compiler::TokenKind;
-using compiler::TokenizeType;
-using compiler::parse;
 using compiler::tokenize;
+using compiler::TokenizeType;
+using compiler::TokenKind;
 using util::dynamic_cast_borrow;
 
 static std::string dump(const Node& node) {

@@ -7,6 +7,6 @@
 
 namespace compiler {
 
-CompilerResult compile(const SourceMember& sourceMember, CompiledProgram* compiledProgram);
+CompilerResult compileGlobal(const SourceMember& sourceMember, CompiledProgram* compiledProgram);
 
 }  // namespace compiler

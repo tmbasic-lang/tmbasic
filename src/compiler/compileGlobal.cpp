@@ -1,11 +1,9 @@
-#include "compiler/compile.h"
+#include "compiler/compileGlobal.h"
 #include "compiler/bindProcedureSymbols.h"
 #include "compiler/parse.h"
 #include "compiler/tokenize.h"
 #include "compiler/typeCheck.h"
 #include "util/cast.h"
-
-using util::dynamic_cast_move;
 
 namespace compiler {
 
@@ -54,7 +52,7 @@ static int getFirstAvailableGlobalVariableIndex(const CompiledProgram& compiledP
     return maxIndex + 1;
 }
 
-static CompilerResult compileGlobal(const SourceMember& sourceMember, CompiledProgram* compiledProgram) {
+CompilerResult compileGlobal(const SourceMember& sourceMember, CompiledProgram* compiledProgram) {
     auto lowercaseIdentifier = boost::algorithm::to_lower_copy(sourceMember.identifier);
     CompiledGlobalVariable* compiledGlobalVariable = nullptr;
 
@@ -108,43 +106,6 @@ static CompilerResult compileGlobal(const SourceMember& sourceMember, CompiledPr
     compiledGlobalVariable->index = getFirstAvailableGlobalVariableIndex(*compiledProgram);
 
     return CompilerResult::success();
-}
-
-// precondition: all global variables must be compiled first
-static CompilerResult compileProcedure(const SourceMember& sourceMember, CompiledProgram* compiledProgram) {
-    auto tokens = tokenize(sourceMember.source, TokenizeType::kCompile);
-    auto parserResult = parse(ParserRootProduction::kMember, tokens);
-    if (!parserResult.isSuccess) {
-        return CompilerResult::error(parserResult.message, *parserResult.token);
-    }
-    if (parserResult.node->getMemberType() != MemberType::kProcedure) {
-        return CompilerResult::error("This member must be a subroutine or function.", tokens[0]);
-    }
-    auto procedureNode = dynamic_cast_move<ProcedureNode>(std::move(parserResult.node));
-
-    auto compilerResult = bindProcedureSymbols(procedureNode.get(), *compiledProgram);
-    if (!compilerResult.isSuccess) {
-        return compilerResult;
-    }
-
-    compilerResult = typeCheck(procedureNode.get());
-    if (!compilerResult.isSuccess) {
-        return compilerResult;
-    }
-
-    return CompilerResult::success();
-}
-
-CompilerResult compile(const SourceMember& sourceMember, CompiledProgram* compiledProgram) {
-    switch (sourceMember.memberType) {
-        case SourceMemberType::kProcedure:
-            return compileProcedure(sourceMember, compiledProgram);
-        case SourceMemberType::kGlobal:
-            return compileGlobal(sourceMember, compiledProgram);
-        default:
-            assert(false);
-            throw std::runtime_error("Not implemented");
-    }
 }
 
 }  // namespace compiler

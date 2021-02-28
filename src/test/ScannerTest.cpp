@@ -4,9 +4,9 @@
 #include "helpers.h"
 #include "compiler/TokenKind.h"
 
-using compiler::TokenKind;
-using compiler::TokenizeType;
 using compiler::tokenize;
+using compiler::TokenizeType;
+using compiler::TokenKind;
 
 static void scanMatch(std::string filenameWithoutExtension) {
     auto tok = readFile(filenameWithoutExtension + ".tok");
@@ -75,7 +75,8 @@ TEST(ScannerTest, ForLoop) {
     auto tokens = tokenize(
         "for i = 1 to 5\n"
         "    dim a = true\n"
-        "next", TokenizeType::kFormat);
+        "next",
+        TokenizeType::kFormat);
     auto i = 0;
 
     ASSERT_EQ("for", tokens[i].text);
