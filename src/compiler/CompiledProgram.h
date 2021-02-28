@@ -11,14 +11,14 @@ class CompiledGlobalVariable {
    public:
     std::string lowercaseName;
     bool isValue;
-    uint16_t index;
+    int index;
     std::unique_ptr<TypeNode> type;
 };
 
 class CompiledProgram {
    public:
     vm::Program vmProgram;
-    std::vector<CompiledGlobalVariable> globalVariables;
+    std::vector<std::unique_ptr<CompiledGlobalVariable>> globalVariables;
 };
 
 }  // namespace compiler

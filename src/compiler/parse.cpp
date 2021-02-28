@@ -484,7 +484,7 @@ class PrimitiveTypeProduction : public Production {
                       oneOf({
                           term(TokenKind::kBoolean),
                           term(TokenKind::kNumber),
-                          term(TokenKind::kText),
+                          term(TokenKind::kString),
                           term(TokenKind::kDate),
                           term(TokenKind::kDateTime),
                           term(TokenKind::kDateTimeOffset),
@@ -501,8 +501,8 @@ class PrimitiveTypeProduction : public Production {
             case TokenKind::kNumber:
                 k = Kind::kNumber;
                 break;
-            case TokenKind::kText:
-                k = Kind::kText;
+            case TokenKind::kString:
+                k = Kind::kString;
                 break;
             case TokenKind::kDate:
                 k = Kind::kDate;

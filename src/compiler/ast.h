@@ -50,7 +50,7 @@ enum class Kind {
     kDateTime,
     kDateTimeOffset,
     kTimeSpan,
-    kText,
+    kString,
     kList,
     kMap,
     kRecord,
@@ -59,13 +59,12 @@ enum class Kind {
     kOptional,
 };
 
-class TypeNode;
-
 class FieldNode : public Node {
    public:
     std::string name;
     std::unique_ptr<TypeNode> type;
     FieldNode(std::string name, std::unique_ptr<TypeNode> type, Token token);
+    FieldNode(const FieldNode& source);
     void dump(std::ostringstream& s, int n) const override;
 };
 
@@ -85,17 +84,30 @@ class TypeNode : public Node {
     TypeNode(Kind kind, Token token, std::unique_ptr<TypeNode> optionalValueTypeOrListItemType);
     TypeNode(Kind kind, Token token, std::unique_ptr<TypeNode> mapKeyType, std::unique_ptr<TypeNode> mapValueType);
     TypeNode(Kind kind, Token token, std::vector<std::unique_ptr<FieldNode>> fields);
+    TypeNode(const TypeNode& source);
     void dump(std::ostringstream& s, int n) const override;
+    bool isValueType() const;
 };
 
 //
 // expressions
 //
 
+enum class ExpressionType {
+    kBinary,
+    kCall,
+    kConstValue,
+    kConvert,
+    kDotted,
+    kNot,
+    kSymbolReference,
+};
+
 class ExpressionNode : public Node {
    public:
     boost::local_shared_ptr<TypeNode> evaluatedType = nullptr;  // set during type checking
     explicit ExpressionNode(Token token);
+    virtual ExpressionType getExpressionType() const = 0;
 };
 
 enum class BinaryOperator {
@@ -136,6 +148,7 @@ class BinaryExpressionNode : public ExpressionNode {
         Token token);
     void dump(std::ostringstream& s, int n) const override;
     bool visitExpressions(const VisitExpressionFunc& func) const override;
+    ExpressionType getExpressionType() const override;
 };
 
 class CallExpressionNode : public ExpressionNode {
@@ -145,11 +158,13 @@ class CallExpressionNode : public ExpressionNode {
     CallExpressionNode(std::string name, std::vector<std::unique_ptr<ExpressionNode>> arguments, Token token);
     void dump(std::ostringstream& s, int n) const override;
     bool visitExpressions(const VisitExpressionFunc& func) const override;
+    ExpressionType getExpressionType() const override;
 };
 
 class ConstValueExpressionNode : public ExpressionNode {
    public:
     explicit ConstValueExpressionNode(Token token);
+    ExpressionType getExpressionType() const override;
 };
 
 class ConvertExpressionNode : public ExpressionNode {
@@ -160,6 +175,7 @@ class ConvertExpressionNode : public ExpressionNode {
     void dump(std::ostringstream& s, int n) const override;
     bool visitExpressions(const VisitExpressionFunc& func) const override;
     TypeNode* getChildTypeNode() const override;
+    ExpressionType getExpressionType() const override;
 };
 
 class DottedExpressionSuffixNode : public Node {
@@ -186,6 +202,7 @@ class DottedExpressionNode : public ExpressionNode {
         Token token);
     void dump(std::ostringstream& s, int n) const override;
     bool visitExpressions(const VisitExpressionFunc& func) const override;
+    ExpressionType getExpressionType() const override;
 };
 
 class LiteralArrayExpressionNode : public ConstValueExpressionNode {
@@ -240,6 +257,7 @@ class NotExpressionNode : public ExpressionNode {
     NotExpressionNode(std::unique_ptr<ExpressionNode> operand, Token token);
     void dump(std::ostringstream& s, int n) const override;
     bool visitExpressions(const VisitExpressionFunc& func) const override;
+    ExpressionType getExpressionType() const override;
 };
 
 class SymbolReferenceExpressionNode : public ExpressionNode {
@@ -249,6 +267,7 @@ class SymbolReferenceExpressionNode : public ExpressionNode {
     SymbolReferenceExpressionNode(std::string name, Token token);
     void dump(std::ostringstream& s, int n) const override;
     bool isSymbolReference() const override;
+    ExpressionType getExpressionType() const override;
 };
 
 //
@@ -281,8 +300,8 @@ enum class StatementType {
 
 class StatementNode : public Node {
    public:
-    const StatementType type;
-    explicit StatementNode(StatementType type, Token token);
+    explicit StatementNode(Token token);
+    virtual StatementType getStatementType() const = 0;
 };
 
 class AssignLocationSuffixNode : public Node {
@@ -307,6 +326,7 @@ class AssignStatementNode : public StatementNode {
         Token token);
     void dump(std::ostringstream& s, int n) const override;
     bool visitExpressions(const VisitExpressionFunc& func) const override;
+    StatementType getStatementType() const override;
 };
 
 class BodyNode : public Node {
@@ -323,6 +343,7 @@ class CallStatementNode : public StatementNode {
     CallStatementNode(std::string name, std::vector<std::unique_ptr<ExpressionNode>> arguments, Token token);
     void dump(std::ostringstream& s, int n) const override;
     bool visitExpressions(const VisitExpressionFunc& func) const override;
+    StatementType getStatementType() const override;
 };
 
 class ConstStatementNode : public StatementNode {
@@ -334,6 +355,7 @@ class ConstStatementNode : public StatementNode {
     MemberType getMemberType() const override;
     void dump(std::ostringstream& s, int n) const override;
     std::optional<std::string> getSymbolDeclaration() const override;
+    StatementType getStatementType() const override;
 };
 
 enum class ContinueScope {
@@ -347,6 +369,7 @@ class ContinueStatementNode : public StatementNode {
     ContinueScope scope;
     ContinueStatementNode(ContinueScope scope, Token token);
     void dump(std::ostringstream& s, int n) const override;
+    StatementType getStatementType() const override;
 };
 
 class DimListStatementNode : public StatementNode {
@@ -357,6 +380,7 @@ class DimListStatementNode : public StatementNode {
     DimListStatementNode(std::string name, std::unique_ptr<BodyNode> body, Token token);
     void dump(std::ostringstream& s, int n) const override;
     bool visitBodies(const VisitBodyFunc& func) const override;
+    StatementType getStatementType() const override;
 };
 
 class DimMapStatementNode : public StatementNode {
@@ -367,6 +391,7 @@ class DimMapStatementNode : public StatementNode {
     DimMapStatementNode(std::string name, std::unique_ptr<BodyNode> body, Token token);
     void dump(std::ostringstream& s, int n) const override;
     bool visitBodies(const VisitBodyFunc& func) const override;
+    StatementType getStatementType() const override;
 };
 
 class DimStatementNode : public StatementNode {
@@ -382,6 +407,7 @@ class DimStatementNode : public StatementNode {
     std::optional<std::string> getSymbolDeclaration() const override;
     bool visitExpressions(const VisitExpressionFunc& func) const override;
     TypeNode* getChildTypeNode() const override;
+    StatementType getStatementType() const override;
 };
 
 enum class DoConditionPosition {
@@ -416,6 +442,7 @@ class DoStatementNode : public StatementNode {
     void dump(std::ostringstream& s, int n) const override;
     bool visitBodies(const VisitBodyFunc& func) const override;
     bool visitExpressions(const VisitExpressionFunc& func) const override;
+    StatementType getStatementType() const override;
 };
 
 enum class ExitScope {
@@ -431,6 +458,7 @@ class ExitStatementNode : public StatementNode {
     ExitScope scope;
     ExitStatementNode(ExitScope scope, Token token);
     void dump(std::ostringstream& s, int n) const override;
+    StatementType getStatementType() const override;
 };
 
 class ForEachStatementNode : public StatementNode {
@@ -447,6 +475,7 @@ class ForEachStatementNode : public StatementNode {
     std::optional<std::string> getSymbolDeclaration() const override;
     bool visitBodies(const VisitBodyFunc& func) const override;
     bool visitExpressions(const VisitExpressionFunc& func) const override;
+    StatementType getStatementType() const override;
 };
 
 class ForStepNode : public Node {
@@ -477,6 +506,7 @@ class ForStatementNode : public StatementNode {
     std::optional<std::string> getSymbolDeclaration() const override;
     bool visitBodies(const VisitBodyFunc& func) const override;
     bool visitExpressions(const VisitExpressionFunc& func) const override;
+    StatementType getStatementType() const override;
 };
 
 class GroupKeyNameNode : public Node {
@@ -505,6 +535,7 @@ class GroupStatementNode : public StatementNode {
     std::optional<std::string> getSymbolDeclaration() const override;
     bool visitBodies(const VisitBodyFunc& func) const override;
     bool visitExpressions(const VisitExpressionFunc& func) const override;
+    StatementType getStatementType() const override;
 };
 
 class ElseIfNode : public Node {
@@ -532,6 +563,7 @@ class IfStatementNode : public StatementNode {
     void dump(std::ostringstream& s, int n) const override;
     bool visitBodies(const VisitBodyFunc& func) const override;
     bool visitExpressions(const VisitExpressionFunc& func) const override;
+    StatementType getStatementType() const override;
 };
 
 class JoinStatementNode : public StatementNode {
@@ -550,12 +582,14 @@ class JoinStatementNode : public StatementNode {
     std::optional<std::string> getSymbolDeclaration() const override;
     bool visitBodies(const VisitBodyFunc& func) const override;
     bool visitExpressions(const VisitExpressionFunc& func) const override;
+    StatementType getStatementType() const override;
 };
 
 class RethrowStatementNode : public StatementNode {
    public:
     explicit RethrowStatementNode(Token token);
     void dump(std::ostringstream& s, int n) const override;
+    StatementType getStatementType() const override;
 };
 
 class ReturnStatementNode : public StatementNode {
@@ -564,6 +598,7 @@ class ReturnStatementNode : public StatementNode {
     ReturnStatementNode(std::unique_ptr<ExpressionNode> expression, Token token);
     void dump(std::ostringstream& s, int n) const override;
     bool visitExpressions(const VisitExpressionFunc& func) const override;
+    StatementType getStatementType() const override;
 };
 
 class CaseValueNode : public Node {
@@ -599,6 +634,7 @@ class SelectCaseStatementNode : public StatementNode {
     void dump(std::ostringstream& s, int n) const override;
     bool visitBodies(const VisitBodyFunc& func) const override;
     bool visitExpressions(const VisitExpressionFunc& func) const override;
+    StatementType getStatementType() const override;
 };
 
 class SelectStatementNode : public StatementNode {
@@ -611,6 +647,7 @@ class SelectStatementNode : public StatementNode {
         Token token);
     void dump(std::ostringstream& s, int n) const override;
     bool visitExpressions(const VisitExpressionFunc& func) const override;
+    StatementType getStatementType() const override;
 };
 
 class ThrowStatementNode : public StatementNode {
@@ -619,6 +656,7 @@ class ThrowStatementNode : public StatementNode {
     ThrowStatementNode(std::unique_ptr<ExpressionNode> expression, Token token);
     void dump(std::ostringstream& s, int n) const override;
     bool visitExpressions(const VisitExpressionFunc& func) const override;
+    StatementType getStatementType() const override;
 };
 
 class TryStatementNode : public StatementNode {
@@ -633,6 +671,7 @@ class TryStatementNode : public StatementNode {
         Token token);
     void dump(std::ostringstream& s, int n) const override;
     bool visitBodies(const VisitBodyFunc& func) const override;
+    StatementType getStatementType() const override;
 };
 
 class WhileStatementNode : public StatementNode {
@@ -643,6 +682,7 @@ class WhileStatementNode : public StatementNode {
     void dump(std::ostringstream& s, int n) const override;
     bool visitBodies(const VisitBodyFunc& func) const override;
     bool visitExpressions(const VisitExpressionFunc& func) const override;
+    StatementType getStatementType() const override;
 };
 
 //

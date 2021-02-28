@@ -45,7 +45,7 @@ class Scope {
 static Scope makeProcedureGlobalScope(ProcedureNode* procedure, const CompiledProgram& program) {
     auto scope = Scope();
     for (const auto& globalVariable : program.globalVariables) {
-        auto node = std::make_unique<GlobalVariableNode>(globalVariable);
+        auto node = std::make_unique<GlobalVariableNode>(*globalVariable);
         auto result = scope.addSymbol(*node);
         assert(result == AddSymbolResult::kSuccess);
         (void)result;  // avoid unused variable error in release builds

@@ -55,7 +55,7 @@ static void emitTryStatement(const TryStatementNode& statementNode, ProcedureSta
 static void emitWhileStatement(const WhileStatementNode& statementNode, ProcedureState* state) {}
 
 static void emitStatement(const StatementNode& statementNode, ProcedureState* state) {
-    switch (statementNode.type) {
+    switch (statementNode.getStatementType()) {
         case StatementType::kAssign:
             emitAssignStatement(dynamic_cast<const AssignStatementNode&>(statementNode), state);
             break;

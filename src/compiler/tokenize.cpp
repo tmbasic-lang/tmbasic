@@ -421,7 +421,7 @@ TokenKind Scanner::classifyToken(const std::string& text) {
                 break;
             case 't':
                 if (lc == "text") {
-                    return TokenKind::kText;
+                    return TokenKind::kString;
                 } else if (lc == "then") {
                     return TokenKind::kThen;
                 } else if (lc == "throw") {

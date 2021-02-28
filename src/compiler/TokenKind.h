@@ -83,7 +83,7 @@ enum class TokenKind {
     kSelect,
     kStep,
     kSub,
-    kText,
+    kString,
     kThen,
     kThrow,
     kTimeSpan,
