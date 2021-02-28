@@ -9,29 +9,6 @@ using util::dynamic_cast_move;
 
 namespace compiler {
 
-static bool isCommentToken(const Token& x) {
-    return x.type == TokenKind::kComment;
-}
-
-static void removeComments(std::vector<Token>* tokens) {
-    tokens->erase(std::remove_if(tokens->begin(), tokens->end(), isCommentToken));
-}
-
-static void removeBlankLines(std::vector<Token>* tokens) {
-    for (auto i = tokens->size() - 1; i >= 1; i--) {
-        if ((*tokens)[i].type == TokenKind::kEndOfLine && (*tokens)[i - 1].type == TokenKind::kEndOfLine) {
-            tokens->erase(tokens->begin() + i);
-        }
-    }
-}
-
-static std::vector<Token> tokenizeForCompilation(const std::string& input) {
-    auto tokens = tokenize(input);
-    removeComments(&tokens);
-    removeBlankLines(&tokens);
-    return tokens;
-}
-
 static std::unique_ptr<TypeNode> getTypeForLiteralToken(const Token& token) {
     Kind kind = {};
     switch (token.type) {
@@ -96,7 +73,7 @@ static CompilerResult compileGlobal(const SourceMember& sourceMember, CompiledPr
         compiledProgram->globalVariables.push_back(std::move(g));
     }
 
-    auto tokens = tokenizeForCompilation(sourceMember.source);
+    auto tokens = tokenize(sourceMember.source, TokenizeType::kCompile);
     auto parserResult = parse(ParserRootProduction::kMember, tokens);
     if (!parserResult.isSuccess) {
         return CompilerResult::error(parserResult.message, *parserResult.token);
@@ -135,7 +112,7 @@ static CompilerResult compileGlobal(const SourceMember& sourceMember, CompiledPr
 
 // precondition: all global variables must be compiled first
 static CompilerResult compileProcedure(const SourceMember& sourceMember, CompiledProgram* compiledProgram) {
-    auto tokens = tokenizeForCompilation(sourceMember.source);
+    auto tokens = tokenize(sourceMember.source, TokenizeType::kCompile);
     auto parserResult = parse(ParserRootProduction::kMember, tokens);
     if (!parserResult.isSuccess) {
         return CompilerResult::error(parserResult.message, *parserResult.token);

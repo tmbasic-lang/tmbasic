@@ -4,13 +4,14 @@
 #include "helpers.h"
 #include "compiler/TokenKind.h"
 
-using compiler::tokenize;
 using compiler::TokenKind;
+using compiler::TokenizeType;
+using compiler::tokenize;
 
 static void scanMatch(std::string filenameWithoutExtension) {
     auto tok = readFile(filenameWithoutExtension + ".tok");
     auto bas = readFile(filenameWithoutExtension + ".bas");
-    auto tokens = tokenize(bas);
+    auto tokens = tokenize(bas, TokenizeType::kFormat);
     std::ostringstream s;
     for (auto token : tokens) {
         s << NAMEOF_ENUM(token.type) << "(" << token.lineIndex << "," << token.columnIndex << ")"
@@ -23,13 +24,13 @@ static void scanMatch(std::string filenameWithoutExtension) {
 }
 
 TEST(ScannerTest, IntegerLiteral) {
-    auto tokens = tokenize("123");
+    auto tokens = tokenize("123", TokenizeType::kFormat);
     ASSERT_EQ(TokenKind::kNumberLiteral, tokens[0].type);
     ASSERT_EQ(1, tokens.size());
 }
 
 TEST(ScannerTest, MinusVsNegative) {
-    auto tokens = tokenize("-4-5- -6 --7 -8.9");
+    auto tokens = tokenize("-4-5- -6 --7 -8.9", TokenizeType::kFormat);
     auto i = 0;
 
     ASSERT_EQ("-4", tokens[i].text);
@@ -74,7 +75,7 @@ TEST(ScannerTest, ForLoop) {
     auto tokens = tokenize(
         "for i = 1 to 5\n"
         "    dim a = true\n"
-        "next");
+        "next", TokenizeType::kFormat);
     auto i = 0;
 
     ASSERT_EQ("for", tokens[i].text);

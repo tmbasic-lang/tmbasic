@@ -5,6 +5,11 @@
 
 namespace compiler {
 
-std::vector<Token> tokenize(const std::string& input);
+enum class TokenizeType {
+    kCompile, // strip comments and blank lines
+    kFormat // include everything
+};
+
+std::vector<Token> tokenize(const std::string& input, TokenizeType type);
 
 }  // namespace compiler

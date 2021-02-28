@@ -7,12 +7,13 @@
 #include "util/cast.h"
 
 using compiler::Node;
-using compiler::parse;
 using compiler::ParserRootProduction;
 using compiler::ProgramNode;
 using compiler::Token;
-using compiler::tokenize;
 using compiler::TokenKind;
+using compiler::TokenizeType;
+using compiler::parse;
+using compiler::tokenize;
 using util::dynamic_cast_borrow;
 
 static std::string dump(const Node& node) {
@@ -24,7 +25,7 @@ static std::string dump(const Node& node) {
 static void parseMatch(std::string filenameWithoutExtension) {
     auto ast = readFile(filenameWithoutExtension + ".ast");
     auto bas = readFile(filenameWithoutExtension + ".bas");
-    auto tokens = tokenize(bas);
+    auto tokens = tokenize(bas, TokenizeType::kFormat);
     auto result = parse(ParserRootProduction::kProgram, tokens);
     if (!result.isSuccess) {
         std::cout << "Token: " << (*result.token).text << std::endl;

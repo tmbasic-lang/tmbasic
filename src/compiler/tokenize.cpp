@@ -29,8 +29,29 @@ class Scanner {
 
 Scanner::Scanner() = default;
 
-std::vector<Token> tokenize(const std::string& input) {
-    return Scanner::tokenize(input);
+static bool isCommentToken(const Token& x) {
+    return x.type == TokenKind::kComment;
+}
+
+static void removeComments(std::vector<Token>* tokens) {
+    tokens->erase(std::remove_if(tokens->begin(), tokens->end(), isCommentToken));
+}
+
+static void removeBlankLines(std::vector<Token>* tokens) {
+    for (auto i = tokens->size() - 1; i >= 1; i--) {
+        if ((*tokens)[i].type == TokenKind::kEndOfLine && (*tokens)[i - 1].type == TokenKind::kEndOfLine) {
+            tokens->erase(tokens->begin() + i);
+        }
+    }
+}
+
+std::vector<Token> tokenize(const std::string& input, TokenizeType type) {
+    auto tokens = Scanner::tokenize(input);
+    if (type == TokenizeType::kCompile) {
+        removeComments(&tokens);
+        removeBlankLines(&tokens);
+    }
+    return tokens;
 }
 
 std::vector<Token> Scanner::tokenize(const std::string& input) {
