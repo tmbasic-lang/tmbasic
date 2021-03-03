@@ -9,7 +9,7 @@ ObjectType TimeZone::getObjectType() const {
 }
 
 size_t TimeZone::getHash() const {
-    return std::hash<int32_t>{}(static_cast<double>(zone->getRawOffset()));
+    return std::hash<int32_t>{}(zone->getRawOffset());
 }
 
 bool TimeZone::equals(const Object& other) const {
