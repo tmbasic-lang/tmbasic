@@ -36,8 +36,6 @@ class SystemCallResult {
    public:
     Value a = {};
     boost::local_shared_ptr<Object> x = nullptr;
-    int popValues = 0;
-    int popObjects = 0;
     bool hasError = false;
     std::string errorMessage = "";
     int errorCode = 0;

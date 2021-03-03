@@ -245,6 +245,7 @@ BranchIfNotA y_loop_end
     PushValues 1
     StoreA 0
     SystemCall Chr
+    PopValues 1
     SetYFromX
     LoadX 1 # image
     StringXConcatenateY

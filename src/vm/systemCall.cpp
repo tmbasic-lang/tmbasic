@@ -133,35 +133,27 @@ SystemCallResult systemCall(SystemCall which, const SystemCallInput& input) {
                 systemCallAvailableLocales(&result);
                 break;
             case SystemCall::kCharacters1:
-                result.popObjects = 1;
                 systemCallCharacters1(input, &result);
                 break;
             case SystemCall::kCharacters2:
-                result.popObjects = 2;
                 systemCallCharacters2(input, &result);
                 break;
             case SystemCall::kChr:
-                result.popValues = 1;
                 systemCallChr(input, &result);
                 break;
             case SystemCall::kHasValueV:
-                result.popObjects = 1;
                 systemCallHasValueV(input, &result);
                 break;
             case SystemCall::kHasValueO:
-                result.popObjects = 1;
                 systemCallHasValueO(input, &result);
                 break;
             case SystemCall::kLen:
-                result.popObjects = 1;
                 systemCallLen(input, &result);
                 break;
             case SystemCall::kValueV:
-                result.popObjects = 1;
                 systemCallValueV(input, &result);
                 break;
             case SystemCall::kValueO:
-                result.popObjects = 1;
                 systemCallValueO(input, &result);
                 break;
             default:

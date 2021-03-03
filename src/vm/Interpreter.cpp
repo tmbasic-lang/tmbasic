@@ -435,22 +435,6 @@ bool Interpreter::run(int maxCycles) {
                     _errorMessage = boost::make_local_shared<String>(result.errorMessage);
                     _errorCode.num = result.errorCode;
                 }
-                if (result.popValues > 0) {
-                    auto endIndex = vsi + result.popValues;
-                    assert(endIndex <= kValueStackSize);
-                    for (int i = 0; i < result.popValues; i++) {
-                        _valueStack.at(vsi + i).num = 0;
-                    }
-                    vsi = endIndex;
-                }
-                if (result.popObjects > 0) {
-                    auto endIndex = osi + result.popObjects;
-                    assert(endIndex <= kObjectStackSize);
-                    for (int i = 0; i < result.popObjects; i++) {
-                        _objectStack.at(osi + i) = nullptr;
-                    }
-                    osi = endIndex;
-                }
                 instructionIndex += /*A*/ 1 + /*B*/ 2;
                 break;
             }
