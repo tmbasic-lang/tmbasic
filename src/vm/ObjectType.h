@@ -16,6 +16,7 @@ enum class ObjectType {
     kProcedureReference,
     kValueOptional,
     kObjectOptional,
+    kTimeZone,
 };
 
 }  // namespace vm

@@ -48,7 +48,6 @@ enum class TokenKind {
     kContinue,
     kDate,
     kDateTime,
-    kDateTimeOffset,
     kDim,
     kDo,
     kEach,
@@ -87,6 +86,7 @@ enum class TokenKind {
     kThen,
     kThrow,
     kTimeSpan,
+    kTimeZone,
     kTo,
     kTrue,
     kTry,
@@ -95,7 +95,8 @@ enum class TokenKind {
     kWend,
     kWhere,
     kWhile,
-    kWith
+    kWith,
+    kZonedDateTime,
 };
 
 }  // namespace compiler

@@ -332,8 +332,6 @@ TokenKind Scanner::classifyToken(const std::string& text) {
                     return TokenKind::kDate;
                 } else if (lc == "datetime") {
                     return TokenKind::kDateTime;
-                } else if (lc == "datetimeoffset") {
-                    return TokenKind::kDateTimeOffset;
                 } else if (lc == "dim") {
                     return TokenKind::kDim;
                 } else if (lc == "do") {
@@ -449,6 +447,8 @@ TokenKind Scanner::classifyToken(const std::string& text) {
                     return TokenKind::kThrow;
                 } else if (lc == "timespan") {
                     return TokenKind::kTimeSpan;
+                } else if (lc == "timezone") {
+                    return TokenKind::kTimeZone;
                 } else if (lc == "to") {
                     return TokenKind::kTo;
                 } else if (lc == "true") {
@@ -473,6 +473,11 @@ TokenKind Scanner::classifyToken(const std::string& text) {
                     return TokenKind::kWhile;
                 } else if (lc == "with") {
                     return TokenKind::kWith;
+                }
+                break;
+            case 'z':
+                if (lc == "zoneddatetime") {
+                    return TokenKind::kZonedDateTime;
                 }
                 break;
         }

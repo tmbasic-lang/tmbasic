@@ -4,7 +4,9 @@
 
 #include <unicode/brkiter.h>
 #include <unicode/coll.h>
+#include <unicode/simpletz.h>
 #include <unicode/timezone.h>
+#include <unicode/utypes.h>
 
 #include <decimal.hh>
 

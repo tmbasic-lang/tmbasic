@@ -487,8 +487,9 @@ class PrimitiveTypeProduction : public Production {
                           term(TokenKind::kString),
                           term(TokenKind::kDate),
                           term(TokenKind::kDateTime),
-                          term(TokenKind::kDateTimeOffset),
+                          term(TokenKind::kZonedDateTime),
                           term(TokenKind::kTimeSpan),
+                          term(TokenKind::kTimeZone),
                       })),
               }) {}
 
@@ -510,8 +511,11 @@ class PrimitiveTypeProduction : public Production {
             case TokenKind::kDateTime:
                 k = Kind::kDateTime;
                 break;
-            case TokenKind::kDateTimeOffset:
-                k = Kind::kDateTimeOffset;
+            case TokenKind::kZonedDateTime:
+                k = Kind::kZonedDateTime;
+                break;
+            case TokenKind::kTimeZone:
+                k = Kind::kTimeZone;
                 break;
             case TokenKind::kTimeSpan:
                 k = Kind::kTimeSpan;
