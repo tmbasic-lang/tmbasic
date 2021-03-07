@@ -3,7 +3,6 @@
 #include "List.h"
 #include "Optional.h"
 #include "String.h"
-#include "TimeSpan.h"
 
 namespace vm {
 
@@ -99,7 +98,7 @@ static void systemCallChr(const SystemCallInput& input, SystemCallResult* result
 }
 
 static void systemCallDays(const SystemCallInput& input, SystemCallResult* result) {
-    result->a = TimeSpan::fromDays(input.valueStack.at(input.valueStackIndex));
+    result->a.num = input.valueStack.at(input.valueStackIndex).num * U_MILLIS_PER_DAY;
 }
 
 static void systemCallHasValueV(const SystemCallInput& input, SystemCallResult* result) {
@@ -113,7 +112,7 @@ static void systemCallHasValueO(const SystemCallInput& input, SystemCallResult* 
 }
 
 static void systemCallHours(const SystemCallInput& input, SystemCallResult* result) {
-    result->a = TimeSpan::fromHours(input.valueStack.at(input.valueStackIndex));
+    result->a.num = input.valueStack.at(input.valueStackIndex).num * U_MILLIS_PER_HOUR;
 }
 
 static void systemCallLen(const SystemCallInput& input, SystemCallResult* result) {
@@ -127,11 +126,32 @@ static void systemCallMilliseconds(const SystemCallInput& input, SystemCallResul
 }
 
 static void systemCallMinutes(const SystemCallInput& input, SystemCallResult* result) {
-    result->a = TimeSpan::fromMinutes(input.valueStack.at(input.valueStackIndex));
+    result->a.num = input.valueStack.at(input.valueStackIndex).num * U_MILLIS_PER_MINUTE;
 }
 
 static void systemCallSeconds(const SystemCallInput& input, SystemCallResult* result) {
-    result->a = TimeSpan::fromSeconds(input.valueStack.at(input.valueStackIndex));
+    result->a.num = input.valueStack.at(input.valueStackIndex).num * U_MILLIS_PER_SECOND;
+}
+
+static void systemCallTotalDays(const SystemCallInput& input, SystemCallResult* result) {
+    result->a.num = input.valueStack.at(input.valueStackIndex).num / U_MILLIS_PER_DAY;
+}
+
+static void systemCallTotalHours(const SystemCallInput& input, SystemCallResult* result) {
+    result->a.num = input.valueStack.at(input.valueStackIndex).num / U_MILLIS_PER_HOUR;
+}
+
+static void systemCallTotalMilliseconds(const SystemCallInput& input, SystemCallResult* result) {
+    // already in milliseconds!
+    result->a = input.valueStack.at(input.valueStackIndex);
+}
+
+static void systemCallTotalMinutes(const SystemCallInput& input, SystemCallResult* result) {
+    result->a.num = input.valueStack.at(input.valueStackIndex).num / U_MILLIS_PER_MINUTE;
+}
+
+static void systemCallTotalSeconds(const SystemCallInput& input, SystemCallResult* result) {
+    result->a.num = input.valueStack.at(input.valueStackIndex).num / U_MILLIS_PER_SECOND;
 }
 
 static void systemCallValueV(const SystemCallInput& input, SystemCallResult* result) {
@@ -177,6 +197,11 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kMilliseconds, systemCallMilliseconds);
     initSystemCall(SystemCall::kMinutes, systemCallMinutes);
     initSystemCall(SystemCall::kSeconds, systemCallSeconds);
+    initSystemCall(SystemCall::kTotalDays, systemCallTotalDays);
+    initSystemCall(SystemCall::kTotalHours, systemCallTotalHours);
+    initSystemCall(SystemCall::kTotalMilliseconds, systemCallTotalMilliseconds);
+    initSystemCall(SystemCall::kTotalMinutes, systemCallTotalMinutes);
+    initSystemCall(SystemCall::kTotalSeconds, systemCallTotalSeconds);
     initSystemCall(SystemCall::kValueO, systemCallValueO);
     initSystemCall(SystemCall::kValueV, systemCallValueV);
 

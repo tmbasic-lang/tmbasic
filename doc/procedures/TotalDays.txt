@@ -1,0 +1,15 @@
+.procedure TotalDays
+.description
+Converts a t[TimeSpan] to days.
+.overload
+.parameter span: TimeSpan
+The time span to convert.
+.return Number
+A possibly fractional number of days.
+.example
+.example-code
+dim x = Hours(36)
+x.TotalDays.Print
+.example-output
+1.5
+.

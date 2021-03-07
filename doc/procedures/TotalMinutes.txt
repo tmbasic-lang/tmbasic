@@ -1,0 +1,15 @@
+.procedure TotalMinutes
+.description
+Converts a t[TimeSpan] to minutes.
+.overload
+.parameter span: TimeSpan
+The time span to convert.
+.return Number
+A possibly fractional number of minutes.
+.example
+.example-code
+dim x = Seconds(90)
+x.TotalMinutes.Print
+.example-output
+1.5
+.

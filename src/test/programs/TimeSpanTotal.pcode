@@ -1,0 +1,45 @@
+PushValues 1
+
+# 1.5 days
+LoadConstantA 129600000
+StoreA 0
+
+# TotalDays(129600000) = 1.5
+SystemCall TotalDays
+NumberToString
+StringPrint
+LoadConstantStringX ","
+StringPrint
+
+# TotalHours(129600000) = 36
+SystemCall TotalHours
+NumberToString
+StringPrint
+LoadConstantStringX ","
+StringPrint
+
+# TotalMinutes(129600000) = 2160
+SystemCall TotalMinutes
+NumberToString
+StringPrint
+LoadConstantStringX ","
+StringPrint
+
+# TotalSeconds(129600000) = 129600
+SystemCall TotalSeconds
+NumberToString
+StringPrint
+LoadConstantStringX ","
+StringPrint
+
+# TotalMilliseconds(129600000) = 129600000
+SystemCall TotalMilliseconds
+NumberToString
+StringPrint
+LoadConstantStringX ","
+StringPrint
+
+Exit
+
+--output--
+1.5,36,2160,129600,129600000,

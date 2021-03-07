@@ -1,0 +1,15 @@
+.procedure TotalMilliseconds
+.description
+Converts a t[TimeSpan] to milliseconds.
+.overload
+.parameter span: TimeSpan
+The time span to convert.
+.return Number
+A possibly fractional number of milliseconds.
+.example
+.example-code
+dim x = Seconds(10)
+x.TotalMilliseconds.Print
+.example-output
+10000
+.

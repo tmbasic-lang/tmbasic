@@ -180,6 +180,11 @@ static SystemCall parseSystemCall(string s) {
         { "Milliseconds", SystemCall::kMilliseconds },
         { "Minutes", SystemCall::kMinutes },
         { "Seconds", SystemCall::kSeconds },
+        { "TotalDays", SystemCall::kTotalDays },
+        { "TotalHours", SystemCall::kTotalHours },
+        { "TotalMilliseconds", SystemCall::kTotalMilliseconds },
+        { "TotalMinutes", SystemCall::kTotalMinutes },
+        { "TotalSeconds", SystemCall::kTotalSeconds },
         { "ValueO", SystemCall::kValueO },
         { "ValueV", SystemCall::kValueV },
     };

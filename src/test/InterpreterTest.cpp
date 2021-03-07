@@ -60,102 +60,45 @@ static void run(string filenameWithoutExtension) {
     ASSERT_EQ(expectedOutput, actualOutput);
 }
 
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define INTERPRETER_TEST(x) \
+    TEST(InterpreterTest, x) { run(#x); }
+
 // Regenerate with:
 /*
 ls src/test/programs/ | grep "\.pcode$" | xargs -n 1 basename | sed "s/\.pcode//g" | \
-awk '{ print "TEST(InterpreterTest, " $1 ") { run(\"" $1 "\"); }" }'
+awk '{ print "INTERPRETER_TEST(" $1 ")" }'
 */
 
-TEST(InterpreterTest, AddFunction) {
-    run("AddFunction");
-}
-TEST(InterpreterTest, AvailableLocales) {
-    run("AvailableLocales");
-}
-TEST(InterpreterTest, Errors) {
-    run("Errors");
-}
-TEST(InterpreterTest, ExitOnly) {
-    run("ExitOnly");
-}
-TEST(InterpreterTest, HasValueO) {
-    run("HasValueO");
-}
-TEST(InterpreterTest, HasValueV) {
-    run("HasValueV");
-}
-TEST(InterpreterTest, HelloWorld) {
-    run("HelloWorld");
-}
-TEST(InterpreterTest, Julia) {
-    run("Julia");
-}
-TEST(InterpreterTest, NewTimeSpan) {
-    run("NewTimeSpan");
-}
-TEST(InterpreterTest, NumberToString) {
-    run("NumberToString");
-}
-TEST(InterpreterTest, ObjectList) {
-    run("ObjectList");
-}
-TEST(InterpreterTest, ObjectToObjectMap) {
-    run("ObjectToObjectMap");
-}
-TEST(InterpreterTest, ObjectToValueMap) {
-    run("ObjectToValueMap");
-}
-TEST(InterpreterTest, Record) {
-    run("Record");
-}
-TEST(InterpreterTest, SimpleMath) {
-    run("SimpleMath");
-}
-TEST(InterpreterTest, StringAsc) {
-    run("StringAsc");
-}
-TEST(InterpreterTest, StringCharacters1_Empty) {
-    run("StringCharacters1_Empty");
-}
-TEST(InterpreterTest, StringCharacters1_English) {
-    run("StringCharacters1_English");
-}
-TEST(InterpreterTest, StringCharacters2_English) {
-    run("StringCharacters2_English");
-}
-TEST(InterpreterTest, StringCharacters2_InvalidLocale) {
-    run("StringCharacters2_InvalidLocale");
-}
-TEST(InterpreterTest, StringChr) {
-    run("StringChr");
-}
-TEST(InterpreterTest, StringChrCombiningDiacritic) {
-    run("StringChrCombiningDiacritic");
-}
-TEST(InterpreterTest, StringIndexOf) {
-    run("StringIndexOf");
-}
-TEST(InterpreterTest, StringInputLine) {
-    run("StringInputLine");
-}
-TEST(InterpreterTest, StringLen) {
-    run("StringLen");
-}
-TEST(InterpreterTest, StringMid) {
-    run("StringMid");
-}
-TEST(InterpreterTest, ValueList) {
-    run("ValueList");
-}
-TEST(InterpreterTest, ValueO) {
-    run("ValueO");
-}
-TEST(InterpreterTest, ValueToObjectMap) {
-    run("ValueToObjectMap");
-}
-TEST(InterpreterTest, ValueToValueMap) {
-    run("ValueToValueMap");
-}
-TEST(InterpreterTest, ValueV) {
-    run("ValueV");
-}
+INTERPRETER_TEST(AddFunction)
+INTERPRETER_TEST(AvailableLocales)
+INTERPRETER_TEST(Errors)
+INTERPRETER_TEST(ExitOnly)
+INTERPRETER_TEST(HasValueO)
+INTERPRETER_TEST(HasValueV)
+INTERPRETER_TEST(HelloWorld)
+INTERPRETER_TEST(Julia)
+INTERPRETER_TEST(NumberToString)
+INTERPRETER_TEST(ObjectList)
+INTERPRETER_TEST(ObjectToObjectMap)
+INTERPRETER_TEST(ObjectToValueMap)
+INTERPRETER_TEST(Record)
+INTERPRETER_TEST(SimpleMath)
+INTERPRETER_TEST(StringAsc)
+INTERPRETER_TEST(StringCharacters1_Empty)
+INTERPRETER_TEST(StringCharacters1_English)
+INTERPRETER_TEST(StringCharacters2_English)
+INTERPRETER_TEST(StringCharacters2_InvalidLocale)
+INTERPRETER_TEST(StringChr)
+INTERPRETER_TEST(StringChrCombiningDiacritic)
+INTERPRETER_TEST(StringIndexOf)
+INTERPRETER_TEST(StringInputLine)
+INTERPRETER_TEST(StringLen)
+INTERPRETER_TEST(StringMid)
+INTERPRETER_TEST(TimeSpanNew)
+INTERPRETER_TEST(TimeSpanTotal)
+INTERPRETER_TEST(ValueList)
+INTERPRETER_TEST(ValueO)
+INTERPRETER_TEST(ValueToObjectMap)
+INTERPRETER_TEST(ValueToValueMap)
+INTERPRETER_TEST(ValueV)

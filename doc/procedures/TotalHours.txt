@@ -1,0 +1,15 @@
+.procedure TotalHours
+.description
+Converts a t[TimeSpan] to hours.
+.overload
+.parameter span: TimeSpan
+The time span to convert.
+.return Number
+A possibly fractional number of hours.
+.example
+.example-code
+dim x = Minutes(90)
+x.TotalHours.Print
+.example-output
+1.5
+.
