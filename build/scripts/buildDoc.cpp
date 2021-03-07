@@ -214,6 +214,7 @@ static string processText(string str) {
     str = replaceRegex(str, "h1\\[([^\\]]+)\\]", "$1");
     str = replaceRegex(str, "h2\\[([^\\]]+)\\]", string(kCharDiamond) + " $1");
     str = replaceRegex(str, "h3\\[([^\\]]+)\\]", "$1");
+    str = replaceRegex(str, "bar\\[([^\\]]+)\\]", "$1");
     str = replaceRegex(str, "code@([^@]+)@", [](auto& match) -> string { return indent(match[1].str()); });
     str = replaceRegex(str, "nav@([^@]+)@", "$1");
     str = replaceRegex(str, "`([^`]+)`", "\"$1\"");
@@ -240,6 +241,7 @@ static string processHtml(string str) {
     str = replaceRegex(str, "\n*h1\\[([^\\]]+)\\]\n*", "<h1>$1</h1>");
     str = replaceRegex(str, "\n*h2\\[([^\\]]+)\\]\n*", "<h2>$1</h2>");
     str = replaceRegex(str, "\n*h3\\[([^\\]]+)\\]\n*", "<h3>$1</h3>");
+    str = replaceRegex(str, "\n*bar\\[([^\\]]+)\\]\n*", "<div class=\"bar\"><span>$1</span></div>");
     str = replaceRegex(str, "code@\n*([^@]+)\n*@\n*", [](auto& match) -> string {
         auto x = match[1].str();
         x = addHtmlSyntaxColoringToCode(x);
@@ -444,8 +446,8 @@ static string formatProcedureText(const string& topicName, const Procedure& proc
             if (trim_copy(example->description) != "") {
                 o << example->description << "\n\n";
             }
-            o << "Code:\ncode@" << example->code << "@\n\n";
-            o << "Output:\ncode@" << example->output << "@\n\n";
+            o << "bar[Code]\ncode@" << example->code << "@\n\n";
+            o << "bar[Output]\ncode@" << example->output << "@\n\n";
         }
 
         o << "\n\n";
