@@ -1,0 +1,18 @@
+.procedure Milliseconds
+.description
+Creates a t[TimeSpan] for the specified number of milliseconds.
+.overload
+.parameter count: Number
+The number of milliseconds in the time span.
+.return TimeSpan
+A time span representing i[count] milliseconds.
+.example
+.example-code
+dim x = Milliseconds(1)
+x.Print
+x = x + Milliseconds(0.5)
+x.Print
+.example-output
+00:00:00.001
+00:00:00.0015
+.

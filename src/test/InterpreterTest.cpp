@@ -90,6 +90,9 @@ TEST(InterpreterTest, HelloWorld) {
 TEST(InterpreterTest, Julia) {
     run("Julia");
 }
+TEST(InterpreterTest, NewTimeSpan) {
+    run("NewTimeSpan");
+}
 TEST(InterpreterTest, NumberToString) {
     run("NumberToString");
 }

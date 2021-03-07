@@ -1,0 +1,18 @@
+.procedure Days
+.description
+Creates a t[TimeSpan] for the specified number of days.
+.overload
+.parameter count: Number
+The number of days in the time span.
+.return TimeSpan
+A time span representing i[count] days.
+.example
+.example-code
+dim x = Days(1)
+x.Print
+x = x + Days(0.5)
+x.Print
+.example-output
+1.00:00:00
+1.12:00:00
+.

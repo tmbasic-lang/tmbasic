@@ -5,9 +5,9 @@
 namespace vm {
 
 struct Value {
+    decimal::Decimal num;
     Value();
     explicit Value(decimal::Decimal num);
-    decimal::Decimal num;
     std::string getString() const;
     bool getBoolean() const;
     void setBoolean(bool value);

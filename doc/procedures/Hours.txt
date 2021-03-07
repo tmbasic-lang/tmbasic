@@ -1,0 +1,18 @@
+.procedure Hours
+.description
+Creates a t[TimeSpan] for the specified number of hours.
+.overload
+.parameter count: Number
+The number of hours in the time span.
+.return TimeSpan
+A time span representing i[count] hours.
+.example
+.example-code
+dim x = Hours(1)
+x.Print
+x = x + Hours(0.5)
+x.Print
+.example-output
+01:00:00
+01:30:00
+.

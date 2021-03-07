@@ -1,0 +1,18 @@
+.procedure Minutes
+.description
+Creates a t[TimeSpan] for the specified number of minutes.
+.overload
+.parameter count: Number
+The number of minutes in the time span.
+.return TimeSpan
+A time span representing i[count] minutes.
+.example
+.example-code
+dim x = Minutes(1)
+x.Print
+x = x + Minutes(0.5)
+x.Print
+.example-output
+00:01:00
+00:01:30
+.

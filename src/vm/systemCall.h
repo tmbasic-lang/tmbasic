@@ -12,11 +12,16 @@ enum class SystemCall {
     kCharacters1,       // Characters(input as String) as List of String
     kCharacters2,       // Characters(input as String, locale as String) as List of String
     kChr,               // Chr(input as Number) as String
-    kHasValueV,         // HasValue(input as Optional Value) as Boolean
+    kDays,              // Days(count as Number) as TimeSpan
     kHasValueO,         // HasValue(input as Optional Object) as Boolean
+    kHasValueV,         // HasValue(input as Optional Value) as Boolean
+    kHours,             // Hours(count as Number) as TimeSpan
     kLen,               // Len(input as String) as Number
-    kValueV,            // ValueV(input as Optional Value) as Boolean
+    kMilliseconds,      // Milliseconds(count as Number) as TimeSpan
+    kMinutes,           // Minutes(count as Number) as TimeSpan
+    kSeconds,           // Seconds(count as Number) as TimeSpan
     kValueO,            // ValueO(input as Optional Object) as Boolean
+    kValueV,            // ValueV(input as Optional Value) as Boolean
 };
 
 class SystemCallInput {
@@ -41,6 +46,7 @@ class SystemCallResult {
     int errorCode = 0;
 };
 
+void initSystemCalls();
 SystemCallResult systemCall(SystemCall which, const SystemCallInput& input);
 
 }  // namespace vm

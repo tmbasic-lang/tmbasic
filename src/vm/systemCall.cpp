@@ -3,8 +3,13 @@
 #include "List.h"
 #include "Optional.h"
 #include "String.h"
+#include "TimeSpan.h"
 
 namespace vm {
+
+typedef void (*SystemCallFunc)(const SystemCallInput&, SystemCallResult*);
+static std::vector<SystemCallFunc> systemCalls;
+static bool systemCallsInitialized = false;
 
 class Error : public std::runtime_error {
    public:
@@ -22,7 +27,7 @@ SystemCallInput::SystemCallInput(
       valueStackIndex(valueStackIndex),
       objectStackIndex(objectStackIndex) {}
 
-static void systemCallAvailableLocales(SystemCallResult* result) {
+static void systemCallAvailableLocales(const SystemCallInput&, SystemCallResult* result) {
     int32_t count = 0;
     const auto* locales = icu::Locale::getAvailableLocales(count);
 
@@ -93,9 +98,8 @@ static void systemCallChr(const SystemCallInput& input, SystemCallResult* result
     result->x = boost::make_local_shared<String>(ch > 0 ? icu::UnicodeString(ch) : icu::UnicodeString());
 }
 
-static void systemCallLen(const SystemCallInput& input, SystemCallResult* result) {
-    const auto& str = dynamic_cast<String&>(*input.objectStack.at(input.objectStackIndex)).value;
-    result->a.num = str.length();
+static void systemCallDays(const SystemCallInput& input, SystemCallResult* result) {
+    result->a = TimeSpan::fromDays(input.valueStack.at(input.valueStackIndex));
 }
 
 static void systemCallHasValueV(const SystemCallInput& input, SystemCallResult* result) {
@@ -106,6 +110,28 @@ static void systemCallHasValueV(const SystemCallInput& input, SystemCallResult* 
 static void systemCallHasValueO(const SystemCallInput& input, SystemCallResult* result) {
     auto& opt = dynamic_cast<ObjectOptional&>(*input.objectStack.at(input.objectStackIndex));
     result->a.setBoolean(opt.item.has_value());
+}
+
+static void systemCallHours(const SystemCallInput& input, SystemCallResult* result) {
+    result->a = TimeSpan::fromHours(input.valueStack.at(input.valueStackIndex));
+}
+
+static void systemCallLen(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& str = dynamic_cast<String&>(*input.objectStack.at(input.objectStackIndex)).value;
+    result->a.num = str.length();
+}
+
+static void systemCallMilliseconds(const SystemCallInput& input, SystemCallResult* result) {
+    // already in milliseconds!
+    result->a = input.valueStack.at(input.valueStackIndex);
+}
+
+static void systemCallMinutes(const SystemCallInput& input, SystemCallResult* result) {
+    result->a = TimeSpan::fromMinutes(input.valueStack.at(input.valueStackIndex));
+}
+
+static void systemCallSeconds(const SystemCallInput& input, SystemCallResult* result) {
+    result->a = TimeSpan::fromSeconds(input.valueStack.at(input.valueStackIndex));
 }
 
 static void systemCallValueV(const SystemCallInput& input, SystemCallResult* result) {
@@ -124,41 +150,45 @@ static void systemCallValueO(const SystemCallInput& input, SystemCallResult* res
     result->x = *opt.item;
 }
 
+static void initSystemCall(SystemCall which, SystemCallFunc func) {
+    auto index = static_cast<size_t>(which);
+
+    while (systemCalls.size() <= index) {
+        systemCalls.push_back(nullptr);
+    }
+
+    systemCalls.at(index) = func;
+}
+
+void initSystemCalls() {
+    if (systemCallsInitialized) {
+        return;
+    }
+
+    initSystemCall(SystemCall::kAvailableLocales, systemCallAvailableLocales);
+    initSystemCall(SystemCall::kCharacters1, systemCallCharacters1);
+    initSystemCall(SystemCall::kCharacters2, systemCallCharacters2);
+    initSystemCall(SystemCall::kChr, systemCallChr);
+    initSystemCall(SystemCall::kDays, systemCallDays);
+    initSystemCall(SystemCall::kHasValueO, systemCallHasValueO);
+    initSystemCall(SystemCall::kHasValueV, systemCallHasValueV);
+    initSystemCall(SystemCall::kHours, systemCallHours);
+    initSystemCall(SystemCall::kLen, systemCallLen);
+    initSystemCall(SystemCall::kMilliseconds, systemCallMilliseconds);
+    initSystemCall(SystemCall::kMinutes, systemCallMinutes);
+    initSystemCall(SystemCall::kSeconds, systemCallSeconds);
+    initSystemCall(SystemCall::kValueO, systemCallValueO);
+    initSystemCall(SystemCall::kValueV, systemCallValueV);
+
+    systemCallsInitialized = true;
+}
+
 SystemCallResult systemCall(SystemCall which, const SystemCallInput& input) {
     SystemCallResult result;
 
     try {
-        switch (which) {
-            case SystemCall::kAvailableLocales:
-                systemCallAvailableLocales(&result);
-                break;
-            case SystemCall::kCharacters1:
-                systemCallCharacters1(input, &result);
-                break;
-            case SystemCall::kCharacters2:
-                systemCallCharacters2(input, &result);
-                break;
-            case SystemCall::kChr:
-                systemCallChr(input, &result);
-                break;
-            case SystemCall::kHasValueV:
-                systemCallHasValueV(input, &result);
-                break;
-            case SystemCall::kHasValueO:
-                systemCallHasValueO(input, &result);
-                break;
-            case SystemCall::kLen:
-                systemCallLen(input, &result);
-                break;
-            case SystemCall::kValueV:
-                systemCallValueV(input, &result);
-                break;
-            case SystemCall::kValueO:
-                systemCallValueO(input, &result);
-                break;
-            default:
-                assert(false);
-        }
+        auto index = static_cast<size_t>(which);
+        systemCalls.at(index)(input, &result);
     } catch (Error& ex) {
         result.hasError = true;
         result.errorCode = static_cast<int>(ex.code);

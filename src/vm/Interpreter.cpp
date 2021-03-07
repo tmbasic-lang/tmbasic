@@ -35,7 +35,9 @@ static int16_t readInt16(const uint8_t* ptr) {
 }
 
 Interpreter::Interpreter(Program* program, std::istream* consoleInputStream, std::ostream* consoleOutputStream)
-    : _program(program), _consoleInputStream(consoleInputStream), _consoleOutputStream(consoleOutputStream) {}
+    : _program(program), _consoleInputStream(consoleInputStream), _consoleOutputStream(consoleOutputStream) {
+    initSystemCalls();
+}
 
 void Interpreter::init(int procedureIndex) {
     _callStack = {};

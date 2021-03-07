@@ -172,11 +172,16 @@ static SystemCall parseSystemCall(string s) {
         { "Characters1", SystemCall::kCharacters1 },
         { "Characters2", SystemCall::kCharacters2 },
         { "Chr", SystemCall::kChr },
-        { "HasValueV", SystemCall::kHasValueV },
+        { "Days", SystemCall::kDays },
         { "HasValueO", SystemCall::kHasValueO },
+        { "HasValueV", SystemCall::kHasValueV },
+        { "Hours", SystemCall::kHours },
         { "Len", SystemCall::kLen },
-        { "ValueV", SystemCall::kValueV },
+        { "Milliseconds", SystemCall::kMilliseconds },
+        { "Minutes", SystemCall::kMinutes },
+        { "Seconds", SystemCall::kSeconds },
         { "ValueO", SystemCall::kValueO },
+        { "ValueV", SystemCall::kValueV },
     };
 
     auto it = map.find(s);

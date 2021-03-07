@@ -1,0 +1,3 @@
+nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {BASIC Reference:ref}@
+
+h1[`TimeSpan` Type]

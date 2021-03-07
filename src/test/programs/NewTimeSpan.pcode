@@ -1,0 +1,46 @@
+PushValues 1
+
+LoadConstantA 3
+LoadConstantB 2
+ADivideB
+StoreA 0
+
+# Days(1.5) = 129600000
+SystemCall Days
+NumberToString
+StringPrint
+LoadConstantStringX ","
+StringPrint
+
+# Hours(1.5) = 5400000
+SystemCall Hours
+NumberToString
+StringPrint
+LoadConstantStringX ","
+StringPrint
+
+# Minutes(1.5) = 90000
+SystemCall Minutes
+NumberToString
+StringPrint
+LoadConstantStringX ","
+StringPrint
+
+# Seconds(1.5) = 1500
+SystemCall Seconds
+NumberToString
+StringPrint
+LoadConstantStringX ","
+StringPrint
+
+# Milliseconds(1.5) = 1.5
+SystemCall Milliseconds
+NumberToString
+StringPrint
+LoadConstantStringX ","
+StringPrint
+
+Exit
+
+--output--
+129600000.0,5400000.0,90000.0,1500.0,1.5,

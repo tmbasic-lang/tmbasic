@@ -1,0 +1,18 @@
+.procedure Seconds
+.description
+Creates a t[TimeSpan] for the specified number of seconds.
+.overload
+.parameter count: Number
+The number of seconds in the time span.
+.return TimeSpan
+A time span representing i[count] seconds.
+.example
+.example-code
+dim x = Seconds(1)
+x.Print
+x = x + Seconds(0.5)
+x.Print
+.example-output
+00:00:01
+00:00:01.5
+.
