@@ -1,4 +1,5 @@
 .procedure Days
+.category Dates and Times
 .description
 Creates a t[TimeSpan] for the specified number of days.
 .overload

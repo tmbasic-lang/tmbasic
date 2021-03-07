@@ -77,6 +77,7 @@ struct Overload {
 struct Procedure {
     string name;
     string description;
+    string category;
     vector<unique_ptr<Overload>> overloads;
 };
 
@@ -262,7 +263,12 @@ static string processHtml(string str) {
     str = replaceRegex(str, "\n*li@\n*([^@]+)\n*@\n*", "<li>$1</li>");
     str = replaceRegex(str, "\n*ul@\n*([^@]+)\n*@\n*", "<ul>$1</ul>");
     str = replaceRegex(str, "([^{])\\{([^:{]+):(http[^}]+)\\}", "$1<a href=\"$3\">$2</a>");
-    str = replaceRegex(str, "([^{])\\{([^:{]+):([^}]+)\\}", "$1<a href=\"$3.html\">$2</a>");
+    str = replaceRegex(str, "([^{])\\{([^{}]+[^:]):([^}]+)\\}", [](auto& match) -> string {
+        auto a = match[1].str();
+        auto b = replace(match[2].str(), "::", ":");
+        auto c = match[3].str();
+        return a + "<a href=\"" + c + ".html\">" + b + "</a>";
+    });
     str = replace(str, "{{", "{");
     str = replace(str, "--", "—");
     str = replace(str, "\n\n", "<div class=\"paragraphBreak\"></div>");
@@ -338,6 +344,8 @@ static unique_ptr<Procedure> parseProcedure(const string& input) {
             if (section == ".procedure") {
                 // like ".procedure hasValue"
                 procedure->name = rest;
+            } else if (section == ".category") {
+                procedure->category = rest;
             } else if (section == ".overload") {
                 auto newOverload = make_unique<Overload>();
                 overload = newOverload.get();
@@ -393,10 +401,25 @@ static unique_ptr<Procedure> parseProcedure(const string& input) {
     return procedure;
 }
 
+static string getProcedureCategoryTopic(string category) {
+    ostringstream topic;
+    topic << "procedures_";
+    for (auto ch : category) {
+        if (ch == ' ') {
+            topic << '_';
+        } else {
+            topic << static_cast<char>(tolower(ch));
+        }
+    }
+    return topic.str();
+}
+
 static string formatProcedureText(const string& topicName, const Procedure& procedure) {
+    auto categoryTopic = getProcedureCategoryTopic(procedure.category);
+
     ostringstream o;
-    o << "nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {BASIC Reference:ref} <TRIANGLE_RIGHT> {Procedure "
-         "Index:procedure}@\n\n";
+    o << "nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {BASIC Reference:ref} <TRIANGLE_RIGHT> {Procedures:: "
+      << procedure.category << ":" << categoryTopic << "}@\n\n";
     o << "h1[`" << procedure.name << "` Procedure]\n\n" << procedure.description << "\n\n";
 
     for (auto& overload : procedure.overloads) {
@@ -474,22 +497,48 @@ static bool compareProceduresByName(const unique_ptr<Procedure>& lhs, const uniq
     return lhs->name.compare(rhs->name) < 0;
 }
 
-static void buildProcedureIndex(
-    vector<unique_ptr<Procedure>> procedures,
+static void buildProcedureCategoryPages(
+    const vector<unique_ptr<Procedure>>& procedures,
     ostringstream* outputTxt,
     const string& htmlPageTemplate) {
-    sort(procedures.begin(), procedures.end(), compareProceduresByName);
+    unordered_set<string> categoriesSet;
+    for (auto& p : procedures) {
+        categoriesSet.insert(p->category);
+    }
 
+    for (auto& category : categoriesSet) {
+        auto topic = getProcedureCategoryTopic(category);
+
+        ostringstream o;
+        o << "nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {BASIC Reference:ref}@\n\nh1[Procedures: " << category
+          << "]\n\nul@";
+
+        for (auto& x : procedures) {
+            if (x->category == category) {
+                o << "li@{`" << x->name << "`:procedure_" << x->name << "}@\n";
+            }
+        }
+
+        o << "@\n\n";
+
+        ostringstream filePathStream;
+        filePathStream << "../obj/doc-temp/" << topic << ".txt";
+        auto filePath = filePathStream.str();
+        writeFile(filePath, o.str());
+        buildTopic(filePath, filePath, topic, outputTxt, htmlPageTemplate);
+    }
+}
+
+static void buildProcedureIndex(
+    const vector<unique_ptr<Procedure>>& procedures,
+    ostringstream* outputTxt,
+    const string& htmlPageTemplate) {
     ostringstream o;
     o << "nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {BASIC Reference:ref}@\n\nh1[Procedure Index]\n\n";
 
     o << "h2[By Name]\n\nul@";
-    vector<string> procedureNames;
     for (auto& x : procedures) {
-        procedureNames.push_back(x->name);
-    }
-    for (auto& name : procedureNames) {
-        o << "li@{`" << name << "` Procedure:procedure_" << name << "}@\n";
+        o << "li@{`" << x->name << "`:procedure_" << x->name << "}@\n";
     }
     o << "@\n\n";
 
@@ -520,7 +569,7 @@ static void buildProcedureIndex(
                     (o->parameters.size() > 0 && t == o->parameters[0]->type);
             }
             if (includeThisProcedure) {
-                o << "li@{`" << p->name << "` Procedure:procedure_" << p->name << "}@\n";
+                o << "li@{`" << p->name << "`:procedure_" << p->name << "}@\n";
             }
         }
         o << "@\n\n";
@@ -583,7 +632,9 @@ int main() {
                     string("../obj/doc-temp/procedures-cp437/") + filename, string("procedures/") + filename,
                     &outputTxt, htmlPageTemplate));
             });
-        buildProcedureIndex(move(procedures), &outputTxt, htmlPageTemplate);
+        sort(procedures.begin(), procedures.end(), compareProceduresByName);
+        buildProcedureCategoryPages(procedures, &outputTxt, htmlPageTemplate);
+        buildProcedureIndex(procedures, &outputTxt, htmlPageTemplate);
         writeFile("../obj/resources/help/help.txt", insertCp437Diagrams(outputTxt.str()));
     } catch (const regex_error& ex) {
         ostringstream s;

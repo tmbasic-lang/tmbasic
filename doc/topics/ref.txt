@@ -5,8 +5,16 @@ h1[BASIC Reference]
 h2[General]
 
 ul@
-li@{Procedure Index:procedure}@
 li@{Language Grammar:ref_grammar}@
+@
+
+h2[Procedures]
+
+ul@
+li@{Procedure Index:procedure}@
+li@{Dates and Times:procedures_dates_and_times}@
+li@{Optionals:procedures_optionals}@
+li@{Strings:procedures_strings}@
 @
 
 h2[Types]
@@ -17,6 +25,7 @@ li@{`List` Type:type_List}@
 li@{`Number` Type:type_Number}@
 li@{`Optional` Type:type_Optional}@
 li@{`String` Type:type_String}@
+li@{`TimeSpan` Type:type_TimeSpan}@
 @
 
 h2[Statements]

@@ -1,4 +1,5 @@
 .procedure HasValue
+.category Optionals
 .description
 Determines whether an t[Optional] value has been provided, or whether it is `none`.
 .overload

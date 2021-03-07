@@ -1,4 +1,5 @@
 .procedure Value
+.category Optionals
 .description
 If an t[Optional] contains a value, then it is returned. If not, an error is thrown. Use p[HasValue] first to determine whether a value is present before calling p[Value].
 .overload

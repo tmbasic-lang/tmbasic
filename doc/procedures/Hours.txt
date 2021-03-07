@@ -1,4 +1,5 @@
 .procedure Hours
+.category Dates and Times
 .description
 Creates a t[TimeSpan] for the specified number of hours.
 .overload

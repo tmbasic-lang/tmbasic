@@ -1,4 +1,5 @@
 .procedure Len
+.category Strings
 .description
 Returns the number of 16-bit Unicode code units in a text value.
 .overload

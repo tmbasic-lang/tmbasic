@@ -1,4 +1,5 @@
 .procedure Chr
+.category Strings
 .description
 Returns the character that corresponds to the specified Unicode code point number.
 .overload

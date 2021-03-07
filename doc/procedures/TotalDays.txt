@@ -1,4 +1,5 @@
 .procedure TotalDays
+.category Dates and Times
 .description
 Converts a t[TimeSpan] to days.
 .overload
