@@ -26,7 +26,7 @@ SystemCallInput::SystemCallInput(
       valueStackIndex(valueStackIndex),
       objectStackIndex(objectStackIndex) {}
 
-static void systemCallAvailableLocales(const SystemCallInput&, SystemCallResult* result) {
+static void systemCallAvailableLocales(const SystemCallInput& /*unused*/, SystemCallResult* result) {
     int32_t count = 0;
     const auto* locales = icu::Locale::getAvailableLocales(count);
 

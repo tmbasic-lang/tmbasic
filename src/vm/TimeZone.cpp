@@ -17,7 +17,7 @@ bool TimeZone::equals(const Object& other) const {
         return false;
     }
     const auto& otherTz = dynamic_cast<const TimeZone&>(other);
-    return *zone == *otherTz.zone;
+    return (*zone == *otherTz.zone) != 0;
 }
 
 }  // namespace vm

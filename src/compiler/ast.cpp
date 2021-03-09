@@ -156,6 +156,7 @@ TypeNode::TypeNode(Kind kind, Token token, std::vector<std::unique_ptr<FieldNode
 
 static std::vector<std::unique_ptr<FieldNode>> cloneFields(const std::vector<std::unique_ptr<FieldNode>>& source) {
     std::vector<std::unique_ptr<FieldNode>> dest;
+    dest.reserve(source.size());
     for (const auto& n : source) {
         dest.push_back(std::make_unique<FieldNode>(*n));
     }
@@ -165,13 +166,13 @@ static std::vector<std::unique_ptr<FieldNode>> cloneFields(const std::vector<std
 static std::unique_ptr<TypeNode> cloneType(const std::unique_ptr<TypeNode>& source) {
     if (source) {
         return std::make_unique<TypeNode>(*source);
-    } else {
-        return nullptr;
     }
+    return nullptr;
 }
 
 TypeNode::TypeNode(const TypeNode& source)
     : Node(source.token),
+      kind(source.kind),
       recordName(source.recordName),
       genericPlaceholderName(source.genericPlaceholderName),
       fields(cloneFields(source.fields)),
