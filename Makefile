@@ -107,6 +107,8 @@ TIDY_TARGETS=$(patsubst src/%,obj/tidy/%,$(ALL_NON_TEST_CPP_FILES:.cpp=.tidy))
 # ghpages files
 FAVICON_IN_FILES=$(shell find art/favicon -type f)
 FAVICON_OUT_FILES=$(patsubst art/favicon/%,bin/ghpages/%,$(FAVICON_IN_FILES))
+PNG_IN_FILES=$(shell find art -maxdepth 1 -type f -name "*.png")
+PNG_OUT_FILES=$(patsubst art/%,bin/ghpages/%,$(PNG_IN_FILES))
 
 # help files
 TOPIC_UTF8_FILES=$(shell find doc/topics -type f -name "*.txt")
@@ -415,7 +417,7 @@ bin/ghpages/index.html: README.md \
 		doc/html/page-template-2.html \
 		doc/html/page-template-3.html \
 		$(FAVICON_OUT_FILES) \
-		bin/ghpages/screenshot.png
+		$(PNG_OUT_FILES)
 	@printf "%16s  %s\n" "pandoc" "$@"
 	@mkdir -p $(@D)
 	@cat doc/html/page-template-1.html > $@
@@ -429,7 +431,7 @@ $(FAVICON_OUT_FILES): bin/ghpages/%: art/favicon/%
 	@mkdir -p $(@D)
 	@cp -f $< $@
 
-bin/ghpages/screenshot.png: art/screenshot.png
+$(PNG_OUT_FILES): bin/ghpages/%: art/%
 	@printf "%16s  %s\n" "cp" "$@"
 	@mkdir -p $(@D)
 	@cp -f $< $@

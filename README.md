@@ -15,23 +15,13 @@ TMBASIC is under development. Stay tuned!
 
 ## Compatibility
 
-TMBASIC supports the following platforms:
-
 <div id="platformSupportTable">
 
-Platform | Tested systems
--- | --
-Windows (64-bit) | Windows 10
-Windows (32-bit) | Windows 10
-macOS | [iTerm2](https://www.iterm2.com/) on macOS 10.13
-Linux (64-bit) | Alpine 3.13, Ubuntu 18.04
-Linux (32-bit) | [iSH Shell](https://apps.apple.com/us/app/ish-shell/id1436902243) on iOS
-Linux (ARM64) | Alpine 3.13, Ubuntu 18.04, [Termux](https://termux.com/) on Android
-Linux (ARM32) | Raspbian
-
-A build in TMBASIC produces single-file executables for all supported platforms at once. These compiled programs require no external libraries.
+<table><tr><td><img src="https://tmbasic.com/windows-logo.png" width=64 height=64 alt="Windows"><br><strong>Windows 10</strong><br><span class="arch">64-bit &bull; 32-bit</span></td><td><img src="https://tmbasic.com/apple-logo.png" width=64 height=64 alt="macOS"><br><strong>macOS 10.13+</strong><br><span class="arch">Intel</span></td><td><img src="https://tmbasic.com/linux-logo.png" width=64 height=64 alt="Linux"><br><strong>Ubuntu &bull; Raspbian &bull; <a href="https://apps.apple.com/us/app/ish-shell/id1436902243">iSH&nbsp;Shell</a>&nbsp;(iOS) &bull; <a href="https://termux.com/">Termux</a>&nbsp;(Android)</strong><br><span class="arch">64-bit &bull; 32-bit &bull; ARM64 &bull; ARM32</span></td></tr></table>
 
 </div>
+
+TMBASIC supports all major desktop systems. It can run on mobile platforms using the popular terminal apps <a href="https://apps.apple.com/us/app/ish-shell/id1436902243">iSH Shell</a> and <a href="https://termux.com/">Termux</a>. TMBASIC running on any platform can produce single-file executables for any other supported platform. Compiled BASIC programs require no external libraries.
 
 ## Motivation
 
@@ -63,3 +53,5 @@ TMBASIC itself is open source software, but apps written in TMBASIC are not requ
 Pay close attention: executables built by TMBASIC are subject to the licenses above. You must obey these licenses if you distribute your compiled executables. These are permissive open source licenses that do not require you to release your BASIC source code. TMBASIC includes a `LICENSE.txt` file that combines these licenses for your convenience. Include this license file along with your executable when you distribute your TMBASIC apps.
 
 Read the [External Libraries](https://github.com/electroly/tmbasic/blob/master/ext/README.md) document for a list of third party components used in TMBASIC itself.
+
+The Windows, macOS, and Linux logo icons used on the TMBASIC website were created by [Erik Ragnar Eliasson](https://www.iconfinder.com/Erik_Rgnr).
