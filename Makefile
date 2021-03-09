@@ -101,7 +101,7 @@ TMBASIC_H_FILES=$(shell find src/tmbasic -type f -name "*.h")
 TMBASIC_OBJ_FILES=$(patsubst src/%,obj/%,$(TMBASIC_SRC_FILES:.cpp=.o))
 
 # tidy files
-ALL_NON_TEST_CPP_FILES=$(COMPILER_SRC_FILES) $(RUNNER_SRC_FILES) $(UTIL_SRC_FILES) $(VM_SRC_FILES) $(TMBASIC_SRC_FILES)
+ALL_NON_TEST_CPP_FILES=$(COMPILER_SRC_FILES) $(RUNNER_SRC_FILES) $(UTIL_SRC_FILES) $(VM_SRC_FILES) $(TMBASIC_SRC_FILES) src/buildDoc.cpp
 TIDY_TARGETS=$(patsubst src/%,obj/tidy/%,$(ALL_NON_TEST_CPP_FILES:.cpp=.tidy))
 
 # ghpages files
@@ -371,11 +371,10 @@ valgrind: bin/tmbasic
 .PHONY: format
 format:
 	@find src/ -type f \( -iname \*.h -o -iname \*.cpp \) | xargs clang-format -i
-	@clang-format -i build/scripts/buildDoc.cpp
 
 .PHONY: lint
 lint:
-	@cpplint --quiet --recursive --repository=src src build/scripts/buildDoc.cpp
+	@cpplint --quiet --recursive --repository=src src
 
 .PHONY: tidy
 tidy: $(TIDY_TARGETS)
@@ -495,7 +494,7 @@ $(LICENSE_DIAGRAM_TXT_FILES): $(LICENSE_FILES)
 	@mkdir -p $(@D)
 	@build/scripts/copyLicenses.sh
 
-obj/buildDoc: build/scripts/buildDoc.cpp
+obj/buildDoc: src/buildDoc.cpp
 	@printf "%16s  %s\n" "$(BUILDCXX)" "$@"
 	@mkdir -p $(@D)
 	@$(BUILDCXX) \

@@ -13,6 +13,7 @@
 #include <stdexcept>
 #include <string>
 #include <unordered_set>
+#include <utility>
 #include <vector>
 
 #include <boost/algorithm/string/trim.hpp>
@@ -20,7 +21,6 @@
 
 using boost::trim_copy;
 using std::cerr;
-using std::cout;
 using std::endl;
 using std::function;
 using std::istringstream;
@@ -36,20 +36,19 @@ using std::runtime_error;
 using std::smatch;
 using std::sort;
 using std::string;
-using std::system_error;
 using std::unique_ptr;
 using std::unordered_set;
 using std::vector;
 using std::regex_constants::match_any;
 
-const char kCharDiamond[] = "\x04";
-const char kHtmlDiamond[] = "♦";
-const char kCharBullet[] = "\x07";
-const char kHtmlBullet[] = "•";
-const char kCharTriangleRight[] = "\x10";
-const char kHtmlTriangleRight[] = "►";
-const char kCharOpenCircle[] = "\x09";
-const char kHtmlOpenCircle[] = "○";
+const string kCharDiamond = "\x04";
+const string kHtmlDiamond = "♦";
+const string kCharBullet = "\x07";
+const string kHtmlBullet = "•";
+const string kCharTriangleRight = "\x10";
+const string kHtmlTriangleRight = "►";
+const string kCharOpenCircle = "\x09";
+const string kHtmlOpenCircle = "○";
 
 struct Parameter {
     string name;
@@ -81,15 +80,15 @@ struct Procedure {
     vector<unique_ptr<Overload>> overloads;
 };
 
-static void createDirectory(string path) {
+static void createDirectory(const string& path) {
     if (mkdir(path.c_str(), 0777) != 0 && errno != EEXIST) {
         throw runtime_error(string("Unable to create directory: ") + path);
     }
 }
 
 static bool tryReadFile(const string& filePath, string* output) {
-    auto* fp = fopen(filePath.c_str(), "rb");
-    if (!fp) {
+    auto* fp = fopen(filePath.c_str(), "rb");  // NOLINT
+    if (fp == nullptr) {
         return false;
     }
     fseek(fp, 0, SEEK_END);
@@ -97,20 +96,20 @@ static bool tryReadFile(const string& filePath, string* output) {
     rewind(fp);
 
     // +1 to give us a null terminator
-    auto* buffer = reinterpret_cast<char*>(calloc(length + 1, 1));
+    auto* buffer = reinterpret_cast<char*>(calloc(length + 1, 1));  // NOLINT
     auto readBytes = fread(buffer, 1, length, fp);
     if (readBytes != static_cast<size_t>(length)) {
         return false;
     }
-    fclose(fp);
+    fclose(fp);  // NOLINT
 
     auto bufferStr = string(buffer);
-    free(buffer);
+    free(buffer);  // NOLINT
     *output = bufferStr;
     return true;
 }
 
-static string readFile(string filePath) {
+static string readFile(const string& filePath) {
     string output;
     if (!tryReadFile(filePath, &output)) {
         throw runtime_error(string("Unable to open file: ") + filePath);
@@ -118,19 +117,19 @@ static string readFile(string filePath) {
     return output;
 }
 
-static void writeFile(string filePath, string body) {
+static void writeFile(const string& filePath, const string& body) {
     auto file = ofstream(filePath);
     file << body;
 }
 
-static void forEachFile(string path, function<void(string)> func) {
+static void forEachFile(const string& path, const function<void(string)>& func) {
     auto* dir = opendir(path.c_str());
-    if (!dir) {
+    if (dir == nullptr) {
         throw runtime_error(string("Unable to open directory: ") + path);
     }
     while (true) {
         auto* entry = readdir(dir);
-        if (!entry) {
+        if (entry == nullptr) {
             break;
         }
         if (entry->d_name[0] == '.') {
@@ -140,7 +139,7 @@ static void forEachFile(string path, function<void(string)> func) {
     }
 }
 
-static string replace(string haystack, string needle, string replacement) {
+static string replace(string haystack, const string& needle, const string& replacement) {
     auto pos = haystack.find(needle);
     while (pos != string::npos) {
         haystack.replace(pos, needle.length(), replacement);
@@ -149,11 +148,11 @@ static string replace(string haystack, string needle, string replacement) {
     return haystack;
 }
 
-static string replaceRegex(string haystack, string pattern, string replacement) {
+static string replaceRegex(const string& haystack, const string& pattern, const string& replacement) {
     return regex_replace(haystack, regex(pattern), replacement, match_any);
 }
 
-static string replaceRegex(string haystack, string pattern, function<string(smatch&)> replacementFunc) {
+static string replaceRegex(string haystack, const string& pattern, const function<string(smatch&)>& replacementFunc) {
     regex r(pattern);
     while (true) {
         smatch match;
@@ -167,7 +166,7 @@ static string replaceRegex(string haystack, string pattern, function<string(smat
     return haystack;
 }
 
-static string indent(string str) {
+static string indent(const string& str) {
     istringstream input(str);
     ostringstream output;
     string line;
@@ -178,11 +177,11 @@ static string indent(string str) {
 }
 
 static string replaceIndentCharsWithHtmlSpans(string str) {
-    return replace(str, "    ", "<span class=\"indent\">    </span>");
+    return replace(std::move(str), "    ", "<span class=\"indent\">    </span>");
 }
 
 static string addHtmlSyntaxColoringToCode(string str) {
-    str = replaceRegex(str, "\"[^\"]*\"", "<span class=\"string\">$0</span>");
+    str = replaceRegex(str, R"("[^"]*")", "<span class=\"string\">$0</span>");
     str = replaceRegex(str, "'.*", "<span class=\"comment\">$0</span>");
     return str;
 }
@@ -194,13 +193,12 @@ static string htmlEncode(string str) {
     return str;
 }
 
-static string getDiagramHtml(string name) {
+static string getDiagramHtml(const string& name) {
     string text;
     if (tryReadFile(string("diagrams/") + name + ".txt", &text)) {
         return htmlEncode(text);
-    } else {
-        return htmlEncode(readFile(string("../obj/doc-temp/diagrams-license/") + name + ".txt"));
     }
+    return htmlEncode(readFile(string("../obj/doc-temp/diagrams-license/") + name + ".txt"));
 }
 
 static string processTitle(string str) {
@@ -209,13 +207,13 @@ static string processTitle(string str) {
 }
 
 static string processText(string str) {
-    str = replaceRegex(str, "t\\[(([^\\] ]+)[^\\]]*)\\]", "{$1:type_$2}");
-    str = replaceRegex(str, "p\\[([^\\]]+)\\]", "{$1:procedure_$1}");
-    str = replaceRegex(str, "i\\[([^\\]]+)\\]", "'$1'");
-    str = replaceRegex(str, "h1\\[([^\\]]+)\\]", "$1");
-    str = replaceRegex(str, "h2\\[([^\\]]+)\\]", string(kCharDiamond) + " $1");
-    str = replaceRegex(str, "h3\\[([^\\]]+)\\]", "$1");
-    str = replaceRegex(str, "bar\\[([^\\]]+)\\]", "$1");
+    str = replaceRegex(str, R"(t\[(([^\] ]+)[^\]]*)\])", "{$1:type_$2}");
+    str = replaceRegex(str, R"(p\[([^\]]+)\])", "{$1:procedure_$1}");
+    str = replaceRegex(str, R"(i\[([^\]]+)\])", "'$1'");
+    str = replaceRegex(str, R"(h1\[([^\]]+)\])", "$1");
+    str = replaceRegex(str, R"(h2\[([^\]]+)\])", string(kCharDiamond) + " $1");
+    str = replaceRegex(str, R"(h3\[([^\]]+)\])", "$1");
+    str = replaceRegex(str, R"(bar\[([^\]]+)\])", "$1");
     str = replaceRegex(str, "code@([^@]+)@", [](auto& match) -> string { return indent(match[1].str()); });
     str = replaceRegex(str, "nav@([^@]+)@", "$1");
     str = replaceRegex(str, "`([^`]+)`", "\"$1\"");
@@ -236,9 +234,9 @@ static string processHtml(string str) {
     str = replace(str, "<OPEN_CIRCLE>", kHtmlOpenCircle);
     str = htmlEncode(str);
     str = replace(str, kHtmlTriangleRight, string("<wbr>") + kHtmlTriangleRight);
-    str = replaceRegex(str, "t\\[(([^\\] ]+)[^\\]]*)\\]", "<a href=\"type_$2.html\">$1</a>");
-    str = replaceRegex(str, "p\\[([^\\]]+)\\]", "<a href=\"procedure_$1.html\">$1</a>");
-    str = replaceRegex(str, "i\\[([^\\]]+)\\]", "<i>$1</i>");
+    str = replaceRegex(str, R"(t\[(([^\] ]+)[^\]]*)\])", "<a href=\"type_$2.html\">$1</a>");
+    str = replaceRegex(str, R"(p\[([^\]]+)\])", "<a href=\"procedure_$1.html\">$1</a>");
+    str = replaceRegex(str, R"(i\[([^\]]+)\])", "<i>$1</i>");
     str = replaceRegex(str, "\n*h1\\[([^\\]]+)\\]\n*", "<h1>$1</h1>");
     str = replaceRegex(str, "\n*h2\\[([^\\]]+)\\]\n*", "<h2>$1</h2>");
     str = replaceRegex(str, "\n*h3\\[([^\\]]+)\\]\n*", "<h3>$1</h3>");
@@ -272,7 +270,7 @@ static string processHtml(string str) {
     str = replace(str, "{{", "{");
     str = replace(str, "--", "—");
     str = replace(str, "\n\n", "<div class=\"paragraphBreak\"></div>");
-    str = replaceRegex(str, "dia\\[([^\\]]+)\\]", [](auto& match) -> string {
+    str = replaceRegex(str, R"(dia\[([^\]]+)\])", [](auto& match) -> string {
         return string("<pre class=\"diagram\">") + getDiagramHtml(match[1].str()) + "</pre>";
     });
     return str;
@@ -280,7 +278,7 @@ static string processHtml(string str) {
 
 static void writeHtmlPage(const string& topic, const string& text, const string& htmlPageTemplate) {
     smatch match;
-    if (!regex_search(text, match, regex("h1\\[([^\\]]+)\\]"))) {
+    if (!regex_search(text, match, regex(R"(h1\[([^\]]+)\])"))) {
         throw runtime_error(string("Cannot find h1 tag in topic: " + topic));
     }
     auto title = match[1].str();
@@ -391,7 +389,7 @@ static unique_ptr<Procedure> parseProcedure(const string& input) {
             } else if (section == ".") {
                 break;
             }
-        } else if (trim_copy(line) == "") {
+        } else if (trim_copy(line).empty()) {
             // ignore
         } else {
             throw runtime_error(string("Unexpected line: ") + line);
@@ -401,7 +399,7 @@ static unique_ptr<Procedure> parseProcedure(const string& input) {
     return procedure;
 }
 
-static string getProcedureCategoryTopic(string category) {
+static string getProcedureCategoryTopic(const string& category) {
     ostringstream topic;
     topic << "procedures_";
     for (auto ch : category) {
@@ -414,7 +412,7 @@ static string getProcedureCategoryTopic(string category) {
     return topic.str();
 }
 
-static string formatProcedureText(const string& topicName, const Procedure& procedure) {
+static string formatProcedureText(const Procedure& procedure) {
     auto categoryTopic = getProcedureCategoryTopic(procedure.category);
 
     ostringstream o;
@@ -422,7 +420,7 @@ static string formatProcedureText(const string& topicName, const Procedure& proc
       << procedure.category << ":" << categoryTopic << "}@\n\n";
     o << "h1[`" << procedure.name << "` Procedure]\n\n" << procedure.description << "\n\n";
 
-    for (auto& overload : procedure.overloads) {
+    for (const auto& overload : procedure.overloads) {
         auto isFunction = overload->returns != nullptr;
 
         o << "h2[" << (isFunction ? "function " : "sub ") << procedure.name << "(";
@@ -451,7 +449,7 @@ static string formatProcedureText(const string& topicName, const Procedure& proc
         }
         o << "]\n\n";
 
-        if (overload->parameters.size() > 0) {
+        if (!overload->parameters.empty()) {
             o << "h3[Parameters]\n\nul@";
             for (auto& parameter : overload->parameters) {
                 o << "li@i[" << parameter->name << "] as t[" << parameter->type << "]: " << parameter->description
@@ -466,7 +464,7 @@ static string formatProcedureText(const string& topicName, const Procedure& proc
 
         for (auto& example : overload->examples) {
             o << "h3[Example]\n\n";
-            if (trim_copy(example->description) != "") {
+            if (!trim_copy(example->description).empty()) {
                 o << example->description << "\n\n";
             }
             o << "bar[Code]\ncode@" << example->code << "@\n\n";
@@ -486,10 +484,9 @@ static unique_ptr<Procedure> buildProcedure(
     const string& htmlPageTemplate) {
     auto cp437Procedure = parseProcedure(readFile(cp437Filename));
     auto topicName = string("procedure_") + cp437Procedure->name;
-    *outputTxt << ".topic " << topicName << "\n"
-               << processText(formatProcedureText(topicName, *cp437Procedure)) << "\n";
+    *outputTxt << ".topic " << topicName << "\n" << processText(formatProcedureText(*cp437Procedure)) << "\n";
     auto utf8Procedure = parseProcedure(readFile(utf8Filename));
-    writeHtmlPage(topicName, formatProcedureText(topicName, *utf8Procedure), htmlPageTemplate);
+    writeHtmlPage(topicName, formatProcedureText(*utf8Procedure), htmlPageTemplate);
     return utf8Procedure;
 }
 
@@ -502,18 +499,18 @@ static void buildProcedureCategoryPages(
     ostringstream* outputTxt,
     const string& htmlPageTemplate) {
     unordered_set<string> categoriesSet;
-    for (auto& p : procedures) {
+    for (const auto& p : procedures) {
         categoriesSet.insert(p->category);
     }
 
-    for (auto& category : categoriesSet) {
+    for (const auto& category : categoriesSet) {
         auto topic = getProcedureCategoryTopic(category);
 
         ostringstream o;
         o << "nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {BASIC Reference:ref}@\n\nh1[Procedures: " << category
           << "]\n\nul@";
 
-        for (auto& x : procedures) {
+        for (const auto& x : procedures) {
             if (x->category == category) {
                 o << "li@{`" << x->name << "`:procedure_" << x->name << "}@\n";
             }
@@ -537,15 +534,15 @@ static void buildProcedureIndex(
     o << "nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {BASIC Reference:ref}@\n\nh1[Procedure Index]\n\n";
 
     o << "h2[By Name]\n\nul@";
-    for (auto& x : procedures) {
+    for (const auto& x : procedures) {
         o << "li@{`" << x->name << "`:procedure_" << x->name << "}@\n";
     }
     o << "@\n\n";
 
     unordered_set<string> typeNamesSet;
-    for (auto& p : procedures) {
+    for (const auto& p : procedures) {
         for (auto& o : p->overloads) {
-            if (o->parameters.size() == 0) {
+            if (o->parameters.empty()) {
                 typeNamesSet.insert("(None)");
             } else {
                 typeNamesSet.insert(o->parameters[0]->type);
@@ -554,7 +551,8 @@ static void buildProcedureIndex(
     }
 
     vector<string> typeNames;
-    for (auto& s : typeNamesSet) {
+    typeNames.reserve(typeNamesSet.size());
+    for (const auto& s : typeNamesSet) {
         typeNames.push_back(s);
     }
     sort(typeNames.begin(), typeNames.end());
@@ -562,11 +560,11 @@ static void buildProcedureIndex(
     o << "h2[By Parameter Type]\n\n";
     for (auto& t : typeNames) {
         o << "h3[" << t << "]\n\nul@";
-        for (auto& p : procedures) {
+        for (const auto& p : procedures) {
             auto includeThisProcedure = false;
             for (auto& o : p->overloads) {
-                includeThisProcedure |= (o->parameters.size() == 0 && t == "(None)") ||
-                    (o->parameters.size() > 0 && t == o->parameters[0]->type);
+                includeThisProcedure |=
+                    (o->parameters.empty() && t == "(None)") || (!o->parameters.empty() && t == o->parameters[0]->type);
             }
             if (includeThisProcedure) {
                 o << "li@{`" << p->name << "`:procedure_" << p->name << "}@\n";
@@ -575,12 +573,12 @@ static void buildProcedureIndex(
         o << "@\n\n";
     }
 
-    auto filePath = "../obj/doc-temp/procedure.txt";
+    const auto* filePath = "../obj/doc-temp/procedure.txt";
     writeFile(filePath, o.str());
     buildTopic(filePath, filePath, "procedure", outputTxt, htmlPageTemplate);
 }
 
-static string insertCp437Diagram(string input, string filename) {
+static string insertCp437Diagram(string input, const string& filename) {
     auto cp437FilePath = string("../obj/doc-temp/diagrams-cp437/") + filename;
     auto name = filename.substr(0, filename.length() - 4);  // remove ".txt"
 
