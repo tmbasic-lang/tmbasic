@@ -11,7 +11,6 @@
 #include "tmbasic/WindowPtr.h"
 #include "tmbasic/constants.h"
 #include "tmbasic/events.h"
-#include "util/initConsole.h"
 #include "util/membuf.h"
 
 using compiler::SourceMember;
@@ -584,7 +583,6 @@ int main(int argc, char** argv) {
 #ifndef _WIN32
     setenv("LANG", "en_US.UTF-8", 1);
 #endif
-    util::initConsole();
     tmbasic::App app(argc, argv);
     app.run();
     app.shutDown();
