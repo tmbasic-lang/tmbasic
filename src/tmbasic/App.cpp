@@ -1,7 +1,6 @@
 #include "tmbasic/App.h"
 #include "../../obj/resources/help/helpfile.h"
 #include "compiler/SourceProgram.h"
-#include "util/membuf.h"
 #include "tmbasic/AboutDialog.h"
 #include "tmbasic/DesignerWindow.h"
 #include "tmbasic/DialogPtr.h"
@@ -12,6 +11,8 @@
 #include "tmbasic/WindowPtr.h"
 #include "tmbasic/constants.h"
 #include "tmbasic/events.h"
+#include "util/initConsole.h"
+#include "util/membuf.h"
 
 using compiler::SourceMember;
 using compiler::SourceMemberType;
@@ -583,6 +584,7 @@ int main(int argc, char** argv) {
 #ifndef _WIN32
     setenv("LANG", "en_US.UTF-8", 1);
 #endif
+    util::initConsole();
     tmbasic::App app(argc, argv);
     app.run();
     app.shutDown();

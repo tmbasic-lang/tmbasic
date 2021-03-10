@@ -260,6 +260,11 @@ ifeq ($(TARGET_OS),mac)
 LDFLAGS += -L$(PWD)/mac/mpdecimal/libmpdec -L$(PWD)/mac/mpdecimal/libmpdec++ -L$(PWD)/mac/tvision/build
 endif
 
+# Linker flag to include GDI on Windows. We use this to enumerate console font families.
+ifeq ($(TARGET_OS),win)
+LDFLAGS += -lgdi32
+endif
+
 # Linker flag to include libncursesw. On macOS, tvision uses libncurses instead because libncursesw isn't distributed
 # on that platform.
 ifeq ($(TARGET_OS),mac)
