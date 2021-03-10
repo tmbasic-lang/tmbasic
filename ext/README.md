@@ -40,8 +40,8 @@ A mirror of all external library sources is stored in a requester-pays S3 bucket
 
 ### [tvision](https://github.com/magiblot/tvision)
 - License: [Borland license (original code), MIT license (additions)](https://github.com/electroly/tmbasic/blob/master/ext/tvision/COPYRIGHT)
-- Source: https://github.com/magiblot/tvision/archive/761d813bf6e0317296545be77a6142198f33ace3.zip
-    - Mirror: `s3://tmbasic/tvision/tvision-761d813bf6e0317296545be77a6142198f33ace3.zip`
+- Source: https://github.com/magiblot/tvision/archive/e7bba7666dc030f0508b26f0ef4eaacebd033754.zip
+    - Mirror: `s3://tmbasic/tvision/tvision-e7bba7666dc030f0508b26f0ef4eaacebd033754.zip`
 
 ## Libraries included only in TMBASIC
 
