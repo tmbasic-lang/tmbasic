@@ -3,6 +3,7 @@
 #include "util/decimal.h"
 
 using util::decimalToString;
+using util::doubleToDecimal;
 using util::parseDecimalString;
 
 static std::string roundtrip(std::string str) {
@@ -107,4 +108,46 @@ TEST(DecimalTest, NegativeInfinity) {
 
 TEST(DecimalTest, NotANumber) {
     ASSERT_EQ("NaN", roundtrip("nan"));
+}
+
+TEST(DecimalTest, DoubleToDecimal1) {
+    auto actual = doubleToDecimal(1);
+    decimal::Decimal expected = 1;
+    ASSERT_EQ(expected, actual);
+}
+
+TEST(DecimalTest, DoubleToDecimal1_5) {
+    auto actual = doubleToDecimal(1.5);
+    decimal::Decimal expected = 3;
+    expected /= 2;
+    ASSERT_EQ(expected, actual);
+}
+
+TEST(DecimalTest, DoubleToDecimal0) {
+    auto actual = doubleToDecimal(0);
+    decimal::Decimal expected = 0;
+    ASSERT_EQ(expected, actual);
+}
+
+TEST(DecimalTest, DoubleToDecimalNeg0) {
+    auto actual = doubleToDecimal(-0);
+    decimal::Decimal expected = -0;
+    ASSERT_EQ(expected, actual);
+}
+
+TEST(DecimalTest, DoubleToDecimalNaN) {
+    auto actual = doubleToDecimal(std::nan(""));
+    ASSERT_TRUE(actual.isnan());
+}
+
+TEST(DecimalTest, DoubleToDecimalInf) {
+    auto actual = doubleToDecimal(std::numeric_limits<double>::infinity());
+    ASSERT_TRUE(actual.isinfinite());
+    ASSERT_EQ(1, actual.sign());
+}
+
+TEST(DecimalTest, DoubleToDecimalNegInf) {
+    auto actual = doubleToDecimal(-std::numeric_limits<double>::infinity());
+    ASSERT_TRUE(actual.isinfinite());
+    ASSERT_EQ(-1, actual.sign());
 }

@@ -51,6 +51,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <ctime>
+#include <ieee754.h>
 
 #include <algorithm>
 #include <array>
