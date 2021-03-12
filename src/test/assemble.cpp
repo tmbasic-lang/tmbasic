@@ -172,6 +172,7 @@ static SystemCall parseSystemCall(string s) {
         { "Characters1", SystemCall::kCharacters1 },
         { "Characters2", SystemCall::kCharacters2 },
         { "Chr", SystemCall::kChr },
+        { "DateFromParts", SystemCall::kDateFromParts },
         { "Days", SystemCall::kDays },
         { "HasValueO", SystemCall::kHasValueO },
         { "HasValueV", SystemCall::kHasValueV },

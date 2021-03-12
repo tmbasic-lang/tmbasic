@@ -3,12 +3,15 @@
 #include "List.h"
 #include "Optional.h"
 #include "String.h"
+#include "util/decimal.h"
 
 namespace vm {
 
 typedef void (*SystemCallFunc)(const SystemCallInput&, SystemCallResult*);
-static std::vector<SystemCallFunc> systemCalls;
+
 static bool systemCallsInitialized = false;
+static std::vector<SystemCallFunc> _systemCalls;
+static std::unique_ptr<icu::Calendar> _defaultCalendar;  // temp, must be cleared before each use
 
 class Error : public std::runtime_error {
    public:
@@ -97,6 +100,20 @@ static void systemCallChr(const SystemCallInput& input, SystemCallResult* result
     result->x = boost::make_local_shared<String>(ch > 0 ? icu::UnicodeString(ch) : icu::UnicodeString());
 }
 
+static void systemCallDateFromParts(const SystemCallInput& input, SystemCallResult* result) {
+    auto year = input.valueStack.at(input.valueStackIndex).getInt32();
+    auto month = input.valueStack.at(input.valueStackIndex + 1).getInt32();
+    auto day = input.valueStack.at(input.valueStackIndex + 2).getInt32();
+    _defaultCalendar->clear();
+    _defaultCalendar->set(year, month - 1, day);
+    auto icuErrorCode = U_ZERO_ERROR;
+    auto udate = _defaultCalendar->getTime(icuErrorCode);
+    if (icuErrorCode != U_ZERO_ERROR) {
+        throw Error(ErrorCode::kInvalidDateTime, "The date is invalid.");
+    }
+    result->a.num = util::doubleToDecimal(udate);
+}
+
 static void systemCallDays(const SystemCallInput& input, SystemCallResult* result) {
     result->a.num = input.valueStack.at(input.valueStackIndex).num * U_MILLIS_PER_DAY;
 }
@@ -173,11 +190,11 @@ static void systemCallValueO(const SystemCallInput& input, SystemCallResult* res
 static void initSystemCall(SystemCall which, SystemCallFunc func) {
     auto index = static_cast<size_t>(which);
 
-    while (systemCalls.size() <= index) {
-        systemCalls.push_back(nullptr);
+    while (_systemCalls.size() <= index) {
+        _systemCalls.push_back(nullptr);
     }
 
-    systemCalls.at(index) = func;
+    _systemCalls.at(index) = func;
 }
 
 void initSystemCalls() {
@@ -189,6 +206,7 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kCharacters1, systemCallCharacters1);
     initSystemCall(SystemCall::kCharacters2, systemCallCharacters2);
     initSystemCall(SystemCall::kChr, systemCallChr);
+    initSystemCall(SystemCall::kDateFromParts, systemCallDateFromParts);
     initSystemCall(SystemCall::kDays, systemCallDays);
     initSystemCall(SystemCall::kHasValueO, systemCallHasValueO);
     initSystemCall(SystemCall::kHasValueV, systemCallHasValueV);
@@ -205,6 +223,12 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kValueO, systemCallValueO);
     initSystemCall(SystemCall::kValueV, systemCallValueV);
 
+    auto icuErrorCode = U_ZERO_ERROR;
+    _defaultCalendar = std::unique_ptr<icu::Calendar>(icu::Calendar::createInstance(icuErrorCode));
+    if (icuErrorCode != U_ZERO_ERROR) {
+        throw std::runtime_error("Failed to construct the default calendar.");
+    }
+
     systemCallsInitialized = true;
 }
 
@@ -213,7 +237,7 @@ SystemCallResult systemCall(SystemCall which, const SystemCallInput& input) {
 
     try {
         auto index = static_cast<size_t>(which);
-        systemCalls.at(index)(input, &result);
+        _systemCalls.at(index)(input, &result);
     } catch (Error& ex) {
         result.hasError = true;
         result.errorCode = static_cast<int>(ex.code);

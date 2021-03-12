@@ -19,6 +19,10 @@ void Value::setBoolean(bool value) {
     num = value ? 1 : 0;
 }
 
+int32_t Value::getInt32() const {
+    return num.floor().i32();
+}
+
 int64_t Value::getInt64() const {
     return num.floor().i64();
 }

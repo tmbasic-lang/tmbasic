@@ -20,11 +20,11 @@ TEST(DecimalTest, SmallIntegerWithLeadingZero) {
 }
 
 TEST(DecimalTest, SmallDecimalWithTrailingZero) {
-    ASSERT_EQ("123456.7890", roundtrip("123456.7890"));
+    ASSERT_EQ("123456.789", roundtrip("123456.7890"));
 }
 
 TEST(DecimalTest, SmallDecimalWithLeadingZeroAndTrailingZero) {
-    ASSERT_EQ("123456.7890", roundtrip("0123456.7890"));
+    ASSERT_EQ("123456.789", roundtrip("0123456.7890"));
 }
 
 TEST(DecimalTest, IntegerWith16Figures) {
@@ -64,11 +64,11 @@ TEST(DecimalTest, NegativeSmallIntegerWithLeadingZero) {
 }
 
 TEST(DecimalTest, NegativeSmallDecimalWithTrailingZero) {
-    ASSERT_EQ("-123456.7890", roundtrip("-123456.7890"));
+    ASSERT_EQ("-123456.789", roundtrip("-123456.7890"));
 }
 
 TEST(DecimalTest, NegativeSmallDecimalWithLeadingZeroAndTrailingZero) {
-    ASSERT_EQ("-123456.7890", roundtrip("-0123456.7890"));
+    ASSERT_EQ("-123456.789", roundtrip("-0123456.7890"));
 }
 
 TEST(DecimalTest, NegativeIntegerWith16Figures) {

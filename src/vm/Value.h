@@ -11,6 +11,7 @@ struct Value {
     std::string getString() const;
     bool getBoolean() const;
     void setBoolean(bool value);
+    int32_t getInt32() const;
     int64_t getInt64() const;
     bool operator==(const Value& rhs) const;
     std::size_t getHash() const;

@@ -1,0 +1,20 @@
+.procedure DateFromParts
+.category Dates and Times
+.description
+Creates a t[Date] for the specified year/month/day.
+.overload
+.parameter year: Number
+Four-digit year.
+.parameter month: Number
+Month (1-12).
+.parameter day: Number
+Day (1-31).
+.return Date
+A new t[Date].
+.example
+.example-code
+dim x = DateFromParts(2021, 3, 12)
+x.Print
+.example-output
+2021-03-12
+.

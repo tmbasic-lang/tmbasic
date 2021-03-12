@@ -18,7 +18,20 @@ std::string decimalToString(const decimal::Decimal& x) {
         return "NaN";
     }
 
-    return x.format("f");
+    auto str = x.format("f");
+    auto len = str.size();
+
+    if (str.find('.') != std::string::npos) {
+        // trim trailing zeroes after the decimal point
+        while (str[len - 1] == '0') {
+            len--;
+        }
+        if (str[len - 1] == '.') {
+            len--;
+        }
+    }
+
+    return len == str.size() ? str : str.substr(0, len);
 }
 
 decimal::Decimal doubleToDecimal(double x) {
@@ -29,7 +42,7 @@ decimal::Decimal doubleToDecimal(double x) {
         return decimal::Decimal(nanTriple);
     }
 
-    ieee754_double decomposed {};
+    ieee754_double decomposed{};
     decomposed.d = x;
 
     if (std::isinf(x)) {
