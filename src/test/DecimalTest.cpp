@@ -2,6 +2,7 @@
 #include "gtest/gtest.h"
 #include "util/decimal.h"
 
+using decimal::Decimal;
 using util::decimalToString;
 using util::doubleToDecimal;
 using util::parseDecimalString;
@@ -112,26 +113,26 @@ TEST(DecimalTest, NotANumber) {
 
 TEST(DecimalTest, DoubleToDecimal1) {
     auto actual = doubleToDecimal(1);
-    decimal::Decimal expected = 1;
+    Decimal expected = 1;
     ASSERT_EQ(expected, actual);
 }
 
 TEST(DecimalTest, DoubleToDecimal1_5) {
     auto actual = doubleToDecimal(1.5);
-    decimal::Decimal expected = 3;
+    Decimal expected = 3;
     expected /= 2;
     ASSERT_EQ(expected, actual);
 }
 
 TEST(DecimalTest, DoubleToDecimal0) {
     auto actual = doubleToDecimal(0);
-    decimal::Decimal expected = 0;
+    Decimal expected = 0;
     ASSERT_EQ(expected, actual);
 }
 
 TEST(DecimalTest, DoubleToDecimalNeg0) {
     auto actual = doubleToDecimal(-0);
-    decimal::Decimal expected = -0;
+    Decimal expected = -0;
     ASSERT_EQ(expected, actual);
 }
 
@@ -150,4 +151,16 @@ TEST(DecimalTest, DoubleToDecimalNegInf) {
     auto actual = doubleToDecimal(-std::numeric_limits<double>::infinity());
     ASSERT_TRUE(actual.isinfinite());
     ASSERT_EQ(-1, actual.sign());
+}
+
+TEST(DecimalTest, DoubleToDecimal1234567_875) {
+    auto actual = doubleToDecimal(1234567.875);
+    auto expected = Decimal(1234567) + Decimal(875) / Decimal(1000);
+    ASSERT_EQ(expected, actual);
+}
+
+TEST(DecimalTest, DoubleToDecimalNeg1234567_875) {
+    auto actual = doubleToDecimal(-1234567.875);
+    auto expected = Decimal(-1) * (Decimal(1234567) + Decimal(875) / Decimal(1000));
+    ASSERT_EQ(expected, actual);
 }

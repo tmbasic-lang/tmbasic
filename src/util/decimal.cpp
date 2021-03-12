@@ -29,7 +29,7 @@ decimal::Decimal doubleToDecimal(double x) {
         return decimal::Decimal(nanTriple);
     }
 
-    ieee754_double decomposed{};
+    ieee754_double decomposed {};
     decomposed.d = x;
 
     if (std::isinf(x)) {
@@ -43,9 +43,7 @@ decimal::Decimal doubleToDecimal(double x) {
     int64_t binaryExponent = decomposed.ieee.exponent;
     binaryExponent -= IEEE754_DOUBLE_BIAS;
 
-    uint64_t mantissa = 0;
-    mantissa <<= 20;
-    mantissa |= decomposed.ieee.mantissa0;
+    uint64_t mantissa = decomposed.ieee.mantissa0;
     mantissa <<= 32;
     mantissa |= decomposed.ieee.mantissa1;
 
