@@ -422,32 +422,38 @@ static string formatProcedureText(const Procedure& procedure) {
 
     for (const auto& overload : procedure.overloads) {
         auto isFunction = overload->returns != nullptr;
-
-        o << "h2[" << (isFunction ? "function " : "sub ") << procedure.name << "(";
-
         auto isFirstParameter = true;
+
+        o << "h2[" << procedure.name << "(";
+        isFirstParameter = true;
         for (auto& parameter : overload->parameters) {
             if (!isFirstParameter) {
                 o << ", ";
             }
-            o << parameter->name << " as ";
-            if (parameter->type == "T") {
-                o << "T";
-            } else {
-                o << "t[" << parameter->type << "]";
-            }
+            o << parameter->type;
             isFirstParameter = false;
         }
-        o << ")";
-        if (isFunction) {
-            o << " as ";
-            if (overload->returns->type == "T") {
-                o << "T";
-            } else {
-                o << "t[" << overload->returns->type << "]";
+        o << ")]\n\n";
+
+        o << "code@\n" << (isFunction ? "function " : "sub ") << procedure.name << "(";
+
+        isFirstParameter = true;
+        for (auto& parameter : overload->parameters) {
+            if (!isFirstParameter) {
+                o << ",";
             }
+            o << "\n    " << parameter->name << " as " << parameter->type;
+            isFirstParameter = false;
         }
-        o << "]\n\n";
+        if (overload->parameters.size() > 0) {
+            o << "\n";
+        }
+        if (isFunction) {
+            o << ") as " << overload->returns->type;
+        } else {
+            o << ")";
+        }
+        o << "@\n\n";
 
         if (!overload->parameters.empty()) {
             o << "h3[Parameters]\n\nul@";
@@ -459,7 +465,11 @@ static string formatProcedureText(const Procedure& procedure) {
         }
 
         if (isFunction) {
-            o << "h3[Return value]\n\n" << overload->returns->description << "\n\n";
+            o << "h3[Return value]\n\n";
+            if (overload->returns->type != "T") {
+                o << "t[" << overload->returns->type << "]: ";
+            }
+            o << overload->returns->description << "\n\n";
         }
 
         for (auto& example : overload->examples) {
