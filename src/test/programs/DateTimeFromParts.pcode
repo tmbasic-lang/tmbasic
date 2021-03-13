@@ -1,0 +1,66 @@
+PushValues 7
+
+# 1970-01-01 --> 0
+LoadConstantA 1970
+StoreA 0
+LoadConstantA 1
+StoreA 1
+StoreA 2
+LoadConstantA 0
+StoreA 3
+StoreA 4
+StoreA 5
+StoreA 6
+SystemCall DateTimeFromParts
+NumberToString
+StringPrint
+
+LoadConstantStringX ","
+StringPrint
+
+# 1971-01-01 01:02:03.456 --> 31539723456
+LoadConstantA 1971
+StoreA 0
+LoadConstantA 1
+StoreA 1
+StoreA 2
+LoadConstantA 1
+StoreA 3
+LoadConstantA 2
+StoreA 4
+LoadConstantA 3
+StoreA 5
+LoadConstantA 456
+StoreA 6
+SystemCall DateTimeFromParts
+NumberToString
+StringPrint
+
+LoadConstantStringX ","
+StringPrint
+
+# 1969-01-01  01:02:03.456 --> -31532276544
+LoadConstantA 1969
+StoreA 0
+LoadConstantA 1
+StoreA 1
+StoreA 2
+LoadConstantA 1
+StoreA 3
+LoadConstantA 2
+StoreA 4
+LoadConstantA 3
+StoreA 5
+LoadConstantA 456
+StoreA 6
+SystemCall DateTimeFromParts
+NumberToString
+StringPrint
+
+LoadConstantStringX ","
+StringPrint
+
+Exit
+
+--output--
+0,31539723456,-31532276544,

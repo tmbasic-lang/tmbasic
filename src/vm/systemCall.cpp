@@ -114,6 +114,25 @@ static void systemCallDateFromParts(const SystemCallInput& input, SystemCallResu
     result->a.num = util::doubleToDecimal(udate);
 }
 
+static void systemCallDateTimeFromParts(const SystemCallInput& input, SystemCallResult* result) {
+    auto year = input.valueStack.at(input.valueStackIndex).getInt32();
+    auto month = input.valueStack.at(input.valueStackIndex + 1).getInt32();
+    auto day = input.valueStack.at(input.valueStackIndex + 2).getInt32();
+    auto hour = input.valueStack.at(input.valueStackIndex + 3).getInt32();
+    auto minute = input.valueStack.at(input.valueStackIndex + 4).getInt32();
+    auto second = input.valueStack.at(input.valueStackIndex + 5).getInt32();
+    auto millisecond = input.valueStack.at(input.valueStackIndex + 6).getInt32();
+    _defaultCalendar->clear();
+    _defaultCalendar->set(year, month - 1, day, hour, minute, second);
+    _defaultCalendar->set(UCAL_MILLISECOND, millisecond);
+    auto icuErrorCode = U_ZERO_ERROR;
+    auto udate = _defaultCalendar->getTime(icuErrorCode);
+    if (icuErrorCode != U_ZERO_ERROR) {
+        throw Error(ErrorCode::kInvalidDateTime, "The date is invalid.");
+    }
+    result->a.num = util::doubleToDecimal(udate);
+}
+
 static void systemCallDays(const SystemCallInput& input, SystemCallResult* result) {
     result->a.num = input.valueStack.at(input.valueStackIndex).num * U_MILLIS_PER_DAY;
 }
@@ -207,6 +226,7 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kCharacters2, systemCallCharacters2);
     initSystemCall(SystemCall::kChr, systemCallChr);
     initSystemCall(SystemCall::kDateFromParts, systemCallDateFromParts);
+    initSystemCall(SystemCall::kDateTimeFromParts, systemCallDateTimeFromParts);
     initSystemCall(SystemCall::kDays, systemCallDays);
     initSystemCall(SystemCall::kHasValueO, systemCallHasValueO);
     initSystemCall(SystemCall::kHasValueV, systemCallHasValueV);

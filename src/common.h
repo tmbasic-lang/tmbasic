@@ -2,6 +2,7 @@
 #ifndef COMMON_H_
 #define COMMON_H_
 
+#define U_HIDE_DEPRECATED_API 1
 #include <unicode/brkiter.h>
 #include <unicode/calendar.h>
 #include <unicode/coll.h>

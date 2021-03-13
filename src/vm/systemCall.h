@@ -13,6 +13,8 @@ enum class SystemCall {
     kCharacters2,        // Characters(input as String, locale as String) as List of String
     kChr,                // Chr(input as Number) as String
     kDateFromParts,      // DateFromParts(year as Number, month as Number, day as Number) as Date
+    kDateTimeFromParts,  // DateFromParts(year as Number, month as Number, day as Number, hour as Number, minute as
+                         // Number, second as Number, millisecond as Number) as Date
     kDays,               // Days(count as Number) as TimeSpan
     kHasValueO,          // HasValue(input as Optional Object) as Boolean
     kHasValueV,          // HasValue(input as Optional Value) as Boolean

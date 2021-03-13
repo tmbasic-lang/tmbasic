@@ -1,0 +1,28 @@
+.procedure DateTimeFromParts
+.category Dates and Times
+.description
+Creates a t[DateTime] for the specified year, month, day, hour, minute, second, and millisecond.
+.overload
+.parameter year: Number
+Four-digit year.
+.parameter month: Number
+Month (1-12).
+.parameter day: Number
+Day (1-31).
+.parameter hour: Number
+Hour (0-23).
+.parameter minute: Number
+Minute (0-59).
+.parameter second: Number
+Second (0-59).
+.parameter millisecond: Number
+Millisecond (0-999).
+.return DateTime
+A new t[DateTime].
+.example
+.example-code
+dim x = DateTimeFromParts(2021, 3, 12, 4, 30, 0, 0)
+x.Print
+.example-output
+2021-03-12 04:30:00.000
+.

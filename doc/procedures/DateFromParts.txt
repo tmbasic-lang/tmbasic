@@ -1,7 +1,7 @@
 .procedure DateFromParts
 .category Dates and Times
 .description
-Creates a t[Date] for the specified year/month/day.
+Creates a t[Date] for the specified year, month, and day.
 .overload
 .parameter year: Number
 Four-digit year.
