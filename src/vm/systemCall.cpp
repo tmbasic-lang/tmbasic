@@ -43,6 +43,19 @@ static void systemCallAvailableLocales(const SystemCallInput& /*unused*/, System
     result->x = boost::make_local_shared<ObjectList>(&objectListBuilder);
 }
 
+static void systemCallAvailableTimeZones(const SystemCallInput& /*unused*/, SystemCallResult* result) {
+    auto iter = std::unique_ptr<icu::StringEnumeration>(icu::TimeZone::createEnumeration());
+
+    auto objectListBuilder = ObjectListBuilder();
+    const char* item = nullptr;
+    auto status = U_ZERO_ERROR;
+    while ((item = iter->next(nullptr, status)) != nullptr) {
+        objectListBuilder.items.push_back(boost::make_local_shared<String>(item, strlen(item)));
+    }
+
+    result->x = boost::make_local_shared<ObjectList>(&objectListBuilder);
+}
+
 static const icu::Locale& getBreakIteratorLocale(const icu::UnicodeString& name) {
     std::string nameUtf8;
     name.toUTF8String(nameUtf8);
@@ -222,6 +235,7 @@ void initSystemCalls() {
     }
 
     initSystemCall(SystemCall::kAvailableLocales, systemCallAvailableLocales);
+    initSystemCall(SystemCall::kAvailableTimeZones, systemCallAvailableTimeZones);
     initSystemCall(SystemCall::kCharacters1, systemCallCharacters1);
     initSystemCall(SystemCall::kCharacters2, systemCallCharacters2);
     initSystemCall(SystemCall::kChr, systemCallChr);

@@ -72,6 +72,7 @@ awk '{ print "INTERPRETER_TEST(" $1 ")" }'
 
 INTERPRETER_TEST(AddFunction)
 INTERPRETER_TEST(AvailableLocales)
+INTERPRETER_TEST(AvailableTimeZones)
 INTERPRETER_TEST(DateFromParts)
 INTERPRETER_TEST(DateTimeFromParts)
 INTERPRETER_TEST(Errors)

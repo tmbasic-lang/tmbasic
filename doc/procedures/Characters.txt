@@ -27,8 +27,8 @@ A list of the characters (grapheme clusters) in i[this].
 .example-code
 dim s = "n" + "e" + Chr(769)
 dim x = s.Characters
-Print x(0).Len  ' one code point: "n"
-Print x(1).Len  ' two code points: "e" + Chr(769)
+Print x(0).Len  ' one code unit: "n"
+Print x(1).Len  ' two code unit: "e" + Chr(769)
 .example-output
 1
 2
@@ -45,8 +45,8 @@ A list of the characters (grapheme clusters) in i[this].
 .example-code
 dim s = "n" + "e" + Chr(769)
 dim x = s.Characters("fr_FR")
-Print x(0).Len  ' one code point: "n"
-Print x(1).Len  ' two code points: "e" + Chr(769)
+Print x(0).Len  ' one code unit: "n"
+Print x(1).Len  ' two code unit: "e" + Chr(769)
 .example-output
 1
 2

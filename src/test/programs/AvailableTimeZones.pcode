@@ -1,0 +1,29 @@
+PushObjects 1
+
+SystemCall AvailableTimeZones
+StoreX 0
+
+LoadConstantA 0
+ObjectListGet
+StringPrint
+
+LoadConstantStringX ","
+StringPrint
+
+LoadX 0
+LoadConstantA 1
+ObjectListGet
+StringPrint
+
+LoadConstantStringX ","
+StringPrint
+
+LoadX 0
+ObjectListCount
+NumberToString
+StringPrint
+
+Exit
+
+--output--
+ACT,AET,634
