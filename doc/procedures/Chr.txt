@@ -1,5 +1,6 @@
 .procedure Chr
 .category Strings
+.blurb Converts a Unicode code point to a string.
 .description
 Returns the character that corresponds to the specified Unicode code point number.
 .overload

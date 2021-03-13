@@ -1,5 +1,6 @@
 .procedure DateFromParts
 .category Dates and Times
+.blurb Creates a t[Date] from individual date components.
 .description
 Creates a t[Date] for the specified year, month, and day.
 .overload

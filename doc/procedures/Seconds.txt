@@ -1,5 +1,6 @@
 .procedure Seconds
 .category Dates and Times
+.blurb Creates a t[TimeSpan] for the specified number of seconds.
 .description
 Creates a t[TimeSpan] for the specified number of seconds.
 .overload

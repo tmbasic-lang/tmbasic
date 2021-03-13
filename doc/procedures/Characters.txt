@@ -1,5 +1,6 @@
 .procedure Characters
 .category Strings
+.blurb Converts a t[String] to a list of characters.
 .description
 Converts a t[String] value into a list of "grapheme clusters," or what human readers would intuitively understand as "characters."
 

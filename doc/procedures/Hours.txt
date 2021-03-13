@@ -1,5 +1,6 @@
 .procedure Hours
 .category Dates and Times
+.blurb Creates a t[TimeSpan] for the specified number of hours.
 .description
 Creates a t[TimeSpan] for the specified number of hours.
 .overload

@@ -1,5 +1,6 @@
 .procedure AvailableLocales
 .category Strings
+.blurb Returns all locales available to TMBASIC.
 .description
 Returns a list of the locales available to TMBASIC.
 A locale is either a language code like `en` or `fr`, or a combination of language and region like `en_US` or `fr_FR`.

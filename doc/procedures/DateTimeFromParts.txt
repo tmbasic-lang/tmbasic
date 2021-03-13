@@ -1,5 +1,6 @@
 .procedure DateTimeFromParts
 .category Dates and Times
+.blurb Creates a t[DateTime] from individual date and time components.
 .description
 Creates a t[DateTime] for the specified year, month, day, hour, minute, second, and millisecond.
 .overload

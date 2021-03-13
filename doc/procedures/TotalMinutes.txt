@@ -1,5 +1,6 @@
 .procedure TotalMinutes
 .category Dates and Times
+.blurb Converts a t[TimeSpan] to minutes.
 .description
 Converts a t[TimeSpan] to minutes.
 .overload

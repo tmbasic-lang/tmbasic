@@ -1,5 +1,6 @@
 .procedure TotalHours
 .category Dates and Times
+.blurb Converts a t[TimeSpan] to hours.
 .description
 Converts a t[TimeSpan] to hours.
 .overload

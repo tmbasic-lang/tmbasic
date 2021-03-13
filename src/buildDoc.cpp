@@ -49,6 +49,8 @@ const string kCharTriangleRight = "\x10";
 const string kHtmlTriangleRight = "►";
 const string kCharOpenCircle = "\x09";
 const string kHtmlOpenCircle = "○";
+const string kCharEmDash = "-";
+const string kHtmlEmDash = "—";
 
 struct Parameter {
     string name;
@@ -75,6 +77,7 @@ struct Overload {
 
 struct Procedure {
     string name;
+    string blurb;
     string description;
     string category;
     vector<unique_ptr<Overload>> overloads;
@@ -210,6 +213,7 @@ static string processText(string str) {
     str = replaceRegex(str, R"(t\[(([^\] ]+)[^\]]*)\])", "{$1:type_$2}");
     str = replaceRegex(str, R"(p\[([^\]]+)\])", "{$1:procedure_$1}");
     str = replaceRegex(str, R"(i\[([^\]]+)\])", "'$1'");
+    str = replaceRegex(str, R"(b\[([^\]]+)\])", "$1");
     str = replaceRegex(str, R"(h1\[([^\]]+)\])", "$1");
     str = replaceRegex(str, R"(h2\[([^\]]+)\])", string(kCharDiamond) + " $1");
     str = replaceRegex(str, R"(h3\[([^\]]+)\])", "$1");
@@ -224,6 +228,7 @@ static string processText(string str) {
     str = replace(str, "<BULLET>", kCharBullet);
     str = replace(str, "<TRIANGLE_RIGHT>", kCharTriangleRight);
     str = replace(str, "<OPEN_CIRCLE>", kCharOpenCircle);
+    str = replace(str, "<EM_DASH>", kCharEmDash);
     return str;
 }
 
@@ -232,11 +237,13 @@ static string processHtml(string str) {
     str = replace(str, "<BULLET>", kHtmlBullet);
     str = replace(str, "<TRIANGLE_RIGHT>", kHtmlTriangleRight);
     str = replace(str, "<OPEN_CIRCLE>", kHtmlOpenCircle);
+    str = replace(str, "<EM_DASH>", kHtmlEmDash);
     str = htmlEncode(str);
     str = replace(str, kHtmlTriangleRight, string("<wbr>") + kHtmlTriangleRight);
     str = replaceRegex(str, R"(t\[(([^\] ]+)[^\]]*)\])", "<a href=\"type_$2.html\">$1</a>");
     str = replaceRegex(str, R"(p\[([^\]]+)\])", "<a href=\"procedure_$1.html\">$1</a>");
     str = replaceRegex(str, R"(i\[([^\]]+)\])", "<i>$1</i>");
+    str = replaceRegex(str, R"(b\[([^\]]+)\])", "<b>$1</b>");
     str = replaceRegex(str, "\n*h1\\[([^\\]]+)\\]\n*", "<h1>$1</h1>");
     str = replaceRegex(str, "\n*h2\\[([^\\]]+)\\]\n*", "<h2>$1</h2>");
     str = replaceRegex(str, "\n*h3\\[([^\\]]+)\\]\n*", "<h3>$1</h3>");
@@ -353,6 +360,11 @@ static unique_ptr<Procedure> parseProcedure(const string& input) {
                     throw runtime_error(string("Duplicate description in procedure ") + procedure->name);
                 }
                 procedure->description = readProcedureBlock(lines, &i);
+            } else if (section == ".blurb") {
+                if (procedure->blurb.length() > 0) {
+                    throw runtime_error(string("Duplicate blurb in procedure ") + procedure->name);
+                }
+                procedure->blurb = rest;
             } else if (section == ".parameter") {
                 // like ".parameter this: optional T"
                 smatch parameterMatch;
@@ -522,7 +534,7 @@ static void buildProcedureCategoryPages(
 
         for (const auto& x : procedures) {
             if (x->category == category) {
-                o << "li@{`" << x->name << "`:procedure_" << x->name << "}@\n";
+                o << "li@b[{`" << x->name << "`:procedure_" << x->name << "}] <EM_DASH> " << x->blurb << "@\n";
             }
         }
 
@@ -545,7 +557,7 @@ static void buildProcedureIndex(
 
     o << "h2[By Name]\n\nul@";
     for (const auto& x : procedures) {
-        o << "li@{`" << x->name << "`:procedure_" << x->name << "}@\n";
+        o << "li@b[{`" << x->name << "`:procedure_" << x->name << "}] <EM_DASH> " << x->blurb << "@\n";
     }
     o << "@\n\n";
 
@@ -577,7 +589,7 @@ static void buildProcedureIndex(
                     (o->parameters.empty() && t == "(None)") || (!o->parameters.empty() && t == o->parameters[0]->type);
             }
             if (includeThisProcedure) {
-                o << "li@{`" << p->name << "`:procedure_" << p->name << "}@\n";
+                o << "li@b[{`" << p->name << "`:procedure_" << p->name << "}] - " << p->blurb << "@\n";
             }
         }
         o << "@\n\n";

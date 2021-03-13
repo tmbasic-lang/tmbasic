@@ -1,7 +1,8 @@
 .procedure HasValue
 .category Optionals
+.blurb Determines whether an t[Optional] contains a value of the underlying type.
 .description
-Determines whether an t[Optional] value has been provided, or whether it is `none`.
+Determines whether an t[Optional] contains a value of the underlying type, or whether it is `none`.
 .overload
 .parameter this: Optional T
 Any t[Optional] value.
