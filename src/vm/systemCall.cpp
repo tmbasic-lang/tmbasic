@@ -9,7 +9,7 @@ namespace vm {
 
 typedef void (*SystemCallFunc)(const SystemCallInput&, SystemCallResult*);
 
-static bool systemCallsInitialized = false;
+static bool _systemCallsInitialized = false;
 static std::vector<SystemCallFunc> _systemCalls;
 static std::unique_ptr<icu::Calendar> _defaultCalendar;  // temp, must be cleared before each use
 
@@ -217,7 +217,7 @@ static void initSystemCall(SystemCall which, SystemCallFunc func) {
 }
 
 void initSystemCalls() {
-    if (systemCallsInitialized) {
+    if (_systemCallsInitialized) {
         return;
     }
 
@@ -249,7 +249,7 @@ void initSystemCalls() {
         throw std::runtime_error("Failed to construct the default calendar.");
     }
 
-    systemCallsInitialized = true;
+    _systemCallsInitialized = true;
 }
 
 SystemCallResult systemCall(SystemCall which, const SystemCallInput& input) {
