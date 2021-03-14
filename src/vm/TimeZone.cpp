@@ -1,4 +1,5 @@
 #include "TimeZone.h"
+#include "util/decimal.h"
 
 namespace vm {
 
@@ -18,6 +19,14 @@ bool TimeZone::equals(const Object& other) const {
     }
     const auto& otherTz = dynamic_cast<const TimeZone&>(other);
     return (*zone == *otherTz.zone) != 0;
+}
+
+Value TimeZone::getUtcOffset(const Value& dateTime) const {
+    UDate udate = util::decimalToDouble(dateTime.num);
+    int32_t rawOffset = 0, dstOffset = 0;
+    auto icuError = U_ZERO_ERROR;
+    zone->getOffset(udate, true, rawOffset, dstOffset, icuError);
+    return Value(decimal::Decimal(rawOffset + dstOffset));
 }
 
 }  // namespace vm

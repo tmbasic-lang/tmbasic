@@ -30,6 +30,7 @@ enum class SystemCall {
     kTotalMilliseconds,   // TotalMilliseconds(span as TimeSpan) as Number
     kTotalMinutes,        // TotalMinutes(span as TimeSpan) as Number
     kTotalSeconds,        // TotalSeconds(span as TimeSpan) as Number
+    kUtcOffset,           // UtcOffset(timeZone as TimeZone, dateTime as DateTime) as TimeSpan
     kValueO,              // ValueO(input as Optional Object) as Boolean
     kValueV,              // ValueV(input as Optional Value) as Boolean
 };

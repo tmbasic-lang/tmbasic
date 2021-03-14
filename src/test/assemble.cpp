@@ -183,11 +183,13 @@ static SystemCall parseSystemCall(string s) {
         { "Milliseconds", SystemCall::kMilliseconds },
         { "Minutes", SystemCall::kMinutes },
         { "Seconds", SystemCall::kSeconds },
+        { "TimeZoneFromName", SystemCall::kTimeZoneFromName },
         { "TotalDays", SystemCall::kTotalDays },
         { "TotalHours", SystemCall::kTotalHours },
         { "TotalMilliseconds", SystemCall::kTotalMilliseconds },
         { "TotalMinutes", SystemCall::kTotalMinutes },
         { "TotalSeconds", SystemCall::kTotalSeconds },
+        { "UtcOffset", SystemCall::kUtcOffset },
         { "ValueO", SystemCall::kValueO },
         { "ValueV", SystemCall::kValueV },
     };

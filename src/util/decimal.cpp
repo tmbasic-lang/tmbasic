@@ -1,18 +1,20 @@
 #include "util/decimal.h"
 
+using decimal::Decimal;
+
 namespace util {
 
-size_t getDecimalHash(const decimal::Decimal& x) {
+size_t getDecimalHash(const Decimal& x) {
     return std::hash<int64_t>{}(x.floor().i64());
 }
 
-decimal::Decimal parseDecimalString(const std::string& str) {
-    return decimal::Decimal(str);
+Decimal parseDecimalString(const std::string& str) {
+    return Decimal(str);
 }
 
-std::string decimalToString(const decimal::Decimal& x) {
+std::string decimalToString(const Decimal& x) {
     if (x.isinfinite()) {
-        return x < decimal::Decimal(0) ? "-Inf" : "Inf";
+        return x < Decimal(0) ? "-Inf" : "Inf";
     }
     if (x.isnan()) {
         return "NaN";
@@ -34,12 +36,12 @@ std::string decimalToString(const decimal::Decimal& x) {
     return len == str.size() ? str : str.substr(0, len);
 }
 
-decimal::Decimal doubleToDecimal(double x) {
+Decimal doubleToDecimal(double x) {
     if (std::isnan(x)) {
         mpd_uint128_triple_t nanTriple;
         memset(&nanTriple, 0, sizeof(nanTriple));
         nanTriple.tag = MPD_TRIPLE_QNAN;
-        return decimal::Decimal(nanTriple);
+        return Decimal(nanTriple);
     }
 
     ieee754_double decomposed{};
@@ -50,7 +52,7 @@ decimal::Decimal doubleToDecimal(double x) {
         memset(&infTriple, 0, sizeof(infTriple));
         infTriple.tag = MPD_TRIPLE_INF;
         infTriple.sign = decomposed.ieee.negative;
-        return decimal::Decimal(infTriple);
+        return Decimal(infTriple);
     }
 
     int64_t binaryExponent = decomposed.ieee.exponent;
@@ -60,22 +62,50 @@ decimal::Decimal doubleToDecimal(double x) {
     mantissa <<= 32;
     mantissa |= decomposed.ieee.mantissa1;
 
-    decimal::Decimal fractionNumerator = mantissa;
+    Decimal fractionNumerator = mantissa;
 
-    decimal::Decimal fractionDenominator = 2;
+    Decimal fractionDenominator = 2;
     fractionDenominator = fractionDenominator.pow(52);
 
-    decimal::Decimal fraction = fractionNumerator / fractionDenominator;
+    Decimal fraction = fractionNumerator / fractionDenominator;
 
-    decimal::Decimal magnitude = 2;
+    Decimal magnitude = 2;
     magnitude = magnitude.pow(binaryExponent);
 
-    decimal::Decimal sign = decomposed.ieee.negative == 0U ? 1 : -1;
+    Decimal sign = decomposed.ieee.negative == 0U ? 1 : -1;
 
     if (mantissa == 0 && decomposed.ieee.exponent == 0U) {
         return sign * fraction * magnitude;
     }
     return sign * (fraction + 1) * magnitude;
+}
+
+double decimalToDouble(const Decimal& x) {
+    auto triple = x.as_uint128_triple();
+
+    switch (triple.tag) {
+        case MPD_TRIPLE_INF:
+            return triple.sign == 0 ? std::numeric_limits<double>::infinity()
+                                    : -std::numeric_limits<double>::infinity();
+
+        case MPD_TRIPLE_QNAN:
+        case MPD_TRIPLE_ERROR:
+            return std::numeric_limits<double>::quiet_NaN();
+
+        case MPD_TRIPLE_SNAN:
+            return std::numeric_limits<double>::signaling_NaN();
+
+        case MPD_TRIPLE_NORMAL: {
+            double hi = triple.hi;
+            double lo = triple.lo;
+            double exp = triple.exp;
+            return (triple.sign == 0 ? 1 : -1) * (hi * pow(2, 64) + lo) * pow(10, exp);
+            break;
+        }
+    }
+
+    assert(false);
+    return std::numeric_limits<double>::quiet_NaN();
 }
 
 }  // namespace util

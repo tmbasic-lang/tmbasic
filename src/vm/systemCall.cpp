@@ -214,6 +214,12 @@ static void systemCallTotalSeconds(const SystemCallInput& input, SystemCallResul
     result->a.num = input.valueStack.at(input.valueStackIndex).num / U_MILLIS_PER_SECOND;
 }
 
+static void systemCallUtcOffset(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& timeZone = dynamic_cast<TimeZone&>(*input.objectStack.at(input.objectStackIndex));
+    const auto& dateTime = input.valueStack.at(input.valueStackIndex);
+    result->a = timeZone.getUtcOffset(dateTime);
+}
+
 static void systemCallValueV(const SystemCallInput& input, SystemCallResult* result) {
     auto& opt = dynamic_cast<ValueOptional&>(*input.objectStack.at(input.objectStackIndex));
     if (!opt.item.has_value()) {
@@ -266,6 +272,7 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kTotalMilliseconds, systemCallTotalMilliseconds);
     initSystemCall(SystemCall::kTotalMinutes, systemCallTotalMinutes);
     initSystemCall(SystemCall::kTotalSeconds, systemCallTotalSeconds);
+    initSystemCall(SystemCall::kUtcOffset, systemCallUtcOffset);
     initSystemCall(SystemCall::kValueO, systemCallValueO);
     initSystemCall(SystemCall::kValueV, systemCallValueV);
 
