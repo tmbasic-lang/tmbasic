@@ -2,7 +2,7 @@
 
 namespace vm {
 
-TimeZone::TimeZone(boost::local_shared_ptr<icu::SimpleTimeZone> zone) : zone(std::move(zone)) {}
+TimeZone::TimeZone(std::unique_ptr<icu::TimeZone> zone) : zone(std::move(zone)) {}
 
 ObjectType TimeZone::getObjectType() const {
     return ObjectType::kTimeZone;

@@ -7,8 +7,8 @@ namespace vm {
 
 class TimeZone : public Object {
    public:
-    const boost::local_shared_ptr<icu::SimpleTimeZone> zone;
-    explicit TimeZone(boost::local_shared_ptr<icu::SimpleTimeZone> zone);
+    const std::unique_ptr<icu::TimeZone> zone;
+    explicit TimeZone(std::unique_ptr<icu::TimeZone> zone);
     ObjectType getObjectType() const override;
     size_t getHash() const override;
     bool equals(const Object& other) const override;

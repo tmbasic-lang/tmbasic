@@ -3,6 +3,7 @@
 #include "List.h"
 #include "Optional.h"
 #include "String.h"
+#include "TimeZone.h"
 #include "util/decimal.h"
 
 namespace vm {
@@ -182,6 +183,16 @@ static void systemCallSeconds(const SystemCallInput& input, SystemCallResult* re
     result->a.num = input.valueStack.at(input.valueStackIndex).num * U_MILLIS_PER_SECOND;
 }
 
+static void systemCallTimeZoneFromName(const SystemCallInput& input, SystemCallResult* result) {
+    auto& name = dynamic_cast<String&>(*input.objectStack.at(input.objectStackIndex));
+    auto icuTimeZone = std::unique_ptr<icu::TimeZone>(icu::TimeZone::createTimeZone(name.value));
+    icu::UnicodeString nameString;
+    if (icuTimeZone->getID(nameString) == UCAL_UNKNOWN_ZONE_ID) {
+        throw Error(ErrorCode::kInvalidTimeZone, "The specified time zone was not found.");
+    }
+    result->x = boost::make_local_shared<TimeZone>(std::move(icuTimeZone));
+}
+
 static void systemCallTotalDays(const SystemCallInput& input, SystemCallResult* result) {
     result->a.num = input.valueStack.at(input.valueStackIndex).num / U_MILLIS_PER_DAY;
 }
@@ -249,6 +260,7 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kMilliseconds, systemCallMilliseconds);
     initSystemCall(SystemCall::kMinutes, systemCallMinutes);
     initSystemCall(SystemCall::kSeconds, systemCallSeconds);
+    initSystemCall(SystemCall::kTimeZoneFromName, systemCallTimeZoneFromName);
     initSystemCall(SystemCall::kTotalDays, systemCallTotalDays);
     initSystemCall(SystemCall::kTotalHours, systemCallTotalHours);
     initSystemCall(SystemCall::kTotalMilliseconds, systemCallTotalMilliseconds);

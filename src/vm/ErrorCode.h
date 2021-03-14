@@ -8,6 +8,7 @@ enum class ErrorCode {
     kInvalidLocaleName = 1000,
     kValueNotPresent = 1001,
     kInvalidDateTime = 1002,
+    kInvalidTimeZone = 1003,
 };
 
 }  // namespace vm
