@@ -20,8 +20,8 @@ li@`Number` -- 128-bit decimal.@
 li@`String` -- UTF-16 text.@
 li@`Date` -- Date without a time.@
 li@`DateTime` -- Date and time, without a time zone.@
+li@`DateTimeOffset` -- Record containing a `DateTime` and a `TimeSpan` representing the offset from UTC.@
 li@`TimeZone` -- Offset from UTC and daylight saving time schedule.@
-li@`ZonedDateTime` -- Record containing a `DateTime` and a `TimeZone`.@
 li@`TimeSpan` -- Period of time.@
 li@`List of T` -- Generic dynamic-sized array with element type `T`. Example: `List of Number`. Literals look like: `[0, 1, 2]`.@
 li@`Map from K to V` -- Generic dynamic-sized dictionary with key type `K` and value type `V`. Example: `Map from Number to String`.@

@@ -85,7 +85,7 @@ h2[Type Signatures]
 
 ul@
 li@Type ::= PrimitiveType | RecordType | ListType | MapType | OptionalType | NamedType@
-li@PrimitiveType ::= "boolean" | "number" | "text" | "date" | "datetime" | "zoneddatetime" | "timespan" | "timezone"@
+li@PrimitiveType ::= "boolean" | "number" | "text" | "date" | "datetime" | "datetimeoffset" | "timespan" | "timezone"@
 li@RecordType ::= "record" "(" ParameterList ")"@
 li@ListType ::= "list" "of" TypeWithParentheses@
 li@MapType ::= "map" "from" TypeWithParentheses "to" TypeWithParentheses@

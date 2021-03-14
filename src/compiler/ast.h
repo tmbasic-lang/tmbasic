@@ -48,7 +48,7 @@ enum class Kind {
     kNumber,
     kDate,
     kDateTime,
-    kZonedDateTime,
+    kDateTimeOffset,
     kTimeSpan,
     kTimeZone,
     kString,
