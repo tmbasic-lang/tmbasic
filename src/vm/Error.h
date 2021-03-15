@@ -11,4 +11,10 @@ enum class ErrorCode {
     kInvalidTimeZone = 1003,
 };
 
+class Error : public std::runtime_error {
+   public:
+    ErrorCode code;
+    Error(ErrorCode code, const char* message);
+};
+
 }  // namespace vm

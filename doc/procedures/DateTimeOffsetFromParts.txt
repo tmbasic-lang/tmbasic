@@ -1,0 +1,34 @@
+.procedure DateTimeOffsetFromParts
+.category Dates and Times
+.blurb Creates a t[DateTimeOffset] from individual date, time, and zone components.
+.description
+Creates a t[DateTimeOffset] for the specified year, month, day, hour, minute, second, millisecond, and zone.
+.overload
+.parameter year: Number
+Four-digit year.
+.parameter month: Number
+Month (1-12).
+.parameter day: Number
+Day (1-31).
+.parameter hour: Number
+Hour (0-23).
+.parameter minute: Number
+Minute (0-59).
+.parameter second: Number
+Second (0-59).
+.parameter millisecond: Number
+Millisecond (0-999).
+.parameter timeZone: TimeZone
+Time zone.
+.return DateTimeOffset
+A new t[DateTimeOffset].
+.example
+.example-code
+dim zone = TimeZoneFromName("America/Chicago")
+dim x = DateTimeFromParts(2021, 3, 12, 4, 30, 0, 0)
+x.DateTime.Print
+x.Offset.TotalHours.Print
+.example-output
+2021-03-12 04:30:00.000
+-6
+.

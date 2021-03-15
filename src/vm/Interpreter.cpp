@@ -5,8 +5,9 @@
 #include "Optional.h"
 #include "Record.h"
 #include "String.h"
-#include "util/decimal.h"
+#include "date.h"
 #include "systemCall.h"
+#include "util/decimal.h"
 
 namespace vm {
 
@@ -37,6 +38,7 @@ static int16_t readInt16(const uint8_t* ptr) {
 Interpreter::Interpreter(Program* program, std::istream* consoleInputStream, std::ostream* consoleOutputStream)
     : _program(program), _consoleInputStream(consoleInputStream), _consoleOutputStream(consoleOutputStream) {
     initSystemCalls();
+    initDate();
 }
 
 void Interpreter::init(int procedureIndex) {

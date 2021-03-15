@@ -1,9 +1,10 @@
 #include "systemCall.h"
-#include "ErrorCode.h"
+#include "Error.h"
 #include "List.h"
 #include "Optional.h"
 #include "String.h"
 #include "TimeZone.h"
+#include "date.h"
 #include "util/decimal.h"
 
 namespace vm {
@@ -12,13 +13,6 @@ typedef void (*SystemCallFunc)(const SystemCallInput&, SystemCallResult*);
 
 static bool _systemCallsInitialized = false;
 static std::vector<SystemCallFunc> _systemCalls;
-static std::unique_ptr<icu::Calendar> _defaultCalendar;  // temp, must be cleared before each use
-
-class Error : public std::runtime_error {
-   public:
-    ErrorCode code;
-    Error(ErrorCode code, const char* message) : code(code), std::runtime_error(message) {}
-};
 
 SystemCallInput::SystemCallInput(
     const std::array<Value, kValueStackSize>& valueStack,
@@ -29,6 +23,14 @@ SystemCallInput::SystemCallInput(
       objectStack(objectStack),
       valueStackIndex(valueStackIndex),
       objectStackIndex(objectStackIndex) {}
+
+const Value& SystemCallInput::getValue(const size_t index) const {
+    return valueStack.at(valueStackIndex + index);
+}
+
+const Object& SystemCallInput::getObject(const size_t index) const {
+    return *objectStack.at(objectStackIndex + index);
+}
 
 static void systemCallAvailableLocales(const SystemCallInput& /*unused*/, SystemCallResult* result) {
     int32_t count = 0;
@@ -77,7 +79,7 @@ static void systemCallCharactersCore(
     const SystemCallInput& input,
     const icu::Locale& locale,
     SystemCallResult* result) {
-    auto& str = dynamic_cast<String&>(*input.objectStack.at(input.objectStackIndex));
+    const auto& str = dynamic_cast<const String&>(input.getObject(0));
     auto status = U_ZERO_ERROR;
     auto breakIterator =
         std::unique_ptr<icu::BreakIterator>(icu::BreakIterator::createCharacterInstance(locale, status));
@@ -103,88 +105,87 @@ static void systemCallCharacters1(const SystemCallInput& input, SystemCallResult
 }
 
 static void systemCallCharacters2(const SystemCallInput& input, SystemCallResult* result) {
-    auto& localeName = dynamic_cast<String&>(*input.objectStack.at(input.objectStackIndex + 1));
+    const auto& localeName = dynamic_cast<const String&>(input.getObject(1));
     const auto& locale = getBreakIteratorLocale(localeName.value);
     systemCallCharactersCore(input, locale, result);
 }
 
 static void systemCallChr(const SystemCallInput& input, SystemCallResult* result) {
-    auto value = input.valueStack.at(input.valueStackIndex).getInt64();
+    auto value = input.getValue(0).getInt64();
     auto ch = static_cast<UChar32>(value);
     result->x = boost::make_local_shared<String>(ch > 0 ? icu::UnicodeString(ch) : icu::UnicodeString());
 }
 
 static void systemCallDateFromParts(const SystemCallInput& input, SystemCallResult* result) {
-    auto year = input.valueStack.at(input.valueStackIndex).getInt32();
-    auto month = input.valueStack.at(input.valueStackIndex + 1).getInt32();
-    auto day = input.valueStack.at(input.valueStackIndex + 2).getInt32();
-    _defaultCalendar->clear();
-    _defaultCalendar->set(year, month - 1, day);
-    auto icuErrorCode = U_ZERO_ERROR;
-    auto udate = _defaultCalendar->getTime(icuErrorCode);
-    if (icuErrorCode != U_ZERO_ERROR) {
-        throw Error(ErrorCode::kInvalidDateTime, "The date is invalid.");
-    }
-    result->a.num = util::doubleToDecimal(udate);
+    auto year = input.getValue(0).getInt32();
+    auto month = input.getValue(1).getInt32();
+    auto day = input.getValue(2).getInt32();
+    result->a = newDate(year, month, day);
 }
 
 static void systemCallDateTimeFromParts(const SystemCallInput& input, SystemCallResult* result) {
-    auto year = input.valueStack.at(input.valueStackIndex).getInt32();
-    auto month = input.valueStack.at(input.valueStackIndex + 1).getInt32();
-    auto day = input.valueStack.at(input.valueStackIndex + 2).getInt32();
-    auto hour = input.valueStack.at(input.valueStackIndex + 3).getInt32();
-    auto minute = input.valueStack.at(input.valueStackIndex + 4).getInt32();
-    auto second = input.valueStack.at(input.valueStackIndex + 5).getInt32();
-    auto millisecond = input.valueStack.at(input.valueStackIndex + 6).getInt32();
-    _defaultCalendar->clear();
-    _defaultCalendar->set(year, month - 1, day, hour, minute, second);
-    _defaultCalendar->set(UCAL_MILLISECOND, millisecond);
-    auto icuErrorCode = U_ZERO_ERROR;
-    auto udate = _defaultCalendar->getTime(icuErrorCode);
-    if (icuErrorCode != U_ZERO_ERROR) {
-        throw Error(ErrorCode::kInvalidDateTime, "The date is invalid.");
-    }
-    result->a.num = util::doubleToDecimal(udate);
+    auto year = input.getValue(0).getInt32();
+    auto month = input.getValue(1).getInt32();
+    auto day = input.getValue(2).getInt32();
+    auto hour = input.getValue(3).getInt32();
+    auto minute = input.getValue(4).getInt32();
+    auto second = input.getValue(5).getInt32();
+    auto millisecond = input.getValue(6).getInt32();
+    result->a = newDateTime(year, month, day, hour, minute, second, millisecond);
+}
+
+static void systemCallDateTimeOffsetFromParts(const SystemCallInput& input, SystemCallResult* result) {
+    auto year = input.getValue(0).getInt32();
+    auto month = input.getValue(1).getInt32();
+    auto day = input.getValue(2).getInt32();
+    auto hour = input.getValue(3).getInt32();
+    auto minute = input.getValue(4).getInt32();
+    auto second = input.getValue(5).getInt32();
+    auto millisecond = input.getValue(6).getInt32();
+    const auto& timeZone = dynamic_cast<const TimeZone&>(input.getObject(0));
+    auto dateTime = newDateTime(year, month, day, hour, minute, second, millisecond);
+    auto offset = Value(timeZone.getUtcOffset(dateTime.num));
+    result->x = newDateTimeOffset(dateTime, offset);
 }
 
 static void systemCallDays(const SystemCallInput& input, SystemCallResult* result) {
-    result->a.num = input.valueStack.at(input.valueStackIndex).num * U_MILLIS_PER_DAY;
+    result->a.num = input.getValue(0).num * U_MILLIS_PER_DAY;
 }
 
 static void systemCallHasValueV(const SystemCallInput& input, SystemCallResult* result) {
-    auto& opt = dynamic_cast<ValueOptional&>(*input.objectStack.at(input.objectStackIndex));
+    const auto& opt = dynamic_cast<const ValueOptional&>(input.getObject(0));
     result->a.setBoolean(opt.item.has_value());
 }
 
 static void systemCallHasValueO(const SystemCallInput& input, SystemCallResult* result) {
-    auto& opt = dynamic_cast<ObjectOptional&>(*input.objectStack.at(input.objectStackIndex));
+    const auto& opt = dynamic_cast<const ObjectOptional&>(input.getObject(0));
     result->a.setBoolean(opt.item.has_value());
 }
 
 static void systemCallHours(const SystemCallInput& input, SystemCallResult* result) {
-    result->a.num = input.valueStack.at(input.valueStackIndex).num * U_MILLIS_PER_HOUR;
+    result->a.num = input.getValue(0).num * U_MILLIS_PER_HOUR;
 }
 
 static void systemCallLen(const SystemCallInput& input, SystemCallResult* result) {
-    const auto& str = dynamic_cast<String&>(*input.objectStack.at(input.objectStackIndex)).value;
+    const auto& str = dynamic_cast<const String&>(input.getObject(0)).value;
     result->a.num = str.length();
 }
 
 static void systemCallMilliseconds(const SystemCallInput& input, SystemCallResult* result) {
     // already in milliseconds!
-    result->a = input.valueStack.at(input.valueStackIndex);
+    result->a = input.getValue(0);
 }
 
 static void systemCallMinutes(const SystemCallInput& input, SystemCallResult* result) {
-    result->a.num = input.valueStack.at(input.valueStackIndex).num * U_MILLIS_PER_MINUTE;
+    result->a.num = input.getValue(0).num * U_MILLIS_PER_MINUTE;
 }
 
 static void systemCallSeconds(const SystemCallInput& input, SystemCallResult* result) {
-    result->a.num = input.valueStack.at(input.valueStackIndex).num * U_MILLIS_PER_SECOND;
+    result->a.num = input.getValue(0).num * U_MILLIS_PER_SECOND;
 }
 
 static void systemCallTimeZoneFromName(const SystemCallInput& input, SystemCallResult* result) {
-    auto& name = dynamic_cast<String&>(*input.objectStack.at(input.objectStackIndex));
+    const auto& name = dynamic_cast<const String&>(input.getObject(0));
     auto icuTimeZone = std::unique_ptr<icu::TimeZone>(icu::TimeZone::createTimeZone(name.value));
     icu::UnicodeString nameString;
     if (icuTimeZone->getID(nameString) == UCAL_UNKNOWN_ZONE_ID) {
@@ -194,34 +195,34 @@ static void systemCallTimeZoneFromName(const SystemCallInput& input, SystemCallR
 }
 
 static void systemCallTotalDays(const SystemCallInput& input, SystemCallResult* result) {
-    result->a.num = input.valueStack.at(input.valueStackIndex).num / U_MILLIS_PER_DAY;
+    result->a.num = input.getValue(0).num / U_MILLIS_PER_DAY;
 }
 
 static void systemCallTotalHours(const SystemCallInput& input, SystemCallResult* result) {
-    result->a.num = input.valueStack.at(input.valueStackIndex).num / U_MILLIS_PER_HOUR;
+    result->a.num = input.getValue(0).num / U_MILLIS_PER_HOUR;
 }
 
 static void systemCallTotalMilliseconds(const SystemCallInput& input, SystemCallResult* result) {
     // already in milliseconds!
-    result->a = input.valueStack.at(input.valueStackIndex);
+    result->a = input.getValue(0);
 }
 
 static void systemCallTotalMinutes(const SystemCallInput& input, SystemCallResult* result) {
-    result->a.num = input.valueStack.at(input.valueStackIndex).num / U_MILLIS_PER_MINUTE;
+    result->a.num = input.getValue(0).num / U_MILLIS_PER_MINUTE;
 }
 
 static void systemCallTotalSeconds(const SystemCallInput& input, SystemCallResult* result) {
-    result->a.num = input.valueStack.at(input.valueStackIndex).num / U_MILLIS_PER_SECOND;
+    result->a.num = input.getValue(0).num / U_MILLIS_PER_SECOND;
 }
 
 static void systemCallUtcOffset(const SystemCallInput& input, SystemCallResult* result) {
-    const auto& timeZone = dynamic_cast<TimeZone&>(*input.objectStack.at(input.objectStackIndex));
-    const auto& dateTime = input.valueStack.at(input.valueStackIndex);
-    result->a = timeZone.getUtcOffset(dateTime);
+    const auto& timeZone = dynamic_cast<const TimeZone&>(input.getObject(0));
+    const auto& dateTime = input.getValue(0);
+    result->a.num = timeZone.getUtcOffset(dateTime.num);
 }
 
 static void systemCallValueV(const SystemCallInput& input, SystemCallResult* result) {
-    auto& opt = dynamic_cast<ValueOptional&>(*input.objectStack.at(input.objectStackIndex));
+    const auto& opt = dynamic_cast<const ValueOptional&>(input.getObject(0));
     if (!opt.item.has_value()) {
         throw Error(ErrorCode::kValueNotPresent, "Optional value is not present.");
     }
@@ -229,7 +230,7 @@ static void systemCallValueV(const SystemCallInput& input, SystemCallResult* res
 }
 
 static void systemCallValueO(const SystemCallInput& input, SystemCallResult* result) {
-    auto& opt = dynamic_cast<ObjectOptional&>(*input.objectStack.at(input.objectStackIndex));
+    const auto& opt = dynamic_cast<const ObjectOptional&>(input.getObject(0));
     if (!opt.item.has_value()) {
         throw Error(ErrorCode::kValueNotPresent, "Optional value is not present.");
     }
@@ -258,6 +259,7 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kChr, systemCallChr);
     initSystemCall(SystemCall::kDateFromParts, systemCallDateFromParts);
     initSystemCall(SystemCall::kDateTimeFromParts, systemCallDateTimeFromParts);
+    initSystemCall(SystemCall::kDateTimeOffsetFromParts, systemCallDateTimeOffsetFromParts);
     initSystemCall(SystemCall::kDays, systemCallDays);
     initSystemCall(SystemCall::kHasValueO, systemCallHasValueO);
     initSystemCall(SystemCall::kHasValueV, systemCallHasValueV);
@@ -275,12 +277,6 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kUtcOffset, systemCallUtcOffset);
     initSystemCall(SystemCall::kValueO, systemCallValueO);
     initSystemCall(SystemCall::kValueV, systemCallValueV);
-
-    auto icuErrorCode = U_ZERO_ERROR;
-    _defaultCalendar = std::unique_ptr<icu::Calendar>(icu::Calendar::createInstance(icuErrorCode));
-    if (icuErrorCode != U_ZERO_ERROR) {
-        throw std::runtime_error("Failed to construct the default calendar.");
-    }
 
     _systemCallsInitialized = true;
 }

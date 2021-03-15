@@ -1,0 +1,48 @@
+# 2021-03-13 America/New_York -> -05:00
+
+LoadConstantStringX "America/New_York"
+PushObjects 1
+StoreX 0
+SystemCall TimeZoneFromName
+PopObjects 1
+PushObjects 1
+StoreX 0
+
+PushValues 7
+LoadConstantA 2021
+StoreA 0
+LoadConstantA 3
+StoreA 1
+LoadConstantA 13
+StoreA 2
+LoadConstantA 0
+StoreA 3
+StoreA 4
+StoreA 5
+StoreA 6
+SystemCall DateTimeOffsetFromParts
+PopObjects 1
+PopValues 7
+PushObjects 1
+StoreX 0
+
+LoadX 0
+RecordLoadA 0
+NumberToString
+StringPrint
+
+LoadConstantStringX ","
+StringPrint
+
+LoadX 0
+RecordLoadA 1
+NumberToString
+StringPrint
+
+LoadConstantStringX ","
+StringPrint
+
+Exit
+
+--output--
+1615593600000,-18000000,

@@ -13,7 +13,7 @@ class TimeZone : public Object {
     ObjectType getObjectType() const override;
     size_t getHash() const override;
     bool equals(const Object& other) const override;
-    Value getUtcOffset(const Value& dateTime) const;
+    decimal::Decimal getUtcOffset(const decimal::Decimal& dateTime) const;
 };
 
 }  // namespace vm
