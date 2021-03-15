@@ -1,0 +1,21 @@
+.procedure TimeZoneFromName
+.category Dates and Times
+.blurb Looks up a t[TimeZone] by name.
+.description
+Looks up a t[TimeZone] by name.
+Call p[AvailableTimeZones] to get a list of all possible time zone names.
+If the time zone doesn't exist, then the error code {`Error_InvalidTimeZone`:ref_errors} is thrown.
+.overload
+.parameter name: String
+An acronym like `UTC` and `EST`, a location like `America/Chicago`, or a generic GMT offset like `Etc/GMT+4`.
+.return TimeZone
+A time span representing the time zone's offset from UTC.
+.example
+.example-code
+dim tz = TimeZoneFromName("America/New_York")
+dim dt = DateTimeFromParts(2021, 3, 13, 0, 0, 0, 0)
+dim offset = tz.UtcOffset(dt)
+offset.TotalHours.Print
+.example-output
+-5
+.
