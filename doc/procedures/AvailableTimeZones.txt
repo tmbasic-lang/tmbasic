@@ -4,7 +4,7 @@
 .description
 Returns a list of the time zone names available to TMBASIC.
 A time zone name can be an acronym like `UTC` and `EST`, a location like `America/Chicago`, or a generic GMT offset like `Etc/GMT+4`.
-Use `TimeZoneFromName` to get a time zone from one of these names.
+Use t[TimeZoneFromName] to get a time zone from one of these names.
 .overload
 .return List of String
 List of time zone names.
