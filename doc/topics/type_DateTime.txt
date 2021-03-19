@@ -1,3 +1,3 @@
-nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {BASIC Reference:ref}@
+nav@{TMBASIC Documentation:doc}@
 
 h1[`DateTime` Type]

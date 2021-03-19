@@ -1,7 +1,50 @@
 h1[TMBASIC Documentation]
 
-ul@li@{BASIC Reference:ref}@
+h2[General]
+
+ul@
 li@{Cheat Sheet for Experienced Programmers:cheat}@
+li@{Language Grammar:ref_grammar}@
 li@{License:license}@
 @
 
+h2[Procedures]
+
+ul@
+li@{All Procedures:procedure}@
+li@{Dates and Times:procedures_dates_and_times}@
+li@{Optionals:procedures_optionals}@
+li@{Strings:procedures_strings}@
+@
+
+h2[Types]
+
+ul@
+li@{`Boolean` Type:type_Boolean}@
+li@{`Date` Type:type_Date}@
+li@{`DateTime` Type:type_DateTime}@
+li@{`DateTimeOffset` Type:type_DateTimeOffset}@
+li@{`List` Type:type_List}@
+li@{`Map` Type:type_Map}@
+li@{`Number` Type:type_Number}@
+li@{`Optional` Type:type_Optional}@
+li@{`Record` Type:type_Record}@
+li@{`String` Type:type_String}@
+li@{`TimeSpan` Type:type_TimeSpan}@
+li@{`TimeZone` Type:type_TimeZone}@
+@
+
+h2[Statements]
+
+ul@
+li@{`if` Statement:ref_if}@
+li@{`while` Statement:ref_while}@
+@
+
+h2[Operators]
+
+ul@
+li@{Algebraic Operators:ref_algebraic}@
+li@{Comparison Operators:ref_comparison}@
+li@{Logical Operators:ref_logical}@
+@

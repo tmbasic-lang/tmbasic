@@ -9,8 +9,7 @@ Everything you need is built-in.
 
 [Read the documentation online](https://tmbasic.com/doc.html) or in TMBASIC's integrated help viewer.
 
-- [Cheat Sheet for Experienced Programmers](https://tmbasic.com/cheat.html)
-- [BASIC Reference](https://tmbasic.com/ref.html)
+Try the [Cheat Sheet for Experienced Programmers](https://tmbasic.com/cheat.html) to get started quickly.
 
 ## Project status
 TMBASIC is under development. Stay tuned!

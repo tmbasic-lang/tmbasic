@@ -4,7 +4,7 @@
 .description
 Converts a t[String] value into a list of "grapheme clusters," or what human readers would intuitively understand as "characters."
 
-In languages using a Latin script, a letter or an accent are considered separate graphemes.
+In languages using a Latin script, a letter or an accent are considered i[graphemes].
 A grapheme i[cluster] is the Latin letter combined with its accents.
 
 For example, consider the text value "né" formed by three code points:

@@ -31,7 +31,6 @@ class App : public TApplication {
     void onProgramAddTextEditor(EditorType type);
     void onProgramAddDesigner(DesignerType type);
     void onHelpDocumentation();
-    void onHelpBasicReference();
     static void onHelpAbout();
     static TRect centeredRect(int width, int height);
     void openHelpTopic(uint16_t topic);

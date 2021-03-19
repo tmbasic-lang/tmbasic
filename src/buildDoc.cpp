@@ -428,34 +428,34 @@ static string formatProcedureText(const Procedure& procedure) {
     auto categoryTopic = getProcedureCategoryTopic(procedure.category);
 
     ostringstream o;
-    o << "nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {BASIC Reference:ref} <TRIANGLE_RIGHT> {Procedures:: "
-      << procedure.category << ":" << categoryTopic << "}@\n\n";
+    o << "nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {Procedures:: " << procedure.category << ":" << categoryTopic
+      << "}@\n\n";
     o << "h1[`" << procedure.name << "` Procedure]\n\n" << procedure.description << "\n\n";
 
     for (const auto& overload : procedure.overloads) {
         auto isFunction = overload->returns != nullptr;
-        auto isFirstParameter = true;
 
         o << "h2[" << procedure.name << "(";
-        isFirstParameter = true;
-        for (auto& parameter : overload->parameters) {
-            if (!isFirstParameter) {
+        for (size_t i = 0; i < overload->parameters.size(); i++) {
+            auto& parameter = overload->parameters.at(i);
+            if (i > 0) {
                 o << ", ";
             }
             o << parameter->type;
-            isFirstParameter = false;
         }
         o << ")]\n\n";
 
         o << "code@\n" << (isFunction ? "function " : "sub ") << procedure.name << "(";
 
-        isFirstParameter = true;
-        for (auto& parameter : overload->parameters) {
-            if (!isFirstParameter) {
-                o << ",";
+        for (size_t i = 0; i < overload->parameters.size(); i++) {
+            auto& parameter = overload->parameters.at(i);
+            if (i > 0) {
+                o << ", ";
             }
-            o << "\n    " << parameter->name << " as " << parameter->type;
-            isFirstParameter = false;
+            if ((i % 3) == 0) {
+                o << "\n    ";
+            }
+            o << parameter->name << " as " << parameter->type;
         }
         if (overload->parameters.size() > 0) {
             o << "\n";
@@ -470,8 +470,8 @@ static string formatProcedureText(const Procedure& procedure) {
         if (!overload->parameters.empty()) {
             o << "h3[Parameters]\n\nul@";
             for (auto& parameter : overload->parameters) {
-                o << "li@i[" << parameter->name << "] as t[" << parameter->type << "] <EM_DASH> " << parameter->description
-                  << "@";
+                o << "li@i[" << parameter->name << "] as t[" << parameter->type << "] <EM_DASH> "
+                  << parameter->description << "@";
             }
             o << "@";
         }
@@ -529,8 +529,7 @@ static void buildProcedureCategoryPages(
         auto topic = getProcedureCategoryTopic(category);
 
         ostringstream o;
-        o << "nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {BASIC Reference:ref}@\n\nh1[Procedures: " << category
-          << "]\n\nul@";
+        o << "nav@{TMBASIC Documentation:doc}@\n\nh1[Procedures: " << category << "]\n\nul@";
 
         for (const auto& x : procedures) {
             if (x->category == category) {
@@ -553,7 +552,7 @@ static void buildProcedureIndex(
     ostringstream* outputTxt,
     const string& htmlPageTemplate) {
     ostringstream o;
-    o << "nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {BASIC Reference:ref}@\n\nh1[Procedure Index]\n\n";
+    o << "nav@{TMBASIC Documentation:doc}@\n\nh1[All Procedures]\n\n";
 
     o << "h2[By Name]\n\nul@";
     for (const auto& x : procedures) {

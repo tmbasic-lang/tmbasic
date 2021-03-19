@@ -112,7 +112,6 @@ TMenuBar* App::initMenuBar(TRect r) {
 
     auto& helpMenu = *new TSubMenu("~H~elp", kbAltH) +
         *new TMenuItem("~D~ocumentation", kCmdHelpDocumentation, kbNoKey) +
-        *new TMenuItem("~B~ASIC reference", kCmdHelpBasicReference, kbNoKey) + newLine() +
         *new TMenuItem("~A~bout TMBASIC", kCmdHelpAbout, kbNoKey);
 
     r.b.y = r.a.y + 1;
@@ -269,10 +268,6 @@ bool App::handleCommand(TEvent* event) {
 
         case kCmdProgramAddCustomControl:
             onProgramAddDesigner(DesignerType::kCustomControl);
-            return true;
-
-        case kCmdHelpBasicReference:
-            onHelpBasicReference();
             return true;
 
         case kCmdHelpDocumentation:
@@ -523,10 +518,6 @@ void App::onProgramAddDesigner(DesignerType type) {
 
 void App::onHelpDocumentation() {
     openHelpTopic(hcdoc);
-}
-
-void App::onHelpBasicReference() {
-    openHelpTopic(hcref);
 }
 
 TRect App::centeredRect(int width, int height) {
