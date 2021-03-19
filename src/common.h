@@ -53,7 +53,6 @@
 #include <cstdint>
 #include <cstdlib>
 #include <ctime>
-#include <ieee754.h>
 
 #include <algorithm>
 #include <array>
@@ -123,5 +122,18 @@ inline void debugLog(std::function<void(std::ofstream* stream)> x) {
     fileStream.close();
 }
 #endif
+
+// ieee754.h not available everywhere
+union ieee754_double {
+    double d;
+    struct {
+        unsigned int mantissa1 : 32;
+        unsigned int mantissa0 : 20;
+        unsigned int exponent : 11;
+        unsigned int negative : 1;
+    } ieee;
+};
+
+#define IEEE754_DOUBLE_BIAS 0x3ff
 
 #endif  // COMMON_H_
