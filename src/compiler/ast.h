@@ -63,8 +63,8 @@ enum class Kind {
 class FieldNode : public Node {
    public:
     std::string name;
-    std::unique_ptr<TypeNode> type;
-    FieldNode(std::string name, std::unique_ptr<TypeNode> type, Token token);
+    boost::local_shared_ptr<TypeNode> type;
+    FieldNode(std::string name, boost::local_shared_ptr<TypeNode> type, Token token);
     FieldNode(const FieldNode& source);
     void dump(std::ostringstream& s, int n) const override;
 };
@@ -74,20 +74,28 @@ class TypeNode : public Node {
     Kind kind;
     std::optional<std::string> recordName;              // kind = kRecord (named)
     std::optional<std::string> genericPlaceholderName;  // kind = kGenericPlaceholder
-    std::vector<std::unique_ptr<FieldNode>> fields;     // kind = kRecord (anonymous)
+    std::vector<boost::local_shared_ptr<FieldNode>>
+        fields;  // kind = kRecord (anonymous), will be filled for named types by bindNamedTypes
     // nullable type parameters
-    std::unique_ptr<TypeNode> listItemType;       // kind = kList
-    std::unique_ptr<TypeNode> mapKeyType;         // kind = kMap
-    std::unique_ptr<TypeNode> mapValueType;       // kind = kMap
-    std::unique_ptr<TypeNode> optionalValueType;  // kind = kOptional
+    boost::local_shared_ptr<TypeNode> listItemType;       // kind = kList
+    boost::local_shared_ptr<TypeNode> mapKeyType;         // kind = kMap
+    boost::local_shared_ptr<TypeNode> mapValueType;       // kind = kMap
+    boost::local_shared_ptr<TypeNode> optionalValueType;  // kind = kOptional
+    bool namedTypesAreBound = false;                      // set by bindNamedTypes
     TypeNode(Kind kind, Token token);
     TypeNode(Kind kind, Token token, std::string recordName);
-    TypeNode(Kind kind, Token token, std::unique_ptr<TypeNode> optionalValueTypeOrListItemType);
-    TypeNode(Kind kind, Token token, std::unique_ptr<TypeNode> mapKeyType, std::unique_ptr<TypeNode> mapValueType);
-    TypeNode(Kind kind, Token token, std::vector<std::unique_ptr<FieldNode>> fields);
+    TypeNode(Kind kind, Token token, boost::local_shared_ptr<TypeNode> optionalValueTypeOrListItemType);
+    TypeNode(
+        Kind kind,
+        Token token,
+        boost::local_shared_ptr<TypeNode> mapKeyType,
+        boost::local_shared_ptr<TypeNode> mapValueType);
+    TypeNode(Kind kind, Token token, std::vector<boost::local_shared_ptr<FieldNode>> fields);
     TypeNode(const TypeNode& source);
     void dump(std::ostringstream& s, int n) const override;
     bool isValueType() const;
+    bool canImplicitlyConvertTo(const TypeNode& target) const;
+    bool isIdentical(const TypeNode& target) const;
 };
 
 //
@@ -171,8 +179,8 @@ class ConstValueExpressionNode : public ExpressionNode {
 class ConvertExpressionNode : public ExpressionNode {
    public:
     std::unique_ptr<ExpressionNode> value;
-    std::unique_ptr<TypeNode> type;
-    ConvertExpressionNode(std::unique_ptr<ExpressionNode> value, std::unique_ptr<TypeNode> type, Token token);
+    boost::local_shared_ptr<TypeNode> type;
+    ConvertExpressionNode(std::unique_ptr<ExpressionNode> value, boost::local_shared_ptr<TypeNode> type, Token token);
     void dump(std::ostringstream& s, int n) const override;
     bool visitExpressions(const VisitExpressionFunc& func) const override;
     TypeNode* getChildTypeNode() const override;
@@ -398,10 +406,10 @@ class DimMapStatementNode : public StatementNode {
 class DimStatementNode : public StatementNode {
    public:
     std::string name;
-    std::unique_ptr<TypeNode> type;                             // may be null
+    boost::local_shared_ptr<TypeNode> type;                     // may be null
     std::unique_ptr<ExpressionNode> value;                      // may be null
     boost::local_shared_ptr<TypeNode> evaluatedType = nullptr;  // set during type checking
-    DimStatementNode(std::string name, std::unique_ptr<TypeNode> type, Token token);
+    DimStatementNode(std::string name, boost::local_shared_ptr<TypeNode> type, Token token);
     DimStatementNode(std::string name, std::unique_ptr<ExpressionNode> value, Token token);
     MemberType getMemberType() const override;
     void dump(std::ostringstream& s, int n) const override;
@@ -693,8 +701,8 @@ class WhileStatementNode : public StatementNode {
 class ParameterNode : public Node {
    public:
     std::string name;
-    std::unique_ptr<TypeNode> type;
-    ParameterNode(std::string name, std::unique_ptr<TypeNode> type, Token token);
+    boost::local_shared_ptr<TypeNode> type;
+    ParameterNode(std::string name, boost::local_shared_ptr<TypeNode> type, Token token);
     void dump(std::ostringstream& s, int n) const override;
     std::optional<std::string> getSymbolDeclaration() const override;
 };
@@ -711,13 +719,13 @@ class ProcedureNode : public Node {
    public:
     std::string name;
     std::vector<std::unique_ptr<ParameterNode>> parameters;
-    std::unique_ptr<TypeNode> returnType;  // null for subroutines
+    boost::local_shared_ptr<TypeNode> returnType;  // null for subroutines
     std::unique_ptr<BodyNode> body;
     std::vector<std::unique_ptr<GlobalVariableNode>> globalVariables;  // inserted after parsing
     ProcedureNode(
         std::string name,
         std::vector<std::unique_ptr<ParameterNode>> parameters,
-        std::unique_ptr<TypeNode> returnType,
+        boost::local_shared_ptr<TypeNode> returnType,
         std::unique_ptr<BodyNode> body,
         Token token);
     ProcedureNode(

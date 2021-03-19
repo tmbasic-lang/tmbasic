@@ -1,4 +1,5 @@
 #include "compiler/compileProcedure.h"
+#include "compiler/bindNamedTypes.h"
 #include "compiler/bindProcedureSymbols.h"
 #include "compiler/parse.h"
 #include "compiler/tokenize.h"
@@ -21,6 +22,11 @@ CompilerResult compileProcedure(const SourceMember& sourceMember, CompiledProgra
     auto procedureNode = dynamic_cast_move<ProcedureNode>(std::move(parserResult.node));
 
     auto compilerResult = bindProcedureSymbols(procedureNode.get(), *compiledProgram);
+    if (!compilerResult.isSuccess) {
+        return compilerResult;
+    }
+
+    compilerResult = bindNamedTypes(procedureNode.get(), *compiledProgram);
     if (!compilerResult.isSuccess) {
         return compilerResult;
     }

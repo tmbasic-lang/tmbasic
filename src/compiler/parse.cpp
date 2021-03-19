@@ -465,7 +465,7 @@ class RecordTypeProduction : public Production {
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
-        std::vector<std::unique_ptr<FieldNode>> fields;
+        std::vector<boost::local_shared_ptr<FieldNode>> fields;
         for (auto& parameter : captureNodeArray<ParameterNode>(std::move((*captures)[0]))) {
             fields.push_back(std::make_unique<FieldNode>(parameter->name, std::move(parameter->type), firstToken));
         }

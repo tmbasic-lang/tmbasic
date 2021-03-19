@@ -124,7 +124,7 @@ ExpressionType ConstValueExpressionNode::getExpressionType() const {
 
 StatementNode::StatementNode(Token token) : Node(std::move(token)) {}
 
-FieldNode::FieldNode(std::string name, std::unique_ptr<TypeNode> type, Token token)
+FieldNode::FieldNode(std::string name, boost::local_shared_ptr<TypeNode> type, Token token)
     : Node(std::move(token)), name(std::move(name)), type(std::move(type)) {}
 
 void FieldNode::dump(std::ostringstream& s, int n) const {
@@ -134,28 +134,34 @@ void FieldNode::dump(std::ostringstream& s, int n) const {
 }
 
 FieldNode::FieldNode(const FieldNode& source)
-    : Node(source.token), name(source.name), type(std::make_unique<TypeNode>(*source.type)) {}
+    : Node(source.token), name(source.name), type(boost::make_local_shared<TypeNode>(*source.type)) {}
 
 TypeNode::TypeNode(Kind kind, Token token) : Node(std::move(token)), kind(kind) {}
 
 TypeNode::TypeNode(Kind kind, Token token, std::string recordName)
     : Node(std::move(token)), kind(kind), recordName(recordName) {}
 
-TypeNode::TypeNode(Kind kind, Token token, std::unique_ptr<TypeNode> optionalValueTypeOrListItemType)
+TypeNode::TypeNode(Kind kind, Token token, boost::local_shared_ptr<TypeNode> optionalValueTypeOrListItemType)
     : Node(std::move(token)),
       kind(kind),
-      listItemType(kind == Kind::kList ? std::move(optionalValueTypeOrListItemType) : std::unique_ptr<TypeNode>()),
+      listItemType(
+          kind == Kind::kList ? std::move(optionalValueTypeOrListItemType) : boost::local_shared_ptr<TypeNode>()),
       optionalValueType(
-          kind == Kind::kOptional ? std::move(optionalValueTypeOrListItemType) : std::unique_ptr<TypeNode>()) {}
+          kind == Kind::kOptional ? std::move(optionalValueTypeOrListItemType) : boost::local_shared_ptr<TypeNode>()) {}
 
-TypeNode::TypeNode(Kind kind, Token token, std::unique_ptr<TypeNode> mapKeyType, std::unique_ptr<TypeNode> mapValueType)
+TypeNode::TypeNode(
+    Kind kind,
+    Token token,
+    boost::local_shared_ptr<TypeNode> mapKeyType,
+    boost::local_shared_ptr<TypeNode> mapValueType)
     : Node(std::move(token)), kind(kind), mapKeyType(std::move(mapKeyType)), mapValueType(std::move(mapValueType)) {}
 
-TypeNode::TypeNode(Kind kind, Token token, std::vector<std::unique_ptr<FieldNode>> fields)
+TypeNode::TypeNode(Kind kind, Token token, std::vector<boost::local_shared_ptr<FieldNode>> fields)
     : Node(std::move(token)), kind(kind), fields(std::move(fields)) {}
 
-static std::vector<std::unique_ptr<FieldNode>> cloneFields(const std::vector<std::unique_ptr<FieldNode>>& source) {
-    std::vector<std::unique_ptr<FieldNode>> dest;
+static std::vector<boost::local_shared_ptr<FieldNode>> cloneFields(
+    const std::vector<boost::local_shared_ptr<FieldNode>>& source) {
+    std::vector<boost::local_shared_ptr<FieldNode>> dest;
     dest.reserve(source.size());
     for (const auto& n : source) {
         dest.push_back(std::make_unique<FieldNode>(*n));
@@ -163,9 +169,9 @@ static std::vector<std::unique_ptr<FieldNode>> cloneFields(const std::vector<std
     return dest;
 }
 
-static std::unique_ptr<TypeNode> cloneType(const std::unique_ptr<TypeNode>& source) {
+static boost::local_shared_ptr<TypeNode> cloneType(const boost::local_shared_ptr<TypeNode>& source) {
     if (source) {
-        return std::make_unique<TypeNode>(*source);
+        return boost::make_local_shared<TypeNode>(*source);
     }
     return nullptr;
 }
@@ -195,6 +201,103 @@ void TypeNode::dump(std::ostringstream& s, int n) const {
 
 bool TypeNode::isValueType() const {
     return kind == Kind::kNumber || kind == Kind::kBoolean;
+}
+
+bool TypeNode::canImplicitlyConvertTo(const TypeNode& target) const {
+    if (target.kind == Kind::kOptional) {
+        return canImplicitlyConvertTo(*target.optionalValueType);
+    }
+
+    if (kind != target.kind) {
+        return false;
+    }
+
+    switch (kind) {
+        case Kind::kBoolean:
+        case Kind::kNumber:
+        case Kind::kDate:
+        case Kind::kDateTime:
+        case Kind::kDateTimeOffset:
+        case Kind::kTimeSpan:
+        case Kind::kTimeZone:
+        case Kind::kString:
+            return true;
+
+        case Kind::kList:
+            return listItemType->canImplicitlyConvertTo(*target.listItemType);
+
+        case Kind::kMap:
+            return mapKeyType->canImplicitlyConvertTo(*target.mapKeyType) &&
+                mapValueType->canImplicitlyConvertTo(*target.mapValueType);
+
+        case Kind::kRecord:
+            if (!recordName.has_value() && target.recordName.has_value()) {
+                return false;  // can't convert anonymous -> named type
+            }
+            if (recordName.has_value() && target.recordName.has_value()) {
+                return *recordName == *target.recordName;  // named -> named has to be the identical record name
+            }
+            // named -> anonymous or anonymous -> anonymous has to have matching fields
+            if (fields.size() != target.fields.size()) {
+                return false;
+            }
+            for (size_t i = 0; i < fields.size(); i++) {
+                const auto& srcField = *fields[i];
+                const auto& dstField = *target.fields[i];
+                if (srcField.name != dstField.name || !srcField.type->isIdentical(*dstField.type)) {
+                    return false;
+                }
+            }
+            return true;
+
+        default:
+            throw std::runtime_error("not impl");
+    }
+}
+
+bool TypeNode::isIdentical(const TypeNode& target) const {
+    if (kind != target.kind) {
+        return false;
+    }
+
+    switch (kind) {
+        case Kind::kBoolean:
+        case Kind::kNumber:
+        case Kind::kDate:
+        case Kind::kDateTime:
+        case Kind::kDateTimeOffset:
+        case Kind::kTimeSpan:
+        case Kind::kTimeZone:
+        case Kind::kString:
+            return true;
+
+        case Kind::kList:
+            return listItemType->isIdentical(*target.listItemType);
+
+        case Kind::kMap:
+            return mapKeyType->isIdentical(*target.mapKeyType) && mapValueType->isIdentical(*target.mapValueType);
+
+        case Kind::kRecord:
+            if (recordName.has_value() != target.recordName.has_value()) {
+                return false;
+            }
+            if (fields.size() != target.fields.size()) {
+                return false;
+            }
+            for (size_t i = 0; i < fields.size(); i++) {
+                const auto& srcField = *fields[i];
+                const auto& dstField = *target.fields[i];
+                if (srcField.name != dstField.name || !srcField.type->isIdentical(*dstField.type)) {
+                    return false;
+                }
+            }
+
+        case Kind::kOptional:
+            return optionalValueType->isIdentical(*target.optionalValueType);
+
+        default:
+            throw std::runtime_error("not impl");
+    }
 }
 
 BinaryExpressionSuffixNode::BinaryExpressionSuffixNode(
@@ -270,7 +373,7 @@ ExpressionType CallExpressionNode::getExpressionType() const {
 
 ConvertExpressionNode::ConvertExpressionNode(
     std::unique_ptr<ExpressionNode> value,
-    std::unique_ptr<TypeNode> type,
+    boost::local_shared_ptr<TypeNode> type,
     Token token)
     : ExpressionNode(std::move(token)), value(std::move(value)), type(std::move(type)) {}
 
@@ -598,7 +701,7 @@ StatementType DimMapStatementNode::getStatementType() const {
     return StatementType::kDimMap;
 }
 
-DimStatementNode::DimStatementNode(std::string name, std::unique_ptr<TypeNode> type, Token token)
+DimStatementNode::DimStatementNode(std::string name, boost::local_shared_ptr<TypeNode> type, Token token)
     : StatementNode(std::move(token)),
       name(std::move(name)),
       type(std::move(type)),
@@ -607,7 +710,7 @@ DimStatementNode::DimStatementNode(std::string name, std::unique_ptr<TypeNode> t
 DimStatementNode::DimStatementNode(std::string name, std::unique_ptr<ExpressionNode> value, Token token)
     : StatementNode(std::move(token)),
       name(std::move(name)),
-      type(std::unique_ptr<TypeNode>()),
+      type(boost::local_shared_ptr<TypeNode>()),
       value(std::move(value)) {}
 
 MemberType DimStatementNode::getMemberType() const {
@@ -1177,7 +1280,7 @@ StatementType WhileStatementNode::getStatementType() const {
     return StatementType::kWhile;
 }
 
-ParameterNode::ParameterNode(std::string name, std::unique_ptr<TypeNode> type, Token token)
+ParameterNode::ParameterNode(std::string name, boost::local_shared_ptr<TypeNode> type, Token token)
     : Node(std::move(token)), name(std::move(name)), type(std::move(type)) {}
 
 void ParameterNode::dump(std::ostringstream& s, int n) const {
@@ -1204,7 +1307,7 @@ std::optional<std::string> GlobalVariableNode::getSymbolDeclaration() const {
 ProcedureNode::ProcedureNode(
     std::string name,
     std::vector<std::unique_ptr<ParameterNode>> parameters,
-    std::unique_ptr<TypeNode> returnType,
+    boost::local_shared_ptr<TypeNode> returnType,
     std::unique_ptr<BodyNode> body,
     Token token)
     : Node(std::move(token)),

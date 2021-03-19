@@ -7,7 +7,7 @@
 
 namespace compiler {
 
-static std::unique_ptr<TypeNode> getTypeForLiteralToken(const Token& token) {
+static boost::local_shared_ptr<TypeNode> getTypeForLiteralToken(const Token& token) {
     Kind kind = {};
     switch (token.type) {
         case TokenKind::kBooleanLiteral:
@@ -24,7 +24,7 @@ static std::unique_ptr<TypeNode> getTypeForLiteralToken(const Token& token) {
             return nullptr;
     }
 
-    return std::make_unique<TypeNode>(kind, token);
+    return boost::make_local_shared<TypeNode>(kind, token);
 }
 
 static int getFirstAvailableGlobalVariableIndex(const CompiledProgram& compiledProgram) {
@@ -94,7 +94,7 @@ CompilerResult compileGlobal(const SourceMember& sourceMember, CompiledProgram* 
             const auto* constValueNode = util::dynamic_cast_borrow<ConstValueExpressionNode>(dimNode->value);
             compiledGlobalVariable->type = getTypeForLiteralToken(constValueNode->token);
         } else {
-            compiledGlobalVariable->type = std::make_unique<TypeNode>(*dimNode->type);
+            compiledGlobalVariable->type = boost::make_local_shared<TypeNode>(*dimNode->type);
         }
     } else {
         return CompilerResult::error(

@@ -7,6 +7,6 @@
 
 namespace compiler {
 
-CompilerResult bindNamedTypes(ProcedureNode* procedure, const vm::Program& program);
+CompilerResult bindNamedTypes(ProcedureNode* procedure, const CompiledProgram& program);
 
 }

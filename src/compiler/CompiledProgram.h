@@ -5,6 +5,7 @@
 
 namespace compiler {
 
+class FieldNode;
 class TypeNode;
 
 class CompiledGlobalVariable {
@@ -12,13 +13,20 @@ class CompiledGlobalVariable {
     std::string lowercaseName;
     bool isValue;
     int index;
-    std::unique_ptr<TypeNode> type;
+    boost::local_shared_ptr<TypeNode> type;
+};
+
+class CompiledNamedType {
+   public:
+    std::string lowercaseName;
+    std::vector<boost::local_shared_ptr<FieldNode>> fields;
 };
 
 class CompiledProgram {
    public:
     vm::Program vmProgram;
     std::vector<std::unique_ptr<CompiledGlobalVariable>> globalVariables;
+    std::vector<std::unique_ptr<CompiledNamedType>> namedTypes;
 };
 
 }  // namespace compiler

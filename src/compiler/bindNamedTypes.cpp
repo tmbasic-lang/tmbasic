@@ -2,10 +2,18 @@
 
 namespace compiler {
 
-static CompilerResult bindNamedTypesInType(TypeNode* typeNode, const vm::Program& program) {
+static CompilerResult bindNamedTypesInType(TypeNode* typeNode, const CompiledProgram& program) {
+    if (typeNode->namedTypesAreBound) {
+        return CompilerResult::success();
+    }
+
     if (typeNode->recordName.has_value()) {
-        // auto& name = *typeNode.recordName;
-        // TODO(unknown): find type
+        const auto name = boost::algorithm::to_lower_copy(*typeNode->recordName);
+        for (const auto& compiledNamedType : program.namedTypes) {
+            if (name == compiledNamedType->lowercaseName) {
+                typeNode->fields = compiledNamedType->fields;
+            }
+        }
     }
 
     for (auto& field : typeNode->fields) {
@@ -43,12 +51,14 @@ static CompilerResult bindNamedTypesInType(TypeNode* typeNode, const vm::Program
         }
     }
 
+    typeNode->namedTypesAreBound = true;
+
     return CompilerResult::success();
 }
 
-static CompilerResult bindNamedTypesInBody(BodyNode* body, const vm::Program& program);
+static CompilerResult bindNamedTypesInBody(BodyNode* body, const CompiledProgram& program);
 
-static CompilerResult bindNamedTypesInStatement(StatementNode* node, const vm::Program& program) {
+static CompilerResult bindNamedTypesInStatement(StatementNode* node, const CompiledProgram& program) {
     auto result = CompilerResult::success();
 
     auto* childTypeNode = node->getChildTypeNode();
@@ -67,7 +77,7 @@ static CompilerResult bindNamedTypesInStatement(StatementNode* node, const vm::P
     return result;
 }
 
-CompilerResult bindNamedTypesInBody(BodyNode* body, const vm::Program& program) {
+CompilerResult bindNamedTypesInBody(BodyNode* body, const CompiledProgram& program) {
     for (auto& statement : body->statements) {
         auto result = bindNamedTypesInStatement(statement.get(), program);
         if (!result.isSuccess) {
@@ -77,7 +87,7 @@ CompilerResult bindNamedTypesInBody(BodyNode* body, const vm::Program& program) 
     return CompilerResult::success();
 }
 
-CompilerResult bindNamedTypes(ProcedureNode* procedure, const vm::Program& program) {
+CompilerResult bindNamedTypes(ProcedureNode* procedure, const CompiledProgram& program) {
     for (auto& parameter : procedure->parameters) {
         auto result = bindNamedTypesInType(parameter->type.get(), program);
         if (!result.isSuccess) {
