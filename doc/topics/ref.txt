@@ -21,11 +21,17 @@ h2[Types]
 
 ul@
 li@{`Boolean` Type:type_Boolean}@
+li@{`Date` Type:type_Date}@
+li@{`DateTime` Type:type_DateTime}@
+li@{`DateTimeOffset` Type:type_DateTimeOffset}@
 li@{`List` Type:type_List}@
+li@{`Map` Type:type_Map}@
 li@{`Number` Type:type_Number}@
 li@{`Optional` Type:type_Optional}@
+li@{`Record` Type:type_Record}@
 li@{`String` Type:type_String}@
 li@{`TimeSpan` Type:type_TimeSpan}@
+li@{`TimeZone` Type:type_TimeZone}@
 @
 
 h2[Statements]

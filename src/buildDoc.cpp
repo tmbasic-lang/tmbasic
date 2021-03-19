@@ -470,7 +470,7 @@ static string formatProcedureText(const Procedure& procedure) {
         if (!overload->parameters.empty()) {
             o << "h3[Parameters]\n\nul@";
             for (auto& parameter : overload->parameters) {
-                o << "li@i[" << parameter->name << "] as t[" << parameter->type << "]: " << parameter->description
+                o << "li@i[" << parameter->name << "] as t[" << parameter->type << "] <EM_DASH> " << parameter->description
                   << "@";
             }
             o << "@";
@@ -479,7 +479,7 @@ static string formatProcedureText(const Procedure& procedure) {
         if (isFunction) {
             o << "h3[Return value]\n\n";
             if (overload->returns->type != "T") {
-                o << "t[" << overload->returns->type << "]: ";
+                o << "t[" << overload->returns->type << "] <EM_DASH> ";
             }
             o << overload->returns->description << "\n\n";
         }

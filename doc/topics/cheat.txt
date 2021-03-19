@@ -15,18 +15,18 @@ Simpler apps may eschew a full TUI and use simple `print` / `input` calls if des
 h2[Data types]
 
 ul@
-li@`Boolean` -- `true` / `false`.@
-li@`Number` -- 128-bit decimal.@
-li@`String` -- UTF-16 text.@
-li@`Date` -- Date without a time.@
-li@`DateTime` -- Date and time, without a time zone.@
-li@`DateTimeOffset` -- Record containing a `DateTime` and a `TimeSpan` representing the offset from UTC.@
-li@`TimeZone` -- Offset from UTC and daylight saving time schedule.@
-li@`TimeSpan` -- Period of time.@
-li@`List of T` -- Generic dynamic-sized array with element type `T`. Example: `List of Number`. Literals look like: `[0, 1, 2]`.@
-li@`Map from K to V` -- Generic dynamic-sized dictionary with key type `K` and value type `V`. Example: `Map from Number to String`.@
-li@`Optional T` -- Wrapper for type `T` indicating that the value may or may not be present. Example: `Optional Number`.@
-li@`Record (...)` -- Anonymous record type, containing zero or more named fields. Example: `Record (foo as Number, bar as String)`. Literals look like `{{foo: 1, bar: "hi"}`.@
+li@t[Boolean] -- `true` / `false`.@
+li@t[Number] -- 128-bit decimal.@
+li@t[String] -- UTF-16 text.@
+li@t[Date] -- Date without a time.@
+li@t[DateTime] -- Date and time, without a time zone.@
+li@t[DateTimeOffset] -- Record containing a `DateTime` and a `TimeSpan` representing the offset from UTC.@
+li@t[TimeZone] -- Offset from UTC and daylight saving time schedule.@
+li@t[TimeSpan] -- Period of time.@
+li@t[List of T] -- Generic dynamic-sized array with element type `T`. Example: `List of Number`. Literals look like: `[0, 1, 2]`.@
+li@t[Map from K to V] -- Generic dynamic-sized dictionary with key type `K` and value type `V`. Example: `Map from Number to String`.@
+li@t[Optional T] -- Wrapper for type `T` indicating that the value may or may not be present. Example: `Optional Number`.@
+li@t[Record (...)] -- Anonymous record type, containing zero or more named fields. Example: `Record (foo as Number, bar as String)`. Literals look like `{{foo: 1, bar: "hi"}`.@
 li@Named record types. These are defined using `type` ... `end type` blocks.@
 @
 
