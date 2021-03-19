@@ -1,6 +1,6 @@
 # External Libraries
 
-A mirror of all external library sources is stored in a requester-pays S3 bucket.
+A mirror of all external library sources is available in a [requester-pays](https://docs.aws.amazon.com/AmazonS3/latest/userguide/RequesterPaysBuckets.html) S3 bucket named `tmbasic`. Use the [AWSCLI](https://aws.amazon.com/cli/) command `aws s3 cp s3://tmbasic/____ . --request-payer` to download a mirrored file.
 
 ## Libraries included in both TMBASIC and user programs
 
