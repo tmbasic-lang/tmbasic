@@ -69,6 +69,7 @@ popd
 mkdir -p ../../dist
 
 pushd ../../  # root of repository
+mkdir -p obj/resources/runners/
 cp -f $PUBLISHDIR/runners/*.bz2 $PUBLISHDIR/runners/*.bsdiff obj/resources/runners/
 cd build
 ./mac-x64.sh -ic "make"
