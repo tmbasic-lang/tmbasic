@@ -32,6 +32,7 @@ App::App(int /*argc*/, char** /*argv*/)
     ts.enableCmd(cmPaste);
     ts.enableCmd(cmSave);
     ts.enableCmd(cmSaveAs);
+    ts.enableCmd(kCmdEditInsertColor);
     ts.enableCmd(kCmdEditInsertSymbol);
     ts.enableCmd(kCmdDesignAddButton);
     ts.enableCmd(kCmdDesignAddCheckBox);
@@ -78,6 +79,7 @@ TMenuBar* App::initMenuBar(TRect r) {
         *new TMenuItem("Cu~t~", cmCut, kbCtrlX, hcNoContext, "Ctrl+X") +
         *new TMenuItem("~C~opy", cmCopy, kbCtrlC, hcNoContext, "Ctrl+C") +
         *new TMenuItem("~P~aste", cmPaste, kbCtrlV, hcNoContext, "Ctrl+V") + newLine() +
+        *new TMenuItem("Insert color...", kCmdEditInsertColor, kbNoKey) +
         *new TMenuItem("Insert ~s~ymbol...", kCmdEditInsertSymbol, kbNoKey);
 
     auto& viewMenu = *new TSubMenu("~V~iew", kbAltE) +

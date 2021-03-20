@@ -1,6 +1,7 @@
 #include "EditorWindow.h"
 #include "../../obj/resources/help/helpfile.h"
 #include "DialogPtr.h"
+#include "InsertColorDialog.h"
 #include "InsertSymbolDialog.h"
 #include "ViewPtr.h"
 #include "events.h"
@@ -99,6 +100,11 @@ void EditorWindow::handleEvent(TEvent& event) {
                 onEditInsertSymbol();
                 clearEvent(event);
                 break;
+
+            case kCmdEditInsertColor:
+                onEditInsertColor();
+                clearEvent(event);
+                break;
         }
     }
 }
@@ -153,6 +159,7 @@ void EditorWindow::setState(uint16_t aState, bool enable) {
     if (aState == sfActive) {
         TCommandSet ts;
         ts.enableCmd(kCmdEditInsertSymbol);
+        ts.enableCmd(kCmdEditInsertColor);
         (enable ? enableCommands : disableCommands)(ts);
     }
 }
@@ -161,6 +168,18 @@ void EditorWindow::onEditInsertSymbol() {
     auto dialog = DialogPtr<InsertSymbolDialog>();
     if (TProgram::deskTop->execView(dialog) == cmOK && dialog->selection != nullptr) {
         _editor->insertText(dialog->selection, strlen(dialog->selection), false);
+    }
+}
+
+void EditorWindow::onEditInsertColor() {
+    auto dialog = DialogPtr<InsertColorDialog>();
+    if (TProgram::deskTop->execView(dialog) == cmOK) {
+        std::ostringstream s;
+        auto rgb = dialog->selection.asRGB();
+        s << "Rgb(" << static_cast<int>(rgb.r) << ", " << static_cast<int>(rgb.g) << ", " << static_cast<int>(rgb.b)
+          << ")";
+        auto str = s.str();
+        _editor->insertText(str.c_str(), str.size(), false);
     }
 }
 

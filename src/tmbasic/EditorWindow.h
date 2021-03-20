@@ -14,6 +14,7 @@ class EditorWindow : public TWindow {
     void close() override;
     void setState(uint16_t aState, bool enable) override;
     void onEditInsertSymbol();
+    void onEditInsertColor();
 
    private:
     void onTimerTick();

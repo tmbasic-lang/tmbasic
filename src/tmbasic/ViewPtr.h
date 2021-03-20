@@ -27,6 +27,11 @@ class ViewPtr {
         _owned = false;
     }
 
+    gsl::owner<T*> take() {
+        _owned = false;
+        return _ptr;
+    }
+
    private:
     T* _ptr;
     bool _owned = true;

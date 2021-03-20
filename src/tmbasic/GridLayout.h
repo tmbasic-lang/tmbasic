@@ -31,6 +31,7 @@ class GridLayout {
 
     // run
     void addTo(TWindow* window);
+    TPoint apply(TGroup* group, TPoint upperLeft);
 
    private:
     struct TableView {
@@ -43,7 +44,6 @@ class GridLayout {
     TableView getCell(int rowIndex, int columnIndex);
     void calculateRowHeights(std::vector<int>* finalRowHeights);
     void calculateColumnWidths(std::vector<int>* finalColumnWidths);
-    TPoint apply(TGroup* group, TPoint upperLeft);
 
     int _marginX = 3;
     int _marginY = 2;
