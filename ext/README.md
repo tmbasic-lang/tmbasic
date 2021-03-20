@@ -21,8 +21,8 @@ A mirror of all external library sources is available in a [requester-pays](http
 
 ### [libstdc++](https://gcc.gnu.org/onlinedocs/libstdc++/)
 - License: [GNU General Public License v3](https://github.com/electroly/tmbasic/blob/master/ext/gcc/GPL-3) with [GCC Runtime Library Exception v3.1](https://github.com/electroly/tmbasic/blob/master/ext/gcc/copyright)
-- Source (Linux): `libstdc++` package from Alpine Linux
-- Source (Windows): `mingw-w64-gcc` package from Arch Linux
+- Source (Linux): [`libstdc++` package from Alpine Linux](https://pkgs.alpinelinux.org/packages?name=libstdc%2B%2B&branch=edge)
+- Source (Windows): [`mingw-w64-gcc` package from Arch Linux](https://archlinux.org/packages/community/x86_64/mingw-w64-gcc/)
 
 ### [mpdecimal](https://www.bytereef.org/mpdecimal/)
 - License: [BSD license](https://github.com/electroly/tmbasic/blob/master/ext/mpdecimal/LICENSE.txt)
@@ -31,7 +31,7 @@ A mirror of all external library sources is available in a [requester-pays](http
 
 ### [musl](https://musl.libc.org/)
 - License: [MIT license](https://github.com/electroly/tmbasic/blob/master/ext/musl/COPYRIGHT)
-- Source (Linux): `musl-dev` package from Alpine Linux
+- Source (Linux): [`musl-dev` package from Alpine Linux](https://pkgs.alpinelinux.org/packages?name=musl-dev)
 
 ### [ncurses](https://invisible-island.net/ncurses/)
 - License: [Ncurses license](https://github.com/electroly/tmbasic/blob/master/ext/ncurses/COPYING)

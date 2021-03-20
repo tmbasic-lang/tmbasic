@@ -335,9 +335,32 @@ endif
 .PHONY: all
 all: bin/tmbasic$(EXE_EXTENSION) bin/test$(EXE_EXTENSION) bin/LICENSE.txt runners
 
+.PHONY: versions
+ifeq ($(TARGET_OS),linux)
+ifeq ($(LINUX_DISTRO),alpine)
+versions:
+	@echo
+	@apk info --license libstdc++ | tr -d '\n' | awk '{print $$1}'
+	@apk info --license musl-dev | tr -d '\n' | awk '{print $$1}'
+else
+versions:
+	@echo
+endif
+endif
+
+ifeq ($(TARGET_OS),win)
+versions:
+	@echo
+	@pacman -Q mingw-w64-gcc
+endif
+
+ifeq ($(TARGET_OS),mac)
+versions:
+	@echo
+endif
+
 .PHONY: help
-help:
-	@echo ""
+help: versions
 	@echo "Target: $(TARGET_OS) $(ARCH)"
 	@echo ""
 	@echo "COMMANDS"
