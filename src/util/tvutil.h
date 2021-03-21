@@ -2,9 +2,9 @@
 
 #include "../common.h"
 
-namespace tmbasic {
+namespace util {
 
 bool tryParseInt(const std::string& text, int* output);
 int parseUserInt(const char* text, const char* fieldName, int minValue, int maxValue);
 
-}  // namespace tmbasic
+}  // namespace util

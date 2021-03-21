@@ -8,6 +8,7 @@
 #include "DesignerWindow.h"
 #include "EditorWindow.h"
 #include "HelpWindow.h"
+#include "PictureWindow.h"
 #include "ProgramWindow.h"
 #include "Resource.h"
 #include "constants.h"
@@ -375,6 +376,10 @@ void App::openEditorOrDesignerWindow(compiler::SourceMember* member) {
             showDesignerWindow(member);
             break;
 
+        case compiler::SourceMemberType::kPicture:
+            showPictureWindow(member);
+            break;
+
         default:
             showEditorWindow(member);
             break;
@@ -409,6 +414,25 @@ void App::showDesignerWindow(SourceMember* member) {
         e.window->select();
     } else {
         auto* window = new DesignerWindow(getNewWindowRect(51, 20), member, []() -> void {
+            // onUpdated
+            auto* programWindow = findProgramWindow(deskTop);
+            if (programWindow != nullptr) {
+                programWindow->updateListItems();
+            }
+        });
+        deskTop->insert(window);
+    }
+}
+
+void App::showPictureWindow(SourceMember* member) {
+    // is there already a designer open for this member?
+    FindPictureWindowEventArgs e = { nullptr };
+    e.member = member;
+    message(deskTop, evBroadcast, kCmdFindPictureWindow, &e);
+    if (e.window != nullptr) {
+        e.window->select();
+    } else {
+        auto* window = new PictureWindow(getNewWindowRect(82, 20), member, []() -> void {
             // onUpdated
             auto* programWindow = findProgramWindow(deskTop);
             if (programWindow != nullptr) {
@@ -536,7 +560,7 @@ void App::onProgramAddPicture() {
     auto* sourceMemberPtr = sourceMember.get();
     programWindow->addNewSourceMember(std::move(sourceMember));
 
-    showDesignerWindow(sourceMemberPtr);
+    showPictureWindow(sourceMemberPtr);
 }
 
 void App::onHelpDocumentation() {

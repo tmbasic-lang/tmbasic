@@ -10,24 +10,29 @@ RowLayout::RowLayout(bool rightAlign, std::initializer_list<TView*> views) : _ri
     }
 }
 
-void RowLayout::setVerticalOrientation() {
+RowLayout& RowLayout::setVerticalOrientation() {
     _horizontal = false;
+    return *this;
 }
 
-void RowLayout::setHorizontalOrientation() {
+RowLayout& RowLayout::setHorizontalOrientation() {
     _horizontal = true;
+    return *this;
 }
 
-void RowLayout::setMarginX(int margin) {
+RowLayout& RowLayout::setMarginX(int margin) {
     _marginX = margin;
+    return *this;
 }
 
-void RowLayout::setMarginY(int margin) {
+RowLayout& RowLayout::setMarginY(int margin) {
     _marginY = margin;
+    return *this;
 }
 
-void RowLayout::setItemSpacing(int spacing) {
+RowLayout& RowLayout::setItemSpacing(int spacing) {
     _itemSpacing = spacing;
+    return *this;
 }
 
 TView* RowLayout::add(TView* view) {

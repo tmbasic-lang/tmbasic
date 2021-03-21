@@ -10,11 +10,11 @@ class RowLayout {
     RowLayout(bool rightAlign, std::initializer_list<TView*> views);
 
     // setup
-    void setVerticalOrientation();
-    void setHorizontalOrientation();
-    void setMarginX(int margin);
-    void setMarginY(int margin);
-    void setItemSpacing(int spacing);
+    RowLayout& setVerticalOrientation();
+    RowLayout& setHorizontalOrientation();
+    RowLayout& setMarginX(int margin);
+    RowLayout& setMarginY(int margin);
+    RowLayout& setItemSpacing(int spacing);
     TView* add(TView* view);
 
     // run

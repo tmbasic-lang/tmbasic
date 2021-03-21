@@ -1,8 +1,11 @@
 #include "AboutDialog.h"
 #include "../../obj/resources/help/helpfile.h"
-#include "Button.h"
-#include "Label.h"
+#include "../util/Button.h"
+#include "../util/Label.h"
 #include "GridLayout.h"
+
+using util::Button;
+using util::Label;
 
 namespace tmbasic {
 

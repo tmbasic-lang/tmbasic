@@ -2,7 +2,7 @@
 
 #include "../common.h"
 
-namespace tmbasic {
+namespace util {
 
 class InputLine : public TInputLine {
    public:
@@ -10,4 +10,4 @@ class InputLine : public TInputLine {
     explicit InputLine(int number, int width = 10, int aMaxLen = 1000);
 };
 
-}  // namespace tmbasic
+}  // namespace util

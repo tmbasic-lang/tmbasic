@@ -2,12 +2,11 @@
 
 #include "../common.h"
 
-namespace tmbasic {
+namespace util {
 
 class Label : public TLabel {
    public:
     explicit Label(TStringView text, TView* link = nullptr);
-    void draw() override;
 };
 
-}  // namespace tmbasic
+}  // namespace util

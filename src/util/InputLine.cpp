@@ -1,7 +1,7 @@
-#include "InputLine.h"
+#include "../util/InputLine.h"
 #include "util/minmax.h"
 
-namespace tmbasic {
+namespace util {
 
 InputLine::InputLine(const std::string& text, int width, int aMaxLen)
     : TInputLine(
@@ -19,4 +19,4 @@ static std::string intToString(int number) {
 
 InputLine::InputLine(int number, int width, int aMaxLen) : InputLine(intToString(number), width, aMaxLen) {}
 
-}  // namespace tmbasic
+}  // namespace util

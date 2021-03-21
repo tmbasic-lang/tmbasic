@@ -202,7 +202,7 @@ void GridLayout::addTo(TWindow* window) {
     window->locate(dummy);
 
     auto bottomRight = apply(window, TPoint{ 0, 0 });
-    bottomRight.x += _marginX;
+    bottomRight.x += _marginX + 1;
     bottomRight.y += _marginY;
     TRect r(0, 0, bottomRight.x, bottomRight.y);
     window->locate(r);

@@ -1,6 +1,6 @@
-#include "tmbasic/tvutil.h"
+#include "../util/tvutil.h"
 
-namespace tmbasic {
+namespace util {
 
 bool tryParseInt(const std::string& text, int* output) {
     for (auto ch : text) {
@@ -48,4 +48,4 @@ int parseUserInt(const char* text, const char* fieldName, int minValue, int maxV
     return value;
 }
 
-}  // namespace tmbasic
+}  // namespace util

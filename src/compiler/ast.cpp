@@ -164,7 +164,7 @@ static std::vector<boost::local_shared_ptr<FieldNode>> cloneFields(
     std::vector<boost::local_shared_ptr<FieldNode>> dest;
     dest.reserve(source.size());
     for (const auto& n : source) {
-        dest.push_back(std::make_unique<FieldNode>(*n));
+        dest.push_back(boost::make_local_shared<FieldNode>(*n));
     }
     return dest;
 }
@@ -710,7 +710,7 @@ DimStatementNode::DimStatementNode(std::string name, boost::local_shared_ptr<Typ
 DimStatementNode::DimStatementNode(std::string name, std::unique_ptr<ExpressionNode> value, Token token)
     : StatementNode(std::move(token)),
       name(std::move(name)),
-      type(boost::local_shared_ptr<TypeNode>()),
+
       value(std::move(value)) {}
 
 MemberType DimStatementNode::getMemberType() const {

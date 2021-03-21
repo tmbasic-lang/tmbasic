@@ -1,12 +1,17 @@
 #include "DesignerFormPropertiesDialog.h"
-#include "Button.h"
+#include "../util/Button.h"
+#include "../util/InputLine.h"
+#include "../util/Label.h"
+#include "../util/tvutil.h"
+#include "../vm/UserForm.h"
 #include "GridLayout.h"
-#include "Label.h"
 #include "RowLayout.h"
 #include "constants.h"
-#include "vm/UserForm.h"
-#include "tvutil.h"
 
+using util::Button;
+using util::InputLine;
+using util::Label;
+using util::parseUserInt;
 using vm::UserForm;
 
 namespace tmbasic {

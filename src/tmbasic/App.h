@@ -39,6 +39,7 @@ class App : public TApplication {
     void openEditorOrDesignerWindow(compiler::SourceMember* member);
     void showEditorWindow(compiler::SourceMember* member);
     void showDesignerWindow(compiler::SourceMember* member);
+    void showPictureWindow(compiler::SourceMember* member);
 
     int _newWindowX;
     int _newWindowY;

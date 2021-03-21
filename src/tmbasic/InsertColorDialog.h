@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../common.h"
-#include "InputLine.h"
 
 namespace tmbasic {
 

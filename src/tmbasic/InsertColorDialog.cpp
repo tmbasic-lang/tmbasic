@@ -1,12 +1,17 @@
 #include "InsertColorDialog.h"
 #include "../../obj/resources/help/helpfile.h"
+#include "../util/Button.h"
+#include "../util/InputLine.h"
+#include "../util/Label.h"
 #include "../util/ViewPtr.h"
-#include "Button.h"
+#include "../util/tvutil.h"
 #include "GridLayout.h"
-#include "Label.h"
 #include "events.h"
-#include "tvutil.h"
 
+using util::Button;
+using util::InputLine;
+using util::Label;
+using util::parseUserInt;
 using util::ViewPtr;
 
 namespace tmbasic {
@@ -182,7 +187,7 @@ class PaletteView : public TView {
 
 class InsertColorDialogPrivate {
    public:
-    ViewPtr<PaletteView> paletteView{ TRect(4, 2, 46, 10) };
+    ViewPtr<PaletteView> paletteView{ TRect(3, 2, 45, 10) };
     ViewPtr<ColorView> colorView{ TRect(0, 0, 6, 2) };
     ViewPtr<InputLine> redInputLine{ 255, 6, 3 };
     ViewPtr<InputLine> greenInputLine{ 255, 6, 3 };
@@ -230,7 +235,7 @@ InsertColorDialog::InsertColorDialog()
             nullptr,
             _private->colorView.take(),
         })
-        .apply(this, TPoint{ 46, 0 });
+        .apply(this, TPoint{ 45, 0 });
 
     RowLayout(
         true,

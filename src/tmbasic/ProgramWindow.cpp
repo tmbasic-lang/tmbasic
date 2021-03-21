@@ -9,7 +9,7 @@
 #include "SourceMemberTypesListBox.h"
 #include "constants.h"
 #include "events.h"
-#include "tvutil.h"
+#include "../util/tvutil.h"
 
 using compiler::SourceMember;
 using compiler::SourceProgram;

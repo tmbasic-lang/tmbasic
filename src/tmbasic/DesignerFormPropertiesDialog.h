@@ -2,7 +2,7 @@
 
 #include "../common.h"
 #include "CheckBoxes.h"
-#include "InputLine.h"
+#include "../util/InputLine.h"
 #include "vm/UserForm.h"
 
 namespace tmbasic {
@@ -14,15 +14,15 @@ class DesignerFormPropertiesDialog : public TDialog {
 
    private:
     vm::UserForm* _form;
-    InputLine* _nameText;
-    InputLine* _titleText;
+    util::InputLine* _nameText;
+    util::InputLine* _titleText;
     CheckBoxes* _frameCheckBoxes;
-    InputLine* _minWidthText;
-    InputLine* _minHeightText;
-    InputLine* _initialWidthText;
-    InputLine* _initialHeightText;
-    InputLine* _maxWidthText;
-    InputLine* _maxHeightText;
+    util::InputLine* _minWidthText;
+    util::InputLine* _minHeightText;
+    util::InputLine* _initialWidthText;
+    util::InputLine* _initialHeightText;
+    util::InputLine* _maxWidthText;
+    util::InputLine* _maxHeightText;
 };
 
 }  // namespace tmbasic

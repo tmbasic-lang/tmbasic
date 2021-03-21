@@ -45,7 +45,7 @@ class GridLayout {
     void calculateRowHeights(std::vector<int>* finalRowHeights);
     void calculateColumnWidths(std::vector<int>* finalColumnWidths);
 
-    int _marginX = 3;
+    int _marginX = 2;
     int _marginY = 2;
     std::vector<int> _rowHeights;
     std::vector<int> _columnWidths;

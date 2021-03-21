@@ -2,10 +2,12 @@
 
 #include "../common.h"
 #include "compiler/SourceProgram.h"
-#include "tmbasic/DesignerWindow.h"
-#include "tmbasic/EditorWindow.h"
 
 namespace tmbasic {
+
+class DesignerWindow;
+class EditorWindow;
+class PictureWindow;
 
 enum : uint16_t {
     // top menu commands
@@ -54,6 +56,9 @@ enum : uint16_t {
     // broadcast to find a DesignerWindow for the specified member. FindDesignerWindowEventArgs* infoPtr
     kCmdFindDesignerWindow,
 
+    // broadcast to find a PictureWindow for the specified member. FindPictureWindowEventArgs* infoPtr
+    kCmdFindPictureWindow,
+
     // broadcast to close all program-related windows.
     kCmdCloseProgramRelatedWindows,
 
@@ -69,6 +74,11 @@ struct FindEditorWindowEventArgs {
 struct FindDesignerWindowEventArgs {
     compiler::SourceMember* member;  // input
     DesignerWindow* window;          // output
+};
+
+struct FindPictureWindowEventArgs {
+    compiler::SourceMember* member;  // input
+    PictureWindow* window;           // output
 };
 
 }  // namespace tmbasic

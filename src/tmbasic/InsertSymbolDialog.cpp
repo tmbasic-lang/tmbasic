@@ -1,6 +1,6 @@
 #include "InsertSymbolDialog.h"
+#include "../util/Button.h"
 #include "../util/ViewPtr.h"
-#include "Button.h"
 #include "RowLayout.h"
 #include "events.h"
 
@@ -177,8 +177,8 @@ InsertSymbolDialog::InsertSymbolDialog()
     RowLayout(
         true,
         {
-            new Button("Insert", cmOK, bfDefault),
-            new Button("Cancel", cmCancel, bfNormal),
+            new util::Button("Insert", cmOK, bfDefault),
+            new util::Button("Cancel", cmCancel, bfNormal),
         })
         .addTo(this, 1, r.b.x - 3, r.b.y - 3);
 
