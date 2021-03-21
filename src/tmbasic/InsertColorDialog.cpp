@@ -1,11 +1,13 @@
 #include "InsertColorDialog.h"
 #include "../../obj/resources/help/helpfile.h"
+#include "../util/ViewPtr.h"
 #include "Button.h"
 #include "GridLayout.h"
 #include "Label.h"
-#include "ViewPtr.h"
 #include "events.h"
 #include "tvutil.h"
+
+using util::ViewPtr;
 
 namespace tmbasic {
 

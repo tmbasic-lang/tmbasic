@@ -23,6 +23,7 @@ enum : uint16_t {
     kCmdProgramAddType,
     kCmdProgramAddForm,
     kCmdProgramAddCustomControl,
+    kCmdProgramAddPicture,
     kCmdProgramRun,
     kCmdDesignAddButton,
     kCmdDesignAddCheckBox,

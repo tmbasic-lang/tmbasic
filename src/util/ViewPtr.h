@@ -2,7 +2,7 @@
 
 #include "../common.h"
 
-namespace tmbasic {
+namespace util {
 
 // tvision will take ownership when we add it to its parent
 template <typename T>
@@ -37,4 +37,4 @@ class ViewPtr {
     bool _owned = true;
 };
 
-}  // namespace tmbasic
+}  // namespace util

@@ -2,7 +2,7 @@
 
 #include "../common.h"
 
-namespace tmbasic {
+namespace util {
 
 template <typename T>
 class DialogPtr {
@@ -26,4 +26,4 @@ class DialogPtr {
     std::unique_ptr<T> _ptr;
 };
 
-}  // namespace tmbasic
+}  // namespace util

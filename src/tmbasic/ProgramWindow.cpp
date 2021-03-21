@@ -1,19 +1,33 @@
-#include "tmbasic/ProgramWindow.h"
+#include "ProgramWindow.h"
 #include "../../obj/resources/help/helpfile.h"
-#include "util/path.h"
-#include "vm/Program.h"
-#include "tmbasic/DialogPtr.h"
-#include "tmbasic/SourceMemberTypesListBox.h"
-#include "tmbasic/ViewPtr.h"
-#include "tmbasic/constants.h"
-#include "tmbasic/events.h"
-#include "tmbasic/tvutil.h"
+#include "../util/DialogPtr.h"
+#include "../util/Frame.h"
+#include "../util/ScrollBar.h"
+#include "../util/ViewPtr.h"
+#include "../util/path.h"
+#include "../vm/Program.h"
+#include "SourceMemberTypesListBox.h"
+#include "constants.h"
+#include "events.h"
+#include "tvutil.h"
 
 using compiler::SourceMember;
 using compiler::SourceProgram;
+using util::DialogPtr;
+using util::ViewPtr;
 using vm::Program;
 
 namespace tmbasic {
+
+static TFrame* initProgramWindowFrame(TRect r) {
+    auto* f = new util::Frame(r);
+    f->colorPassiveFrame = TColorAttr(TColorDesired(TColorBIOS(7)), TColorDesired(TColorBIOS(8)));
+    f->colorPassiveTitle = TColorAttr(TColorDesired(TColorBIOS(7)), TColorDesired(TColorBIOS(8)));
+    f->colorActiveFrame = TColorAttr(TColorDesired(TColorBIOS(15)), TColorDesired(TColorBIOS(8)));
+    f->colorActiveTitle = TColorAttr(TColorDesired(TColorBIOS(15)), TColorDesired(TColorBIOS(8)));
+    f->colorIcons = TColorAttr(TColorDesired(TColorBIOS(10)), TColorDesired(TColorBIOS(8)));
+    return f;
+}
 
 ProgramWindow::ProgramWindow(
     const TRect& r,
@@ -21,7 +35,7 @@ ProgramWindow::ProgramWindow(
     std::optional<std::string> filePath,
     std::function<void(SourceMember*)> openMember)
     : TWindow(r, "Untitled - Program", wnNoNumber),
-      TWindowInit(TWindow::initFrame),
+      TWindowInit(initProgramWindowFrame),
       _vmProgram(std::make_unique<Program>()),
       _sourceProgram(std::move(sourceProgram)),
       _dirty(false),
@@ -31,26 +45,29 @@ ProgramWindow::ProgramWindow(
     ts.enableCmd(cmSaveAs);
     enableCommands(ts);
 
-    auto vScrollBar = ViewPtr<TScrollBar>(TRect(size.x - 1, 3, size.x, size.y - 1));
+    auto vScrollBar = ViewPtr<util::ScrollBar>(TRect(size.x - 1, 1, size.x, size.y - 1));
+    vScrollBar->useWhiteColorScheme();
     vScrollBar.addTo(this);
 
     auto typesListBoxRect = getExtent();
     typesListBoxRect.grow(-1, -1);
-    typesListBoxRect.b.y = 2;
+    typesListBoxRect.b.x = 15;
     auto typesListBox = ViewPtr<SourceMemberTypesListBox>(
-        typesListBoxRect, 4, [this]() { _contentsListBox->selectType(_typesListBox->getSelectedType()); });
+        typesListBoxRect, 1, [this]() { _contentsListBox->selectType(_typesListBox->getSelectedType()); });
     _typesListBox = typesListBox;
-    _typesListBox->growMode = gfGrowHiX;
+    _typesListBox->growMode = gfGrowHiY;
     _typesListBox->options |= ofFramed;
+    _typesListBox->useDarkGrayPalette();
     typesListBox.addTo(this);
 
     auto contentsListBoxRect = getExtent();
     contentsListBoxRect.grow(-1, -1);
-    contentsListBoxRect.a.y = 3;
+    contentsListBoxRect.a.x = 16;
     auto contentsListBox = ViewPtr<SourceMembersListBox>(
         contentsListBoxRect, 1, vScrollBar, *_sourceProgram, [this](auto* member) -> void { _openMember(member); });
     _contentsListBox = contentsListBox;
     _contentsListBox->growMode = gfGrowHiX | gfGrowHiY;
+    _contentsListBox->useDarkGrayPalette();
     contentsListBox.addTo(this);
 
     _filePath = std::move(filePath);

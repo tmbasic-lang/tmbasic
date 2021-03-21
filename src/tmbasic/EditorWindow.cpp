@@ -1,13 +1,15 @@
 #include "EditorWindow.h"
 #include "../../obj/resources/help/helpfile.h"
-#include "DialogPtr.h"
+#include "../util/DialogPtr.h"
+#include "../util/ViewPtr.h"
 #include "InsertColorDialog.h"
 #include "InsertSymbolDialog.h"
-#include "ViewPtr.h"
 #include "events.h"
 
 using compiler::SourceMember;
 using compiler::SourceMemberType;
+using util::DialogPtr;
+using util::ViewPtr;
 
 namespace tmbasic {
 

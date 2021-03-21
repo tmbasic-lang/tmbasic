@@ -138,6 +138,7 @@ RUN echo "export ARCH=\"$ARCH\"" >> /home/$USER/.bashrc && \
     echo "export TARGET_OS=linux" >> /home/$USER/.bashrc && \
     echo "export LINUX_DISTRO=ubuntu" >> /home/$USER/.bashrc && \
     echo "alias dev='/home/$USER/devPrompt.sh'" >> /home/$USER/.bashrc && \
-    echo "make -f /code/Makefile help" >> /home/$USER/.bashrc
+    echo "make -f /code/Makefile help" >> /home/$USER/.bashrc && \
+    echo "export TERM=xterm-256color" >> /home/$USER/.bashrc
 
 ENTRYPOINT "/bin/bash"

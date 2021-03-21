@@ -30,6 +30,7 @@ class App : public TApplication {
     static void onViewProgram();
     void onProgramAddTextEditor(EditorType type);
     void onProgramAddDesigner(DesignerType type);
+    void onProgramAddPicture();
     void onHelpDocumentation();
     static void onHelpAbout();
     static TRect centeredRect(int width, int height);

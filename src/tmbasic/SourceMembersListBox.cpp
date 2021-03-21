@@ -10,10 +10,10 @@ namespace tmbasic {
 SourceMembersListBox::SourceMembersListBox(
     const TRect& bounds,
     uint16_t numCols,
-    TScrollBar* vScrollBar,
+    util::ScrollBar* vScrollBar,
     const SourceProgram& program,
     std::function<void(SourceMember*)> onMemberOpen)
-    : TListViewer(bounds, numCols, nullptr, vScrollBar),
+    : util::ListViewer(bounds, numCols, nullptr, vScrollBar),
       _program(program),
       _selectedType(SourceMemberType::kProcedure),
       _onMemberOpen(std::move(onMemberOpen)) {

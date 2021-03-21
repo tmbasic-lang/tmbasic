@@ -2,15 +2,17 @@
 
 #include "../common.h"
 #include "compiler/SourceProgram.h"
+#include "util/ListViewer.h"
+#include "util/ScrollBar.h"
 
 namespace tmbasic {
 
-class SourceMembersListBox : public TListViewer {
+class SourceMembersListBox : public util::ListViewer {
    public:
     SourceMembersListBox(
         const TRect& bounds,
         uint16_t numCols,
-        TScrollBar* vScrollBar,
+        util::ScrollBar* vScrollBar,
         const compiler::SourceProgram& program,
         std::function<void(compiler::SourceMember*)> onMemberOpen);
     virtual ~SourceMembersListBox();

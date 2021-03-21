@@ -1,7 +1,7 @@
 #include "InsertSymbolDialog.h"
+#include "../util/ViewPtr.h"
 #include "Button.h"
 #include "RowLayout.h"
-#include "ViewPtr.h"
 #include "events.h"
 
 // derived from tvision's tvdemo example app
@@ -13,6 +13,8 @@
  *      All Rights Reserved.
  *
  */
+
+using util::ViewPtr;
 
 namespace tmbasic {
 

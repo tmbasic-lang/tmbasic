@@ -2,7 +2,7 @@
 
 #include "../common.h"
 
-namespace tmbasic {
+namespace util {
 
 // tvision will take ownership when we add it to the desktop
 template <typename T>
@@ -19,4 +19,4 @@ class WindowPtr {
     T* _ptr;
 };
 
-}  // namespace tmbasic
+}  // namespace util

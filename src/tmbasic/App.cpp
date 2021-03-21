@@ -1,22 +1,24 @@
 #include "tmbasic/App.h"
 #include "../../obj/resources/help/helpfile.h"
-#include "compiler/SourceProgram.h"
-#include "tmbasic/AboutDialog.h"
-#include "tmbasic/DesignerWindow.h"
-#include "tmbasic/DialogPtr.h"
-#include "tmbasic/EditorWindow.h"
-#include "tmbasic/HelpWindow.h"
-#include "tmbasic/ProgramWindow.h"
-#include "tmbasic/Resource.h"
-#include "tmbasic/WindowPtr.h"
-#include "tmbasic/constants.h"
-#include "tmbasic/events.h"
-#include "util/membuf.h"
+#include "../compiler/SourceProgram.h"
+#include "../util/DialogPtr.h"
+#include "../util/WindowPtr.h"
+#include "../util/membuf.h"
+#include "AboutDialog.h"
+#include "DesignerWindow.h"
+#include "EditorWindow.h"
+#include "HelpWindow.h"
+#include "ProgramWindow.h"
+#include "Resource.h"
+#include "constants.h"
+#include "events.h"
 
 using compiler::SourceMember;
 using compiler::SourceMemberType;
 using compiler::SourceProgram;
+using util::DialogPtr;
 using util::MemoryIopstream;
+using util::WindowPtr;
 
 namespace tmbasic {
 
@@ -93,7 +95,8 @@ TMenuBar* App::initMenuBar(TRect r) {
         *new TMenuItem("Add ~c~onstant", kCmdProgramAddConstant, kbNoKey) +
         *new TMenuItem("Add ~t~ype", kCmdProgramAddType, kbNoKey) +
         *new TMenuItem("Add f~o~rm", kCmdProgramAddForm, kbNoKey) +
-        *new TMenuItem("Add c~u~stom control", kCmdProgramAddCustomControl, kbNoKey);
+        *new TMenuItem("Add c~u~stom control", kCmdProgramAddCustomControl, kbNoKey) +
+        *new TMenuItem("Add ~p~icture", kCmdProgramAddPicture, kbNoKey);
 
     auto& designMenu = *new TSubMenu("~D~esign", kbAltD) +
         *new TMenuItem("Add ~b~utton", kCmdDesignAddButton, kbNoKey) +
@@ -270,6 +273,10 @@ bool App::handleCommand(TEvent* event) {
 
         case kCmdProgramAddCustomControl:
             onProgramAddDesigner(DesignerType::kCustomControl);
+            return true;
+
+        case kCmdProgramAddPicture:
+            onProgramAddPicture();
             return true;
 
         case kCmdHelpDocumentation:
@@ -512,6 +519,20 @@ void App::onProgramAddDesigner(DesignerType type) {
     }
 
     auto sourceMember = std::make_unique<SourceMember>(SourceMemberType::kDesign, source, 0, 0);
+    auto* sourceMemberPtr = sourceMember.get();
+    programWindow->addNewSourceMember(std::move(sourceMember));
+
+    showDesignerWindow(sourceMemberPtr);
+}
+
+void App::onProgramAddPicture() {
+    auto* programWindow = findProgramWindow(deskTop);
+    if (programWindow == nullptr) {
+        return;
+    }
+
+    std::string source = "picture Untitled\nend picture\n";
+    auto sourceMember = std::make_unique<SourceMember>(SourceMemberType::kPicture, source, 0, 0);
     auto* sourceMemberPtr = sourceMember.get();
     programWindow->addNewSourceMember(std::move(sourceMember));
 

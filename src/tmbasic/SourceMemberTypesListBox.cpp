@@ -6,7 +6,7 @@ using compiler::SourceMemberType;
 namespace tmbasic {
 
 // matches the order of SourceMemberType
-static std::vector<std::string> kSourceMemberTypeStrings = { "Procedures", "Globals", "Types", "Designs" };
+static std::vector<std::string> kSourceMemberTypeStrings = { "Procedures", "Globals", "Types", "Designs", "Pictures" };
 
 using SourceMemberTypeSelectedFunc = std::function<void()>;
 
@@ -14,10 +14,10 @@ SourceMemberTypesListBox::SourceMemberTypesListBox(
     const TRect& bounds,
     uint16_t numCols,
     SourceMemberTypeSelectedFunc onSelectedFunc)
-    : TListViewer(bounds, numCols, nullptr, nullptr),
+    : util::ListViewer(bounds, numCols, nullptr, nullptr),
       _onSelectedFunc(std::move(onSelectedFunc)),
       _selectedType(SourceMemberType::kProcedure) {
-    setRange(4);
+    setRange(kSourceMemberTypeStrings.size());
 }
 
 void SourceMemberTypesListBox::getText(char* dest, int16_t item, int16_t maxLen) {
