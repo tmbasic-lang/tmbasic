@@ -14,13 +14,11 @@
 #include "tmbasic/InsertSymbolDialog.h"
 
 using compiler::SourceMember;
-using util::Button;
 using util::CheckBoxes;
 using util::DialogPtr;
 using util::Label;
 using util::ScrollBar;
 using util::ViewPtr;
-using vm::UserForm;
 
 namespace tmbasic {
 
@@ -42,10 +40,20 @@ class Picture {
             for (auto j = 0; j < width; j++) {
                 cells.at(i * width + j).ch = '0' + (i * 17 + j) % 78;
                 cells.at(i * width + j).colorAttr = TColorAttr(
-                    TColorDesired(TColorBIOS(15)), TColorDesired(TColorRGB(i * 255 / height, j * 255 / width, 255)));
+                    TColorDesired(TColorRGB(255, 255, 255)),
+                    TColorDesired(TColorRGB(i * 255 / height, j * 255 / width, 255)));
             }
         }
     }
+};
+
+class PictureViewMouseEventArgs {
+   public:
+    TPoint viewPoint;
+    uint8_t buttons;
+    bool down;
+    bool move;
+    bool up;
 };
 
 class PictureView : public TView {
@@ -53,12 +61,20 @@ class PictureView : public TView {
     Picture picture{ 40, 15 };
     int scrollTop = 0;
     int scrollLeft = 0;
+    std::optional<TRect> selection;
+    bool flashingSelection = true;
 
-    explicit PictureView(const TRect& bounds) : TView(bounds) {}
+    explicit PictureView(const TRect& bounds) : TView(bounds) {
+        eventMask = evMouseDown | evMouseMove | evMouseUp | evCommand | evBroadcast;
+    }
 
-    int pictureXToView(int x) { return x - scrollLeft + 2; }
+    int pictureXToView(int pictureX) const { return pictureX - scrollLeft + 2; }
 
-    int pictureYToView(int y) { return y - scrollTop + 1; }
+    int pictureYToView(int pictureY) const { return pictureY - scrollTop + 1; }
+
+    int viewXToPicture(int viewX) const { return viewX + scrollLeft - 2; }
+
+    int viewYToPicture(int viewY) const { return viewY + scrollTop - 1; }
 
     void writeBufferChar(int pictureX, int pictureY, const TDrawBuffer& b) {
         auto viewX = pictureXToView(pictureX);
@@ -68,16 +84,19 @@ class PictureView : public TView {
         }
     }
 
-    void draw() override {
-        {
-            TDrawBuffer b;
-            b.moveChar(0, ' ', TColorAttr(TColorDesired(TColorBIOS(7)), TColorDesired(TColorBIOS(8))), size.x);
-            for (auto y = 0; y < size.y; y++) {
-                writeLine(0, y, size.x, 1, b);
-            }
+    void handleEvent(TEvent& event) override {
+        TView::handleEvent(event);
+        if (event.what == evMouseDown || event.what == evMouseMove || event.what == evMouseUp) {
+            auto lastMouse = makeLocal(event.mouse.where);
+            PictureViewMouseEventArgs e{ lastMouse, event.mouse.buttons, event.what == evMouseDown,
+                                         event.what == evMouseMove, event.what == evMouseUp };
+            message(owner, evCommand, kCmdPictureViewMouse, &e);
+            clearEvent(event);
         }
+    }
 
-        for (auto pictureY = 0; pictureY < picture.height; pictureY++) {
+    void drawPictureRegion(TRect pictureRect) {
+        for (auto pictureY = pictureRect.a.y; pictureY < pictureRect.b.y; pictureY++) {
             TDrawBuffer b;
             auto viewY = pictureYToView(pictureY);
             if (viewY < 0 || viewY >= size.y) {
@@ -87,7 +106,7 @@ class PictureView : public TView {
             auto minViewX = size.x;
             auto maxViewX = -1;
 
-            for (auto pictureX = 0; pictureX < picture.width; pictureX++) {
+            for (auto pictureX = pictureRect.a.x; pictureX < pictureRect.b.x; pictureX++) {
                 auto viewX = pictureXToView(pictureX);
                 if (viewX < 0 || viewX >= size.x) {
                     continue;
@@ -106,6 +125,37 @@ class PictureView : public TView {
 
             if (maxViewX >= minViewX) {
                 writeLine(minViewX, viewY, maxViewX - minViewX + 1, 1, b);
+            }
+        }
+    }
+
+    void drawSelectionDot(int x, int y) {
+        auto ch = picture.cells.at(y * picture.width + x).ch;
+        TDrawBuffer b;
+        b.moveCStr(
+            0, ch, TColorAttr(TColorDesired(TColorBIOS(7)), TColorDesired(TColorBIOS(flashingSelection ? 0 : 15))));
+        writeBufferChar(x, y, b);
+    }
+
+    void draw() override {
+        {
+            TDrawBuffer b;
+            b.moveChar(0, ' ', TColorAttr(TColorDesired(TColorBIOS(7)), TColorDesired(TColorBIOS(8))), size.x);
+            for (auto y = 0; y < size.y; y++) {
+                writeLine(0, y, size.x, 1, b);
+            }
+        }
+
+        drawPictureRegion(TRect(0, 0, picture.width, picture.height));
+
+        if (selection.has_value()) {
+            for (auto y = selection->a.y; y < selection->b.y; y++) {
+                drawSelectionDot(selection->a.x, y);
+                drawSelectionDot(selection->b.x - 1, y);
+            }
+            for (auto x = selection->a.x; x < selection->b.x; x++) {
+                drawSelectionDot(x, selection->a.y);
+                drawSelectionDot(x, selection->b.y - 1);
             }
         }
 
@@ -141,12 +191,15 @@ enum class PictureWindowMode {
 
 class PictureWindowPrivate {
    public:
+    int ticks = 0;
+
     TColorRGB fg{ 255, 255, 255 };
     TColorRGB bg{ 0, 0, 0 };
     const char* ch = "\x03";
     PictureWindowMode mode = PictureWindowMode::kSelect;
+    std::optional<TPoint> currentDrag;
 
-    compiler::SourceMember* member;
+    compiler::SourceMember* member{};
     std::function<void()> onEdited;
     PictureWindowStatusItems statusItems;
 
@@ -219,7 +272,7 @@ PictureWindow::~PictureWindow() {
 static void updateStatusItems(PictureWindowPrivate* p) {
     std::ostringstream chText;
     chText << "~F3~:[" << p->ch << "]";
-    delete[] p->statusItems.character->text;
+    delete[] p->statusItems.character->text;  // NOLINT
     p->statusItems.character->text = strdup(chText.str().c_str());
 
     auto attrPair = TAttrPair(
@@ -281,14 +334,150 @@ static void updateStatusItems(PictureWindowPrivate* p) {
         p->setChCheck->hide();
     }
 
+    // Selection
+    if (p->pictureView->selection.has_value()) {
+        auto sel = *p->pictureView->selection;
+        if (p->mode != PictureWindowMode::kSelect && p->mode != PictureWindowMode::kText) {
+            p->pictureView->selection = {};
+            p->pictureView->drawView();
+        }
+        if (p->mode == PictureWindowMode::kText && (sel.b.x > sel.a.x + 1 || sel.b.y > sel.a.y + 1)) {
+            p->pictureView->selection = TRect(sel.a.x, sel.a.y, sel.a.x + 1, sel.a.y + 1);
+            p->pictureView->drawView();
+        }
+    }
+
     p->toolLabel->setTitle(labelText);
     p->toolLabel->drawView();
+}
+
+static void onMouse(int pictureX, int pictureY, const PictureViewMouseEventArgs& e, PictureWindowPrivate* p) {
+    auto& cell = p->pictureView->picture.cells.at(pictureY * p->pictureView->picture.width + pictureX);
+    auto color = TColorAttr(TColorDesired(p->fg), TColorDesired(p->bg));
+    switch (p->mode) {
+        case PictureWindowMode::kSelect:
+            if (p->currentDrag.has_value()) {
+                auto x1 = p->currentDrag->x;
+                auto y1 = p->currentDrag->y;
+                auto x2 = pictureX;
+                auto y2 = pictureY;
+                if (x1 > x2) {
+                    std::swap(x1, x2);
+                }
+                if (y1 > y2) {
+                    std::swap(y1, y2);
+                }
+                x2++;
+                y2++;
+                p->pictureView->selection = TRect(x1, y1, x2, y2);
+            }
+            if (e.down) {
+                p->currentDrag = TPoint{ pictureX, pictureY };
+                p->pictureView->selection =
+                    TRect(*p->currentDrag, TPoint{ p->currentDrag->x + 1, p->currentDrag->y + 1 });
+            } else if ((e.up || (e.move && e.buttons == 0)) && p->currentDrag.has_value()) {
+                p->currentDrag = {};
+            }
+            p->pictureView->drawView();
+            break;
+
+        case PictureWindowMode::kDraw:
+            if (e.down || e.move) {
+                if (p->setFgCheck->mark(0)) {
+                    cell.colorAttr._fg = color._fg;
+                    cell.colorAttr._style = color._style;
+                }
+                if (p->setBgCheck->mark(0)) {
+                    cell.colorAttr._bg = color._bg;
+                }
+                if (p->setChCheck->mark(0)) {
+                    cell.ch = p->ch;
+                }
+                p->pictureView->drawView();
+            }
+            break;
+
+        case PictureWindowMode::kPick:
+            if (e.down || e.move) {
+                if (p->setBgCheck->mark(0)) {
+                    p->bg = getBack(cell.colorAttr).asRGB();
+                }
+                if (p->setFgCheck->mark(0)) {
+                    p->fg = getFore(cell.colorAttr).asRGB();
+                }
+                if (p->setChCheck->mark(0)) {
+                    p->ch = cell.ch.c_str();
+                }
+                updateStatusItems(p);
+            }
+            break;
+
+        case PictureWindowMode::kText:
+            p->pictureView->selection = TRect(pictureX, pictureY, pictureX + 1, pictureY + 1);
+            p->pictureView->drawView();
+            break;
+
+        default:
+            break;
+    }
+}
+
+static void onTick(PictureWindowPrivate* p) {
+    p->ticks++;
+    if (p->ticks >= 2) {
+        p->pictureView->flashingSelection = !p->pictureView->flashingSelection;
+        if (p->pictureView->selection.has_value()) {
+            p->pictureView->drawView();
+        }
+        p->ticks = 0;
+    }
 }
 
 void PictureWindow::handleEvent(TEvent& event) {
     TWindow::handleEvent(event);
 
-    if (event.what == evBroadcast) {
+    if (event.what == evKeyDown) {
+        if (event.keyDown.keyCode == kbEsc && _private->mode == PictureWindowMode::kSelect) {
+            _private->pictureView->selection = {};
+            _private->pictureView->drawView();
+        } else if (
+            _private->mode == PictureWindowMode::kText && _private->pictureView->selection.has_value() &&
+            event.keyDown.text[0] != '\0') {
+            auto rect = *_private->pictureView->selection;
+            auto& cell =
+                _private->pictureView->picture.cells.at(rect.a.y * _private->pictureView->picture.width + rect.a.x);
+            auto fg = getFore(cell.colorAttr).asRGB();
+            auto bg = getBack(cell.colorAttr).asRGB();
+            if (_private->setFgCheck->mark(0)) {
+                fg = _private->fg;
+            }
+            if (_private->setBgCheck->mark(0)) {
+                bg = _private->bg;
+            }
+            cell.ch = event.keyDown.text;
+            cell.colorAttr = TColorAttr(fg, bg);
+
+            if (rect.a.x < _private->pictureView->picture.width - 1) {
+                rect.a.x++;
+                rect.b.x++;
+            }
+            _private->pictureView->selection = rect;
+            _private->pictureView->drawView();
+        }
+    } else if (event.what == evCommand) {
+        switch (event.message.command) {
+            case kCmdPictureViewMouse: {
+                auto* e = reinterpret_cast<PictureViewMouseEventArgs*>(event.message.infoPtr);  // NOLINT
+                auto pictureX = _private->pictureView->viewXToPicture(e->viewPoint.x);
+                auto pictureY = _private->pictureView->viewYToPicture(e->viewPoint.y);
+                if (pictureX >= 0 && pictureX < _private->pictureView->picture.width && pictureY >= 0 &&
+                    pictureY < _private->pictureView->picture.height) {
+                    onMouse(pictureX, pictureY, *e, _private);
+                }
+                break;
+            }
+        }
+    } else if (event.what == evBroadcast) {
         switch (event.message.command) {
             case kCmdCloseProgramRelatedWindows:
                 close();
@@ -303,12 +492,15 @@ void PictureWindow::handleEvent(TEvent& event) {
                 break;
             }
 
-            case cmScrollBarChanged: {
+            case cmScrollBarChanged:
                 _private->pictureView->scrollTop = _private->vScrollBar->value;
                 _private->pictureView->scrollLeft = _private->hScrollBar->value;
                 _private->pictureView->drawView();
                 break;
-            }
+
+            case kCmdTimerTick:
+                onTick(_private);
+                break;
         }
     }
 }

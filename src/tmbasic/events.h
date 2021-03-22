@@ -72,6 +72,9 @@ enum : uint16_t {
 
     // broadcast every 250msec or so
     kCmdTimerTick,
+
+    // sent from PictureView to PictureWindow
+    kCmdPictureViewMouse,
 };
 
 struct FindEditorWindowEventArgs {
