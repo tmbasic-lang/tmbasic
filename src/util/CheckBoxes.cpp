@@ -1,4 +1,6 @@
 #include "CheckBoxes.h"
+
+#include <utility>
 #include "tvutil.h"
 
 namespace util {
@@ -25,10 +27,11 @@ static TRect getSize(const std::vector<std::string>& labels) {
     return TRect(0, 0, width + 7, height);
 }
 
-CheckBoxes::CheckBoxes(std::vector<std::string> labels)
+CheckBoxes::CheckBoxes(const std::vector<std::string>& labels)
     : TCheckBoxes(getSize(labels), convertLabelsToTSItems(labels)) {}
 
-CheckBoxes::CheckBoxes(std::vector<std::string> labels, std::vector<bool> checks) : CheckBoxes(labels) {
+CheckBoxes::CheckBoxes(const std::vector<std::string>& labels, const std::vector<bool>& checks)
+    : CheckBoxes(std::move(labels)) {
     size_t i = 0;
     for (auto check : checks) {
         if (check) {

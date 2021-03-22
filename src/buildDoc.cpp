@@ -457,7 +457,7 @@ static string formatProcedureText(const Procedure& procedure) {
             }
             o << parameter->name << " as " << parameter->type;
         }
-        if (overload->parameters.size() > 0) {
+        if (!overload->parameters.empty()) {
             o << "\n";
         }
         if (isFunction) {

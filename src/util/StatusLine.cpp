@@ -6,12 +6,12 @@ StatusLine::StatusLine(const TRect& bounds, TStatusDef& aDefs) : TStatusLine(bou
 
 void StatusLine::draw() {
     TDrawBuffer b;
-    TAttrPair color;
+    TAttrPair color{};
 
     TAttrPair cNormal = getColor(0x0301);
     TAttrPair cNormDisabled = getColor(0x0202);
     b.moveChar(0, ' ', cNormal, size.x);
-    auto t = items;
+    auto* t = items;
     ushort i = 0;
 
     while (t != nullptr) {
@@ -48,7 +48,7 @@ void StatusLine::draw() {
     }
     if (i < size.x - 2) {
         TStringView hintText = hint(helpCtx);
-        if (hintText.size()) {
+        if (!hintText.empty() != 0u) {
             b.moveStr(i, "\xB3 ", cNormal);
             i += 2;
             b.moveStr(i, hintText, cNormal, size.x - i);
@@ -59,7 +59,7 @@ void StatusLine::draw() {
 
 StatusItemColors* StatusLine::addStatusItemColors(TStatusItem* statusItem) {
     auto x = std::make_unique<StatusItemColors>();
-    auto ptr = x.get();
+    auto* ptr = x.get();
     _colors[statusItem->command] = std::move(x);
     return ptr;
 }

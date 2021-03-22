@@ -188,7 +188,7 @@ static void systemCallTimeZoneFromName(const SystemCallInput& input, SystemCallR
     const auto& name = dynamic_cast<const String&>(input.getObject(0));
     auto icuTimeZone = std::unique_ptr<icu::TimeZone>(icu::TimeZone::createTimeZone(name.value));
     icu::UnicodeString nameString;
-    if (icuTimeZone->getID(nameString) == UCAL_UNKNOWN_ZONE_ID) {
+    if ((icuTimeZone->getID(nameString) == UCAL_UNKNOWN_ZONE_ID) != 0) {
         throw Error(ErrorCode::kInvalidTimeZone, "The specified time zone was not found.");
     }
     result->x = boost::make_local_shared<TimeZone>(std::move(icuTimeZone));

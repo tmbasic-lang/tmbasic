@@ -6,8 +6,8 @@ namespace util {
 
 class CheckBoxes : public TCheckBoxes {
    public:
-    CheckBoxes(std::vector<std::string> labels);
-    CheckBoxes(std::vector<std::string> labels, std::vector<bool> checks);
+    CheckBoxes(const std::vector<std::string>& labels);
+    CheckBoxes(const std::vector<std::string>& labels, const std::vector<bool>& checks);
 };
 
 }  // namespace util
