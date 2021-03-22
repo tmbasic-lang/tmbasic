@@ -16,7 +16,7 @@ namespace tmbasic {
 
 class InsertSymbolDialog : public TDialog {
    public:
-    InsertSymbolDialog();
+    InsertSymbolDialog(const std::string& title, const std::string& insertButtonText);
     void handleEvent(TEvent& event) override;
     const char* selection = nullptr;
 };

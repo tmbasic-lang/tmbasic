@@ -167,14 +167,14 @@ void EditorWindow::setState(uint16_t aState, bool enable) {
 }
 
 void EditorWindow::onEditInsertSymbol() {
-    auto dialog = DialogPtr<InsertSymbolDialog>();
+    auto dialog = DialogPtr<InsertSymbolDialog>("Insert Symbol", "Insert");
     if (TProgram::deskTop->execView(dialog) == cmOK && dialog->selection != nullptr) {
         _editor->insertText(dialog->selection, strlen(dialog->selection), false);
     }
 }
 
 void EditorWindow::onEditInsertColor() {
-    auto dialog = DialogPtr<InsertColorDialog>();
+    auto dialog = DialogPtr<InsertColorDialog>("Insert Color", "Insert");
     if (TProgram::deskTop->execView(dialog) == cmOK) {
         std::ostringstream s;
         auto rgb = dialog->selection.asRGB();

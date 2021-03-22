@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../common.h"
-#include "CheckBoxes.h"
+#include "../util/CheckBoxes.h"
 #include "../util/InputLine.h"
 #include "vm/UserForm.h"
 
@@ -16,7 +16,7 @@ class DesignerFormPropertiesDialog : public TDialog {
     vm::UserForm* _form;
     util::InputLine* _nameText;
     util::InputLine* _titleText;
-    CheckBoxes* _frameCheckBoxes;
+    util::CheckBoxes* _frameCheckBoxes;
     util::InputLine* _minWidthText;
     util::InputLine* _minHeightText;
     util::InputLine* _initialWidthText;

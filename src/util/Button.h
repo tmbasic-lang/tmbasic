@@ -19,6 +19,7 @@ class Button : public TButton {
     TColorAttr mapColor(uchar index) override;
     void useDefaultColorScheme();
     void useWhiteColorScheme();
+    void setTitle(const std::string& text);
 };
 
 }  // namespace util

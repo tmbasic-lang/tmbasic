@@ -158,8 +158,8 @@ void TReport::handleEvent(TEvent& event) {
     }
 }
 
-InsertSymbolDialog::InsertSymbolDialog()
-    : TDialog(TRect(0, 0, 34, 15), "Insert Symbol"), TWindowInit(&TDialog::initFrame) {
+InsertSymbolDialog::InsertSymbolDialog(const std::string& title, const std::string& insertButtonText)
+    : TDialog(TRect(0, 0, 34, 15), title), TWindowInit(&TDialog::initFrame) {
     options |= ofCentered;
 
     auto report = ViewPtr<TReport>(TRect(1, 10, 33, 11));
@@ -177,7 +177,7 @@ InsertSymbolDialog::InsertSymbolDialog()
     RowLayout(
         true,
         {
-            new util::Button("Insert", cmOK, bfDefault),
+            new util::Button(insertButtonText, cmOK, bfDefault),
             new util::Button("Cancel", cmCancel, bfNormal),
         })
         .addTo(this, 1, r.b.x - 3, r.b.y - 3);

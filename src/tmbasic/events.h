@@ -36,6 +36,14 @@ enum : uint16_t {
     kCmdDesignAddScrollBar,
     kCmdDesignAddTextBox,
     kCmdDesignAddCustomControl,
+    kCmdPictureCharacter,
+    kCmdPictureFg,
+    kCmdPictureBg,
+    kCmdPictureSelect,
+    kCmdPictureDraw,
+    kCmdPicturePick,
+    kCmdPictureText,
+    kCmdPictureMask,
 
     // designer window context menu
     kCmdDesignerWindowProperties,

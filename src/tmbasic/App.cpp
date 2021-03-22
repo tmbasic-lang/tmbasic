@@ -2,13 +2,13 @@
 #include "../../obj/resources/help/helpfile.h"
 #include "../compiler/SourceProgram.h"
 #include "../util/DialogPtr.h"
+#include "../util/StatusLine.h"
 #include "../util/WindowPtr.h"
 #include "../util/membuf.h"
 #include "AboutDialog.h"
 #include "DesignerWindow.h"
 #include "EditorWindow.h"
 #include "HelpWindow.h"
-#include "PictureWindow.h"
 #include "ProgramWindow.h"
 #include "Resource.h"
 #include "constants.h"
@@ -19,11 +19,13 @@ using compiler::SourceMemberType;
 using compiler::SourceProgram;
 using util::DialogPtr;
 using util::MemoryIopstream;
+using util::StatusLine;
 using util::WindowPtr;
 
 namespace tmbasic {
 
 std::array<char, 9> App::helpWindowPalette = {};
+static PictureWindowStatusItems _newestPictureWindowStatusItems;
 
 App::App(int /*argc*/, char** /*argv*/)
     : TProgInit(initStatusLine, initMenuBar, TApplication::initDeskTop), _newWindowX(2), _newWindowY(1) {
@@ -46,9 +48,19 @@ App::App(int /*argc*/, char** /*argv*/)
     ts.enableCmd(kCmdDesignAddScrollBar);
     ts.enableCmd(kCmdDesignAddTextBox);
     ts.enableCmd(kCmdDesignAddCustomControl);
+    ts.enableCmd(kCmdPictureCharacter);
+    ts.enableCmd(kCmdPictureFg);
+    ts.enableCmd(kCmdPictureBg);
+    ts.enableCmd(kCmdPictureSelect);
+    ts.enableCmd(kCmdPictureDraw);
+    ts.enableCmd(kCmdPicturePick);
+    ts.enableCmd(kCmdPictureText);
+    ts.enableCmd(kCmdPictureMask);
     disableCommands(ts);
 
     onFileNew();
+
+    _pictureWindowStatusItems = _newestPictureWindowStatusItems;
 }
 
 void App::idle() {
@@ -110,6 +122,16 @@ TMenuBar* App::initMenuBar(TRect r) {
         *new TMenuItem("Add ~t~ext box", kCmdDesignAddTextBox, kbNoKey) + newLine() +
         *new TMenuItem("Add c~u~stom control", kCmdDesignAddCustomControl, kbNoKey);
 
+    auto& pictureMenu = *new TSubMenu("P~i~cture", kbAltI) +
+        *new TMenuItem("~F~oreground color", kCmdPictureFg, kbF1, hcNoContext, "F1") +
+        *new TMenuItem("~B~ackground color", kCmdPictureBg, kbF2, hcNoContext, "F2") +
+        *new TMenuItem("~C~haracter", kCmdPictureCharacter, kbF3, hcNoContext, "F3") + newLine() +
+        *new TMenuItem("~S~elect tool", kCmdPictureSelect, kbF4, hcNoContext, "F4") +
+        *new TMenuItem("~D~raw tool", kCmdPictureDraw, kbF5, hcNoContext, "F5") +
+        *new TMenuItem("~P~ick tool", kCmdPicturePick, kbF6, hcNoContext, "F6") +
+        *new TMenuItem("~T~ext tool", kCmdPictureText, kbF7, hcNoContext, "F7") +
+        *new TMenuItem("~M~ask tool", kCmdPictureMask, kbF8, hcNoContext, "F8");
+
     auto& windowMenu = *new TSubMenu("~W~indow", kbAltW) +
         *new TMenuItem("~S~ize/move", cmResize, kbCtrlF5, hcNoContext, "Ctrl+F5") +
         *new TMenuItem("~Z~oom", cmZoom, kbNoKey) + *new TMenuItem("~N~ext", cmNext, kbF6, hcNoContext, "F6") +
@@ -122,7 +144,8 @@ TMenuBar* App::initMenuBar(TRect r) {
 
     r.b.y = r.a.y + 1;
     // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
-    return new TMenuBar(r, fileMenu + editMenu + viewMenu + programMenu + designMenu + windowMenu + helpMenu);
+    return new TMenuBar(
+        r, fileMenu + editMenu + viewMenu + programMenu + designMenu + pictureMenu + windowMenu + helpMenu);
 }
 
 TStatusLine* App::initStatusLine(TRect r) {
@@ -145,7 +168,30 @@ TStatusLine* App::initStatusLine(TRect r) {
         *new TStatusItem("~F10~ Menu", kbF10, cmMenu);
     programWindowStatusDef.next = &designerWindowStatusDef;
 
-    return new TStatusLine(r, programWindowStatusDef);  // NOLINT(cppcoreguidelines-owning-memory)
+    auto& pictureWindowStatusDef = *new TStatusDef(hcide_pictureWindow, hcide_pictureWindow) +
+        *(_newestPictureWindowStatusItems.fg = new TStatusItem("~F1~:FG", kbF1, kCmdPictureFg)) +
+        *(_newestPictureWindowStatusItems.bg = new TStatusItem("~F2~:BG", kbF2, kCmdPictureBg)) +
+        *(_newestPictureWindowStatusItems.character = new TStatusItem("~F3~:[ ]", kbF3, kCmdPictureCharacter)) +
+        *(_newestPictureWindowStatusItems.select = new TStatusItem("~F4~ Select", kbF4, kCmdPictureSelect)) +
+        *(_newestPictureWindowStatusItems.draw = new TStatusItem("~F5~ Draw", kbF5, kCmdPictureDraw)) +
+        *(_newestPictureWindowStatusItems.pick = new TStatusItem("~F6~ Pick", kbF6, kCmdPicturePick)) +
+        *(_newestPictureWindowStatusItems.text = new TStatusItem("~F7~ Text", kbF7, kCmdPictureText)) +
+        *(_newestPictureWindowStatusItems.mask = new TStatusItem("~F8~ Mask", kbF8, kCmdPictureMask));
+    pictureWindowStatusDef.next = &programWindowStatusDef;
+
+    auto* statusLine = new StatusLine(r, pictureWindowStatusDef);  // NOLINT(cppcoreguidelines-owning-memory)
+    _newestPictureWindowStatusItems.statusLine = statusLine;
+    _newestPictureWindowStatusItems.characterColor =
+        statusLine->addStatusItemColors(_newestPictureWindowStatusItems.character);
+    _newestPictureWindowStatusItems.fgColor = statusLine->addStatusItemColors(_newestPictureWindowStatusItems.fg);
+    _newestPictureWindowStatusItems.bgColor = statusLine->addStatusItemColors(_newestPictureWindowStatusItems.bg);
+    _newestPictureWindowStatusItems.selectColor =
+        statusLine->addStatusItemColors(_newestPictureWindowStatusItems.select);
+    _newestPictureWindowStatusItems.drawColor = statusLine->addStatusItemColors(_newestPictureWindowStatusItems.draw);
+    _newestPictureWindowStatusItems.pickColor = statusLine->addStatusItemColors(_newestPictureWindowStatusItems.pick);
+    _newestPictureWindowStatusItems.textColor = statusLine->addStatusItemColors(_newestPictureWindowStatusItems.text);
+    _newestPictureWindowStatusItems.maskColor = statusLine->addStatusItemColors(_newestPictureWindowStatusItems.mask);
+    return statusLine;
 }
 
 static char getPaletteColor(const char* palette, size_t index) {
@@ -298,6 +344,19 @@ bool App::handleCommand(TEvent* event) {
             onViewProgram();
             return true;
 
+        case kCmdPictureCharacter:
+        case kCmdPictureFg:
+        case kCmdPictureBg:
+        case kCmdPictureSelect:
+        case kCmdPictureDraw:
+        case kCmdPicturePick:
+        case kCmdPictureText:
+        case kCmdPictureMask:
+            if (_pictureWindow != nullptr) {
+                _pictureWindow->onStatusLineCommand(event->message.command);
+            }
+            return true;
+
         default:
             return false;
     }
@@ -432,14 +491,18 @@ void App::showPictureWindow(SourceMember* member) {
     if (e.window != nullptr) {
         e.window->select();
     } else {
-        auto* window = new PictureWindow(getNewWindowRect(82, 20), member, []() -> void {
-            // onUpdated
-            auto* programWindow = findProgramWindow(deskTop);
-            if (programWindow != nullptr) {
-                programWindow->updateListItems();
-            }
-        });
+        auto* window = new PictureWindow(
+            getNewWindowRect(82, 20), member,
+            []() -> void {
+                // onUpdated
+                auto* programWindow = findProgramWindow(deskTop);
+                if (programWindow != nullptr) {
+                    programWindow->updateListItems();
+                }
+            },
+            _pictureWindowStatusItems);
         deskTop->insert(window);
+        window->zoom();
     }
 }
 
@@ -613,6 +676,10 @@ void App::onHelpAbout() {
     auto dialog = DialogPtr<AboutDialog>();
     dialog.get()->options |= ofCentered;
     deskTop->execView(dialog.get());
+}
+
+void App::setPictureWindow(PictureWindow* pictureWindow) {
+    _pictureWindow = pictureWindow;
 }
 
 }  // namespace tmbasic

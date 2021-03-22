@@ -195,11 +195,11 @@ class InsertColorDialogPrivate {
     ViewPtr<Button> insertButton{ "Insert", cmOK, bfDefault };
 };
 
-InsertColorDialog::InsertColorDialog()
-    : TDialog(TRect(0, 0, 67, 15), "Insert Color"),
-      TWindowInit(&TDialog::initFrame),
-      _private(new InsertColorDialogPrivate()) {
+InsertColorDialog::InsertColorDialog(const std::string& title, const std::string& insertButtonText)
+    : TDialog(TRect(0, 0, 67, 15), title), TWindowInit(&TDialog::initFrame), _private(new InsertColorDialogPrivate()) {
     options |= ofCentered;
+
+    _private->insertButton->setTitle(insertButtonText);
 
     _private->paletteView->onSetColor = [this](TColorDesired color) -> void {
         auto rgb = color.asRGB();
@@ -255,9 +255,9 @@ InsertColorDialog::~InsertColorDialog() {
 void InsertColorDialog::handleEvent(TEvent& event) {
     if (event.what == evCommand && event.message.command == cmOK) {
         try {
-            auto red = parseUserInt(_private->redInputLine->data, "red", 0, 255);
-            auto green = parseUserInt(_private->greenInputLine->data, "green", 0, 255);
-            auto blue = parseUserInt(_private->blueInputLine->data, "blue", 0, 255);
+            auto red = parseUserInt(_private->redInputLine->data, "red component", 0, 255);
+            auto green = parseUserInt(_private->greenInputLine->data, "green component", 0, 255);
+            auto blue = parseUserInt(_private->blueInputLine->data, "blue component", 0, 255);
             selection = makeColor(red, green, blue);
         } catch (std::runtime_error& ex) {
             messageBox(ex.what(), mfError | mfOKButton);
@@ -265,9 +265,9 @@ void InsertColorDialog::handleEvent(TEvent& event) {
         }
     } else if (event.what == evBroadcast && event.message.command == kCmdTimerTick) {
         try {
-            auto red = parseUserInt(_private->redInputLine->data, "red", 0, 255);
-            auto green = parseUserInt(_private->greenInputLine->data, "green", 0, 255);
-            auto blue = parseUserInt(_private->blueInputLine->data, "blue", 0, 255);
+            auto red = parseUserInt(_private->redInputLine->data, "", 0, 255);
+            auto green = parseUserInt(_private->greenInputLine->data, "", 0, 255);
+            auto blue = parseUserInt(_private->blueInputLine->data, "", 0, 255);
             selection = makeColor(red, green, blue);
             if (_private->colorView->red != red || _private->colorView->green != green ||
                 _private->colorView->blue != blue) {

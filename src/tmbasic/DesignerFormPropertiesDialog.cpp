@@ -9,6 +9,7 @@
 #include "constants.h"
 
 using util::Button;
+using util::CheckBoxes;
 using util::InputLine;
 using util::Label;
 using util::parseUserInt;

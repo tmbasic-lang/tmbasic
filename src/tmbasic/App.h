@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../common.h"
+#include "tmbasic/PictureWindow.h"
 #include "tmbasic/ProgramWindow.h"
 
 namespace tmbasic {
@@ -17,6 +18,7 @@ class App : public TApplication {
     void idle() override;
     void handleEvent(TEvent& event) override;
     TPalette& getPalette() const override;
+    void setPictureWindow(PictureWindow* pictureWindow);
 
    private:
     static TMenuBar* initMenuBar(TRect r);
@@ -44,6 +46,8 @@ class App : public TApplication {
     int _newWindowX;
     int _newWindowY;
     std::chrono::steady_clock::time_point _lastTimerTick;
+    PictureWindowStatusItems _pictureWindowStatusItems{};
+    PictureWindow* _pictureWindow = nullptr;
 };
 
 }  // namespace tmbasic

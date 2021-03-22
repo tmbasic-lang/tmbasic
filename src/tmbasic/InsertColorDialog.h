@@ -8,7 +8,7 @@ class InsertColorDialogPrivate;
 
 class InsertColorDialog : public TDialog {
    public:
-    InsertColorDialog();
+    InsertColorDialog(const std::string& title, const std::string& insertButtonText);
     virtual ~InsertColorDialog();
     void handleEvent(TEvent& event) override;
     TColorDesired selection{};
