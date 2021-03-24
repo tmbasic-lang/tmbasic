@@ -455,6 +455,8 @@ static void updateStatusItems(PictureWindowPrivate* p) {
 static void onMouse(int pictureX, int pictureY, const PictureViewMouseEventArgs& e, PictureWindowPrivate* p) {
     auto& cell = p->pictureView->picture.cells.at(pictureY * p->pictureView->picture.width + pictureX);
     auto color = TColorAttr(TColorDesired(p->fg), TColorDesired(p->bg));
+    auto leftMouseDown = e.down && (e.buttons & mbLeftButton) != 0;
+    auto dragging = e.move && (e.buttons & mbLeftButton) != 0;
     switch (p->mode) {
         case PictureWindowMode::kSelect:
             if (p->currentDrag.has_value()) {
@@ -483,7 +485,7 @@ static void onMouse(int pictureX, int pictureY, const PictureViewMouseEventArgs&
             break;
 
         case PictureWindowMode::kDraw:
-            if (e.down || e.move) {
+            if (leftMouseDown || dragging) {
                 if (p->setFgCheck->mark(0)) {
                     cell.colorAttr._fg = color._fg;
                     cell.colorAttr._style = color._style;
@@ -499,7 +501,7 @@ static void onMouse(int pictureX, int pictureY, const PictureViewMouseEventArgs&
             break;
 
         case PictureWindowMode::kPick:
-            if (e.down || e.move) {
+            if (leftMouseDown || dragging) {
                 if (p->setBgCheck->mark(0)) {
                     p->bg = getBack(cell.colorAttr).asRGB();
                 }
@@ -514,8 +516,10 @@ static void onMouse(int pictureX, int pictureY, const PictureViewMouseEventArgs&
             break;
 
         case PictureWindowMode::kText:
+            if (leftMouseDown || dragging) {
             p->pictureView->selection = TRect(pictureX, pictureY, pictureX + 1, pictureY + 1);
             p->pictureView->drawView();
+            }
             break;
 
         default:
@@ -685,18 +689,22 @@ void PictureWindow::onStatusLineCommand(ushort cmd) {
             _private->mode = PictureWindowMode::kSelect;
             updateStatusItems(_private);
             break;
+
         case kCmdPictureDraw:
             _private->mode = PictureWindowMode::kDraw;
             updateStatusItems(_private);
             break;
+
         case kCmdPicturePick:
             _private->mode = PictureWindowMode::kPick;
             updateStatusItems(_private);
             break;
+
         case kCmdPictureText:
             _private->mode = PictureWindowMode::kText;
             updateStatusItems(_private);
             break;
+
         case kCmdPictureMask:
             _private->mode = PictureWindowMode::kMask;
             updateStatusItems(_private);
