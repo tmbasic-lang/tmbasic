@@ -168,8 +168,9 @@ void EditorWindow::setState(uint16_t aState, bool enable) {
 
 void EditorWindow::onEditInsertSymbol() {
     auto dialog = DialogPtr<InsertSymbolDialog>("Insert Symbol", "Insert");
-    if (TProgram::deskTop->execView(dialog) == cmOK && dialog->selection != nullptr) {
-        _editor->insertText(dialog->selection, strlen(dialog->selection), false);
+    if (TProgram::deskTop->execView(dialog) == cmOK) {
+        auto sel = dialog->getSelection();
+        _editor->insertText(sel.c_str(), sel.size(), false);
     }
 }
 

@@ -291,7 +291,7 @@ class PictureWindowPrivate {
 
     TColorRGB fg{ 255, 255, 255 };
     TColorRGB bg{ 0, 0, 0 };
-    const char* ch = "☺";
+    std::string ch = "☺";
     PictureWindowMode mode = PictureWindowMode::kSelect;
     std::optional<TPoint> currentDrag;
 
@@ -303,9 +303,9 @@ class PictureWindowPrivate {
     ViewPtr<ScrollBar> vScrollBar{ TRect(0, 0, 1, 10) };
     ViewPtr<ScrollBar> hScrollBar{ TRect(0, 0, 10, 1) };
     ViewPtr<Label> toolLabel{ TRect(1, 1, 15, 2) };
-    ViewPtr<CheckBoxes> setFgCheck{ std::vector<std::string>{ "Set FG" }, std::vector<bool>{ true } };
-    ViewPtr<CheckBoxes> setBgCheck{ std::vector<std::string>{ "Set BG" }, std::vector<bool>{ true } };
-    ViewPtr<CheckBoxes> setChCheck{ std::vector<std::string>{ "Set Character" }, std::vector<bool>{ true } };
+    ViewPtr<CheckBoxes> setFgCheck{ std::vector<std::string>{ "Set FG color" }, std::vector<bool>{ true } };
+    ViewPtr<CheckBoxes> setBgCheck{ std::vector<std::string>{ "Set BG color" }, std::vector<bool>{ true } };
+    ViewPtr<CheckBoxes> setChCheck{ std::vector<std::string>{ "Set character" }, std::vector<bool>{ true } };
 };
 
 static std::string getPictureWindowTitle(const SourceMember& member) {
@@ -348,13 +348,13 @@ PictureWindow::PictureWindow(
     insert(_private->pictureView.take());
 
     _private->toolLabel.addTo(this);
-    _private->setFgCheck->setBounds(TRect(14, 1, 26, 2));
+    _private->setFgCheck->setBounds(TRect(14, 1, 32, 2));
     insert(_private->setFgCheck.take());
     _private->setFgCheck->hide();
-    _private->setBgCheck->setBounds(TRect(27, 1, 39, 2));
+    _private->setBgCheck->setBounds(TRect(33, 1, 51, 2));
     insert(_private->setBgCheck.take());
     _private->setBgCheck->hide();
-    _private->setChCheck->setBounds(TRect(40, 1, 59, 2));
+    _private->setChCheck->setBounds(TRect(52, 1, 71, 2));
     insert(_private->setChCheck.take());
     _private->setChCheck->hide();
 
@@ -675,7 +675,7 @@ void PictureWindow::onStatusLineCommand(ushort cmd) {
         case kCmdPictureCharacter: {
             auto dialog = DialogPtr<InsertSymbolDialog>("Choose Character", "Choose");
             if (TProgram::deskTop->execView(dialog) == cmOK) {
-                _private->ch = dialog->selection;
+                _private->ch = dialog->getSelection();
                 updateStatusItems(_private);
             }
             break;

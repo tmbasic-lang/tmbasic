@@ -12,4 +12,9 @@ InputLine::InputLine(const std::string& text, int width, int aMaxLen)
 
 InputLine::InputLine(int number, int width, int aMaxLen) : InputLine(std::to_string(number), width, aMaxLen) {}
 
+void InputLine::setText(const std::string& text) {
+    assert(text.size() <= maxLen);
+    strcpy(data, text.c_str());
+}
+
 }  // namespace util

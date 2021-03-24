@@ -11,6 +11,7 @@ class ScrollBar : public TScrollBar {
     std::optional<TColorAttr> colorIndicator;
     ScrollBar(const TRect& bounds);
     TColorAttr mapColor(uchar index) override;
+    void useBlueColorScheme();
     void useCyanColorScheme();
     void useWhiteColorScheme();
 };

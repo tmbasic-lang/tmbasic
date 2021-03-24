@@ -14,11 +14,17 @@
 
 namespace tmbasic {
 
+class InsertSymbolDialogPrivate;
+
 class InsertSymbolDialog : public TDialog {
    public:
     InsertSymbolDialog(const std::string& title, const std::string& insertButtonText);
+    virtual ~InsertSymbolDialog();
     void handleEvent(TEvent& event) override;
-    const char* selection = nullptr;
+    std::string getSelection() const;
+
+   private:
+    InsertSymbolDialogPrivate* _private;
 };
 
 }  // namespace tmbasic

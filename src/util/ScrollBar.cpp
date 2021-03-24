@@ -27,16 +27,22 @@ TColorAttr ScrollBar::mapColor(uchar index) {
     return TScrollBar::mapColor(index);
 }
 
+void ScrollBar::useBlueColorScheme() {
+    colorPage = TColorAttr(0x13);
+    colorArrows = TColorAttr(0x13);
+    colorIndicator = TColorAttr(0x13);
+}
+
 void ScrollBar::useCyanColorScheme() {
-    colorPage = TColorAttr(TColorDesired(TColorBIOS(1)), TColorDesired(TColorBIOS(3)));
-    colorArrows = TColorAttr(TColorDesired(TColorBIOS(1)), TColorDesired(TColorBIOS(3)));
-    colorIndicator = TColorAttr(TColorDesired(TColorBIOS(1)), TColorDesired(TColorBIOS(3)));
+    colorPage = TColorAttr(0x31);
+    colorArrows = TColorAttr(0x31);
+    colorIndicator = TColorAttr(0x31);
 }
 
 void ScrollBar::useWhiteColorScheme() {
-    colorPage = TColorAttr(TColorDesired(TColorBIOS(0)), TColorDesired(TColorBIOS(15)));
-    colorArrows = TColorAttr(TColorDesired(TColorBIOS(0)), TColorDesired(TColorBIOS(15)));
-    colorIndicator = TColorAttr(TColorDesired(TColorBIOS(0)), TColorDesired(TColorBIOS(15)));
+    colorPage = TColorAttr(0xF0);
+    colorArrows = TColorAttr(0xF0);
+    colorIndicator = TColorAttr(0xF0);
 }
 
 }  // namespace util
