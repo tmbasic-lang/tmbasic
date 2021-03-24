@@ -25,12 +25,51 @@ namespace tmbasic {
 class PictureCell {
    public:
     bool transparent = false;
-    TColorAttr colorAttr{ TColorDesired(TColorBIOS(0)), TColorDesired(TColorBIOS(0)) };
+    TColorAttr colorAttr{ 0 };
     std::string ch = " ";
 };
 
+static uint32_t packRgb(TColorRGB rgb) {
+    uint32_t x = rgb.r;
+    x <<= 8;
+    x |= rgb.g;
+    x <<= 8;
+    x |= rgb.b;
+    return x;
+}
+
+static TColorRGB unpackRgb(uint32_t packed) {
+    auto b = static_cast<uint8_t>(packed & 0xFF);
+    packed >>= 8;
+    auto g = static_cast<uint8_t>(packed & 0xFF);
+    packed >>= 8;
+    auto r = static_cast<uint8_t>(packed & 0xFF);
+    return { r, g, b };
+}
+
+static char parseHexNibble(char ch) {
+    if (ch >= '0' && ch <= '9') {
+        return ch - '0';
+    }
+    if (ch >= 'a' && ch <= 'f') {
+        return ch - 'a' + 10;
+    }
+    if (ch >= 'A' && ch <= 'F') {
+        return ch - 'A' + 10;
+    }
+    return 0;
+}
+
+static char parseHexByte(char hi, char lo) {
+    char value = parseHexNibble(hi);
+    value <<= 4;
+    value |= parseHexNibble(lo);
+    return value;
+}
+
 class Picture {
    public:
+    std::string name = "Untitled";
     std::vector<PictureCell> cells;
     int width;
     int height;
@@ -39,11 +78,68 @@ class Picture {
         for (auto i = 0; i < height; i++) {
             for (auto j = 0; j < width; j++) {
                 cells.at(i * width + j).ch = '0' + (i * 17 + j) % 78;
-                cells.at(i * width + j).colorAttr = TColorAttr(
-                    TColorDesired(TColorRGB(255, 255, 255)),
-                    TColorDesired(TColorRGB(i * 255 / height, j * 255 / width, 255)));
+                cells.at(i * width + j).colorAttr = { TColorRGB(255, 255, 255),
+                                                      TColorRGB(i * 255 / height, j * 255 / width, 255) };
             }
         }
+    }
+
+    Picture(const std::string& source) {
+        std::istringstream s{ source };
+        s >> std::hex;
+        std::string pictureKeyword = "", sizeSeparator = "";
+        s >> pictureKeyword >> name >> width >> height >> sizeSeparator;
+        if (pictureKeyword != "picture" || sizeSeparator != ":") {
+            throw std::runtime_error("Unexpected data in picture source.");
+        }
+        cells = { static_cast<size_t>(width * height), PictureCell() };
+        for (auto y = 0; y < height; y++) {
+            for (auto x = 0; x < width; x++) {
+                std::string utf8Hex;
+                int transparent = 0;
+                uint32_t fg = 0, bg = 0;
+                std::string cellSeparator = "";
+                s >> utf8Hex >> transparent >> fg >> bg >> cellSeparator;
+                if (cellSeparator != ";") {
+                    throw std::runtime_error("Unexpected data in picture source.");
+                }
+                auto& cell = cells.at(y * width + x);
+                cell.transparent = transparent != 0;
+                cell.colorAttr = { unpackRgb(fg), unpackRgb(bg) };
+                std::string utf8;
+                if ((utf8Hex.size() % 2) != 0) {
+                    throw std::runtime_error("Unexpected data in picture source.");
+                }
+                for (size_t i = 0; i < utf8Hex.size(); i += 2) {
+                    auto ch = parseHexByte(utf8Hex.at(i), utf8Hex.at(i + 1));
+                    utf8 += ch;
+                }
+                cell.ch = std::move(utf8);
+            }
+        }
+    }
+
+    std::string exportToString() {
+        std::ostringstream s;
+        s << "picture " << name << "\n" << std::hex << width << " " << height << " : ";
+        for (auto y = 0; y < height; y++) {
+            for (auto x = 0; x < width; x++) {
+                auto n = y * width + x;
+                if ((n % 6) == 0) {
+                    s << "\n";
+                }
+                auto& cell = cells.at(n);
+                for (auto ch : cell.ch) {
+                    s << std::setw(2) << std::setfill('0') << static_cast<int>(ch);
+                }
+                s << " ";
+
+                s << (cell.transparent ? 1 : 0) << " " << packRgb(getFore(cell.colorAttr).asRGB()) << " "
+                  << packRgb(getBack(cell.colorAttr).asRGB()) << " ; ";
+            }
+        }
+        s << "\nend picture\n";
+        return s.str();
     }
 };
 
@@ -195,7 +291,7 @@ class PictureWindowPrivate {
 
     TColorRGB fg{ 255, 255, 255 };
     TColorRGB bg{ 0, 0, 0 };
-    const char* ch = "\x03";
+    const char* ch = "☺";
     PictureWindowMode mode = PictureWindowMode::kSelect;
     std::optional<TPoint> currentDrag;
 
@@ -263,6 +359,11 @@ PictureWindow::PictureWindow(
     _private->setChCheck->hide();
 
     updateScrollBars(_private);
+
+    try {
+        _private->pictureView->picture = Picture(member->source);
+    } catch (...) {
+    }
 }
 
 PictureWindow::~PictureWindow() {
@@ -423,6 +524,7 @@ static void onMouse(int pictureX, int pictureY, const PictureViewMouseEventArgs&
 }
 
 static void onTick(PictureWindowPrivate* p) {
+    // blink the selection rectangle
     p->ticks++;
     if (p->ticks >= 2) {
         p->pictureView->flashingSelection = !p->pictureView->flashingSelection;
@@ -510,6 +612,11 @@ uint16_t PictureWindow::getHelpCtx() {
 }
 
 void PictureWindow::close() {
+    auto newSource = _private->pictureView->picture.exportToString();
+    if (newSource != _private->member->source) {
+        _private->member->setSource(newSource);
+        _private->onEdited();
+    }
     TWindow::close();
 }
 

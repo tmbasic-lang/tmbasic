@@ -97,42 +97,16 @@ void SourceProgram::load(const std::string& filePath) {
     auto dimRegex = std::regex("^[ \t]*[Dd][Ii][Mm][ \t].*$");
     auto constRegex = std::regex("^[ \t]*[Cc][Oo][Nn][Ss][Tt][ \t].*$");
     auto endTypeRegex = std::regex("^[ \t]*[Ee][Nn][Dd][ \t]+[Tt][Yy][Pp][Ee].*$");
-    auto disabledRegex = std::regex("^#disabled.*$");
-    auto endDisabledConstRegex = std::regex("^#end disabled const.*$");
-    auto endDisabledDimRegex = std::regex("^#end disabled dim.*$");
-    auto endDisabledProcedureRegex = std::regex("^#end disabled procedure.*$");
-    auto endDisabledTypeRegex = std::regex("^#end disabled type.*$");
+    auto endPictureRegex = std::regex("^[ \t]*[Ee][Nn][Dd][ \t]+[Pp][Ii][Cc][Tt][Uu][Rr][Ee].*$");
 
     std::list<std::string> currentBlock;
-    auto isDisabledBlock = false;
     std::string line;
     while (std::getline(file, line)) {
         auto isBlockDone = false;
         SourceMemberType memberType;  // set this when setting isBlockDone=true
         auto includeThisLine = true;
 
-        if (!isDisabledBlock && std::regex_match(line, disabledRegex)) {
-            isDisabledBlock = true;
-            includeThisLine = false;
-        } else if (isDisabledBlock) {
-            if (std::regex_match(line, endDisabledConstRegex)) {
-                memberType = SourceMemberType::kGlobal;
-                isBlockDone = true;
-                includeThisLine = false;
-            } else if (std::regex_match(line, endDisabledDimRegex)) {
-                memberType = SourceMemberType::kGlobal;
-                isBlockDone = true;
-                includeThisLine = false;
-            } else if (std::regex_match(line, endDisabledProcedureRegex)) {
-                memberType = SourceMemberType::kProcedure;
-                isBlockDone = true;
-                includeThisLine = false;
-            } else if (std::regex_match(line, endDisabledTypeRegex)) {
-                memberType = SourceMemberType::kType;
-                isBlockDone = true;
-                includeThisLine = false;
-            }
-        } else if (std::regex_match(line, endSubRegex) || std::regex_match(line, endFunctionRegex)) {
+        if (std::regex_match(line, endSubRegex) || std::regex_match(line, endFunctionRegex)) {
             memberType = SourceMemberType::kProcedure;
             isBlockDone = true;
         } else if (std::regex_match(line, dimRegex)) {
@@ -143,6 +117,9 @@ void SourceProgram::load(const std::string& filePath) {
             isBlockDone = true;
         } else if (std::regex_match(line, endTypeRegex)) {
             memberType = SourceMemberType::kType;
+            isBlockDone = true;
+        } else if (std::regex_match(line, endPictureRegex)) {
+            memberType = SourceMemberType::kPicture;
             isBlockDone = true;
         }
 
@@ -155,7 +132,6 @@ void SourceProgram::load(const std::string& filePath) {
                 memberType, boost::replace_all_copy(removeLeadingAndTrailingNonCodeLines(&currentBlock), "##", "#"), 0,
                 0));
             currentBlock.clear();
-            isDisabledBlock = false;
         }
     }
 }
@@ -165,36 +141,7 @@ void SourceProgram::save(const std::string& filePath) const {
 
     for (const auto* member : sortMembers(this)) {
         auto trimmedSource = boost::trim_copy(member->source);
-        if (member->isCompiledMemberUpToDate) {
-            // this code was compiled successfully so we know it's valid
-            stream << trimmedSource << "\n\n";
-        } else {
-            // since we don't know that this is valid, use a #disabled block so this file will parse again in the face
-            // of syntax errors in this block
-            std::string typeName;
-            switch (member->memberType) {
-                case SourceMemberType::kGlobal:
-                    typeName = "global";
-                    break;
-                case SourceMemberType::kProcedure:
-                    typeName = "procedure";
-                    break;
-                case SourceMemberType::kType:
-                    typeName = "type";
-                    break;
-                case SourceMemberType::kDesign:
-                    typeName = "form";
-                    break;
-                default:
-                    assert(false);
-            }
-
-            stream << "#disabled " << typeName;
-            boost::replace_all(trimmedSource, "#", "##");  // escape # symbol
-            stream << "\n"
-                   << trimmedSource << "\n"
-                   << "#end disabled " << typeName << "\n\n";
-        }
+        stream << trimmedSource << "\n\n";
     }
 }
 
