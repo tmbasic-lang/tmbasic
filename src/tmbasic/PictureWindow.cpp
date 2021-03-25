@@ -579,12 +579,11 @@ static void onTick(PictureWindowPrivate* p) {
 }
 
 void PictureWindow::handleEvent(TEvent& event) {
-    TWindow::handleEvent(event);
-
     if (event.what == evKeyDown) {
         if (event.keyDown.keyCode == kbEsc && _private->mode == PictureWindowMode::kSelect) {
             _private->pictureView->selection = {};
             _private->pictureView->drawView();
+            clearEvent(event);
         } else if (
             _private->mode == PictureWindowMode::kText && _private->pictureView->selection.has_value() &&
             event.keyDown.text[0] != '\0') {
@@ -608,8 +607,13 @@ void PictureWindow::handleEvent(TEvent& event) {
             }
             _private->pictureView->selection = rect;
             _private->pictureView->drawView();
+            clearEvent(event);
         }
-    } else if (event.what == evCommand) {
+    }
+
+    TWindow::handleEvent(event);
+
+    if (event.what == evCommand) {
         switch (event.message.command) {
             case kCmdPictureViewMouse: {
                 auto* e = reinterpret_cast<PictureViewMouseEventArgs*>(event.message.infoPtr);  // NOLINT
