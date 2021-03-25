@@ -29,24 +29,6 @@ class PictureCell {
     std::string ch = " ";
 };
 
-static uint32_t packRgb(TColorRGB rgb) {
-    uint32_t x = rgb.r;
-    x <<= 8;
-    x |= rgb.g;
-    x <<= 8;
-    x |= rgb.b;
-    return x;
-}
-
-static TColorRGB unpackRgb(uint32_t packed) {
-    auto b = static_cast<uint8_t>(packed & 0xFF);
-    packed >>= 8;
-    auto g = static_cast<uint8_t>(packed & 0xFF);
-    packed >>= 8;
-    auto r = static_cast<uint8_t>(packed & 0xFF);
-    return { r, g, b };
-}
-
 static char parseHexNibble(char ch) {
     if (ch >= '0' && ch <= '9') {
         return ch - '0';
@@ -105,7 +87,7 @@ class Picture {
                 }
                 auto& cell = cells.at(y * width + x);
                 cell.transparent = transparent != 0;
-                cell.colorAttr = { unpackRgb(fg), unpackRgb(bg) };
+                cell.colorAttr = { TColorRGB(fg), TColorRGB(bg) };
                 std::string utf8;
                 if ((utf8Hex.size() % 2) != 0) {
                     throw std::runtime_error("Unexpected data in picture source.");
@@ -134,8 +116,8 @@ class Picture {
                 }
                 s << " ";
 
-                s << (cell.transparent ? 1 : 0) << " " << packRgb(getFore(cell.colorAttr).asRGB()) << " "
-                  << packRgb(getBack(cell.colorAttr).asRGB()) << " ; ";
+                s << (cell.transparent ? 1 : 0) << " " << static_cast<uint32_t>(getFore(cell.colorAttr).asRGB()) << " "
+                  << static_cast<uint32_t>(getBack(cell.colorAttr).asRGB()) << " ; ";
             }
         }
         s << "\nend picture\n";
@@ -517,8 +499,8 @@ static void onMouse(int pictureX, int pictureY, const PictureViewMouseEventArgs&
 
         case PictureWindowMode::kText:
             if (leftMouseDown || dragging) {
-            p->pictureView->selection = TRect(pictureX, pictureY, pictureX + 1, pictureY + 1);
-            p->pictureView->drawView();
+                p->pictureView->selection = TRect(pictureX, pictureY, pictureX + 1, pictureY + 1);
+                p->pictureView->drawView();
             }
             break;
 
