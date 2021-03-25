@@ -48,4 +48,33 @@ int parseUserInt(const char* text, const char* fieldName, int minValue, int maxV
     return value;
 }
 
+void validateIdentifier(const std::string& text, const char* fieldName) {
+    if (text.size() == 0) {
+        std::ostringstream message;
+        message << "Please enter the " << fieldName << ".";
+        throw std::runtime_error(message.str());
+    }
+
+    auto isFirst = true;
+    for (auto ch : text) {
+        auto isUpper = ch >= 'A' && ch <= 'Z';
+        auto isLower = ch >= 'a' && ch <= 'z';
+        auto isDigit = ch >= '0' && ch <= '9';
+        auto isUnderscore = ch == '_';
+
+        if (isFirst) {
+            if (!isUpper && !isLower && !isUnderscore) {
+                std::ostringstream message;
+                message << "The " << fieldName << " is invalid. It must start with a letter or underscore.";
+                throw std::runtime_error(message.str());
+            }
+            isFirst = false;
+        } else if (!isUpper && !isLower && !isDigit && !isUnderscore) {
+            std::ostringstream message;
+            message << "The " << fieldName << " is invalid. It must contain only letters, numbers, and underscores.";
+            throw std::runtime_error(message.str());
+        }
+    }
+}
+
 }  // namespace util

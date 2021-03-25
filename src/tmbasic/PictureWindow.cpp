@@ -3,19 +3,24 @@
 #include "../util/Button.h"
 #include "../util/CheckBoxes.h"
 #include "../util/DialogPtr.h"
+#include "../util/InputLine.h"
 #include "../util/Label.h"
 #include "../util/ScrollBar.h"
 #include "../util/ViewPtr.h"
+#include "../util/tvutil.h"
 #include "../vm/UserForm.h"
 #include "App.h"
+#include "GridLayout.h"
+#include "InsertColorDialog.h"
+#include "InsertSymbolDialog.h"
 #include "RowLayout.h"
 #include "events.h"
-#include "tmbasic/InsertColorDialog.h"
-#include "tmbasic/InsertSymbolDialog.h"
 
 using compiler::SourceMember;
+using util::Button;
 using util::CheckBoxes;
 using util::DialogPtr;
+using util::InputLine;
 using util::Label;
 using util::ScrollBar;
 using util::ViewPtr;
@@ -29,32 +34,12 @@ class PictureCell {
     std::string ch = " ";
 };
 
-static char parseHexNibble(char ch) {
-    if (ch >= '0' && ch <= '9') {
-        return ch - '0';
-    }
-    if (ch >= 'a' && ch <= 'f') {
-        return ch - 'a' + 10;
-    }
-    if (ch >= 'A' && ch <= 'F') {
-        return ch - 'A' + 10;
-    }
-    return 0;
-}
-
-static char parseHexByte(char hi, char lo) {
-    char value = parseHexNibble(hi);
-    value <<= 4;
-    value |= parseHexNibble(lo);
-    return value;
-}
-
 class Picture {
    public:
     std::string name = "Untitled";
     std::vector<PictureCell> cells;
-    int width;
-    int height;
+    int width{};
+    int height{};
 
     Picture(int width, int height) : cells(width * height, PictureCell()), width(width), height(height) {
         for (auto i = 0; i < height; i++) {
@@ -66,16 +51,18 @@ class Picture {
         }
     }
 
-    Picture(const std::string& source) {
+    explicit Picture(const std::string& source) {
         std::istringstream s{ source };
         s >> std::hex;
-        std::string pictureKeyword = "", sizeSeparator = "";
+        std::string pictureKeyword;
+        std::string sizeSeparator;
         s >> pictureKeyword >> name >> sizeSeparator >> width >> height;
         if (pictureKeyword != "picture" || sizeSeparator != "Z") {
             throw std::runtime_error("Unexpected data in picture source.");
         }
         cells = { static_cast<size_t>(width * height), PictureCell() };
-        uint32_t fg = 0, bg = 0;
+        uint32_t fg = 0;
+        uint32_t bg = 0;
         int transparent = 0;
         std::string utf8Hex;
         for (auto y = 0; y < height; y++) {
@@ -121,7 +108,8 @@ class Picture {
     std::string exportToString() {
         std::ostringstream s;
         s << "picture " << name << "\nZ " << std::hex << width << " " << height;
-        uint32_t previousFg = 0, previousBg = 0;
+        uint32_t previousFg = 0;
+        uint32_t previousBg = 0;
         auto previousTransparent = false;
         std::string previousChar = " ";
         auto lineStart = s.tellp();
@@ -179,6 +167,41 @@ class Picture {
         }
         s << "\nend picture\n";
         return s.str();
+    }
+
+    void resize(int newWidth, int newHeight) {
+        std::vector<PictureCell> newCells{ static_cast<size_t>(newWidth * newHeight), PictureCell() };
+        auto commonWidth = std::min(width, newWidth);
+        auto commonHeight = std::min(height, newHeight);
+        for (auto x = 0; x < commonWidth; x++) {
+            for (auto y = 0; y < commonHeight; y++) {
+                newCells.at(y * newWidth + x) = cells.at(y * width + x);
+            }
+        }
+        width = newWidth;
+        height = newHeight;
+        cells = std::move(newCells);
+    }
+
+   private:
+    static char parseHexNibble(char ch) {
+        if (ch >= '0' && ch <= '9') {
+            return ch - '0';
+        }
+        if (ch >= 'a' && ch <= 'f') {
+            return ch - 'a' + 10;
+        }
+        if (ch >= 'A' && ch <= 'F') {
+            return ch - 'A' + 10;
+        }
+        return 0;
+    }
+
+    static char parseHexByte(char hi, char lo) {
+        char value = parseHexNibble(hi);
+        value <<= 4;
+        value |= parseHexNibble(lo);
+        return value;
     }
 };
 
@@ -259,7 +282,7 @@ class PictureView : public TView {
             }
 
             if (maxViewX >= minViewX) {
-                writeLine(minViewX, viewY, maxViewX - minViewX + 1, 1, b);
+                writeLine(minViewX, viewY, static_cast<int16_t>(maxViewX - minViewX + 1), 1, b);
             }
         }
     }
@@ -277,7 +300,7 @@ class PictureView : public TView {
             TDrawBuffer b;
             b.moveChar(0, ' ', TColorAttr(TColorDesired(TColorBIOS(7)), TColorDesired(TColorBIOS(8))), size.x);
             for (auto y = 0; y < size.y; y++) {
-                writeLine(0, y, size.x, 1, b);
+                writeLine(0, static_cast<int16_t>(y), static_cast<int16_t>(size.x), 1, b);
             }
         }
 
@@ -316,6 +339,68 @@ class PictureView : public TView {
     }
 };
 
+class PictureOptionsDialog : public TDialog {
+   public:
+    explicit PictureOptionsDialog(Picture* picture)
+        : TDialog(TRect(0, 0, 0, 0), "Picture Options"),
+          TWindowInit(&TDialog::initFrame),
+          _picture(picture),
+          _nameText(picture->name, 17, 100),
+          _widthText(picture->width, 6, 100),
+          _heightText(picture->height, 6, 100) {
+        options |= ofCentered;
+
+        GridLayout(
+            1,
+            {
+                RowLayout(
+                    false,
+                    {
+                        new Label("~N~ame:", _nameText),
+                        _nameText.take(),
+                    }),
+                RowLayout(
+                    false,
+                    {
+                        new Label("~S~ize:", _widthText),
+                        _widthText.take(),
+                        new Label("x"),
+                        _heightText.take(),
+                    }),
+                RowLayout(
+                    true,
+                    {
+                        new Button("OK", cmOK, bfDefault),
+                        new Button("Cancel", cmCancel, bfNormal),
+                    }),
+            })
+            .addTo(this);
+    }
+
+    void handleEvent(TEvent& event) override {
+        if (event.what == evCommand && event.message.command == cmOK) {
+            try {
+                auto width = util::parseUserInt(_widthText->data, "width", 0, 1000);
+                auto height = util::parseUserInt(_heightText->data, "height", 0, 1000);
+                util::validateIdentifier(_nameText->data, "name");
+                _picture->name = _nameText->data;
+                _picture->resize(width, height);
+            } catch (std::runtime_error& ex) {
+                messageBox(ex.what(), mfError | mfOKButton);
+                clearEvent(event);
+            }
+        }
+
+        TDialog::handleEvent(event);
+    }
+
+   private:
+    Picture* _picture;
+    ViewPtr<InputLine> _nameText;
+    ViewPtr<InputLine> _widthText;
+    ViewPtr<InputLine> _heightText;
+};
+
 enum class PictureWindowMode {
     kSelect,
     kDraw,
@@ -347,8 +432,8 @@ class PictureWindowPrivate {
     ViewPtr<CheckBoxes> setChCheck{ std::vector<std::string>{ "Set character" }, std::vector<bool>{ true } };
 };
 
-static std::string getPictureWindowTitle(const SourceMember& member) {
-    return member.identifier + " (Picture)";
+static std::string getPictureWindowTitle(const std::string& name) {
+    return name + " (Picture)";
 }
 
 static void updateScrollBars(PictureWindowPrivate* p) {
@@ -365,7 +450,7 @@ PictureWindow::PictureWindow(
     SourceMember* member,
     std::function<void()> onEdited,
     const PictureWindowStatusItems& statusItems)
-    : TWindow(r, getPictureWindowTitle(*member), wnNoNumber),
+    : TWindow(r, getPictureWindowTitle(member->identifier), wnNoNumber),
       TWindowInit(TWindow::initFrame),
       _private(new PictureWindowPrivate()) {
     options |= ofTileable;
@@ -384,17 +469,17 @@ PictureWindow::PictureWindow(
 
     _private->pictureView->setBounds(TRect(1, 2, size.x - 1, size.y - 1));
     _private->pictureView->growMode = gfGrowHiX | gfGrowHiY;
-    insert(_private->pictureView.take());
+    _private->pictureView.addTo(this);
 
     _private->toolLabel.addTo(this);
     _private->setFgCheck->setBounds(TRect(14, 1, 32, 2));
-    insert(_private->setFgCheck.take());
+    _private->setFgCheck.addTo(this);
     _private->setFgCheck->hide();
     _private->setBgCheck->setBounds(TRect(33, 1, 51, 2));
-    insert(_private->setBgCheck.take());
+    _private->setBgCheck.addTo(this);
     _private->setBgCheck->hide();
     _private->setChCheck->setBounds(TRect(52, 1, 71, 2));
-    insert(_private->setChCheck.take());
+    _private->setChCheck.addTo(this);
     _private->setChCheck->hide();
 
     updateScrollBars(_private);
@@ -411,7 +496,7 @@ PictureWindow::~PictureWindow() {
 
 static void updateStatusItems(PictureWindowPrivate* p) {
     std::ostringstream chText;
-    chText << "~F3~:[" << p->ch << "]";
+    chText << "~F3~ " << p->ch;
     delete[] p->statusItems.character->text;  // NOLINT
     p->statusItems.character->text = strdup(chText.str().c_str());
 
@@ -548,7 +633,7 @@ static void onMouse(int pictureX, int pictureY, const PictureViewMouseEventArgs&
                     p->fg = getFore(cell.colorAttr).asRGB();
                 }
                 if (p->setChCheck->mark(0)) {
-                    p->ch = cell.ch.c_str();
+                    p->ch = cell.ch;
                 }
                 updateStatusItems(p);
             }
@@ -752,6 +837,19 @@ void PictureWindow::onStatusLineCommand(ushort cmd) {
             _private->mode = PictureWindowMode::kMask;
             updateStatusItems(_private);
             break;
+
+        case kCmdPictureOptions: {
+            DialogPtr<PictureOptionsDialog> dialog{ &_private->pictureView->picture };
+            if (TProgram::deskTop->execView(dialog) == cmOK) {
+                _private->pictureView->drawView();
+                updateScrollBars(_private);
+                delete[] title;
+                title = strdup(getPictureWindowTitle(_private->pictureView->picture.name).c_str());
+                frame->drawView();
+                _private->onEdited();
+            }
+            break;
+        }
 
         default:
             break;

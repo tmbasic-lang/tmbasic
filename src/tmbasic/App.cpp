@@ -130,7 +130,8 @@ TMenuBar* App::initMenuBar(TRect r) {
         *new TMenuItem("~D~raw tool", kCmdPictureDraw, kbF5, hcNoContext, "F5") +
         *new TMenuItem("~P~ick tool", kCmdPicturePick, kbF6, hcNoContext, "F6") +
         *new TMenuItem("~T~ext tool", kCmdPictureText, kbF7, hcNoContext, "F7") +
-        *new TMenuItem("~M~ask tool", kCmdPictureMask, kbF8, hcNoContext, "F8");
+        *new TMenuItem("~M~ask tool", kCmdPictureMask, kbF8, hcNoContext, "F8") + newLine() +
+        *new TMenuItem("~O~ptions", kCmdPictureOptions, kbF9, hcNoContext, "F9");
 
     auto& windowMenu = *new TSubMenu("~W~indow", kbAltW) +
         *new TMenuItem("~S~ize/move", cmResize, kbCtrlF5, hcNoContext, "Ctrl+F5") +
@@ -169,14 +170,15 @@ TStatusLine* App::initStatusLine(TRect r) {
     programWindowStatusDef.next = &designerWindowStatusDef;
 
     auto& pictureWindowStatusDef = *new TStatusDef(hcide_pictureWindow, hcide_pictureWindow) +
-        *(_newestPictureWindowStatusItems.fg = new TStatusItem("~F1~:FG", kbF1, kCmdPictureFg)) +
-        *(_newestPictureWindowStatusItems.bg = new TStatusItem("~F2~:BG", kbF2, kCmdPictureBg)) +
-        *(_newestPictureWindowStatusItems.character = new TStatusItem("~F3~:[ ]", kbF3, kCmdPictureCharacter)) +
+        *(_newestPictureWindowStatusItems.fg = new TStatusItem("~F1~ FG", kbF1, kCmdPictureFg)) +
+        *(_newestPictureWindowStatusItems.bg = new TStatusItem("~F2~ BG", kbF2, kCmdPictureBg)) +
+        *(_newestPictureWindowStatusItems.character = new TStatusItem("~F3~  ", kbF3, kCmdPictureCharacter)) +
         *(_newestPictureWindowStatusItems.select = new TStatusItem("~F4~ Select", kbF4, kCmdPictureSelect)) +
         *(_newestPictureWindowStatusItems.draw = new TStatusItem("~F5~ Draw", kbF5, kCmdPictureDraw)) +
         *(_newestPictureWindowStatusItems.pick = new TStatusItem("~F6~ Pick", kbF6, kCmdPicturePick)) +
         *(_newestPictureWindowStatusItems.text = new TStatusItem("~F7~ Text", kbF7, kCmdPictureText)) +
-        *(_newestPictureWindowStatusItems.mask = new TStatusItem("~F8~ Mask", kbF8, kCmdPictureMask));
+        *(_newestPictureWindowStatusItems.mask = new TStatusItem("~F8~ Mask", kbF8, kCmdPictureMask)) +
+        *(_newestPictureWindowStatusItems.options = new TStatusItem("~F9~ Options", kbF9, kCmdPictureOptions));
     pictureWindowStatusDef.next = &programWindowStatusDef;
 
     auto* statusLine = new StatusLine(r, pictureWindowStatusDef);  // NOLINT(cppcoreguidelines-owning-memory)
@@ -191,6 +193,8 @@ TStatusLine* App::initStatusLine(TRect r) {
     _newestPictureWindowStatusItems.pickColor = statusLine->addStatusItemColors(_newestPictureWindowStatusItems.pick);
     _newestPictureWindowStatusItems.textColor = statusLine->addStatusItemColors(_newestPictureWindowStatusItems.text);
     _newestPictureWindowStatusItems.maskColor = statusLine->addStatusItemColors(_newestPictureWindowStatusItems.mask);
+    _newestPictureWindowStatusItems.optionsColor =
+        statusLine->addStatusItemColors(_newestPictureWindowStatusItems.options);
     return statusLine;
 }
 
@@ -352,6 +356,7 @@ bool App::handleCommand(TEvent* event) {
         case kCmdPicturePick:
         case kCmdPictureText:
         case kCmdPictureMask:
+        case kCmdPictureOptions:
             if (_pictureWindow != nullptr) {
                 _pictureWindow->onStatusLineCommand(event->message.command);
             }

@@ -27,6 +27,8 @@ class PictureWindowStatusItems {
     util::StatusItemColors* textColor = nullptr;
     TStatusItem* mask = nullptr;
     util::StatusItemColors* maskColor = nullptr;
+    TStatusItem* options = nullptr;
+    util::StatusItemColors* optionsColor = nullptr;
 };
 
 class PictureWindow : public TWindow {
