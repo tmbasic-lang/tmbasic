@@ -25,7 +25,7 @@ A new t[DateTimeOffset].
 .example
 .example-code
 dim zone = TimeZoneFromName("America/Chicago")
-dim x = DateTimeFromParts(2021, 3, 12, 4, 30, 0, 0)
+dim x = DateTimeOffsetFromParts(2021, 3, 12, 4, 30, 0, 0, zone)
 x.DateTime.Print
 x.Offset.TotalHours.Print
 .example-output

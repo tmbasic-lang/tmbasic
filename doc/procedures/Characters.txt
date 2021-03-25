@@ -13,7 +13,7 @@ code@
 ' 769 is the code point for "COMBINING ACUTE ACCENT"
 @
 
-The function p[Len] returns 3 for this text because there are three code points.
+The function p[Len] returns 3 for this text because there are three code units.
 However, there are only two grapheme clusters: `n` and `é`.
 The p[Characters] function returns `["n", "é"]` for this text.
 
