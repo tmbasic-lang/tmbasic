@@ -48,10 +48,15 @@ void SourceMember::updateDisplayName() {
     identifier = "?";
 }
 
-static std::vector<const SourceMember*> sortMembers(const SourceProgram* program) {
+static void insertSortedMembersOfType(
+    const SourceProgram* program,
+    SourceMemberType type,
+    std::vector<const SourceMember*>* result) {
     std::vector<const SourceMember*> sortedMembers;
     for (const auto& x : program->members) {
-        sortedMembers.push_back(x.get());
+        if (x->memberType == type) {
+            sortedMembers.push_back(x.get());
+        }
     }
     std::sort(sortedMembers.begin(), sortedMembers.end(), [](const auto* a, const auto* b) -> bool {
         if (a->memberType == b->memberType) {
@@ -59,7 +64,17 @@ static std::vector<const SourceMember*> sortMembers(const SourceProgram* program
         }
         return a->memberType > b->memberType;
     });
-    return sortedMembers;
+    result->insert(result->end(), sortedMembers.begin(), sortedMembers.end());
+}
+
+static std::vector<const SourceMember*> sortMembers(const SourceProgram* program) {
+    std::vector<const SourceMember*> result;
+    insertSortedMembersOfType(program, SourceMemberType::kType, &result);
+    insertSortedMembersOfType(program, SourceMemberType::kGlobal, &result);
+    insertSortedMembersOfType(program, SourceMemberType::kProcedure, &result);
+    insertSortedMembersOfType(program, SourceMemberType::kDesign, &result);
+    insertSortedMembersOfType(program, SourceMemberType::kPicture, &result);
+    return result;
 }
 
 static std::string removeLeadingAndTrailingNonCodeLines(std::list<std::string>* linesPtr) {

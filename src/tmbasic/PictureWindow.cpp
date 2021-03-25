@@ -70,21 +70,38 @@ class Picture {
         std::istringstream s{ source };
         s >> std::hex;
         std::string pictureKeyword = "", sizeSeparator = "";
-        s >> pictureKeyword >> name >> width >> height >> sizeSeparator;
-        if (pictureKeyword != "picture" || sizeSeparator != ":") {
+        s >> pictureKeyword >> name >> sizeSeparator >> width >> height;
+        if (pictureKeyword != "picture" || sizeSeparator != "Z") {
             throw std::runtime_error("Unexpected data in picture source.");
         }
         cells = { static_cast<size_t>(width * height), PictureCell() };
+        uint32_t fg = 0, bg = 0;
+        int transparent = 0;
+        std::string utf8Hex;
         for (auto y = 0; y < height; y++) {
             for (auto x = 0; x < width; x++) {
-                std::string utf8Hex;
-                int transparent = 0;
-                uint32_t fg = 0, bg = 0;
-                std::string cellSeparator = "";
-                s >> utf8Hex >> transparent >> fg >> bg >> cellSeparator;
-                if (cellSeparator != ";") {
-                    throw std::runtime_error("Unexpected data in picture source.");
+                std::string command;
+                s >> command;
+
+                auto changesBitMask = command.at(0) - 'A';
+                auto charChanged = (changesBitMask & 0x01) != 0;
+                auto transparentChanged = (changesBitMask & 0x02) != 0;
+                auto fgChanged = (changesBitMask & 0x04) != 0;
+                auto bgChanged = (changesBitMask & 0x08) != 0;
+
+                if (charChanged) {
+                    s >> utf8Hex;
                 }
+                if (transparentChanged) {
+                    s >> transparent;
+                }
+                if (fgChanged) {
+                    s >> fg;
+                }
+                if (bgChanged) {
+                    s >> bg;
+                }
+
                 auto& cell = cells.at(y * width + x);
                 cell.transparent = transparent != 0;
                 cell.colorAttr = { TColorRGB(fg), TColorRGB(bg) };
@@ -103,21 +120,61 @@ class Picture {
 
     std::string exportToString() {
         std::ostringstream s;
-        s << "picture " << name << "\n" << std::hex << width << " " << height << " : ";
+        s << "picture " << name << "\nZ " << std::hex << width << " " << height;
+        uint32_t previousFg = 0, previousBg = 0;
+        auto previousTransparent = false;
+        std::string previousChar = " ";
+        auto lineStart = s.tellp();
+        std::function<void()> newlineOrSpace = [&s, &lineStart]() -> void {
+            if (s.tellp() - lineStart >= 110) {
+                s << "\n";
+                lineStart = s.tellp();
+            } else {
+                s << " ";
+            }
+        };
         for (auto y = 0; y < height; y++) {
             for (auto x = 0; x < width; x++) {
                 auto n = y * width + x;
-                if ((n % 6) == 0) {
-                    s << "\n";
-                }
                 auto& cell = cells.at(n);
-                for (auto ch : cell.ch) {
-                    s << std::setw(2) << std::setfill('0') << static_cast<int>(ch);
-                }
-                s << " ";
+                auto fg = static_cast<uint32_t>(getFore(cell.colorAttr).asRGB());
+                auto bg = static_cast<uint32_t>(getBack(cell.colorAttr).asRGB());
 
-                s << (cell.transparent ? 1 : 0) << " " << static_cast<uint32_t>(getFore(cell.colorAttr).asRGB()) << " "
-                  << static_cast<uint32_t>(getBack(cell.colorAttr).asRGB()) << " ; ";
+                newlineOrSpace();
+
+                auto changesBitMask = (previousChar != cell.ch ? 0x01 : 0) |
+                    (previousTransparent != cell.transparent ? 0x02 : 0) | (previousFg != fg ? 0x04 : 0) |
+                    (previousBg != bg ? 0x08 : 0);
+                char command = 'A' + changesBitMask;
+
+                s << command;
+
+                if (previousChar != cell.ch) {
+                    newlineOrSpace();
+                    for (auto ch : cell.ch) {
+                        s << std::setw(2) << std::setfill('0') << static_cast<int>(ch);
+                    }
+                }
+
+                if (previousTransparent != cell.transparent) {
+                    newlineOrSpace();
+                    s << (cell.transparent ? 1 : 0);
+                }
+
+                if (previousFg != fg) {
+                    newlineOrSpace();
+                    s << fg;
+                }
+
+                if (previousBg != bg) {
+                    newlineOrSpace();
+                    s << bg;
+                }
+
+                previousChar = cell.ch;
+                previousTransparent = cell.transparent;
+                previousFg = fg;
+                previousBg = bg;
             }
         }
         s << "\nend picture\n";
