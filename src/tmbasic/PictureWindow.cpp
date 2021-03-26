@@ -426,6 +426,7 @@ class PictureWindowPrivate {
     std::string ch = "☺";
     PictureWindowMode mode = PictureWindowMode::kSelect;
     std::optional<TPoint> currentDrag;
+    bool currentDragTransparent = false;
 
     compiler::SourceMember* member{};
     std::function<void()> onEdited;
@@ -438,6 +439,7 @@ class PictureWindowPrivate {
     ViewPtr<CheckBoxes> setFgCheck{ std::vector<std::string>{ "Set FG color" }, std::vector<bool>{ true } };
     ViewPtr<CheckBoxes> setBgCheck{ std::vector<std::string>{ "Set BG color" }, std::vector<bool>{ true } };
     ViewPtr<CheckBoxes> setChCheck{ std::vector<std::string>{ "Set character" }, std::vector<bool>{ true } };
+    ViewPtr<Label> maskHelp{ "Click to toggle between opaque and transparent." };
 };
 
 static std::string getPictureWindowTitle(const std::string& name) {
@@ -489,6 +491,9 @@ PictureWindow::PictureWindow(
     _private->setChCheck->setBounds(TRect(52, 1, 71, 2));
     _private->setChCheck.addTo(this);
     _private->setChCheck->hide();
+    _private->maskHelp->setBounds(TRect(14, 1, 70, 2));
+    _private->maskHelp.addTo(this);
+    _private->maskHelp->hide();
 
     updateScrollBars(_private);
 
@@ -575,6 +580,13 @@ static void updateStatusItems(PictureWindowPrivate* p) {
         }
     }
 
+    // Mask help
+    if (p->mode == PictureWindowMode::kMask) {
+        p->maskHelp->show();
+    } else {
+        p->maskHelp->hide();
+    }
+
     p->toolLabel->setTitle(labelText);
     p->toolLabel->drawView();
 }
@@ -623,6 +635,7 @@ static void onMouse(int pictureX, int pictureY, const PictureViewMouseEventArgs&
                 if (p->setChCheck->mark(0)) {
                     cell.ch = p->ch;
                 }
+                cell.transparent = false;
                 p->pictureView->drawView();
             }
             break;
@@ -650,8 +663,11 @@ static void onMouse(int pictureX, int pictureY, const PictureViewMouseEventArgs&
             break;
 
         case PictureWindowMode::kMask:
+            if (leftMouseDown) {
+                p->currentDragTransparent = !cell.transparent;
+            }
             if (leftMouseDown || dragging) {
-                cell.transparent = !cell.transparent;
+                cell.transparent = p->currentDragTransparent;
                 p->pictureView->drawView();
             }
             break;
@@ -666,11 +682,11 @@ static void onTick(PictureWindowPrivate* p) {
     // blink the transparent cells if we're in mask mode
     p->ticks++;
     if (p->ticks >= 2) {
-        p->pictureView->flashingSelection = !p->pictureView->flashingSelection;
         if (p->mode == PictureWindowMode::kMask) {
             p->pictureView->flashingMask = !p->pictureView->flashingMask;
             p->pictureView->drawView();
         } else if (p->mode == PictureWindowMode::kSelect || p->mode == PictureWindowMode::kType) {
+            p->pictureView->flashingSelection = !p->pictureView->flashingSelection;
             p->pictureView->drawView();
         }
         p->ticks = 0;
@@ -699,6 +715,7 @@ void PictureWindow::handleEvent(TEvent& event) {
             }
             cell.ch = event.keyDown.text;
             cell.colorAttr = TColorAttr(fg, bg);
+            cell.transparent = false;
 
             if (rect.a.x < _private->pictureView->picture.width - 1) {
                 rect.a.x++;
@@ -833,6 +850,11 @@ void PictureWindow::changeBounds(const TRect& bounds) {
 }
 
 void PictureWindow::onStatusLineCommand(ushort cmd) {
+    if (cmd != kCmdPictureMask) {
+        _private->pictureView->flashingMask = false;
+        _private->pictureView->drawView();
+    }
+
     switch (cmd) {
         case kCmdPictureFg: {
             auto dialog = DialogPtr<InsertColorDialog>("Choose Foreground Color", "Choose");
