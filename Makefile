@@ -374,6 +374,7 @@ help: versions
 	@echo "make format        Reformat code"
 	@echo "make lint          Check code with cpplint"
 	@echo "make tidy          Check code with clang-tidy"
+	@echo "make tidy-commit   Check `git status` files with clang-tidy"
 	@echo "make ghpages       Build tmbasic-gh-pages"
 	@echo "make ghpages-test  Host tmbasic-gh-pages on port 5000"
 	@echo ""
@@ -408,6 +409,9 @@ lint:
 
 .PHONY: tidy
 tidy: $(TIDY_TARGETS)
+
+.PHONY: tidy-commit
+tidy-commit: $(shell git status | grep "\.cpp" | awk '{ print $$2 }' | sed 's:src:obj/tidy:g; s/cpp$$/tidy/g')
 
 .PHONY: ghpages
 ghpages: obj/resources/help/help.txt bin/ghpages/index.html

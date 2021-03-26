@@ -16,8 +16,8 @@ using util::ViewPtr;
 
 namespace tmbasic {
 
-static TColorDesired makeColor(int red, int green, int blue) {
-    int rgb = red;
+static TColorRGB makeColor(int red, int green, int blue) {
+    uint rgb = red;
     rgb <<= 8;
     rgb |= green;
     rgb <<= 8;
@@ -25,7 +25,7 @@ static TColorDesired makeColor(int red, int green, int blue) {
     return { rgb };
 }
 
-static std::array<TColorDesired, 256> _xtermColors = {
+static std::array<TColorRGB, 256> _xtermColors = {
     makeColor(0, 0, 0),       makeColor(128, 0, 0),     makeColor(0, 128, 0),     makeColor(128, 128, 0),
     makeColor(0, 0, 128),     makeColor(128, 0, 128),   makeColor(0, 128, 128),   makeColor(192, 192, 192),
     makeColor(128, 128, 128), makeColor(255, 0, 0),     makeColor(0, 255, 0),     makeColor(255, 255, 0),
@@ -106,7 +106,7 @@ class ColorView : public TView {
 
 class PaletteView : public TView {
    public:
-    std::function<void(TColorDesired)> onSetColor;
+    std::function<void(TColorRGB)> onSetColor;
 
     explicit PaletteView(const TRect& bounds) : TView(bounds) {
         options |= ofFramed;
@@ -147,7 +147,7 @@ class PaletteView : public TView {
 
     void draw() override {
         for (size_t i = 0; i < _colors.size(); i++) {
-            const std::array<TColorDesired, 42>& row = _colors.at(i);
+            const std::array<TColorRGB, 42>& row = _colors.at(i);
             TDrawBuffer b;
             for (size_t j = 0; j < row.size(); j++) {
                 auto color = row.at(j);
@@ -182,7 +182,7 @@ class PaletteView : public TView {
     }
 
    private:
-    std::array<std::array<TColorDesired, 42>, 8> _colors{};
+    std::array<std::array<TColorRGB, 42>, 8> _colors{};
 };
 
 class InsertColorDialogPrivate {
@@ -201,8 +201,7 @@ InsertColorDialog::InsertColorDialog(const std::string& title, const std::string
 
     _private->insertButton->setTitle(insertButtonText);
 
-    _private->paletteView->onSetColor = [this](TColorDesired color) -> void {
-        auto rgb = color.asRGB();
+    _private->paletteView->onSetColor = [this](TColorRGB rgb) -> void {
         auto red = std::to_string(rgb.r);
         auto green = std::to_string(rgb.g);
         auto blue = std::to_string(rgb.b);
@@ -217,7 +216,7 @@ InsertColorDialog::InsertColorDialog(const std::string& title, const std::string
         _private->greenInputLine->drawView();
         _private->blueInputLine->drawView();
         _private->colorView->drawView();
-        selection = color;
+        selection = rgb;
     };
 
     _private->paletteView.addTo(this);
@@ -226,11 +225,11 @@ InsertColorDialog::InsertColorDialog(const std::string& title, const std::string
     GridLayout(
         2,
         {
-            new Label("Red:"),
+            new Label("~R~ed:", _private->redInputLine),
             _private->redInputLine.take(),
-            new Label("Green:"),
+            new Label("~G~reen:", _private->greenInputLine),
             _private->greenInputLine.take(),
-            new Label("Blue:"),
+            new Label("~B~lue:", _private->blueInputLine),
             _private->blueInputLine.take(),
             nullptr,
             _private->colorView.take(),

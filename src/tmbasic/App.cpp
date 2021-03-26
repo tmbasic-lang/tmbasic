@@ -4,6 +4,7 @@
 #include "../util/DialogPtr.h"
 #include "../util/StatusLine.h"
 #include "../util/WindowPtr.h"
+#include "../util/ViewPtr.h"
 #include "../util/membuf.h"
 #include "AboutDialog.h"
 #include "DesignerWindow.h"
@@ -20,6 +21,7 @@ using compiler::SourceProgram;
 using util::DialogPtr;
 using util::MemoryIopstream;
 using util::StatusLine;
+using util::ViewPtr;
 using util::WindowPtr;
 
 namespace tmbasic {
@@ -54,8 +56,9 @@ App::App(int /*argc*/, char** /*argv*/)
     ts.enableCmd(kCmdPictureSelect);
     ts.enableCmd(kCmdPictureDraw);
     ts.enableCmd(kCmdPicturePick);
-    ts.enableCmd(kCmdPictureText);
+    ts.enableCmd(kCmdPictureType);
     ts.enableCmd(kCmdPictureMask);
+    ts.enableCmd(kCmdPictureOptions);
     disableCommands(ts);
 
     onFileNew();
@@ -129,7 +132,7 @@ TMenuBar* App::initMenuBar(TRect r) {
         *new TMenuItem("~S~elect tool", kCmdPictureSelect, kbF4, hcNoContext, "F4") +
         *new TMenuItem("~D~raw tool", kCmdPictureDraw, kbF5, hcNoContext, "F5") +
         *new TMenuItem("~P~ick tool", kCmdPicturePick, kbF6, hcNoContext, "F6") +
-        *new TMenuItem("~T~ext tool", kCmdPictureText, kbF7, hcNoContext, "F7") +
+        *new TMenuItem("~T~ype tool", kCmdPictureType, kbF7, hcNoContext, "F7") +
         *new TMenuItem("~M~ask tool", kCmdPictureMask, kbF8, hcNoContext, "F8") + newLine() +
         *new TMenuItem("~O~ptions", kCmdPictureOptions, kbF9, hcNoContext, "F9");
 
@@ -169,32 +172,41 @@ TStatusLine* App::initStatusLine(TRect r) {
         *new TStatusItem("~F10~ Menu", kbF10, cmMenu);
     programWindowStatusDef.next = &designerWindowStatusDef;
 
-    auto& pictureWindowStatusDef = *new TStatusDef(hcide_pictureWindow, hcide_pictureWindow) +
-        *(_newestPictureWindowStatusItems.fg = new TStatusItem("~F1~ FG", kbF1, kCmdPictureFg)) +
-        *(_newestPictureWindowStatusItems.bg = new TStatusItem("~F2~ BG", kbF2, kCmdPictureBg)) +
-        *(_newestPictureWindowStatusItems.character = new TStatusItem("~F3~  ", kbF3, kCmdPictureCharacter)) +
-        *(_newestPictureWindowStatusItems.select = new TStatusItem("~F4~ Select", kbF4, kCmdPictureSelect)) +
-        *(_newestPictureWindowStatusItems.draw = new TStatusItem("~F5~ Draw", kbF5, kCmdPictureDraw)) +
-        *(_newestPictureWindowStatusItems.pick = new TStatusItem("~F6~ Pick", kbF6, kCmdPicturePick)) +
-        *(_newestPictureWindowStatusItems.text = new TStatusItem("~F7~ Text", kbF7, kCmdPictureText)) +
-        *(_newestPictureWindowStatusItems.mask = new TStatusItem("~F8~ Mask", kbF8, kCmdPictureMask)) +
-        *(_newestPictureWindowStatusItems.options = new TStatusItem("~F9~ Options", kbF9, kCmdPictureOptions));
+    ViewPtr<TStatusItem> fg{ "~F1~ FG", kbF1, kCmdPictureFg };
+    ViewPtr<TStatusItem> bg{ "~F2~ BG", kbF2, kCmdPictureBg };
+    ViewPtr<TStatusItem> character{ "~F3~  ", kbF3, kCmdPictureCharacter };
+    ViewPtr<TStatusItem> select{ "~F4~ Select", kbF4, kCmdPictureSelect };
+    ViewPtr<TStatusItem> draw{ "~F5~ Draw", kbF5, kCmdPictureDraw };
+    ViewPtr<TStatusItem> pick{ "~F6~ Pick", kbF6, kCmdPicturePick };
+    ViewPtr<TStatusItem> text{ "~F7~ Type", kbF7, kCmdPictureType };
+    ViewPtr<TStatusItem> mask{ "~F8~ Mask", kbF8, kCmdPictureMask };
+    ViewPtr<TStatusItem> options{ "~F9~ Options", kbF9, kCmdPictureOptions };
+    auto& s = _newestPictureWindowStatusItems;
+    s.fg = fg;
+    s.bg = bg;
+    s.character = character;
+    s.select = select;
+    s.draw = draw;
+    s.pick = pick;
+    s.text = text;
+    s.mask = mask;
+    s.options = options;
+    auto& pictureWindowStatusDef = *new TStatusDef(hcide_pictureWindow, hcide_pictureWindow) + *fg.take() + *bg.take() +
+        *character.take() + *select.take() + *draw.take() + *pick.take() + *text.take() + *mask.take() +
+        *options.take();
     pictureWindowStatusDef.next = &programWindowStatusDef;
 
     auto* statusLine = new StatusLine(r, pictureWindowStatusDef);  // NOLINT(cppcoreguidelines-owning-memory)
-    _newestPictureWindowStatusItems.statusLine = statusLine;
-    _newestPictureWindowStatusItems.characterColor =
-        statusLine->addStatusItemColors(_newestPictureWindowStatusItems.character);
-    _newestPictureWindowStatusItems.fgColor = statusLine->addStatusItemColors(_newestPictureWindowStatusItems.fg);
-    _newestPictureWindowStatusItems.bgColor = statusLine->addStatusItemColors(_newestPictureWindowStatusItems.bg);
-    _newestPictureWindowStatusItems.selectColor =
-        statusLine->addStatusItemColors(_newestPictureWindowStatusItems.select);
-    _newestPictureWindowStatusItems.drawColor = statusLine->addStatusItemColors(_newestPictureWindowStatusItems.draw);
-    _newestPictureWindowStatusItems.pickColor = statusLine->addStatusItemColors(_newestPictureWindowStatusItems.pick);
-    _newestPictureWindowStatusItems.textColor = statusLine->addStatusItemColors(_newestPictureWindowStatusItems.text);
-    _newestPictureWindowStatusItems.maskColor = statusLine->addStatusItemColors(_newestPictureWindowStatusItems.mask);
-    _newestPictureWindowStatusItems.optionsColor =
-        statusLine->addStatusItemColors(_newestPictureWindowStatusItems.options);
+    s.statusLine = statusLine;
+    s.characterColor = statusLine->addStatusItemColors(s.character);
+    s.fgColor = statusLine->addStatusItemColors(s.fg);
+    s.bgColor = statusLine->addStatusItemColors(s.bg);
+    s.selectColor = statusLine->addStatusItemColors(s.select);
+    s.drawColor = statusLine->addStatusItemColors(s.draw);
+    s.pickColor = statusLine->addStatusItemColors(s.pick);
+    s.textColor = statusLine->addStatusItemColors(s.text);
+    s.maskColor = statusLine->addStatusItemColors(s.mask);
+    s.optionsColor = statusLine->addStatusItemColors(s.options);
     return statusLine;
 }
 
@@ -354,7 +366,7 @@ bool App::handleCommand(TEvent* event) {
         case kCmdPictureSelect:
         case kCmdPictureDraw:
         case kCmdPicturePick:
-        case kCmdPictureText:
+        case kCmdPictureType:
         case kCmdPictureMask:
         case kCmdPictureOptions:
             if (_pictureWindow != nullptr) {
@@ -466,6 +478,9 @@ void App::showEditorWindow(SourceMember* member) {
             }
         });
         deskTop->insert(window);
+        if (deskTop->size.x < 82 && deskTop->size.y < 30) {
+            window->zoom();
+        }
     }
 }
 
@@ -497,7 +512,7 @@ void App::showPictureWindow(SourceMember* member) {
         e.window->select();
     } else {
         auto* window = new PictureWindow(
-            getNewWindowRect(82, 20), member,
+            getNewWindowRect(90, 31), member,
             []() -> void {
                 // onUpdated
                 auto* programWindow = findProgramWindow(deskTop);
@@ -507,7 +522,9 @@ void App::showPictureWindow(SourceMember* member) {
             },
             _pictureWindowStatusItems);
         deskTop->insert(window);
-        window->zoom();
+        if (deskTop->size.x < 90 && deskTop->size.y < 31) {
+            window->zoom();
+        }
     }
 }
 

@@ -41,23 +41,25 @@ TView* RowLayout::add(TView* view) {
 }
 
 TPoint RowLayout::getSize() {
-    auto width = _marginX * 2;
-    auto height = _marginY * 2;
+    auto width = _marginX;
+    auto height = _marginY;
+    auto isFirst = true;
 
     for (auto* view : _views) {
         if (_horizontal) {
             width += view->size.x;
-            height = max(height, view->size.y);
-            if (_views.size() >= 2) {
+            height = std::max(height, view->size.y);
+            if (_views.size() >= 2 && !isFirst) {
                 width += _itemSpacing;
             }
         } else {
-            width = max(width, view->size.x);
+            width = std::max(width, view->size.x);
             height += view->size.y;
-            if (_views.size() >= 2) {
+            if (_views.size() >= 2 && !isFirst) {
                 height += _itemSpacing;
             }
         }
+        isFirst = false;
     }
 
     return TPoint{ width, height };
@@ -71,7 +73,7 @@ void RowLayout::addLeftAlignedTo(TGroup* group, int left, int top) {
         auto width = view->size.x - 1;
         auto height = view->size.y;
 
-        TRect r(x, y, x + width, y + height);
+        TRect r{ x, y, x + width, y + height };
         view->locate(r);
         group->insert(view);
 
@@ -88,11 +90,11 @@ void RowLayout::addRightAlignedTo(TGroup* group, int right, int top) {
     auto y = top + _marginY;
 
     for (size_t i = 0; i < _views.size(); i++) {
-        auto* view = _views[_views.size() - 1 - i];
+        auto* view = _views.at(_views.size() - 1 - i);
         auto width = view->size.x;
         auto height = view->size.y;
 
-        TRect r(x - width + 1, y, x, y + height);
+        TRect r{ x - width + 1, y, x, y + height };
         view->locate(r);
 
         if (_horizontal) {

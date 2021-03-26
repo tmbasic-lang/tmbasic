@@ -220,7 +220,8 @@ class PictureView : public TView {
     int scrollTop = 0;
     int scrollLeft = 0;
     std::optional<TRect> selection;
-    bool flashingSelection = true;
+    bool flashingSelection = false;
+    bool flashingMask = true;
 
     explicit PictureView(const TRect& bounds) : TView(bounds) {
         eventMask = evMouseDown | evMouseMove | evMouseUp | evCommand | evBroadcast;
@@ -278,7 +279,15 @@ class PictureView : public TView {
                 }
 
                 const auto& cell = picture.cells.at(pictureY * picture.width + pictureX);
-                b.moveStr(viewX - minViewX, cell.ch, cell.colorAttr);
+                if (cell.transparent) {
+                    if (flashingMask) {
+                        b.moveStr(viewX - minViewX, "X", { 0x5F });
+                    } else {
+                        b.moveStr(viewX - minViewX, " ", { 0x5F });
+                    }
+                } else {
+                    b.moveStr(viewX - minViewX, cell.ch, cell.colorAttr);
+                }
             }
 
             if (maxViewX >= minViewX) {
@@ -290,15 +299,14 @@ class PictureView : public TView {
     void drawSelectionDot(int x, int y) {
         auto ch = picture.cells.at(y * picture.width + x).ch;
         TDrawBuffer b;
-        b.moveCStr(
-            0, ch, TColorAttr(TColorDesired(TColorBIOS(7)), TColorDesired(TColorBIOS(flashingSelection ? 0 : 15))));
+        b.moveCStr(0, ch, { flashingSelection ? 0x2A : 0xA2 });
         writeBufferChar(x, y, b);
     }
 
     void draw() override {
         {
             TDrawBuffer b;
-            b.moveChar(0, ' ', TColorAttr(TColorDesired(TColorBIOS(7)), TColorDesired(TColorBIOS(8))), size.x);
+            b.moveChar(0, ' ', TColorAttr(0x87), size.x);
             for (auto y = 0; y < size.y; y++) {
                 writeLine(0, static_cast<int16_t>(y), static_cast<int16_t>(size.x), 1, b);
             }
@@ -320,7 +328,7 @@ class PictureView : public TView {
         // top and left grippers are disabled
         {
             TDrawBuffer b;
-            b.moveChar(0, 254, TColorAttr(TColorDesired(TColorBIOS(0)), TColorDesired(TColorBIOS(8))), 1);
+            b.moveChar(0, 254, TColorAttr(0x80), 1);
             writeBufferChar(-2, -1, b);
             writeBufferChar(-2, picture.height / 2, b);
             writeBufferChar(-2, picture.height, b);
@@ -331,7 +339,7 @@ class PictureView : public TView {
         // bottom and right grippers are enabled
         {
             TDrawBuffer b;
-            b.moveChar(0, 254, TColorAttr(TColorDesired(TColorBIOS(15)), TColorDesired(TColorBIOS(8))), 1);
+            b.moveChar(0, 254, TColorAttr(0x8F), 1);
             writeBufferChar(picture.width / 2, picture.height, b);
             writeBufferChar(picture.width + 1, picture.height / 2, b);
             writeBufferChar(picture.width + 1, picture.height, b);
@@ -345,7 +353,7 @@ class PictureOptionsDialog : public TDialog {
         : TDialog(TRect(0, 0, 0, 0), "Picture Options"),
           TWindowInit(&TDialog::initFrame),
           _picture(picture),
-          _nameText(picture->name, 17, 100),
+          _nameText(picture->name, 24, 100),
           _widthText(picture->width, 6, 100),
           _heightText(picture->height, 6, 100) {
         options |= ofCentered;
@@ -405,7 +413,7 @@ enum class PictureWindowMode {
     kSelect,
     kDraw,
     kPick,
-    kText,
+    kType,
     kMask,
 };
 
@@ -500,23 +508,18 @@ static void updateStatusItems(PictureWindowPrivate* p) {
     delete[] p->statusItems.character->text;  // NOLINT
     p->statusItems.character->text = strdup(chText.str().c_str());
 
-    auto attrPair = TAttrPair(
-        TColorAttr(TColorDesired(p->fg), TColorDesired(p->bg)), TColorAttr(TColorDesired(p->fg), TColorDesired(p->bg)));
+    TAttrPair attrPair{ TColorAttr(p->fg, p->bg), TColorAttr(p->fg, p->bg) };
     p->statusItems.fgColor->colorPairNormal = attrPair;
     p->statusItems.bgColor->colorPairNormal = attrPair;
     p->statusItems.characterColor->colorPairNormal = attrPair;
 
-    auto sel = TAttrPair(
-        TColorAttr(TColorDesired(TColorBIOS(15)), TColorDesired(TColorBIOS(2))),
-        TColorAttr(TColorDesired(TColorBIOS(15)), TColorDesired(TColorBIOS(2))));
-    auto unsel = TAttrPair(
-        TColorAttr(TColorDesired(TColorBIOS(0)), TColorDesired(TColorBIOS(7))),
-        TColorAttr(TColorDesired(TColorBIOS(4)), TColorDesired(TColorBIOS(7))));
+    TAttrPair sel{ 0x2F, 0x2F };
+    TAttrPair unsel{ 0x70, 0x74 };
 
     p->statusItems.selectColor->colorPairNormal = p->mode == PictureWindowMode::kSelect ? sel : unsel;
     p->statusItems.drawColor->colorPairNormal = p->mode == PictureWindowMode::kDraw ? sel : unsel;
     p->statusItems.pickColor->colorPairNormal = p->mode == PictureWindowMode::kPick ? sel : unsel;
-    p->statusItems.textColor->colorPairNormal = p->mode == PictureWindowMode::kText ? sel : unsel;
+    p->statusItems.textColor->colorPairNormal = p->mode == PictureWindowMode::kType ? sel : unsel;
     p->statusItems.maskColor->colorPairNormal = p->mode == PictureWindowMode::kMask ? sel : unsel;
     p->statusItems.statusLine->drawView();
 
@@ -531,8 +534,8 @@ static void updateStatusItems(PictureWindowPrivate* p) {
         case PictureWindowMode::kPick:
             labelText = "Pick tool";
             break;
-        case PictureWindowMode::kText:
-            labelText = "Text tool";
+        case PictureWindowMode::kType:
+            labelText = "Type tool";
             break;
         case PictureWindowMode::kMask:
             labelText = "Mask tool";
@@ -543,7 +546,7 @@ static void updateStatusItems(PictureWindowPrivate* p) {
     }
 
     // Set FG, Set BG
-    if (p->mode == PictureWindowMode::kDraw || p->mode == PictureWindowMode::kText ||
+    if (p->mode == PictureWindowMode::kDraw || p->mode == PictureWindowMode::kType ||
         p->mode == PictureWindowMode::kPick) {
         p->setBgCheck->show();
         p->setFgCheck->show();
@@ -562,11 +565,11 @@ static void updateStatusItems(PictureWindowPrivate* p) {
     // Selection
     if (p->pictureView->selection.has_value()) {
         auto sel = *p->pictureView->selection;
-        if (p->mode != PictureWindowMode::kSelect && p->mode != PictureWindowMode::kText) {
+        if (p->mode != PictureWindowMode::kSelect && p->mode != PictureWindowMode::kType) {
             p->pictureView->selection = {};
             p->pictureView->drawView();
         }
-        if (p->mode == PictureWindowMode::kText && (sel.b.x > sel.a.x + 1 || sel.b.y > sel.a.y + 1)) {
+        if (p->mode == PictureWindowMode::kType && (sel.b.x > sel.a.x + 1 || sel.b.y > sel.a.y + 1)) {
             p->pictureView->selection = TRect(sel.a.x, sel.a.y, sel.a.x + 1, sel.a.y + 1);
             p->pictureView->drawView();
         }
@@ -578,7 +581,7 @@ static void updateStatusItems(PictureWindowPrivate* p) {
 
 static void onMouse(int pictureX, int pictureY, const PictureViewMouseEventArgs& e, PictureWindowPrivate* p) {
     auto& cell = p->pictureView->picture.cells.at(pictureY * p->pictureView->picture.width + pictureX);
-    auto color = TColorAttr(TColorDesired(p->fg), TColorDesired(p->bg));
+    TColorAttr color{ p->fg, p->bg };
     auto leftMouseDown = e.down && (e.buttons & mbLeftButton) != 0;
     auto dragging = e.move && (e.buttons & mbLeftButton) != 0;
     switch (p->mode) {
@@ -639,9 +642,16 @@ static void onMouse(int pictureX, int pictureY, const PictureViewMouseEventArgs&
             }
             break;
 
-        case PictureWindowMode::kText:
+        case PictureWindowMode::kType:
             if (leftMouseDown || dragging) {
                 p->pictureView->selection = TRect(pictureX, pictureY, pictureX + 1, pictureY + 1);
+                p->pictureView->drawView();
+            }
+            break;
+
+        case PictureWindowMode::kMask:
+            if (leftMouseDown || dragging) {
+                cell.transparent = !cell.transparent;
                 p->pictureView->drawView();
             }
             break;
@@ -653,10 +663,14 @@ static void onMouse(int pictureX, int pictureY, const PictureViewMouseEventArgs&
 
 static void onTick(PictureWindowPrivate* p) {
     // blink the selection rectangle
+    // blink the transparent cells if we're in mask mode
     p->ticks++;
     if (p->ticks >= 2) {
         p->pictureView->flashingSelection = !p->pictureView->flashingSelection;
-        if (p->pictureView->selection.has_value()) {
+        if (p->mode == PictureWindowMode::kMask) {
+            p->pictureView->flashingMask = !p->pictureView->flashingMask;
+            p->pictureView->drawView();
+        } else if (p->mode == PictureWindowMode::kSelect || p->mode == PictureWindowMode::kType) {
             p->pictureView->drawView();
         }
         p->ticks = 0;
@@ -670,7 +684,7 @@ void PictureWindow::handleEvent(TEvent& event) {
             _private->pictureView->drawView();
             clearEvent(event);
         } else if (
-            _private->mode == PictureWindowMode::kText && _private->pictureView->selection.has_value() &&
+            _private->mode == PictureWindowMode::kType && _private->pictureView->selection.has_value() &&
             event.keyDown.text[0] != '\0') {
             auto rect = *_private->pictureView->selection;
             auto& cell =
@@ -693,6 +707,39 @@ void PictureWindow::handleEvent(TEvent& event) {
             _private->pictureView->selection = rect;
             _private->pictureView->drawView();
             clearEvent(event);
+        } else if (
+            (_private->mode == PictureWindowMode::kSelect || _private->mode == PictureWindowMode::kType) &&
+            (event.keyDown.keyCode == kbLeft || event.keyDown.keyCode == kbRight || event.keyDown.keyCode == kbUp ||
+             event.keyDown.keyCode == kbDown) &&
+            _private->pictureView->selection.has_value()) {
+            auto deltaX = 0;
+            auto deltaY = 0;
+            switch (event.keyDown.keyCode) {
+                case kbLeft:
+                    deltaX = -1;
+                    break;
+                case kbRight:
+                    deltaX = 1;
+                    break;
+                case kbUp:
+                    deltaY = -1;
+                    break;
+                case kbDown:
+                    deltaY = 1;
+                    break;
+            }
+            auto r = *_private->pictureView->selection;
+            r.a.x += deltaX;
+            r.b.x += deltaX;
+            r.a.y += deltaY;
+            r.b.y += deltaY;
+            auto width = _private->pictureView->picture.width;
+            auto height = _private->pictureView->picture.height;
+            if (r.a.x >= 0 && r.a.x <= width && r.b.x >= 0 && r.b.x <= width && r.a.y >= 0 && r.a.y <= height &&
+                r.b.y >= 0 && r.b.y <= height) {
+                _private->pictureView->selection = r;
+                _private->pictureView->drawView();
+            }
         }
     }
 
@@ -773,8 +820,9 @@ void PictureWindow::setState(uint16_t aState, bool enable) {
         ts.enableCmd(kCmdPictureSelect);
         ts.enableCmd(kCmdPictureDraw);
         ts.enableCmd(kCmdPicturePick);
-        ts.enableCmd(kCmdPictureText);
+        ts.enableCmd(kCmdPictureType);
         ts.enableCmd(kCmdPictureMask);
+        ts.enableCmd(kCmdPictureOptions);
         (enable ? enableCommands : disableCommands)(ts);
     }
 }
@@ -789,7 +837,7 @@ void PictureWindow::onStatusLineCommand(ushort cmd) {
         case kCmdPictureFg: {
             auto dialog = DialogPtr<InsertColorDialog>("Choose Foreground Color", "Choose");
             if (TProgram::deskTop->execView(dialog) == cmOK) {
-                _private->fg = dialog->selection.asRGB();
+                _private->fg = dialog->selection;
                 updateStatusItems(_private);
             }
             break;
@@ -798,7 +846,7 @@ void PictureWindow::onStatusLineCommand(ushort cmd) {
         case kCmdPictureBg: {
             auto dialog = DialogPtr<InsertColorDialog>("Choose Background Color", "Choose");
             if (TProgram::deskTop->execView(dialog) == cmOK) {
-                _private->bg = dialog->selection.asRGB();
+                _private->bg = dialog->selection;
                 updateStatusItems(_private);
             }
             break;
@@ -828,8 +876,13 @@ void PictureWindow::onStatusLineCommand(ushort cmd) {
             updateStatusItems(_private);
             break;
 
-        case kCmdPictureText:
-            _private->mode = PictureWindowMode::kText;
+        case kCmdPictureType:
+            _private->mode = PictureWindowMode::kType;
+            if (!_private->pictureView->selection.has_value() && _private->pictureView->picture.width > 0 &&
+                _private->pictureView->picture.height > 0) {
+                _private->pictureView->selection = { 0, 0, 1, 1 };
+                _private->pictureView->drawView();
+            }
             updateStatusItems(_private);
             break;
 

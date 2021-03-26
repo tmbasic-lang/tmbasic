@@ -49,7 +49,7 @@ class Cp437Table : public TView {
 
     void draw() override {
         TDrawBuffer buf;
-        auto color = TColorAttr(0x3F);
+        TColorAttr color{ 0x30 };
 
         for (ushort y = 0; y <= size.y - 1; y++) {
             buf.moveChar(0, ' ', color, static_cast<int16_t>(size.x));
@@ -68,8 +68,12 @@ class Cp437Table : public TView {
             do {
                 if (mouseInView(event.mouse.where)) {
                     TPoint spot = makeLocal(event.mouse.where);
-                    setCursor(spot.x, spot.y);
-                    charFocused();
+                    auto i = spot.x + 32 * spot.y;
+                    if (i >= 1 && i <= 254) {
+                        setCharFunc(_cp437toUtf8.at(i));
+                    } else {
+                        setCharFunc(" ");
+                    }
 
                     if ((event.mouse.eventFlags & meDoubleClick) != 0) {
                         TEvent okEvent = { 0 };
@@ -82,46 +86,8 @@ class Cp437Table : public TView {
                 }
             } while (mouseEvent(event, evMouseMove));
             clearEvent(event);
-        } else {
-            if (event.what == evKeyboard) {
-                switch (event.keyDown.keyCode) {
-                    case kbHome:
-                        setCursor(0, 0);
-                        break;
-                    case kbEnd:
-                        setCursor(size.x - 1, size.y - 1);
-                        break;
-                    case kbUp:
-                        if (cursor.y > 0) {
-                            setCursor(cursor.x, cursor.y - 1);
-                        }
-                        break;
-                    case kbDown:
-                        if (cursor.y < size.y - 1) {
-                            setCursor(cursor.x, cursor.y + 1);
-                        }
-                        break;
-                    case kbLeft:
-                        if (cursor.x > 0) {
-                            setCursor(cursor.x - 1, cursor.y);
-                        }
-                        break;
-                    case kbRight:
-                        if (cursor.x < size.x - 1) {
-                            setCursor(cursor.x + 1, cursor.y);
-                        }
-                        break;
-                    default:
-                        setCursor(event.keyDown.charScan.charCode % 32, event.keyDown.charScan.charCode / 32);
-                        break;
-                }
-                charFocused();
-                clearEvent(event);
-            }
         }
     }
-
-    void charFocused() { setCharFunc(_cp437toUtf8.at(cursor.x + 32 * cursor.y)); }
 };
 
 class UnicodeTable : public TView {
@@ -132,7 +98,7 @@ class UnicodeTable : public TView {
 
     void draw() override {
         TDrawBuffer buf;
-        auto color = TColorAttr(0x3F);
+        TColorAttr color{ 0x30 };
 
         for (ushort y = 0; y <= size.y - 1; y++) {
             buf.moveChar(0, ' ', color, static_cast<int16_t>(size.x));
@@ -154,8 +120,12 @@ class UnicodeTable : public TView {
             do {
                 if (mouseInView(event.mouse.where)) {
                     TPoint spot = makeLocal(event.mouse.where);
-                    setCursor(spot.x, spot.y);
-                    charFocused();
+                    size_t i = spot.x + 32 * (_unicodeTableScrollTop + spot.y);
+                    if (i < getSymbolCount()) {
+                        setCharFunc(getSymbol(i));
+                    } else {
+                        setCharFunc(" ");
+                    }
 
                     if ((event.mouse.eventFlags & meDoubleClick) != 0) {
                         TEvent okEvent = { 0 };
@@ -168,49 +138,6 @@ class UnicodeTable : public TView {
                 }
             } while (mouseEvent(event, evMouseMove));
             clearEvent(event);
-        } else {
-            if (event.what == evKeyboard) {
-                switch (event.keyDown.keyCode) {
-                    case kbHome:
-                        setCursor(0, 0);
-                        break;
-                    case kbEnd:
-                        setCursor(size.x - 1, size.y - 1);
-                        break;
-                    case kbUp:
-                        if (cursor.y > 0) {
-                            setCursor(cursor.x, cursor.y - 1);
-                        }
-                        break;
-                    case kbDown:
-                        if (cursor.y < size.y - 1) {
-                            setCursor(cursor.x, cursor.y + 1);
-                        }
-                        break;
-                    case kbLeft:
-                        if (cursor.x > 0) {
-                            setCursor(cursor.x - 1, cursor.y);
-                        }
-                        break;
-                    case kbRight:
-                        if (cursor.x < size.x - 1) {
-                            setCursor(cursor.x + 1, cursor.y);
-                        }
-                        break;
-                    default:
-                        setCursor(event.keyDown.charScan.charCode % 32, event.keyDown.charScan.charCode / 32);
-                        break;
-                }
-                charFocused();
-                clearEvent(event);
-            }
-        }
-    }
-
-    void charFocused() {
-        size_t i = cursor.x + 32 * (_unicodeTableScrollTop + cursor.y);
-        if (i < getSymbolCount()) {
-            setCharFunc(getSymbol(i));
         }
     }
 };
@@ -218,14 +145,14 @@ class UnicodeTable : public TView {
 class InsertSymbolDialogPrivate {
    public:
     std::string selection;
-    ViewPtr<Label> selectionLabel{ TRect(2, 10, 33, 11) };
-    ViewPtr<Cp437Table> cp437Table{ TRect(1, 1, 33, 9) };
-    ViewPtr<ScrollBar> vScrollBar{ TRect(66, 1, 67, 9) };
-    ViewPtr<UnicodeTable> unicodeTable{ TRect(34, 1, 66, 9) };
+    ViewPtr<Label> selectionLabel{ TRect(2, 11, 33, 12) };
+    ViewPtr<Cp437Table> cp437Table{ TRect(3, 2, 36, 10) };
+    ViewPtr<UnicodeTable> unicodeTable{ TRect(37, 2, 69, 10) };
+    ViewPtr<ScrollBar> vScrollBar{ TRect(69, 2, 70, 10) };
 };
 
 static void updateSelectionLabel(InsertSymbolDialogPrivate* p) {
-    if (p->selection.size() == 0) {
+    if (p->selection.empty()) {
         p->selectionLabel->setTitle("No selection");
     } else {
         p->selectionLabel->setTitle(std::string("Selected: ") + p->selection);
@@ -234,7 +161,7 @@ static void updateSelectionLabel(InsertSymbolDialogPrivate* p) {
 }
 
 InsertSymbolDialog::InsertSymbolDialog(const std::string& title, const std::string& insertButtonText)
-    : TDialog(TRect(0, 0, 67, 13), title), TWindowInit(&TDialog::initFrame), _private(new InsertSymbolDialogPrivate()) {
+    : TDialog(TRect(0, 0, 73, 14), title), TWindowInit(&TDialog::initFrame), _private(new InsertSymbolDialogPrivate()) {
     options |= ofCentered;
 
     _private->selectionLabel.addTo(this);
@@ -250,7 +177,7 @@ InsertSymbolDialog::InsertSymbolDialog(const std::string& title, const std::stri
 
     _private->vScrollBar->useBlueColorScheme();
     _private->vScrollBar->setParams(
-        _unicodeTableScrollTop, 0, getSymbolCount() / 32 - _private->vScrollBar->size.y + 1,
+        _unicodeTableScrollTop, 0, static_cast<int>(getSymbolCount()) / 32 - _private->vScrollBar->size.y + 1,
         _private->vScrollBar->size.y - 1, 1);
     _private->vScrollBar.addTo(this);
 
@@ -262,16 +189,18 @@ InsertSymbolDialog::InsertSymbolDialog(const std::string& title, const std::stri
     _private->unicodeTable.addTo(this);
     _private->unicodeTable->select();
 
+    ViewPtr<Button> insertButton{ insertButtonText, cmOK, bfDefault };
+
     auto r = getExtent();
     RowLayout(
         true,
         {
-            new Button(insertButtonText, cmOK, bfDefault),
+            insertButton.take(),
             new Button("Cancel", cmCancel, bfNormal),
         })
         .addTo(this, 1, r.b.x - 3, r.b.y - 3);
 
-    _private->cp437Table->focus();
+    insertButton->focus();
 }
 
 InsertSymbolDialog::~InsertSymbolDialog() {
@@ -279,6 +208,12 @@ InsertSymbolDialog::~InsertSymbolDialog() {
 }
 
 void InsertSymbolDialog::handleEvent(TEvent& event) {
+    if (event.what == evCommand && event.message.command == cmOK) {
+        if (_private->selection.empty()) {
+            messageBox("Please choose a symbol.", mfError | mfOKButton);
+            clearEvent(event);
+        }
+    }
     TDialog::handleEvent(event);
     if (event.what == evBroadcast) {
         if (event.message.command == cmScrollBarChanged) {

@@ -132,7 +132,7 @@ void GridLayout::calculateColumnWidths(std::vector<int>* finalColumnWidths) {
                 auto tableView = getCell(rowIndex, columnIndex);
                 if (tableView.item.rowLayout.has_value()) {
                     auto& flow = *tableView.item.rowLayout;
-                    maxContentWidth = max(maxContentWidth, flow.getSize().x);
+                    maxContentWidth = max(maxContentWidth, flow.getSize().x - 1);
                 } else {
                     if (tableView.item.view != nullptr) {
                         maxContentWidth = max(maxContentWidth, tableView.item.view->size.x);

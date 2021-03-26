@@ -85,13 +85,13 @@ void Button::useDefaultColorScheme() {
 }
 
 void Button::useWhiteColorScheme() {
-    colorTextNormal = TColorAttr(TColorDesired(TColorBIOS(0)), TColorDesired(TColorBIOS(15)));
-    colorTextDefault = TColorAttr(TColorDesired(TColorBIOS(0)), TColorDesired(TColorBIOS(15)));
-    colorTextSelected = TColorAttr(TColorDesired(TColorBIOS(2)), TColorDesired(TColorBIOS(15)));
-    colorTextDisabled = TColorAttr(TColorDesired(TColorBIOS(0)), TColorDesired(TColorBIOS(15)));
-    colorShortcutNormal = TColorAttr(TColorDesired(TColorBIOS(0)), TColorDesired(TColorBIOS(15)));
-    colorShortcutDefault = TColorAttr(TColorDesired(TColorBIOS(0)), TColorDesired(TColorBIOS(15)));
-    colorShortcutSelected = TColorAttr(TColorDesired(TColorBIOS(2)), TColorDesired(TColorBIOS(15)));
+    colorTextNormal = { 0xF0 };
+    colorTextDefault = { 0xF0 };
+    colorTextSelected = { 0xF2 };
+    colorTextDisabled = { 0xF0 };
+    colorShortcutNormal = { 0xF0 };
+    colorShortcutDefault = { 0xF0 };
+    colorShortcutSelected = { 0xF2 };
 }
 
 void Button::setTitle(const std::string& text) {

@@ -39,15 +39,15 @@ TColorAttr ListViewer::mapColor(uchar index) {
 }
 
 void ListViewer::useDarkGrayPalette() {
-    colorActive = TColorAttr(TColorDesired(TColorBIOS(15)), TColorDesired(TColorBIOS(8)));
-    colorInactive = TColorAttr(TColorDesired(TColorBIOS(7)), TColorDesired(TColorBIOS(8)));
-    colorSelected = TColorAttr(TColorDesired(TColorBIOS(14)), TColorDesired(TColorBIOS(8)));
+    colorActive = { 0x8F };
+    colorInactive = { 0x87 };
+    colorSelected = { 0x8E };
 }
 
 void ListViewer::useCyanPalette() {
-    colorActive = TColorAttr(TColorDesired(TColorBIOS(15)), TColorDesired(TColorBIOS(3)));
-    colorInactive = TColorAttr(TColorDesired(TColorBIOS(7)), TColorDesired(TColorBIOS(3)));
-    colorSelected = TColorAttr(TColorDesired(TColorBIOS(14)), TColorDesired(TColorBIOS(3)));
+    colorActive = { 0x3F };
+    colorInactive = { 0x37 };
+    colorSelected = { 0x3E };
 }
 
 }  // namespace util

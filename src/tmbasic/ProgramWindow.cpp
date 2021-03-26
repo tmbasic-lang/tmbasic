@@ -19,14 +19,14 @@ using vm::Program;
 
 namespace tmbasic {
 
-static TFrame* initProgramWindowFrame(TRect r) {
-    auto* f = new util::Frame(r);
-    f->colorPassiveFrame = TColorAttr(TColorDesired(TColorBIOS(7)), TColorDesired(TColorBIOS(8)));
-    f->colorPassiveTitle = TColorAttr(TColorDesired(TColorBIOS(7)), TColorDesired(TColorBIOS(8)));
-    f->colorActiveFrame = TColorAttr(TColorDesired(TColorBIOS(15)), TColorDesired(TColorBIOS(8)));
-    f->colorActiveTitle = TColorAttr(TColorDesired(TColorBIOS(15)), TColorDesired(TColorBIOS(8)));
-    f->colorIcons = TColorAttr(TColorDesired(TColorBIOS(10)), TColorDesired(TColorBIOS(8)));
-    return f;
+static gsl::owner<TFrame*> initProgramWindowFrame(TRect r) {
+    ViewPtr<util::Frame> f{ r };
+    f->colorPassiveFrame = { 0x87 };
+    f->colorPassiveTitle = { 0x87 };
+    f->colorActiveFrame = { 0x8F };
+    f->colorActiveTitle = { 0x8F };
+    f->colorIcons = { 0x8A };
+    return f.take();
 }
 
 ProgramWindow::ProgramWindow(

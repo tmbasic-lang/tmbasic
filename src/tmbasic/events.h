@@ -42,7 +42,7 @@ enum : uint16_t {
     kCmdPictureSelect,
     kCmdPictureDraw,
     kCmdPicturePick,
-    kCmdPictureText,
+    kCmdPictureType,
     kCmdPictureMask,
     kCmdPictureOptions,
 
