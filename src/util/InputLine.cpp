@@ -14,7 +14,7 @@ InputLine::InputLine(int number, int width, int aMaxLen) : InputLine(std::to_str
 
 void InputLine::setText(const std::string& text) {
     assert(text.size() <= maxLen);
-    strcpy(data, text.c_str());
+    snprintf(data, maxLen + 1, "%s", text.c_str());
 }
 
 }  // namespace util

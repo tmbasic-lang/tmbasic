@@ -113,19 +113,19 @@ static CompilerResult typeCheckSymbolReferenceExpression(SymbolReferenceExpressi
 CompilerResult typeCheckExpression(ExpressionNode* expressionNode) {
     switch (expressionNode->getExpressionType()) {
         case ExpressionType::kBinary:
-            return typeCheckBinaryExpression(&dynamic_cast<BinaryExpressionNode&>(*expressionNode));
+            return typeCheckBinaryExpression(dynamic_cast<BinaryExpressionNode*>(expressionNode));
         case ExpressionType::kCall:
-            return typeCheckCallExpression(&dynamic_cast<CallExpressionNode&>(*expressionNode));
+            return typeCheckCallExpression(dynamic_cast<CallExpressionNode*>(expressionNode));
         case ExpressionType::kConstValue:
-            return typeCheckConstValueExpression(&dynamic_cast<ConstValueExpressionNode&>(*expressionNode));
+            return typeCheckConstValueExpression(dynamic_cast<ConstValueExpressionNode*>(expressionNode));
         case ExpressionType::kConvert:
-            return typeCheckConvertExpression(&dynamic_cast<ConvertExpressionNode&>(*expressionNode));
+            return typeCheckConvertExpression(dynamic_cast<ConvertExpressionNode*>(expressionNode));
         case ExpressionType::kDotted:
-            return typeCheckDottedExpression(&dynamic_cast<DottedExpressionNode&>(*expressionNode));
+            return typeCheckDottedExpression(dynamic_cast<DottedExpressionNode*>(expressionNode));
         case ExpressionType::kNot:
-            return typeCheckNotExpression(&dynamic_cast<NotExpressionNode&>(*expressionNode));
+            return typeCheckNotExpression(dynamic_cast<NotExpressionNode*>(expressionNode));
         case ExpressionType::kSymbolReference:
-            return typeCheckSymbolReferenceExpression(&dynamic_cast<SymbolReferenceExpressionNode&>(*expressionNode));
+            return typeCheckSymbolReferenceExpression(dynamic_cast<SymbolReferenceExpressionNode*>(expressionNode));
         default:
             assert(false);
             throw std::runtime_error("Unrecognized expression type.");

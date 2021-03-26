@@ -11,7 +11,7 @@ class Frame : public TFrame {
     std::optional<TColorAttr> colorActiveFrame;
     std::optional<TColorAttr> colorActiveTitle;
     std::optional<TColorAttr> colorIcons;
-    Frame(const TRect& bounds);
+    explicit Frame(const TRect& bounds);
     TColorAttr mapColor(uchar index) override;
 };
 

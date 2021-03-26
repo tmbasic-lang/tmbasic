@@ -207,7 +207,7 @@ TEST(DecimalTest, DecimalToDoubleInf) {
     auto dec = Decimal(infTriple);
     auto actual = decimalToDouble(dec);
     ASSERT_TRUE(std::isinf(actual));
-    ASSERT_TRUE(actual > 0);
+    ASSERT_GT(actual, 0);
 }
 
 TEST(DecimalTest, DecimalToDoubleNegInf) {
@@ -218,7 +218,7 @@ TEST(DecimalTest, DecimalToDoubleNegInf) {
     auto dec = Decimal(infTriple);
     auto actual = decimalToDouble(dec);
     ASSERT_TRUE(std::isinf(actual));
-    ASSERT_TRUE(actual < 0);
+    ASSERT_LT(actual, 0);
 }
 
 TEST(DecimalTest, DecimalToDouble1234567_875) {

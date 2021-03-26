@@ -12,7 +12,7 @@ class StatusItemColors {
 
 class StatusLine : public TStatusLine {
    public:
-    explicit StatusLine(const TRect& bounds, TStatusDef& aDefs);
+    explicit StatusLine(const TRect& bounds, TStatusDef& aDefs);  // NOLINT(runtime/references)
     void draw() override;
     StatusItemColors* addStatusItemColors(TStatusItem* statusItem);
 

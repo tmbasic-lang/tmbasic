@@ -208,9 +208,9 @@ InsertColorDialog::InsertColorDialog(const std::string& title, const std::string
         _private->colorView->red = rgb.r;
         _private->colorView->green = rgb.g;
         _private->colorView->blue = rgb.b;
-        strcpy(_private->redInputLine->data, red.c_str());
-        strcpy(_private->greenInputLine->data, green.c_str());
-        strcpy(_private->blueInputLine->data, blue.c_str());
+        _private->redInputLine->setText(red);
+        _private->greenInputLine->setText(green);
+        _private->blueInputLine->setText(blue);
         _private->insertButton->focus();
         _private->redInputLine->drawView();
         _private->greenInputLine->drawView();

@@ -48,13 +48,13 @@ void StatusLine::draw() {
     }
     if (i < size.x - 2) {
         TStringView hintText = hint(helpCtx);
-        if (!hintText.empty() != 0u) {
+        if (!hintText.empty()) {
             b.moveStr(i, "\xB3 ", cNormal);
             i += 2;
             b.moveStr(i, hintText, cNormal, size.x - i);
         }
     }
-    writeLine(0, 0, size.x, 1, b);
+    writeLine(0, 0, static_cast<int16_t>(size.x), 1, b);
 }
 
 StatusItemColors* StatusLine::addStatusItemColors(TStatusItem* statusItem) {
