@@ -30,7 +30,7 @@ namespace tmbasic {
 class PictureCell {
    public:
     bool transparent = false;
-    TColorAttr colorAttr{ 0 };
+    TColorAttr colorAttr{ TColorRGB{ 255, 255, 255 }, TColorRGB{ 255, 255, 255 } };
     std::string ch = " ";
 };
 
@@ -219,9 +219,13 @@ class PictureView : public TView {
     Picture picture{ 40, 15 };
     int scrollTop = 0;
     int scrollLeft = 0;
+
+    // select and type modes
     std::optional<TRect> selection;
     bool flashingSelection = false;
-    bool flashingMask = true;
+
+    // mask mode
+    bool flashingMask = false;
 
     explicit PictureView(const TRect& bounds) : TView(bounds) {
         eventMask = evMouseDown | evMouseMove | evMouseUp | evCommand | evBroadcast;
@@ -296,7 +300,7 @@ class PictureView : public TView {
         }
     }
 
-    void drawSelectionDot(int x, int y) {
+    void drawSelectionBorder(int x, int y) {
         auto ch = picture.cells.at(y * picture.width + x).ch;
         TDrawBuffer b;
         b.moveCStr(0, ch, { flashingSelection ? 0x2A : 0xA2 });
@@ -316,12 +320,12 @@ class PictureView : public TView {
 
         if (selection.has_value()) {
             for (auto y = selection->a.y; y < selection->b.y; y++) {
-                drawSelectionDot(selection->a.x, y);
-                drawSelectionDot(selection->b.x - 1, y);
+                drawSelectionBorder(selection->a.x, y);
+                drawSelectionBorder(selection->b.x - 1, y);
             }
             for (auto x = selection->a.x; x < selection->b.x; x++) {
-                drawSelectionDot(x, selection->a.y);
-                drawSelectionDot(x, selection->b.y - 1);
+                drawSelectionBorder(x, selection->a.y);
+                drawSelectionBorder(x, selection->b.y - 1);
             }
         }
 
@@ -345,6 +349,50 @@ class PictureView : public TView {
             writeBufferChar(picture.width + 1, picture.height, b);
         }
     }
+};
+
+enum class PictureWindowMode {
+    kSelect,
+    kDraw,
+    kPick,
+    kType,
+    kMask,
+};
+
+class PictureWindowPrivate {
+   public:
+    int ticks = 0;
+
+    TColorRGB fg{ 255, 255, 255 };
+    TColorRGB bg{ 0, 0, 0 };
+    std::string ch = "☺";
+    PictureWindowMode mode = PictureWindowMode::kSelect;
+
+    // select and type tool
+    std::optional<TPoint> currentDrag;
+
+    // mask tool
+    bool currentDragTransparent = false;
+
+    // drag resizing
+    bool resizing = false;
+    TPoint resizingStartPicturePoint{};
+    std::optional<Picture> resizingOriginalPicture;
+    bool resizingVertical = false;
+    bool resizingHorizontal = false;
+
+    compiler::SourceMember* member{};
+    std::function<void()> onEdited;
+    PictureWindowStatusItems statusItems;
+
+    ViewPtr<PictureView> pictureView{ TRect() };
+    ViewPtr<ScrollBar> vScrollBar{ TRect(0, 0, 1, 10) };
+    ViewPtr<ScrollBar> hScrollBar{ TRect(0, 0, 10, 1) };
+    ViewPtr<Label> toolLabel{ TRect(1, 1, 15, 2) };
+    ViewPtr<CheckBoxes> setFgCheck{ std::vector<std::string>{ "Set FG color" }, std::vector<bool>{ true } };
+    ViewPtr<CheckBoxes> setBgCheck{ std::vector<std::string>{ "Set BG color" }, std::vector<bool>{ true } };
+    ViewPtr<CheckBoxes> setChCheck{ std::vector<std::string>{ "Set character" }, std::vector<bool>{ true } };
+    ViewPtr<Label> maskHelp{ "Click to toggle between opaque and transparent." };
 };
 
 class PictureOptionsDialog : public TDialog {
@@ -409,49 +457,16 @@ class PictureOptionsDialog : public TDialog {
     ViewPtr<InputLine> _heightText;
 };
 
-enum class PictureWindowMode {
-    kSelect,
-    kDraw,
-    kPick,
-    kType,
-    kMask,
-};
-
-class PictureWindowPrivate {
-   public:
-    int ticks = 0;
-
-    TColorRGB fg{ 255, 255, 255 };
-    TColorRGB bg{ 0, 0, 0 };
-    std::string ch = "☺";
-    PictureWindowMode mode = PictureWindowMode::kSelect;
-    std::optional<TPoint> currentDrag;
-    bool currentDragTransparent = false;
-
-    compiler::SourceMember* member{};
-    std::function<void()> onEdited;
-    PictureWindowStatusItems statusItems;
-
-    ViewPtr<PictureView> pictureView{ TRect() };
-    ViewPtr<ScrollBar> vScrollBar{ TRect(0, 0, 1, 10) };
-    ViewPtr<ScrollBar> hScrollBar{ TRect(0, 0, 10, 1) };
-    ViewPtr<Label> toolLabel{ TRect(1, 1, 15, 2) };
-    ViewPtr<CheckBoxes> setFgCheck{ std::vector<std::string>{ "Set FG color" }, std::vector<bool>{ true } };
-    ViewPtr<CheckBoxes> setBgCheck{ std::vector<std::string>{ "Set BG color" }, std::vector<bool>{ true } };
-    ViewPtr<CheckBoxes> setChCheck{ std::vector<std::string>{ "Set character" }, std::vector<bool>{ true } };
-    ViewPtr<Label> maskHelp{ "Click to toggle between opaque and transparent." };
-};
-
 static std::string getPictureWindowTitle(const std::string& name) {
     return name + " (Picture)";
 }
 
 static void updateScrollBars(PictureWindowPrivate* p) {
     p->vScrollBar->setParams(
-        0, 0, std::max(0, p->pictureView->picture.height + 5 - (p->pictureView->size.y - 1)),
+        p->vScrollBar->value, 0, std::max(0, p->pictureView->picture.height + 5 - (p->pictureView->size.y - 1)),
         p->pictureView->size.y - 1, 1);
     p->hScrollBar->setParams(
-        0, 0, std::max(0, p->pictureView->picture.width + 10 - (p->pictureView->size.x - 1)),
+        p->hScrollBar->value, 0, std::max(0, p->pictureView->picture.width + 10 - (p->pictureView->size.x - 1)),
         p->pictureView->size.x - 1, 1);
 }
 
@@ -592,10 +607,55 @@ static void updateStatusItems(PictureWindowPrivate* p) {
 }
 
 static void onMouse(int pictureX, int pictureY, const PictureViewMouseEventArgs& e, PictureWindowPrivate* p) {
-    auto& cell = p->pictureView->picture.cells.at(pictureY * p->pictureView->picture.width + pictureX);
-    TColorAttr color{ p->fg, p->bg };
+    TPoint pt{ pictureX, pictureY };
+    auto& picture = p->pictureView->picture;
     auto leftMouseDown = e.down && (e.buttons & mbLeftButton) != 0;
     auto dragging = e.move && (e.buttons & mbLeftButton) != 0;
+
+    TPoint verticalGripper{ picture.width / 2, picture.height };
+    TPoint horizontalGripper{ picture.width + 1, picture.height / 2 };
+    TPoint diagonalGripper{ picture.width + 1, picture.height };
+    if (leftMouseDown && (pt == verticalGripper || pt == horizontalGripper || pt == diagonalGripper)) {
+        p->resizing = true;
+        p->resizingStartPicturePoint = pt;
+        p->resizingOriginalPicture = picture;
+        p->resizingVertical = pt == verticalGripper || pt == diagonalGripper;
+        p->resizingHorizontal = pt == horizontalGripper || pt == diagonalGripper;
+        p->pictureView->selection = {};
+        p->pictureView->drawView();
+        return;
+    }
+    if (dragging && p->resizing) {
+        auto deltaX = 0;
+        if (p->resizingHorizontal) {
+            deltaX = pt.x - p->resizingStartPicturePoint.x;
+        }
+        auto deltaY = 0;
+        if (p->resizingVertical) {
+            deltaY = pt.y - p->resizingStartPicturePoint.y;
+        }
+        auto newWidth = p->resizingOriginalPicture->width + deltaX;
+        auto newHeight = p->resizingOriginalPicture->height + deltaY;
+        p->pictureView->picture = *p->resizingOriginalPicture;
+        p->pictureView->picture.resize(newWidth, newHeight);
+        p->pictureView->selection = {};
+        p->pictureView->drawView();
+        return;
+    }
+    if (e.up && p->resizing) {
+        p->resizing = false;
+        p->resizingOriginalPicture = {};
+        updateScrollBars(p);
+        return;
+    }
+
+    if (pt.x < 0 || pt.x >= picture.width || pt.y < 0 || pt.y >= picture.height) {
+        return;
+    }
+
+    auto& cell = picture.cells.at(pictureY * picture.width + pictureX);
+    TColorAttr color{ p->fg, p->bg };
+
     switch (p->mode) {
         case PictureWindowMode::kSelect:
             if (p->currentDrag.has_value()) {
@@ -768,10 +828,7 @@ void PictureWindow::handleEvent(TEvent& event) {
                 auto* e = reinterpret_cast<PictureViewMouseEventArgs*>(event.message.infoPtr);  // NOLINT
                 auto pictureX = _private->pictureView->viewXToPicture(e->viewPoint.x);
                 auto pictureY = _private->pictureView->viewYToPicture(e->viewPoint.y);
-                if (pictureX >= 0 && pictureX < _private->pictureView->picture.width && pictureY >= 0 &&
-                    pictureY < _private->pictureView->picture.height) {
-                    onMouse(pictureX, pictureY, *e, _private);
-                }
+                onMouse(pictureX, pictureY, *e, _private);
                 break;
             }
         }
