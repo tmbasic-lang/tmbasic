@@ -170,6 +170,12 @@ class Picture {
     }
 
     void resize(int newWidth, int newHeight) {
+        if (newWidth < 1) {
+            newWidth = 1;
+        }
+        if (newHeight < 1) {
+            newHeight = 1;
+        }
         std::vector<PictureCell> newCells{ static_cast<size_t>(newWidth * newHeight), PictureCell() };
         auto commonWidth = std::min(width, newWidth);
         auto commonHeight = std::min(height, newHeight);
@@ -436,8 +442,8 @@ class PictureOptionsDialog : public TDialog {
     void handleEvent(TEvent& event) override {
         if (event.what == evCommand && event.message.command == cmOK) {
             try {
-                auto width = util::parseUserInt(_widthText->data, "width", 0, 1000);
-                auto height = util::parseUserInt(_heightText->data, "height", 0, 1000);
+                auto width = util::parseUserInt(_widthText->data, "width", 1, 1000);
+                auto height = util::parseUserInt(_heightText->data, "height", 1, 1000);
                 util::validateIdentifier(_nameText->data, "name");
                 _picture->name = _nameText->data;
                 _picture->resize(width, height);
