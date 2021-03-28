@@ -68,7 +68,6 @@ static std::vector<std::string> _symbols{
     "₩",
     "€",
     "₯",
-    "₹",
     "℅",
     "ℓ",
     "№",
