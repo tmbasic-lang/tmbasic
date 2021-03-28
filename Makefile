@@ -422,7 +422,7 @@ lint:
 tidy: $(TIDY_TARGETS)
 
 .PHONY: tidy-commit
-tidy-commit: $(shell 2>/dev/null git status | grep "\.cpp" | awk '{ print $$2 }' | sed 's:src:obj/tidy:g; s/cpp$$/tidy/g')
+tidy-commit: $(shell 2>/dev/null git status | grep "\.cpp" | sed 's/modified://' | sed 's:src:obj/tidy:g; s/cpp$$/tidy/g')
 
 .PHONY: ghpages
 ghpages: obj/resources/help/help.txt bin/ghpages/index.html
