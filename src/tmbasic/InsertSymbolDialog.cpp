@@ -173,7 +173,6 @@ InsertSymbolDialog::InsertSymbolDialog(const std::string& title, const std::stri
     };
     _private->cp437Table->blockCursor();
     _private->cp437Table.addTo(this);
-    _private->cp437Table->select();
 
     _private->vScrollBar->useBlueColorScheme();
     _private->vScrollBar->setParams(
@@ -187,7 +186,6 @@ InsertSymbolDialog::InsertSymbolDialog(const std::string& title, const std::stri
     };
     _private->unicodeTable->blockCursor();
     _private->unicodeTable.addTo(this);
-    _private->unicodeTable->select();
 
     ViewPtr<Button> insertButton{ insertButtonText, cmOK, bfDefault };
 
