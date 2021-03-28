@@ -1,0 +1,25 @@
+kAppIcon ICON "art/favicon/favicon.ico"
+
+1 VERSIONINFO
+FILEVERSION     1,0,0,0
+PRODUCTVERSION  1,0,0,0
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "040904E4"
+    BEGIN
+      VALUE "CompanyName", "Brian Luft"
+      VALUE "FileDescription", "TMBASIC Programming Language"
+      VALUE "FileVersion", "1.0"
+      VALUE "InternalName", "tmbasic"
+      VALUE "LegalCopyright", "(C) 2020 Brian Luft"
+      VALUE "OriginalFilename", "tmbasic.exe"
+      VALUE "ProductName", "TMBASIC"
+      VALUE "ProductVersion", "1.0"
+    END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x409, 1252
+  END
+END

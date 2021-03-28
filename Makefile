@@ -151,6 +151,13 @@ LICENSE_DIAGRAM_TXT_FILES=\
 LICENSE_DIAGRAM_CP437_FILES=\
 	$(patsubst obj/doc-temp/diagrams-license/%,obj/doc-temp/diagrams-cp437/%,$(LICENSE_DIAGRAM_TXT_FILES))
 
+# icon resource
+ifeq ($(TARGET_OS),win)
+ICON_RES_OBJ_FILE=obj/tmbasic/AppWin.res.o
+else
+ICON_RES_OBJ_FILE=
+endif
+
 
 
 ### Commands ##########################################################################################################
@@ -349,7 +356,6 @@ endif
 
 ifeq ($(TARGET_OS),win)
 versions:
-	@echo
 	@pacman -Q mingw-w64-gcc
 endif
 
@@ -673,7 +679,8 @@ bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
 		obj/resources/help/helpfile.h \
 		obj/resources/help/help.h32 \
 		obj/resources/help/helpfile.o \
-		$(ALL_PLATFORM_RUNNER_OBJ_FILES)
+		$(ALL_PLATFORM_RUNNER_OBJ_FILES) \
+		$(ICON_RES_OBJ_FILE)
 	@printf "%16s  %s\n" "$(CXX)" "$@"
 	@mkdir -p $(@D)
 	@$(CXX) \
@@ -687,9 +694,17 @@ bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
 		-ltvision \
 		obj/resources/help/helpfile.o \
 		$(ALL_PLATFORM_RUNNER_OBJ_FILES) \
+		$(ICON_RES_OBJ_FILE) \
 		$(TMBASIC_LDFLAGS) \
 		$(LDFLAGS)
 	@$(STRIP) bin/tmbasic$(EXE_EXTENSION)
+
+ifeq ($(TARGET_OS),win)
+obj/tmbasic/AppWin.res.o: src/tmbasic/AppWin.rc art/favicon/favicon.ico
+	@printf "%16s  %s\n" "$(WINDRES)" "$@"
+	@mkdir -p $(@D)
+	@$(WINDRES) $< -o $@
+endif
 
 
 
