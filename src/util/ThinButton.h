@@ -18,7 +18,7 @@ namespace util {
 class ThinButton : public Button {
    public:
     ThinButton(const TRect& bounds, TStringView aTitle, uint16_t aCommand, uint16_t aFlags);
-    ThinButton(TStringView aTitle, ushort aCommand, ushort aFlags);
+    ThinButton(TStringView aTitle, uint16_t aCommand, uint16_t aFlags);
 
     void draw() override;
     void drawState(bool down);

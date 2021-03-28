@@ -14,14 +14,14 @@ namespace util {
 
 const int cmGrabDefault = 61, cmReleaseDefault = 62;
 
-ThinButton::ThinButton(const TRect& bounds, TStringView aTitle, ushort aCommand, ushort aFlags)
+ThinButton::ThinButton(const TRect& bounds, TStringView aTitle, uint16_t aCommand, uint16_t aFlags)
     : Button(bounds, aTitle, aCommand, aFlags) {}
 
-ThinButton::ThinButton(TStringView aTitle, ushort aCommand, ushort aFlags)
+ThinButton::ThinButton(TStringView aTitle, uint16_t aCommand, uint16_t aFlags)
     : Button(TRect(0, 0, getButtonWidth(aTitle) - 2, 1), aTitle, aCommand, aFlags) {}
 
 void ThinButton::draw() {
-    drawState(False);
+    drawState(false);
 }
 
 void ThinButton::drawTitle(TDrawBuffer& b, int s, int i, TAttrPair cButton, bool down) {
@@ -37,7 +37,7 @@ void ThinButton::drawTitle(TDrawBuffer& b, int s, int i, TAttrPair cButton, bool
     }
     b.moveCStr(i + l, title, cButton);
 
-    if (showMarkers == True && !down) {
+    if (showMarkers && !down) {
         if ((state & sfSelected) != 0) {
             scOff = 0;
         } else if (amDefault) {
@@ -66,17 +66,16 @@ void ThinButton::drawState(bool down) {
             }
         }
     }
-    int s = size.x - 1;
-    int i = 0;
-    b.moveChar(0, ' ', cButton, size.x);
+
     if (down) {
-        i = 2;
-    } else {
-        i = 1;
+        cButton = { 0xA0, 0xA0 };
     }
 
+    int s = size.x - 1;
+    b.moveChar(0, ' ', cButton, size.x);
+
     if (title != nullptr) {
-        drawTitle(b, s, i, cButton, down);
+        drawTitle(b, s, 1, cButton, down);
     }
 
     if (showMarkers && !down) {
@@ -84,8 +83,6 @@ void ThinButton::drawState(bool down) {
         b.putChar(s - 1, ']');
     }
     writeLine(0, 0, static_cast<int16_t>(size.x), 1, b);
-
-    writeLine(0, static_cast<int16_t>(size.y - 1), static_cast<int16_t>(size.x), 1, b);
 }
 
 void ThinButton::handleEvent(TEvent& event) {
@@ -109,17 +106,17 @@ void ThinButton::handleEvent(TEvent& event) {
         case evMouseDown:
             if ((state & sfDisabled) == 0) {
                 clickRect.b.x++;
-                Boolean down = False;
+                bool down = false;
                 do {
                     mouse = makeLocal(event.mouse.where);
                     if (down != clickRect.contains(mouse)) {
-                        down = Boolean(!down);
+                        down = !down;
                         drawState(down);
                     }
                 } while (mouseEvent(event, evMouseMove));
                 if (down) {
                     press();
-                    drawState(False);
+                    drawState(false);
                 }
             }
             clearEvent(event);
@@ -147,13 +144,13 @@ void ThinButton::handleEvent(TEvent& event) {
                 case cmGrabDefault:
                 case cmReleaseDefault:
                     if ((flags & bfDefault) != 0) {
-                        amDefault = Boolean(event.message.command == cmReleaseDefault);
+                        amDefault = bool(event.message.command == cmReleaseDefault);
                         drawView();
                     }
                     break;
 
                 case cmCommandSetChanged:
-                    setState(sfDisabled, Boolean(!commandEnabled(command)));
+                    setState(sfDisabled, bool(!commandEnabled(command)));
                     drawView();
                     break;
             }
