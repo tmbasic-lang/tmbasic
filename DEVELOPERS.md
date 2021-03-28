@@ -163,9 +163,9 @@ Download links for libraries are located in the following files:
 ## Make a release build
 1. Start the following three build machines. Prepare them for building using the instructions at the beginning of this document.
 
-    - Ubuntu Linux on ARM64 (AWS `c6g.large`)
-    - Arch Linux on x64 (AWS `c5a.large`)
-    - macOS 10.13 on x64 (MacinCloud PAYG)
+    - Ubuntu Linux / ARM64 (AWS `c6g.xlarge`)
+    - Arch Linux / x64 (AWS `c5a.xlarge`)
+    - macOS 10.13 / x64 (MacinCloud PAYG)
 
 1. Clear any existing dependencies on the three build machines so that we perform a fresh build using the latest versions.
 

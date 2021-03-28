@@ -25,9 +25,9 @@ RUN cd /tmp && \
     mkdir build && \
     cd build && \
     ../configure && \
-    make -j2 -C include && \
-    make -j2 -C progs tic && \
-    make -j2 -C progs infocmp && \
+    make -j4 -C include && \
+    make -j4 -C progs tic && \
+    make -j4 -C progs infocmp && \
     cd /tmp/ncurses && \
     ./configure \
         --with-fallbacks=ansi,cons25,cons25-debian,dumb,hurd,linux,rxvt,screen,screen-256color,screen-256color-bce,screen-bce,screen-s,screen-w,screen.xterm-256color,tmux,tmux-256color,vt100,vt102,vt220,vt52,xterm,xterm-256color,xterm-color,xterm-mono,xterm-r5,xterm-r6,xterm-vt220,xterm-xfree86 \
@@ -47,7 +47,7 @@ RUN cd /tmp && \
         --with-infocmp-path=/tmp/ncurses/build/progs/infocmp \
         --with-tic-path=/tmp/ncurses/build/progs/tic \
         && \
-    make -j2 && \
+    make -j4 && \
     make install
 
 # bzip2
@@ -58,7 +58,7 @@ RUN cd /tmp && \
     mkdir -p bzip2/build && \
     cd bzip2/build && \
     cmake .. -DENABLE_STATIC_LIB=ON -DCMAKE_BUILD_TYPE=Release && \
-    make -j2 && \
+    make -j4 && \
     make install
 
 # bsdiff
@@ -87,7 +87,7 @@ RUN cd /tmp && \
     CXXFLAGS="-DU_USING_ICU_NAMESPACE=0 -DU_NO_DEFAULT_INCLUDE_UTF_HEADERS=1 -DU_HIDE_OBSOLETE_UTF_OLD_H=1 -std=c++17" \
         ./runConfigureICU "Linux/gcc" --enable-static --disable-shared --disable-tests --disable-samples \
         --with-data-packaging=static && \
-    make -j2 && \
+    make -j4 && \
     make install
 
 # immer
@@ -98,7 +98,7 @@ RUN cd /tmp && \
     mkdir -p immer/build && \
     cd immer/build && \
     cmake .. && \
-    make -j2 && \
+    make -j4 && \
     make install
 
 # boost
@@ -113,7 +113,7 @@ RUN cd /tmp && \
     tar zxf mpdecimal.tar.gz && \
     cd mpdecimal-*/ && \
     ./configure && \
-    make -j2 && \
+    make -j4 && \
     make install
 
 # tvision
@@ -124,7 +124,7 @@ RUN cd /tmp && \
     mkdir -p tvision/build && \
     cd tvision/build && \
     cmake .. -DTV_BUILD_USING_GPM=OFF -DCMAKE_BUILD_TYPE=Release && \
-    make -j2 && \
+    make -j4 && \
     make install
 
 # environment
@@ -132,7 +132,7 @@ USER $HOST_UID
 RUN echo "export ARCH=\"$ARCH\"" >> /home/$USER/.bashrc && \
     echo "export IMAGE_NAME=\"$IMAGE_NAME\"" >> /home/$USER/.bashrc && \
     echo "export PS1=\"[$IMAGE_NAME] \w\$ \"" >> /home/$USER/.bashrc && \
-    echo "export MAKEFLAGS=\"-j2\"" >> /home/$USER/.bashrc && \
+    echo "export MAKEFLAGS=\"-j4\"" >> /home/$USER/.bashrc && \
     echo "export TARGET_OS=linux" >> /home/$USER/.bashrc && \
     echo "export LINUX_DISTRO=alpine" >> /home/$USER/.bashrc && \
     echo "make -f /code/Makefile help" >> /home/$USER/.bashrc

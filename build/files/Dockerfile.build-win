@@ -62,7 +62,7 @@ RUN cd /tmp && \
         --disable-home-terminfo \
         --enable-interop \
         && \
-    make -j2 && \
+    make -j4 && \
     make install
 
 # gtest
@@ -80,7 +80,7 @@ RUN cd /tmp && \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_TOOLCHAIN_FILE=/tmp/toolchain-cross-mingw64-linux-$ARCH.cmake \
         && \
-    make -j2 && \
+    make -j4 && \
     make install
 
 # gtest - why are these declarations from <io.h> needed? gtest header fails when included in tmbasic otherwise
@@ -97,7 +97,7 @@ RUN cd /tmp && \
     mkdir -p bzip2/build-linux && \
     cd bzip2/build-linux && \
     cmake .. -DCMAKE_BUILD_TYPE=Release && \
-    make -j2 && \
+    make -j4 && \
     make install && \
     mkdir -p /tmp/bzip2/build-win && \
     cd /tmp/bzip2/build-win && \
@@ -108,7 +108,7 @@ RUN cd /tmp && \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_TOOLCHAIN_FILE=/tmp/toolchain-cross-mingw64-linux-$ARCH.cmake \
         && \
-    make -j2 && \
+    make -j4 && \
     make install
 
 # bsdiff
@@ -138,7 +138,7 @@ RUN cd /tmp && \
     CXXFLAGS="-DU_USING_ICU_NAMESPACE=0 -DU_NO_DEFAULT_INCLUDE_UTF_HEADERS=1 -DU_HIDE_OBSOLETE_UTF_OLD_H=1 -std=c++17" \
         ./runConfigureICU "Linux/gcc" --enable-static --disable-shared --disable-tests --disable-samples \
         --with-data-packaging=static && \
-    make -j2 && \
+    make -j4 && \
     make install
 
 RUN cd /tmp && \
@@ -149,7 +149,7 @@ RUN cd /tmp && \
         ./runConfigureICU "MinGW" --enable-static --enable-shared --disable-tests --disable-samples \
         --with-data-packaging=static \
         --host=$ARCH-w64-mingw32 --with-cross-build=/tmp/icu-linux/source/ --prefix=/usr/$ARCH-w64-mingw32 && \
-    make -j2 && \
+    make -j4 && \
     make install
 
 # immer
@@ -164,7 +164,7 @@ RUN cd /tmp && \
         -DCMAKE_INSTALL_PREFIX=/usr/$ARCH-w64-mingw32 \
         -DCMAKE_TOOLCHAIN_FILE=/tmp/toolchain-cross-mingw64-linux-$ARCH.cmake \
         && \
-    make -j2 && \
+    make -j4 && \
     make install
 
 # boost
@@ -181,12 +181,12 @@ RUN cd /tmp && \
     cd mpdecimal-*/ && \
     ./configure --host=$ARCH-w64-mingw32 && \
     cd libmpdec && \
-    make libmpdec.a -j2 && \
+    make libmpdec.a -j4 && \
     cp -f libmpdec.a /usr/$ARCH-w64-mingw32/lib/ && \
     mkdir -p /usr/include/libmpdec && \
     cp -f *.h /usr/include/libmpdec/ && \
     cd ../libmpdec++ && \
-    make libmpdec++.a -j2 && \
+    make libmpdec++.a -j4 && \
     cp -f libmpdec++.a /usr/$ARCH-w64-mingw32/lib/ && \
     mkdir -p /usr/include/libmpdec++ && \
     cp -f *.hh /usr/include/libmpdec++/
@@ -204,7 +204,7 @@ RUN cd /tmp && \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_TOOLCHAIN_FILE=/tmp/toolchain-cross-mingw64-linux-$ARCH.cmake \
         && \
-    make -j2 && \
+    make -j4 && \
     make install
 
 # environment
@@ -212,7 +212,7 @@ USER $HOST_UID
 RUN echo "export ARCH=\"$ARCH\"" >> /home/$USER/.bashrc && \
     echo "export IMAGE_NAME=\"$IMAGE_NAME\"" >> /home/$USER/.bashrc && \
     echo "export PS1=\"[$IMAGE_NAME] \w\$ \"" >> /home/$USER/.bashrc && \
-    echo "export MAKEFLAGS=\"-j2\"" >> /home/$USER/.bashrc && \
+    echo "export MAKEFLAGS=\"-j4\"" >> /home/$USER/.bashrc && \
     echo "export TARGET_OS=win" >> /home/$USER/.bashrc && \
     echo "make -f /code/Makefile help" >> /home/$USER/.bashrc
 
