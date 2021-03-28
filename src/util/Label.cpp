@@ -12,4 +12,38 @@ void Label::setTitle(const std::string& title) {
     text = strdup(title.c_str());
 }
 
+TColorAttr Label::mapColor(uchar index) {
+    switch (index) {
+        case 1:
+            if (colorActive.has_value()) {
+                return *colorActive;
+            }
+            break;
+        case 2:
+            if (colorInactive.has_value()) {
+                return *colorInactive;
+            }
+            break;
+        case 3:
+            if (colorFocused.has_value()) {
+                return *colorFocused;
+            }
+            break;
+        case 4:
+            if (colorSelected.has_value()) {
+                return *colorSelected;
+            }
+            break;
+        case 5:
+            if (colorDivider.has_value()) {
+                return *colorDivider;
+            }
+            break;
+        default:
+            break;
+    }
+
+    return TLabel::mapColor(index);
+}
+
 }  // namespace util
