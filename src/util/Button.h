@@ -20,6 +20,7 @@ class Button : public TButton {
     void useDefaultColorScheme();
     void useWhiteColorScheme();
     void setTitle(const std::string& text);
+    static int getButtonWidth(TStringView title);
 };
 
 }  // namespace util

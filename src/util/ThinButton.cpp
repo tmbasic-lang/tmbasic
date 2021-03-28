@@ -1,0 +1,164 @@
+#include "ThinButton.h"
+
+// derived from tvision's TButton class
+
+/*
+ *      Turbo Vision - Version 2.0
+ *
+ *      Copyright (c) 1994 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+namespace util {
+
+const int cmGrabDefault = 61, cmReleaseDefault = 62;
+
+ThinButton::ThinButton(const TRect& bounds, TStringView aTitle, ushort aCommand, ushort aFlags)
+    : Button(bounds, aTitle, aCommand, aFlags) {}
+
+ThinButton::ThinButton(TStringView aTitle, ushort aCommand, ushort aFlags)
+    : Button(TRect(0, 0, getButtonWidth(aTitle) - 2, 1), aTitle, aCommand, aFlags) {}
+
+void ThinButton::draw() {
+    drawState(False);
+}
+
+void ThinButton::drawTitle(TDrawBuffer& b, int s, int i, TAttrPair cButton, bool down) {
+    int l = 0;
+    int scOff = 0;
+    if ((flags & bfLeftJust) != 0) {
+        l = 1;
+    } else {
+        l = (s - cstrlen(title) - 1) / 2;
+        if (l < 1) {
+            l = 1;
+        }
+    }
+    b.moveCStr(i + l, title, cButton);
+
+    if (showMarkers == True && !down) {
+        if ((state & sfSelected) != 0) {
+            scOff = 0;
+        } else if (amDefault) {
+            scOff = 2;
+        } else {
+            scOff = 4;
+        }
+        b.putChar(0, specialChars[scOff]);
+        b.putChar(s, specialChars[scOff + 1]);
+    }
+}
+
+void ThinButton::drawState(bool down) {
+    TAttrPair cButton{};
+    TDrawBuffer b;
+
+    if ((state & sfDisabled) != 0) {
+        cButton = getColor(0x0404);
+    } else {
+        cButton = getColor(0x0501);
+        if ((state & sfActive) != 0) {
+            if ((state & sfSelected) != 0) {
+                cButton = getColor(0x0703);
+            } else if (amDefault) {
+                cButton = getColor(0x0602);
+            }
+        }
+    }
+    int s = size.x - 1;
+    int i = 0;
+    b.moveChar(0, ' ', cButton, size.x);
+    if (down) {
+        i = 2;
+    } else {
+        i = 1;
+    }
+
+    if (title != nullptr) {
+        drawTitle(b, s, i, cButton, down);
+    }
+
+    if (showMarkers && !down) {
+        b.putChar(1, '[');
+        b.putChar(s - 1, ']');
+    }
+    writeLine(0, 0, static_cast<int16_t>(size.x), 1, b);
+
+    writeLine(0, static_cast<int16_t>(size.y - 1), static_cast<int16_t>(size.x), 1, b);
+}
+
+void ThinButton::handleEvent(TEvent& event) {
+    TPoint mouse{};
+    TRect clickRect;
+
+    clickRect = getExtent();
+
+    if (event.what == evMouseDown) {
+        mouse = makeLocal(event.mouse.where);
+        if (!clickRect.contains(mouse)) {
+            clearEvent(event);
+        }
+    }
+    if (flags & bfGrabFocus) {
+        TView::handleEvent(event);
+    }
+
+    char c = hotKey(title);
+    switch (event.what) {
+        case evMouseDown:
+            if ((state & sfDisabled) == 0) {
+                clickRect.b.x++;
+                Boolean down = False;
+                do {
+                    mouse = makeLocal(event.mouse.where);
+                    if (down != clickRect.contains(mouse)) {
+                        down = Boolean(!down);
+                        drawState(down);
+                    }
+                } while (mouseEvent(event, evMouseMove));
+                if (down) {
+                    press();
+                    drawState(False);
+                }
+            }
+            clearEvent(event);
+            break;
+
+        case evKeyDown:
+            if (event.keyDown.keyCode != 0 &&
+                (event.keyDown.keyCode == getAltCode(c) ||
+                 (owner->phase == phPostProcess && c != 0 && toupper(event.keyDown.charScan.charCode) == c) ||
+                 ((state & sfFocused) != 0 && event.keyDown.charScan.charCode == ' '))) {
+                press();
+                clearEvent(event);
+            }
+            break;
+
+        case evBroadcast:
+            switch (event.message.command) {
+                case cmDefault:
+                    if (amDefault && !(state & sfDisabled)) {
+                        press();
+                        clearEvent(event);
+                    }
+                    break;
+
+                case cmGrabDefault:
+                case cmReleaseDefault:
+                    if ((flags & bfDefault) != 0) {
+                        amDefault = Boolean(event.message.command == cmReleaseDefault);
+                        drawView();
+                    }
+                    break;
+
+                case cmCommandSetChanged:
+                    setState(sfDisabled, Boolean(!commandEnabled(command)));
+                    drawView();
+                    break;
+            }
+            break;
+    }
+}
+
+}  // namespace util
