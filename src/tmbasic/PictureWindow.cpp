@@ -760,14 +760,15 @@ static void onTick(PictureWindowPrivate* p) {
 }
 
 void PictureWindow::handleEvent(TEvent& event) {
-    if (event.what == evKeyDown) {
+    if (event.what == evKeyboard) {
         if (event.keyDown.keyCode == kbEsc && _private->mode == PictureWindowMode::kSelect) {
             _private->pictureView->selection = {};
             _private->pictureView->drawView();
             clearEvent(event);
         } else if (
             _private->mode == PictureWindowMode::kType && _private->pictureView->selection.has_value() &&
-            event.keyDown.text[0] != '\0') {
+            event.keyDown.text[0] != '\0' && event.keyDown.keyCode != kbLeft && event.keyDown.keyCode != kbRight &&
+            event.keyDown.keyCode != kbUp && event.keyDown.keyCode != kbDown) {
             auto rect = *_private->pictureView->selection;
             auto& cell =
                 _private->pictureView->picture.cells.at(rect.a.y * _private->pictureView->picture.width + rect.a.x);
