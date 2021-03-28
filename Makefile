@@ -339,7 +339,6 @@ all: bin/tmbasic$(EXE_EXTENSION) bin/test$(EXE_EXTENSION) bin/LICENSE.txt runner
 ifeq ($(TARGET_OS),linux)
 ifeq ($(LINUX_DISTRO),alpine)
 versions:
-	@echo
 	@apk info --license libstdc++ | tr -d '\n' | awk '{print $$1}'
 	@apk info --license musl-dev | tr -d '\n' | awk '{print $$1}'
 else
@@ -360,6 +359,8 @@ versions:
 endif
 
 .PHONY: help
+# only show the help text in the dev container
+ifeq ($(LINUX_DISTRO),ubuntu)
 help: versions
 	@echo "Target: $(TARGET_OS) $(ARCH)"
 	@echo ""
@@ -378,6 +379,9 @@ help: versions
 	@echo "make ghpages       Build tmbasic-gh-pages"
 	@echo "make ghpages-test  Host tmbasic-gh-pages on port 5000"
 	@echo ""
+else
+help: versions
+endif
 
 .PHONY: release
 release:
@@ -411,7 +415,7 @@ lint:
 tidy: $(TIDY_TARGETS)
 
 .PHONY: tidy-commit
-tidy-commit: $(shell git status | grep "\.cpp" | awk '{ print $$2 }' | sed 's:src:obj/tidy:g; s/cpp$$/tidy/g')
+tidy-commit: $(shell 2>/dev/null git status | grep "\.cpp" | awk '{ print $$2 }' | sed 's:src:obj/tidy:g; s/cpp$$/tidy/g')
 
 .PHONY: ghpages
 ghpages: obj/resources/help/help.txt bin/ghpages/index.html
