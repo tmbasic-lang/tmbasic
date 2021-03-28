@@ -133,6 +133,7 @@ LICENSE_FILES=\
 	ext/bsdiff/LICENSE \
 	ext/bzip2/COPYING \
 	ext/icu/LICENSE
+LICENSE_DIAGRAM_TXT_TIMESTAMP_FILE=obj/doc-temp/diagrams-license/timestamp
 LICENSE_DIAGRAM_TXT_FILES=\
 	obj/doc-temp/diagrams-license/license_tmbasic.txt \
 	obj/doc-temp/diagrams-license/license_boost.txt \
@@ -533,10 +534,13 @@ bin/LICENSE.txt: LICENSE \
 	@echo >> $@
 	@$(LICENSE_PROCESS_CMD) $@
 
-$(LICENSE_DIAGRAM_TXT_FILES): $(LICENSE_FILES)
+$(LICENSE_DIAGRAM_TXT_TIMESTAMP_FILE): $(LICENSE_FILES)
 	@printf "%16s  %s\n" "copyLicenses.sh" "$@"
 	@mkdir -p $(@D)
 	@build/scripts/copyLicenses.sh
+	@touch $@
+
+$(LICENSE_DIAGRAM_TXT_FILES): $(LICENSE_DIAGRAM_TXT_TIMESTAMP_FILE)
 
 obj/buildDoc: src/buildDoc.cpp
 	@printf "%16s  %s\n" "$(BUILDCXX)" "$@"
