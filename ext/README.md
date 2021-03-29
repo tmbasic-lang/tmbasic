@@ -40,8 +40,8 @@ A mirror of all external library sources is available in a [requester-pays](http
 
 ### [tvision](https://github.com/magiblot/tvision)
 - License: [Borland license (original code), MIT license (additions)](https://github.com/electroly/tmbasic/blob/master/ext/tvision/COPYRIGHT)
-- Source: https://github.com/magiblot/tvision/archive/79182b1a742a9944f89e632cf524b26d940e805f.zip
-    - Mirror: `s3://tmbasic/tvision/tvision-79182b1a742a9944f89e632cf524b26d940e805f.zip`
+- Source: https://github.com/magiblot/tvision/archive/3a364725214fe2475e8bbe2ca09c1080b29e3a0f.zip
+    - Mirror: `s3://tmbasic/tvision/tvision-3a364725214fe2475e8bbe2ca09c1080b29e3a0f.zip`
 
 ## Libraries included only in TMBASIC
 
