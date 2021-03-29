@@ -6,6 +6,7 @@
 #include "../util/InputLine.h"
 #include "../util/Label.h"
 #include "../util/ScrollBar.h"
+#include "../util/ThinButton.h"
 #include "../util/ViewPtr.h"
 #include "../util/tvutil.h"
 #include "../vm/UserForm.h"
@@ -23,6 +24,7 @@ using util::DialogPtr;
 using util::InputLine;
 using util::Label;
 using util::ScrollBar;
+using util::ThinButton;
 using util::ViewPtr;
 
 namespace tmbasic {
@@ -30,7 +32,7 @@ namespace tmbasic {
 class PictureCell {
    public:
     bool transparent = false;
-    TColorAttr colorAttr{ TColorRGB{ 255, 255, 255 }, TColorRGB{ 255, 255, 255 } };
+    TColorAttr colorAttr{ TColorRGB{ 0, 0, 0 }, TColorRGB{ 255, 255, 255 } };
     std::string ch = " ";
 };
 
@@ -41,15 +43,7 @@ class Picture {
     int width{};
     int height{};
 
-    Picture(int width, int height) : cells(width * height, PictureCell()), width(width), height(height) {
-        for (auto i = 0; i < height; i++) {
-            for (auto j = 0; j < width; j++) {
-                cells.at(i * width + j).ch = '0' + (i * 17 + j) % 78;
-                cells.at(i * width + j).colorAttr = { TColorRGB(255, 255, 255),
-                                                      TColorRGB(i * 255 / height, j * 255 / width, 255) };
-            }
-        }
-    }
+    Picture(int width, int height) : cells(width * height, PictureCell()), width(width), height(height) {}
 
     explicit Picture(const std::string& source) {
         std::istringstream s{ source };
@@ -235,6 +229,7 @@ class PictureView : public TView {
 
     explicit PictureView(const TRect& bounds) : TView(bounds) {
         eventMask = evMouseDown | evMouseMove | evMouseUp | evCommand | evBroadcast;
+        options |= ofSelectable | ofFirstClick;
     }
 
     int pictureXToView(int pictureX) const { return pictureX - scrollLeft + 2; }
@@ -295,8 +290,10 @@ class PictureView : public TView {
                     } else {
                         b.moveStr(viewX - minViewX, " ", { 0x5F });
                     }
-                } else {
+                } else if (!cell.ch.empty()) {
                     b.moveStr(viewX - minViewX, cell.ch, cell.colorAttr);
+                } else {
+                    b.moveChar(viewX - minViewX, ' ', cell.colorAttr, 1);
                 }
             }
 
@@ -306,10 +303,10 @@ class PictureView : public TView {
         }
     }
 
-    void drawSelectionBorder(int x, int y) {
+    void drawSelectionBorder(int x, int y, bool dot) {
         auto ch = picture.cells.at(y * picture.width + x).ch;
         TDrawBuffer b;
-        b.moveCStr(0, ch, { flashingSelection ? 0x2A : 0xA2 });
+        b.moveCStr(0, dot ? "•" : ch, { flashingSelection ? 0x2A : 0xA2 });
         writeBufferChar(x, y, b);
     }
 
@@ -325,13 +322,28 @@ class PictureView : public TView {
         drawPictureRegion(TRect(0, 0, picture.width, picture.height));
 
         if (selection.has_value()) {
+            auto left = selection->a.x;
+            auto right = selection->b.x - 1;
+            auto top = selection->a.y;
+            auto bottom = selection->b.y - 1;
             for (auto y = selection->a.y; y < selection->b.y; y++) {
-                drawSelectionBorder(selection->a.x, y);
-                drawSelectionBorder(selection->b.x - 1, y);
+                drawSelectionBorder(left, y, false);
+                drawSelectionBorder(right, y, false);
             }
             for (auto x = selection->a.x; x < selection->b.x; x++) {
-                drawSelectionBorder(x, selection->a.y);
-                drawSelectionBorder(x, selection->b.y - 1);
+                drawSelectionBorder(x, top, false);
+                drawSelectionBorder(x, bottom, false);
+            }
+            if (flashingSelection) {
+                drawSelectionBorder(left, top, true);
+                drawSelectionBorder(left, bottom, true);
+                drawSelectionBorder(right, top, true);
+                drawSelectionBorder(right, bottom, true);
+            } else if (right - left > 3 && bottom - top > 3) {
+                drawSelectionBorder((left + right + 1) / 2, top, true);
+                drawSelectionBorder((left + right + 1) / 2, bottom, true);
+                drawSelectionBorder(left, (top + bottom + 1) / 2, true);
+                drawSelectionBorder(right, (top + bottom + 1) / 2, true);
             }
         }
 
@@ -399,6 +411,10 @@ class PictureWindowPrivate {
     ViewPtr<CheckBoxes> setBgCheck{ std::vector<std::string>{ "Set BG color" }, std::vector<bool>{ true } };
     ViewPtr<CheckBoxes> setChCheck{ std::vector<std::string>{ "Set character" }, std::vector<bool>{ true } };
     ViewPtr<Label> maskHelp{ "Click to toggle between opaque and transparent." };
+    ViewPtr<ThinButton> cutButton{ "~Ctrl+X~ Cut", cmCut, 0 };
+    ViewPtr<ThinButton> copyButton{ "~Ctrl+C~ Copy", cmCopy, 0 };
+    ViewPtr<ThinButton> pasteButton{ "~Ctrl+V~ Paste", cmPaste, 0 };
+    ViewPtr<ThinButton> clearButton{ "~Del~ Clear", cmPaste, 0 };
 };
 
 class PictureOptionsDialog : public TDialog {
@@ -437,6 +453,8 @@ class PictureOptionsDialog : public TDialog {
                     }),
             })
             .addTo(this);
+
+        _nameText->focus();
     }
 
     void handleEvent(TEvent& event) override {
@@ -476,6 +494,49 @@ static void updateScrollBars(PictureWindowPrivate* p) {
         p->pictureView->size.x - 1, 1);
 }
 
+static void enableDisableSelectButtons(PictureWindowPrivate* p) {
+    auto enabled = p->pictureView->selection.has_value();
+
+    p->copyButton->setState(sfDisabled, !enabled);
+    p->cutButton->setState(sfDisabled, !enabled);
+    p->pasteButton->setState(sfDisabled, !enabled);
+    p->clearButton->setState(sfDisabled, !enabled);
+
+    p->copyButton->drawView();
+    p->cutButton->drawView();
+    p->pasteButton->drawView();
+    p->clearButton->drawView();
+}
+
+static void onSelectionCut(PictureWindowPrivate* p) {}
+
+static void onSelectionCopy(PictureWindowPrivate* p) {}
+
+static void onSelectionPaste(PictureWindowPrivate* p) {}
+
+static void onSelectionClear(PictureWindowPrivate* p) {
+    if (!p->pictureView->selection.has_value()) {
+        return;
+    }
+
+    PictureCell pictureCell;
+    pictureCell.ch = p->ch;
+    pictureCell.colorAttr = { p->fg, p->bg };
+    pictureCell.transparent = false;
+
+    const auto& selection = *p->pictureView->selection;
+    auto& picture = p->pictureView->picture;
+    for (auto y = selection.a.y; y < selection.b.y; y++) {
+        for (auto x = selection.a.x; x < selection.b.x; x++) {
+            picture.cells.at(y * picture.width + x) = pictureCell;
+        }
+    }
+
+    p->pictureView->selection = {};
+    enableDisableSelectButtons(p);
+    p->pictureView->drawView();
+}
+
 PictureWindow::PictureWindow(
     const TRect& r,
     SourceMember* member,
@@ -498,34 +559,59 @@ PictureWindow::PictureWindow(
     _private->hScrollBar->useWhiteColorScheme();
     _private->hScrollBar.addTo(this);
 
-    _private->pictureView->setBounds(TRect(1, 2, size.x - 1, size.y - 1));
-    _private->pictureView->growMode = gfGrowHiX | gfGrowHiY;
-    _private->pictureView.addTo(this);
-
     _private->toolLabel.addTo(this);
-    _private->setFgCheck->setBounds(TRect(14, 1, 32, 2));
+
+    _private->setFgCheck->setBounds(TRect(15, 1, 33, 2));
     _private->setFgCheck.addTo(this);
     _private->setFgCheck->hide();
-    _private->setBgCheck->setBounds(TRect(33, 1, 51, 2));
+
+    _private->setBgCheck->setBounds(TRect(34, 1, 52, 2));
     _private->setBgCheck.addTo(this);
     _private->setBgCheck->hide();
-    _private->setChCheck->setBounds(TRect(52, 1, 71, 2));
+
+    _private->setChCheck->setBounds(TRect(53, 1, 72, 2));
     _private->setChCheck.addTo(this);
     _private->setChCheck->hide();
-    _private->maskHelp->setBounds(TRect(14, 1, 70, 2));
+
+    _private->maskHelp->setBounds(TRect(15, 1, 70, 2));
     _private->maskHelp.addTo(this);
     _private->maskHelp->hide();
 
-    updateScrollBars(_private);
+    RowLayout(
+        false,
+        {
+            _private->cutButton.take(),
+            _private->copyButton.take(),
+            _private->pasteButton.take(),
+            _private->clearButton.take(),
+        })
+        .addTo(this, 15, 80, 1);
 
     try {
         _private->pictureView->picture = Picture(member->source);
     } catch (...) {
     }
+
+    _private->pictureView->setBounds(TRect(1, 2, size.x - 1, size.y - 1));
+    _private->pictureView->growMode = gfGrowHiX | gfGrowHiY;
+    _private->pictureView.addTo(this);
+    _private->pictureView->select();
+
+    updateScrollBars(_private);
 }
 
 PictureWindow::~PictureWindow() {
     delete _private;
+}
+
+static void showHide(bool showCondition, std::initializer_list<TView*> views) {
+    for (auto* view : views) {
+        if (showCondition) {
+            view->show();
+        } else {
+            view->hide();
+        }
+    }
 }
 
 static void updateStatusItems(PictureWindowPrivate* p) {
@@ -539,7 +625,7 @@ static void updateStatusItems(PictureWindowPrivate* p) {
     p->statusItems.bgColor->colorPairNormal = attrPair;
     p->statusItems.characterColor->colorPairNormal = attrPair;
 
-    TAttrPair sel{ 0x2F, 0x2F };
+    TAttrPair sel{ 0x20, 0x2E };
     TAttrPair unsel{ 0x70, 0x74 };
 
     p->statusItems.selectColor->colorPairNormal = p->mode == PictureWindowMode::kSelect ? sel : unsel;
@@ -571,42 +657,35 @@ static void updateStatusItems(PictureWindowPrivate* p) {
             break;
     }
 
+    // Copy, Move, Fill
+    showHide(p->mode == PictureWindowMode::kSelect, { p->copyButton, p->cutButton, p->pasteButton, p->clearButton });
+
     // Set FG, Set BG
-    if (p->mode == PictureWindowMode::kDraw || p->mode == PictureWindowMode::kType ||
-        p->mode == PictureWindowMode::kPick) {
-        p->setBgCheck->show();
-        p->setFgCheck->show();
-    } else {
-        p->setBgCheck->hide();
-        p->setFgCheck->hide();
-    }
+    showHide(
+        p->mode == PictureWindowMode::kDraw || p->mode == PictureWindowMode::kType ||
+            p->mode == PictureWindowMode::kPick,
+        { p->setBgCheck, p->setFgCheck });
 
     // Set Char
-    if (p->mode == PictureWindowMode::kDraw || p->mode == PictureWindowMode::kPick) {
-        p->setChCheck->show();
-    } else {
-        p->setChCheck->hide();
-    }
+    showHide(p->mode == PictureWindowMode::kDraw || p->mode == PictureWindowMode::kPick, { p->setChCheck });
 
     // Selection
     if (p->pictureView->selection.has_value()) {
         auto sel = *p->pictureView->selection;
         if (p->mode != PictureWindowMode::kSelect && p->mode != PictureWindowMode::kType) {
             p->pictureView->selection = {};
+            enableDisableSelectButtons(p);
             p->pictureView->drawView();
         }
         if (p->mode == PictureWindowMode::kType && (sel.b.x > sel.a.x + 1 || sel.b.y > sel.a.y + 1)) {
             p->pictureView->selection = TRect(sel.a.x, sel.a.y, sel.a.x + 1, sel.a.y + 1);
+            enableDisableSelectButtons(p);
             p->pictureView->drawView();
         }
     }
 
     // Mask help
-    if (p->mode == PictureWindowMode::kMask) {
-        p->maskHelp->show();
-    } else {
-        p->maskHelp->hide();
-    }
+    showHide(p->mode == PictureWindowMode::kMask, { p->maskHelp });
 
     p->toolLabel->setTitle(labelText);
     p->toolLabel->drawView();
@@ -628,6 +707,7 @@ static void onMouse(int pictureX, int pictureY, const PictureViewMouseEventArgs&
         p->resizingVertical = pt == verticalGripper || pt == diagonalGripper;
         p->resizingHorizontal = pt == horizontalGripper || pt == diagonalGripper;
         p->pictureView->selection = {};
+        enableDisableSelectButtons(p);
         p->pictureView->drawView();
         return;
     }
@@ -645,6 +725,7 @@ static void onMouse(int pictureX, int pictureY, const PictureViewMouseEventArgs&
         p->pictureView->picture = *p->resizingOriginalPicture;
         p->pictureView->picture.resize(newWidth, newHeight);
         p->pictureView->selection = {};
+        enableDisableSelectButtons(p);
         p->pictureView->drawView();
         return;
     }
@@ -678,11 +759,13 @@ static void onMouse(int pictureX, int pictureY, const PictureViewMouseEventArgs&
                 x2++;
                 y2++;
                 p->pictureView->selection = TRect(x1, y1, x2, y2);
+                enableDisableSelectButtons(p);
             }
             if (e.down) {
                 p->currentDrag = TPoint{ pictureX, pictureY };
                 p->pictureView->selection =
                     TRect(*p->currentDrag, TPoint{ p->currentDrag->x + 1, p->currentDrag->y + 1 });
+                enableDisableSelectButtons(p);
             } else if ((e.up || (e.move && e.buttons == 0)) && p->currentDrag.has_value()) {
                 p->currentDrag = {};
             }
@@ -724,6 +807,7 @@ static void onMouse(int pictureX, int pictureY, const PictureViewMouseEventArgs&
         case PictureWindowMode::kType:
             if (leftMouseDown || dragging) {
                 p->pictureView->selection = TRect(pictureX, pictureY, pictureX + 1, pictureY + 1);
+                enableDisableSelectButtons(p);
                 p->pictureView->drawView();
             }
             break;
@@ -763,6 +847,7 @@ void PictureWindow::handleEvent(TEvent& event) {
     if (event.what == evKeyboard) {
         if (event.keyDown.keyCode == kbEsc && _private->mode == PictureWindowMode::kSelect) {
             _private->pictureView->selection = {};
+            enableDisableSelectButtons(_private);
             _private->pictureView->drawView();
             clearEvent(event);
         } else if (
@@ -789,6 +874,7 @@ void PictureWindow::handleEvent(TEvent& event) {
                 rect.b.x++;
             }
             _private->pictureView->selection = rect;
+            enableDisableSelectButtons(_private);
             _private->pictureView->drawView();
             clearEvent(event);
         } else if (
@@ -822,6 +908,7 @@ void PictureWindow::handleEvent(TEvent& event) {
             if (r.a.x >= 0 && r.a.x <= width && r.b.x >= 0 && r.b.x <= width && r.a.y >= 0 && r.a.y <= height &&
                 r.b.y >= 0 && r.b.y <= height) {
                 _private->pictureView->selection = r;
+                enableDisableSelectButtons(_private);
                 _private->pictureView->drawView();
             }
         }
@@ -838,6 +925,34 @@ void PictureWindow::handleEvent(TEvent& event) {
                 onMouse(pictureX, pictureY, *e, _private);
                 break;
             }
+
+            case cmClear:
+                if (_private->mode == PictureWindowMode::kSelect) {
+                    onSelectionClear(_private);
+                }
+                clearEvent(event);
+                break;
+
+            case cmCut:
+                if (_private->mode == PictureWindowMode::kSelect) {
+                    onSelectionCut(_private);
+                }
+                clearEvent(event);
+                break;
+
+            case cmCopy:
+                if (_private->mode == PictureWindowMode::kSelect) {
+                    onSelectionCopy(_private);
+                }
+                clearEvent(event);
+                break;
+
+            case cmPaste:
+                if (_private->mode == PictureWindowMode::kSelect) {
+                    onSelectionPaste(_private);
+                }
+                clearEvent(event);
+                break;
         }
     } else if (event.what == evBroadcast) {
         switch (event.message.command) {
@@ -967,6 +1082,7 @@ void PictureWindow::onStatusLineCommand(ushort cmd) {
             if (!_private->pictureView->selection.has_value() && _private->pictureView->picture.width > 0 &&
                 _private->pictureView->picture.height > 0) {
                 _private->pictureView->selection = { 0, 0, 1, 1 };
+                enableDisableSelectButtons(_private);
                 _private->pictureView->drawView();
             }
             updateStatusItems(_private);
