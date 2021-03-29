@@ -16,8 +16,8 @@ A mirror of all external library sources is available in a [requester-pays](http
 
 ### [immer](https://github.com/arximboldi/immer)
 - License: [Boost Software License v1.0](https://github.com/electroly/tmbasic/blob/master/ext/immer/LICENSE)
-- Source: https://github.com/arximboldi/immer/archive/800ddb04e528a3e83e69e8021d7e872e7c34cbcd.zip
-    - Mirror: `s3://tmbasic/immer/immer-800ddb04e528a3e83e69e8021d7e872e7c34cbcd.zip`
+- Source: https://github.com/arximboldi/immer/archive/4d1caac17daaea58b949e30c6b1d5d5b88a3b78e.zip
+    - Mirror: `s3://tmbasic/immer/immer-4d1caac17daaea58b949e30c6b1d5d5b88a3b78e.zip`
 
 ### [libstdc++](https://gcc.gnu.org/onlinedocs/libstdc++/)
 - License: [GNU General Public License v3](https://github.com/electroly/tmbasic/blob/master/ext/gcc/GPL-3) with [GCC Runtime Library Exception v3.1](https://github.com/electroly/tmbasic/blob/master/ext/gcc/copyright)

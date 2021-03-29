@@ -112,53 +112,16 @@ pngcrush -brute -reduce -ow screenshot.png
 
 ## Update third party dependencies
 
-Download links for libraries are located in the following files:
-
-- `build/mac-x64.sh`
-- `build/files/Dockerfile.build-dev`
-- `build/files/Dockerfile.build-linux`
-- `build/files/Dockerfile.build-win`
-
-### boost
-1. https://www.boost.org/
-    - Click "Download" under "Current Release".
-    - Download the tarball.
-    - Copy the link.
-1. Edit `ext/README.md` and replace the boost link.
-1. Upload to S3: `aws s3 cp boost_X_X_X.tar.gz s3://tmbasic/boost/ --acl public-read` (use the downloaded filename)
-1. Edit `ext/README.md` and replace the mirror link.
-1. Update the URL in the files listed above.
-1. Commit as "Update boost to version ____"
-
-### tvision
-1. https://github.com/magiblot/tvision
-    - Click commit hash
-    - Click "Browse files"
-    - Click "Code"
-    - Right-click "Download ZIP"
-    - Click "Copy link"
-    - Click "Download ZIP" to download it
-1. Edit `ext/README.md` and replace the tvision link.
-1. Upload to S3: `aws s3 cp tvision-____.zip s3://tmbasic/tvision/ --acl public-read` (use the downloaded filename)
-1. Edit `ext/README.md` and replace the mirror link.
-1. Update the URL in the files listed above.
-1. Commit as "Update tvision to commit ____"
-
-### mpdecimal
-1. https://www.bytereef.org/mpdecimal/download.html
-    - Download the stable version tarball.
-    - Copy the link.
-1. Edit `ext/README.md` and replace the mpdecimal link.
-1. Upload to S3: `aws s3 cp mpdecimal-X.X.X.tar.gz s3://tmbasic/mpdecimal/ --acl public-read` (use the downloaded filename)
-1. Edit `ext/README.md` and replace the mirror link.
-1. Update the URL in the files listed above.
-1. Commit as "Update mpdecimal to version ____"
-
-### nameof
-1. https://github.com/Neargye/nameof/releases/
-1. Copy the `nameof.hpp` link. Use `wget` to download, overwriting `ext/nameof/nameof.hpp`.
-1. Update link in `ext/README.md`.
-1. Commit as "Update nameof to version ____"
+1. Get the project link from [`ext/README.md`](https://github.com/electroly/tmbasic/blob/master/ext/README.md).
+1. Download the latest version, and copy the link to the clipboard. If this is a GitHub/Gitlab "Download ZIP" link, make sure it points to a specific commit hash.
+1. Upload to S3: `aws s3 cp foobar-X.X.X.tar.gz s3://tmbasic/foobar/ --acl public-read` (use downloaded filename)
+1. Edit [`ext/README.md`](https://github.com/electroly/tmbasic/blob/master/ext/README.md) and replace the download and mirror links.
+1. Update the URL in the following files:
+    - `build/mac-x64.sh`
+    - `build/files/Dockerfile.build-dev`
+    - `build/files/Dockerfile.build-linux`
+    - `build/files/Dockerfile.build-win`
+1. Commit as "Update foobar to version ____" or "Update foobar to commit ____".
 
 ## Make a release build
 1. Start the following three build machines. Prepare them for building using the instructions at the beginning of this document.

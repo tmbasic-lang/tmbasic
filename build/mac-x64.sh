@@ -45,7 +45,7 @@ fi
 
 if [ ! -d "immer" ]
 then
-    curl -L -o immer.zip https://github.com/arximboldi/immer/archive/800ddb04e528a3e83e69e8021d7e872e7c34cbcd.zip
+    curl -L -o immer.zip https://github.com/arximboldi/immer/archive/4d1caac17daaea58b949e30c6b1d5d5b88a3b78e.zip
     unzip -q immer.zip
     mv immer-*/ immer/
 fi
