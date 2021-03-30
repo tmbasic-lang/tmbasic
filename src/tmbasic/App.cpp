@@ -64,6 +64,9 @@ App::App(int /*argc*/, char** /*argv*/)
     onFileNew();
 
     _pictureWindowStatusItems = _newestPictureWindowStatusItems;
+
+    // test
+    Scintilla::TScintillaEditor e;
 }
 
 void App::idle() {

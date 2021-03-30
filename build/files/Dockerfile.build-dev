@@ -3,24 +3,25 @@ FROM ubuntu:20.04
 RUN apt-get update -y && \
     apt-get upgrade -y && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
-        curl \
-        software-properties-common \
         apt-transport-https \
-        make \
-        git \
         cmake \
-        valgrind \
+        curl \
+        git \
+        language-pack-en \
         libgtest-dev \
-        python3 \
-        python3-pip \
-        unzip \
-        pandoc \
-        xxd \
         libncursesw5 \
         libncursesw5-dev \
+        make \
         nodejs \
         npm \
-        language-pack-en
+        pandoc \
+        pkg-config \
+        python3 \
+        python3-pip \
+        software-properties-common \
+        unzip \
+        valgrind \
+        xxd
 
 # unprivileged user
 RUN mkdir -p /code && \
@@ -29,6 +30,12 @@ RUN mkdir -p /code && \
     chown $HOST_UID:$HOST_GID /code && \
     mkdir -p /home/$USER && \
     chown $HOST_UID:$HOST_GID /home/$USER
+
+# cpplint
+RUN pip3 install cpplint
+
+# doctoc
+RUN npm install -g doctoc
 
 # clang-format, clang-tidy
 RUN curl -L https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
@@ -45,19 +52,20 @@ RUN cd /usr/src/gtest && \
     mv lib/*.a /usr/lib/
 
 # bzip2
-RUN cd /tmp && \
-    curl -L -o bzip2.zip https://gitlab.com/federicomenaquintero/bzip2/-/archive/6211b6500c8bec13a17707440d3a84ca8b34eed5/bzip2-6211b6500c8bec13a17707440d3a84ca8b34eed5.zip && \
+RUN curl -L -o /tmp/bzip2.zip https://gitlab.com/federicomenaquintero/bzip2/-/archive/6211b6500c8bec13a17707440d3a84ca8b34eed5/bzip2-6211b6500c8bec13a17707440d3a84ca8b34eed5.zip && \
+    cd /tmp && \
     unzip -q bzip2.zip && \
     mv bzip2-*/ bzip2/ && \
     mkdir -p bzip2/build && \
     cd bzip2/build && \
     cmake .. -DENABLE_STATIC_LIB=ON && \
     make -j4 && \
-    make install
+    make install && \
+    rm -rf /tmp/bzip2.zip /tmp/bzip2/
 
 # bsdiff
-RUN cd /tmp && \
-    curl -L -o bsdiff.zip https://github.com/mendsley/bsdiff/archive/b817e9491cf7b8699c8462ef9e2657ca4ccd7667.zip && \
+RUN curl -L -o /tmp/bsdiff.zip https://github.com/mendsley/bsdiff/archive/b817e9491cf7b8699c8462ef9e2657ca4ccd7667.zip && \
+    cd /tmp && \
     unzip -q bsdiff.zip && \
     mv bsdiff-*/ bsdiff/ && \
     cd bsdiff && \
@@ -71,62 +79,163 @@ RUN cd /tmp && \
     ar rcs libbspatch.a bspatch.o && \
     mv libbspatch.a /usr/lib/ && \
     mkdir -p /usr/include/bsdiff && \
-    cp *.h /usr/include/bsdiff/
+    cp *.h /usr/include/bsdiff/ && \
+    rm -rf /tmp/bsdiff.zip /tmp/bsdiff/
 
 # icu
-RUN cd /tmp && \
-    curl -L -o icu.tar.gz https://github.com/unicode-org/icu/releases/download/release-68-2/icu4c-68_2-src.tgz && \
+RUN curl -L -o /tmp/icu.tar.gz https://github.com/unicode-org/icu/releases/download/release-68-2/icu4c-68_2-src.tgz && \
+    cd /tmp && \
     tar zxf icu.tar.gz && \
     cd icu/source && \
     CXXFLAGS="-DU_USING_ICU_NAMESPACE=0 -DU_NO_DEFAULT_INCLUDE_UTF_HEADERS=1 -DU_HIDE_OBSOLETE_UTF_OLD_H=1 -std=c++17" \
         ./runConfigureICU "Linux/gcc" --enable-static --disable-shared --disable-tests --disable-samples \
         --with-data-packaging=static && \
     make -j4 && \
+    make install && \
+    rm -rf /tmp/icu.tar.gz /tmp/icu/
+
+# xorgproto
+RUN curl -L -o /tmp/xorgproto.tar.gz https://xorg.freedesktop.org/archive/individual/proto/xorgproto-2021.3.tar.gz && \
+    cd /tmp && \
+    tar zxf xorgproto.tar.gz && \
+    mv xorgproto-*/ xorgproto/ && \
+    cd xorgproto && \
+    ./configure && \
+    make -j4 && \
+    make install && \
+    rm -rf /tmp/xorgproto.tar.gz /tmp/xorgproto/
+
+# libXau
+RUN curl -L -o /tmp/libXau.tar.gz https://xorg.freedesktop.org/archive/individual/lib/libXau-1.0.9.tar.gz && \
+    cd /tmp && \
+    tar zxf libXau.tar.gz && \
+    mv libXau-*/ libXau/ && \
+    cd libXau && \
+    ./configure --enable-static && \
+    make -j4 && \
+    make install && \
+    rm -rf /tmp/libXau.tar.gz /tmp/libXau/
+
+# xcb-proto
+RUN curl -L -o /tmp/xcb-proto.tar.gz https://xorg.freedesktop.org/archive/individual/xcb/xcb-proto-1.14.tar.gz && \
+    cd /tmp && \
+    tar zxf xcb-proto.tar.gz && \
+    mv xcb-proto-*/ xcb-proto/ && \
+    cd xcb-proto && \
+    ./configure && \
+    make -j4 && \
+    make install && \
+    rm -rf /tmp/xcb-proto.tar.gz /tmp/xcb-proto/
+
+# libpthread-stubs
+RUN curl -L -o /tmp/libpthread-stubs.tar.gz https://xorg.freedesktop.org/archive/individual/lib/libpthread-stubs-0.1.tar.gz && \
+    cd /tmp && \
+    tar zxf libpthread-stubs.tar.gz && \
+    mv libpthread-stubs-* libpthread-stubs/ && \
+    cd libpthread-stubs && \
+    curl -L -o config.guess 'http://savannah.gnu.org/cgi-bin/viewcvs/*checkout*/config/config/config.guess' && \
+    curl -L -o config.sub 'http://savannah.gnu.org/cgi-bin/viewcvs/*checkout*/config/config/config.sub' && \
+    ./configure --enable-static --disable-shared && \
+    make -j4 && \
     make install
 
+# libxcb
+RUN curl -L -o /tmp/libxcb.tar.gz https://xorg.freedesktop.org/archive/individual/lib/libxcb-1.14.tar.gz && \
+    cd /tmp && \
+    tar zxf libxcb.tar.gz && \
+    mv libxcb-*/ libxcb/ && \
+    cd libxcb && \
+    ./configure --enable-static && \
+    make -j4 && \
+    make install && \
+    rm -rf /tmp/libxcb.tar.gz /tmp/libxcb/
+
+# fmt
+RUN curl -L -o /tmp/fmt.zip https://github.com/fmtlib/fmt/releases/download/7.1.3/fmt-7.1.3.zip && \
+    cd /tmp && \
+    unzip -q fmt.zip && \
+    mv fmt-*/ fmt/ && \
+    mkdir -p fmt/build && \
+    cd fmt/build && \
+    cmake .. -DCMAKE_BUILD_TYPE=Release -DFMT_TEST=OFF -DFMT_FUZZ=OFF -DFMT_CUDA_TEST=OFF -DFMT_DOC=OFF && \
+    make -j4 && \
+    make install && \
+    rm -rf /tmp/fmt.zip /tmp/fmt/
+
+# libclipboard
+RUN curl -L -o /tmp/libclipboard.zip https://github.com/jtanx/libclipboard/archive/refs/tags/v1.1.zip && \
+    cd /tmp && \
+    unzip -q libclipboard.zip && \
+    mv libclipboard-*/ libclipboard/ && \
+    mkdir -p libclipboard/build && \
+    cd libclipboard/build && \
+    cmake .. -DCMAKE_BUILD_TYPE=Release && \
+    make -j4 && \
+    make install && \
+    rm -rf /tmp/libclipboard.zip /tmp/libclipboard/
+
 # immer
-RUN cd /tmp && \
-    curl -L -o immer.zip https://github.com/arximboldi/immer/archive/4d1caac17daaea58b949e30c6b1d5d5b88a3b78e.zip && \
+RUN curl -L -o /tmp/immer.zip https://github.com/arximboldi/immer/archive/4d1caac17daaea58b949e30c6b1d5d5b88a3b78e.zip && \
+    cd /tmp && \
     unzip -q immer.zip && \
     mv immer-*/ immer/ && \
     mkdir -p immer/build && \
     cd immer/build && \
     cmake .. && \
     make -j4 && \
-    make install
+    make install && \
+    rm -rf /tmp/immer.zip /tmp/immer/
 
 # boost
-RUN cd /tmp && \
-    curl -L -o boost.tar.gz https://dl.bintray.com/boostorg/release/1.75.0/source/boost_1_75_0.tar.gz && \
+RUN curl -L -o /tmp/boost.tar.gz https://dl.bintray.com/boostorg/release/1.75.0/source/boost_1_75_0.tar.gz && \
+    cd /tmp && \
     tar zxf boost.tar.gz && \
-    mv boost_*/boost /usr/include/
+    mv boost_*/boost /usr/include/ && \
+    rm -rf /tmp/boost.tar.gz /tmp/boost_*/
 
 # mpdecimal
-RUN cd /tmp && \
-    curl -L -o mpdecimal.tar.gz https://www.bytereef.org/software/mpdecimal/releases/mpdecimal-2.5.1.tar.gz && \
+RUN curl -L -o /tmp/mpdecimal.tar.gz https://www.bytereef.org/software/mpdecimal/releases/mpdecimal-2.5.1.tar.gz && \
+    cd /tmp && \
     tar zxf mpdecimal.tar.gz && \
     cd mpdecimal-*/ && \
     ./configure && \
     make && \
     make install && \
-    cp -rf /usr/local/lib/libmpdec* /lib/*-linux-gnu/
-
-# cpplint
-RUN pip3 install cpplint
-
-# doctoc
-RUN npm install -g doctoc
+    cp -rf /usr/local/lib/libmpdec* /lib/*-linux-gnu/ && \
+    rm -rf /tmp/mpdecimal.tar.gz /tmp/mpdecimal/
 
 # tvision
-RUN cd /tmp && \
-    curl -L -o tvision.zip https://github.com/magiblot/tvision/archive/3a364725214fe2475e8bbe2ca09c1080b29e3a0f.zip && \
+RUN curl -L -o /tmp/tvision.zip https://github.com/magiblot/tvision/archive/3a364725214fe2475e8bbe2ca09c1080b29e3a0f.zip && \
+    cd /tmp && \
     unzip -q tvision.zip && \
     mv tvision-*/ tvision/ && \
     mkdir -p tvision/build && \
     cd tvision/build && \
     cmake .. -DTV_BUILD_USING_GPM=OFF -DCMAKE_BUILD_TYPE=Release && \
     make -j4 && \
-    make install
+    make install && \
+    rm -rf /tmp/tvision.zip /tmp/tvision/
+
+# turbo
+COPY turbo-CMakeLists.txt.diff /tmp/turbo-CMakeLists.txt.diff
+RUN curl -L -o /tmp/turbo.zip https://github.com/magiblot/turbo/archive/8cbf8a9bc735f2a867761fc5fc5e2e3d49452ec0.zip && \
+    cd /tmp && \
+    unzip -q turbo.zip && \
+    mv turbo-*/ turbo/ && \
+    cd turbo && \
+    patch CMakeLists.txt /tmp/turbo-CMakeLists.txt.diff && \
+    mv scintilla/lexers/LexBasic.cxx . && \
+    rm -f scintilla/lexers/* && \
+    mv -f LexBasic.cxx scintilla/lexers/LexBasic.cxx && \
+    cat scintilla/src/Catalogue.cxx | sed 's:LINK_LEXER(lm.*::g; s:return 1;:LINK_LEXER(lmFreeBasic); return 1;:g' > Catalogue.cxx && \
+    mv -f Catalogue.cxx scintilla/src/Catalogue.cxx && \
+    mkdir build && \
+    cd build && \
+    cmake .. -DCMAKE_BUILD_TYPE=Release && \
+    make -j4 && \
+    cp -f *.a /usr/lib/ && \
+    mkdir /usr/include/turbo && \
+    cp $(find /tmp/turbo -name '*.h') /usr/include/turbo/
 
 # environment
 USER $HOST_UID

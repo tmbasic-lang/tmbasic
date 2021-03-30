@@ -1,0 +1,5 @@
+nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {License:license}@
+
+h1["fmt" License]
+
+dia[license_fmt]

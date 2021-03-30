@@ -12,6 +12,8 @@ then
     mv cmake-* cmake
 fi
 
+export CMAKE=../../cmake/CMake.app/Contents/bin/cmake
+
 if [ ! -d "boost" ]
 then
     curl -L -o boost.tar.gz https://dl.bintray.com/boostorg/release/1.75.0/source/boost_1_75_0.tar.gz
@@ -38,7 +40,7 @@ then
     pushd googletest
     mkdir build
     cd build
-    ../../cmake/CMake.app/Contents/bin/cmake ..
+    $CMAKE ..
     make -j8
     popd
 fi
@@ -58,7 +60,8 @@ then
     pushd tvision
     mkdir build
     cd build
-    ../../cmake/CMake.app/Contents/bin/cmake -D CMAKE_PREFIX_PATH=../../ncurses -DCMAKE_BUILD_TYPE=Release ..
+    CXXFLAGS="-DTVISION_STL=1 -D__cpp_lib_string_view=1" \
+        $CMAKE -D CMAKE_PREFIX_PATH=../../ncurses -DCMAKE_BUILD_TYPE=Release ..
     make -j8
     popd
 fi
@@ -70,7 +73,7 @@ then
     mv bzip2-*/ bzip2/
     mkdir -p bzip2/build
     pushd bzip2/build
-    ../../cmake/CMake.app/Contents/bin/cmake .. -DENABLE_STATIC_LIB=ON -DCMAKE_BUILD_TYPE=Release
+    $CMAKE .. -DENABLE_STATIC_LIB=ON -DCMAKE_BUILD_TYPE=Release
     make -j8
     popd
 fi
@@ -99,6 +102,52 @@ then
         ./runConfigureICU "MacOSX" --enable-static --disable-shared --disable-tests --disable-samples \
         --with-data-packaging=static
     make -j8
+    popd
+fi
+
+if [ ! -d "fmt" ]
+then
+    curl -L -o fmt.zip https://github.com/fmtlib/fmt/releases/download/7.1.3/fmt-7.1.3.zip
+    unzip -q fmt.zip
+    mv fmt-*/ fmt/
+    mkdir -p fmt/build
+    pushd fmt/build
+    $CMAKE .. -DCMAKE_BUILD_TYPE=Release -DFMT_TEST=OFF -DFMT_FUZZ=OFF -DFMT_CUDA_TEST=OFF -DFMT_DOC=OFF
+    make -j8
+    popd
+fi
+
+if [ ! -d "libclipboard" ]
+then
+    curl -L -o libclipboard.zip https://github.com/jtanx/libclipboard/archive/refs/tags/v1.1.zip
+    unzip -q libclipboard.zip
+    mv libclipboard-*/ libclipboard/
+    mkdir -p libclipboard/build
+    pushd libclipboard/build
+    $CMAKE .. -DCMAKE_BUILD_TYPE=Release
+    make -j8
+    popd
+fi
+
+if [ ! -d "turbo" ]
+then
+    curl -L -o turbo.zip https://github.com/magiblot/turbo/archive/8cbf8a9bc735f2a867761fc5fc5e2e3d49452ec0.zip
+    unzip -q turbo.zip
+    mv turbo-*/ turbo/
+    pushd turbo
+    patch CMakeLists.txt ../../build/files/turbo-CMakeLists.txt.diff
+    mv scintilla/lexers/LexBasic.cxx .
+    rm -f scintilla/lexers/*
+    mv -f LexBasic.cxx scintilla/lexers/LexBasic.cxx
+    cat scintilla/src/Catalogue.cxx | sed 's:LINK_LEXER(lm.*::g; s:return 1;:LINK_LEXER(lmFreeBasic); return 1;:g' > Catalogue.cxx
+    mv -f Catalogue.cxx scintilla/src/Catalogue.cxx
+    mkdir build
+    cd build
+    CXXFLAGS="-isystem $(PWD)/../../tvision/include -isystem $(PWD)/../../fmt/include -isystem $(PWD)/../../libclipboard/include -isystem $(PWD)/../../libclipboard/build/include -DTVISION_STL=1 -D__cpp_lib_string_view=1" \
+        $CMAKE .. -DCMAKE_BUILD_TYPE=Release
+    make -j8
+    mkdir include
+    cp $(find ../ -name '*.h') include/
     popd
 fi
 

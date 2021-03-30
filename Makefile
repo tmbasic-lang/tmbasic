@@ -132,7 +132,13 @@ LICENSE_FILES=\
 	ext/tvision/COPYRIGHT \
 	ext/bsdiff/LICENSE \
 	ext/bzip2/COPYING \
-	ext/icu/LICENSE
+	ext/icu/LICENSE \
+	ext/fmt/LICENSE.rst \
+	ext/libclipboard/LICENSE \
+	ext/libXau/COPYING \
+	ext/libxcb/COPYING \
+	ext/scintilla/License.txt \
+	ext/turbo/COPYRIGHT
 LICENSE_DIAGRAM_TXT_TIMESTAMP_FILE=obj/doc-temp/diagrams-license/timestamp
 LICENSE_DIAGRAM_TXT_FILES=\
 	obj/doc-temp/diagrams-license/license_tmbasic.txt \
@@ -148,7 +154,13 @@ LICENSE_DIAGRAM_TXT_FILES=\
 	obj/doc-temp/diagrams-license/license_tvision.txt \
 	obj/doc-temp/diagrams-license/license_bsdiff.txt \
 	obj/doc-temp/diagrams-license/license_bzip2.txt \
-	obj/doc-temp/diagrams-license/license_icu.txt
+	obj/doc-temp/diagrams-license/license_icu.txt \
+	obj/doc-temp/diagrams-license/license_fmt.txt \
+	obj/doc-temp/diagrams-license/license_libclipboard.txt \
+	obj/doc-temp/diagrams-license/license_libxau.txt \
+	obj/doc-temp/diagrams-license/license_libxcb.txt \
+	obj/doc-temp/diagrams-license/license_scintilla.txt \
+	obj/doc-temp/diagrams-license/license_turbo.txt
 LICENSE_DIAGRAM_CP437_FILES=\
 	$(patsubst obj/doc-temp/diagrams-license/%,obj/doc-temp/diagrams-cp437/%,$(LICENSE_DIAGRAM_TXT_FILES))
 
@@ -220,15 +232,22 @@ endif
 # macOS header search paths.
 ifeq ($(TARGET_OS),mac)
 CXXFLAGS += \
-	-I$(PWD)/mac/boost \
-	-I$(PWD)/mac/mpdecimal/libmpdec \
-	-I$(PWD)/mac/mpdecimal/libmpdec++ \
-	-I$(PWD)/mac/ncurses/include \
-	-I$(PWD)/mac/googletest/googletest/include \
-	-I$(PWD)/mac/tvision/include \
-	-I$(PWD)/mac/immer \
-	-I$(PWD)/mac/icu/source/common \
-	-I$(PWD)/mac/icu/source/i18n
+	-isystem $(PWD)/mac/boost \
+	-isystem $(PWD)/mac/mpdecimal/libmpdec \
+	-isystem $(PWD)/mac/mpdecimal/libmpdec++ \
+	-isystem $(PWD)/mac/ncurses/include \
+	-isystem $(PWD)/mac/googletest/googletest/include \
+	-isystem $(PWD)/mac/tvision/include \
+	-isystem $(PWD)/mac/immer \
+	-isystem $(PWD)/mac/icu/source/common \
+	-isystem $(PWD)/mac/icu/source/i18n \
+	-isystem $(PWD)/mac/turbo/build/include
+endif
+ifeq ($(TARGET_OS),win)
+CXXFLAGS += -isystem /usr/$(ARCH)-w64-mingw32/include/turbo
+endif
+ifeq ($(TARGET_OS),linux)
+CXXFLAGS += -isystem /usr/include/turbo
 endif
 
 CXXFLAGS += \
@@ -242,6 +261,7 @@ CXXFLAGS += \
 	-Winvalid-pch \
 	-Wno-unknown-pragmas \
 	-Wno-reorder \
+	-Wno-psabi \
 	-std=c++17 \
 	$(OPTFLAGS) \
 	$(EXTRADEFS)
@@ -256,10 +276,14 @@ LDFLAGS=-lstdc++
 # TMBASIC_LDFLAGS: Additional linker flags used only for the "tmbasic" binary.
 TMBASIC_LDFLAGS=
 
-# STATIC_FLAG: We statically link on Linux and Windows. On macOS, static linking isn't an option.
-ifeq ($(TARGET_OS),mac)
-STATIC_FLAG=
-else
+# STATIC_FLAG: We statically link on Linux and Windows. On macOS, static linking isn't an option. In our dev build, we
+# also won't statically link because the dev environment is glibc-based and it doesn't like being statically linked.
+ifeq ($(TARGET_OS),linux)
+ifeq ($(LINUX_DISTRO),alpine)
+STATIC_FLAG=-static
+endif
+endif
+ifeq ($(TARGET_OS),win)
 STATIC_FLAG=-static
 endif
 
@@ -268,10 +292,28 @@ ifeq ($(TARGET_OS),mac)
 LDFLAGS += -L$(PWD)/mac/mpdecimal/libmpdec -L$(PWD)/mac/mpdecimal/libmpdec++ -L$(PWD)/mac/tvision/build
 endif
 
-# Linker flag to include GDI on Windows. We use this to enumerate console font families.
-ifeq ($(TARGET_OS),win)
-LDFLAGS += -lgdi32
+# Linker flag to include turbo and friends.
+ifeq ($(TARGET_OS),linux)
+LDFLAGS += -lscintilla -lscilexers -lsciplatform -lturbo-ui -lclipboard -lxcb -lXau -lfmt
+ifeq ($(LINUX_DISTRO),ubuntu)
+LDFLAGS += -lpthread
 endif
+endif
+ifeq ($(TARGET_OS),win)
+LDFLAGS += -lscintilla -lscilexers -lsciplatform -lturbo-ui -lclipboard -lfmt
+endif
+ifeq ($(TARGET_OS),mac)
+LDFLAGS += \
+	$(PWD)/mac/turbo/build/libsciplatform.a \
+	$(PWD)/mac/turbo/build/libscintilla.a \
+	$(PWD)/mac/turbo/build/libscilexers.a \
+	$(PWD)/mac/turbo/build/libturbo-ui.a \
+	$(PWD)/mac/libclipboard/build/libclipboard.a \
+	$(PWD)/mac/fmt/build/libfmt.a
+endif
+
+# Linker flag to include tvision.
+LDFLAGS += -ltvision
 
 # Linker flag to include libncursesw. On macOS, tvision uses libncurses instead because libncursesw isn't distributed
 # on that platform.
@@ -492,15 +534,7 @@ obj/common.h.gch: src/common.h
 
 # help ----------------------------------------------------------------------------------------------------------------
 
-bin/LICENSE.txt: LICENSE \
-		ext/boost/LICENSE_1_0.txt \
-		ext/immer/LICENSE \
-		ext/gcc/GPL-3 \
-		ext/gcc/copyright \
-		ext/mpdecimal/LICENSE.txt \
-		ext/ncurses/COPYING \
-		ext/tvision/COPYRIGHT \
-		ext/icu/LICENSE
+bin/LICENSE.txt: $(LICENSE_FILES)
 	@printf "%16s  %s\n" "cat" "$@"
 	@mkdir -p bin
 	@rm -f $@
@@ -510,15 +544,27 @@ bin/LICENSE.txt: LICENSE \
 	@echo === boost license === >> $@
 	@cat ext/boost/LICENSE_1_0.txt >> $@
 	@echo >> $@
+	@echo === fmt license === >> $@
+	@cat ext/fmt/LICENSE.rst >> $@
+	@echo >> $@
 	@echo === icu license === >> $@
 	@cat ext/icu/LICENSE >> $@
 	@echo >> $@
 	@echo === immer license === >> $@
 	@cat ext/immer/LICENSE >> $@
 	@echo >> $@
+	@echo === libclipboard license === >> $@
+	@cat ext/libclipboard/LICENSE >> $@
+	@echo >> $@
 	@echo === libstdc++ license === >> $@
 	@cat ext/gcc/GPL-3 >> $@
 	@cat ext/gcc/copyright >> $@
+	@echo >> $@
+	@echo === libXau license === >> $@
+	@cat ext/libXau/COPYING >> $@
+	@echo >> $@
+	@echo === libxcb license === >> $@
+	@cat ext/libxcb/COPYING >> $@
 	@echo >> $@
 	@echo === mpdecimal license === >> $@
 	@cat ext/mpdecimal/LICENSE.txt >> $@
@@ -529,8 +575,14 @@ bin/LICENSE.txt: LICENSE \
 	@echo === ncurses license === >> $@
 	@cat ext/ncurses/COPYING >> $@
 	@echo >> $@
+	@echo === turbo license === >> $@
+	@cat ext/turbo/COPYRIGHT >> $@
+	@echo >> $@
 	@echo === tvision license === >> $@
 	@cat ext/tvision/COPYRIGHT >> $@
+	@echo >> $@
+	@echo === scintilla license === >> $@
+	@cat ext/scintilla/License.txt >> $@
 	@echo >> $@
 	@$(LICENSE_PROCESS_CMD) $@
 
@@ -695,7 +747,6 @@ bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
 		obj/util.a \
 		obj/vm.a \
 		obj/compiler.a \
-		-ltvision \
 		obj/resources/help/helpfile.o \
 		$(ALL_PLATFORM_RUNNER_OBJ_FILES) \
 		$(ICON_RES_OBJ_FILE) \
@@ -744,7 +795,6 @@ bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) \
 		obj/util.a \
 		obj/vm.a \
 		obj/compiler.a \
-		-ltvision \
 		obj/resources/help/helpfile.o \
 		$(ALL_PLATFORM_RUNNER_OBJ_FILES) \
 		$(TMBASIC_LDFLAGS) \
@@ -781,7 +831,6 @@ $(THIS_PLATFORM_RUNNER_BIN_FILES): bin/runners/%$(EXE_EXTENSION): \
 		obj/resources/pcode/$(patsubst bin/runners/%$(EXE_EXTENSION),%,$@).o \
 		obj/util.a \
 		obj/vm.a \
-		-ltvision \
 		$(LDFLAGS)
 	@$(STRIP) $@
 

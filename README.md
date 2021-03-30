@@ -39,20 +39,8 @@ There are many options for developing rich graphical user interfaces (GUIs) toda
 TMBASIC supports all major desktop systems. It runs on mobile platforms using the popular terminal apps <a href="https://apps.apple.com/us/app/ish-shell/id1436902243">iSH Shell</a> and <a href="https://termux.com/">Termux</a>. TMBASIC running on any platform can produce single-file executables for any other supported platform. Compiled BASIC programs require no external libraries.
 
 ## License
-TMBASIC itself is open source software, but apps written in TMBASIC can be closed or open source as desired. The following components are included in builds of user programs.
+TMBASIC is [open source software](https://en.wikipedia.org/wiki/Open-source_software) available free of charge. Read the [External Libraries](https://github.com/electroly/tmbasic/blob/master/ext/README.md) document for a list of open source components included in TMBASIC and in compiled programs. You must obey the licenses of these open source components when you share your compiled programs.
 
-- tmbasic — [MIT license](LICENSE)
-- [boost](https://www.boost.org/) — [Boost Software License v1.0](https://github.com/electroly/tmbasic/blob/master/ext/boost/LICENSE_1_0.txt)
-- [icu](http://site.icu-project.org/) — [ICU License](https://github.com/electroly/tmbasic/blob/master/ext/icu/LICENSE)
-- [immer](https://github.com/arximboldi/immer) — [Boost Software License v1.0](https://github.com/electroly/tmbasic/blob/master/ext/immer/LICENSE)
-- [libstdc++](https://gcc.gnu.org/onlinedocs/libstdc++/) — [GNU General Public License v3](https://github.com/electroly/tmbasic/blob/master/ext/gcc/GPL-3) with [GCC Runtime Library Exception v3.1](https://github.com/electroly/tmbasic/blob/master/ext/gcc/copyright)
-- [mpdecimal](https://www.bytereef.org/mpdecimal/) — [BSD license](https://github.com/electroly/tmbasic/blob/master/ext/mpdecimal/LICENSE.txt)
-- [musl](https://musl.libc.org/) — [MIT license](https://github.com/electroly/tmbasic/blob/master/ext/musl/COPYRIGHT)
-- [ncurses](https://en.wikipedia.org/wiki/Ncurses) — [Ncurses license](https://github.com/electroly/tmbasic/blob/master/ext/ncurses/COPYING)
-- [tvision](https://github.com/magiblot/tvision) — [Borland license (original code), MIT license (additions)](https://github.com/electroly/tmbasic/blob/master/ext/tvision/COPYRIGHT)
-
-Executables built by TMBASIC are subject to the licenses above. You must obey these licenses if you distribute your compiled executables. These are permissive open source licenses that do not require you to release your BASIC source code. TMBASIC includes a `LICENSE.txt` file that combines these licenses for your convenience. Include this license file along with your executable when you distribute your TMBASIC apps.
-
-Read the [External Libraries](https://github.com/electroly/tmbasic/blob/master/ext/README.md) document for a list of third party components used in TMBASIC itself.
+These components have permissive, commercial-friendly open source licenses that do not require you to release your BASIC source code. When you generate an executable, TMBASIC generates a `LICENSE.txt` file that combines these licenses for your convenience. Include this license file along with your executable when you distribute your TMBASIC app.
 
 The Windows, macOS, and Linux logo icons used on the TMBASIC website were created by [Erik Ragnar Eliasson](https://www.iconfinder.com/Erik_Rgnr).

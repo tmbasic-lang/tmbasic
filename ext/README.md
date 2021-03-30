@@ -9,6 +9,11 @@ A mirror of all external library sources is available in a [requester-pays](http
 - Source: https://dl.bintray.com/boostorg/release/1.75.0/source/boost_1_75_0.tar.gz
     - Mirror: `s3://tmbasic/boost/boost_1_75_0.tar.gz`
 
+### [fmt](https://github.com/fmtlib/fmt)
+- License: [MIT license](https://github.com/electroly/tmbasic/blob/master/ext/fmt/LICENSE.rst)
+- Source: https://github.com/fmtlib/fmt/releases/download/7.1.3/fmt-7.1.3.zip
+    - Mirror: `s3://tmbasic/fmt/fmt-7.1.3.zip`
+
 ### [icu](http://site.icu-project.org/)
 - License: [ICU License](https://github.com/electroly/tmbasic/blob/master/ext/icu/LICENSE)
 - Source: https://github.com/unicode-org/icu/releases/download/release-68-2/icu4c-68_2-src.tgz
@@ -19,10 +24,25 @@ A mirror of all external library sources is available in a [requester-pays](http
 - Source: https://github.com/arximboldi/immer/archive/4d1caac17daaea58b949e30c6b1d5d5b88a3b78e.zip
     - Mirror: `s3://tmbasic/immer/immer-4d1caac17daaea58b949e30c6b1d5d5b88a3b78e.zip`
 
+### [libclipboard](https://github.com/jtanx/libclipboard)
+- License: [MIT license](https://github.com/electroly/tmbasic/blob/master/ext/libclipboard/LICENSE)
+- Source: https://github.com/jtanx/libclipboard/archive/refs/tags/v1.1.zip
+    - Mirror: `s3://tmbasic/libclipboard/libclipboard-1.1.zip`
+
 ### [libstdc++](https://gcc.gnu.org/onlinedocs/libstdc++/)
 - License: [GNU General Public License v3](https://github.com/electroly/tmbasic/blob/master/ext/gcc/GPL-3) with [GCC Runtime Library Exception v3.1](https://github.com/electroly/tmbasic/blob/master/ext/gcc/copyright)
 - Source (Linux): [`libstdc++` package from Alpine Linux](https://pkgs.alpinelinux.org/packages?name=libstdc%2B%2B&branch=edge)
 - Source (Windows): [`mingw-w64-gcc` package from Arch Linux](https://archlinux.org/packages/community/x86_64/mingw-w64-gcc/)
+
+### [libXau](https://gitlab.freedesktop.org/xorg/lib/libxau)
+- License: [X11 license](https://github.com/electroly/tmbasic/blob/master/ext/libXau/COPYING)
+- Source: https://xorg.freedesktop.org/archive/individual/lib/libXau-1.0.9.tar.gz
+    - Mirror: `s3://tmbasic/libXau/libXau-1.0.9.tar.gz`
+
+### [libxcb](https://xcb.freedesktop.org/)
+- License: [MIT license](https://github.com/electroly/tmbasic/blob/master/ext/libxcb/COPYING)
+- Source: https://xorg.freedesktop.org/archive/individual/lib/libxcb-1.14.tar.gz
+    - Mirror: `s3://tmbasic/libxcb/libxcb-1.14.tar.gz`
 
 ### [mpdecimal](https://www.bytereef.org/mpdecimal/)
 - License: [BSD license](https://github.com/electroly/tmbasic/blob/master/ext/mpdecimal/LICENSE.txt)
@@ -38,10 +58,19 @@ A mirror of all external library sources is available in a [requester-pays](http
 - Source: `ftp://ftp.invisible-island.net/ncurses/ncurses-6.2.tar.gz`
     - Mirror: `s3://tmbasic/ncurses/ncurses-6.2.tar.gz`
 
+### [turbo](https://github.com/magiblot/turbo)
+- License: [MIT license](https://github.com/electroly/tmbasic/blob/master/ext/turbo/COPYRIGHT)
+- Source: https://github.com/magiblot/turbo/archive/8cbf8a9bc735f2a867761fc5fc5e2e3d49452ec0.zip
+    - Mirror: `s3://tmbasic/turbo/turbo-8cbf8a9bc735f2a867761fc5fc5e2e3d49452ec0.zip`
+
 ### [tvision](https://github.com/magiblot/tvision)
 - License: [Borland license (original code), MIT license (additions)](https://github.com/electroly/tmbasic/blob/master/ext/tvision/COPYRIGHT)
 - Source: https://github.com/magiblot/tvision/archive/3a364725214fe2475e8bbe2ca09c1080b29e3a0f.zip
     - Mirror: `s3://tmbasic/tvision/tvision-3a364725214fe2475e8bbe2ca09c1080b29e3a0f.zip`
+
+### [scintilla](https://www.scintilla.org/)
+- License: [Scintilla license](https://github.com/electroly/tmbasic/blob/master/ext/scintilla/License.txt)
+- Source: fork included in `turbo`
 
 ## Libraries included only in TMBASIC
 
