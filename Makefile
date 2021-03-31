@@ -261,10 +261,13 @@ CXXFLAGS += \
 	-Winvalid-pch \
 	-Wno-unknown-pragmas \
 	-Wno-reorder \
-	-Wno-psabi \
 	-std=c++17 \
 	$(OPTFLAGS) \
 	$(EXTRADEFS)
+
+ifneq ($(TARGET_OS),mac)
+CXXFLAGS += -Wno-psabi
+endif
 
 
 
@@ -285,6 +288,11 @@ endif
 endif
 ifeq ($(TARGET_OS),win)
 STATIC_FLAG=-static
+endif
+
+# On macOS we need to link against AppKit to access the clipboard
+ifeq ($(TARGET_OS),mac)
+LDFLAGS += -framework AppKit
 endif
 
 # On macOS we need to add some search paths.
@@ -308,7 +316,7 @@ LDFLAGS += \
 	$(PWD)/mac/turbo/build/libscintilla.a \
 	$(PWD)/mac/turbo/build/libscilexers.a \
 	$(PWD)/mac/turbo/build/libturbo-ui.a \
-	$(PWD)/mac/libclipboard/build/libclipboard.a \
+	$(PWD)/mac/libclipboard/build/lib/libclipboard.a \
 	$(PWD)/mac/fmt/build/libfmt.a
 endif
 

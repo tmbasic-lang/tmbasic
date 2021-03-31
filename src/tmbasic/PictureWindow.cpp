@@ -350,7 +350,7 @@ class PictureView : public TView {
         // top and left grippers are disabled
         {
             TDrawBuffer b;
-            b.moveChar(0, 254, TColorAttr(0x80), 1);
+            b.moveChar(0, static_cast<char>(254), TColorAttr(0x80), 1);
             writeBufferChar(-2, -1, b);
             writeBufferChar(-2, picture.height / 2, b);
             writeBufferChar(-2, picture.height, b);
@@ -361,7 +361,7 @@ class PictureView : public TView {
         // bottom and right grippers are enabled
         {
             TDrawBuffer b;
-            b.moveChar(0, 254, TColorAttr(0x8F), 1);
+            b.moveChar(0, static_cast<char>(254), TColorAttr(0x8F), 1);
             writeBufferChar(picture.width / 2, picture.height, b);
             writeBufferChar(picture.width + 1, picture.height / 2, b);
             writeBufferChar(picture.width + 1, picture.height, b);

@@ -93,7 +93,7 @@
 
 #include <nameof.hpp>
 
-#include <turbo/tscintilla.h>
+#include <tscintilla.h>
 
 #ifdef _WIN32
 #include <windows.h>

@@ -1,0 +1,59 @@
+*** app.cc.old	2021-03-31 00:39:00.000000000 -0400
+--- app.cc	2021-03-31 00:41:49.000000000 -0400
+***************
+*** 309,318 ****
+      uint number;
+      auto fileName = TPath::basename(w->file);
+      if (!fileName.empty()) {
+!         w->title.assign(fileName);
+          number = incFileCounter(w->file);
+      } else {
+!         w->title.assign("Untitled"s);
+          number = ++fileCount[{}];
+      }
+      if (number > 1)
+--- 309,318 ----
+      uint number;
+      auto fileName = TPath::basename(w->file);
+      if (!fileName.empty()) {
+!         w->title = fileName;
+          number = incFileCounter(w->file);
+      } else {
+!         w->title = "Untitled";
+          number = ++fileCount[{}];
+      }
+      if (number > 1)
+***************
+*** 335,341 ****
+          }
+      }
+      if (!w->file.empty())
+!         mostRecentDir.assign(TPath::dirname(w->file));
+  }
+  
+  active_counter& TurboApp::getFileCounter(std::string_view file)
+--- 335,341 ----
+          }
+      }
+      if (!w->file.empty())
+!         mostRecentDir = TPath::dirname(w->file);
+  }
+  
+  active_counter& TurboApp::getFileCounter(std::string_view file)
+***************
+*** 441,447 ****
+          docTree->tree->focusEditor(w);
+      // We keep track of the most recent directory for file dialogs.
+      if (!w->file.empty())
+!         mostRecentDir.assign(TPath::dirname(w->file));
+  }
+  
+  static constexpr TColorAttr cpTurboAppColor[167] =
+--- 441,447 ----
+          docTree->tree->focusEditor(w);
+      // We keep track of the most recent directory for file dialogs.
+      if (!w->file.empty())
+!         mostRecentDir = TPath::dirname(w->file);
+  }
+  
+  static constexpr TColorAttr cpTurboAppColor[167] =

@@ -136,6 +136,7 @@ then
     mv turbo-*/ turbo/
     pushd turbo
     patch CMakeLists.txt ../../build/files/turbo-CMakeLists.txt.diff
+    patch src/app.cc ../../build/files/turbo-app.cc.diff
     mv scintilla/lexers/LexBasic.cxx .
     rm -f scintilla/lexers/*
     mv -f LexBasic.cxx scintilla/lexers/LexBasic.cxx
