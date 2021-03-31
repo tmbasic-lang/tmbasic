@@ -19,7 +19,7 @@ RUN addgroup -g $HOST_GID $USER && \
     adduser -h /home/$USER -s /bin/bash -G $USER -u $HOST_UID -D $USER
 
 # ncurses
-RUN curl -L -o /tmp/ncurses.tar.gz ftp://ftp.invisible-island.net/ncurses/ncurses-6.2.tar.gz && \
+RUN curl -L -o /tmp/ncurses.tar.gz https://invisible-mirror.net/archives/ncurses/ncurses-6.2.tar.gz && \
     cd /tmp && \
     tar zxf ncurses.tar.gz && \
     mv ncurses-*/ ncurses && \
