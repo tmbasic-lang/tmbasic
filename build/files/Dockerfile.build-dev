@@ -127,18 +127,6 @@ RUN curl -L -o /tmp/xcb-proto.tar.gz https://xorg.freedesktop.org/archive/indivi
     make install && \
     rm -rf /tmp/xcb-proto.tar.gz /tmp/xcb-proto/
 
-# libpthread-stubs
-RUN curl -L -o /tmp/libpthread-stubs.tar.gz https://xorg.freedesktop.org/archive/individual/lib/libpthread-stubs-0.1.tar.gz && \
-    cd /tmp && \
-    tar zxf libpthread-stubs.tar.gz && \
-    mv libpthread-stubs-* libpthread-stubs/ && \
-    cd libpthread-stubs && \
-    curl -L -o config.guess 'http://savannah.gnu.org/cgi-bin/viewcvs/*checkout*/config/config/config.guess' && \
-    curl -L -o config.sub 'http://savannah.gnu.org/cgi-bin/viewcvs/*checkout*/config/config/config.sub' && \
-    ./configure --enable-static --disable-shared && \
-    make -j4 && \
-    make install
-
 # libxcb
 RUN curl -L -o /tmp/libxcb.tar.gz https://xorg.freedesktop.org/archive/individual/lib/libxcb-1.14.tar.gz && \
     cd /tmp && \
