@@ -6,6 +6,7 @@
 #include "../util/InputLine.h"
 #include "../util/Label.h"
 #include "../util/ScrollBar.h"
+#include "../util/StatusLine.h"
 #include "../util/ThinButton.h"
 #include "../util/ViewPtr.h"
 #include "../util/tvutil.h"
@@ -24,6 +25,7 @@ using util::DialogPtr;
 using util::InputLine;
 using util::Label;
 using util::ScrollBar;
+using util::StatusLine;
 using util::ThinButton;
 using util::ViewPtr;
 
@@ -101,12 +103,13 @@ class Picture {
 
     std::string exportToString() {
         std::ostringstream s;
-        s << "picture " << name << "\nZ " << std::hex << width << " " << height;
+        s << "picture " << name << "\n";
+        auto lineStart = s.tellp();
+        s << "Z " << std::hex << width << " " << height;
         uint32_t previousFg = 0;
         uint32_t previousBg = 0;
         auto previousTransparent = false;
         std::string previousChar = " ";
-        auto lineStart = s.tellp();
         std::function<void()> newlineOrSpace = [&s, &lineStart]() -> void {
             if (s.tellp() - lineStart >= 110) {
                 s << "\n";
@@ -286,9 +289,9 @@ class PictureView : public TView {
                 const auto& cell = picture.cells.at(pictureY * picture.width + pictureX);
                 if (cell.transparent) {
                     if (flashingMask) {
-                        b.moveStr(viewX - minViewX, "X", { 0x5F });
+                        b.moveStr(viewX - minViewX, "░", { 0xDF });
                     } else {
-                        b.moveStr(viewX - minViewX, " ", { 0x5F });
+                        b.moveStr(viewX - minViewX, "▓", { 0xDF });
                     }
                 } else if (!cell.ch.empty()) {
                     b.moveStr(viewX - minViewX, cell.ch, cell.colorAttr);
@@ -306,7 +309,7 @@ class PictureView : public TView {
     void drawSelectionBorder(int x, int y, bool dot) {
         auto ch = picture.cells.at(y * picture.width + x).ch;
         TDrawBuffer b;
-        b.moveCStr(0, dot ? "•" : ch, { flashingSelection ? 0x2A : 0xA2 });
+        b.moveCStr(0, dot ? (flashingSelection ? "○" : "•") : ch, { flashingSelection ? 0x2A : 0xA2 });
         writeBufferChar(x, y, b);
     }
 
@@ -334,12 +337,11 @@ class PictureView : public TView {
                 drawSelectionBorder(x, top, false);
                 drawSelectionBorder(x, bottom, false);
             }
-            if (flashingSelection) {
-                drawSelectionBorder(left, top, true);
-                drawSelectionBorder(left, bottom, true);
-                drawSelectionBorder(right, top, true);
-                drawSelectionBorder(right, bottom, true);
-            } else if (right - left > 3 && bottom - top > 3) {
+            drawSelectionBorder(left, top, true);
+            drawSelectionBorder(left, bottom, true);
+            drawSelectionBorder(right, top, true);
+            drawSelectionBorder(right, bottom, true);
+            if (right - left > 3 && bottom - top > 3) {
                 drawSelectionBorder((left + right + 1) / 2, top, true);
                 drawSelectionBorder((left + right + 1) / 2, bottom, true);
                 drawSelectionBorder(left, (top + bottom + 1) / 2, true);
@@ -350,7 +352,7 @@ class PictureView : public TView {
         // top and left grippers are disabled
         {
             TDrawBuffer b;
-            b.moveChar(0, static_cast<char>(254), TColorAttr(0x80), 1);
+            b.moveCStr(0, "□", TColorAttr(0x87));
             writeBufferChar(-2, -1, b);
             writeBufferChar(-2, picture.height / 2, b);
             writeBufferChar(-2, picture.height, b);
@@ -361,7 +363,7 @@ class PictureView : public TView {
         // bottom and right grippers are enabled
         {
             TDrawBuffer b;
-            b.moveChar(0, static_cast<char>(254), TColorAttr(0x8F), 1);
+            b.moveCStr(0, "■", TColorAttr(0x82));
             writeBufferChar(picture.width / 2, picture.height, b);
             writeBufferChar(picture.width + 1, picture.height / 2, b);
             writeBufferChar(picture.width + 1, picture.height, b);
@@ -633,6 +635,13 @@ static void updateStatusItems(PictureWindowPrivate* p) {
     p->statusItems.pickColor->colorPairNormal = p->mode == PictureWindowMode::kPick ? sel : unsel;
     p->statusItems.textColor->colorPairNormal = p->mode == PictureWindowMode::kType ? sel : unsel;
     p->statusItems.maskColor->colorPairNormal = p->mode == PictureWindowMode::kMask ? sel : unsel;
+
+    StatusLine::setItemText(p->statusItems.select, p->mode == PictureWindowMode::kSelect ? "―► Select" : "~F4~ Select");
+    StatusLine::setItemText(p->statusItems.draw, p->mode == PictureWindowMode::kDraw ? "―► Draw" : "~F5~ Draw");
+    StatusLine::setItemText(p->statusItems.pick, p->mode == PictureWindowMode::kPick ? "―► Pick" : "~F6~ Pick");
+    StatusLine::setItemText(p->statusItems.text, p->mode == PictureWindowMode::kType ? "―► Type" : "~F7~ Type");
+    StatusLine::setItemText(p->statusItems.mask, p->mode == PictureWindowMode::kMask ? "―► Mask" : "~F8~ Mask");
+
     p->statusItems.statusLine->drawView();
 
     std::string labelText;

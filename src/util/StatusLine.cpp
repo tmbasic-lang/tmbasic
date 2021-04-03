@@ -64,4 +64,11 @@ StatusItemColors* StatusLine::addStatusItemColors(TStatusItem* statusItem) {
     return ptr;
 }
 
+void StatusLine::setItemText(TStatusItem* statusItem, const std::string& text) {
+    delete[] statusItem->text;
+    if (text != statusItem->text) {
+        statusItem->text = strdup(text.c_str());
+    }
+}
+
 }  // namespace util
