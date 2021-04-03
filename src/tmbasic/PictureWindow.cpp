@@ -60,7 +60,7 @@ class Picture {
         uint32_t fg = 0;
         uint32_t bg = 0;
         int transparent = 0;
-        std::string utf8Hex;
+        std::string utf8 = " ";
         for (auto y = 0; y < height; y++) {
             for (auto x = 0; x < width; x++) {
                 std::string command;
@@ -73,7 +73,16 @@ class Picture {
                 auto bgChanged = (changesBitMask & 0x08) != 0;
 
                 if (charChanged) {
+                    std::string utf8Hex;
                     s >> utf8Hex;
+                    if ((utf8Hex.size() % 2) != 0) {
+                        throw std::runtime_error("Unexpected data in picture source.");
+                    }
+                    utf8 = "";
+                    for (size_t i = 0; i < utf8Hex.size(); i += 2) {
+                        auto ch = parseHexByte(utf8Hex.at(i), utf8Hex.at(i + 1));
+                        utf8 += ch;
+                    }
                 }
                 if (transparentChanged) {
                     s >> transparent;
@@ -88,15 +97,7 @@ class Picture {
                 auto& cell = cells.at(y * width + x);
                 cell.transparent = transparent != 0;
                 cell.colorAttr = { TColorRGB(fg), TColorRGB(bg) };
-                std::string utf8;
-                if ((utf8Hex.size() % 2) != 0) {
-                    throw std::runtime_error("Unexpected data in picture source.");
-                }
-                for (size_t i = 0; i < utf8Hex.size(); i += 2) {
-                    auto ch = parseHexByte(utf8Hex.at(i), utf8Hex.at(i + 1));
-                    utf8 += ch;
-                }
-                cell.ch = std::move(utf8);
+                cell.ch = utf8;
             }
         }
     }
