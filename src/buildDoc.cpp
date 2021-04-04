@@ -432,20 +432,25 @@ static string formatProcedureText(const Procedure& procedure) {
       << "}@\n\n";
     o << "h1[`" << procedure.name << "` Procedure]\n\n" << procedure.description << "\n\n";
 
+    auto overloadNumber = 0;
     for (const auto& overload : procedure.overloads) {
         auto isFunction = overload->returns != nullptr;
 
-        o << "h2[" << procedure.name << "(";
-        for (size_t i = 0; i < overload->parameters.size(); i++) {
-            auto& parameter = overload->parameters.at(i);
-            if (i > 0) {
-                o << ", ";
+        // only show the overload header if there are multiple overloads
+        overloadNumber++;
+        if (procedure.overloads.size() > 1) {
+            o << "h2[Overload #" << overloadNumber << ": " << procedure.name << "(";
+            for (size_t i = 0; i < overload->parameters.size(); i++) {
+                auto& parameter = overload->parameters.at(i);
+                if (i > 0) {
+                    o << ", ";
+                }
+                o << parameter->name;
             }
-            o << parameter->type;
+            o << ")]\n\n";
         }
-        o << ")]\n\n";
 
-        o << "code@\n" << (isFunction ? "function " : "sub ") << procedure.name << "(";
+        o << "bar[Declaration]\ncode@\n" << (isFunction ? "function " : "sub ") << procedure.name << "(";
 
         for (size_t i = 0; i < overload->parameters.size(); i++) {
             auto& parameter = overload->parameters.at(i);
@@ -465,7 +470,7 @@ static string formatProcedureText(const Procedure& procedure) {
         } else {
             o << ")";
         }
-        o << "@\n\n";
+        o << "@\n";
 
         if (!overload->parameters.empty()) {
             o << "h3[Parameters]\n\nul@";
