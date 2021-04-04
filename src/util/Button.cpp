@@ -5,7 +5,7 @@ namespace util {
 static const auto kButtonMinWidth = 13;
 static const auto kButtonHeight = 2;
 
-int Button::getButtonWidth(TStringView title) {
+static int getButtonWidth(TStringView title) {
     // we want the same amount of padding on both sides of the text
     auto len = cstrlen(title);
     auto width = len + 7;

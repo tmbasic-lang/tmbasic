@@ -414,10 +414,10 @@ class PictureWindowPrivate {
     ViewPtr<CheckBoxes> setBgCheck{ std::vector<std::string>{ "Set BG color" }, std::vector<bool>{ true } };
     ViewPtr<CheckBoxes> setChCheck{ std::vector<std::string>{ "Set character" }, std::vector<bool>{ true } };
     ViewPtr<Label> maskHelp{ "Click to toggle between opaque and transparent." };
-    ViewPtr<ThinButton> cutButton{ "~Ctrl+X~ Cut", cmCut, 0 };
-    ViewPtr<ThinButton> copyButton{ "~Ctrl+C~ Copy", cmCopy, 0 };
-    ViewPtr<ThinButton> pasteButton{ "~Ctrl+V~ Paste", cmPaste, 0 };
-    ViewPtr<ThinButton> clearButton{ "~Del~ Clear", cmPaste, 0 };
+    ViewPtr<ThinButton> cutButton{ "Cut", cmCut, 0 };
+    ViewPtr<ThinButton> copyButton{ "Copy", cmCopy, 0 };
+    ViewPtr<ThinButton> pasteButton{ "Paste", cmPaste, 0 };
+    ViewPtr<ThinButton> clearButton{ "Clear", cmPaste, 0 };
 };
 
 class PictureOptionsDialog : public TDialog {

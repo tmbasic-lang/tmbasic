@@ -18,7 +18,7 @@ ThinButton::ThinButton(const TRect& bounds, TStringView aTitle, uint16_t aComman
     : Button(bounds, aTitle, aCommand, aFlags) {}
 
 ThinButton::ThinButton(TStringView aTitle, uint16_t aCommand, uint16_t aFlags)
-    : Button(TRect(0, 0, getButtonWidth(aTitle) - 2, 1), aTitle, aCommand, aFlags) {}
+    : Button(TRect(0, 0, cstrlen(aTitle) + 5, 1), aTitle, aCommand, aFlags) {}
 
 void ThinButton::draw() {
     drawState(false);
@@ -26,7 +26,6 @@ void ThinButton::draw() {
 
 void ThinButton::drawTitle(TDrawBuffer& b, int s, int i, TAttrPair cButton, bool down) {
     int l = 0;
-    int scOff = 0;
     if ((flags & bfLeftJust) != 0) {
         l = 1;
     } else {
@@ -38,12 +37,11 @@ void ThinButton::drawTitle(TDrawBuffer& b, int s, int i, TAttrPair cButton, bool
     b.moveCStr(i + l, title, cButton);
 
     if (showMarkers && !down) {
+        int scOff = 4;
         if ((state & sfSelected) != 0) {
             scOff = 0;
         } else if (amDefault) {
             scOff = 2;
-        } else {
-            scOff = 4;
         }
         b.putChar(0, specialChars[scOff]);
         b.putChar(s, specialChars[scOff + 1]);
