@@ -175,9 +175,12 @@ InsertSymbolDialog::InsertSymbolDialog(const std::string& title, const std::stri
     _private->cp437Table.addTo(this);
 
     _private->vScrollBar->useBlueColorScheme();
-    _private->vScrollBar->setParams(
-        _unicodeTableScrollTop, 0, static_cast<int>(getSymbolCount()) / 32 - _private->vScrollBar->size.y + 1,
-        _private->vScrollBar->size.y - 1, 1);
+    auto symbolCount = static_cast<int>(getSymbolCount());
+    auto numRows = symbolCount / 32 - _private->vScrollBar->size.y;
+    if ((symbolCount % 32) != 0) {
+        numRows++;
+    }
+    _private->vScrollBar->setParams(_unicodeTableScrollTop, 0, numRows, _private->vScrollBar->size.y - 1, 1);
     _private->vScrollBar.addTo(this);
 
     _private->unicodeTable->setCharFunc = [this](auto str) {
