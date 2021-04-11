@@ -257,12 +257,14 @@ RUN curl -L -o /tmp/turbo.zip https://github.com/magiblot/turbo/archive/2b930c01
     unzip -q turbo.zip && \
     mv turbo-*/ turbo/ && \
     cd turbo && \
-    patch CMakeLists.txt /tmp/turbo-CMakeLists.txt.diff && \
     mv scintilla/lexers/LexBasic.cxx . && \
     rm -f scintilla/lexers/* && \
     mv -f LexBasic.cxx scintilla/lexers/LexBasic.cxx && \
     cat scintilla/src/Catalogue.cxx | sed 's:LINK_LEXER(lm.*::g; s:return 1;:LINK_LEXER(lmFreeBasic); return 1;:g' > Catalogue.cxx && \
     mv -f Catalogue.cxx scintilla/src/Catalogue.cxx && \
+    cat deps/CMakeLists.txt | sed 's:add_subdirectory:#:g' > deps-CMakeLists.txt && \
+    mv -f deps-CMakeLists.txt deps/CMakeLists.txt && \
+    patch CMakeLists.txt /tmp/turbo-CMakeLists.txt.diff && \
     mkdir build && \
     cd build && \
     cmake .. \
@@ -270,6 +272,7 @@ RUN curl -L -o /tmp/turbo.zip https://github.com/magiblot/turbo/archive/2b930c01
         -DCMAKE_INSTALL_PREFIX=/usr/$ARCH-w64-mingw32 \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_TOOLCHAIN_FILE=/tmp/toolchain-cross-mingw64-linux-$ARCH.cmake \
+        -DTURBO_USE_SYSTEM_TVISION=ON \
         && \
     make -j4 && \
     cp -f *.a /usr/$ARCH-w64-mingw32/lib/ && \
