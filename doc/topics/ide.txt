@@ -1,0 +1,7 @@
+nav@{TMBASIC Documentation:doc}@
+
+h1[How to Use TMBASIC]
+
+ul@
+li@{"Insert Color" Dialog:ide_insertColorDialog}@
+@

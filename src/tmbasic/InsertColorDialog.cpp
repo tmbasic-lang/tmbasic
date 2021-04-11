@@ -1,159 +1,219 @@
 #include "InsertColorDialog.h"
 #include "../../obj/resources/help/helpfile.h"
+#include "../tmbasic/App.h"
 #include "../util/Button.h"
+#include "../util/DialogPtr.h"
 #include "../util/InputLine.h"
 #include "../util/Label.h"
+#include "../util/StatusLine.h"
 #include "../util/ViewPtr.h"
 #include "../util/tvutil.h"
 #include "GridLayout.h"
 #include "events.h"
 
 using util::Button;
+using util::DialogPtr;
 using util::InputLine;
 using util::Label;
 using util::parseUserInt;
+using util::StatusLine;
 using util::ViewPtr;
 
 namespace tmbasic {
 
-static TColorRGB makeColor(int red, int green, int blue) {
-    uint rgb = red;
-    rgb <<= 8;
-    rgb |= green;
-    rgb <<= 8;
-    rgb |= blue;
-    return { rgb };
-}
-
-static std::array<TColorRGB, 256> _xtermColors = {
-    makeColor(0, 0, 0),       makeColor(128, 0, 0),     makeColor(0, 128, 0),     makeColor(128, 128, 0),
-    makeColor(0, 0, 128),     makeColor(128, 0, 128),   makeColor(0, 128, 128),   makeColor(192, 192, 192),
-    makeColor(128, 128, 128), makeColor(255, 0, 0),     makeColor(0, 255, 0),     makeColor(255, 255, 0),
-    makeColor(0, 0, 255),     makeColor(255, 0, 255),   makeColor(0, 255, 255),   makeColor(255, 255, 255),
-    makeColor(0, 0, 0),       makeColor(0, 0, 95),      makeColor(0, 0, 135),     makeColor(0, 0, 175),
-    makeColor(0, 0, 215),     makeColor(0, 0, 255),     makeColor(0, 95, 0),      makeColor(0, 95, 95),
-    makeColor(0, 95, 135),    makeColor(0, 95, 175),    makeColor(0, 95, 215),    makeColor(0, 95, 255),
-    makeColor(0, 135, 0),     makeColor(0, 135, 95),    makeColor(0, 135, 135),   makeColor(0, 135, 175),
-    makeColor(0, 135, 215),   makeColor(0, 135, 255),   makeColor(0, 175, 0),     makeColor(0, 175, 95),
-    makeColor(0, 175, 135),   makeColor(0, 175, 175),   makeColor(0, 175, 215),   makeColor(0, 175, 255),
-    makeColor(0, 215, 0),     makeColor(0, 215, 95),    makeColor(0, 215, 135),   makeColor(0, 215, 175),
-    makeColor(0, 215, 215),   makeColor(0, 215, 255),   makeColor(0, 255, 0),     makeColor(0, 255, 95),
-    makeColor(0, 255, 135),   makeColor(0, 255, 175),   makeColor(0, 255, 215),   makeColor(0, 255, 255),
-    makeColor(95, 0, 0),      makeColor(95, 0, 95),     makeColor(95, 0, 135),    makeColor(95, 0, 175),
-    makeColor(95, 0, 215),    makeColor(95, 0, 255),    makeColor(95, 95, 0),     makeColor(95, 95, 95),
-    makeColor(95, 95, 135),   makeColor(95, 95, 175),   makeColor(95, 95, 215),   makeColor(95, 95, 255),
-    makeColor(95, 135, 0),    makeColor(95, 135, 95),   makeColor(95, 135, 135),  makeColor(95, 135, 175),
-    makeColor(95, 135, 215),  makeColor(95, 135, 255),  makeColor(95, 175, 0),    makeColor(95, 175, 95),
-    makeColor(95, 175, 135),  makeColor(95, 175, 175),  makeColor(95, 175, 215),  makeColor(95, 175, 255),
-    makeColor(95, 215, 0),    makeColor(95, 215, 95),   makeColor(95, 215, 135),  makeColor(95, 215, 175),
-    makeColor(95, 215, 215),  makeColor(95, 215, 255),  makeColor(95, 255, 0),    makeColor(95, 255, 95),
-    makeColor(95, 255, 135),  makeColor(95, 255, 175),  makeColor(95, 255, 215),  makeColor(95, 255, 255),
-    makeColor(135, 0, 0),     makeColor(135, 0, 95),    makeColor(135, 0, 135),   makeColor(135, 0, 175),
-    makeColor(135, 0, 215),   makeColor(135, 0, 255),   makeColor(135, 95, 0),    makeColor(135, 95, 95),
-    makeColor(135, 95, 135),  makeColor(135, 95, 175),  makeColor(135, 95, 215),  makeColor(135, 95, 255),
-    makeColor(135, 135, 0),   makeColor(135, 135, 95),  makeColor(135, 135, 135), makeColor(135, 135, 175),
-    makeColor(135, 135, 215), makeColor(135, 135, 255), makeColor(135, 175, 0),   makeColor(135, 175, 95),
-    makeColor(135, 175, 135), makeColor(135, 175, 175), makeColor(135, 175, 215), makeColor(135, 175, 255),
-    makeColor(135, 215, 0),   makeColor(135, 215, 95),  makeColor(135, 215, 135), makeColor(135, 215, 175),
-    makeColor(135, 215, 215), makeColor(135, 215, 255), makeColor(135, 255, 0),   makeColor(135, 255, 95),
-    makeColor(135, 255, 135), makeColor(135, 255, 175), makeColor(135, 255, 215), makeColor(135, 255, 255),
-    makeColor(175, 0, 0),     makeColor(175, 0, 95),    makeColor(175, 0, 135),   makeColor(175, 0, 175),
-    makeColor(175, 0, 215),   makeColor(175, 0, 255),   makeColor(175, 95, 0),    makeColor(175, 95, 95),
-    makeColor(175, 95, 135),  makeColor(175, 95, 175),  makeColor(175, 95, 215),  makeColor(175, 95, 255),
-    makeColor(175, 135, 0),   makeColor(175, 135, 95),  makeColor(175, 135, 135), makeColor(175, 135, 175),
-    makeColor(175, 135, 215), makeColor(175, 135, 255), makeColor(175, 175, 0),   makeColor(175, 175, 95),
-    makeColor(175, 175, 135), makeColor(175, 175, 175), makeColor(175, 175, 215), makeColor(175, 175, 255),
-    makeColor(175, 215, 0),   makeColor(175, 215, 95),  makeColor(175, 215, 135), makeColor(175, 215, 175),
-    makeColor(175, 215, 215), makeColor(175, 215, 255), makeColor(175, 255, 0),   makeColor(175, 255, 95),
-    makeColor(175, 255, 135), makeColor(175, 255, 175), makeColor(175, 255, 215), makeColor(175, 255, 255),
-    makeColor(215, 0, 0),     makeColor(215, 0, 95),    makeColor(215, 0, 135),   makeColor(215, 0, 175),
-    makeColor(215, 0, 215),   makeColor(215, 0, 255),   makeColor(215, 95, 0),    makeColor(215, 95, 95),
-    makeColor(215, 95, 135),  makeColor(215, 95, 175),  makeColor(215, 95, 215),  makeColor(215, 95, 255),
-    makeColor(215, 135, 0),   makeColor(215, 135, 95),  makeColor(215, 135, 135), makeColor(215, 135, 175),
-    makeColor(215, 135, 215), makeColor(215, 135, 255), makeColor(215, 175, 0),   makeColor(215, 175, 95),
-    makeColor(215, 175, 135), makeColor(215, 175, 175), makeColor(215, 175, 215), makeColor(215, 175, 255),
-    makeColor(215, 215, 0),   makeColor(215, 215, 95),  makeColor(215, 215, 135), makeColor(215, 215, 175),
-    makeColor(215, 215, 215), makeColor(215, 215, 255), makeColor(215, 255, 0),   makeColor(215, 255, 95),
-    makeColor(215, 255, 135), makeColor(215, 255, 175), makeColor(215, 255, 215), makeColor(215, 255, 255),
-    makeColor(255, 0, 0),     makeColor(255, 0, 95),    makeColor(255, 0, 135),   makeColor(255, 0, 175),
-    makeColor(255, 0, 215),   makeColor(255, 0, 255),   makeColor(255, 95, 0),    makeColor(255, 95, 95),
-    makeColor(255, 95, 135),  makeColor(255, 95, 175),  makeColor(255, 95, 215),  makeColor(255, 95, 255),
-    makeColor(255, 135, 0),   makeColor(255, 135, 95),  makeColor(255, 135, 135), makeColor(255, 135, 175),
-    makeColor(255, 135, 215), makeColor(255, 135, 255), makeColor(255, 175, 0),   makeColor(255, 175, 95),
-    makeColor(255, 175, 135), makeColor(255, 175, 175), makeColor(255, 175, 215), makeColor(255, 175, 255),
-    makeColor(255, 215, 0),   makeColor(255, 215, 95),  makeColor(255, 215, 135), makeColor(255, 215, 175),
-    makeColor(255, 215, 215), makeColor(255, 215, 255), makeColor(255, 255, 0),   makeColor(255, 255, 95),
-    makeColor(255, 255, 135), makeColor(255, 255, 175), makeColor(255, 255, 215), makeColor(255, 255, 255),
-    makeColor(8, 8, 8),       makeColor(18, 18, 18),    makeColor(28, 28, 28),    makeColor(38, 38, 38),
-    makeColor(48, 48, 48),    makeColor(58, 58, 58),    makeColor(68, 68, 68),    makeColor(78, 78, 78),
-    makeColor(88, 88, 88),    makeColor(98, 98, 98),    makeColor(108, 108, 108), makeColor(118, 118, 118),
-    makeColor(128, 128, 128), makeColor(138, 138, 138), makeColor(148, 148, 148), makeColor(158, 158, 158),
-    makeColor(168, 168, 168), makeColor(178, 178, 178), makeColor(188, 188, 188), makeColor(198, 198, 198),
-    makeColor(208, 208, 208), makeColor(218, 218, 218), makeColor(228, 228, 228), makeColor(238, 238, 238),
+// generated using InsertColorDialog-picture.linq
+static const int kColors256Width = 62;
+static const int kColors256Height = 18;
+static const std::vector<TColorRGB> _colors256{
+    0xffffff, 0xffffff, 0xffffff, 0xffffff, 0xffffff, 0xffffff, 0xffffff, 0xffffff, 0xc0c0c0, 0xc0c0c0, 0xc0c0c0,
+    0xc0c0c0, 0xc0c0c0, 0xc0c0c0, 0xc0c0c0, 0xff0000, 0xff0000, 0xff0000, 0xff0000, 0xff0000, 0xff0000, 0xff0000,
+    0xff0000, 0xffff00, 0xffff00, 0xffff00, 0xffff00, 0xffff00, 0xffff00, 0xffff00, 0xffff00, 0x00ff00, 0x00ff00,
+    0x00ff00, 0x00ff00, 0x00ff00, 0x00ff00, 0x00ff00, 0x00ff00, 0x00ffff, 0x00ffff, 0x00ffff, 0x00ffff, 0x00ffff,
+    0x00ffff, 0x00ffff, 0x0000ff, 0x0000ff, 0x0000ff, 0x0000ff, 0x0000ff, 0x0000ff, 0x0000ff, 0x0000ff, 0xff00ff,
+    0xff00ff, 0xff00ff, 0xff00ff, 0xff00ff, 0xff00ff, 0xff00ff, 0xff00ff, 0x000000, 0x000000, 0x000000, 0x000000,
+    0x000000, 0x000000, 0x000000, 0x000000, 0x808080, 0x808080, 0x808080, 0x808080, 0x808080, 0x808080, 0x808080,
+    0x800000, 0x800000, 0x800000, 0x800000, 0x800000, 0x800000, 0x800000, 0x800000, 0x808000, 0x808000, 0x808000,
+    0x808000, 0x808000, 0x808000, 0x808000, 0x808000, 0x008000, 0x008000, 0x008000, 0x008000, 0x008000, 0x008000,
+    0x008000, 0x008000, 0x008080, 0x008080, 0x008080, 0x008080, 0x008080, 0x008080, 0x008080, 0x000080, 0x000080,
+    0x000080, 0x000080, 0x000080, 0x000080, 0x000080, 0x000080, 0x800080, 0x800080, 0x800080, 0x800080, 0x800080,
+    0x800080, 0x800080, 0x800080, 0xffd7d7, 0xffd7d7, 0xffd7d7, 0xffd7d7, 0xffd7d7, 0xffd7d7, 0xffd7d7, 0xffd7d7,
+    0xffd7d7, 0xffd7d7, 0xffffd7, 0xffffd7, 0xffffd7, 0xffffd7, 0xffffd7, 0xffffd7, 0xffffd7, 0xffffd7, 0xffffd7,
+    0xffffd7, 0xffffd7, 0xd7ffd7, 0xd7ffd7, 0xd7ffd7, 0xd7ffd7, 0xd7ffd7, 0xd7ffd7, 0xd7ffd7, 0xd7ffd7, 0xd7ffd7,
+    0xd7ffd7, 0xd7ffff, 0xd7ffff, 0xd7ffff, 0xd7ffff, 0xd7ffff, 0xd7ffff, 0xd7ffff, 0xd7ffff, 0xd7ffff, 0xd7ffff,
+    0xd7d7ff, 0xd7d7ff, 0xd7d7ff, 0xd7d7ff, 0xd7d7ff, 0xd7d7ff, 0xd7d7ff, 0xd7d7ff, 0xd7d7ff, 0xd7d7ff, 0xd7d7ff,
+    0xffd7ff, 0xffd7ff, 0xffd7ff, 0xffd7ff, 0xffd7ff, 0xffd7ff, 0xffd7ff, 0xffd7ff, 0xffd7ff, 0xffd7ff, 0xffafaf,
+    0xffafaf, 0xffafaf, 0xffafaf, 0xffafaf, 0xffd7af, 0xffd7af, 0xffd7af, 0xffd7af, 0xffd7af, 0xffffaf, 0xffffaf,
+    0xffffaf, 0xffffaf, 0xffffaf, 0xd7ffaf, 0xd7ffaf, 0xd7ffaf, 0xd7ffaf, 0xd7ffaf, 0xd7ffaf, 0xafffaf, 0xafffaf,
+    0xafffaf, 0xafffaf, 0xafffaf, 0xafffd7, 0xafffd7, 0xafffd7, 0xafffd7, 0xafffd7, 0xafffff, 0xafffff, 0xafffff,
+    0xafffff, 0xafffff, 0xafd7ff, 0xafd7ff, 0xafd7ff, 0xafd7ff, 0xafd7ff, 0xafafff, 0xafafff, 0xafafff, 0xafafff,
+    0xafafff, 0xd7afff, 0xd7afff, 0xd7afff, 0xd7afff, 0xd7afff, 0xd7afff, 0xffafff, 0xffafff, 0xffafff, 0xffafff,
+    0xffafff, 0xffafd7, 0xffafd7, 0xffafd7, 0xffafd7, 0xffafd7, 0xff8787, 0xff8787, 0xff8787, 0xffaf87, 0xffaf87,
+    0xffaf87, 0xffaf87, 0xffd787, 0xffd787, 0xffd787, 0xffff87, 0xffff87, 0xffff87, 0xffff87, 0xd7ff87, 0xd7ff87,
+    0xd7ff87, 0xafff87, 0xafff87, 0xafff87, 0xafff87, 0x87ff87, 0x87ff87, 0x87ff87, 0x87ffaf, 0x87ffaf, 0x87ffaf,
+    0x87ffd7, 0x87ffd7, 0x87ffd7, 0x87ffd7, 0x87ffff, 0x87ffff, 0x87ffff, 0x87d7ff, 0x87d7ff, 0x87d7ff, 0x87d7ff,
+    0x87afff, 0x87afff, 0x87afff, 0x8787ff, 0x8787ff, 0x8787ff, 0x8787ff, 0xaf87ff, 0xaf87ff, 0xaf87ff, 0xd787ff,
+    0xd787ff, 0xd787ff, 0xd787ff, 0xff87ff, 0xff87ff, 0xff87ff, 0xff87d7, 0xff87d7, 0xff87d7, 0xff87af, 0xff87af,
+    0xff87af, 0xff87af, 0xff5f5f, 0xff5f5f, 0xff875f, 0xff875f, 0xff875f, 0xffaf5f, 0xffaf5f, 0xffaf5f, 0xffd75f,
+    0xffd75f, 0xffff5f, 0xffff5f, 0xffff5f, 0xd7ff5f, 0xd7ff5f, 0xafff5f, 0xafff5f, 0xafff5f, 0x87ff5f, 0x87ff5f,
+    0x87ff5f, 0x5fff5f, 0x5fff5f, 0x5fff87, 0x5fff87, 0x5fff87, 0x5fffaf, 0x5fffaf, 0x5fffd7, 0x5fffd7, 0x5fffd7,
+    0x5fffff, 0x5fffff, 0x5fd7ff, 0x5fd7ff, 0x5fd7ff, 0x5fafff, 0x5fafff, 0x5fafff, 0x5f87ff, 0x5f87ff, 0x5f5fff,
+    0x5f5fff, 0x5f5fff, 0x875fff, 0x875fff, 0xaf5fff, 0xaf5fff, 0xaf5fff, 0xd75fff, 0xd75fff, 0xd75fff, 0xff5fff,
+    0xff5fff, 0xff5fd7, 0xff5fd7, 0xff5fd7, 0xff5faf, 0xff5faf, 0xff5f87, 0xff5f87, 0xff5f87, 0xff0000, 0xff0000,
+    0xff5f00, 0xff5f00, 0xff8700, 0xff8700, 0xffaf00, 0xffaf00, 0xffd700, 0xffd700, 0xffff00, 0xffff00, 0xd7ff00,
+    0xd7ff00, 0xafff00, 0xafff00, 0x87ff00, 0x87ff00, 0x87ff00, 0x5fff00, 0x5fff00, 0x00ff00, 0x00ff00, 0x00ff5f,
+    0x00ff5f, 0x00ff87, 0x00ff87, 0x00ffaf, 0x00ffaf, 0x00ffd7, 0x00ffd7, 0x00ffff, 0x00ffff, 0x00d7ff, 0x00d7ff,
+    0x00afff, 0x00afff, 0x0087ff, 0x0087ff, 0x005fff, 0x005fff, 0x0000ff, 0x0000ff, 0x5f00ff, 0x5f00ff, 0x8700ff,
+    0x8700ff, 0xaf00ff, 0xaf00ff, 0xaf00ff, 0xd700ff, 0xd700ff, 0xff00ff, 0xff00ff, 0xff00d7, 0xff00d7, 0xff00af,
+    0xff00af, 0xff0087, 0xff0087, 0xff005f, 0xff005f, 0xd70000, 0xd70000, 0xd75f00, 0xd75f00, 0xd75f00, 0xd78700,
+    0xd78700, 0xd78700, 0xd7af00, 0xd7af00, 0xd7d700, 0xd7d700, 0xd7d700, 0xafd700, 0xafd700, 0x87d700, 0x87d700,
+    0x87d700, 0x5fd700, 0x5fd700, 0x5fd700, 0x00d700, 0x00d700, 0x00d75f, 0x00d75f, 0x00d75f, 0x00d787, 0x00d787,
+    0x00d7af, 0x00d7af, 0x00d7af, 0x00d7d7, 0x00d7d7, 0x00afd7, 0x00afd7, 0x00afd7, 0x0087d7, 0x0087d7, 0x0087d7,
+    0x005fd7, 0x005fd7, 0x0000d7, 0x0000d7, 0x0000d7, 0x5f00d7, 0x5f00d7, 0x8700d7, 0x8700d7, 0x8700d7, 0xaf00d7,
+    0xaf00d7, 0xaf00d7, 0xd700d7, 0xd700d7, 0xd700af, 0xd700af, 0xd700af, 0xd70087, 0xd70087, 0xd7005f, 0xd7005f,
+    0xd7005f, 0xaf0000, 0xaf0000, 0xaf0000, 0xaf5f00, 0xaf5f00, 0xaf5f00, 0xaf5f00, 0xaf8700, 0xaf8700, 0xaf8700,
+    0xafaf00, 0xafaf00, 0xafaf00, 0xafaf00, 0x87af00, 0x87af00, 0x87af00, 0x5faf00, 0x5faf00, 0x5faf00, 0x5faf00,
+    0x00af00, 0x00af00, 0x00af00, 0x00af5f, 0x00af5f, 0x00af5f, 0x00af87, 0x00af87, 0x00af87, 0x00af87, 0x00afaf,
+    0x00afaf, 0x00afaf, 0x0087af, 0x0087af, 0x0087af, 0x0087af, 0x005faf, 0x005faf, 0x005faf, 0x0000af, 0x0000af,
+    0x0000af, 0x0000af, 0x5f00af, 0x5f00af, 0x5f00af, 0x8700af, 0x8700af, 0x8700af, 0x8700af, 0xaf00af, 0xaf00af,
+    0xaf00af, 0xaf0087, 0xaf0087, 0xaf0087, 0xaf005f, 0xaf005f, 0xaf005f, 0xaf005f, 0x870000, 0x870000, 0x870000,
+    0x870000, 0x870000, 0x875f00, 0x875f00, 0x875f00, 0x875f00, 0x875f00, 0x878700, 0x878700, 0x878700, 0x878700,
+    0x878700, 0x5f8700, 0x5f8700, 0x5f8700, 0x5f8700, 0x5f8700, 0x5f8700, 0x008700, 0x008700, 0x008700, 0x008700,
+    0x008700, 0x00875f, 0x00875f, 0x00875f, 0x00875f, 0x00875f, 0x008787, 0x008787, 0x008787, 0x008787, 0x008787,
+    0x005f87, 0x005f87, 0x005f87, 0x005f87, 0x005f87, 0x000087, 0x000087, 0x000087, 0x000087, 0x000087, 0x5f0087,
+    0x5f0087, 0x5f0087, 0x5f0087, 0x5f0087, 0x5f0087, 0x870087, 0x870087, 0x870087, 0x870087, 0x870087, 0x87005f,
+    0x87005f, 0x87005f, 0x87005f, 0x87005f, 0x800000, 0x800000, 0x800000, 0x800000, 0x800000, 0x800000, 0x800000,
+    0x800000, 0x800000, 0x800000, 0x808000, 0x808000, 0x808000, 0x808000, 0x808000, 0x808000, 0x808000, 0x808000,
+    0x808000, 0x808000, 0x808000, 0x008000, 0x008000, 0x008000, 0x008000, 0x008000, 0x008000, 0x008000, 0x008000,
+    0x008000, 0x008000, 0x008080, 0x008080, 0x008080, 0x008080, 0x008080, 0x008080, 0x008080, 0x008080, 0x008080,
+    0x008080, 0x000080, 0x000080, 0x000080, 0x000080, 0x000080, 0x000080, 0x000080, 0x000080, 0x000080, 0x000080,
+    0x000080, 0x800080, 0x800080, 0x800080, 0x800080, 0x800080, 0x800080, 0x800080, 0x800080, 0x800080, 0x800080,
+    0x5f0000, 0x5f0000, 0x5f0000, 0x5f0000, 0x5f0000, 0x5f0000, 0x5f0000, 0x5f0000, 0x5f0000, 0x5f0000, 0x5f5f00,
+    0x5f5f00, 0x5f5f00, 0x5f5f00, 0x5f5f00, 0x5f5f00, 0x5f5f00, 0x5f5f00, 0x5f5f00, 0x5f5f00, 0x5f5f00, 0x005f00,
+    0x005f00, 0x005f00, 0x005f00, 0x005f00, 0x005f00, 0x005f00, 0x005f00, 0x005f00, 0x005f00, 0x005f5f, 0x005f5f,
+    0x005f5f, 0x005f5f, 0x005f5f, 0x005f5f, 0x005f5f, 0x005f5f, 0x005f5f, 0x005f5f, 0x00005f, 0x00005f, 0x00005f,
+    0x00005f, 0x00005f, 0x00005f, 0x00005f, 0x00005f, 0x00005f, 0x00005f, 0x00005f, 0x5f005f, 0x5f005f, 0x5f005f,
+    0x5f005f, 0x5f005f, 0x5f005f, 0x5f005f, 0x5f005f, 0x5f005f, 0x5f005f, 0xd7afaf, 0xd7afaf, 0xd7afaf, 0xd7afaf,
+    0xd7afaf, 0xd7afaf, 0xd7afaf, 0xd7afaf, 0xd7afaf, 0xd7afaf, 0xd7d7af, 0xd7d7af, 0xd7d7af, 0xd7d7af, 0xd7d7af,
+    0xd7d7af, 0xd7d7af, 0xd7d7af, 0xd7d7af, 0xd7d7af, 0xd7d7af, 0xafd7af, 0xafd7af, 0xafd7af, 0xafd7af, 0xafd7af,
+    0xafd7af, 0xafd7af, 0xafd7af, 0xafd7af, 0xafd7af, 0xafd7d7, 0xafd7d7, 0xafd7d7, 0xafd7d7, 0xafd7d7, 0xafd7d7,
+    0xafd7d7, 0xafd7d7, 0xafd7d7, 0xafd7d7, 0xafafd7, 0xafafd7, 0xafafd7, 0xafafd7, 0xafafd7, 0xafafd7, 0xafafd7,
+    0xafafd7, 0xafafd7, 0xafafd7, 0xafafd7, 0xd7afd7, 0xd7afd7, 0xd7afd7, 0xd7afd7, 0xd7afd7, 0xd7afd7, 0xd7afd7,
+    0xd7afd7, 0xd7afd7, 0xd7afd7, 0xd78787, 0xd78787, 0xd78787, 0xd78787, 0xd78787, 0xd7af87, 0xd7af87, 0xd7af87,
+    0xd7af87, 0xd7af87, 0xd7d787, 0xd7d787, 0xd7d787, 0xd7d787, 0xd7d787, 0xafd787, 0xafd787, 0xafd787, 0xafd787,
+    0xafd787, 0xafd787, 0x87d787, 0x87d787, 0x87d787, 0x87d787, 0x87d787, 0x87d7af, 0x87d7af, 0x87d7af, 0x87d7af,
+    0x87d7af, 0x87d7d7, 0x87d7d7, 0x87d7d7, 0x87d7d7, 0x87d7d7, 0x87afd7, 0x87afd7, 0x87afd7, 0x87afd7, 0x87afd7,
+    0x8787d7, 0x8787d7, 0x8787d7, 0x8787d7, 0x8787d7, 0xaf87d7, 0xaf87d7, 0xaf87d7, 0xaf87d7, 0xaf87d7, 0xaf87d7,
+    0xd787d7, 0xd787d7, 0xd787d7, 0xd787d7, 0xd787d7, 0xd787af, 0xd787af, 0xd787af, 0xd787af, 0xd787af, 0xaf8787,
+    0xaf8787, 0xd75f5f, 0xd75f5f, 0xd75f5f, 0xd7875f, 0xd7875f, 0xd7875f, 0xd7af5f, 0xd7af5f, 0xafaf87, 0xafaf87,
+    0xafaf87, 0xd7d75f, 0xd7d75f, 0xafd75f, 0xafd75f, 0xafd75f, 0x87d75f, 0x87d75f, 0x87d75f, 0x87af87, 0x87af87,
+    0x5fd75f, 0x5fd75f, 0x5fd75f, 0x5fd787, 0x5fd787, 0x5fd7af, 0x5fd7af, 0x5fd7af, 0x87afaf, 0x87afaf, 0x5fd7d7,
+    0x5fd7d7, 0x5fd7d7, 0x5fafd7, 0x5fafd7, 0x5fafd7, 0x5f87d7, 0x5f87d7, 0x8787af, 0x8787af, 0x8787af, 0x5f5fd7,
+    0x5f5fd7, 0x875fd7, 0x875fd7, 0x875fd7, 0xaf5fd7, 0xaf5fd7, 0xaf5fd7, 0xaf87af, 0xaf87af, 0xd75fd7, 0xd75fd7,
+    0xd75fd7, 0xd75faf, 0xd75faf, 0xd75f87, 0xd75f87, 0xd75f87, 0xaf5f5f, 0xaf5f5f, 0xaf5f5f, 0xaf5f5f, 0xaf5f5f,
+    0xaf875f, 0xaf875f, 0xaf875f, 0xaf875f, 0xaf875f, 0xafaf5f, 0xafaf5f, 0xafaf5f, 0xafaf5f, 0xafaf5f, 0x87af5f,
+    0x87af5f, 0x87af5f, 0x87af5f, 0x87af5f, 0x87af5f, 0x5faf5f, 0x5faf5f, 0x5faf5f, 0x5faf5f, 0x5faf5f, 0x5faf87,
+    0x5faf87, 0x5faf87, 0x5faf87, 0x5faf87, 0x5fafaf, 0x5fafaf, 0x5fafaf, 0x5fafaf, 0x5fafaf, 0x5f87af, 0x5f87af,
+    0x5f87af, 0x5f87af, 0x5f87af, 0x5f5faf, 0x5f5faf, 0x5f5faf, 0x5f5faf, 0x5f5faf, 0x875faf, 0x875faf, 0x875faf,
+    0x875faf, 0x875faf, 0x875faf, 0xaf5faf, 0xaf5faf, 0xaf5faf, 0xaf5faf, 0xaf5faf, 0xaf5f87, 0xaf5f87, 0xaf5f87,
+    0xaf5f87, 0xaf5f87, 0x875f5f, 0x875f5f, 0x875f5f, 0x875f5f, 0x875f5f, 0x875f5f, 0x875f5f, 0x875f5f, 0x875f5f,
+    0x875f5f, 0x87875f, 0x87875f, 0x87875f, 0x87875f, 0x87875f, 0x87875f, 0x87875f, 0x87875f, 0x87875f, 0x87875f,
+    0x87875f, 0x5f875f, 0x5f875f, 0x5f875f, 0x5f875f, 0x5f875f, 0x5f875f, 0x5f875f, 0x5f875f, 0x5f875f, 0x5f875f,
+    0x5f8787, 0x5f8787, 0x5f8787, 0x5f8787, 0x5f8787, 0x5f8787, 0x5f8787, 0x5f8787, 0x5f8787, 0x5f8787, 0x5f5f87,
+    0x5f5f87, 0x5f5f87, 0x5f5f87, 0x5f5f87, 0x5f5f87, 0x5f5f87, 0x5f5f87, 0x5f5f87, 0x5f5f87, 0x5f5f87, 0x875f87,
+    0x875f87, 0x875f87, 0x875f87, 0x875f87, 0x875f87, 0x875f87, 0x875f87, 0x875f87, 0x875f87, 0xffffff, 0xffffff,
+    0xeeeeee, 0xeeeeee, 0xe4e4e4, 0xe4e4e4, 0xdadada, 0xdadada, 0xd7d7d7, 0xd7d7d7, 0xd0d0d0, 0xd0d0d0, 0xc6c6c6,
+    0xc6c6c6, 0xc0c0c0, 0xc0c0c0, 0xbcbcbc, 0xbcbcbc, 0xb2b2b2, 0xb2b2b2, 0xafafaf, 0xafafaf, 0xa8a8a8, 0xa8a8a8,
+    0x9e9e9e, 0x9e9e9e, 0x949494, 0x949494, 0x8a8a8a, 0x8a8a8a, 0x878787, 0x878787, 0x808080, 0x808080, 0x767676,
+    0x767676, 0x6c6c6c, 0x6c6c6c, 0x626262, 0x626262, 0x5f5f5f, 0x5f5f5f, 0x585858, 0x585858, 0x4e4e4e, 0x4e4e4e,
+    0x444444, 0x444444, 0x3a3a3a, 0x3a3a3a, 0x303030, 0x303030, 0x262626, 0x262626, 0x1c1c1c, 0x1c1c1c, 0x121212,
+    0x121212, 0x080808, 0x080808, 0x000000, 0x000000,
 };
+
+static const int kColors8Width = 62;
+static const int kColors8Height = 2;
+static const std::vector<TColorRGB> _colors8{
+    0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0xc0c0c0, 0xc0c0c0, 0xc0c0c0,
+    0xc0c0c0, 0xc0c0c0, 0xc0c0c0, 0xc0c0c0, 0x800000, 0x800000, 0x800000, 0x800000, 0x800000, 0x800000, 0x800000,
+    0x800000, 0x808000, 0x808000, 0x808000, 0x808000, 0x808000, 0x808000, 0x808000, 0x808000, 0x008000, 0x008000,
+    0x008000, 0x008000, 0x008000, 0x008000, 0x008000, 0x008000, 0x008080, 0x008080, 0x008080, 0x008080, 0x008080,
+    0x008080, 0x008080, 0x000080, 0x000080, 0x000080, 0x000080, 0x000080, 0x000080, 0x000080, 0x000080, 0x800080,
+    0x800080, 0x800080, 0x800080, 0x800080, 0x800080, 0x800080, 0x800080, 0x000000, 0x000000, 0x000000, 0x000000,
+    0x000000, 0x000000, 0x000000, 0x000000, 0xc0c0c0, 0xc0c0c0, 0xc0c0c0, 0xc0c0c0, 0xc0c0c0, 0xc0c0c0, 0xc0c0c0,
+    0x800000, 0x800000, 0x800000, 0x800000, 0x800000, 0x800000, 0x800000, 0x800000, 0x808000, 0x808000, 0x808000,
+    0x808000, 0x808000, 0x808000, 0x808000, 0x808000, 0x008000, 0x008000, 0x008000, 0x008000, 0x008000, 0x008000,
+    0x008000, 0x008000, 0x008080, 0x008080, 0x008080, 0x008080, 0x008080, 0x008080, 0x008080, 0x000080, 0x000080,
+    0x000080, 0x000080, 0x000080, 0x000080, 0x000080, 0x000080, 0x800080, 0x800080, 0x800080, 0x800080, 0x800080,
+    0x800080, 0x800080, 0x800080,
+};
+
+static const int kColors16Width = 62;
+static const int kColors16Height = 4;
+static const std::vector<TColorRGB> _colors16{
+    0xffffff, 0xffffff, 0xffffff, 0xffffff, 0xffffff, 0xffffff, 0xffffff, 0xffffff, 0xc0c0c0, 0xc0c0c0, 0xc0c0c0,
+    0xc0c0c0, 0xc0c0c0, 0xc0c0c0, 0xc0c0c0, 0xff0000, 0xff0000, 0xff0000, 0xff0000, 0xff0000, 0xff0000, 0xff0000,
+    0xff0000, 0xffff00, 0xffff00, 0xffff00, 0xffff00, 0xffff00, 0xffff00, 0xffff00, 0xffff00, 0x00ff00, 0x00ff00,
+    0x00ff00, 0x00ff00, 0x00ff00, 0x00ff00, 0x00ff00, 0x00ff00, 0x00ffff, 0x00ffff, 0x00ffff, 0x00ffff, 0x00ffff,
+    0x00ffff, 0x00ffff, 0x0000ff, 0x0000ff, 0x0000ff, 0x0000ff, 0x0000ff, 0x0000ff, 0x0000ff, 0x0000ff, 0xff00ff,
+    0xff00ff, 0xff00ff, 0xff00ff, 0xff00ff, 0xff00ff, 0xff00ff, 0xff00ff, 0xffffff, 0xffffff, 0xffffff, 0xffffff,
+    0xffffff, 0xffffff, 0xffffff, 0xffffff, 0xc0c0c0, 0xc0c0c0, 0xc0c0c0, 0xc0c0c0, 0xc0c0c0, 0xc0c0c0, 0xc0c0c0,
+    0xff0000, 0xff0000, 0xff0000, 0xff0000, 0xff0000, 0xff0000, 0xff0000, 0xff0000, 0xffff00, 0xffff00, 0xffff00,
+    0xffff00, 0xffff00, 0xffff00, 0xffff00, 0xffff00, 0x00ff00, 0x00ff00, 0x00ff00, 0x00ff00, 0x00ff00, 0x00ff00,
+    0x00ff00, 0x00ff00, 0x00ffff, 0x00ffff, 0x00ffff, 0x00ffff, 0x00ffff, 0x00ffff, 0x00ffff, 0x0000ff, 0x0000ff,
+    0x0000ff, 0x0000ff, 0x0000ff, 0x0000ff, 0x0000ff, 0x0000ff, 0xff00ff, 0xff00ff, 0xff00ff, 0xff00ff, 0xff00ff,
+    0xff00ff, 0xff00ff, 0xff00ff, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000,
+    0x808080, 0x808080, 0x808080, 0x808080, 0x808080, 0x808080, 0x808080, 0x800000, 0x800000, 0x800000, 0x800000,
+    0x800000, 0x800000, 0x800000, 0x800000, 0x808000, 0x808000, 0x808000, 0x808000, 0x808000, 0x808000, 0x808000,
+    0x808000, 0x008000, 0x008000, 0x008000, 0x008000, 0x008000, 0x008000, 0x008000, 0x008000, 0x008080, 0x008080,
+    0x008080, 0x008080, 0x008080, 0x008080, 0x008080, 0x000080, 0x000080, 0x000080, 0x000080, 0x000080, 0x000080,
+    0x000080, 0x000080, 0x800080, 0x800080, 0x800080, 0x800080, 0x800080, 0x800080, 0x800080, 0x800080, 0x000000,
+    0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x808080, 0x808080, 0x808080, 0x808080,
+    0x808080, 0x808080, 0x808080, 0x800000, 0x800000, 0x800000, 0x800000, 0x800000, 0x800000, 0x800000, 0x800000,
+    0x808000, 0x808000, 0x808000, 0x808000, 0x808000, 0x808000, 0x808000, 0x808000, 0x008000, 0x008000, 0x008000,
+    0x008000, 0x008000, 0x008000, 0x008000, 0x008000, 0x008080, 0x008080, 0x008080, 0x008080, 0x008080, 0x008080,
+    0x008080, 0x000080, 0x000080, 0x000080, 0x000080, 0x000080, 0x000080, 0x000080, 0x000080, 0x800080, 0x800080,
+    0x800080, 0x800080, 0x800080, 0x800080, 0x800080, 0x800080,
+};
+
+static TColorRGB makeColor(uint red, uint green, uint blue) {
+    return TColorRGB{ red << 16 | green << 8 | blue };
+}
 
 class ColorView : public TView {
    public:
-    int red = 255;
-    int green = 255;
-    int blue = 255;
+    uint red = 255;
+    uint green = 255;
+    uint blue = 255;
+    bool foreground = true;
     explicit ColorView(const TRect& bounds) : TView(bounds) {}
-    TColorAttr mapColor(uchar /*index*/) override {
+    void draw() override {
+        TDrawBuffer b;
         auto color = makeColor(red, green, blue);
-        return TColorAttr(color, color);
+        b.moveChar(0, foreground ? static_cast<char>(219) : ' ', TColorAttr{ color, color }, size.x);
+        for (auto y = 0; y < size.y; y++) {
+            writeLine(0, static_cast<int16_t>(y), static_cast<int16_t>(size.x), 1, b);
+        }
     }
 };
 
 class PaletteView : public TView {
    public:
     std::function<void(TColorRGB)> onSetColor;
+    int palette = 256;  // 8, 16, or 256
 
-    explicit PaletteView(const TRect& bounds) : TView(bounds) {
-        options |= ofFramed;
-        for (auto i = 0; i < 16; i++) {
-            auto color = _xtermColors.at(i);
-            for (auto j = 0; j < 5; j++) {
-                _colors.at(i / 8).at(1 + (i % 8) * 5 + j) = color;
-            }
-        }
-        _colors.at(0).at(0) = _xtermColors.at(0);
-        _colors.at(0).at(41) = _xtermColors.at(7);
-        _colors.at(1).at(0) = _xtermColors.at(8);
-        _colors.at(1).at(41) = _xtermColors.at(15);
-
-        auto x = 0;
-        auto y = 2;
-        auto col = -1;
-        for (auto i = 16; i < 256; i++) {
-            if (((i - 16) % 36) == 0) {
-                col++;
-                y = 2;
-                x = col * 6;
-            } else if (((i - 16) % 6) == 0) {
-                y++;
-                x = col * 6;
-            } else {
-                x++;
-            }
-            _colors.at(y).at(x) = _xtermColors.at(i);
-        }
-
-        for (auto x = 36; x < 42; x++) {
-            for (auto y = 6; y < 8; y++) {
-                _colors.at(y).at(x) = _xtermColors.at(15);
-            }
-        }
-    }
+    explicit PaletteView(const TRect& bounds) : TView(bounds) {}
 
     void draw() override {
-        for (size_t i = 0; i < _colors.size(); i++) {
-            const std::array<TColorRGB, 42>& row = _colors.at(i);
-            TDrawBuffer b;
-            for (size_t j = 0; j < row.size(); j++) {
-                auto color = row.at(j);
-                b.moveChar(j, ' ', TColorAttr(color, color), 1);
+        auto width = getWidth();
+        auto height = getHeight();
+        const std::vector<TColorRGB>& colors = getColors();
+
+        TDrawBuffer b;
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                const auto& color = colors.at(y * width + x);
+                b.moveChar(x, static_cast<char>(219), TColorAttr{ color, color }, 1);
             }
-            writeLine(0, i, row.size(), 1, b);
+            writeLine(0, static_cast<int16_t>(y), width, 1, b);
         }
     }
 
@@ -161,11 +221,14 @@ class PaletteView : public TView {
         if (event.what == evMouseDown) {
             do {
                 if (mouseInView(event.mouse.where)) {
+                    auto width = getWidth();
+                    auto height = getHeight();
+                    const std::vector<TColorRGB>& colors = getColors();
                     TPoint spot = makeLocal(event.mouse.where);
-                    auto x = static_cast<size_t>(spot.x);
-                    auto y = static_cast<size_t>(spot.y);
-                    if (y < _colors.size() && x < _colors.at(y).size()) {
-                        onSetColor(_colors.at(y).at(x));
+                    auto x = spot.x;
+                    auto y = spot.y;
+                    if (x >= 0 && x < width && y >= 0 && y < height) {
+                        onSetColor(colors.at(static_cast<size_t>(y * width + x)));
                         if ((event.mouse.eventFlags & meDoubleClick) != 0) {
                             TEvent okEvent = { 0 };
                             okEvent.what = evCommand;
@@ -182,22 +245,29 @@ class PaletteView : public TView {
     }
 
    private:
-    std::array<std::array<TColorRGB, 42>, 8> _colors{};
+    int getWidth() const { return palette == 256 ? kColors256Width : palette == 16 ? kColors16Width : kColors8Width; }
+    int getHeight() const {
+        return palette == 256 ? kColors256Height : palette == 16 ? kColors16Height : kColors8Height;
+    }
+    const std::vector<TColorRGB>& getColors() const {
+        return palette == 256 ? _colors256 : palette == 16 ? _colors16 : _colors8;
+    }
 };
 
 class InsertColorDialogPrivate {
    public:
-    ViewPtr<PaletteView> paletteView{ TRect(3, 2, 45, 10) };
-    ViewPtr<ColorView> colorView{ TRect(0, 0, 6, 2) };
+    ViewPtr<PaletteView> paletteView{ TRect{ 2, 2, 2 + 62, 2 + 18 } };
+    ViewPtr<ColorView> colorView{ TRect{ 0, 0, 6, 2 } };
     ViewPtr<InputLine> redInputLine{ 255, 6, 3 };
     ViewPtr<InputLine> greenInputLine{ 255, 6, 3 };
     ViewPtr<InputLine> blueInputLine{ 255, 6, 3 };
     ViewPtr<Button> insertButton{ "Insert", cmOK, bfDefault };
 };
 
-InsertColorDialog::InsertColorDialog(const std::string& title, const std::string& insertButtonText)
-    : TDialog(TRect(0, 0, 67, 15), title), TWindowInit(&TDialog::initFrame), _private(new InsertColorDialogPrivate()) {
+InsertColorDialog::InsertColorDialog(const std::string& title, const std::string& insertButtonText, bool foreground)
+    : TDialog({ 0, 0, 80, 22 }, title), TWindowInit(&TDialog::initFrame), _private(new InsertColorDialogPrivate()) {
     options |= ofCentered;
+    helpCtx = hcide_insertColorDialog;
 
     _private->insertButton->setTitle(insertButtonText);
 
@@ -219,30 +289,90 @@ InsertColorDialog::InsertColorDialog(const std::string& title, const std::string
         selection = rgb;
     };
 
+    auto palette = 16;  // 8, 16, or 256
+#ifndef _WIN32
+    if (!foreground) {
+        palette = 8;
+    }
+#endif
+    if ((TScreen::screenMode & 0xFF) == TDisplay::smCO80) {
+        if (TScreen::screenMode & TDisplay::smColorHigh || TScreen::screenMode & TDisplay::smColor256) {
+            palette = 256;
+        }
+    }
+
+    if (palette < 256) {
+        StatusLine::setItemText(App::insertColorDialogHelpStatusItem, "Press ~F1~ to learn how to see more colors.");
+    }
+
+    _private->paletteView->palette = palette;
     _private->paletteView.addTo(this);
     _private->colorView->options |= ofFramed;
 
-    GridLayout(
-        2,
-        {
-            new Label("~R~ed:", _private->redInputLine),
-            _private->redInputLine.take(),
-            new Label("~G~reen:", _private->greenInputLine),
-            _private->greenInputLine.take(),
-            new Label("~B~lue:", _private->blueInputLine),
-            _private->blueInputLine.take(),
-            nullptr,
-            _private->colorView.take(),
-        })
-        .apply(this, TPoint{ 45, 0 });
+    ViewPtr<Label> redLabel{ "~R~:", _private->redInputLine };
+    ViewPtr<Label> greenLabel{ "~G~:", _private->greenInputLine };
+    ViewPtr<Label> blueLabel{ "~B~:", _private->blueInputLine };
+    ViewPtr<Button> cancelButton{ "Cancel", cmCancel, bfNormal };
 
-    RowLayout(
-        true,
-        {
-            _private->insertButton.take(),
-            new Button("Cancel", cmCancel, bfNormal),
-        })
-        .addTo(this, 0, 64, 12);
+    if (palette == 256) {
+        GridLayout(
+            2,
+            {
+                redLabel.take(),
+                _private->redInputLine.take(),
+                greenLabel.take(),
+                _private->greenInputLine.take(),
+                blueLabel.take(),
+                _private->blueInputLine.take(),
+                nullptr,
+                _private->colorView.take(),
+            })
+            .apply(this, TPoint{ 63, 5 });
+
+        GridLayout(
+            1,
+            {
+                _private->insertButton.take(),
+                cancelButton.take(),
+            })
+            .setRowSpacing(0)
+            .apply(this, TPoint{ 63, 0 });
+    } else {
+        // the 16 color window is the same as the 8 color window, plus two lines
+        auto extra = palette == 16 ? 2 : 0;
+
+        TRect windowRect{ 0, 0, 70, 9 + extra };
+        locate(windowRect);
+
+        GridLayout(
+            3,
+            {
+                redLabel.take(),
+                greenLabel.take(),
+                blueLabel.take(),
+                _private->redInputLine.take(),
+                _private->greenInputLine.take(),
+                _private->blueInputLine.take(),
+            })
+            .setRowSpacing(0)
+            .apply(this, TPoint{ 11, 3 + extra });
+
+        _private->colorView->foreground = foreground;
+        _private->colorView->moveTo(4, static_cast<int16_t>(5 + extra));
+        _private->colorView.addTo(this);
+
+        RowLayout(
+            true,
+            {
+                _private->insertButton.take(),
+                cancelButton.take(),
+            })
+            .addTo(this, 1, size.x - 3, 6 + extra);
+
+        TRect r{ 4, 2, 4 + 62, 2 + 2 + extra };
+        _private->paletteView->locate(r);
+        _private->paletteView->options |= ofFramed;
+    }
 
     _private->redInputLine->focus();
 }
@@ -262,11 +392,15 @@ void InsertColorDialog::handleEvent(TEvent& event) {
             messageBox(ex.what(), mfError | mfOKButton);
             clearEvent(event);
         }
+    } else if (event.what == evCommand && event.message.command == cmHelp) {
+        didClickHelp = true;
+        message(this, evCommand, cmCancel, nullptr);
+        clearEvent(event);
     } else if (event.what == evBroadcast && event.message.command == kCmdTimerTick) {
         try {
-            auto red = parseUserInt(_private->redInputLine->data, "", 0, 255);
-            auto green = parseUserInt(_private->greenInputLine->data, "", 0, 255);
-            auto blue = parseUserInt(_private->blueInputLine->data, "", 0, 255);
+            auto red = static_cast<uint>(parseUserInt(_private->redInputLine->data, "", 0, 255));
+            auto green = static_cast<uint>(parseUserInt(_private->greenInputLine->data, "", 0, 255));
+            auto blue = static_cast<uint>(parseUserInt(_private->blueInputLine->data, "", 0, 255));
             selection = makeColor(red, green, blue);
             if (_private->colorView->red != red || _private->colorView->green != green ||
                 _private->colorView->blue != blue) {
@@ -281,6 +415,22 @@ void InsertColorDialog::handleEvent(TEvent& event) {
     }
 
     TDialog::handleEvent(event);
+}
+
+bool InsertColorDialog::go(
+    const std::string& title,
+    const std::string& insertButtonText,
+    bool foreground,
+    TColorRGB* output) {
+    auto dialog = DialogPtr<InsertColorDialog>(title, insertButtonText, foreground);
+    auto result = TProgram::deskTop->execView(dialog);
+    if (result == cmOK) {
+        *output = dialog->selection;
+        return true;
+    } else if (result == cmCancel && dialog->didClickHelp) {
+        dynamic_cast<App*>(TProgram::application)->openHelpTopic(hcide_insertColorDialog);
+    }
+    return false;
 }
 
 }  // namespace tmbasic

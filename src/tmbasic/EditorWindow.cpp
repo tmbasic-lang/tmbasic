@@ -175,10 +175,9 @@ void EditorWindow::onEditInsertSymbol() {
 }
 
 void EditorWindow::onEditInsertColor() {
-    auto dialog = DialogPtr<InsertColorDialog>("Insert Color", "Insert");
-    if (TProgram::deskTop->execView(dialog) == cmOK) {
+    TColorRGB rgb;
+    if (InsertColorDialog::go("Insert Color", "Insert", true, &rgb)) {
         std::ostringstream s;
-        const auto& rgb = dialog->selection;
         s << "Rgb(" << static_cast<int>(rgb.r) << ", " << static_cast<int>(rgb.g) << ", " << static_cast<int>(rgb.b)
           << ")";
         auto str = s.str();

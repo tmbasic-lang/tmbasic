@@ -19,6 +19,8 @@ class App : public TApplication {
     void handleEvent(TEvent& event) override;
     TPalette& getPalette() const override;
     void setPictureWindow(PictureWindow* pictureWindow);
+    void openHelpTopic(uint16_t topic);
+    static TStatusItem* insertColorDialogHelpStatusItem;
 
    private:
     static TMenuBar* initMenuBar(TRect r);
@@ -36,7 +38,6 @@ class App : public TApplication {
     void onHelpDocumentation();
     static void onHelpAbout();
     static TRect centeredRect(int width, int height);
-    void openHelpTopic(uint16_t topic);
     void showNewProgramWindow(std::optional<std::string> filePath);
     void openEditorOrDesignerWindow(compiler::SourceMember* member);
     void showEditorWindow(compiler::SourceMember* member);

@@ -112,12 +112,12 @@ PNG_OUT_FILES=$(patsubst art/%,bin/ghpages/%,$(PNG_IN_FILES))
 
 # help files
 TOPIC_UTF8_FILES=$(shell find doc/topics -type f -name "*.txt")
-TOPIC_CP437_FILES=$(patsubst doc/topics/%,obj/doc-temp/topics-cp437/%,$(TOPIC_UTF8_FILES))
+TOPIC_COPY_FILES=$(patsubst doc/topics/%,obj/doc-temp/topics-copy/%,$(TOPIC_UTF8_FILES))
 PROCEDURES_UTF8_FILES=$(shell find doc/procedures -type f -name "*.txt")
-PROCEDURES_CP437_FILES=$(patsubst doc/procedures/%,obj/doc-temp/procedures-cp437/%,$(PROCEDURES_UTF8_FILES))
+PROCEDURES_COPY_FILES=$(patsubst doc/procedures/%,obj/doc-temp/procedures-copy/%,$(PROCEDURES_UTF8_FILES))
 DOC_FILES=$(shell find doc -type f -name "*.txt") $(shell find doc -type f -name "*.html")
 DIAGRAM_SRC_FILES=$(shell find doc/diagrams -type f -name "*.txt")
-DIAGRAM_CP437_FILES=$(patsubst doc/diagrams/%,obj/doc-temp/diagrams-cp437/%,$(DIAGRAM_SRC_FILES))
+DIAGRAM_COPY_FILES=$(patsubst doc/diagrams/%,obj/doc-temp/diagrams-copy/%,$(DIAGRAM_SRC_FILES))
 LICENSE_FILES=\
 	LICENSE \
 	ext/boost/LICENSE_1_0.txt \
@@ -161,8 +161,8 @@ LICENSE_DIAGRAM_TXT_FILES=\
 	obj/doc-temp/diagrams-license/license_libxcb.txt \
 	obj/doc-temp/diagrams-license/license_scintilla.txt \
 	obj/doc-temp/diagrams-license/license_turbo.txt
-LICENSE_DIAGRAM_CP437_FILES=\
-	$(patsubst obj/doc-temp/diagrams-license/%,obj/doc-temp/diagrams-cp437/%,$(LICENSE_DIAGRAM_TXT_FILES))
+LICENSE_DIAGRAM_COPY_FILES=\
+	$(patsubst obj/doc-temp/diagrams-license/%,obj/doc-temp/diagrams-copy/%,$(LICENSE_DIAGRAM_TXT_FILES))
 
 # icon resource
 ifeq ($(TARGET_OS),win)
@@ -498,7 +498,7 @@ runners: $(patsubst %,bin/runners/%,$(BZIPPED_RUNNER_SIZE:=.bz2)) \
 $(TIDY_TARGETS): obj/tidy/%.tidy: src/%.cpp
 	@printf "%16s  %s\n" "clang-tidy" "$<"
 	@mkdir -p $(@D)
-	@clang-tidy $< --quiet --fix -- $(CXXFLAGS) -DCLANG_TIDY | tee $@
+	@clang-tidy $< --quiet --fix --extra-arg=-Wno-unknown-warning-option -- $(CXXFLAGS) -DCLANG_TIDY | tee $@
 	@touch $@
 
 
@@ -625,10 +625,10 @@ obj/resources/help/helpfile.h: obj/resources/help/help.txt
 obj/resources/help/help.h32: obj/resources/help/helpfile.h
 	@# noop
 
-obj/resources/help/help.txt: $(DOC_FILES) $(TOPIC_CP437_FILES) $(PROCEDURES_CP437_FILES) \
+obj/resources/help/help.txt: $(DOC_FILES) $(TOPIC_COPY_FILES) $(PROCEDURES_COPY_FILES) \
 		obj/buildDoc \
-		$(DIAGRAM_CP437_FILES) \
-		$(LICENSE_DIAGRAM_CP437_FILES) \
+		$(DIAGRAM_COPY_FILES) \
+		$(LICENSE_DIAGRAM_COPY_FILES) \
 		doc/html/page-template-1.html \
 		doc/html/page-template-2.html \
 		doc/html/page-template-3.html
@@ -636,25 +636,25 @@ obj/resources/help/help.txt: $(DOC_FILES) $(TOPIC_CP437_FILES) $(PROCEDURES_CP43
 	@mkdir -p $(@D)
 	@cd doc && ../obj/buildDoc
 
-$(DIAGRAM_CP437_FILES): obj/doc-temp/diagrams-cp437/%: doc/diagrams/%
-	@printf "%16s  %s\n" "iconv" "$@"
+$(DIAGRAM_COPY_FILES): obj/doc-temp/diagrams-copy/%: doc/diagrams/%
+	@printf "%16s  %s\n" "cp" "$@"
 	@mkdir -p $(@D)
-	@iconv -f utf8 -t cp437 $< > $@
+	@cp -f $< $@
 
-$(LICENSE_DIAGRAM_CP437_FILES): obj/doc-temp/diagrams-cp437/%: obj/doc-temp/diagrams-license/%
-	@printf "%16s  %s\n" "iconv" "$@"
+$(LICENSE_DIAGRAM_COPY_FILES): obj/doc-temp/diagrams-copy/%: obj/doc-temp/diagrams-license/%
+	@printf "%16s  %s\n" "cp" "$@"
 	@mkdir -p $(@D)
-	@iconv -f utf8 -t cp437 $< > $@
+	@cp -f $< $@
 
-$(TOPIC_CP437_FILES): obj/doc-temp/topics-cp437/%: doc/topics/%
-	@printf "%16s  %s\n" "iconv" "$@"
+$(TOPIC_COPY_FILES): obj/doc-temp/topics-copy/%: doc/topics/%
+	@printf "%16s  %s\n" "cp" "$@"
 	@mkdir -p $(@D)
-	@iconv -f utf8 -t cp437 $< > $@
+	@cp -f $< $@
 
-$(PROCEDURES_CP437_FILES): obj/doc-temp/procedures-cp437/%: doc/procedures/%
-	@printf "%16s  %s\n" "iconv" "$@"
+$(PROCEDURES_COPY_FILES): obj/doc-temp/procedures-copy/%: doc/procedures/%
+	@printf "%16s  %s\n" "cp" "$@"
 	@mkdir -p $(@D)
-	@iconv -f utf8 -t cp437 $< > $@
+	@cp -f $< $@
 
 
 

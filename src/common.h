@@ -35,6 +35,7 @@
 #define Uses_TPalette
 #define Uses_TRect
 #define Uses_TSItem
+#define Uses_TScreen
 #define Uses_TScroller
 #define Uses_TStaticText
 #define Uses_TStatusDef

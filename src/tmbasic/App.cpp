@@ -27,7 +27,10 @@ using util::WindowPtr;
 namespace tmbasic {
 
 std::array<char, 9> App::helpWindowPalette = {};
+
+// these are used to pass stuff from initMenuBar()/initStatusLine() to the App constructor
 static PictureWindowStatusItems _newestPictureWindowStatusItems;
+TStatusItem* App::insertColorDialogHelpStatusItem;
 
 App::App(int /*argc*/, char** /*argv*/)
     : TProgInit(initStatusLine, initMenuBar, TApplication::initDeskTop), _newWindowX(2), _newWindowY(1) {
@@ -199,7 +202,13 @@ TStatusLine* App::initStatusLine(TRect r) {
         *options.take();
     pictureWindowStatusDef.next = &programWindowStatusDef;
 
-    auto* statusLine = new StatusLine(r, pictureWindowStatusDef);  // NOLINT(cppcoreguidelines-owning-memory)
+    ViewPtr<TStatusItem> insertColorHelp{ "~F1~ Help", kbF1, cmHelp };
+    insertColorDialogHelpStatusItem = insertColorHelp;
+    auto& insertColorDialogStatusDef =
+        *new TStatusDef(hcide_insertColorDialog, hcide_insertColorDialog) + *insertColorHelp.take();
+    insertColorDialogStatusDef.next = &pictureWindowStatusDef;
+
+    auto* statusLine = new StatusLine(r, insertColorDialogStatusDef);  // NOLINT(cppcoreguidelines-owning-memory)
     s.statusLine = statusLine;
     s.characterColor = statusLine->addStatusItemColors(s.character);
     s.fgColor = statusLine->addStatusItemColors(s.fg);

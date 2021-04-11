@@ -296,12 +296,12 @@ static void writeHtmlPage(const string& topic, const string& text, const string&
 }
 
 static void buildTopic(
-    const string& cp437Filename,
+    const string& copyFilename,
     const string& utf8Filename,
     const string& topic,
     ostringstream* outputTxt,
     const string& htmlPageTemplate) {
-    *outputTxt << ".topic " << topic << "\n" << processText(trim_copy(readFile(cp437Filename))) << "\n\n";
+    *outputTxt << ".topic " << topic << "\n" << processText(trim_copy(readFile(copyFilename))) << "\n\n";
     writeHtmlPage(topic, readFile(utf8Filename), htmlPageTemplate);
 }
 
@@ -505,13 +505,13 @@ static string formatProcedureText(const Procedure& procedure) {
 }
 
 static unique_ptr<Procedure> buildProcedure(
-    const string& cp437Filename,
+    const string& copyFilename,
     const string& utf8Filename,
     ostringstream* outputTxt,
     const string& htmlPageTemplate) {
-    auto cp437Procedure = parseProcedure(readFile(cp437Filename));
-    auto topicName = string("procedure_") + cp437Procedure->name;
-    *outputTxt << ".topic " << topicName << "\n" << processText(formatProcedureText(*cp437Procedure)) << "\n";
+    auto copyProcedure = parseProcedure(readFile(copyFilename));
+    auto topicName = string("procedure_") + copyProcedure->name;
+    *outputTxt << ".topic " << topicName << "\n" << processText(formatProcedureText(*copyProcedure)) << "\n";
     auto utf8Procedure = parseProcedure(readFile(utf8Filename));
     writeHtmlPage(topicName, formatProcedureText(*utf8Procedure), htmlPageTemplate);
     return utf8Procedure;
@@ -604,11 +604,11 @@ static void buildProcedureIndex(
     buildTopic(filePath, filePath, "procedure", outputTxt, htmlPageTemplate);
 }
 
-static string insertCp437Diagram(string input, const string& filename) {
-    auto cp437FilePath = string("../obj/doc-temp/diagrams-cp437/") + filename;
+static string insertCopyDiagram(string input, const string& filename) {
+    auto copyFilePath = string("../obj/doc-temp/diagrams-copy/") + filename;
     auto name = filename.substr(0, filename.length() - 4);  // remove ".txt"
 
-    auto diagram = indent(readFile(cp437FilePath));
+    auto diagram = indent(readFile(copyFilePath));
 
     // escape any { symbols in the diagram
     diagram = replace(diagram, "{", "{{");
@@ -627,10 +627,9 @@ static string insertCp437Diagram(string input, const string& filename) {
     return input;
 }
 
-static string insertCp437Diagrams(string text) {
-    forEachFile("../obj/doc-temp/diagrams-cp437", [&text](auto filename) -> void {
-        text = insertCp437Diagram(text, filename);
-    });
+static string insertCopyDiagrams(string text) {
+    forEachFile(
+        "../obj/doc-temp/diagrams-copy", [&text](auto filename) -> void { text = insertCopyDiagram(text, filename); });
     return text;
 }
 
@@ -642,24 +641,24 @@ int main() {
             readFile("html/page-template-2.html") + "[BODY]" + readFile("html/page-template-3.html");
         createDirectory("../obj");
         createDirectory("../obj/doc-temp");
-        createDirectory("../obj/doc-temp/diagrams-cp437");
+        createDirectory("../obj/doc-temp/diagrams-copy");
         createDirectory("../obj/doc-html");
-        forEachFile("../obj/doc-temp/topics-cp437", [&outputTxt, &htmlPageTemplate](auto filename) -> void {
+        forEachFile("../obj/doc-temp/topics-copy", [&outputTxt, &htmlPageTemplate](auto filename) -> void {
             auto topic = filename.substr(0, filename.length() - 4);
             buildTopic(
-                string("../obj/doc-temp/topics-cp437/") + filename, string("topics/") + filename, topic, &outputTxt,
+                string("../obj/doc-temp/topics-copy/") + filename, string("topics/") + filename, topic, &outputTxt,
                 htmlPageTemplate);
         });
         forEachFile(
-            "../obj/doc-temp/procedures-cp437", [&outputTxt, &htmlPageTemplate, &procedures](auto filename) -> void {
+            "../obj/doc-temp/procedures-copy", [&outputTxt, &htmlPageTemplate, &procedures](auto filename) -> void {
                 procedures.push_back(buildProcedure(
-                    string("../obj/doc-temp/procedures-cp437/") + filename, string("procedures/") + filename,
-                    &outputTxt, htmlPageTemplate));
+                    string("../obj/doc-temp/procedures-copy/") + filename, string("procedures/") + filename, &outputTxt,
+                    htmlPageTemplate));
             });
         sort(procedures.begin(), procedures.end(), compareProceduresByName);
         buildProcedureCategoryPages(procedures, &outputTxt, htmlPageTemplate);
         buildProcedureIndex(procedures, &outputTxt, htmlPageTemplate);
-        writeFile("../obj/resources/help/help.txt", insertCp437Diagrams(outputTxt.str()));
+        writeFile("../obj/resources/help/help.txt", insertCopyDiagrams(outputTxt.str()));
     } catch (const regex_error& ex) {
         ostringstream s;
         cerr << ex.what() << ": " << NAMEOF_ENUM(ex.code()) << endl;

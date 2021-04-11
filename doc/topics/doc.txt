@@ -4,6 +4,7 @@ h2[General]
 
 ul@
 li@{Cheat Sheet for Experienced Programmers:cheat}@
+li@{How to Use TMBASIC:ide}@
 li@{Language Grammar:ref_grammar}@
 li@{License:license}@
 @

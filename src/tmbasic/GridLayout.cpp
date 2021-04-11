@@ -91,7 +91,6 @@ GridLayout::TableView GridLayout::getCell(int rowIndex, int columnIndex) {
 
 void GridLayout::calculateRowHeights(std::vector<int>* finalRowHeights) {
     for (size_t rowIndex = 0; rowIndex < _rowHeights.size(); rowIndex++) {
-        auto isLastRow = rowIndex == _rowHeights.size() - 1;
         auto height = _rowHeights[rowIndex];
         if (height == 0) {
             // auto size based on contents
@@ -107,23 +106,16 @@ void GridLayout::calculateRowHeights(std::vector<int>* finalRowHeights) {
                     }
                 }
             }
-            if (!isLastRow) {
-                maxContentHeight += _rowSpacing;
-            }
-            (*finalRowHeights)[rowIndex] = maxContentHeight;
+            finalRowHeights->at(rowIndex) = maxContentHeight + _rowSpacing;
         } else {
             // fixed size
-            if (!isLastRow) {
-                height += _rowSpacing;
-            }
-            (*finalRowHeights)[rowIndex] = height;
+            finalRowHeights->at(rowIndex) = height + _rowSpacing;
         }
     }
 }
 
 void GridLayout::calculateColumnWidths(std::vector<int>* finalColumnWidths) {
     for (size_t columnIndex = 0; columnIndex < _columnWidths.size(); columnIndex++) {
-        auto isLastColumn = columnIndex == _columnWidths.size() - 1;
         auto width = _columnWidths[columnIndex];
         if (width == 0) {
             // auto size based on contents
@@ -132,23 +124,17 @@ void GridLayout::calculateColumnWidths(std::vector<int>* finalColumnWidths) {
                 auto tableView = getCell(rowIndex, columnIndex);
                 if (tableView.item.rowLayout.has_value()) {
                     auto& flow = *tableView.item.rowLayout;
-                    maxContentWidth = max(maxContentWidth, flow.getSize().x - 1);
+                    maxContentWidth = max(maxContentWidth, flow.getSize().x);
                 } else {
                     if (tableView.item.view != nullptr) {
                         maxContentWidth = max(maxContentWidth, tableView.item.view->size.x);
                     }
                 }
             }
-            if (!isLastColumn) {
-                maxContentWidth += _columnSpacing;
-            }
-            (*finalColumnWidths)[columnIndex] = maxContentWidth;
+            (*finalColumnWidths)[columnIndex] = maxContentWidth + _columnSpacing;
         } else {
             // fixed size
-            if (!isLastColumn) {
-                width += _columnSpacing;
-            }
-            (*finalColumnWidths)[columnIndex] = width;
+            (*finalColumnWidths)[columnIndex] = width + _columnSpacing;
         }
     }
 }
@@ -170,26 +156,26 @@ TPoint GridLayout::apply(TGroup* group, TPoint upperLeft) {
     auto y = upperLeft.y + _marginY;
     for (size_t rowIndex = 0; rowIndex < numRows; rowIndex++) {
         auto x = upperLeft.x + _marginX;
-        auto height = rowHeights[rowIndex];
+        auto height = rowHeights[rowIndex] - _rowSpacing;
 
         for (size_t columnIndex = 0; columnIndex < numColumns; columnIndex++) {
-            auto width = columnWidths[columnIndex];
+            auto width = columnWidths[columnIndex] - _columnSpacing;
             auto tableView = getCell(rowIndex, columnIndex);
             if (tableView.item.rowLayout.has_value()) {
                 auto& flow = *tableView.item.rowLayout;
                 flow.addTo(group, x, x + width - 1, y);
             } else if (tableView.item.view != nullptr) {
-                auto bounds = TRect(x, y, x + width - 1, y + tableView.item.view->size.y);
+                TRect bounds{ x, y, x + width - 1, y + tableView.item.view->size.y };
                 tableView.item.view->locate(bounds);
                 group->insert(tableView.item.view);
             }
 
-            x += width;
-            right = max(right, x - 1);
+            x += width + _columnSpacing;
+            right = max(right, x - _columnSpacing - 1);
         }
 
-        y += height;
-        bottom = max(bottom, y - 1);
+        y += height + _rowSpacing;
+        bottom = max(bottom, y - _rowSpacing - 1);
     }
 
     return { right, bottom };

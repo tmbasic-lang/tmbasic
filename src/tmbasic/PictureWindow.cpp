@@ -1046,18 +1046,18 @@ void PictureWindow::onStatusLineCommand(ushort cmd) {
 
     switch (cmd) {
         case kCmdPictureFg: {
-            auto dialog = DialogPtr<InsertColorDialog>("Choose Foreground Color", "Choose");
-            if (TProgram::deskTop->execView(dialog) == cmOK) {
-                _private->fg = dialog->selection;
+            TColorRGB selection;
+            if (InsertColorDialog::go("Choose Foreground Color", "Choose", true, &selection)) {
+                _private->fg = selection;
                 updateStatusItems(_private);
             }
             break;
         }
 
         case kCmdPictureBg: {
-            auto dialog = DialogPtr<InsertColorDialog>("Choose Background Color", "Choose");
-            if (TProgram::deskTop->execView(dialog) == cmOK) {
-                _private->bg = dialog->selection;
+            TColorRGB selection;
+            if (InsertColorDialog::go("Choose Background Color", "Choose", false, &selection)) {
+                _private->bg = selection;
                 updateStatusItems(_private);
             }
             break;
