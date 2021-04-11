@@ -55,7 +55,7 @@ fi
 if [ ! -d "tvision" ]
 then
     curl -L -o tvision.zip https://github.com/magiblot/tvision/archive/290ccbaa9fc7e3c8278b632a28291d0b0154ed3b.zip
-    unzip tvision.zip
+    unzip -q tvision.zip
     mv tvision-* tvision
     pushd tvision
     mkdir build
@@ -135,13 +135,14 @@ then
     unzip -q turbo.zip
     mv turbo-*/ turbo/
     pushd turbo
-    patch CMakeLists.txt ../../build/files/turbo-CMakeLists.txt.diff
-    patch src/app.cc ../../build/files/turbo-app.cc.diff
     mv scintilla/lexers/LexBasic.cxx .
     rm -f scintilla/lexers/*
     mv -f LexBasic.cxx scintilla/lexers/LexBasic.cxx
     cat scintilla/src/Catalogue.cxx | sed 's:LINK_LEXER(lm.*::g; s:return 1;:LINK_LEXER(lmFreeBasic); return 1;:g' > Catalogue.cxx
     mv -f Catalogue.cxx scintilla/src/Catalogue.cxx
+    cat deps/CMakeLists.txt | sed 's:add_subdirectory:#:g' > deps-CMakeLists.txt && \
+    mv -f deps-CMakeLists.txt deps/CMakeLists.txt && \
+    patch CMakeLists.txt ../../build/files/turbo-CMakeLists.txt.diff && \
     mkdir build
     cd build
     CXXFLAGS="-isystem $(PWD)/../../tvision/include -isystem $(PWD)/../../fmt/include -isystem $(PWD)/../../libclipboard/include -isystem $(PWD)/../../libclipboard/build/include -DTVISION_STL=1 -D__cpp_lib_string_view=1" \
