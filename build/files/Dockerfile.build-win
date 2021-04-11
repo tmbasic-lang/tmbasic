@@ -252,7 +252,7 @@ RUN curl -L -o /tmp/tvision.zip https://github.com/magiblot/tvision/archive/290c
 
 # turbo
 COPY turbo-CMakeLists.txt.diff /tmp/turbo-CMakeLists.txt.diff
-RUN curl -L -o /tmp/turbo.zip https://github.com/magiblot/turbo/archive/8cbf8a9bc735f2a867761fc5fc5e2e3d49452ec0.zip && \
+RUN curl -L -o /tmp/turbo.zip https://github.com/magiblot/turbo/archive/2b930c017f4324c4ca42d63eeb1d82f09190faba.zip && \
     cd /tmp && \
     unzip -q turbo.zip && \
     mv turbo-*/ turbo/ && \

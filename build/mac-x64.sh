@@ -131,7 +131,7 @@ fi
 
 if [ ! -d "turbo" ]
 then
-    curl -L -o turbo.zip https://github.com/magiblot/turbo/archive/8cbf8a9bc735f2a867761fc5fc5e2e3d49452ec0.zip
+    curl -L -o turbo.zip https://github.com/magiblot/turbo/archive/2b930c017f4324c4ca42d63eeb1d82f09190faba.zip
     unzip -q turbo.zip
     mv turbo-*/ turbo/
     pushd turbo
