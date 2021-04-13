@@ -25,11 +25,11 @@ RUN apt-get update -y && \
 
 # unprivileged user
 RUN mkdir -p /code && \
-    (groupadd -g $HOST_GID $USER || true) && \
-    useradd -r -u $HOST_UID -g $HOST_GID $USER && \
+    (groupadd -g $HOST_GID user || true) && \
+    (useradd -r -u $HOST_UID -g $HOST_GID user || true) && \
     chown $HOST_UID:$HOST_GID /code && \
-    mkdir -p /home/$USER && \
-    chown $HOST_UID:$HOST_GID /home/$USER
+    mkdir -p /home/user && \
+    chown $HOST_UID:$HOST_GID /home/user
 
 # cpplint
 RUN pip3 install cpplint
@@ -228,16 +228,17 @@ RUN curl -L -o /tmp/turbo.zip https://github.com/magiblot/turbo/archive/2b930c01
     cp $(find /tmp/turbo -name '*.h') /usr/include/turbo/
 
 # environment
-USER $HOST_UID
-COPY devPrompt.sh /home/$USER/
-RUN echo "export ARCH=\"$ARCH\"" >> /home/$USER/.bashrc && \
-    echo "export IMAGE_NAME=\"$IMAGE_NAME\"" >> /home/$USER/.bashrc && \
-    echo "export PS1=\"[$IMAGE_NAME] \w\$ \"" >> /home/$USER/.bashrc && \
-    echo "export MAKEFLAGS=\"-j$(nproc)\"" >> /home/$USER/.bashrc && \
-    echo "export TARGET_OS=linux" >> /home/$USER/.bashrc && \
-    echo "export LINUX_DISTRO=ubuntu" >> /home/$USER/.bashrc && \
-    echo "alias dev='/home/$USER/devPrompt.sh'" >> /home/$USER/.bashrc && \
-    echo "make -f /code/Makefile help" >> /home/$USER/.bashrc && \
-    echo "export TERM=xterm-256color" >> /home/$USER/.bashrc
+COPY devPrompt.sh /home/user/
+RUN echo "export ARCH=\"$ARCH\"" >> /etc/profile.d/tmbasic.sh && \
+    echo "export IMAGE_NAME=\"$IMAGE_NAME\"" >> /etc/profile.d/tmbasic.sh && \
+    echo "export PS1=\"[$IMAGE_NAME] \w\$ \"" >> /etc/profile.d/tmbasic.sh && \
+    echo "export MAKEFLAGS=\"-j$(nproc)\"" >> /etc/profile.d/tmbasic.sh && \
+    echo "export TARGET_OS=linux" >> /etc/profile.d/tmbasic.sh && \
+    echo "export LINUX_DISTRO=ubuntu" >> /etc/profile.d/tmbasic.sh && \
+    echo "alias dev='/home/user/devPrompt.sh'" >> /etc/profile.d/tmbasic.sh && \
+    echo "make -f /code/Makefile help" >> /etc/profile.d/tmbasic.sh && \
+    echo "export TERM=xterm-256color" >> /etc/profile.d/tmbasic.sh && \
+    chmod +x /etc/profile.d/tmbasic.sh
 
-ENTRYPOINT "/bin/bash"
+USER $HOST_UID
+ENTRYPOINT ["/bin/bash", "-l"]

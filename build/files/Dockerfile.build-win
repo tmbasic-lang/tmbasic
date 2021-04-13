@@ -1,11 +1,11 @@
 FROM archlinux:latest
 
 RUN mkdir -p /code && \
-    (groupadd -g $HOST_GID $USER || true) && \
-    useradd -r -u $HOST_UID -g $HOST_GID $USER && \
+    (groupadd -g $HOST_GID user || true) && \
+    (useradd -r -u $HOST_UID -g $HOST_GID user || true) && \
     chown $HOST_UID:$HOST_GID /code && \
-    mkdir -p /home/$USER && \
-    chown $HOST_UID:$HOST_GID /home/$USER
+    mkdir -p /home/user && \
+    chown $HOST_UID:$HOST_GID /home/user
 
 RUN echo "[multilib]" >> /etc/pacman.conf && \
     echo "Include = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf && \
@@ -281,12 +281,13 @@ RUN curl -L -o /tmp/turbo.zip https://github.com/magiblot/turbo/archive/2b930c01
     rm -rf /tmp/turbo.zip /tmp/turbo/
 
 # environment
-USER $HOST_UID
-RUN echo "export ARCH=\"$ARCH\"" >> /home/$USER/.bashrc && \
-    echo "export IMAGE_NAME=\"$IMAGE_NAME\"" >> /home/$USER/.bashrc && \
-    echo "export PS1=\"[$IMAGE_NAME] \w\$ \"" >> /home/$USER/.bashrc && \
-    echo "export MAKEFLAGS=\"-j$(nproc)\"" >> /home/$USER/.bashrc && \
-    echo "export TARGET_OS=win" >> /home/$USER/.bashrc && \
-    echo "make -f /code/Makefile help" >> /home/$USER/.bashrc
+RUN echo "export ARCH=\"$ARCH\"" >> /etc/profile.d/tmbasic.sh && \
+    echo "export IMAGE_NAME=\"$IMAGE_NAME\"" >> /etc/profile.d/tmbasic.sh && \
+    echo "export PS1=\"[$IMAGE_NAME] \w\$ \"" >> /etc/profile.d/tmbasic.sh && \
+    echo "export MAKEFLAGS=\"-j$(nproc)\"" >> /etc/profile.d/tmbasic.sh && \
+    echo "export TARGET_OS=win" >> /etc/profile.d/tmbasic.sh && \
+    echo "make -f /code/Makefile help" >> /etc/profile.d/tmbasic.sh && \
+    chmod +x /etc/profile.d/tmbasic.sh
 
-ENTRYPOINT "/bin/bash"
+USER $HOST_UID
+ENTRYPOINT ["/bin/bash", "-l"]
