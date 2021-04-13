@@ -25,7 +25,7 @@ RUN apt-get update -y && \
 
 # unprivileged user
 RUN mkdir -p /code && \
-    groupadd -g $HOST_GID $USER && \
+    (groupadd -g $HOST_GID $USER || true) && \
     useradd -r -u $HOST_UID -g $HOST_GID $USER && \
     chown $HOST_UID:$HOST_GID /code && \
     mkdir -p /home/$USER && \
@@ -48,7 +48,7 @@ RUN curl -L https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
 # gtest
 RUN cd /usr/src/gtest && \
     cmake CMakeLists.txt && \
-    make -j4 && \
+    make -j$(nproc) && \
     mv lib/*.a /usr/lib/
 
 # bzip2
@@ -59,7 +59,7 @@ RUN curl -L -o /tmp/bzip2.zip https://gitlab.com/federicomenaquintero/bzip2/-/ar
     mkdir -p bzip2/build && \
     cd bzip2/build && \
     cmake .. -DENABLE_STATIC_LIB=ON && \
-    make -j4 && \
+    make -j$(nproc) && \
     make install && \
     rm -rf /tmp/bzip2.zip /tmp/bzip2/
 
@@ -90,7 +90,7 @@ RUN curl -L -o /tmp/icu.tar.gz https://github.com/unicode-org/icu/releases/downl
     CXXFLAGS="-DU_USING_ICU_NAMESPACE=0 -DU_NO_DEFAULT_INCLUDE_UTF_HEADERS=1 -DU_HIDE_OBSOLETE_UTF_OLD_H=1 -std=c++17" \
         ./runConfigureICU "Linux/gcc" --enable-static --disable-shared --disable-tests --disable-samples \
         --with-data-packaging=static && \
-    make -j4 && \
+    make -j$(nproc) && \
     make install && \
     rm -rf /tmp/icu.tar.gz /tmp/icu/
 
@@ -101,7 +101,7 @@ RUN curl -L -o /tmp/xorgproto.tar.gz https://xorg.freedesktop.org/archive/indivi
     mv xorgproto-*/ xorgproto/ && \
     cd xorgproto && \
     ./configure && \
-    make -j4 && \
+    make -j$(nproc) && \
     make install && \
     rm -rf /tmp/xorgproto.tar.gz /tmp/xorgproto/
 
@@ -112,7 +112,7 @@ RUN curl -L -o /tmp/libXau.tar.gz https://xorg.freedesktop.org/archive/individua
     mv libXau-*/ libXau/ && \
     cd libXau && \
     ./configure --enable-static && \
-    make -j4 && \
+    make -j$(nproc) && \
     make install && \
     rm -rf /tmp/libXau.tar.gz /tmp/libXau/
 
@@ -123,7 +123,7 @@ RUN curl -L -o /tmp/xcb-proto.tar.gz https://xorg.freedesktop.org/archive/indivi
     mv xcb-proto-*/ xcb-proto/ && \
     cd xcb-proto && \
     ./configure && \
-    make -j4 && \
+    make -j$(nproc) && \
     make install && \
     rm -rf /tmp/xcb-proto.tar.gz /tmp/xcb-proto/
 
@@ -134,7 +134,7 @@ RUN curl -L -o /tmp/libxcb.tar.gz https://xorg.freedesktop.org/archive/individua
     mv libxcb-*/ libxcb/ && \
     cd libxcb && \
     ./configure --enable-static && \
-    make -j4 && \
+    make -j$(nproc) && \
     make install && \
     rm -rf /tmp/libxcb.tar.gz /tmp/libxcb/
 
@@ -146,7 +146,7 @@ RUN curl -L -o /tmp/fmt.zip https://github.com/fmtlib/fmt/releases/download/7.1.
     mkdir -p fmt/build && \
     cd fmt/build && \
     cmake .. -DCMAKE_BUILD_TYPE=Release -DFMT_TEST=OFF -DFMT_FUZZ=OFF -DFMT_CUDA_TEST=OFF -DFMT_DOC=OFF && \
-    make -j4 && \
+    make -j$(nproc) && \
     make install && \
     rm -rf /tmp/fmt.zip /tmp/fmt/
 
@@ -158,7 +158,7 @@ RUN curl -L -o /tmp/libclipboard.zip https://github.com/jtanx/libclipboard/archi
     mkdir -p libclipboard/build && \
     cd libclipboard/build && \
     cmake .. -DCMAKE_BUILD_TYPE=Release && \
-    make -j4 && \
+    make -j$(nproc) && \
     make install && \
     rm -rf /tmp/libclipboard.zip /tmp/libclipboard/
 
@@ -170,7 +170,7 @@ RUN curl -L -o /tmp/immer.zip https://github.com/arximboldi/immer/archive/4d1caa
     mkdir -p immer/build && \
     cd immer/build && \
     cmake .. && \
-    make -j4 && \
+    make -j$(nproc) && \
     make install && \
     rm -rf /tmp/immer.zip /tmp/immer/
 
@@ -200,7 +200,7 @@ RUN curl -L -o /tmp/tvision.zip https://github.com/magiblot/tvision/archive/290c
     mkdir -p tvision/build && \
     cd tvision/build && \
     cmake .. -DTV_BUILD_USING_GPM=OFF -DCMAKE_BUILD_TYPE=Release && \
-    make -j4 && \
+    make -j$(nproc) && \
     make install && \
     rm -rf /tmp/tvision.zip /tmp/tvision/
 
@@ -222,7 +222,7 @@ RUN curl -L -o /tmp/turbo.zip https://github.com/magiblot/turbo/archive/2b930c01
     mkdir build && \
     cd build && \
     cmake .. -DCMAKE_BUILD_TYPE=Release -DTURBO_USE_SYSTEM_TVISION=ON && \
-    make -j4 && \
+    make -j$(nproc) && \
     cp -f *.a /usr/lib/ && \
     mkdir /usr/include/turbo && \
     cp $(find /tmp/turbo -name '*.h') /usr/include/turbo/
@@ -233,7 +233,7 @@ COPY devPrompt.sh /home/$USER/
 RUN echo "export ARCH=\"$ARCH\"" >> /home/$USER/.bashrc && \
     echo "export IMAGE_NAME=\"$IMAGE_NAME\"" >> /home/$USER/.bashrc && \
     echo "export PS1=\"[$IMAGE_NAME] \w\$ \"" >> /home/$USER/.bashrc && \
-    echo "export MAKEFLAGS=\"-j4\"" >> /home/$USER/.bashrc && \
+    echo "export MAKEFLAGS=\"-j$(nproc)\"" >> /home/$USER/.bashrc && \
     echo "export TARGET_OS=linux" >> /home/$USER/.bashrc && \
     echo "export LINUX_DISTRO=ubuntu" >> /home/$USER/.bashrc && \
     echo "alias dev='/home/$USER/devPrompt.sh'" >> /home/$USER/.bashrc && \

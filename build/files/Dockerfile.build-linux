@@ -15,8 +15,8 @@ RUN apk update && \
         python3
 
 # unprivileged user
-RUN addgroup -g $HOST_GID $USER && \
-    adduser -h /home/$USER -s /bin/bash -G $USER -u $HOST_UID -D $USER
+RUN (addgroup -g $HOST_GID $USER || true) && \
+    adduser -h /home/$USER -s /bin/bash -g $HOST_GID -u $HOST_UID -D $USER
 
 # ncurses
 RUN curl -L -o /tmp/ncurses.tar.gz https://invisible-mirror.net/archives/ncurses/ncurses-6.2.tar.gz && \
@@ -27,9 +27,9 @@ RUN curl -L -o /tmp/ncurses.tar.gz https://invisible-mirror.net/archives/ncurses
     mkdir build && \
     cd build && \
     ../configure && \
-    make -j4 -C include && \
-    make -j4 -C progs tic && \
-    make -j4 -C progs infocmp && \
+    make -j$(nproc) -C include && \
+    make -j$(nproc) -C progs tic && \
+    make -j$(nproc) -C progs infocmp && \
     cd /tmp/ncurses && \
     ./configure \
         --with-fallbacks=ansi,cons25,cons25-debian,dumb,hurd,linux,rxvt,screen,screen-256color,screen-256color-bce,screen-bce,screen-s,screen-w,screen.xterm-256color,tmux,tmux-256color,vt100,vt102,vt220,vt52,xterm,xterm-256color,xterm-color,xterm-mono,xterm-r5,xterm-r6,xterm-vt220,xterm-xfree86 \
@@ -49,7 +49,7 @@ RUN curl -L -o /tmp/ncurses.tar.gz https://invisible-mirror.net/archives/ncurses
         --with-infocmp-path=/tmp/ncurses/build/progs/infocmp \
         --with-tic-path=/tmp/ncurses/build/progs/tic \
         && \
-    make -j4 && \
+    make -j$(nproc) && \
     make install && \
     rm -rf /tmp/ncurses.tar.gz /tmp/ncurses/
 
@@ -61,7 +61,7 @@ RUN curl -L -o /tmp/bzip2.zip https://gitlab.com/federicomenaquintero/bzip2/-/ar
     mkdir -p bzip2/build && \
     cd bzip2/build && \
     cmake .. -DENABLE_STATIC_LIB=ON -DCMAKE_BUILD_TYPE=Release && \
-    make -j4 && \
+    make -j$(nproc) && \
     make install && \
     rm -rf /tmp/bzip2.zip /tmp/bzip2/
 
@@ -92,7 +92,7 @@ RUN curl -L -o /tmp/icu.tar.gz https://github.com/unicode-org/icu/releases/downl
     CXXFLAGS="-DU_USING_ICU_NAMESPACE=0 -DU_NO_DEFAULT_INCLUDE_UTF_HEADERS=1 -DU_HIDE_OBSOLETE_UTF_OLD_H=1 -std=c++17" \
         ./runConfigureICU "Linux/gcc" --enable-static --disable-shared --disable-tests --disable-samples \
         --with-data-packaging=static && \
-    make -j4 && \
+    make -j$(nproc) && \
     make install && \
     rm -rf /tmp/icu.tar.gz /tmp/icu/
 
@@ -103,7 +103,7 @@ RUN curl -L -o /tmp/xorgproto.tar.gz https://xorg.freedesktop.org/archive/indivi
     mv xorgproto-*/ xorgproto/ && \
     cd xorgproto && \
     ./configure && \
-    make -j4 && \
+    make -j$(nproc) && \
     make install && \
     rm -rf /tmp/xorgproto.tar.gz /tmp/xorgproto/
 
@@ -114,7 +114,7 @@ RUN curl -L -o /tmp/libXau.tar.gz https://xorg.freedesktop.org/archive/individua
     mv libXau-*/ libXau/ && \
     cd libXau && \
     ./configure --enable-static && \
-    make -j4 && \
+    make -j$(nproc) && \
     make install && \
     rm -rf /tmp/libXau.tar.gz /tmp/libXau/
 
@@ -125,7 +125,7 @@ RUN curl -L -o /tmp/xcb-proto.tar.gz https://xorg.freedesktop.org/archive/indivi
     mv xcb-proto-*/ xcb-proto/ && \
     cd xcb-proto && \
     ./configure && \
-    make -j4 && \
+    make -j$(nproc) && \
     make install && \
     rm -rf /tmp/xcb-proto.tar.gz /tmp/xcb-proto/
 
@@ -136,7 +136,7 @@ RUN curl -L -o /tmp/libxcb.tar.gz https://xorg.freedesktop.org/archive/individua
     mv libxcb-*/ libxcb/ && \
     cd libxcb && \
     ./configure --enable-static && \
-    make -j4 && \
+    make -j$(nproc) && \
     make install && \
     rm -rf /tmp/libxcb.tar.gz /tmp/libxcb/
 
@@ -148,7 +148,7 @@ RUN curl -L -o /tmp/fmt.zip https://github.com/fmtlib/fmt/releases/download/7.1.
     mkdir -p fmt/build && \
     cd fmt/build && \
     cmake .. -DCMAKE_BUILD_TYPE=Release -DFMT_TEST=OFF -DFMT_FUZZ=OFF -DFMT_CUDA_TEST=OFF -DFMT_DOC=OFF && \
-    make -j4 && \
+    make -j$(nproc) && \
     make install && \
     rm -rf /tmp/fmt.zip /tmp/fmt/
 
@@ -160,7 +160,7 @@ RUN curl -L -o /tmp/libclipboard.zip https://github.com/jtanx/libclipboard/archi
     mkdir -p libclipboard/build && \
     cd libclipboard/build && \
     cmake .. -DCMAKE_BUILD_TYPE=Release && \
-    make -j4 && \
+    make -j$(nproc) && \
     make install && \
     rm -rf /tmp/libclipboard.zip /tmp/libclipboard/
 
@@ -172,7 +172,7 @@ RUN curl -L -o /tmp/immer.zip https://github.com/arximboldi/immer/archive/4d1caa
     mkdir -p immer/build && \
     cd immer/build && \
     cmake .. && \
-    make -j4 && \
+    make -j$(nproc) && \
     make install && \
     rm -rf /tmp/immer.zip /tmp/immer/
 
@@ -189,7 +189,7 @@ RUN curl -L -o /tmp/mpdecimal.tar.gz https://www.bytereef.org/software/mpdecimal
     tar zxf mpdecimal.tar.gz && \
     cd mpdecimal-*/ && \
     ./configure && \
-    make -j4 && \
+    make -j$(nproc) && \
     make install && \
     rm -rf /tmp/mpdecimal.tar.gz /tmp/mpdecimal/
 
@@ -201,7 +201,7 @@ RUN curl -L -o /tmp/tvision.zip https://github.com/magiblot/tvision/archive/290c
     mkdir -p tvision/build && \
     cd tvision/build && \
     cmake .. -DTV_BUILD_USING_GPM=OFF -DCMAKE_BUILD_TYPE=Release && \
-    make -j4 && \
+    make -j$(nproc) && \
     make install && \
     rm -rf /tmp/tvision.zip /tmp/tvision/
 
@@ -223,7 +223,7 @@ RUN curl -L -o /tmp/turbo.zip https://github.com/magiblot/turbo/archive/2b930c01
     mkdir build && \
     cd build && \
     cmake .. -DCMAKE_BUILD_TYPE=Release -DTURBO_USE_SYSTEM_TVISION=ON && \
-    make -j4 && \
+    make -j$(nproc) && \
     cp -f *.a /usr/lib/ && \
     mkdir /usr/include/turbo && \
     cp $(find /tmp/turbo -name '*.h') /usr/include/turbo/
@@ -233,7 +233,7 @@ USER $HOST_UID
 RUN echo "export ARCH=\"$ARCH\"" >> /home/$USER/.bashrc && \
     echo "export IMAGE_NAME=\"$IMAGE_NAME\"" >> /home/$USER/.bashrc && \
     echo "export PS1=\"[$IMAGE_NAME] \w\$ \"" >> /home/$USER/.bashrc && \
-    echo "export MAKEFLAGS=\"-j4\"" >> /home/$USER/.bashrc && \
+    echo "export MAKEFLAGS=\"-j$(nproc)\"" >> /home/$USER/.bashrc && \
     echo "export TARGET_OS=linux" >> /home/$USER/.bashrc && \
     echo "export LINUX_DISTRO=alpine" >> /home/$USER/.bashrc && \
     echo "make -f /code/Makefile help" >> /home/$USER/.bashrc

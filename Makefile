@@ -58,7 +58,7 @@ EXE_EXTENSION=.exe
 endif
 
 # Operating system + architecture pairs
-PLATFORMS=linux_arm64 linux_arm32 linux_x64 linux_x86 mac_x64 win_x64 win_x86
+PLATFORMS=linux_arm64 linux_arm32 linux_x64 linux_x86 mac_x64 mac_arm64  win_x64 win_x86
 
 # We build several runners for each platform, each with a different length of dummy pcode. These sizes refer to the
 # length of that pcode in bytes.
@@ -191,8 +191,8 @@ endif
 
 # bsdiff and bzip2: On Mac we install these locally.
 ifeq ($(TARGET_OS),mac)
-BSDIFF=$(PWD)/mac/bsdiff/bsdiff
-BZIP2=$(PWD)/mac/bzip2/build/bzip2
+BSDIFF=$(PWD)/mac-$(SHORT_ARCH)/bsdiff/bsdiff
+BZIP2=$(PWD)/mac-$(SHORT_ARCH)/bzip2/build/bzip2
 else
 BSDIFF=bsdiff
 BZIP2=bzip2
@@ -206,7 +206,7 @@ ifeq ($(TARGET_OS),win)
 TVHC_CMD=wine64 /usr/$(ARCH)-w64-mingw32/bin/tvhc.exe
 endif
 ifeq ($(TARGET_OS),mac)
-TVHC_CMD=$(PWD)/mac/tvision/build/tvhc
+TVHC_CMD=$(PWD)/mac-$(SHORT_ARCH)/tvision/build/tvhc
 endif
 
 # TEST_CMD: We run our unit test executable in "make test". For the Windows target, we use Wine since we cross-compile
@@ -229,19 +229,24 @@ endif
 
 ### Compiler flags ####################################################################################################
 
-# macOS header search paths.
+# Architecture and header search paths.
 ifeq ($(TARGET_OS),mac)
+ifeq ($(SHORT_ARCH),x64)
+CXXFLAGS += -arch x86_64 -mmacosx-version-min=10.13
+else
+CXXFLAGS += -arch arm64 -mmacosx-version-min=11.0
+endif
 CXXFLAGS += \
-	-isystem $(PWD)/mac/boost \
-	-isystem $(PWD)/mac/mpdecimal/libmpdec \
-	-isystem $(PWD)/mac/mpdecimal/libmpdec++ \
-	-isystem $(PWD)/mac/ncurses/include \
-	-isystem $(PWD)/mac/googletest/googletest/include \
-	-isystem $(PWD)/mac/tvision/include \
-	-isystem $(PWD)/mac/immer \
-	-isystem $(PWD)/mac/icu/source/common \
-	-isystem $(PWD)/mac/icu/source/i18n \
-	-isystem $(PWD)/mac/turbo/build/include
+	-isystem $(PWD)/mac-$(SHORT_ARCH)/boost \
+	-isystem $(PWD)/mac-$(SHORT_ARCH)/mpdecimal/libmpdec \
+	-isystem $(PWD)/mac-$(SHORT_ARCH)/mpdecimal/libmpdec++ \
+	-isystem $(PWD)/mac-$(SHORT_ARCH)/ncurses/include \
+	-isystem $(PWD)/mac-$(SHORT_ARCH)/googletest/googletest/include \
+	-isystem $(PWD)/mac-$(SHORT_ARCH)/tvision/include \
+	-isystem $(PWD)/mac-$(SHORT_ARCH)/immer \
+	-isystem $(PWD)/mac-$(SHORT_ARCH)/icu/source/common \
+	-isystem $(PWD)/mac-$(SHORT_ARCH)/icu/source/i18n \
+	-isystem $(PWD)/mac-$(SHORT_ARCH)/turbo/build/include
 endif
 ifeq ($(TARGET_OS),win)
 CXXFLAGS += -isystem /usr/$(ARCH)-w64-mingw32/include/turbo
@@ -297,7 +302,7 @@ endif
 
 # On macOS we need to add some search paths.
 ifeq ($(TARGET_OS),mac)
-LDFLAGS += -L$(PWD)/mac/mpdecimal/libmpdec -L$(PWD)/mac/mpdecimal/libmpdec++ -L$(PWD)/mac/tvision/build
+LDFLAGS += -L$(PWD)/mac-$(SHORT_ARCH)/mpdecimal/libmpdec -L$(PWD)/mac-$(SHORT_ARCH)/mpdecimal/libmpdec++ -L$(PWD)/mac-$(SHORT_ARCH)/tvision/build
 endif
 
 # Linker flag to include turbo and friends.
@@ -312,12 +317,12 @@ LDFLAGS += -lscintilla -lscilexers -lsciplatform -lturbo-ui -lclipboard -lfmt
 endif
 ifeq ($(TARGET_OS),mac)
 LDFLAGS += \
-	$(PWD)/mac/turbo/build/libsciplatform.a \
-	$(PWD)/mac/turbo/build/libscintilla.a \
-	$(PWD)/mac/turbo/build/libscilexers.a \
-	$(PWD)/mac/turbo/build/libturbo-ui.a \
-	$(PWD)/mac/libclipboard/build/lib/libclipboard.a \
-	$(PWD)/mac/fmt/build/libfmt.a
+	$(PWD)/mac-$(SHORT_ARCH)/turbo/build/libsciplatform.a \
+	$(PWD)/mac-$(SHORT_ARCH)/turbo/build/libscintilla.a \
+	$(PWD)/mac-$(SHORT_ARCH)/turbo/build/libscilexers.a \
+	$(PWD)/mac-$(SHORT_ARCH)/turbo/build/libturbo-ui.a \
+	$(PWD)/mac-$(SHORT_ARCH)/libclipboard/build/lib/libclipboard.a \
+	$(PWD)/mac-$(SHORT_ARCH)/fmt/build/libfmt.a
 endif
 
 # Linker flag to include tvision.
@@ -347,12 +352,12 @@ ifeq ($(TARGET_OS),win)
 LDFLAGS += /usr/$(ARCH)-w64-mingw32/lib/libmpdec.a /usr/$(ARCH)-w64-mingw32/lib/libmpdec++.a
 endif
 ifeq ($(TARGET_OS),mac)
-LDFLAGS += $(PWD)/mac/mpdecimal/libmpdec/libmpdec.a $(PWD)/mac/mpdecimal/libmpdec++/libmpdec++.a
+LDFLAGS += $(PWD)/mac-$(SHORT_ARCH)/mpdecimal/libmpdec/libmpdec.a $(PWD)/mac-$(SHORT_ARCH)/mpdecimal/libmpdec++/libmpdec++.a
 endif
 
 # Linker flag to include ICU.
 ifeq ($(TARGET_OS),mac)
-LDFLAGS += -L$(PWD)/mac/icu/source/lib
+LDFLAGS += -L$(PWD)/mac-$(SHORT_ARCH)/icu/source/lib
 endif
 ifeq ($(TARGET_OS),win)
 ifeq ($(ARCH),i686)
@@ -369,19 +374,19 @@ endif
 
 # Linker flag to include bzip2 in tmbasic/test only.
 ifeq ($(TARGET_OS),mac)
-TMBASIC_LDFLAGS += -L$(PWD)/mac/bzip2/build
+TMBASIC_LDFLAGS += -L$(PWD)/mac-$(SHORT_ARCH)/bzip2/build
 endif
 TMBASIC_LDFLAGS += -lbz2_static
 
 # Linker flag to include libbspatch in tmbasic/test only.
 ifeq ($(TARGET_OS),mac)
-TMBASIC_LDFLAGS += -L$(PWD)/mac/bsdiff
+TMBASIC_LDFLAGS += -L$(PWD)/mac-$(SHORT_ARCH)/bsdiff
 endif
 TMBASIC_LDFLAGS += -lbspatch
 
 # Linker flag to include libgtest (googletest).
 ifeq ($(TARGET_OS),mac)
-LIBGTEST_FLAG += $(PWD)/mac/googletest/build/lib/libgtest.a $(PWD)/mac/googletest/build/lib/libgtest_main.a
+LIBGTEST_FLAG += $(PWD)/mac-$(SHORT_ARCH)/googletest/build/lib/libgtest.a $(PWD)/mac-$(SHORT_ARCH)/googletest/build/lib/libgtest_main.a
 else
 LIBGTEST_FLAG += -lgtest -lgtest_main
 endif
@@ -607,7 +612,7 @@ obj/buildDoc: src/buildDoc.cpp
 	@mkdir -p $(@D)
 	@$(BUILDCXX) \
 		-o $@ $< \
-		-I$(PWD)/mac/boost \
+		-I$(PWD)/mac-$(SHORT_ARCH)/boost \
 		-Iext/nameof \
 		-Wall \
 		-Werror \
@@ -706,7 +711,7 @@ obj/resources/help/helpfile.o: obj/resources/help/help.h32
 	@printf "%16s  %s\n" "$(CXX)" "$@"
 	@mkdir -p $(@D)
 	@xxd -i $< | sed s/obj_resources_help_help_h32/kResourceHelp/g > obj/resources/help/kResourceHelp.cpp
-	@$(CXX) -o $@ -c obj/resources/help/kResourceHelp.cpp
+	@$(CXX) -o $@ $(CXXFLAGS) -c obj/resources/help/kResourceHelp.cpp
 
 $(ALL_PLATFORM_RUNNER_COMPRESSED_FILES): %: $(THIS_PLATFORM_RUNNER_BSDIFF_FILES) $(THIS_PLATFORM_RUNNER_BZIP_FILES)
 	@printf "%16s  %s\n" "runnerFile.sh" "$@"
@@ -717,7 +722,7 @@ $(ALL_PLATFORM_RUNNER_OBJ_FILES): obj/resources/runners/%.o: obj/resources/runne
 		$(ALL_PLATFORM_RUNNER_COMPRESSED_FILES)
 	@printf "%16s  %s\n" "runnerRes.sh" "$@"
 	@mkdir -p $(@D)
-	@OBJ_FILE=$@ CXX=$(CXX) build/scripts/runnerRes.sh
+	@OBJ_FILE=$@ CXX="$(CXX) $(CXXFLAGS)" build/scripts/runnerRes.sh
 
 
 
@@ -824,7 +829,7 @@ $(RUNNER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(UTIL_H_FILES) $(VM_H_
 $(patsubst %,obj/resources/pcode/%,$(RUNNER_SIZES:=.o)): %:
 	@printf "%16s  %s\n" "pcodeRes.sh" "$@"
 	@mkdir -p $(@D)
-	@OBJ_FILE=$@ CXX=$(CXX) build/scripts/pcodeRes.sh
+	@OBJ_FILE=$@ CXX="$(CXX) $(CXXFLAGS)" build/scripts/pcodeRes.sh
 
 $(THIS_PLATFORM_RUNNER_BIN_FILES): bin/runners/%$(EXE_EXTENSION): \
 		obj/resources/pcode/%.o $(RUNNER_OBJ_FILES) obj/util.a obj/vm.a

@@ -1,7 +1,8 @@
 .DS_Store
 /bin
 /obj
-/mac
+/mac-arm64
+/mac-x64
 /dist
 /.vscode/settings.json
 /valgrind.txt

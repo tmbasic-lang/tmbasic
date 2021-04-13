@@ -21,6 +21,8 @@ static TargetPlatform getCurrentPlatform() {
         return TargetPlatform::kLinuxArm64;
     } else if (platform == "mac/x86_64") {
         return TargetPlatform::kMacX64;
+    } else if (platform == "mac/arm64v8") {
+        return TargetPlatform::kMacArm64;
     } else if (platform == "win/i686") {
         return TargetPlatform::kWinX86;
     } else if (platform == "win/x86_64") {

@@ -32,7 +32,7 @@ There are many options for developing rich graphical user interfaces (GUIs) toda
 
 <div id="platformSupportTable">
 
-<table><tr><td><img src="https://tmbasic.com/windows-logo.png" width=64 height=64 alt="Windows"></td><td><strong>Windows</strong></td><td><span class="arch">Windows 7, 8, 10<br>64-bit &bull; 32-bit</span></td></tr><tr><td><img src="https://tmbasic.com/apple-logo.png" width=64 height=64 alt="macOS"></td><td><strong>Mac</strong></td><td><span class="arch">macOS 10.13+<br>Intel</span></td><tr><td><img src="https://tmbasic.com/linux-logo.png" width=64 height=64 alt="Linux"></td><td><strong>Linux</strong></td><td><span class="arch">Ubuntu &bull; Raspbian &bull; <a href="https://apps.apple.com/us/app/ish-shell/id1436902243">iSH&nbsp;Shell</a>&nbsp;(iOS) &bull; <a href="https://termux.com/">Termux</a>&nbsp;(Android)<br>64-bit &bull; 32-bit &bull; ARM64 &bull; ARM32</span></td></tr></table>
+<table><tr><td><img src="https://tmbasic.com/windows-logo.png" width=64 height=64 alt="Windows"></td><td><strong>Windows</strong></td><td><span class="arch">Windows 7, 8, 10<br>64-bit &bull; 32-bit</span></td></tr><tr><td><img src="https://tmbasic.com/apple-logo.png" width=64 height=64 alt="macOS"></td><td><strong>Mac</strong></td><td><span class="arch">macOS 10.13+<br>Intel &bull; Apple Silicon</span></td><tr><td><img src="https://tmbasic.com/linux-logo.png" width=64 height=64 alt="Linux"></td><td><strong>Linux</strong></td><td><span class="arch">Ubuntu &bull; Raspbian &bull; <a href="https://apps.apple.com/us/app/ish-shell/id1436902243">iSH&nbsp;Shell</a>&nbsp;(iOS) &bull; <a href="https://termux.com/">Termux</a>&nbsp;(Android)<br>64-bit &bull; 32-bit &bull; ARM64 &bull; ARM32</span></td></tr></table>
 
 </div>
 

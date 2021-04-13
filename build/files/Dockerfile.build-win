@@ -1,7 +1,7 @@
 FROM archlinux:latest
 
 RUN mkdir -p /code && \
-    groupadd -g $HOST_GID $USER && \
+    (groupadd -g $HOST_GID $USER || true) && \
     useradd -r -u $HOST_UID -g $HOST_GID $USER && \
     chown $HOST_UID:$HOST_GID /code && \
     mkdir -p /home/$USER && \
@@ -62,7 +62,7 @@ RUN curl -L -o /tmp/ncurses.tar.gz https://invisible-mirror.net/archives/ncurses
         --disable-home-terminfo \
         --enable-interop \
         && \
-    make -j4 && \
+    make -j$(nproc) && \
     make install && \
     rm -rf /tmp/ncurses.tar.gz /tmp/ncurses/
 
@@ -81,7 +81,7 @@ RUN curl -L -o /tmp/gtest.zip https://github.com/google/googletest/archive/relea
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_TOOLCHAIN_FILE=/tmp/toolchain-cross-mingw64-linux-$ARCH.cmake \
         && \
-    make -j4 && \
+    make -j$(nproc) && \
     make install && \
     rm -rf /tmp/gtest.zip /tmp/googletest/
 
@@ -99,7 +99,7 @@ RUN curl -L -o /tmp/bzip2.zip https://gitlab.com/federicomenaquintero/bzip2/-/ar
     mkdir -p bzip2/build-linux && \
     cd bzip2/build-linux && \
     cmake .. -DCMAKE_BUILD_TYPE=Release && \
-    make -j4 && \
+    make -j$(nproc) && \
     make install && \
     mkdir -p /tmp/bzip2/build-win && \
     cd /tmp/bzip2/build-win && \
@@ -110,7 +110,7 @@ RUN curl -L -o /tmp/bzip2.zip https://gitlab.com/federicomenaquintero/bzip2/-/ar
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_TOOLCHAIN_FILE=/tmp/toolchain-cross-mingw64-linux-$ARCH.cmake \
         && \
-    make -j4 && \
+    make -j$(nproc) && \
     make install && \
     rm -rf /tmp/bzip2.zip /tmp/bzip2/
 
@@ -142,7 +142,7 @@ RUN curl -L -o /tmp/icu.tar.gz https://github.com/unicode-org/icu/releases/downl
     CXXFLAGS="-DU_USING_ICU_NAMESPACE=0 -DU_NO_DEFAULT_INCLUDE_UTF_HEADERS=1 -DU_HIDE_OBSOLETE_UTF_OLD_H=1 -std=c++17" \
         ./runConfigureICU "Linux/gcc" --enable-static --disable-shared --disable-tests --disable-samples \
         --with-data-packaging=static && \
-    make -j4 && \
+    make -j$(nproc) && \
     make install
 
 RUN cd /tmp && \
@@ -153,7 +153,7 @@ RUN cd /tmp && \
         ./runConfigureICU "MinGW" --enable-static --enable-shared --disable-tests --disable-samples \
         --with-data-packaging=static \
         --host=$ARCH-w64-mingw32 --with-cross-build=/tmp/icu-linux/source/ --prefix=/usr/$ARCH-w64-mingw32 && \
-    make -j4 && \
+    make -j$(nproc) && \
     make install && \
     rm -rf /tmp/icu.tar.gz /tmp/icu-linux/ /tmp/icu/
 
@@ -169,7 +169,7 @@ RUN curl -L -o /tmp/fmt.zip https://github.com/fmtlib/fmt/releases/download/7.1.
         -DCMAKE_INSTALL_PREFIX=/usr/$ARCH-w64-mingw32 \
         -DCMAKE_TOOLCHAIN_FILE=/tmp/toolchain-cross-mingw64-linux-$ARCH.cmake \
         && \
-    make -j4 && \
+    make -j$(nproc) && \
     make install && \
     rm -rf /tmp/fmt.zip /tmp/fmt/
 
@@ -185,7 +185,7 @@ RUN curl -L -o /tmp/libclipboard.zip https://github.com/jtanx/libclipboard/archi
         -DCMAKE_INSTALL_PREFIX=/usr/$ARCH-w64-mingw32 \
         -DCMAKE_TOOLCHAIN_FILE=/tmp/toolchain-cross-mingw64-linux-$ARCH.cmake \
         && \
-    make -j4 && \
+    make -j$(nproc) && \
     make install && \
     rm -rf /tmp/libclipboard.zip /tmp/libclipboard/
 
@@ -201,7 +201,7 @@ RUN curl -L -o /tmp/immer.zip https://github.com/arximboldi/immer/archive/4d1caa
         -DCMAKE_INSTALL_PREFIX=/usr/$ARCH-w64-mingw32 \
         -DCMAKE_TOOLCHAIN_FILE=/tmp/toolchain-cross-mingw64-linux-$ARCH.cmake \
         && \
-    make -j4 && \
+    make -j$(nproc) && \
     make install && \
     rm -rf /tmp/immer.zip /tmp/immer/
 
@@ -220,12 +220,12 @@ RUN curl -L -o /tmp/mpdecimal.tar.gz https://www.bytereef.org/software/mpdecimal
     cd mpdecimal-*/ && \
     ./configure --host=$ARCH-w64-mingw32 && \
     cd libmpdec && \
-    make libmpdec.a -j4 && \
+    make libmpdec.a -j$(nproc) && \
     cp -f libmpdec.a /usr/$ARCH-w64-mingw32/lib/ && \
     mkdir -p /usr/include/libmpdec && \
     cp -f *.h /usr/include/libmpdec/ && \
     cd ../libmpdec++ && \
-    make libmpdec++.a -j4 && \
+    make libmpdec++.a -j$(nproc) && \
     cp -f libmpdec++.a /usr/$ARCH-w64-mingw32/lib/ && \
     mkdir -p /usr/include/libmpdec++ && \
     cp -f *.hh /usr/include/libmpdec++/ && \
@@ -246,7 +246,7 @@ RUN curl -L -o /tmp/tvision.zip https://github.com/magiblot/tvision/archive/290c
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_TOOLCHAIN_FILE=/tmp/toolchain-cross-mingw64-linux-$ARCH.cmake \
         && \
-    make -j4 && \
+    make -j$(nproc) && \
     make install && \
     rm -rf /tmp/tvision.zip /tmp/tvision/
 
@@ -274,7 +274,7 @@ RUN curl -L -o /tmp/turbo.zip https://github.com/magiblot/turbo/archive/2b930c01
         -DCMAKE_TOOLCHAIN_FILE=/tmp/toolchain-cross-mingw64-linux-$ARCH.cmake \
         -DTURBO_USE_SYSTEM_TVISION=ON \
         && \
-    make -j4 && \
+    make -j$(nproc) && \
     cp -f *.a /usr/$ARCH-w64-mingw32/lib/ && \
     mkdir /usr/$ARCH-w64-mingw32/include/turbo && \
     cp $(find /tmp/turbo -name '*.h') /usr/$ARCH-w64-mingw32/include/turbo/ && \
@@ -285,7 +285,7 @@ USER $HOST_UID
 RUN echo "export ARCH=\"$ARCH\"" >> /home/$USER/.bashrc && \
     echo "export IMAGE_NAME=\"$IMAGE_NAME\"" >> /home/$USER/.bashrc && \
     echo "export PS1=\"[$IMAGE_NAME] \w\$ \"" >> /home/$USER/.bashrc && \
-    echo "export MAKEFLAGS=\"-j4\"" >> /home/$USER/.bashrc && \
+    echo "export MAKEFLAGS=\"-j$(nproc)\"" >> /home/$USER/.bashrc && \
     echo "export TARGET_OS=win" >> /home/$USER/.bashrc && \
     echo "make -f /code/Makefile help" >> /home/$USER/.bashrc
 
