@@ -65,7 +65,7 @@ fi
 
 if [ ! -d "tvision" ]
 then
-    curl -L -o tvision.zip https://github.com/magiblot/tvision/archive/290ccbaa9fc7e3c8278b632a28291d0b0154ed3b.zip
+    curl -L -o tvision.zip https://github.com/magiblot/tvision/archive/6aeac843a1d21205461c13a2c536d3c4d012e053.zip
     unzip -q tvision.zip
     mv tvision-* tvision
     mkdir -p tvision/build
@@ -148,7 +148,7 @@ fi
 
 if [ ! -d "turbo" ]
 then
-    curl -L -o turbo.zip https://github.com/magiblot/turbo/archive/2b930c017f4324c4ca42d63eeb1d82f09190faba.zip
+    curl -L -o turbo.zip https://github.com/magiblot/turbo/archive/defc734d2621052806a4fa3510a91a8453895208.zip
     unzip -q turbo.zip
     mv turbo-*/ turbo/
     pushd turbo

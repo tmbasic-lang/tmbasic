@@ -196,7 +196,7 @@ RUN curl -L -o /tmp/mpdecimal.tar.gz https://www.bytereef.org/software/mpdecimal
     rm -rf /tmp/mpdecimal.tar.gz /tmp/mpdecimal/
 
 # tvision
-RUN curl -L -o /tmp/tvision.zip https://github.com/magiblot/tvision/archive/290ccbaa9fc7e3c8278b632a28291d0b0154ed3b.zip && \
+RUN curl -L -o /tmp/tvision.zip https://github.com/magiblot/tvision/archive/6aeac843a1d21205461c13a2c536d3c4d012e053.zip && \
     cd /tmp && \
     unzip -q tvision.zip && \
     mv tvision-*/ tvision/ && \
@@ -209,7 +209,7 @@ RUN curl -L -o /tmp/tvision.zip https://github.com/magiblot/tvision/archive/290c
 
 # turbo
 COPY turbo-CMakeLists.txt.diff /tmp/turbo-CMakeLists.txt.diff
-RUN curl -L -o /tmp/turbo.zip https://github.com/magiblot/turbo/archive/2b930c017f4324c4ca42d63eeb1d82f09190faba.zip && \
+RUN curl -L -o /tmp/turbo.zip https://github.com/magiblot/turbo/archive/defc734d2621052806a4fa3510a91a8453895208.zip && \
     cd /tmp && \
     unzip -q turbo.zip && \
     mv turbo-*/ turbo/ && \
