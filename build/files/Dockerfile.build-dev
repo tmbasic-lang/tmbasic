@@ -208,7 +208,6 @@ RUN curl -L -o /tmp/tvision.zip https://github.com/magiblot/tvision/archive/6aea
     rm -rf /tmp/tvision.zip /tmp/tvision/
 
 # turbo
-COPY turbo-CMakeLists.txt.diff /tmp/turbo-CMakeLists.txt.diff
 RUN curl -L -o /tmp/turbo.zip https://github.com/magiblot/turbo/archive/defc734d2621052806a4fa3510a91a8453895208.zip && \
     cd /tmp && \
     unzip -q turbo.zip && \
@@ -219,16 +218,14 @@ RUN curl -L -o /tmp/turbo.zip https://github.com/magiblot/turbo/archive/defc734d
     mv -f LexBasic.cxx scintilla/lexers/LexBasic.cxx && \
     cat scintilla/src/Catalogue.cxx | sed 's:LINK_LEXER(lm.*::g; s:return 1;:LINK_LEXER(lmFreeBasic); return 1;:g' > Catalogue.cxx && \
     mv -f Catalogue.cxx scintilla/src/Catalogue.cxx && \
-    cat deps/CMakeLists.txt | sed 's:add_subdirectory:#:g' > deps-CMakeLists.txt && \
-    mv -f deps-CMakeLists.txt deps/CMakeLists.txt && \
-    patch CMakeLists.txt /tmp/turbo-CMakeLists.txt.diff && \
     mkdir build && \
     cd build && \
-    cmake .. -DCMAKE_BUILD_TYPE=Release -DTURBO_USE_SYSTEM_TVISION=ON && \
+    cmake .. -DCMAKE_BUILD_TYPE=Release -DTURBO_USE_SYSTEM_TVISION=ON -DTURBO_USE_SYSTEM_DEPS=ON && \
     make -j$(nproc) && \
     cp -f *.a /usr/lib/ && \
     mkdir /usr/include/turbo && \
-    cp $(find /tmp/turbo -name '*.h') /usr/include/turbo/
+    cp $(find /tmp/turbo -name '*.h') /usr/include/turbo/ && \
+    rm -rf /tmp/turbo.zip /tmp/turbo/
 
 # environment
 COPY devPrompt.sh /home/user/
