@@ -15,7 +15,6 @@ RUN echo "[multilib]" >> /etc/pacman.conf && \
     pacman -S --noconfirm \
         make \
         git \
-        cmake \
         mingw-w64 \
         wine \
         unzip \
@@ -23,6 +22,10 @@ RUN echo "[multilib]" >> /etc/pacman.conf && \
         diffutils \
         base-devel \
         dos2unix
+
+# cmake
+RUN curl -L https://github.com/Kitware/CMake/releases/download/v3.20.1/cmake-3.20.1-linux-$(uname -m).tar.gz \
+        | tar zx --strip-components=1 -C /usr
 
 # ncurses
 RUN curl -L -o /tmp/ncurses.tar.gz https://invisible-mirror.net/archives/ncurses/ncurses-6.2.tar.gz && \

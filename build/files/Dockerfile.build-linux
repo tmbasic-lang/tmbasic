@@ -5,7 +5,6 @@ RUN apk update && \
     apk add \
         bash \
         build-base \
-        cmake \
         curl \
         gtest-dev \
         linux-headers \
@@ -17,6 +16,10 @@ RUN apk update && \
 # unprivileged user
 RUN (addgroup -g $HOST_GID user || true) && \
     (adduser -h /home/user -s /bin/bash -g $HOST_GID -u $HOST_UID -D user || true)
+
+# cmake
+RUN curl -L https://github.com/Kitware/CMake/releases/download/v3.20.1/cmake-3.20.1-linux-$(uname -m).tar.gz \
+        | tar zx --strip-components=1 -C /usr
 
 # ncurses
 RUN curl -L -o /tmp/ncurses.tar.gz https://invisible-mirror.net/archives/ncurses/ncurses-6.2.tar.gz && \
