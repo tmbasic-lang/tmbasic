@@ -8,8 +8,8 @@ class InsertColorDialogPrivate;
 
 class InsertColorDialog : public TDialog {
    public:
-    static bool go(const std::string& title, const std::string& insertButtonText, bool foreground, TColorRGB* output);
-    InsertColorDialog(const std::string& title, const std::string& insertButtonText, bool foreground);
+    static bool go(const std::string& title, const std::string& insertButtonText, TColorRGB* output);
+    InsertColorDialog(const std::string& title, const std::string& insertButtonText);
     virtual ~InsertColorDialog();
     void handleEvent(TEvent& event) override;
     TColorRGB selection{};

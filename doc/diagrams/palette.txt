@@ -1,14 +1,8 @@
-Foreground Palette (16 colors)
+16-Color Palette
 ┌─────┬─────┬─────┬──────┬─────┬─────┬─────┬───────┐
 │     │Light│Light│Light │Light│Light│Light│Light  │
 │White│Gray │Red  │Yellow│Green│Cyan │Blue │Magenta│
 ├─────┼─────┼─────┼──────┼─────┼─────┼─────┼───────┤
 │     │Dark │Dark │Dark  │Dark │Dark │Dark │Dark   │
-│Black│Gray │Red  │Yellow│Green│Cyan │Blue │Magenta│
-└─────┴─────┴─────┴──────┴─────┴─────┴─────┴───────┘
-
-Background Palette (8 colors)
-┌─────┬─────┬─────┬──────┬─────┬─────┬─────┬───────┐
-│     │Light│Dark │Dark  │Dark │Dark │Dark │Dark   │
 │Black│Gray │Red  │Yellow│Green│Cyan │Blue │Magenta│
 └─────┴─────┴─────┴──────┴─────┴─────┴─────┴───────┘

@@ -129,23 +129,6 @@ static const std::vector<TColorRGB> _colors256{
     0x121212, 0x080808, 0x080808, 0x000000, 0x000000,
 };
 
-static const int kColors8Width = 62;
-static const int kColors8Height = 2;
-static const std::vector<TColorRGB> _colors8{
-    0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0xc0c0c0, 0xc0c0c0, 0xc0c0c0,
-    0xc0c0c0, 0xc0c0c0, 0xc0c0c0, 0xc0c0c0, 0x800000, 0x800000, 0x800000, 0x800000, 0x800000, 0x800000, 0x800000,
-    0x800000, 0x808000, 0x808000, 0x808000, 0x808000, 0x808000, 0x808000, 0x808000, 0x808000, 0x008000, 0x008000,
-    0x008000, 0x008000, 0x008000, 0x008000, 0x008000, 0x008000, 0x008080, 0x008080, 0x008080, 0x008080, 0x008080,
-    0x008080, 0x008080, 0x000080, 0x000080, 0x000080, 0x000080, 0x000080, 0x000080, 0x000080, 0x000080, 0x800080,
-    0x800080, 0x800080, 0x800080, 0x800080, 0x800080, 0x800080, 0x800080, 0x000000, 0x000000, 0x000000, 0x000000,
-    0x000000, 0x000000, 0x000000, 0x000000, 0xc0c0c0, 0xc0c0c0, 0xc0c0c0, 0xc0c0c0, 0xc0c0c0, 0xc0c0c0, 0xc0c0c0,
-    0x800000, 0x800000, 0x800000, 0x800000, 0x800000, 0x800000, 0x800000, 0x800000, 0x808000, 0x808000, 0x808000,
-    0x808000, 0x808000, 0x808000, 0x808000, 0x808000, 0x008000, 0x008000, 0x008000, 0x008000, 0x008000, 0x008000,
-    0x008000, 0x008000, 0x008080, 0x008080, 0x008080, 0x008080, 0x008080, 0x008080, 0x008080, 0x000080, 0x000080,
-    0x000080, 0x000080, 0x000080, 0x000080, 0x000080, 0x000080, 0x800080, 0x800080, 0x800080, 0x800080, 0x800080,
-    0x800080, 0x800080, 0x800080,
-};
-
 static const int kColors16Width = 62;
 static const int kColors16Height = 4;
 static const std::vector<TColorRGB> _colors16{
@@ -183,12 +166,11 @@ class ColorView : public TView {
     uint red = 255;
     uint green = 255;
     uint blue = 255;
-    bool foreground = true;
     explicit ColorView(const TRect& bounds) : TView(bounds) {}
     void draw() override {
         TDrawBuffer b;
         auto color = makeColor(red, green, blue);
-        b.moveChar(0, foreground ? static_cast<char>(219) : ' ', TColorAttr{ color, color }, size.x);
+        b.moveChar(0, static_cast<char>(219), TColorAttr{ color, color }, size.x);
         for (auto y = 0; y < size.y; y++) {
             writeLine(0, static_cast<int16_t>(y), static_cast<int16_t>(size.x), 1, b);
         }
@@ -198,7 +180,7 @@ class ColorView : public TView {
 class PaletteView : public TView {
    public:
     std::function<void(TColorRGB)> onSetColor;
-    int palette = 256;  // 8, 16, or 256
+    int palette = 256;  // 16 or 256
 
     explicit PaletteView(const TRect& bounds) : TView(bounds) {}
 
@@ -245,13 +227,9 @@ class PaletteView : public TView {
     }
 
    private:
-    int getWidth() const { return palette == 256 ? kColors256Width : palette == 16 ? kColors16Width : kColors8Width; }
-    int getHeight() const {
-        return palette == 256 ? kColors256Height : palette == 16 ? kColors16Height : kColors8Height;
-    }
-    const std::vector<TColorRGB>& getColors() const {
-        return palette == 256 ? _colors256 : palette == 16 ? _colors16 : _colors8;
-    }
+    int getWidth() const { return palette == 256 ? kColors256Width : kColors16Width; }
+    int getHeight() const { return palette == 256 ? kColors256Height : kColors16Height; }
+    const std::vector<TColorRGB>& getColors() const { return palette == 256 ? _colors256 : _colors16; }
 };
 
 class InsertColorDialogPrivate {
@@ -264,7 +242,7 @@ class InsertColorDialogPrivate {
     ViewPtr<Button> insertButton{ "Insert", cmOK, bfDefault };
 };
 
-InsertColorDialog::InsertColorDialog(const std::string& title, const std::string& insertButtonText, bool foreground)
+InsertColorDialog::InsertColorDialog(const std::string& title, const std::string& insertButtonText)
     : TDialog({ 0, 0, 80, 22 }, title), TWindowInit(&TDialog::initFrame), _private(new InsertColorDialogPrivate()) {
     options |= ofCentered;
     helpCtx = hcide_insertColorDialog;
@@ -289,12 +267,7 @@ InsertColorDialog::InsertColorDialog(const std::string& title, const std::string
         selection = rgb;
     };
 
-    auto palette = 16;  // 8, 16, or 256
-#ifndef _WIN32
-    if (!foreground) {
-        palette = 8;
-    }
-#endif
+    auto palette = 16;  // 16 or 256
     if ((TScreen::screenMode & 0xFF) == TDisplay::smCO80) {
         if (TScreen::screenMode & TDisplay::smColorHigh || TScreen::screenMode & TDisplay::smColor256) {
             palette = 256;
@@ -357,7 +330,6 @@ InsertColorDialog::InsertColorDialog(const std::string& title, const std::string
             .setRowSpacing(0)
             .apply(this, TPoint{ 11, 3 + extra });
 
-        _private->colorView->foreground = foreground;
         _private->colorView->moveTo(4, static_cast<int16_t>(5 + extra));
         _private->colorView.addTo(this);
 
@@ -420,9 +392,8 @@ void InsertColorDialog::handleEvent(TEvent& event) {
 bool InsertColorDialog::go(
     const std::string& title,
     const std::string& insertButtonText,
-    bool foreground,
     TColorRGB* output) {
-    auto dialog = DialogPtr<InsertColorDialog>(title, insertButtonText, foreground);
+    auto dialog = DialogPtr<InsertColorDialog>(title, insertButtonText);
     auto result = TProgram::deskTop->execView(dialog);
     if (result == cmOK) {
         *output = dialog->selection;

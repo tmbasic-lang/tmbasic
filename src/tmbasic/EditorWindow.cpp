@@ -176,7 +176,7 @@ void EditorWindow::onEditInsertSymbol() {
 
 void EditorWindow::onEditInsertColor() {
     TColorRGB rgb;
-    if (InsertColorDialog::go("Insert Color", "Insert", true, &rgb)) {
+    if (InsertColorDialog::go("Insert Color", "Insert", &rgb)) {
         std::ostringstream s;
         s << "Rgb(" << static_cast<int>(rgb.r) << ", " << static_cast<int>(rgb.g) << ", " << static_cast<int>(rgb.b)
           << ")";

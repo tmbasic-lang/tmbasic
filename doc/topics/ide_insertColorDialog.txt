@@ -3,15 +3,10 @@ nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {How to Use TMBASIC:ide}@
 h1["Insert Color" Dialog]
 
 Color support varies from platform to platform.
-At minimum, 16 foreground colors and 8 background colors are supported on all TMBASIC platforms.
+At minimum, 16 colors are supported on all TMBASIC platforms.
 If you are seeing a black and white display on macOS or Linux, try running the command `export TERM=xterm` before running `tmbasic`.
 
-dia[palettes]
-
-h2[Windows]
-
-The built-in Windows console supports 16 colors for both foreground and background.
-The "foreground colors" list above may also be used as background colors.
+dia[palette]
 
 h2[256 Color Support]
 

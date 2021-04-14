@@ -1047,7 +1047,7 @@ void PictureWindow::onStatusLineCommand(ushort cmd) {
     switch (cmd) {
         case kCmdPictureFg: {
             TColorRGB selection;
-            if (InsertColorDialog::go("Choose Foreground Color", "Choose", true, &selection)) {
+            if (InsertColorDialog::go("Choose Foreground Color", "Choose", &selection)) {
                 _private->fg = selection;
                 updateStatusItems(_private);
             }
@@ -1056,7 +1056,7 @@ void PictureWindow::onStatusLineCommand(ushort cmd) {
 
         case kCmdPictureBg: {
             TColorRGB selection;
-            if (InsertColorDialog::go("Choose Background Color", "Choose", false, &selection)) {
+            if (InsertColorDialog::go("Choose Background Color", "Choose", &selection)) {
                 _private->bg = selection;
                 updateStatusItems(_private);
             }
