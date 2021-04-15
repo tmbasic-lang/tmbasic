@@ -113,7 +113,7 @@ pngcrush -brute -reduce -ow screenshot.png
 1. Upload to S3: `aws s3 cp foobar-X.X.X.tar.gz s3://tmbasic/foobar/ --acl public-read` (use downloaded filename)
 1. Edit [`ext/README.md`](https://github.com/electroly/tmbasic/blob/master/ext/README.md) and replace the download and mirror links.
 1. Update the URL in the following files:
-    - `build/mac-x64.sh`
+    - `build/scripts/macSetup.sh`
     - `build/files/Dockerfile.build-dev`
     - `build/files/Dockerfile.build-linux`
     - `build/files/Dockerfile.build-win`

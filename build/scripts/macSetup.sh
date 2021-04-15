@@ -107,7 +107,7 @@ fi
 
 if [ ! -d "icu" ]
 then
-    curl -L -o icu.tar.gz https://github.com/unicode-org/icu/releases/download/release-68-2/icu4c-68_2-src.tgz
+    curl -L -o icu.tar.gz https://github.com/unicode-org/icu/releases/download/release-69-1/icu4c-69_1-src.tgz
     tar zxf icu.tar.gz
     pushd icu/source
     curl -L -o config.guess 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD'
