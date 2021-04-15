@@ -203,7 +203,7 @@ ifeq ($(TARGET_OS),linux)
 TVHC_CMD=tvhc
 endif
 ifeq ($(TARGET_OS),win)
-TVHC_CMD=wine64 /usr/$(ARCH)-w64-mingw32/bin/tvhc.exe
+TVHC_CMD=tvhc
 endif
 ifeq ($(TARGET_OS),mac)
 TVHC_CMD=$(PWD)/mac-$(SHORT_ARCH)/tvision/build/tvhc
@@ -412,7 +412,7 @@ endif
 
 ifeq ($(TARGET_OS),win)
 versions:
-	@pacman -Q mingw-w64-gcc
+	@echo
 endif
 
 ifeq ($(TARGET_OS),mac)

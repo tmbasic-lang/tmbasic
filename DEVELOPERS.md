@@ -63,9 +63,6 @@ Linux and Windows builds must be produced on a Linux build machine.
 
     Use one of the `linux-*.sh` or `win-*.sh` scripts instead of `dev.sh` to produce a non-debug build for Linux or Windows on a particular architecture.
 
-    **Troubleshooting**: If you get an error from `pacman` when starting the Docker environment for Windows, try an Arch Linux host machine.
-    Fatal incompatibilities have occurred when running the Arch-based container on an Ubuntu host.
-
 1. Type `exit` to leave the build environment.
 
 ## Build for macOS
@@ -122,9 +119,9 @@ pngcrush -brute -reduce -ow screenshot.png
 ## Make a release build
 1. Start the following three build machines. Prepare them for building using the instructions at the beginning of this document.
 
-    - Ubuntu Linux / ARM64 (AWS `c6g.xlarge`)
-    - Arch Linux / x64 (AWS `c5a.xlarge`)
-    - macOS 10.13 / x64 (MacinCloud PAYG)
+    - Ubuntu Linux / ARM64 (AWS `c6g.2xlarge`)
+    - Ubuntu Linux / x64 (AWS `c5a.2xlarge`)
+    - macOS 11.0 / ARM64
 
 1. Clear any existing dependencies on the three build machines so that we perform a fresh build using the latest versions.
 
