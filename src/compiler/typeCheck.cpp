@@ -87,26 +87,32 @@ static CompilerResult typeCheckBinaryExpression(BinaryExpressionNode* expression
 }
 
 static CompilerResult typeCheckCallExpression(CallExpressionNode* expressionNode) {
+    (void)expressionNode;
     throw std::runtime_error("not impl");
 }
 
 static CompilerResult typeCheckConstValueExpression(ConstValueExpressionNode* expressionNode) {
+    (void)expressionNode;
     throw std::runtime_error("not impl");
 }
 
 static CompilerResult typeCheckConvertExpression(ConvertExpressionNode* expressionNode) {
+    (void)expressionNode;
     throw std::runtime_error("not impl");
 }
 
 static CompilerResult typeCheckDottedExpression(DottedExpressionNode* expressionNode) {
+    (void)expressionNode;
     throw std::runtime_error("not impl");
 }
 
 static CompilerResult typeCheckNotExpression(NotExpressionNode* expressionNode) {
+    (void)expressionNode;
     throw std::runtime_error("not impl");
 }
 
 static CompilerResult typeCheckSymbolReferenceExpression(SymbolReferenceExpressionNode* expressionNode) {
+    (void)expressionNode;
     throw std::runtime_error("not impl");
 }
 

@@ -30,8 +30,7 @@ static TRect getSize(const std::vector<std::string>& labels) {
 CheckBoxes::CheckBoxes(const std::vector<std::string>& labels)
     : TCheckBoxes(getSize(labels), convertLabelsToTSItems(labels)) {}
 
-CheckBoxes::CheckBoxes(const std::vector<std::string>& labels, const std::vector<bool>& checks)
-    : CheckBoxes(std::move(labels)) {
+CheckBoxes::CheckBoxes(const std::vector<std::string>& labels, const std::vector<bool>& checks) : CheckBoxes(labels) {
     size_t i = 0;
     for (auto check : checks) {
         if (check) {

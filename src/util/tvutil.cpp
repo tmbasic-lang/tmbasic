@@ -49,7 +49,7 @@ int parseUserInt(const char* text, const char* fieldName, int minValue, int maxV
 }
 
 void validateIdentifier(const std::string& text, const char* fieldName) {
-    if (text.size() == 0) {
+    if (text.empty()) {
         std::ostringstream message;
         message << "Please enter the " << fieldName << ".";
         throw std::runtime_error(message.str());

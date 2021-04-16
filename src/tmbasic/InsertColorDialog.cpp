@@ -389,16 +389,14 @@ void InsertColorDialog::handleEvent(TEvent& event) {
     TDialog::handleEvent(event);
 }
 
-bool InsertColorDialog::go(
-    const std::string& title,
-    const std::string& insertButtonText,
-    TColorRGB* output) {
+bool InsertColorDialog::go(const std::string& title, const std::string& insertButtonText, TColorRGB* output) {
     auto dialog = DialogPtr<InsertColorDialog>(title, insertButtonText);
     auto result = TProgram::deskTop->execView(dialog);
     if (result == cmOK) {
         *output = dialog->selection;
         return true;
-    } else if (result == cmCancel && dialog->didClickHelp) {
+    }
+    if (result == cmCancel && dialog->didClickHelp) {
         dynamic_cast<App*>(TProgram::application)->openHelpTopic(hcide_insertColorDialog);
     }
     return false;
