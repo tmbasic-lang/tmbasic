@@ -196,7 +196,7 @@ RUN curl -L -o /tmp/mpdecimal.tar.gz https://www.bytereef.org/software/mpdecimal
     rm -rf /tmp/mpdecimal.tar.gz /tmp/mpdecimal/
 
 # tvision
-RUN curl -L -o /tmp/tvision.zip https://github.com/magiblot/tvision/archive/6aeac843a1d21205461c13a2c536d3c4d012e053.zip && \
+RUN curl -L -o /tmp/tvision.zip https://github.com/magiblot/tvision/archive/ded9eba5f873f61976be737951a74d68da8dc942.zip && \
     cd /tmp && \
     unzip -q tvision.zip && \
     mv tvision-*/ tvision/ && \

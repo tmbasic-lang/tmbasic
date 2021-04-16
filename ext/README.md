@@ -24,7 +24,7 @@ Component | Version | License | Source | Mirror directory
 [musl](https://musl.libc.org/) | 1.2.2-r0 (L) | [MIT](https://github.com/electroly/tmbasic/blob/master/ext/musl/COPYRIGHT) | [Alpine/musl-dev](https://pkgs.alpinelinux.org/packages?name=musl-dev) | &mdash;
 [ncurses](https://invisible-island.net/ncurses/) | 6.2 | [X11](https://github.com/electroly/tmbasic/blob/master/ext/ncurses/COPYING) | [ncurses-6.2.tar.gz](https://invisible-mirror.net/archives/ncurses/ncurses-6.2.tar.gz) | `s3://tmbasic/ncurses/`
 [turbo](https://github.com/magiblot/turbo) | defc734 | [MIT](https://github.com/electroly/tmbasic/blob/master/ext/turbo/COPYRIGHT) | [turbo-defc734...&nbsp;.zip](https://github.com/magiblot/turbo/archive/defc734d2621052806a4fa3510a91a8453895208.zip) | `s3://tmbasic/turbo/`
-[tvision](https://github.com/magiblot/tvision) | 6aeac84 | [Borland (original)<br>MIT (additions)](https://github.com/electroly/tmbasic/blob/master/ext/tvision/COPYRIGHT) | [tvision-6aeac84...&nbsp;.zip](https://github.com/magiblot/tvision/archive/6aeac843a1d21205461c13a2c536d3c4d012e053.zip) | `s3://tmbasic/tvision/`
+[tvision](https://github.com/magiblot/tvision) | ded9eba | [Borland (original)<br>MIT (additions)](https://github.com/electroly/tmbasic/blob/master/ext/tvision/COPYRIGHT) | [tvision-ded9eba...&nbsp;.zip](https://github.com/magiblot/tvision/archive/ded9eba5f873f61976be737951a74d68da8dc942.zip) | `s3://tmbasic/tvision/`
 [scintilla](https://www.scintilla.org/) | Forked | [HPND](https://github.com/electroly/tmbasic/blob/master/ext/scintilla/License.txt) | (included in `turbo`) | &mdash;
 
 ## Libraries included only in TMBASIC
