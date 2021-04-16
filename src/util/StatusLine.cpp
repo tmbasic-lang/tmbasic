@@ -65,8 +65,8 @@ StatusItemColors* StatusLine::addStatusItemColors(TStatusItem* statusItem) {
 }
 
 void StatusLine::setItemText(TStatusItem* statusItem, const std::string& text) {
-    delete[] statusItem->text;
     if (text != statusItem->text) {
+        delete[] statusItem->text; // NOLINT(cppcoreguidelines-owning-memory)
         statusItem->text = strdup(text.c_str());
     }
 }
