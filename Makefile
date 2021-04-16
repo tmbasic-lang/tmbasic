@@ -175,6 +175,12 @@ endif
 
 ### Commands ##########################################################################################################
 
+BSDIFF=bsdiff
+BZIP2=bzip2
+TVHC=tvhc
+BUILDCXX=$(CXX)
+STRIP=strip
+
 # Toolchain: We use cross-compilation to build the Windows binaries on Linux.
 ifeq ($(TARGET_OS),win)
 BUILDCXX=g++
@@ -184,29 +190,6 @@ AR=$(ARCH)-w64-mingw32-ar
 LD=$(ARCH)-w64-mingw32-ld
 STRIP=$(ARCH)-w64-mingw32-strip
 WINDRES=$(ARCH)-w64-mingw32-windres
-else
-BUILDCXX=$(CXX)
-STRIP=strip
-endif
-
-# bsdiff and bzip2: On Mac we install these locally.
-ifeq ($(TARGET_OS),mac)
-BSDIFF=$(PWD)/mac-$(SHORT_ARCH)/bsdiff/bsdiff
-BZIP2=$(PWD)/mac-$(SHORT_ARCH)/bzip2/build/bzip2
-else
-BSDIFF=bsdiff
-BZIP2=bzip2
-endif
-
-# TVHC_CMD: We run tvhc to generate our help file.
-ifeq ($(TARGET_OS),linux)
-TVHC_CMD=tvhc
-endif
-ifeq ($(TARGET_OS),win)
-TVHC_CMD=tvhc
-endif
-ifeq ($(TARGET_OS),mac)
-TVHC_CMD=$(PWD)/mac-$(SHORT_ARCH)/tvision/build/tvhc
 endif
 
 # TEST_CMD: We run our unit test executable in "make test". For the Windows target, we use Wine since we cross-compile
@@ -236,17 +219,7 @@ CXXFLAGS += -arch x86_64 -mmacosx-version-min=10.13
 else
 CXXFLAGS += -arch arm64 -mmacosx-version-min=11.0
 endif
-CXXFLAGS += \
-	-isystem $(PWD)/mac-$(SHORT_ARCH)/boost \
-	-isystem $(PWD)/mac-$(SHORT_ARCH)/mpdecimal/libmpdec \
-	-isystem $(PWD)/mac-$(SHORT_ARCH)/mpdecimal/libmpdec++ \
-	-isystem $(PWD)/mac-$(SHORT_ARCH)/ncurses/include \
-	-isystem $(PWD)/mac-$(SHORT_ARCH)/googletest/googletest/include \
-	-isystem $(PWD)/mac-$(SHORT_ARCH)/tvision/include \
-	-isystem $(PWD)/mac-$(SHORT_ARCH)/immer \
-	-isystem $(PWD)/mac-$(SHORT_ARCH)/icu/source/common \
-	-isystem $(PWD)/mac-$(SHORT_ARCH)/icu/source/i18n \
-	-isystem $(PWD)/mac-$(SHORT_ARCH)/turbo/build/include
+CXXFLAGS += -isystem $(PREFIX)/include -isystem $(PREFIX)/include/turbo
 endif
 ifeq ($(TARGET_OS),win)
 CXXFLAGS += -isystem /usr/$(ARCH)-w64-mingw32/include/turbo
@@ -295,14 +268,9 @@ ifeq ($(TARGET_OS),win)
 STATIC_FLAG=-static
 endif
 
-# On macOS we need to link against AppKit to access the clipboard
+# On macOS we need to link against AppKit to access the clipboard. Add our deps prefix to the search path.
 ifeq ($(TARGET_OS),mac)
-LDFLAGS += -framework AppKit
-endif
-
-# On macOS we need to add some search paths.
-ifeq ($(TARGET_OS),mac)
-LDFLAGS += -L$(PWD)/mac-$(SHORT_ARCH)/mpdecimal/libmpdec -L$(PWD)/mac-$(SHORT_ARCH)/mpdecimal/libmpdec++ -L$(PWD)/mac-$(SHORT_ARCH)/tvision/build
+LDFLAGS += -framework AppKit -L$(PREFIX)/lib
 endif
 
 # Linker flag to include turbo and friends.
@@ -311,18 +279,8 @@ LDFLAGS += -lscintilla -lscilexers -lsciplatform -lturbo-ui -lclipboard -lxcb -l
 ifeq ($(LINUX_DISTRO),ubuntu)
 LDFLAGS += -lpthread
 endif
-endif
-ifeq ($(TARGET_OS),win)
+else
 LDFLAGS += -lscintilla -lscilexers -lsciplatform -lturbo-ui -lclipboard -lfmt
-endif
-ifeq ($(TARGET_OS),mac)
-LDFLAGS += \
-	$(PWD)/mac-$(SHORT_ARCH)/turbo/build/libsciplatform.a \
-	$(PWD)/mac-$(SHORT_ARCH)/turbo/build/libscintilla.a \
-	$(PWD)/mac-$(SHORT_ARCH)/turbo/build/libscilexers.a \
-	$(PWD)/mac-$(SHORT_ARCH)/turbo/build/libturbo-ui.a \
-	$(PWD)/mac-$(SHORT_ARCH)/libclipboard/build/lib/libclipboard.a \
-	$(PWD)/mac-$(SHORT_ARCH)/fmt/build/libfmt.a
 endif
 
 # Linker flag to include tvision.
@@ -345,20 +303,13 @@ endif
 endif
 
 # Linker flag to include libmpdec and libmpdec++ (mpdecimal).
-ifeq ($(TARGET_OS),linux)
-LDFLAGS += -lmpdec -lmpdec++
-endif
 ifeq ($(TARGET_OS),win)
 LDFLAGS += /usr/$(ARCH)-w64-mingw32/lib/libmpdec.a /usr/$(ARCH)-w64-mingw32/lib/libmpdec++.a
-endif
-ifeq ($(TARGET_OS),mac)
-LDFLAGS += $(PWD)/mac-$(SHORT_ARCH)/mpdecimal/libmpdec/libmpdec.a $(PWD)/mac-$(SHORT_ARCH)/mpdecimal/libmpdec++/libmpdec++.a
+else
+LDFLAGS += -lmpdec -lmpdec++
 endif
 
 # Linker flag to include ICU.
-ifeq ($(TARGET_OS),mac)
-LDFLAGS += -L$(PWD)/mac-$(SHORT_ARCH)/icu/source/lib
-endif
 ifeq ($(TARGET_OS),win)
 ifeq ($(ARCH),i686)
 LDFLAGS += -lsicuin -lsicuuc /usr/$(ARCH)-w64-mingw32/bin/libicudt.a
@@ -373,23 +324,13 @@ LDFLAGS += -ldl
 endif
 
 # Linker flag to include bzip2 in tmbasic/test only.
-ifeq ($(TARGET_OS),mac)
-TMBASIC_LDFLAGS += -L$(PWD)/mac-$(SHORT_ARCH)/bzip2/build
-endif
 TMBASIC_LDFLAGS += -lbz2_static
 
 # Linker flag to include libbspatch in tmbasic/test only.
-ifeq ($(TARGET_OS),mac)
-TMBASIC_LDFLAGS += -L$(PWD)/mac-$(SHORT_ARCH)/bsdiff
-endif
 TMBASIC_LDFLAGS += -lbspatch
 
 # Linker flag to include libgtest (googletest).
-ifeq ($(TARGET_OS),mac)
-LIBGTEST_FLAG += $(PWD)/mac-$(SHORT_ARCH)/googletest/build/lib/libgtest.a $(PWD)/mac-$(SHORT_ARCH)/googletest/build/lib/libgtest_main.a
-else
 LIBGTEST_FLAG += -lgtest -lgtest_main
-endif
 
 
 
@@ -612,7 +553,7 @@ obj/buildDoc: src/buildDoc.cpp
 	@mkdir -p $(@D)
 	@$(BUILDCXX) \
 		-o $@ $< \
-		-I$(PWD)/mac-$(SHORT_ARCH)/boost \
+		$(CXXFLAGS) \
 		-Iext/nameof \
 		-Wall \
 		-Werror \
@@ -625,7 +566,7 @@ obj/resources/help/helpfile.h: obj/resources/help/help.txt
 	@mkdir -p bin
 	@rm -f obj/resources/help/help.h32
 	@rm -f obj/resources/help/helpfile.h
-	@$(TVHC_CMD) obj/resources/help/help.txt obj/resources/help/help.h32 obj/resources/help/helpfile.h >/dev/null
+	@$(TVHC) obj/resources/help/help.txt obj/resources/help/help.h32 obj/resources/help/helpfile.h >/dev/null
 
 obj/resources/help/help.h32: obj/resources/help/helpfile.h
 	@# noop
