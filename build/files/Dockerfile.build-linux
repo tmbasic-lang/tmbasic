@@ -1,5 +1,23 @@
 FROM $DOCKER_ARCH/alpine:3.13
 
+ARG BOOST_VERSION=1.75.0
+ARG BSDIFF_VERSION=b817e9491cf7b8699c8462ef9e2657ca4ccd7667
+ARG BZIP2_VERSION=6211b6500c8bec13a17707440d3a84ca8b34eed5
+ARG CMAKE_VERSION=3.20.1
+ARG FMT_VERSION=7.1.3
+ARG GOOGLETEST_VERSION=1.10.0
+ARG ICU_VERSION=69.1
+ARG IMMER_VERSION=4d1caac17daaea58b949e30c6b1d5d5b88a3b78e
+ARG LIBCLIPBOARD_VERSION=1.1
+ARG LIBXAU_VERSION=1.0.9
+ARG LIBXCB_VERSION=1.14
+ARG MPDECIMAL_VERSION=2.5.1
+ARG NCURSES_VERSION=6.2
+ARG TURBO_VERSION=defc734d2621052806a4fa3510a91a8453895208
+ARG TVISION_VERSION=ded9eba5f873f61976be737951a74d68da8dc942
+ARG XCBPROTO_VERSION=1.14
+ARG XORGPROTO_VERSION=2021.3
+
 RUN apk update && \
     apk upgrade && \
     apk add \
@@ -19,18 +37,16 @@ RUN (addgroup -g $HOST_GID user || true) && \
     (adduser -h /home/user -s /bin/bash -g $HOST_GID -u $HOST_UID -D user || true)
 
 # ncurses
-RUN curl -L -o /tmp/ncurses.tar.gz https://invisible-mirror.net/archives/ncurses/ncurses-6.2.tar.gz && \
-    cd /tmp && \
-    tar zxf ncurses.tar.gz && \
-    mv ncurses-*/ ncurses && \
-    cd ncurses && \
+RUN curl -L https://invisible-mirror.net/archives/ncurses/ncurses-${NCURSES_VERSION}.tar.gz | tar zx -C /tmp && \
+    mv /tmp/ncurses-*/ /tmp/ncurses/ && \
+    cd /tmp/ncurses/ && \
     mkdir build && \
     cd build && \
     ../configure && \ 
     make -j$(nproc) -C include && \
     make -j$(nproc) -C progs tic && \
     make -j$(nproc) -C progs infocmp && \
-    cd /tmp/ncurses && \
+    cd .. && \
     ./configure \
         --with-fallbacks=ansi,cons25,cons25-debian,dumb,hurd,linux,rxvt,screen,screen-256color,screen-256color-bce,screen-bce,screen-s,screen-w,screen.xterm-256color,tmux,tmux-256color,vt100,vt102,vt220,vt52,xterm,xterm-256color,xterm-color,xterm-mono,xterm-r5,xterm-r6,xterm-vt220,xterm-xfree86 \
         --disable-database \
@@ -51,26 +67,21 @@ RUN curl -L -o /tmp/ncurses.tar.gz https://invisible-mirror.net/archives/ncurses
         && \
     make -j$(nproc) && \
     make install && \
-    rm -rf /tmp/ncurses.tar.gz /tmp/ncurses/
+    rm -rf /tmp/ncurses/
 
 # bzip2
-RUN curl -L -o /tmp/bzip2.zip https://gitlab.com/federicomenaquintero/bzip2/-/archive/6211b6500c8bec13a17707440d3a84ca8b34eed5/bzip2-6211b6500c8bec13a17707440d3a84ca8b34eed5.zip && \
-    cd /tmp && \
-    unzip -q bzip2.zip && \
-    mv bzip2-*/ bzip2/ && \
-    mkdir -p bzip2/build && \
-    cd bzip2/build && \
+RUN curl -L https://gitlab.com/federicomenaquintero/bzip2/-/archive/${BZIP2_VERSION}/bzip2-${BZIP2_VERSION}.tar.gz | tar zx -C /tmp && \
+    cd /tmp/bzip2-*/ && \
+    mkdir build && \
+    cd build && \
     cmake .. -DENABLE_STATIC_LIB=ON -DCMAKE_BUILD_TYPE=Release && \
     make -j$(nproc) && \
     make install && \
-    rm -rf /tmp/bzip2.zip /tmp/bzip2/
+    rm -rf /tmp/bzip2-*/
 
 # bsdiff
-RUN curl -L -o /tmp/bsdiff.zip https://github.com/mendsley/bsdiff/archive/b817e9491cf7b8699c8462ef9e2657ca4ccd7667.zip && \
-    cd /tmp && \
-    unzip -q bsdiff.zip && \
-    mv bsdiff-*/ bsdiff/ && \
-    cd bsdiff && \
+RUN curl -L https://github.com/mendsley/bsdiff/archive/${BSDIFF_VERSION}.tar.gz | tar zx -C /tmp && \
+    cd /tmp/bsdiff-*/ && \
     gcc -o bsdiff bsdiff.c -DBSDIFF_EXECUTABLE -lbz2 && \
     gcc -o bspatch bspatch.c -DBSPATCH_EXECUTABLE -lbz2 && \
     mv bsdiff bspatch /usr/bin/ && \
@@ -82,135 +93,109 @@ RUN curl -L -o /tmp/bsdiff.zip https://github.com/mendsley/bsdiff/archive/b817e9
     mv libbspatch.a /usr/lib/ && \
     mkdir -p /usr/include/bsdiff && \
     cp *.h /usr/include/bsdiff/ && \
-    rm -rf /tmp/bsdiff.zip /tmp/bsdiff/
+    rm -rf /tmp/bsdiff-*/
 
 # icu
-RUN curl -L -o /tmp/icu.tar.gz https://github.com/unicode-org/icu/releases/download/release-69-1/icu4c-69_1-src.tgz && \
-    cd /tmp && \
-    tar zxf icu.tar.gz && \
-    cd icu/source && \
+RUN curl -L https://github.com/unicode-org/icu/releases/download/release-$(echo ${ICU_VERSION} | tr '.' '-')/icu4c-$(echo ${ICU_VERSION} | tr '.' '_')-src.tgz | tar zx -C /tmp && \
+    cd /tmp/icu/source && \
     CXXFLAGS="-DU_USING_ICU_NAMESPACE=0 -DU_NO_DEFAULT_INCLUDE_UTF_HEADERS=1 -DU_HIDE_OBSOLETE_UTF_OLD_H=1 -std=c++17" \
         ./runConfigureICU "Linux/gcc" --enable-static --disable-shared --disable-tests --disable-samples \
         --with-data-packaging=static && \
     make -j$(nproc) && \
     make install && \
-    rm -rf /tmp/icu.tar.gz /tmp/icu/
+    rm -rf /tmp/icu/
 
 # xorgproto
-RUN curl -L -o /tmp/xorgproto.tar.gz https://xorg.freedesktop.org/archive/individual/proto/xorgproto-2021.3.tar.gz && \
-    cd /tmp && \
-    tar zxf xorgproto.tar.gz && \
-    mv xorgproto-*/ xorgproto/ && \
-    cd xorgproto && \
+RUN curl -L https://xorg.freedesktop.org/archive/individual/proto/xorgproto-${XORGPROTO_VERSION}.tar.gz | tar zx -C /tmp && \
+    cd /tmp/xorgproto-*/ && \
     ./configure && \
     make -j$(nproc) && \
     make install && \
-    rm -rf /tmp/xorgproto.tar.gz /tmp/xorgproto/
+    rm -rf /tmp/xorgproto-*/
 
 # libXau
-RUN curl -L -o /tmp/libXau.tar.gz https://xorg.freedesktop.org/archive/individual/lib/libXau-1.0.9.tar.gz && \
-    cd /tmp && \
-    tar zxf libXau.tar.gz && \
-    mv libXau-*/ libXau/ && \
-    cd libXau && \
+RUN curl -L https://xorg.freedesktop.org/archive/individual/lib/libXau-${LIBXAU_VERSION}.tar.gz | tar zx -C /tmp && \
+    cd /tmp/libXau-*/ && \
     ./configure --enable-static && \
     make -j$(nproc) && \
     make install && \
-    rm -rf /tmp/libXau.tar.gz /tmp/libXau/
+    rm -rf /tmp/libXau-*/
 
 # xcb-proto
-RUN curl -L -o /tmp/xcb-proto.tar.gz https://xorg.freedesktop.org/archive/individual/xcb/xcb-proto-1.14.tar.gz && \
-    cd /tmp && \
-    tar zxf xcb-proto.tar.gz && \
-    mv xcb-proto-*/ xcb-proto/ && \
-    cd xcb-proto && \
+RUN curl -L https://xorg.freedesktop.org/archive/individual/xcb/xcb-proto-${XCBPROTO_VERSION}.tar.gz | tar zx -C /tmp && \
+    cd /tmp/xcb-proto-*/ && \
     ./configure && \
     make -j$(nproc) && \
     make install && \
-    rm -rf /tmp/xcb-proto.tar.gz /tmp/xcb-proto/
+    rm -rf /tmp/xcb-proto-*/
 
 # libxcb
-RUN curl -L -o /tmp/libxcb.tar.gz https://xorg.freedesktop.org/archive/individual/lib/libxcb-1.14.tar.gz && \
-    cd /tmp && \
-    tar zxf libxcb.tar.gz && \
-    mv libxcb-*/ libxcb/ && \
-    cd libxcb && \
+RUN curl -L https://xorg.freedesktop.org/archive/individual/lib/libxcb-${LIBXCB_VERSION}.tar.gz | tar zx -C /tmp && \
+    cd /tmp/libxcb-*/ && \
     ./configure --enable-static && \
     make -j$(nproc) && \
     make install && \
-    rm -rf /tmp/libxcb.tar.gz /tmp/libxcb/
+    rm -rf /tmp/libxcb-*/
 
 # fmt
-RUN curl -L -o /tmp/fmt.zip https://github.com/fmtlib/fmt/releases/download/7.1.3/fmt-7.1.3.zip && \
+RUN curl -L -o /tmp/fmt.zip https://github.com/fmtlib/fmt/releases/download/${FMT_VERSION}/fmt-${FMT_VERSION}.zip && \
     cd /tmp && \
     unzip -q fmt.zip && \
-    mv fmt-*/ fmt/ && \
-    mkdir -p fmt/build && \
-    cd fmt/build && \
+    cd fmt-*/ && \
+    mkdir build && \
+    cd build && \
     cmake .. -DCMAKE_BUILD_TYPE=Release -DFMT_TEST=OFF -DFMT_FUZZ=OFF -DFMT_CUDA_TEST=OFF -DFMT_DOC=OFF && \
     make -j$(nproc) && \
     make install && \
-    rm -rf /tmp/fmt.zip /tmp/fmt/
+    rm -rf /tmp/fmt.zip /tmp/fmt-*/
 
 # libclipboard
-RUN curl -L -o /tmp/libclipboard.zip https://github.com/jtanx/libclipboard/archive/refs/tags/v1.1.zip && \
-    cd /tmp && \
-    unzip -q libclipboard.zip && \
-    mv libclipboard-*/ libclipboard/ && \
-    mkdir -p libclipboard/build && \
-    cd libclipboard/build && \
+RUN curl -L https://github.com/jtanx/libclipboard/archive/refs/tags/v${LIBCLIPBOARD_VERSION}.tar.gz | tar zx -C /tmp && \
+    cd /tmp/libclipboard-*/ && \
+    mkdir build && \
+    cd build && \
     cmake .. -DCMAKE_BUILD_TYPE=Release && \
     make -j$(nproc) && \
     make install && \
-    rm -rf /tmp/libclipboard.zip /tmp/libclipboard/
+    rm -rf /tmp/libclipboard-*/
 
 # immer
-RUN curl -L -o /tmp/immer.zip https://github.com/arximboldi/immer/archive/4d1caac17daaea58b949e30c6b1d5d5b88a3b78e.zip && \
-    cd /tmp && \
-    unzip -q immer.zip && \
-    mv immer-*/ immer/ && \
-    mkdir -p immer/build && \
-    cd immer/build && \
+RUN curl -L https://github.com/arximboldi/immer/archive/${IMMER_VERSION}.tar.gz | tar zx -C /tmp && \
+    cd /tmp/immer-*/ && \
+    mkdir build && \
+    cd build && \
     cmake .. && \
     make -j$(nproc) && \
     make install && \
-    rm -rf /tmp/immer.zip /tmp/immer/
+    rm -rf /tmp/immer-*/
 
 # boost
-RUN curl -L -o /tmp/boost.tar.gz https://dl.bintray.com/boostorg/release/1.75.0/source/boost_1_75_0.tar.gz && \
-    cd /tmp && \
-    tar zxf boost.tar.gz && \
-    mv boost_*/boost /usr/include/ && \
-    rm -rf /tmp/boost.tar.gz /tmp/boost_*/
+RUN curl -L https://dl.bintray.com/boostorg/release/${BOOST_VERSION}/source/boost_$(echo ${BOOST_VERSION} | tr '.' '_').tar.gz | tar zx -C /tmp && \
+    cd /tmp/boost_*/ && \
+    mv boost /usr/include/ && \
+    rm -rf /tmp/boost_*/
 
 # mpdecimal
-RUN curl -L -o /tmp/mpdecimal.tar.gz https://www.bytereef.org/software/mpdecimal/releases/mpdecimal-2.5.1.tar.gz && \
-    cd /tmp && \
-    tar zxf mpdecimal.tar.gz && \
-    cd mpdecimal-*/ && \
+RUN curl -L https://www.bytereef.org/software/mpdecimal/releases/mpdecimal-${MPDECIMAL_VERSION}.tar.gz | tar zx -C /tmp && \
+    cd /tmp/mpdecimal-*/ && \
     ./configure && \
-    make -j$(nproc) && \
+    make && \
     make install && \
-    rm -rf /tmp/mpdecimal.tar.gz /tmp/mpdecimal/
+    rm -rf /tmp/mpdecimal-*/
 
 # tvision
-RUN curl -L -o /tmp/tvision.zip https://github.com/magiblot/tvision/archive/ded9eba5f873f61976be737951a74d68da8dc942.zip && \
-    cd /tmp && \
-    unzip -q tvision.zip && \
-    mv tvision-*/ tvision/ && \
-    mkdir -p tvision/build && \
-    cd tvision/build && \
+RUN curl -L https://github.com/magiblot/tvision/archive/${TVISION_VERSION}.tar.gz | tar zx -C /tmp && \
+    cd /tmp/tvision-*/ && \
+    mkdir build && \
+    cd build && \
     cmake .. -DTV_BUILD_USING_GPM=OFF -DCMAKE_BUILD_TYPE=Release && \
     make -j$(nproc) && \
     make install && \
-    rm -rf /tmp/tvision.zip /tmp/tvision/
+    rm -rf /tmp/tvision-*/
 
 # turbo
-RUN curl -L -o /tmp/turbo.zip https://github.com/magiblot/turbo/archive/defc734d2621052806a4fa3510a91a8453895208.zip && \
-    cd /tmp && \
-    unzip -q turbo.zip && \
-    mv turbo-*/ turbo/ && \
-    cd turbo && \
+RUN curl -L https://github.com/magiblot/turbo/archive/${TURBO_VERSION}.tar.gz | tar zx -C /tmp && \
+    cd /tmp/turbo-*/ && \
     mv scintilla/lexers/LexBasic.cxx . && \
     rm -f scintilla/lexers/* && \
     mv -f LexBasic.cxx scintilla/lexers/LexBasic.cxx && \
@@ -222,8 +207,8 @@ RUN curl -L -o /tmp/turbo.zip https://github.com/magiblot/turbo/archive/defc734d
     make -j$(nproc) && \
     cp -f *.a /usr/lib/ && \
     mkdir /usr/include/turbo && \
-    cp $(find /tmp/turbo -name '*.h') /usr/include/turbo/ && \
-    rm -rf /tmp/turbo.zip /tmp/turbo/
+    cp $(find /tmp/turbo-*/ -name '*.h') /usr/include/turbo/ && \
+    rm -rf /tmp/turbo-*/
 
 # environment
 RUN echo "export ARCH=\"$ARCH\"" >> /etc/profile.d/tmbasic.sh && \
