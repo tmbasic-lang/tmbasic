@@ -719,6 +719,7 @@ bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) \
 	@$(CXX) \
 		-o $@ \
 		$(CXXFLAGS) \
+		$(STATIC_FLAG) \
 		-include obj/common.h \
 		$(TEST_OBJ_FILES) \
 		obj/util.a \

@@ -210,6 +210,16 @@ RUN curl -L https://github.com/magiblot/turbo/archive/${TURBO_VERSION}.tar.gz | 
     cp $(find /tmp/turbo-*/ -name '*.h') /usr/include/turbo/ && \
     rm -rf /tmp/turbo-*/
 
+# gtest
+RUN curl -L https://github.com/google/googletest/archive/release-$GOOGLETEST_VERSION.tar.gz | tar zx -C /tmp && \
+    cd /tmp/googletest-*/ && \
+    mkdir build && \
+    cd build && \
+    cmake .. && \
+    make -j$(nproc) && \
+    make install && \
+    rm -rf /tmp/googletest-*/
+
 # environment
 RUN echo "export ARCH=\"$ARCH\"" >> /etc/profile.d/tmbasic.sh && \
     echo "export IMAGE_NAME=\"$IMAGE_NAME\"" >> /etc/profile.d/tmbasic.sh && \
