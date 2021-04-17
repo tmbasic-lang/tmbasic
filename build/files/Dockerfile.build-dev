@@ -1,22 +1,5 @@
 FROM ubuntu:20.04
 
-ARG BOOST_VERSION=1.75.0
-ARG BSDIFF_VERSION=b817e9491cf7b8699c8462ef9e2657ca4ccd7667
-ARG BZIP2_VERSION=6211b6500c8bec13a17707440d3a84ca8b34eed5
-ARG CMAKE_VERSION=3.20.1
-ARG FMT_VERSION=7.1.3
-ARG GOOGLETEST_VERSION=1.10.0
-ARG ICU_VERSION=69.1
-ARG IMMER_VERSION=4d1caac17daaea58b949e30c6b1d5d5b88a3b78e
-ARG LIBCLIPBOARD_VERSION=1.1
-ARG LIBXAU_VERSION=1.0.9
-ARG LIBXCB_VERSION=1.14
-ARG MPDECIMAL_VERSION=2.5.1
-ARG TURBO_VERSION=defc734d2621052806a4fa3510a91a8453895208
-ARG TVISION_VERSION=ded9eba5f873f61976be737951a74d68da8dc942
-ARG XCBPROTO_VERSION=1.14
-ARG XORGPROTO_VERSION=2021.3
-
 RUN apt-get update -y && \
     apt-get upgrade -y && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
@@ -60,160 +43,19 @@ RUN curl -L https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
     update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-10 9999 && \
     update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-10 9999
 
-# cmake
-RUN curl -L https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-$(uname -m).tar.gz \
-        | tar zx --strip-components=1 -C /usr
-
-# gtest
-RUN curl -L https://github.com/google/googletest/archive/release-$GOOGLETEST_VERSION.tar.gz | tar zx -C /tmp && \
-    cd /tmp/googletest-*/ && \
-    mkdir build && \
-    cd build && \
-    cmake .. && \
-    make -j$(nproc) && \
-    make install && \
-    rm -rf /tmp/googletest-*/
-
-# bzip2
-RUN curl -L https://gitlab.com/federicomenaquintero/bzip2/-/archive/${BZIP2_VERSION}/bzip2-${BZIP2_VERSION}.tar.gz | tar zx -C /tmp && \
-    cd /tmp/bzip2-*/ && \
-    mkdir build && \
-    cd build && \
-    cmake .. -DENABLE_STATIC_LIB=ON -DCMAKE_BUILD_TYPE=Release && \
-    make -j$(nproc) && \
-    make install && \
-    rm -rf /tmp/bzip2-*/
-
-# bsdiff
-RUN curl -L https://github.com/mendsley/bsdiff/archive/${BSDIFF_VERSION}.tar.gz | tar zx -C /tmp && \
-    cd /tmp/bsdiff-*/ && \
-    gcc -o bsdiff bsdiff.c -DBSDIFF_EXECUTABLE -lbz2 && \
-    gcc -o bspatch bspatch.c -DBSPATCH_EXECUTABLE -lbz2 && \
-    mv bsdiff bspatch /usr/bin/ && \
-    gcc -c bsdiff.c && \
-    ar rcs libbsdiff.a bsdiff.o && \
-    mv libbsdiff.a /usr/lib/ && \
-    gcc -c bspatch.c && \
-    ar rcs libbspatch.a bspatch.o && \
-    mv libbspatch.a /usr/lib/ && \
-    mkdir -p /usr/include/bsdiff && \
-    cp *.h /usr/include/bsdiff/ && \
-    rm -rf /tmp/bsdiff-*/
-
-# icu
-RUN curl -L https://github.com/unicode-org/icu/releases/download/release-$(echo ${ICU_VERSION} | tr '.' '-')/icu4c-$(echo ${ICU_VERSION} | tr '.' '_')-src.tgz | tar zx -C /tmp && \
-    cd /tmp/icu/source && \
-    CXXFLAGS="-DU_USING_ICU_NAMESPACE=0 -DU_NO_DEFAULT_INCLUDE_UTF_HEADERS=1 -DU_HIDE_OBSOLETE_UTF_OLD_H=1 -std=c++17" \
-        ./runConfigureICU "Linux/gcc" --enable-static --disable-shared --disable-tests --disable-samples \
-        --with-data-packaging=static && \
-    make -j$(nproc) && \
-    make install && \
-    rm -rf /tmp/icu/
-
-# xorgproto
-RUN curl -L https://xorg.freedesktop.org/archive/individual/proto/xorgproto-${XORGPROTO_VERSION}.tar.gz | tar zx -C /tmp && \
-    cd /tmp/xorgproto-*/ && \
-    ./configure && \
-    make -j$(nproc) && \
-    make install && \
-    rm -rf /tmp/xorgproto-*/
-
-# libXau
-RUN curl -L https://xorg.freedesktop.org/archive/individual/lib/libXau-${LIBXAU_VERSION}.tar.gz | tar zx -C /tmp && \
-    cd /tmp/libXau-*/ && \
-    ./configure --enable-static && \
-    make -j$(nproc) && \
-    make install && \
-    rm -rf /tmp/libXau-*/
-
-# xcb-proto
-RUN curl -L https://xorg.freedesktop.org/archive/individual/xcb/xcb-proto-${XCBPROTO_VERSION}.tar.gz | tar zx -C /tmp && \
-    cd /tmp/xcb-proto-*/ && \
-    ./configure && \
-    make -j$(nproc) && \
-    make install && \
-    rm -rf /tmp/xcb-proto-*/
-
-# libxcb
-RUN curl -L https://xorg.freedesktop.org/archive/individual/lib/libxcb-${LIBXCB_VERSION}.tar.gz | tar zx -C /tmp && \
-    cd /tmp/libxcb-*/ && \
-    ./configure --enable-static && \
-    make -j$(nproc) && \
-    make install && \
-    rm -rf /tmp/libxcb-*/
-
-# fmt
-RUN curl -L -o /tmp/fmt.zip https://github.com/fmtlib/fmt/releases/download/${FMT_VERSION}/fmt-${FMT_VERSION}.zip && \
-    cd /tmp && \
-    unzip -q fmt.zip && \
-    cd fmt-*/ && \
-    mkdir build && \
-    cd build && \
-    cmake .. -DCMAKE_BUILD_TYPE=Release -DFMT_TEST=OFF -DFMT_FUZZ=OFF -DFMT_CUDA_TEST=OFF -DFMT_DOC=OFF && \
-    make -j$(nproc) && \
-    make install && \
-    rm -rf /tmp/fmt.zip /tmp/fmt-*/
-
-# libclipboard
-RUN curl -L https://github.com/jtanx/libclipboard/archive/refs/tags/v${LIBCLIPBOARD_VERSION}.tar.gz | tar zx -C /tmp && \
-    cd /tmp/libclipboard-*/ && \
-    mkdir build && \
-    cd build && \
-    cmake .. -DCMAKE_BUILD_TYPE=Release && \
-    make -j$(nproc) && \
-    make install && \
-    rm -rf /tmp/libclipboard-*/
-
-# immer
-RUN curl -L https://github.com/arximboldi/immer/archive/${IMMER_VERSION}.tar.gz | tar zx -C /tmp && \
-    cd /tmp/immer-*/ && \
-    mkdir build && \
-    cd build && \
-    cmake .. && \
-    make -j$(nproc) && \
-    make install && \
-    rm -rf /tmp/immer-*/
-
-# boost
-RUN curl -L https://dl.bintray.com/boostorg/release/${BOOST_VERSION}/source/boost_$(echo ${BOOST_VERSION} | tr '.' '_').tar.gz | tar zx -C /tmp && \
-    cd /tmp/boost_*/ && \
-    mv boost /usr/include/ && \
-    rm -rf /tmp/boost_*/
-
-# mpdecimal
-RUN curl -L https://www.bytereef.org/software/mpdecimal/releases/mpdecimal-${MPDECIMAL_VERSION}.tar.gz | tar zx -C /tmp && \
-    cd /tmp/mpdecimal-*/ && \
-    ./configure --prefix=/usr && \
-    make && \
-    make install && \
-    rm -rf /tmp/mpdecimal-*/
-
-# tvision
-RUN curl -L https://github.com/magiblot/tvision/archive/${TVISION_VERSION}.tar.gz | tar zx -C /tmp && \
-    cd /tmp/tvision-*/ && \
-    mkdir build && \
-    cd build && \
-    cmake .. -DTV_BUILD_USING_GPM=OFF -DCMAKE_BUILD_TYPE=Release && \
-    make -j$(nproc) && \
-    make install && \
-    rm -rf /tmp/tvision-*/
-
-# turbo
-RUN curl -L https://github.com/magiblot/turbo/archive/${TURBO_VERSION}.tar.gz | tar zx -C /tmp && \
-    cd /tmp/turbo-*/ && \
-    mv scintilla/lexers/LexBasic.cxx . && \
-    rm -f scintilla/lexers/* && \
-    mv -f LexBasic.cxx scintilla/lexers/LexBasic.cxx && \
-    cat scintilla/src/Catalogue.cxx | sed 's:LINK_LEXER(lm.*::g; s:return 1;:LINK_LEXER(lmFreeBasic); return 1;:g' > Catalogue.cxx && \
-    mv -f Catalogue.cxx scintilla/src/Catalogue.cxx && \
-    mkdir build && \
-    cd build && \
-    cmake .. -DCMAKE_BUILD_TYPE=Release -DTURBO_USE_SYSTEM_TVISION=ON -DTURBO_USE_SYSTEM_DEPS=ON && \
-    make -j$(nproc) && \
-    cp -f *.a /usr/lib/ && \
-    mkdir /usr/include/turbo && \
-    cp $(find /tmp/turbo-*/ -name '*.h') /usr/include/turbo/ && \
-    rm -rf /tmp/turbo-*/
+# tmbasic dependencies
+COPY deps.mk /tmp/deps.mk
+RUN mkdir -p /tmp/deps && \
+    cd /tmp/deps && \
+    NATIVE_PREFIX=/usr \
+        TARGET_PREFIX=/usr \
+        ARCH=$ARCH \
+        LINUX_DISTRO=ubuntu \
+        TARGET_OS=linux \
+        TARGET_CC=gcc \
+        TARGET_AR=ar \
+        make -j$(nproc) -f /tmp/deps.mk && \
+    rm -rf /tmp/deps /tmp/deps.mk
 
 # environment
 COPY devPrompt.sh /home/user/

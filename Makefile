@@ -217,7 +217,10 @@ endif
 CXXFLAGS += -isystem $(PREFIX)/include -isystem $(PREFIX)/include/turbo
 endif
 ifeq ($(TARGET_OS),win)
-CXXFLAGS += -isystem /usr/$(ARCH)-w64-mingw32/include/turbo
+CXXFLAGS += \
+	-isystem /usr/$(ARCH)-w64-mingw32/include/turbo \
+	-isystem /usr/$(ARCH)-w64-mingw32/include/libmpdec \
+	-isystem /usr/$(ARCH)-w64-mingw32/include/libmpdec++
 endif
 ifeq ($(TARGET_OS),linux)
 CXXFLAGS += -isystem /usr/include/turbo
@@ -227,8 +230,6 @@ CXXFLAGS += \
 	-Isrc \
 	-Iobj \
 	-isystem ext/nameof \
-	-isystem /usr/include/libmpdec \
-	-isystem /usr/include/libmpdec++ \
 	-Wall \
 	-Werror \
 	-Winvalid-pch \
