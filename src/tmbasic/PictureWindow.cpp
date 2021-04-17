@@ -138,7 +138,7 @@ class Picture {
                 if (previousChar != cell.ch) {
                     newlineOrSpace();
                     for (auto ch : cell.ch) {
-                        s << std::setw(2) << std::setfill('0') << static_cast<int>(ch);
+                        s << std::setw(2) << std::setfill('0') << static_cast<int>(ch & 0xFF);
                     }
                 }
 
