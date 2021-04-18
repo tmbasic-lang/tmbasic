@@ -705,7 +705,9 @@ static void onMouse(int pictureX, int pictureY, const PictureViewMouseEventArgs&
     TPoint pt{ pictureX, pictureY };
     auto& picture = p->pictureView->picture;
     auto leftMouseDown = e.down && (e.buttons & mbLeftButton) != 0;
-    auto dragging = e.move && (e.buttons & mbLeftButton) != 0;
+    auto rightMouseDown = e.down && (e.buttons & mbRightButton) != 0;
+    auto leftDragging = e.move && (e.buttons & mbLeftButton) != 0;
+    auto rightDragging = e.move && (e.buttons & mbRightButton) != 0;
 
     TPoint verticalGripper{ picture.width / 2, picture.height };
     TPoint horizontalGripper{ picture.width + 1, picture.height / 2 };
@@ -721,7 +723,7 @@ static void onMouse(int pictureX, int pictureY, const PictureViewMouseEventArgs&
         p->pictureView->drawView();
         return;
     }
-    if (dragging && p->resizing) {
+    if (leftDragging && p->resizing) {
         auto deltaX = 0;
         if (p->resizingHorizontal) {
             deltaX = pt.x - p->resizingStartPicturePoint.x;
@@ -783,13 +785,14 @@ static void onMouse(int pictureX, int pictureY, const PictureViewMouseEventArgs&
             break;
 
         case PictureWindowMode::kDraw:
-            if (leftMouseDown || dragging) {
+            if (leftMouseDown || rightMouseDown || leftDragging || rightDragging) {
+                auto right = rightMouseDown || rightDragging;
                 if (p->setFgCheck->mark(0)) {
-                    cell.colorAttr._fg = color._fg;
+                    cell.colorAttr._fg = right ? color._bg : color._fg;
                     cell.colorAttr._style = color._style;
                 }
                 if (p->setBgCheck->mark(0)) {
-                    cell.colorAttr._bg = color._bg;
+                    cell.colorAttr._bg = right ? color._fg : color._bg;
                 }
                 if (p->setChCheck->mark(0)) {
                     cell.ch = p->ch;
@@ -800,12 +803,13 @@ static void onMouse(int pictureX, int pictureY, const PictureViewMouseEventArgs&
             break;
 
         case PictureWindowMode::kPick:
-            if (leftMouseDown || dragging) {
+            if (leftMouseDown || rightMouseDown || leftDragging || rightDragging) {
+                auto right = rightMouseDown || rightDragging;
                 if (p->setBgCheck->mark(0)) {
-                    p->bg = getBack(cell.colorAttr).asRGB();
+                    p->bg = right ? getFore(cell.colorAttr).asRGB() : getBack(cell.colorAttr).asRGB();
                 }
                 if (p->setFgCheck->mark(0)) {
-                    p->fg = getFore(cell.colorAttr).asRGB();
+                    p->fg = right ? getBack(cell.colorAttr).asRGB() : getFore(cell.colorAttr).asRGB();
                 }
                 if (p->setChCheck->mark(0)) {
                     p->ch = cell.ch;
@@ -815,7 +819,7 @@ static void onMouse(int pictureX, int pictureY, const PictureViewMouseEventArgs&
             break;
 
         case PictureWindowMode::kType:
-            if (leftMouseDown || dragging) {
+            if (leftMouseDown || leftDragging) {
                 p->pictureView->selection = TRect(pictureX, pictureY, pictureX + 1, pictureY + 1);
                 enableDisableSelectButtons(p);
                 p->pictureView->drawView();
@@ -826,7 +830,7 @@ static void onMouse(int pictureX, int pictureY, const PictureViewMouseEventArgs&
             if (leftMouseDown) {
                 p->currentDragTransparent = !cell.transparent;
             }
-            if (leftMouseDown || dragging) {
+            if (leftMouseDown || leftDragging) {
                 cell.transparent = p->currentDragTransparent;
                 p->pictureView->drawView();
             }
