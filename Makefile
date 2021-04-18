@@ -214,16 +214,12 @@ CXXFLAGS += -arch x86_64 -mmacosx-version-min=10.13
 else
 CXXFLAGS += -arch arm64 -mmacosx-version-min=11.0
 endif
-CXXFLAGS += -isystem $(PREFIX)/include -isystem $(PREFIX)/include/turbo
+CXXFLAGS += -isystem $(PREFIX)/include -isystem
 endif
 ifeq ($(TARGET_OS),win)
 CXXFLAGS += \
-	-isystem /usr/$(ARCH)-w64-mingw32/include/turbo \
 	-isystem /usr/$(ARCH)-w64-mingw32/include/libmpdec \
 	-isystem /usr/$(ARCH)-w64-mingw32/include/libmpdec++
-endif
-ifeq ($(TARGET_OS),linux)
-CXXFLAGS += -isystem /usr/include/turbo
 endif
 
 CXXFLAGS += \

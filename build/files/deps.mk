@@ -420,8 +420,7 @@ $(TURBO_DIR)/install: $(TURBO_DIR)/download $(TVISION_DIR)/install $(FMT_DIR)/in
 			$(CMAKE_TOOLCHAIN_FLAG) && \
 		$(MAKE) && \
 		cp -f *.a $(TARGET_PREFIX)/lib/ && \
-		mkdir -p $(TARGET_PREFIX)/include/turbo && \
-		cp $(shell find $(TURBO_DIR) -name '*.h') $(TARGET_PREFIX)/include/turbo/
+		cp $(shell find $(TURBO_DIR) -name '*.h') $(TARGET_PREFIX)/include/
 	touch $@
 
 
