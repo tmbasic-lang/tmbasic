@@ -181,12 +181,6 @@ $(GOOGLETEST_DIR)/install: $(GOOGLETEST_DIR)/download $(CMAKE_DIR)/install
 			$(CMAKE_TOOLCHAIN_FLAG) && \
 		$(MAKE) && \
 		$(MAKE) install
-ifeq ($(TARGET_OS),win)
-	echo "static int _isatty(int) { return 0; }" >> $(TARGET_PREFIX)/include/gtest/internal/custom/gtest-port.h
-	echo "static int read(int,void*,unsigned int) { return 0; }" >> $(TARGET_PREFIX)/include/gtest/internal/custom/gtest-port.h
-	echo "static int write(int,const void*,unsigned int) { return 0; }" >> $(TARGET_PREFIX)/include/gtest/internal/custom/gtest-port.h
-	echo "static int close(int) { return 0; }" >> $(TARGET_PREFIX)/include/gtest/internal/custom/gtest-port.h
-endif
 	touch $@
 
 
