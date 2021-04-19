@@ -152,7 +152,7 @@ void EditorWindow::onTimerTick() {
 
 void EditorWindow::updateTitle() {
     delete[] title;
-    title = strdup(getEditorWindowTitle(*_member).c_str());
+    title = newStr(getEditorWindowTitle(*_member).c_str());
 }
 
 void EditorWindow::setState(uint16_t aState, bool enable) {

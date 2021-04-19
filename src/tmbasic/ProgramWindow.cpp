@@ -164,9 +164,9 @@ void ProgramWindow::updateTitle() {
         s << "Untitled";
     }
     s << " (Program)";
-
+    
     delete[] title;
-    title = strdup(s.str().c_str());
+    title = newStr(s.str().c_str());
 }
 
 // true = close, false = stay open
