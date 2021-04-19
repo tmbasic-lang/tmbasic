@@ -94,8 +94,6 @@
 
 #include <nameof.hpp>
 
-#include <tscintilla.h>
-
 #ifdef _WIN32
 #include <windows.h>
 #include <tchar.h>
