@@ -45,6 +45,9 @@ enum : uint16_t {
     kCmdPictureType,
     kCmdPictureMask,
     kCmdPictureOptions,
+    kCmdPictureClear,
+    kCmdPicturePasteOk,
+    kCmdPicturePasteCancel,
 
     // designer window context menu
     kCmdDesignerWindowProperties,

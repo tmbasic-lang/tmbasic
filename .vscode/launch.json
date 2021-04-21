@@ -8,7 +8,7 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/bin/test",
+            "program": "${workspaceFolder}/bin/tmbasic",
             "args": ["--gtest_catch_exceptions=0"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/bin",

@@ -45,6 +45,7 @@
 #define Uses_TStringCollection
 #define Uses_TStringList
 #define Uses_TSubMenu
+#define Uses_TText
 #define Uses_TWindow
 #define Uses_fpstream
 #include <tvision/tv.h>
@@ -93,6 +94,8 @@
 #include <immer/vector_transient.hpp>
 
 #include <nameof.hpp>
+
+#include <fmt/format.h>
 
 #ifdef _WIN32
 #include <windows.h>

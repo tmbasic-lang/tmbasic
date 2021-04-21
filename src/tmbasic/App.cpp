@@ -62,6 +62,9 @@ App::App(int /*argc*/, char** /*argv*/)
     ts.enableCmd(kCmdPictureType);
     ts.enableCmd(kCmdPictureMask);
     ts.enableCmd(kCmdPictureOptions);
+    ts.enableCmd(kCmdPictureClear);
+    ts.enableCmd(kCmdPicturePasteOk);
+    ts.enableCmd(kCmdPicturePasteCancel);
     disableCommands(ts);
 
     onFileNew();
@@ -137,6 +140,7 @@ TMenuBar* App::initMenuBar(TRect r) {
         *new TMenuItem("~P~ick tool", kCmdPicturePick, kbF6, hcNoContext, "F6") +
         *new TMenuItem("~T~ype tool", kCmdPictureType, kbF7, hcNoContext, "F7") +
         *new TMenuItem("~M~ask tool", kCmdPictureMask, kbF8, hcNoContext, "F8") + newLine() +
+        *new TMenuItem("C~l~ear", kCmdPictureClear, kbDel, hcNoContext, "Del") + newLine() +
         *new TMenuItem("~O~ptions", kCmdPictureOptions, kbF9, hcNoContext, "F9");
 
     auto& windowMenu = *new TSubMenu("~W~indow", kbAltW) +
