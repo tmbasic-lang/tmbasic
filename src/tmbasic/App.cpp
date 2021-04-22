@@ -140,13 +140,14 @@ TMenuBar* App::initMenuBar(TRect r) {
         *new TMenuItem("~P~ick tool", kCmdPicturePick, kbF6, hcNoContext, "F6") +
         *new TMenuItem("~T~ype tool", kCmdPictureType, kbF7, hcNoContext, "F7") +
         *new TMenuItem("~M~ask tool", kCmdPictureMask, kbF8, hcNoContext, "F8") + newLine() +
-        *new TMenuItem("C~l~ear", kCmdPictureClear, kbDel, hcNoContext, "Del") + newLine() +
-        *new TMenuItem("~O~ptions", kCmdPictureOptions, kbF9, hcNoContext, "F9");
+        *new TMenuItem("~O~ptions", kCmdPictureOptions, kbF9, hcNoContext, "F9") + newLine() +
+        *new TMenuItem("C~l~ear", kCmdPictureClear, kbDel, hcNoContext, "Del");
 
     auto& windowMenu = *new TSubMenu("~W~indow", kbAltW) +
-        *new TMenuItem("~S~ize/move", cmResize, kbCtrlF5, hcNoContext, "Ctrl+F5") +
-        *new TMenuItem("~Z~oom", cmZoom, kbNoKey) + *new TMenuItem("~N~ext", cmNext, kbF6, hcNoContext, "F6") +
-        *new TMenuItem("~P~revious", cmPrev, kbShiftF6, hcNoContext, "Shift+F6") +
+        *new TMenuItem("~S~ize/move", cmResize, kbAltDown, hcNoContext, "Alt+↓") +
+        *new TMenuItem("~Z~oom", cmZoom, kbAltUp, hcNoContext, "Alt+↑") +
+        *new TMenuItem("~N~ext", cmNext, kbAltRight, hcNoContext, "Alt+→") +
+        *new TMenuItem("~P~revious", cmPrev, kbAltLeft, hcNoContext, "Alt+←") +
         *new TMenuItem("~C~lose", cmClose, kbCtrlW, hcNoContext, "Ctrl+W");
 
     auto& helpMenu = *new TSubMenu("~H~elp", kbAltH) +
