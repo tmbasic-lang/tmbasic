@@ -628,7 +628,7 @@ static void updateStatusItems(PictureWindowPrivate* p) {
     std::ostringstream chText;
     chText << "~F3~ " << p->ch;
     delete[] p->statusItems.character->text;  // NOLINT
-    p->statusItems.character->text = newStr(chText.str().c_str());
+    p->statusItems.character->text = newStr(chText.str());
 
     TAttrPair attrPair{ TColorAttr(p->fg, p->bg), TColorAttr(p->fg, p->bg) };
     p->statusItems.fgColor->colorPairNormal = attrPair;
@@ -1444,7 +1444,7 @@ void PictureWindow::onStatusLineCommand(ushort cmd) {
                 _private->pictureView->drawView();
                 updateScrollBars(_private);
                 delete[] title;
-                title = newStr(getPictureWindowTitle(_private->pictureView->picture.name).c_str());
+                title = newStr(getPictureWindowTitle(_private->pictureView->picture.name));
                 frame->drawView();
                 _private->onEdited();
             }

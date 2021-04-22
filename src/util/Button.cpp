@@ -96,7 +96,7 @@ void Button::useWhiteColorScheme() {
 
 void Button::setTitle(const std::string& text) {
     delete[] const_cast<char*>(title);  // NOLINT
-    title = newStr(text.c_str());
+    title = newStr(text);
 }
 
 }  // namespace util

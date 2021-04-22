@@ -9,7 +9,7 @@ Label::Label(TStringView text, TView* link) : TLabel(TRect(0, 0, static_cast<int
 
 void Label::setTitle(const std::string& title) {
     delete[] const_cast<char*>(text);  // NOLINT
-    text = newStr(title.c_str());
+    text = newStr(title);
 }
 
 TColorAttr Label::mapColor(uchar index) {
