@@ -1186,8 +1186,7 @@ void PictureWindow::handleEvent(TEvent& event) {
             clearEvent(event);
         } else if (
             _private->mode == PictureWindowMode::kType && _private->pictureView->selection.has_value() &&
-            event.keyDown.text[0] != '\0' && event.keyDown.keyCode != kbLeft && event.keyDown.keyCode != kbRight &&
-            event.keyDown.keyCode != kbUp && event.keyDown.keyCode != kbDown) {
+            event.keyDown.text[0] != '\0' && event.keyDown.charScan.charCode != 0) {
             // user is typing text in type mode
             auto rect = *_private->pictureView->selection;
             auto& cell =
