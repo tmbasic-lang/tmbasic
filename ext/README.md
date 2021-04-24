@@ -34,4 +34,4 @@ Component | Version | License
 -- | -- | --
 [bsdiff](https://github.com/mendsley/bsdiff) | b817e94 | [BSD-2-Clause](https://github.com/electroly/tmbasic/blob/master/ext/bsdiff/LICENSE)
 [bzip2](https://gitlab.com/federicomenaquintero/bzip2) | 6211b650 | [bzip2-1.0.6](https://github.com/electroly/tmbasic/blob/master/ext/bzip2/COPYING)
-[nameof](https://github.com/Neargye/nameof) | 0.10.0 | [MIT](https://github.com/electroly/tmbasic/blob/master/ext/nameof/LICENSE.txt)
+[nameof](https://github.com/Neargye/nameof) | a9813bd | [MIT](https://github.com/electroly/tmbasic/blob/master/ext/nameof/LICENSE.txt)

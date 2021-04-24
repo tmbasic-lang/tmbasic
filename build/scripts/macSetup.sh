@@ -9,6 +9,20 @@ set -euxo pipefail
 # $DOCKER_ARCH: x86_64 or arm64v8
 # run from the build directory.
 
+export CMAKE_VERSION=3.20.1
+export BOOST_VERSION=1.76.0
+export NAMEOF_VERSION=a9813bd7a15c92293384f2505e44bcb4005b97ba
+export MPDECIMAL_VERSION=2.5.1
+export GOOGLETEST_VERSION=1.10.0
+export IMMER_VERSION=39f86900ab2b077051ddb9a17213dbfac05584e0
+export TVISION_VERSION=dd5da212548ae0af7ac4a05456fae3d8b5211b5c
+export BZIP2_VERSION=6211b6500c8bec13a17707440d3a84ca8b34eed5
+export BSDIFF_VERSION=b817e9491cf7b8699c8462ef9e2657ca4ccd7667
+export ICU_VERSION=69.1
+export FMT_VERSION=7.1.3
+export LIBCLIPBOARD_VERSION=1.1
+export TURBO_VERSION=506457abf46ff467ba296fd774521c95a5c2540d
+
 cd ..
 mkdir -p mac-$SHORT_ARCH
 cd mac-$SHORT_ARCH
@@ -26,8 +40,8 @@ export PATH=$PREFIX/bin:$PATH
 
 cd tmp
 
-export CMAKE_VERSION=3.20.1
-if [ ! -f "$PKGDIR/cmake-$CMAKE_VERSION" ]; then
+if [ ! -f "$PKGDIR/cmake-$CMAKE_VERSION" ]
+then
     rm -rf cmake-*/
     curl -L https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION-macos-universal.tar.gz | tar zx
     pushd cmake-*/
@@ -40,7 +54,6 @@ if [ ! -f "$PKGDIR/cmake-$CMAKE_VERSION" ]; then
     touch "$PKGDIR/cmake-$CMAKE_VERSION"
 fi
 
-export BOOST_VERSION=1.76.0
 if [ ! -f "$PKGDIR/boost-$BOOST_VERSION" ]
 then
     rm -rf boost_*/
@@ -52,7 +65,16 @@ then
     touch "$PKGDIR/boost-$BOOST_VERSION"
 fi
 
-export MPDECIMAL_VERSION=2.5.1
+if [ ! -f "$PKGDIR/nameof-$NAMEOF_VERSION" ]; then
+    rm -rf nameof-*/
+	curl -L https://github.com/Neargye/nameof/archive/$NAMEOF_VERSION.tar.gz | tar zx
+    pushd nameof-*/include/
+    mv -f nameof.hpp "$PREFIX/include/"
+    popd
+    rm -rf nameof-*/
+    touch "$PKGDIR/nameof-$NAMEOF_VERSION"
+fi
+
 if [ ! -f "$PKGDIR/mpdecimal-$MPDECIMAL_VERSION" ]
 then
     rm -rf mpdecimal-*/
@@ -70,7 +92,6 @@ then
     touch "$PKGDIR/mpdecimal-$MPDECIMAL_VERSION"
 fi
 
-export GOOGLETEST_VERSION=1.10.0
 if [ ! -f "$PKGDIR/googletest-$GOOGLETEST_VERSION" ]
 then
     rm -rf googletest-*/
@@ -89,7 +110,6 @@ then
     touch "$PKGDIR/googletest-$GOOGLETEST_VERSION"
 fi
 
-export IMMER_VERSION=39f86900ab2b077051ddb9a17213dbfac05584e0
 if [ ! -f "$PKGDIR/immer-$IMMER_VERSION" ]
 then
     rm -rf immer-*/
@@ -101,7 +121,6 @@ then
     touch "$PKGDIR/immer-$IMMER_VERSION"
 fi
 
-export TVISION_VERSION=dd5da212548ae0af7ac4a05456fae3d8b5211b5c
 if [ ! -f "$PKGDIR/tvision-$TVISION_VERSION" ]
 then
     rm -rf tvision-*/
@@ -122,7 +141,6 @@ then
     touch "$PKGDIR/tvision-$TVISION_VERSION"
 fi
 
-export BZIP2_VERSION=6211b6500c8bec13a17707440d3a84ca8b34eed5
 if [ ! -f "$PKGDIR/bzip2-$BZIP2_VERSION" ]
 then
     rm -rf bzip2-*/
@@ -143,7 +161,6 @@ then
     touch "$PKGDIR/bzip2-$BZIP2_VERSION"
 fi
 
-export BSDIFF_VERSION=b817e9491cf7b8699c8462ef9e2657ca4ccd7667
 if [ ! -f "$PKGDIR/bsdiff-$BSDIFF_VERSION" ]
 then
     rm -rf bsdiff-*/
@@ -162,7 +179,6 @@ then
     touch "$PKGDIR/bsdiff-$BSDIFF_VERSION"
 fi
 
-export ICU_VERSION=69.1
 if [ ! -f "$PKGDIR/icu-$ICU_VERSION" ]
 then
     rm -rf icu/
@@ -182,7 +198,6 @@ then
     touch "$PKGDIR/icu-$ICU_VERSION"
 fi
 
-export FMT_VERSION=7.1.3
 if [ ! -f "$PKGDIR/fmt-$FMT_VERSION" ]
 then
     rm -rf fmt-*/ fmt.zip
@@ -207,7 +222,6 @@ then
     touch "$PKGDIR/fmt-$FMT_VERSION"
 fi
 
-export LIBCLIPBOARD_VERSION=1.1
 if [ ! -f "$PKGDIR/libclipboard-$LIBCLIPBOARD_VERSION" ]
 then
     rm -rf libclipboard-*/
@@ -227,7 +241,6 @@ then
     touch "$PKGDIR/libclipboard-$LIBCLIPBOARD_VERSION"
 fi
 
-export TURBO_VERSION=506457abf46ff467ba296fd774521c95a5c2540d
 if [ ! -f "$PKGDIR/turbo-$TURBO_VERSION" ]
 then
     rm -rf turbo-*/

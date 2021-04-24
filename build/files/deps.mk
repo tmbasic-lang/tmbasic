@@ -13,6 +13,7 @@ LIBCLIPBOARD_VERSION=1.1
 LIBXAU_VERSION=1.0.9
 LIBXCB_VERSION=1.14
 MPDECIMAL_VERSION=2.5.1
+NAMEOF_VERSION=a9813bd7a15c92293384f2505e44bcb4005b97ba
 NCURSES_VERSION=6.2
 TURBO_VERSION=506457abf46ff467ba296fd774521c95a5c2540d
 TVISION_VERSION=dd5da212548ae0af7ac4a05456fae3d8b5211b5c
@@ -54,6 +55,7 @@ LIBCLIPBOARD_DIR=$(PWD)/libclipboard-$(LIBCLIPBOARD_VERSION)
 LIBXAU_DIR=$(PWD)/libXau-$(LIBXAU_VERSION)
 LIBXCB_DIR=$(PWD)/libxcb-$(LIBXCB_VERSION)
 MPDECIMAL_DIR=$(PWD)/mpdecimal-$(MPDECIMAL_VERSION)
+NAMEOF_DIR=$(PWD)/nameof-$(NAMEOF_VERSION)
 NCURSES_DIR=$(PWD)/ncurses-$(NCURSES_VERSION)
 TURBO_DIR=$(PWD)/turbo-$(TURBO_VERSION)
 TVISION_DIR=$(PWD)/tvision-$(TVISION_VERSION)
@@ -71,7 +73,7 @@ endif
 .PHONY: all
 all: $(NCURSES_DIR)/install $(GOOGLETEST_DIR)/install $(BSDIFF_DIR)/install $(BZIP2_DIR)/install $(ICU_DIR)/install \
 	$(FMT_DIR)/install $(LIBCLIPBOARD_DIR)/install $(IMMER_DIR)/install $(BOOST_DIR)/install $(MPDECIMAL_DIR)/install \
-	$(TVISION_DIR)/install $(TURBO_DIR)/install
+	$(TVISION_DIR)/install $(TURBO_DIR)/install $(NAMEOF_DIR)/install
 
 
 
@@ -499,4 +501,16 @@ ifeq ($(TARGET_OS),linux)
 		$(MAKE) && \
 		$(MAKE) install
 endif
+	touch $@
+
+
+
+# nameof --------------------------------------------------------------------------------------------------------------
+
+$(NAMEOF_DIR)/download:
+	curl -L https://github.com/Neargye/nameof/archive/$(NAMEOF_VERSION).tar.gz | tar zx
+	touch $@
+
+$(NAMEOF_DIR)/install: $(NAMEOF_DIR)/download
+	cd $(NAMEOF_DIR)/include && cp -f nameof.hpp $(NATIVE_PREFIX)/include/
 	touch $@

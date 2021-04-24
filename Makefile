@@ -225,7 +225,6 @@ endif
 CXXFLAGS += \
 	-Isrc \
 	-Iobj \
-	-isystem ext/nameof \
 	-Wall \
 	-Werror \
 	-Winvalid-pch \
@@ -546,7 +545,6 @@ obj/buildDoc: src/buildDoc.cpp
 	@$(BUILDCXX) \
 		-o $@ $< \
 		$(CXXFLAGS) \
-		-Iext/nameof \
 		-Wall \
 		-Werror \
 		-std=c++17 \
