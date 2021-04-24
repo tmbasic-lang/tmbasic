@@ -117,25 +117,25 @@ DOC_FILES=$(shell find doc -type f -name "*.txt") $(shell find doc -type f -name
 DIAGRAM_SRC_FILES=$(shell find doc/help/diagrams -type f -name "*.txt")
 LICENSE_FILES=\
 	LICENSE \
-	ext/boost/LICENSE_1_0.txt \
-	ext/musl/COPYRIGHT \
-	ext/immer/LICENSE \
-	ext/gcc/GPL-3 \
-	ext/gcc/copyright1 \
-	ext/gcc/copyright2 \
-	ext/mpdecimal/LICENSE.txt \
-	ext/nameof/LICENSE.txt \
-	ext/ncurses/COPYING \
-	ext/tvision/COPYRIGHT \
-	ext/bsdiff/LICENSE \
-	ext/bzip2/COPYING \
-	ext/icu/LICENSE \
-	ext/fmt/LICENSE.rst \
-	ext/libclipboard/LICENSE \
-	ext/libXau/COPYING \
-	ext/libxcb/COPYING \
-	ext/scintilla/License.txt \
-	ext/turbo/COPYRIGHT
+	doc/licenses/boost/LICENSE_1_0.txt \
+	doc/licenses/musl/COPYRIGHT \
+	doc/licenses/immer/LICENSE \
+	doc/licenses/gcc/GPL-3 \
+	doc/licenses/gcc/copyright1 \
+	doc/licenses/gcc/copyright2 \
+	doc/licenses/mpdecimal/LICENSE.txt \
+	doc/licenses/nameof/LICENSE.txt \
+	doc/licenses/ncurses/COPYING \
+	doc/licenses/tvision/COPYRIGHT \
+	doc/licenses/bsdiff/LICENSE \
+	doc/licenses/bzip2/COPYING \
+	doc/licenses/icu/LICENSE \
+	doc/licenses/fmt/LICENSE.rst \
+	doc/licenses/libclipboard/LICENSE \
+	doc/licenses/libXau/COPYING \
+	doc/licenses/libxcb/COPYING \
+	doc/licenses/scintilla/License.txt \
+	doc/licenses/turbo/COPYRIGHT
 LICENSE_DIAGRAM_TXT_TIMESTAMP_FILE=obj/doc-temp/diagrams-license/timestamp
 LICENSE_DIAGRAM_TXT_FILES=\
 	obj/doc-temp/diagrams-license/license_tmbasic.txt \
@@ -487,47 +487,47 @@ bin/LICENSE.txt: $(LICENSE_FILES)
 	@cat LICENSE >> $@
 	@echo >> $@
 	@echo === boost license === >> $@
-	@cat ext/boost/LICENSE_1_0.txt >> $@
+	@cat doc/licenses/boost/LICENSE_1_0.txt >> $@
 	@echo >> $@
 	@echo === fmt license === >> $@
-	@cat ext/fmt/LICENSE.rst >> $@
+	@cat doc/licenses/fmt/LICENSE.rst >> $@
 	@echo >> $@
 	@echo === icu license === >> $@
-	@cat ext/icu/LICENSE >> $@
+	@cat doc/licenses/icu/LICENSE >> $@
 	@echo >> $@
 	@echo === immer license === >> $@
-	@cat ext/immer/LICENSE >> $@
+	@cat doc/licenses/immer/LICENSE >> $@
 	@echo >> $@
 	@echo === libclipboard license === >> $@
-	@cat ext/libclipboard/LICENSE >> $@
+	@cat doc/licenses/libclipboard/LICENSE >> $@
 	@echo >> $@
 	@echo === libstdc++ license === >> $@
-	@cat ext/gcc/GPL-3 >> $@
-	@cat ext/gcc/copyright >> $@
+	@cat doc/licenses/gcc/GPL-3 >> $@
+	@cat doc/licenses/gcc/copyright >> $@
 	@echo >> $@
 	@echo === libXau license === >> $@
-	@cat ext/libXau/COPYING >> $@
+	@cat doc/licenses/libXau/COPYING >> $@
 	@echo >> $@
 	@echo === libxcb license === >> $@
-	@cat ext/libxcb/COPYING >> $@
+	@cat doc/licenses/libxcb/COPYING >> $@
 	@echo >> $@
 	@echo === mpdecimal license === >> $@
-	@cat ext/mpdecimal/LICENSE.txt >> $@
+	@cat doc/licenses/mpdecimal/LICENSE.txt >> $@
 	@echo >> $@
 	@echo === musl license === >> $@
-	@cat ext/musl/COPYRIGHT >> $@
+	@cat doc/licenses/musl/COPYRIGHT >> $@
 	@echo >> $@
 	@echo === ncurses license === >> $@
-	@cat ext/ncurses/COPYING >> $@
+	@cat doc/licenses/ncurses/COPYING >> $@
 	@echo >> $@
 	@echo === turbo license === >> $@
-	@cat ext/turbo/COPYRIGHT >> $@
+	@cat doc/licenses/turbo/COPYRIGHT >> $@
 	@echo >> $@
 	@echo === tvision license === >> $@
-	@cat ext/tvision/COPYRIGHT >> $@
+	@cat doc/licenses/tvision/COPYRIGHT >> $@
 	@echo >> $@
 	@echo === scintilla license === >> $@
-	@cat ext/scintilla/License.txt >> $@
+	@cat doc/licenses/scintilla/License.txt >> $@
 	@echo >> $@
 	@$(LICENSE_PROCESS_CMD) $@
 

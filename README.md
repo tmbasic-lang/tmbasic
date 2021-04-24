@@ -39,7 +39,7 @@ There are many options for developing rich graphical user interfaces (GUIs) toda
 TMBASIC supports all major desktop systems. It runs on mobile platforms using the popular terminal apps <a href="https://apps.apple.com/us/app/ish-shell/id1436902243">iSH Shell</a> and <a href="https://termux.com/">Termux</a>. TMBASIC running on any platform can produce single-file executables for any other supported platform. Compiled BASIC programs require no external libraries.
 
 ## License
-TMBASIC is [open source software](https://en.wikipedia.org/wiki/Open-source_software) available free of charge. Read the [External Libraries](https://github.com/electroly/tmbasic/blob/master/ext/README.md) document for a list of open source components included in TMBASIC and in compiled programs. You must obey the licenses of these open source components when you share your compiled programs.
+TMBASIC is [open source software](https://en.wikipedia.org/wiki/Open-source_software) available free of charge. Read the [Third Party Libraries](https://github.com/electroly/tmbasic/blob/master/doc/licenses/README.md) document for a list of open source components included in TMBASIC and in compiled programs. You must obey the licenses of these open source components when you share your compiled programs.
 
 These components have permissive, commercial-friendly open source licenses that do not require you to release your BASIC source code. When you generate an executable, TMBASIC generates a `LICENSE.txt` file that combines these licenses for your convenience. Include this license file along with your executable when you distribute your TMBASIC app.
 

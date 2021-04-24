@@ -18,4 +18,4 @@
 .gitignore text eol=lf
 Dockerfile* text eol=lf
 Makefile text eol=lf
-ext/* linguist-vendored
+doc/licenses/* linguist-vendored

@@ -105,10 +105,10 @@ pngcrush -brute -reduce -ow screenshot.png
 
 ## Update third party dependencies
 
-1. Get the project link from [`ext/README.md`](https://github.com/electroly/tmbasic/blob/master/ext/README.md).
+1. Get the project link from [`doc/licenses/README.md`](https://github.com/electroly/tmbasic/blob/master/doc/licenses/README.md).
 1. Download the latest version, and copy the link to the clipboard. If this is a GitHub/Gitlab "Download ZIP" link, make sure it points to a specific commit hash.
 1. Upload to S3: `aws s3 cp ___ s3://tmbasic/___/ --acl public-read` (use downloaded filename)
-1. Edit [`ext/README.md`](https://github.com/electroly/tmbasic/blob/master/ext/README.md) and replace the version.
+1. Edit [`doc/licenses/README.md`](https://github.com/electroly/tmbasic/blob/master/doc/licenses/README.md) and replace the version.
 1. Update the version in the following files:
     - `build/scripts/macSetup.sh`
     - `build/files/deps.mk`
