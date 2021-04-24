@@ -1,12 +1,11 @@
 .DS_Store
+/.vscode
 /bin
-/obj
+/dist
 /mac-arm64
 /mac-x64
-/dist
-/.vscode/settings.json
-/valgrind.txt
+/obj
 /turbo
 /tvision
+/valgrind.txt
 debug.log
-/.vscode
