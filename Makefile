@@ -111,10 +111,10 @@ PNG_IN_FILES=$(shell find art -maxdepth 1 -type f -name "*.png")
 PNG_OUT_FILES=$(patsubst art/%,bin/ghpages/%,$(PNG_IN_FILES))
 
 # help files
-TOPIC_SRC_FILES=$(shell find doc/topics -type f -name "*.txt")
-PROCEDURES_SRC_FILES=$(shell find doc/procedures -type f -name "*.txt")
+TOPIC_SRC_FILES=$(shell find doc/help/topics -type f -name "*.txt")
+PROCEDURES_SRC_FILES=$(shell find doc/help/procedures -type f -name "*.txt")
 DOC_FILES=$(shell find doc -type f -name "*.txt") $(shell find doc -type f -name "*.html")
-DIAGRAM_SRC_FILES=$(shell find doc/diagrams -type f -name "*.txt")
+DIAGRAM_SRC_FILES=$(shell find doc/help/diagrams -type f -name "*.txt")
 LICENSE_FILES=\
 	LICENSE \
 	ext/boost/LICENSE_1_0.txt \
@@ -444,18 +444,18 @@ $(TIDY_TARGETS): obj/tidy/%.tidy: src/%.cpp
 # ghpages -------------------------------------------------------------------------------------------------------------
 
 bin/ghpages/index.html: README.md \
-		doc/html/page-template-1.html \
-		doc/html/page-template-2.html \
-		doc/html/page-template-3.html \
+		doc/help/html/page-template-1.html \
+		doc/help/html/page-template-2.html \
+		doc/help/html/page-template-3.html \
 		$(FAVICON_OUT_FILES) \
 		$(PNG_OUT_FILES)
 	@printf "%16s  %s\n" "pandoc" "$@"
 	@mkdir -p $(@D)
-	@cat doc/html/page-template-1.html > $@
+	@cat doc/help/html/page-template-1.html > $@
 	@echo -n "TMBASIC" >> $@
-	@cat doc/html/page-template-2.html >> $@
+	@cat doc/help/html/page-template-2.html >> $@
 	@pandoc --from=markdown --to=html $< >> $@
-	@cat doc/html/page-template-3.html >> $@
+	@cat doc/help/html/page-template-3.html >> $@
 
 $(FAVICON_OUT_FILES): bin/ghpages/%: art/favicon/%
 	@printf "%16s  %s\n" "cp" "$@"
@@ -567,9 +567,9 @@ obj/resources/help/help.txt: $(DOC_FILES) $(TOPIC_SRC_FILES) $(PROCEDURES_SRC_FI
 		obj/buildDoc \
 		$(DIAGRAM_SRC_FILES) \
 		$(LICENSE_DIAGRAM_TXT_FILES) \
-		doc/html/page-template-1.html \
-		doc/html/page-template-2.html \
-		doc/html/page-template-3.html
+		doc/help/html/page-template-1.html \
+		doc/help/html/page-template-2.html \
+		doc/help/html/page-template-3.html
 	@printf "%16s  %s\n" "buildDoc" "$@"
 	@mkdir -p $(@D)
 	@cd doc && ../obj/buildDoc

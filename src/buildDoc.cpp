@@ -198,7 +198,7 @@ static string htmlEncode(string str) {
 
 static string getDiagramHtml(const string& name) {
     string text;
-    if (tryReadFile(string("diagrams/") + name + ".txt", &text)) {
+    if (tryReadFile(string("help/diagrams/") + name + ".txt", &text)) {
         return htmlEncode(text);
     }
     return htmlEncode(readFile(string("../obj/doc-temp/diagrams-license/") + name + ".txt"));
@@ -625,7 +625,7 @@ static string insertDiagram(string input, const string& dir, const string& filen
 }
 
 static string insertDiagrams(string text) {
-    forEachFile("diagrams", [&text](auto filename) -> void { text = insertDiagram(text, "diagrams/", filename); });
+    forEachFile("help/diagrams", [&text](auto filename) -> void { text = insertDiagram(text, "help/diagrams/", filename); });
     forEachFile("../obj/doc-temp/diagrams-license", [&text](auto filename) -> void {
         text = insertDiagram(text, "../obj/doc-temp/diagrams-license/", filename);
     });
@@ -636,17 +636,17 @@ int main() {
     try {
         ostringstream outputTxt;
         vector<unique_ptr<Procedure>> procedures;
-        auto htmlPageTemplate = readFile("html/page-template-1.html") + "[TITLE]" +
-            readFile("html/page-template-2.html") + "[BODY]" + readFile("html/page-template-3.html");
+        auto htmlPageTemplate = readFile("help/html/page-template-1.html") + "[TITLE]" +
+            readFile("help/html/page-template-2.html") + "[BODY]" + readFile("help/html/page-template-3.html");
         createDirectory("../obj");
         createDirectory("../obj/doc-temp");
         createDirectory("../obj/doc-html");
-        forEachFile("topics", [&outputTxt, &htmlPageTemplate](auto filename) -> void {
+        forEachFile("help/topics", [&outputTxt, &htmlPageTemplate](auto filename) -> void {
             auto topic = filename.substr(0, filename.length() - 4);
-            buildTopic(string("topics/") + filename, topic, &outputTxt, htmlPageTemplate);
+            buildTopic(string("help/topics/") + filename, topic, &outputTxt, htmlPageTemplate);
         });
-        forEachFile("procedures", [&outputTxt, &htmlPageTemplate, &procedures](auto filename) -> void {
-            procedures.push_back(buildProcedure(string("procedures/") + filename, &outputTxt, htmlPageTemplate));
+        forEachFile("help/procedures", [&outputTxt, &htmlPageTemplate, &procedures](auto filename) -> void {
+            procedures.push_back(buildProcedure(string("help/procedures/") + filename, &outputTxt, htmlPageTemplate));
         });
         sort(procedures.begin(), procedures.end(), compareProceduresByName);
         buildProcedureCategoryPages(procedures, &outputTxt, htmlPageTemplate);
