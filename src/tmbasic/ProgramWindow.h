@@ -4,10 +4,10 @@
 #include "compiler/SourceProgram.h"
 #include "vm/Program.h"
 #include "tmbasic/EditorWindow.h"
-#include "tmbasic/SourceMemberTypesListBox.h"
-#include "tmbasic/SourceMembersListBox.h"
 
 namespace tmbasic {
+
+class ProgramWindowPrivate;
 
 class ProgramWindow : public TWindow {
    public:
@@ -28,19 +28,7 @@ class ProgramWindow : public TWindow {
     void redrawListItems();
 
    private:
-    bool onSave();
-    bool onSaveAs();
-    bool save(const std::string& filePath);
-    void updateTitle();
-    void enableDisableMenuCommands();
-
-    bool _dirty;
-    std::optional<std::string> _filePath;
-    std::unique_ptr<vm::Program> _vmProgram;
-    std::unique_ptr<compiler::SourceProgram> _sourceProgram;
-    SourceMemberTypesListBox* _typesListBox;
-    SourceMembersListBox* _contentsListBox;
-    std::function<void(compiler::SourceMember*)> _openMember;
+    ProgramWindowPrivate* _private;
 };
 
 }  // namespace tmbasic

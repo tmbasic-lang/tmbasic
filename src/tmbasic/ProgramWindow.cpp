@@ -2,31 +2,183 @@
 #include "../../obj/resources/help/helpfile.h"
 #include "../util/DialogPtr.h"
 #include "../util/Frame.h"
+#include "../util/ListViewer.h"
 #include "../util/ScrollBar.h"
 #include "../util/ViewPtr.h"
 #include "../util/path.h"
+#include "../util/tvutil.h"
 #include "../vm/Program.h"
-#include "SourceMemberTypesListBox.h"
 #include "constants.h"
 #include "events.h"
-#include "../util/tvutil.h"
 
 using compiler::SourceMember;
+using compiler::SourceMemberType;
 using compiler::SourceProgram;
 using util::DialogPtr;
+using util::ListViewer;
 using util::ViewPtr;
 using vm::Program;
 
 namespace tmbasic {
 
+// matches the order of SourceMemberType
+static const std::vector<std::string> kSourceMemberTypeStrings{ "Procedures", "Globals", "Types", "Designs",
+                                                                "Pictures" };
+
+class SourceMemberTypesListBox : public util::ListViewer {
+   public:
+    using SourceMemberTypeSelectedFunc = std::function<void()>;
+
+    SourceMemberTypesListBox(const TRect& bounds, uint16_t numCols, SourceMemberTypeSelectedFunc onSelectedFunc)
+        : ListViewer(bounds, numCols, nullptr, nullptr),
+          _onSelectedFunc(std::move(onSelectedFunc)),
+          _selectedType(SourceMemberType::kProcedure) {
+        setRange(kSourceMemberTypeStrings.size());
+    }
+
+    void getText(char* dest, int16_t item, int16_t maxLen) override {
+        strncpy(dest, kSourceMemberTypeStrings.at(item).c_str(), maxLen);
+        dest[maxLen] = '\0';  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    }
+
+    void focusItem(int16_t item) override {
+        ListViewer::focusItem(item);
+        _selectedType = static_cast<SourceMemberType>(item);
+        _onSelectedFunc();
+    }
+
+    compiler::SourceMemberType getSelectedType() const { return _selectedType; }
+
+   private:
+    SourceMemberTypeSelectedFunc _onSelectedFunc;
+    compiler::SourceMemberType _selectedType;
+};
+
+class SourceMembersListBox : public util::ListViewer {
+   public:
+    SourceMembersListBox(
+        const TRect& bounds,
+        uint16_t numCols,
+        util::ScrollBar* vScrollBar,
+        const compiler::SourceProgram& program,
+        std::function<void(compiler::SourceMember*)> onMemberOpen)
+        : ListViewer(bounds, numCols, nullptr, vScrollBar),
+          _program(program),
+          _selectedType(SourceMemberType::kProcedure),
+          _onMemberOpen(std::move(onMemberOpen)) {
+        curCommandSet.enableCmd(cmSave);
+        curCommandSet.enableCmd(cmSaveAs);
+        selectType(SourceMemberType::kProcedure);
+    }
+
+    void selectType(compiler::SourceMemberType type) {
+        _selectedType = type;
+        updateItems();
+    }
+
+    void updateItems() {
+        auto* selectedMember =
+            focused >= 0 && static_cast<size_t>(focused) < _items.size() ? _items.at(focused) : nullptr;
+
+        _items.clear();
+
+        for (const auto& member : _program.members) {
+            if (member->memberType == _selectedType) {
+                _items.push_back(member.get());
+            }
+        }
+
+        std::sort(_items.begin(), _items.end(), [](const auto* lhs, const auto* rhs) {
+            return lhs->identifier == rhs->identifier ? lhs->displayName < rhs->displayName
+                                                      : lhs->identifier < rhs->identifier;
+        });
+
+        setRange(_items.size());
+
+        focused = 0;
+        for (size_t i = 0; i < _items.size(); i++) {
+            if (_items.at(i) == selectedMember) {
+                focused = i;
+                break;
+            }
+        }
+
+        drawView();
+    }
+
+    void getText(char* dest, int16_t item, int16_t maxLen) override {
+        if (item >= 0 && static_cast<size_t>(item) < _items.size()) {
+            strncpy(dest, _items.at(item)->displayName.c_str(), maxLen);
+            dest[maxLen] = '\0';  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        } else {
+            dest[0] = '\0';  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        }
+    }
+
+    void selectItem(int16_t item) override {
+        openMember(item);
+        ListViewer::selectItem(item);
+    }
+
+   private:
+    void openMember(int16_t index) {
+        if (index >= 0 && static_cast<size_t>(index) < _items.size()) {
+            _onMemberOpen(_items.at(index));
+        }
+    }
+
+    const compiler::SourceProgram& _program;
+    compiler::SourceMemberType _selectedType;
+    std::vector<compiler::SourceMember*> _items;
+    std::function<void(compiler::SourceMember*)> _onMemberOpen;
+};
+
 static gsl::owner<TFrame*> initProgramWindowFrame(TRect r) {
     ViewPtr<util::Frame> f{ r };
-    f->colorPassiveFrame = { 0x87 };
-    f->colorPassiveTitle = { 0x87 };
-    f->colorActiveFrame = { 0x8F };
-    f->colorActiveTitle = { 0x8F };
-    f->colorIcons = { 0x8A };
+    f->colorPassiveFrame = 0x87;
+    f->colorPassiveTitle = 0x87;
+    f->colorActiveFrame = 0x8F;
+    f->colorActiveTitle = 0x8F;
+    f->colorIcons = 0x8A;
     return f.take();
+}
+
+class ProgramWindowPrivate {
+   public:
+    ProgramWindow* window;
+    bool dirty{ false };
+    std::optional<std::string> filePath;
+    std::unique_ptr<vm::Program> vmProgram{ std::make_unique<Program>() };
+    std::unique_ptr<compiler::SourceProgram> sourceProgram;
+    SourceMemberTypesListBox* typesListBox{};
+    SourceMembersListBox* contentsListBox{};
+    std::function<void(compiler::SourceMember*)> openMember;
+
+    ProgramWindowPrivate(
+        ProgramWindow* window,
+        std::unique_ptr<SourceProgram> sourceProgram,
+        std::function<void(SourceMember*)> openMember,
+        std::optional<std::string> filePath)
+        : window(window),
+          sourceProgram(std::move(sourceProgram)),
+          openMember(std::move(openMember)),
+          filePath(std::move(filePath)) {}
+};
+
+static void updateTitle(ProgramWindowPrivate* p) {
+    std::ostringstream s;
+    if (p->dirty) {
+        s << kCharBullet;
+    }
+    if (p->filePath.has_value()) {
+        s << util::getFileName(*p->filePath);
+    } else {
+        s << "Untitled";
+    }
+    s << " (Program)";
+
+    delete[] p->window->title;  // NOLINT(cppcoreguidelines-owning-memory)
+    p->window->title = newStr(s.str());
 }
 
 ProgramWindow::ProgramWindow(
@@ -36,10 +188,7 @@ ProgramWindow::ProgramWindow(
     std::function<void(SourceMember*)> openMember)
     : TWindow(r, "Untitled - Program", wnNoNumber),
       TWindowInit(initProgramWindowFrame),
-      _vmProgram(std::make_unique<Program>()),
-      _sourceProgram(std::move(sourceProgram)),
-      _dirty(false),
-      _openMember(std::move(openMember)) {
+      _private(new ProgramWindowPrivate(this, std::move(sourceProgram), std::move(openMember), std::move(filePath))) {
     TCommandSet ts;
     ts.enableCmd(cmSave);
     ts.enableCmd(cmSaveAs);
@@ -52,26 +201,27 @@ ProgramWindow::ProgramWindow(
     auto typesListBoxRect = getExtent();
     typesListBoxRect.grow(-1, -1);
     typesListBoxRect.b.x = 15;
-    auto typesListBox = ViewPtr<SourceMemberTypesListBox>(
-        typesListBoxRect, 1, [this]() { _contentsListBox->selectType(_typesListBox->getSelectedType()); });
-    _typesListBox = typesListBox;
-    _typesListBox->growMode = gfGrowHiY;
-    _typesListBox->options |= ofFramed;
-    _typesListBox->useDarkGrayPalette();
+    auto typesListBox = ViewPtr<SourceMemberTypesListBox>(typesListBoxRect, 1, [this]() {
+        _private->contentsListBox->selectType(_private->typesListBox->getSelectedType());
+    });
+    _private->typesListBox = typesListBox;
+    _private->typesListBox->growMode = gfGrowHiY;
+    _private->typesListBox->options |= ofFramed;
+    _private->typesListBox->useDarkGrayPalette();
     typesListBox.addTo(this);
 
     auto contentsListBoxRect = getExtent();
     contentsListBoxRect.grow(-1, -1);
     contentsListBoxRect.a.x = 16;
     auto contentsListBox = ViewPtr<SourceMembersListBox>(
-        contentsListBoxRect, 1, vScrollBar, *_sourceProgram, [this](auto* member) -> void { _openMember(member); });
-    _contentsListBox = contentsListBox;
-    _contentsListBox->growMode = gfGrowHiX | gfGrowHiY;
-    _contentsListBox->useDarkGrayPalette();
+        contentsListBoxRect, 1, vScrollBar, *_private->sourceProgram,
+        [this](auto* member) -> void { _private->openMember(member); });
+    _private->contentsListBox = contentsListBox;
+    _private->contentsListBox->growMode = gfGrowHiX | gfGrowHiY;
+    _private->contentsListBox->useDarkGrayPalette();
     contentsListBox.addTo(this);
 
-    _filePath = std::move(filePath);
-    updateTitle();
+    updateTitle(_private);
 }
 
 ProgramWindow::~ProgramWindow() = default;
@@ -85,16 +235,57 @@ uint16_t ProgramWindow::getHelpCtx() {
     return hcide_programWindow;
 }
 
+static bool save(ProgramWindowPrivate* p, const std::string& filePath) {
+    try {
+        p->sourceProgram->save(filePath);
+        p->filePath = filePath;
+        p->dirty = false;
+        updateTitle(p);
+        p->window->frame->drawView();
+        return true;
+    } catch (const std::system_error& ex) {
+        std::ostringstream s;
+        s << "Save failed: " << ex.what();
+        messageBox(s.str(), mfInformation | mfOKButton);
+        return false;
+    } catch (...) {
+        messageBox("Save failed.", mfInformation | mfOKButton);
+        return false;
+    }
+}
+
+static bool onSaveAs(ProgramWindowPrivate* p) {
+    auto d = DialogPtr<TFileDialog>("*.bas", "Save Program As (.BAS)", "~N~ame", fdOKButton, 101);
+    auto result = false;
+
+    if (TProgram::deskTop->execView(d) != cmCancel) {
+        auto fileName = std::array<char, MAXPATH>();
+        d->getFileName(fileName.data());
+        if (save(p, fileName.data())) {
+            result = true;
+        }
+    }
+
+    return result;
+}
+
+static bool onSave(ProgramWindowPrivate* p) {
+    if (p->filePath.has_value()) {
+        return save(p, *p->filePath);
+    }
+    return onSaveAs(p);
+}
+
 void ProgramWindow::handleEvent(TEvent& event) {
     TWindow::handleEvent(event);
     if (event.what == evBroadcast) {
         switch (event.message.command) {
             case kCmdProgramSave:
-                onSave();
+                onSave(_private);
                 break;
 
             case kCmdProgramSaveAs:
-                onSaveAs();
+                onSaveAs(_private);
                 break;
 
             case kCmdAppExit:
@@ -112,74 +303,18 @@ void ProgramWindow::handleEvent(TEvent& event) {
     }
 }
 
-bool ProgramWindow::onSave() {
-    if (_filePath.has_value()) {
-        return save(*_filePath);
-    }
-    return onSaveAs();
-}
-
-bool ProgramWindow::onSaveAs() {
-    auto d = DialogPtr<TFileDialog>("*.bas", "Save Program As (.BAS)", "~N~ame", fdOKButton, 101);
-    auto result = false;
-
-    if (TProgram::deskTop->execView(d) != cmCancel) {
-        auto fileName = std::array<char, MAXPATH>();
-        d->getFileName(fileName.data());
-        if (save(fileName.data())) {
-            result = true;
-        }
-    }
-
-    return result;
-}
-
-bool ProgramWindow::save(const std::string& filePath) {
-    try {
-        _sourceProgram->save(filePath);
-        _filePath = filePath;
-        _dirty = false;
-        updateTitle();
-        frame->drawView();
-        return true;
-    } catch (const std::system_error& ex) {
-        std::ostringstream s;
-        s << "Save failed: " << ex.what();
-        messageBox(s.str(), mfInformation | mfOKButton);
-        return false;
-    } catch (...) {
-        messageBox("Save failed.", mfInformation | mfOKButton);
-        return false;
-    }
-}
-
-void ProgramWindow::updateTitle() {
-    std::ostringstream s;
-    if (_dirty) {
-        s << kCharBullet;
-    }
-    if (_filePath.has_value()) {
-        s << util::getFileName(*_filePath);
-    } else {
-        s << "Untitled";
-    }
-    s << " (Program)";
-
-    delete[] title;
-    title = newStr(s.str());
-}
-
 // true = close, false = stay open
 bool ProgramWindow::preClose() {
-    if (_dirty) {
+    if (_private->dirty) {
         std::ostringstream s;
-        s << "Save changes to \"" << (_filePath.has_value() ? util::getFileName(*_filePath) : "Untitled") << "\"?";
+        s << "Save changes to \""
+          << (_private->filePath.has_value() ? util::getFileName(*_private->filePath) : "Untitled") << "\"?";
         auto result = messageBox(s.str(), mfWarning | mfYesNoCancel);
         if (result == cmCancel) {
             return false;
         }
         if (result == cmYes) {
-            if (!onSave()) {
+            if (!onSave(_private)) {
                 return false;
             }
         }
@@ -203,22 +338,22 @@ void ProgramWindow::close() {
 }
 
 bool ProgramWindow::isDirty() const {
-    return _dirty;
+    return _private->dirty;
 }
 
 void ProgramWindow::addNewSourceMember(std::unique_ptr<SourceMember> sourceMember) {
-    _sourceProgram->members.push_back(std::move(sourceMember));
-    _contentsListBox->updateItems();
-    _dirty = true;
-    updateTitle();
+    _private->sourceProgram->members.push_back(std::move(sourceMember));
+    _private->contentsListBox->updateItems();
+    _private->dirty = true;
+    updateTitle(_private);
 }
 
 void ProgramWindow::updateListItems() {
-    _contentsListBox->updateItems();
+    _private->contentsListBox->updateItems();
 }
 
 void ProgramWindow::redrawListItems() {
-    _contentsListBox->drawView();
+    _private->contentsListBox->drawView();
 }
 
 }  // namespace tmbasic
