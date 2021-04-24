@@ -513,4 +513,7 @@ $(NAMEOF_DIR)/download:
 
 $(NAMEOF_DIR)/install: $(NAMEOF_DIR)/download
 	cd $(NAMEOF_DIR)/include && cp -f nameof.hpp $(NATIVE_PREFIX)/include/
+ifeq ($(TARGET_OS),win)
+	ln -s $(NATIVE_PREFIX)/include/nameof.hpp $(TARGET_PREFIX)/include/nameof.hpp
+endif
 	touch $@
