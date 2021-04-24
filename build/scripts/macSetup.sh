@@ -40,7 +40,7 @@ if [ ! -f "$PKGDIR/cmake-$CMAKE_VERSION" ]; then
     touch "$PKGDIR/cmake-$CMAKE_VERSION"
 fi
 
-export BOOST_VERSION=1.75.0
+export BOOST_VERSION=1.76.0
 if [ ! -f "$PKGDIR/boost-$BOOST_VERSION" ]
 then
     rm -rf boost_*/
@@ -89,7 +89,7 @@ then
     touch "$PKGDIR/googletest-$GOOGLETEST_VERSION"
 fi
 
-export IMMER_VERSION=4d1caac17daaea58b949e30c6b1d5d5b88a3b78e
+export IMMER_VERSION=39f86900ab2b077051ddb9a17213dbfac05584e0
 if [ ! -f "$PKGDIR/immer-$IMMER_VERSION" ]
 then
     rm -rf immer-*/
@@ -101,7 +101,7 @@ then
     touch "$PKGDIR/immer-$IMMER_VERSION"
 fi
 
-export TVISION_VERSION=ded9eba5f873f61976be737951a74d68da8dc942
+export TVISION_VERSION=dd5da212548ae0af7ac4a05456fae3d8b5211b5c
 if [ ! -f "$PKGDIR/tvision-$TVISION_VERSION" ]
 then
     rm -rf tvision-*/
@@ -227,7 +227,7 @@ then
     touch "$PKGDIR/libclipboard-$LIBCLIPBOARD_VERSION"
 fi
 
-export TURBO_VERSION=defc734d2621052806a4fa3510a91a8453895208
+export TURBO_VERSION=506457abf46ff467ba296fd774521c95a5c2540d
 if [ ! -f "$PKGDIR/turbo-$TURBO_VERSION" ]
 then
     rm -rf turbo-*/

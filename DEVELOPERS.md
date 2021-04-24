@@ -107,13 +107,11 @@ pngcrush -brute -reduce -ow screenshot.png
 
 1. Get the project link from [`ext/README.md`](https://github.com/electroly/tmbasic/blob/master/ext/README.md).
 1. Download the latest version, and copy the link to the clipboard. If this is a GitHub/Gitlab "Download ZIP" link, make sure it points to a specific commit hash.
-1. Upload to S3: `aws s3 cp foobar-X.X.X.tar.gz s3://tmbasic/foobar/ --acl public-read` (use downloaded filename)
-1. Edit [`ext/README.md`](https://github.com/electroly/tmbasic/blob/master/ext/README.md) and replace the download and mirror links.
-1. Update the URL in the following files:
+1. Upload to S3: `aws s3 cp ___ s3://tmbasic/___/ --acl public-read` (use downloaded filename)
+1. Edit [`ext/README.md`](https://github.com/electroly/tmbasic/blob/master/ext/README.md) and replace the version.
+1. Update the version in the following files:
     - `build/scripts/macSetup.sh`
-    - `build/files/Dockerfile.build-dev`
-    - `build/files/Dockerfile.build-linux`
-    - `build/files/Dockerfile.build-win`
+    - `build/files/deps.mk`
 1. Commit as "Update foobar to version ____" or "Update foobar to commit ____".
 
 ## Make a release build

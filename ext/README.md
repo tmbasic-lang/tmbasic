@@ -13,10 +13,10 @@ A mirror of external library sources is available in a [requester-pays](https://
 
 Component | Version | License
 -- | -- | --
-[boost](https://www.boost.org/) | 1.75.0 | [BSL-1.0](https://github.com/electroly/tmbasic/blob/master/ext/boost/LICENSE_1_0.txt)
+[boost](https://www.boost.org/) | 1.76.0 | [BSL-1.0](https://github.com/electroly/tmbasic/blob/master/ext/boost/LICENSE_1_0.txt)
 [fmt](https://github.com/fmtlib/fmt) | 7.1.3 | [MIT](https://github.com/electroly/tmbasic/blob/master/ext/fmt/LICENSE.rst)
 [icu](http://site.icu-project.org/) | 69.1 | [ICU](https://github.com/electroly/tmbasic/blob/master/ext/icu/LICENSE)
-[immer](https://github.com/arximboldi/immer) | 4d1caac | [BSL-1.0](https://github.com/electroly/tmbasic/blob/master/ext/immer/LICENSE)
+[immer](https://github.com/arximboldi/immer) | 39f8690 | [BSL-1.0](https://github.com/electroly/tmbasic/blob/master/ext/immer/LICENSE)
 [libclipboard](https://github.com/jtanx/libclipboard) | 1.1 | [MIT](https://github.com/electroly/tmbasic/blob/master/ext/libclipboard/LICENSE)
 [libstdc++](https://gcc.gnu.org/onlinedocs/libstdc++/) | 10.2.1_pre1-r3&nbsp;(L)<br>10.3.0&nbsp;(W) | [GPL-3.0-only](https://github.com/electroly/tmbasic/blob/master/ext/gcc/GPL-3) WITH [GCC-exception-3.1](https://github.com/electroly/tmbasic/blob/master/ext/gcc/copyright)
 [libXau](https://gitlab.freedesktop.org/xorg/lib/libxau) | 1.0.9 (L) | [MIT-open-group](https://github.com/electroly/tmbasic/blob/master/ext/libXau/COPYING)
@@ -24,8 +24,8 @@ Component | Version | License
 [mpdecimal](https://www.bytereef.org/mpdecimal/) | 2.5.1 | [BSD-2-Clause](https://github.com/electroly/tmbasic/blob/master/ext/mpdecimal/LICENSE.txt)
 [musl](https://musl.libc.org/) | 1.2.2-r0 (L) | [MIT](https://github.com/electroly/tmbasic/blob/master/ext/musl/COPYRIGHT)
 [ncurses](https://invisible-island.net/ncurses/) | 6.2 | [X11](https://github.com/electroly/tmbasic/blob/master/ext/ncurses/COPYING)
-[turbo](https://github.com/magiblot/turbo) | defc734 | [MIT](https://github.com/electroly/tmbasic/blob/master/ext/turbo/COPYRIGHT)
-[tvision](https://github.com/magiblot/tvision) | ded9eba | [Borland, MIT](https://github.com/electroly/tmbasic/blob/master/ext/tvision/COPYRIGHT)
+[turbo](https://github.com/magiblot/turbo) | 506457a | [MIT](https://github.com/electroly/tmbasic/blob/master/ext/turbo/COPYRIGHT)
+[tvision](https://github.com/magiblot/tvision) | dd5da21 | [Borland, MIT](https://github.com/electroly/tmbasic/blob/master/ext/tvision/COPYRIGHT)
 [scintilla](https://www.scintilla.org/) | Forked | [HPND](https://github.com/electroly/tmbasic/blob/master/ext/scintilla/License.txt)
 
 ## Libraries included only in TMBASIC
