@@ -62,8 +62,8 @@ PLATFORMS=linux_arm64 linux_arm32 linux_x64 linux_x86 mac_x64 mac_arm64  win_x64
 
 # We build several runners for each platform, each with a different length of dummy pcode. These sizes refer to the
 # length of that pcode in bytes.
-BZIPPED_RUNNER_SIZE=102400
-BSDIFFED_RUNNER_SIZES=524288 1048576 5242880
+BZIPPED_RUNNER_SIZE=524288
+BSDIFFED_RUNNER_SIZES=5242880
 RUNNER_SIZES=$(BZIPPED_RUNNER_SIZE) $(BSDIFFED_RUNNER_SIZES)
 
 # Input runner builds, which will be 0-byte files for debug builds. for full release builds, these runners will be built

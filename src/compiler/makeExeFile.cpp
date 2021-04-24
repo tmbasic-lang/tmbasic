@@ -9,82 +9,50 @@ using std::string;
 using std::vector;
 
 // linux_arm32
-extern uint8_t kResource_runner_linux_arm32_102400_bz2[];  // NOLINT(modernize-avoid-c-arrays)
-extern uint kResource_runner_linux_arm32_102400_bz2_len;
-extern uint8_t kResource_runner_linux_arm32_524288_bsdiff[];  // NOLINT(modernize-avoid-c-arrays)
-extern uint kResource_runner_linux_arm32_524288_bsdiff_len;
-extern uint8_t kResource_runner_linux_arm32_1048576_bsdiff[];  // NOLINT(modernize-avoid-c-arrays)
-extern uint kResource_runner_linux_arm32_1048576_bsdiff_len;
+extern uint8_t kResource_runner_linux_arm32_524288_bz2[];  // NOLINT(modernize-avoid-c-arrays)
+extern uint kResource_runner_linux_arm32_524288_bz2_len;
 extern uint8_t kResource_runner_linux_arm32_5242880_bsdiff[];  // NOLINT(modernize-avoid-c-arrays)
 extern uint kResource_runner_linux_arm32_5242880_bsdiff_len;
 
 // linux_arm64
-extern uint8_t kResource_runner_linux_arm64_102400_bz2[];  // NOLINT(modernize-avoid-c-arrays)
-extern uint kResource_runner_linux_arm64_102400_bz2_len;
-extern uint8_t kResource_runner_linux_arm64_524288_bsdiff[];  // NOLINT(modernize-avoid-c-arrays)
-extern uint kResource_runner_linux_arm64_524288_bsdiff_len;
-extern uint8_t kResource_runner_linux_arm64_1048576_bsdiff[];  // NOLINT(modernize-avoid-c-arrays)
-extern uint kResource_runner_linux_arm64_1048576_bsdiff_len;
+extern uint8_t kResource_runner_linux_arm64_524288_bz2[];  // NOLINT(modernize-avoid-c-arrays)
+extern uint kResource_runner_linux_arm64_524288_bz2_len;
 extern uint8_t kResource_runner_linux_arm64_5242880_bsdiff[];  // NOLINT(modernize-avoid-c-arrays)
 extern uint kResource_runner_linux_arm64_5242880_bsdiff_len;
 
 // linux_x86
-extern uint8_t kResource_runner_linux_x86_102400_bz2[];  // NOLINT(modernize-avoid-c-arrays)
-extern uint kResource_runner_linux_x86_102400_bz2_len;
-extern uint8_t kResource_runner_linux_x86_524288_bsdiff[];  // NOLINT(modernize-avoid-c-arrays)
-extern uint kResource_runner_linux_x86_524288_bsdiff_len;
-extern uint8_t kResource_runner_linux_x86_1048576_bsdiff[];  // NOLINT(modernize-avoid-c-arrays)
-extern uint kResource_runner_linux_x86_1048576_bsdiff_len;
+extern uint8_t kResource_runner_linux_x86_524288_bz2[];  // NOLINT(modernize-avoid-c-arrays)
+extern uint kResource_runner_linux_x86_524288_bz2_len;
 extern uint8_t kResource_runner_linux_x86_5242880_bsdiff[];  // NOLINT(modernize-avoid-c-arrays)
 extern uint kResource_runner_linux_x86_5242880_bsdiff_len;
 
 // linux_x64
-extern uint8_t kResource_runner_linux_x64_102400_bz2[];  // NOLINT(modernize-avoid-c-arrays)
-extern uint kResource_runner_linux_x64_102400_bz2_len;
-extern uint8_t kResource_runner_linux_x64_524288_bsdiff[];  // NOLINT(modernize-avoid-c-arrays)
-extern uint kResource_runner_linux_x64_524288_bsdiff_len;
-extern uint8_t kResource_runner_linux_x64_1048576_bsdiff[];  // NOLINT(modernize-avoid-c-arrays)
-extern uint kResource_runner_linux_x64_1048576_bsdiff_len;
+extern uint8_t kResource_runner_linux_x64_524288_bz2[];  // NOLINT(modernize-avoid-c-arrays)
+extern uint kResource_runner_linux_x64_524288_bz2_len;
 extern uint8_t kResource_runner_linux_x64_5242880_bsdiff[];  // NOLINT(modernize-avoid-c-arrays)
 extern uint kResource_runner_linux_x64_5242880_bsdiff_len;
 
 // mac_x64
-extern uint8_t kResource_runner_mac_x64_102400_bz2[];  // NOLINT(modernize-avoid-c-arrays)
-extern uint kResource_runner_mac_x64_102400_bz2_len;
-extern uint8_t kResource_runner_mac_x64_524288_bsdiff[];  // NOLINT(modernize-avoid-c-arrays)
-extern uint kResource_runner_mac_x64_524288_bsdiff_len;
-extern uint8_t kResource_runner_mac_x64_1048576_bsdiff[];  // NOLINT(modernize-avoid-c-arrays)
-extern uint kResource_runner_mac_x64_1048576_bsdiff_len;
+extern uint8_t kResource_runner_mac_x64_524288_bz2[];  // NOLINT(modernize-avoid-c-arrays)
+extern uint kResource_runner_mac_x64_524288_bz2_len;
 extern uint8_t kResource_runner_mac_x64_5242880_bsdiff[];  // NOLINT(modernize-avoid-c-arrays)
 extern uint kResource_runner_mac_x64_5242880_bsdiff_len;
 
 // mac_arm64
-extern uint8_t kResource_runner_mac_arm64_102400_bz2[];  // NOLINT(modernize-avoid-c-arrays)
-extern uint kResource_runner_mac_arm64_102400_bz2_len;
-extern uint8_t kResource_runner_mac_arm64_524288_bsdiff[];  // NOLINT(modernize-avoid-c-arrays)
-extern uint kResource_runner_mac_arm64_524288_bsdiff_len;
-extern uint8_t kResource_runner_mac_arm64_1048576_bsdiff[];  // NOLINT(modernize-avoid-c-arrays)
-extern uint kResource_runner_mac_arm64_1048576_bsdiff_len;
+extern uint8_t kResource_runner_mac_arm64_524288_bz2[];  // NOLINT(modernize-avoid-c-arrays)
+extern uint kResource_runner_mac_arm64_524288_bz2_len;
 extern uint8_t kResource_runner_mac_arm64_5242880_bsdiff[];  // NOLINT(modernize-avoid-c-arrays)
 extern uint kResource_runner_mac_arm64_5242880_bsdiff_len;
 
 // win_x86
-extern uint8_t kResource_runner_win_x86_102400_bz2[];  // NOLINT(modernize-avoid-c-arrays)
-extern uint kResource_runner_win_x86_102400_bz2_len;
-extern uint8_t kResource_runner_win_x86_524288_bsdiff[];  // NOLINT(modernize-avoid-c-arrays)
-extern uint kResource_runner_win_x86_524288_bsdiff_len;
-extern uint8_t kResource_runner_win_x86_1048576_bsdiff[];  // NOLINT(modernize-avoid-c-arrays)
-extern uint kResource_runner_win_x86_1048576_bsdiff_len;
+extern uint8_t kResource_runner_win_x86_524288_bz2[];  // NOLINT(modernize-avoid-c-arrays)
+extern uint kResource_runner_win_x86_524288_bz2_len;
 extern uint8_t kResource_runner_win_x86_5242880_bsdiff[];  // NOLINT(modernize-avoid-c-arrays)
 extern uint kResource_runner_win_x86_5242880_bsdiff_len;
 
 // win_x64
-extern uint8_t kResource_runner_win_x64_102400_bz2[];  // NOLINT(modernize-avoid-c-arrays)
-extern uint kResource_runner_win_x64_102400_bz2_len;
-extern uint8_t kResource_runner_win_x64_524288_bsdiff[];  // NOLINT(modernize-avoid-c-arrays)
-extern uint kResource_runner_win_x64_524288_bsdiff_len;
-extern uint8_t kResource_runner_win_x64_1048576_bsdiff[];  // NOLINT(modernize-avoid-c-arrays)
-extern uint kResource_runner_win_x64_1048576_bsdiff_len;
+extern uint8_t kResource_runner_win_x64_524288_bz2[];  // NOLINT(modernize-avoid-c-arrays)
+extern uint kResource_runner_win_x64_524288_bz2_len;
 extern uint8_t kResource_runner_win_x64_5242880_bsdiff[];  // NOLINT(modernize-avoid-c-arrays)
 extern uint kResource_runner_win_x64_5242880_bsdiff_len;
 
@@ -98,12 +66,8 @@ struct ResourceData {
 static ResourceData getRunnerCompressedData(TargetPlatform platform, int size) {
     switch (platform) {
         case TargetPlatform::kLinuxArm32:
-            if (size == 102400) {
-                return { kResource_runner_linux_arm32_102400_bz2, kResource_runner_linux_arm32_102400_bz2_len };
-            } else if (size == 524288) {
-                return { kResource_runner_linux_arm32_524288_bsdiff, kResource_runner_linux_arm32_524288_bsdiff_len };
-            } else if (size == 1048576) {
-                return { kResource_runner_linux_arm32_1048576_bsdiff, kResource_runner_linux_arm32_1048576_bsdiff_len };
+            if (size == 524288) {
+                return { kResource_runner_linux_arm32_524288_bz2, kResource_runner_linux_arm32_524288_bz2_len };
             } else if (size == 5242880) {
                 return { kResource_runner_linux_arm32_5242880_bsdiff, kResource_runner_linux_arm32_5242880_bsdiff_len };
             } else {
@@ -112,12 +76,8 @@ static ResourceData getRunnerCompressedData(TargetPlatform platform, int size) {
             }
 
         case TargetPlatform::kLinuxArm64:
-            if (size == 102400) {
-                return { kResource_runner_linux_arm64_102400_bz2, kResource_runner_linux_arm64_102400_bz2_len };
-            } else if (size == 524288) {
-                return { kResource_runner_linux_arm64_524288_bsdiff, kResource_runner_linux_arm64_524288_bsdiff_len };
-            } else if (size == 1048576) {
-                return { kResource_runner_linux_arm64_1048576_bsdiff, kResource_runner_linux_arm64_1048576_bsdiff_len };
+            if (size == 524288) {
+                return { kResource_runner_linux_arm64_524288_bz2, kResource_runner_linux_arm64_524288_bz2_len };
             } else if (size == 5242880) {
                 return { kResource_runner_linux_arm64_5242880_bsdiff, kResource_runner_linux_arm64_5242880_bsdiff_len };
             } else {
@@ -126,12 +86,8 @@ static ResourceData getRunnerCompressedData(TargetPlatform platform, int size) {
             }
 
         case TargetPlatform::kLinuxX86:
-            if (size == 102400) {
-                return { kResource_runner_linux_x86_102400_bz2, kResource_runner_linux_x86_102400_bz2_len };
-            } else if (size == 524288) {
-                return { kResource_runner_linux_x86_524288_bsdiff, kResource_runner_linux_x86_524288_bsdiff_len };
-            } else if (size == 1048576) {
-                return { kResource_runner_linux_x86_1048576_bsdiff, kResource_runner_linux_x86_1048576_bsdiff_len };
+            if (size == 524288) {
+                return { kResource_runner_linux_x86_524288_bz2, kResource_runner_linux_x86_524288_bz2_len };
             } else if (size == 5242880) {
                 return { kResource_runner_linux_x86_5242880_bsdiff, kResource_runner_linux_x86_5242880_bsdiff_len };
             } else {
@@ -140,12 +96,8 @@ static ResourceData getRunnerCompressedData(TargetPlatform platform, int size) {
             }
 
         case TargetPlatform::kLinuxX64:
-            if (size == 102400) {
-                return { kResource_runner_linux_x64_102400_bz2, kResource_runner_linux_x64_102400_bz2_len };
-            } else if (size == 524288) {
-                return { kResource_runner_linux_x64_524288_bsdiff, kResource_runner_linux_x64_524288_bsdiff_len };
-            } else if (size == 1048576) {
-                return { kResource_runner_linux_x64_1048576_bsdiff, kResource_runner_linux_x64_1048576_bsdiff_len };
+            if (size == 524288) {
+                return { kResource_runner_linux_x64_524288_bz2, kResource_runner_linux_x64_524288_bz2_len };
             } else if (size == 5242880) {
                 return { kResource_runner_linux_x64_5242880_bsdiff, kResource_runner_linux_x64_5242880_bsdiff_len };
             } else {
@@ -154,12 +106,8 @@ static ResourceData getRunnerCompressedData(TargetPlatform platform, int size) {
             }
 
         case TargetPlatform::kMacX64:
-            if (size == 102400) {
-                return { kResource_runner_mac_x64_102400_bz2, kResource_runner_mac_x64_102400_bz2_len };
-            } else if (size == 524288) {
-                return { kResource_runner_mac_x64_524288_bsdiff, kResource_runner_mac_x64_524288_bsdiff_len };
-            } else if (size == 1048576) {
-                return { kResource_runner_mac_x64_1048576_bsdiff, kResource_runner_mac_x64_1048576_bsdiff_len };
+            if (size == 524288) {
+                return { kResource_runner_mac_x64_524288_bz2, kResource_runner_mac_x64_524288_bz2_len };
             } else if (size == 5242880) {
                 return { kResource_runner_mac_x64_5242880_bsdiff, kResource_runner_mac_x64_5242880_bsdiff_len };
             } else {
@@ -168,12 +116,8 @@ static ResourceData getRunnerCompressedData(TargetPlatform platform, int size) {
             }
 
         case TargetPlatform::kMacArm64:
-            if (size == 102400) {
-                return { kResource_runner_mac_arm64_102400_bz2, kResource_runner_mac_arm64_102400_bz2_len };
-            } else if (size == 524288) {
-                return { kResource_runner_mac_arm64_524288_bsdiff, kResource_runner_mac_arm64_524288_bsdiff_len };
-            } else if (size == 1048576) {
-                return { kResource_runner_mac_arm64_1048576_bsdiff, kResource_runner_mac_arm64_1048576_bsdiff_len };
+            if (size == 524288) {
+                return { kResource_runner_mac_arm64_524288_bz2, kResource_runner_mac_arm64_524288_bz2_len };
             } else if (size == 5242880) {
                 return { kResource_runner_mac_arm64_5242880_bsdiff, kResource_runner_mac_arm64_5242880_bsdiff_len };
             } else {
@@ -182,12 +126,8 @@ static ResourceData getRunnerCompressedData(TargetPlatform platform, int size) {
             }
 
         case TargetPlatform::kWinX86:
-            if (size == 102400) {
-                return { kResource_runner_win_x86_102400_bz2, kResource_runner_win_x86_102400_bz2_len };
-            } else if (size == 524288) {
-                return { kResource_runner_win_x86_524288_bsdiff, kResource_runner_win_x86_524288_bsdiff_len };
-            } else if (size == 1048576) {
-                return { kResource_runner_win_x86_1048576_bsdiff, kResource_runner_win_x86_1048576_bsdiff_len };
+            if (size == 524288) {
+                return { kResource_runner_win_x86_524288_bz2, kResource_runner_win_x86_524288_bz2_len };
             } else if (size == 5242880) {
                 return { kResource_runner_win_x86_5242880_bsdiff, kResource_runner_win_x86_5242880_bsdiff_len };
             } else {
@@ -196,12 +136,8 @@ static ResourceData getRunnerCompressedData(TargetPlatform platform, int size) {
             }
 
         case TargetPlatform::kWinX64:
-            if (size == 102400) {
-                return { kResource_runner_win_x64_102400_bz2, kResource_runner_win_x64_102400_bz2_len };
-            } else if (size == 524288) {
-                return { kResource_runner_win_x64_524288_bsdiff, kResource_runner_win_x64_524288_bsdiff_len };
-            } else if (size == 1048576) {
-                return { kResource_runner_win_x64_1048576_bsdiff, kResource_runner_win_x64_1048576_bsdiff_len };
+            if (size == 524288) {
+                return { kResource_runner_win_x64_524288_bz2, kResource_runner_win_x64_524288_bz2_len };
             } else if (size == 5242880) {
                 return { kResource_runner_win_x64_5242880_bsdiff, kResource_runner_win_x64_5242880_bsdiff_len };
             } else {
@@ -216,24 +152,22 @@ static ResourceData getRunnerCompressedData(TargetPlatform platform, int size) {
 }
 
 static vector<uint8_t> getRunnerTemplate(TargetPlatform platform, size_t bytecodeSize) {
-    auto runner102400_bz2 = getRunnerCompressedData(platform, 102400);
-    auto runner102400 = decompressBz2(runner102400_bz2.data, runner102400_bz2.len);
-    if (bytecodeSize <= 102400) {
-        return runner102400;
+    auto runner524288_bz2 = getRunnerCompressedData(platform, 524288);
+    assert(runner524288_bz2.len > 0);
+    auto runner524288 = decompressBz2(runner524288_bz2.data, runner524288_bz2.len);
+    if (bytecodeSize <= 524288) {
+        return runner524288;
     }
 
     ResourceData runner_bsdiff{};
-    if (bytecodeSize <= 524288) {
-        runner_bsdiff = getRunnerCompressedData(platform, 524288);
-    } else if (bytecodeSize <= 1048576) {
-        runner_bsdiff = getRunnerCompressedData(platform, 1048576);
-    } else if (bytecodeSize <= 5242880) {
+    if (bytecodeSize <= 5242880) {
         runner_bsdiff = getRunnerCompressedData(platform, 5242880);
+        assert(runner_bsdiff.len > 0);
     } else {
         throw runtime_error("This program is too big!");
     }
 
-    return patchBsdiff(runner102400.data(), runner102400.size(), runner_bsdiff.data, runner_bsdiff.len);
+    return patchBsdiff(runner524288.data(), runner524288.size(), runner_bsdiff.data, runner_bsdiff.len);
 }
 
 static size_t findBytecodeIndex(const vector<uint8_t>& runnerBinary) {

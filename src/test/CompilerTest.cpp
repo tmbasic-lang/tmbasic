@@ -68,26 +68,14 @@ TEST(CompilerTest, Contains) {
     ASSERT_FALSE(contains(haystack, needle2));
 }
 
-TEST(CompilerTest, MakeExeFile102400) {
-    auto bytecode = buildDummyBytecode(1000);
+TEST(CompilerTest, MakeExeFile100_000) {
+    auto bytecode = buildDummyBytecode(100000);
     auto exe = makeExeFile(bytecode, getCurrentPlatform());
     ASSERT_TRUE(contains(exe, bytecode));
 }
 
-TEST(CompilerTest, MakeExeFile524288) {
-    auto bytecode = buildDummyBytecode(250000);
-    auto exe = makeExeFile(bytecode, getCurrentPlatform());
-    ASSERT_TRUE(contains(exe, bytecode));
-}
-
-TEST(CompilerTest, MakeExeFile1048576) {
-    auto bytecode = buildDummyBytecode(750000);
-    auto exe = makeExeFile(bytecode, getCurrentPlatform());
-    ASSERT_TRUE(contains(exe, bytecode));
-}
-
-TEST(CompilerTest, MakeExeFile5242880) {
-    auto bytecode = buildDummyBytecode(1100000);
+TEST(CompilerTest, MakeExeFile1_000_000) {
+    auto bytecode = buildDummyBytecode(1000000);
     auto exe = makeExeFile(bytecode, getCurrentPlatform());
     ASSERT_TRUE(contains(exe, bytecode));
 }
