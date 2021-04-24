@@ -2,6 +2,7 @@
 #include "tmbasic/constants.h"
 
 using compiler::SourceMemberType;
+using util::ListViewer;
 
 namespace tmbasic {
 
@@ -14,19 +15,19 @@ SourceMemberTypesListBox::SourceMemberTypesListBox(
     const TRect& bounds,
     uint16_t numCols,
     SourceMemberTypeSelectedFunc onSelectedFunc)
-    : util::ListViewer(bounds, numCols, nullptr, nullptr),
+    : ListViewer(bounds, numCols, nullptr, nullptr),
       _onSelectedFunc(std::move(onSelectedFunc)),
       _selectedType(SourceMemberType::kProcedure) {
     setRange(kSourceMemberTypeStrings.size());
 }
 
 void SourceMemberTypesListBox::getText(char* dest, int16_t item, int16_t maxLen) {
-    strncpy(dest, kSourceMemberTypeStrings[item].c_str(), maxLen);
+    strncpy(dest, kSourceMemberTypeStrings.at(item).c_str(), maxLen);
     dest[maxLen] = '\0';  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 }
 
 void SourceMemberTypesListBox::focusItem(int16_t item) {
-    TListViewer::focusItem(item);
+    ListViewer::focusItem(item);
     _selectedType = static_cast<SourceMemberType>(item);
     _onSelectedFunc();
 }

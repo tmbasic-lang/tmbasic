@@ -3,10 +3,11 @@
 #include "../compiler/SourceProgram.h"
 #include "../util/DialogPtr.h"
 #include "../util/StatusLine.h"
-#include "../util/WindowPtr.h"
 #include "../util/ViewPtr.h"
+#include "../util/WindowPtr.h"
 #include "../util/membuf.h"
 #include "AboutDialog.h"
+#include "AddProgramItemDialog.h"
 #include "DesignerWindow.h"
 #include "EditorWindow.h"
 #include "HelpWindow.h"
@@ -103,14 +104,10 @@ TMenuBar* App::initMenuBar(TRect r) {
         *new TMenuItem("Cu~t~", cmCut, kbCtrlX, hcNoContext, "Ctrl+X") +
         *new TMenuItem("~C~opy", cmCopy, kbCtrlC, hcNoContext, "Ctrl+C") +
         *new TMenuItem("~P~aste", cmPaste, kbCtrlV, hcNoContext, "Ctrl+V") + newLine() +
-        *new TMenuItem("Insert color...", kCmdEditInsertColor, kbNoKey) +
-        *new TMenuItem("Insert ~s~ymbol...", kCmdEditInsertSymbol, kbNoKey);
-
-    auto& viewMenu = *new TSubMenu("~V~iew", kbAltE) +
-        *new TMenuItem("~P~rogram", kCmdProgramContentsWindow, kbCtrlP, hcNoContext, "Ctrl+P");
+        *new TMenuItem("Insert co~l~or...", kCmdEditInsertColor, kbF1, hcNoContext, "F1") +
+        *new TMenuItem("Insert ~s~ymbol...", kCmdEditInsertSymbol, kbF2, hcNoContext, "F2");
 
     auto& programMenu = *new TSubMenu("~P~rogram", kbAltP) +
-        *new TMenuItem("~R~un", kCmdProgramRun, kbCtrlR, hcNoContext, "Ctrl+R") + newLine() +
         *new TMenuItem("Add ~s~ubroutine", kCmdProgramAddSubroutine, kbNoKey) +
         *new TMenuItem("Add ~f~unction", kCmdProgramAddFunction, kbNoKey) +
         *new TMenuItem("Add ~g~lobal variable", kCmdProgramAddGlobalVariable, kbNoKey) +
@@ -118,9 +115,11 @@ TMenuBar* App::initMenuBar(TRect r) {
         *new TMenuItem("Add ~t~ype", kCmdProgramAddType, kbNoKey) +
         *new TMenuItem("Add f~o~rm", kCmdProgramAddForm, kbNoKey) +
         *new TMenuItem("Add c~u~stom control", kCmdProgramAddCustomControl, kbNoKey) +
-        *new TMenuItem("Add ~p~icture", kCmdProgramAddPicture, kbNoKey);
+        *new TMenuItem("Add ~p~icture", kCmdProgramAddPicture, kbNoKey) + newLine() +
+        *new TMenuItem("~I~mport from .BAS...", kCmdProgramImportItem, kbNoKey, hcNoContext, "F2") + newLine() +
+        *new TMenuItem("~D~elete item", kCmdProgramDeleteItem, kbDel, hcNoContext, "Del");
 
-    auto& designMenu = *new TSubMenu("~D~esign", kbAltD) +
+    auto& designMenu = *new TSubMenu("De~s~ign", kbAltS) +
         *new TMenuItem("Add ~b~utton", kCmdDesignAddButton, kbNoKey) +
         *new TMenuItem("Add ~c~heck box", kCmdDesignAddCheckBox, kbNoKey) +
         *new TMenuItem("Add ~g~roup box", kCmdDesignAddGroupBox, kbNoKey) +
@@ -143,11 +142,15 @@ TMenuBar* App::initMenuBar(TRect r) {
         *new TMenuItem("~O~ptions", kCmdPictureOptions, kbF9, hcNoContext, "F9") + newLine() +
         *new TMenuItem("C~l~ear", kCmdPictureClear, kbDel, hcNoContext, "Del");
 
+    auto& debugMenu =
+        *new TSubMenu("~D~ebug", kbAltD) + *new TMenuItem("~R~un", kCmdProgramRun, kbCtrlR, hcNoContext, "Ctrl+R");
+
     auto& windowMenu = *new TSubMenu("~W~indow", kbAltW) +
+        *new TMenuItem("Program ~w~indow", kCmdProgramContentsWindow, kbCtrlP, hcNoContext, "Ctrl+P") + newLine() +
         *new TMenuItem("~S~ize/move", cmResize, kbAltDown, hcNoContext, "Alt+↓") +
         *new TMenuItem("~Z~oom", cmZoom, kbAltUp, hcNoContext, "Alt+↑") +
         *new TMenuItem("~N~ext", cmNext, kbAltRight, hcNoContext, "Alt+→") +
-        *new TMenuItem("~P~revious", cmPrev, kbAltLeft, hcNoContext, "Alt+←") +
+        *new TMenuItem("~P~revious", cmPrev, kbAltLeft, hcNoContext, "Alt+←") + newLine() +
         *new TMenuItem("~C~lose", cmClose, kbCtrlW, hcNoContext, "Ctrl+W");
 
     auto& helpMenu = *new TSubMenu("~H~elp", kbAltH) +
@@ -157,7 +160,7 @@ TMenuBar* App::initMenuBar(TRect r) {
     r.b.y = r.a.y + 1;
     // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
     return new TMenuBar(
-        r, fileMenu + editMenu + viewMenu + programMenu + designMenu + pictureMenu + windowMenu + helpMenu);
+        r, fileMenu + editMenu + programMenu + designMenu + pictureMenu + debugMenu + windowMenu + helpMenu);
 }
 
 TStatusLine* App::initStatusLine(TRect r) {
@@ -166,18 +169,20 @@ TStatusLine* App::initStatusLine(TRect r) {
     auto& appStatusDef = *new TStatusDef(0, 0xFFFF);
 
     auto& editorWindowStatusDef = *new TStatusDef(hcide_editorWindow, hcide_editorWindow) +
-        *new TStatusItem("~Ctrl+P~ View program", kbNoKey, kCmdProgramContentsWindow) +
-        *new TStatusItem("~Ctrl+W~ Close editor", kbNoKey, cmClose);
+        *new TStatusItem("~F1~ Insert color", kbF1, kCmdEditInsertColor) +
+        *new TStatusItem("~F2~ Insert symbol", kbF2, kCmdEditInsertSymbol);
+
     editorWindowStatusDef.next = &appStatusDef;
 
     auto& designerWindowStatusDef = *new TStatusDef(hcide_designerWindow, hcide_designerWindow) +
-        *new TStatusItem("~Ctrl+P~ View program", kbNoKey, kCmdProgramContentsWindow) +
-        *new TStatusItem("~Ctrl+W~ Close designer", kbNoKey, cmClose) + *new TStatusItem("~F10~ Menu", kbF10, cmMenu);
+        *new TStatusItem("~Ctrl+P~ Program window", kbNoKey, kCmdProgramContentsWindow) +
+        *new TStatusItem("~Ctrl+W~ Close designer", kbNoKey, cmClose);
     designerWindowStatusDef.next = &editorWindowStatusDef;
 
     auto& programWindowStatusDef = *new TStatusDef(hcide_programWindow, hcide_programWindow) +
-        *new TStatusItem("~Ctrl+S~ Save", kbNoKey, cmSave) + *new TStatusItem("~Ctrl+R~ Run", kbNoKey, kCmdProgramRun) +
-        *new TStatusItem("~F10~ Menu", kbF10, cmMenu);
+        *new TStatusItem("~F1~ Add new item", kbF1, kCmdProgramAddItem) +
+        *new TStatusItem("~F2~ Import from .BAS", kbF2, kCmdProgramImportItem) +
+        *new TStatusItem("~Del~ Delete", kbDel, kCmdProgramDeleteItem);
     programWindowStatusDef.next = &designerWindowStatusDef;
 
     ViewPtr<TStatusItem> fg{ "~F1~ FG", kbF1, kCmdPictureFg };
@@ -387,6 +392,17 @@ bool App::handleCommand(TEvent* event) {
                 _pictureWindow->onStatusLineCommand(event->message.command);
             }
             return true;
+
+        case kCmdProgramAddItem: {
+            DialogPtr<AddProgramItemDialog> d{};
+            auto cmd = deskTop->execView(d.get());
+            if (cmd != cmCancel) {
+                TEvent addEvent{ evCommand };
+                addEvent.message.command = cmd;
+                handleCommand(&addEvent);
+            }
+            return true;
+        }
 
         default:
             return false;

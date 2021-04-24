@@ -4,6 +4,7 @@
 using compiler::SourceMember;
 using compiler::SourceMemberType;
 using compiler::SourceProgram;
+using util::ListViewer;
 
 namespace tmbasic {
 
@@ -13,7 +14,7 @@ SourceMembersListBox::SourceMembersListBox(
     util::ScrollBar* vScrollBar,
     const SourceProgram& program,
     std::function<void(SourceMember*)> onMemberOpen)
-    : util::ListViewer(bounds, numCols, nullptr, vScrollBar),
+    : ListViewer(bounds, numCols, nullptr, vScrollBar),
       _program(program),
       _selectedType(SourceMemberType::kProcedure),
       _onMemberOpen(std::move(onMemberOpen)) {
@@ -30,7 +31,7 @@ void SourceMembersListBox::selectType(SourceMemberType type) {
 }
 
 void SourceMembersListBox::updateItems() {
-    auto* selectedMember = focused >= 0 && static_cast<size_t>(focused) < _items.size() ? _items[focused] : nullptr;
+    auto* selectedMember = focused >= 0 && static_cast<size_t>(focused) < _items.size() ? _items.at(focused) : nullptr;
 
     _items.clear();
 
@@ -49,7 +50,7 @@ void SourceMembersListBox::updateItems() {
 
     focused = 0;
     for (size_t i = 0; i < _items.size(); i++) {
-        if (_items[i] == selectedMember) {
+        if (_items.at(i) == selectedMember) {
             focused = i;
             break;
         }
@@ -60,7 +61,7 @@ void SourceMembersListBox::updateItems() {
 
 void SourceMembersListBox::getText(char* dest, int16_t item, int16_t maxLen) {
     if (item >= 0 && static_cast<size_t>(item) < _items.size()) {
-        strncpy(dest, _items[item]->displayName.c_str(), maxLen);
+        strncpy(dest, _items.at(item)->displayName.c_str(), maxLen);
         dest[maxLen] = '\0';  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     } else {
         dest[0] = '\0';  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
@@ -69,12 +70,12 @@ void SourceMembersListBox::getText(char* dest, int16_t item, int16_t maxLen) {
 
 void SourceMembersListBox::selectItem(int16_t item) {
     openMember(item);
-    TListViewer::selectItem(item);
+    ListViewer::selectItem(item);
 }
 
 void SourceMembersListBox::openMember(int16_t index) {
     if (index >= 0 && static_cast<size_t>(index) < _items.size()) {
-        _onMemberOpen(_items[index]);
+        _onMemberOpen(_items.at(index));
     }
 }
 };  // namespace tmbasic
