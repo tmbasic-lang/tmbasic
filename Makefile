@@ -105,10 +105,10 @@ ALL_NON_TEST_CPP_FILES=$(COMPILER_SRC_FILES) $(RUNNER_SRC_FILES) $(UTIL_SRC_FILE
 TIDY_TARGETS=$(patsubst src/%,obj/tidy/%,$(ALL_NON_TEST_CPP_FILES:.cpp=.tidy))
 
 # ghpages files
-FAVICON_IN_FILES=$(shell find art/favicon -type f)
-FAVICON_OUT_FILES=$(patsubst art/favicon/%,bin/ghpages/%,$(FAVICON_IN_FILES))
-PNG_IN_FILES=$(shell find art -maxdepth 1 -type f -name "*.png")
-PNG_OUT_FILES=$(patsubst art/%,bin/ghpages/%,$(PNG_IN_FILES))
+FAVICON_IN_FILES=$(shell find doc/art/favicon -type f)
+FAVICON_OUT_FILES=$(patsubst doc/art/favicon/%,bin/ghpages/%,$(FAVICON_IN_FILES))
+PNG_IN_FILES=$(shell find doc/art/ -maxdepth 1 -type f -name "*.png")
+PNG_OUT_FILES=$(patsubst doc/art/%,bin/ghpages/%,$(PNG_IN_FILES))
 
 # help files
 TOPIC_SRC_FILES=$(shell find doc/help/topics -type f -name "*.txt")
@@ -457,12 +457,12 @@ bin/ghpages/index.html: README.md \
 	@pandoc --from=markdown --to=html $< >> $@
 	@cat doc/help/html/page-template-3.html >> $@
 
-$(FAVICON_OUT_FILES): bin/ghpages/%: art/favicon/%
+$(FAVICON_OUT_FILES): bin/ghpages/%: doc/art/favicon/%
 	@printf "%16s  %s\n" "cp" "$@"
 	@mkdir -p $(@D)
 	@cp -f $< $@
 
-$(PNG_OUT_FILES): bin/ghpages/%: art/%
+$(PNG_OUT_FILES): bin/ghpages/%: doc/art/%
 	@printf "%16s  %s\n" "cp" "$@"
 	@mkdir -p $(@D)
 	@cp -f $< $@
@@ -681,7 +681,7 @@ bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
 	@$(STRIP) bin/tmbasic$(EXE_EXTENSION)
 
 ifeq ($(TARGET_OS),win)
-obj/tmbasic/AppWin.res.o: src/tmbasic/AppWin.rc art/favicon/favicon.ico
+obj/tmbasic/AppWin.res.o: src/tmbasic/AppWin.rc doc/art/favicon/favicon.ico
 	@printf "%16s  %s\n" "$(WINDRES)" "$@"
 	@mkdir -p $(@D)
 	@$(WINDRES) $< -o $@

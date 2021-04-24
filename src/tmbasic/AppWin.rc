@@ -1,4 +1,4 @@
-kAppIcon ICON "art/favicon/favicon.ico"
+kAppIcon ICON "doc/art/favicon/favicon.ico"
 
 1 VERSIONINFO
 FILEVERSION     1,0,0,0
