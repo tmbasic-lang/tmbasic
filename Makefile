@@ -285,14 +285,6 @@ else
 LDFLAGS += -lncursesw
 endif
 
-# Linker flag to include libtinfo. We don't normally need libtinfo because we build ncurses without it, but for
-# development builds we use an Ubuntu package that does need it.
-ifeq ($(TARGET_OS),linux)
-ifeq ($(LINUX_DISTRO),ubuntu)
-LDFLAGS += -ltinfo
-endif
-endif
-
 # Linker flag to include libmpdec and libmpdec++ (mpdecimal).
 ifeq ($(TARGET_OS),win)
 LDFLAGS += /usr/$(ARCH)-w64-mingw32/lib/libmpdec.a /usr/$(ARCH)-w64-mingw32/lib/libmpdec++.a

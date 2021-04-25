@@ -119,6 +119,7 @@ ifneq ($(LINUX_DISTRO),alpine)
 	curl -L https://github.com/Kitware/CMake/releases/download/v$(CMAKE_VERSION)/cmake-$(CMAKE_VERSION)-linux-$(shell uname -m).tar.gz \
 		| tar zx --strip-components=1 -C $(NATIVE_PREFIX)
 endif
+	mkdir -p $(@D)
 endif
 	touch $@
 
