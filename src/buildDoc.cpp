@@ -625,7 +625,8 @@ static string insertDiagram(string input, const string& dir, const string& filen
 }
 
 static string insertDiagrams(string text) {
-    forEachFile("help/diagrams", [&text](auto filename) -> void { text = insertDiagram(text, "help/diagrams/", filename); });
+    forEachFile(
+        "help/diagrams", [&text](auto filename) -> void { text = insertDiagram(text, "help/diagrams/", filename); });
     forEachFile("../obj/doc-temp/diagrams-license", [&text](auto filename) -> void {
         text = insertDiagram(text, "../obj/doc-temp/diagrams-license/", filename);
     });

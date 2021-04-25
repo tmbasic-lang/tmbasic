@@ -2160,7 +2160,7 @@ class InputState {
 
     const Token& currentToken() {
         if (tokenIndex < tokens.size()) {
-            return tokens[tokenIndex];
+            return tokens.at(tokenIndex);
         }
         return _endOfFileToken;
     }
@@ -2276,8 +2276,7 @@ class ParseStackFrame {
     const Term* term = nullptr;
     const Production* production = nullptr;
 
-    std::unique_ptr<ProductionState> productionState = nullptr;  // when production != nullptr
-    ProductionState* productionStateRef = nullptr;               // when production == nullptr
+    boost::local_shared_ptr<ProductionState> productionState = nullptr;
     std::unique_ptr<Checkpoint> checkpoint = nullptr;
     std::unique_ptr<TermResult> subTermResult = nullptr;
     bool previousCutStatus = false;                           // when term->type == kOptional or kZeroOrMore
@@ -2285,21 +2284,22 @@ class ParseStackFrame {
 
     size_t step = 0;
 
-    ParseStackFrame() : productionState(std::make_unique<ProductionState>(Token(0, 0, TokenKind::kEndOfFile, ""))) {
-        productionStateRef = productionState.get();
-    }
+    ParseStackFrame()
+        : productionState(boost::make_local_shared<ProductionState>(Token(0, 0, TokenKind::kEndOfFile, ""))) {}
     ParseStackFrame(
         const Production& production,
         InputState* inputState,
-        std::unique_ptr<ProductionState> takeProductionState)
-        : production(&production), checkpoint(std::make_unique<Checkpoint>(inputState, *takeProductionState)) {
-        productionState = std::move(takeProductionState);
-        productionStateRef = productionState.get();
-    }
-    ParseStackFrame(const Term& term, InputState* inputState, ProductionState* productionState)
+        const boost::local_shared_ptr<ProductionState>& productionState)
+        : production(&production),
+          checkpoint(std::make_unique<Checkpoint>(inputState, *productionState)),
+          productionState(productionState) {}
+    ParseStackFrame(
+        const Term& term,
+        InputState* inputState,
+        const boost::local_shared_ptr<ProductionState>& productionState)
         : term(&term),
           checkpoint(std::make_unique<Checkpoint>(inputState, *productionState)),
-          productionStateRef(productionState) {}
+          productionState(productionState) {}
 };
 
 static Token peekToken(const InputState* inputState) {
@@ -2359,7 +2359,7 @@ static void pumpParseAnd(
         // receive subTerms[step-1]
         if (!frame->subTermResult->isMatch) {
             auto result = std::move(frame->subTermResult);
-            frame->checkpoint->revert(inputState, frame->productionStateRef);
+            frame->checkpoint->revert(inputState, frame->productionState.get());
             stack->pop();
             stack->top()->subTermResult = std::move(result);
             return;
@@ -2369,7 +2369,7 @@ static void pumpParseAnd(
     if (frame->step < frame->term->subTerms.size()) {
         // start subTerms[step]
         const auto& subTerm = frame->term->subTerms[frame->step];
-        stack->push(std::make_unique<ParseStackFrame>(subTerm, inputState, frame->productionStateRef));
+        stack->push(std::make_unique<ParseStackFrame>(subTerm, inputState, frame->productionState));
         frame->subTermResult = nullptr;
         frame->step++;
     } else {
@@ -2389,14 +2389,14 @@ static void pumpParseCapture(
     if (frame->step == 0) {
         // start subTerms[0]
         const auto& subTerm = frame->term->subTerms[0];
-        stack->push(std::make_unique<ParseStackFrame>(subTerm, inputState, frame->productionStateRef));
+        stack->push(std::make_unique<ParseStackFrame>(subTerm, inputState, frame->productionState));
         frame->subTermResult = nullptr;
         frame->step++;
     } else {
         // receive subTerms[0]
         if (frame->subTermResult->isMatch) {
-            frame->productionStateRef->captures[frame->term->captureId] = appendCapture(
-                std::move(frame->productionStateRef->captures[frame->term->captureId]),
+            frame->productionState->captures[frame->term->captureId] = appendCapture(
+                std::move(frame->productionState->captures[frame->term->captureId]),
                 std::move(frame->subTermResult->box));
             stack->pop();
             stack->top()->subTermResult = TermResult::newSuccess();
@@ -2410,7 +2410,7 @@ static void pumpParseCapture(
 
 static void pumpParseCut(ParseStackFrame* frame, std::stack<std::unique_ptr<ParseStackFrame>>* stack) {
     // single step
-    frame->productionStateRef->cutHasBeenHit = true;
+    frame->productionState->cutHasBeenHit = true;
     stack->pop();
     stack->top()->subTermResult = TermResult::newSuccess();
 }
@@ -2451,7 +2451,7 @@ static void pumpParseOptional(
         // receive subTerms[step-1]
         if (!frame->subTermResult->isMatch) {
             auto result = std::move(frame->subTermResult);
-            frame->checkpoint->revert(inputState, frame->productionStateRef);
+            frame->checkpoint->revert(inputState, frame->productionState.get());
             stack->pop();
             // if it didn't match (but isn't an error), that's fine because this was optional
             stack->top()->subTermResult = result->isError ? std::move(result) : TermResult::newSuccess();
@@ -2462,7 +2462,7 @@ static void pumpParseOptional(
     if (frame->step < frame->term->subTerms.size()) {
         // start subTerms[step]
         const auto& subTerm = frame->term->subTerms[frame->step];
-        stack->push(std::make_unique<ParseStackFrame>(subTerm, inputState, frame->productionStateRef));
+        stack->push(std::make_unique<ParseStackFrame>(subTerm, inputState, frame->productionState));
         frame->subTermResult = nullptr;
         frame->step++;
     } else {
@@ -2490,21 +2490,21 @@ static void pumpParseOr(
             return;
         }
         auto result = std::move(frame->subTermResult);
-        frame->checkpoint->revert(inputState, frame->productionStateRef);
+        frame->checkpoint->revert(inputState, frame->productionState.get());
         // it's fine, try the next one
     }
 
     if (frame->step < frame->term->subTerms.size()) {
         // start subTerms[step]
         const auto& subTerm = frame->term->subTerms[frame->step];
-        stack->push(std::make_unique<ParseStackFrame>(subTerm, inputState, frame->productionStateRef));
+        stack->push(std::make_unique<ParseStackFrame>(subTerm, inputState, frame->productionState));
         frame->subTermResult = nullptr;
         frame->step++;
     } else {
         // if we made it this far, then none matched. return
         stack->pop();
         stack->top()->subTermResult =
-            TermResult::newMismatchOrError(*frame->productionStateRef, *frame->term, inputState->currentToken());
+            TermResult::newMismatchOrError(*frame->productionState, *frame->term, inputState->currentToken());
     }
 }
 
@@ -2519,11 +2519,11 @@ static void pumpParseTerminal(
         stack->pop();
         stack->top()->subTermResult = TermResult::newSuccess(tokenBox(terminalToken));
     } else {
-        frame->checkpoint->revert(inputState, frame->productionStateRef);
+        frame->checkpoint->revert(inputState, frame->productionState.get());
         const auto& term = *frame->term;
         stack->pop();
         stack->top()->subTermResult =
-            TermResult::newMismatchOrError(*frame->productionStateRef, term, inputState->currentToken());
+            TermResult::newMismatchOrError(*frame->productionState, term, inputState->currentToken());
     }
 }
 
@@ -2536,9 +2536,9 @@ static void pumpParseZeroOrMore(
 
     if (frame->step > 0) {
         // receive subTerms[0]
-        frame->productionStateRef->cutHasBeenHit = frame->previousCutStatus;
+        frame->productionState->cutHasBeenHit = frame->previousCutStatus;
         if (!frame->subTermResult->isMatch) {
-            frame->elementCheckpoint->revert(inputState, frame->productionStateRef);
+            frame->elementCheckpoint->revert(inputState, frame->productionState.get());
             if (frame->subTermResult->isError) {
                 // it matched up to the cut, so this is an error
                 stack->pop();
@@ -2553,10 +2553,10 @@ static void pumpParseZeroOrMore(
     }
 
     // start subTerms[0]
-    frame->elementCheckpoint = std::make_unique<Checkpoint>(inputState, *frame->productionStateRef);
-    frame->previousCutStatus = frame->productionStateRef->cutHasBeenHit;
-    frame->productionStateRef->cutHasBeenHit = false;
-    stack->push(std::make_unique<ParseStackFrame>(frame->term->subTerms[0], inputState, frame->productionStateRef));
+    frame->elementCheckpoint = std::make_unique<Checkpoint>(inputState, *frame->productionState);
+    frame->previousCutStatus = frame->productionState->cutHasBeenHit;
+    frame->productionState->cutHasBeenHit = false;
+    stack->push(std::make_unique<ParseStackFrame>(frame->term->subTerms[0], inputState, frame->productionState));
     frame->subTermResult = nullptr;
     frame->step++;
 }
@@ -2570,15 +2570,14 @@ static void pumpParseProduction(
 
     if (frame->step == 0) {
         // start listTerm
-        stack->push(
-            std::make_unique<ParseStackFrame>(frame->production->listTerm, inputState, frame->productionStateRef));
+        stack->push(std::make_unique<ParseStackFrame>(frame->production->listTerm, inputState, frame->productionState));
         frame->subTermResult = nullptr;
         frame->step++;
     } else {
         // receive listTerm
         if (frame->subTermResult->isMatch) {
             auto termResult = TermResult::newSuccess(
-                frame->production->parse(&frame->productionStateRef->captures, frame->productionStateRef->firstToken));
+                frame->production->parse(&frame->productionState->captures, frame->productionState->firstToken));
             stack->pop();
             stack->top()->subTermResult = std::move(termResult);
         } else {
