@@ -2502,9 +2502,9 @@ static void pumpParseOr(
         frame->step++;
     } else {
         // if we made it this far, then none matched. return
+        auto result = TermResult::newMismatchOrError(*frame->productionState, *frame->term, inputState->currentToken());
         stack->pop();
-        stack->top()->subTermResult =
-            TermResult::newMismatchOrError(*frame->productionState, *frame->term, inputState->currentToken());
+        stack->top()->subTermResult = std::move(result);
     }
 }
 
@@ -2520,10 +2520,9 @@ static void pumpParseTerminal(
         stack->top()->subTermResult = TermResult::newSuccess(tokenBox(terminalToken));
     } else {
         frame->checkpoint->revert(inputState, frame->productionState.get());
-        const auto& term = *frame->term;
+        auto result = TermResult::newMismatchOrError(*frame->productionState, *frame->term, inputState->currentToken());
         stack->pop();
-        stack->top()->subTermResult =
-            TermResult::newMismatchOrError(*frame->productionState, term, inputState->currentToken());
+        stack->top()->subTermResult = std::move(result);
     }
 }
 
@@ -2541,8 +2540,9 @@ static void pumpParseZeroOrMore(
             frame->elementCheckpoint->revert(inputState, frame->productionState.get());
             if (frame->subTermResult->isError) {
                 // it matched up to the cut, so this is an error
+                auto result = std::move(frame->subTermResult);
                 stack->pop();
-                stack->top()->subTermResult = std::move(frame->subTermResult);
+                stack->top()->subTermResult = std::move(result);
             } else {
                 // it's ok, end of the list
                 stack->pop();
