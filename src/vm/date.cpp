@@ -5,22 +5,26 @@
 
 namespace vm {
 
-// temp, must be cleared before each use
-static std::unique_ptr<icu::Calendar> _defaultCalendar;
-
-void initDate() {
-    auto icuErrorCode = U_ZERO_ERROR;
-    _defaultCalendar = std::unique_ptr<icu::Calendar>(icu::Calendar::createInstance(icuErrorCode));
-    if (icuErrorCode != U_ZERO_ERROR) {
-        throw std::runtime_error("Failed to construct the default calendar.");
+static icu::Calendar* getDefaultCalendar() {
+    static std::unique_ptr<icu::Calendar> defaultCalendar{};
+    if (defaultCalendar == nullptr) {
+        auto icuErrorCode = U_ZERO_ERROR;
+        defaultCalendar = std::unique_ptr<icu::Calendar>(icu::Calendar::createInstance(icuErrorCode));
+        if (icuErrorCode != U_ZERO_ERROR) {
+            throw std::runtime_error("Failed to construct the default calendar.");
+        }
     }
+
+    defaultCalendar->clear();
+    defaultCalendar->setTimeZone(*icu::TimeZone::getGMT());
+    return defaultCalendar.get();
 }
 
 Value newDate(int year, int month, int day) {
-    _defaultCalendar->clear();
-    _defaultCalendar->set(year, month - 1, day);
+    auto* cal = getDefaultCalendar();
+    cal->set(year, month - 1, day);
     auto icuErrorCode = U_ZERO_ERROR;
-    auto udate = _defaultCalendar->getTime(icuErrorCode);
+    auto udate = cal->getTime(icuErrorCode);
     if (icuErrorCode != U_ZERO_ERROR) {
         throw Error(ErrorCode::kInvalidDateTime, "The date is invalid.");
     }
@@ -28,11 +32,11 @@ Value newDate(int year, int month, int day) {
 }
 
 Value newDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond) {
-    _defaultCalendar->clear();
-    _defaultCalendar->set(year, month - 1, day, hour, minute, second);
-    _defaultCalendar->set(UCAL_MILLISECOND, millisecond);
+    auto* cal = getDefaultCalendar();
+    cal->set(year, month - 1, day, hour, minute, second);
+    cal->set(UCAL_MILLISECOND, millisecond);
     auto icuErrorCode = U_ZERO_ERROR;
-    auto udate = _defaultCalendar->getTime(icuErrorCode);
+    auto udate = cal->getTime(icuErrorCode);
     if (icuErrorCode != U_ZERO_ERROR) {
         throw Error(ErrorCode::kInvalidDateTime, "The date is invalid.");
     }
