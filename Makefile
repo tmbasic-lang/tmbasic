@@ -214,7 +214,7 @@ CXXFLAGS += -arch x86_64 -mmacosx-version-min=10.13
 else
 CXXFLAGS += -arch arm64 -mmacosx-version-min=11.0
 endif
-CXXFLAGS += -isystem $(PREFIX)/include -isystem
+CXXFLAGS += -isystem $(PREFIX)/include
 endif
 ifeq ($(TARGET_OS),win)
 CXXFLAGS += \
@@ -353,8 +353,6 @@ versions:
 endif
 
 .PHONY: help
-# only show the help text in the dev container
-ifeq ($(LINUX_DISTRO),ubuntu)
 help: versions
 	@echo "Target: $(TARGET_OS) $(ARCH)"
 	@echo ""
@@ -365,6 +363,7 @@ help: versions
 	@echo "make run           Run TMBASIC"
 	@echo "make test          Run tests"
 	@echo "make clean         Delete build outputs"
+ifeq ($(LINUX_DISTRO),ubuntu)
 	@echo "make valgrind      Run TMBASIC with valgrind"
 	@echo "make format        Reformat code"
 	@echo "make lint          Check code with cpplint"
@@ -372,10 +371,8 @@ help: versions
 	@echo "make tidy-commit   Check 'git status' files with clang-tidy"
 	@echo "make ghpages       Build tmbasic-gh-pages"
 	@echo "make ghpages-test  Host tmbasic-gh-pages on port 5000"
-	@echo ""
-else
-help: versions
 endif
+	@echo ""
 
 .PHONY: release
 release:

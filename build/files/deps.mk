@@ -32,7 +32,9 @@ endif
 
 ifneq ($(TARGET_OS),linux)
 ifneq ($(TARGET_OS),win)
+ifneq ($(TARGET_OS),mac)
 $(error Unknown TARGET_OS '$(TARGET_OS)')
+endif
 endif
 endif
 
@@ -44,6 +46,25 @@ endif
 endif
 endif
 
+ifeq ($(TARGET_OS),mac)
+ifeq ($(ARCH),x86_64)
+MACARCH=x86_64
+MACVER=10.13
+MACTRIPLE=x86_64-apple-macos10.13
+endif
+ifeq ($(ARCH),arm64v8)
+MACARCH=arm64
+MACVER=11.0
+MACTRIPLE=arm64-apple-macos11
+endif
+CMAKE_FLAGS += -DCMAKE_OSX_ARCHITECTURES="$(MACARCH)" -DCMAKE_OSX_DEPLOYMENT_TARGET="$(MACVER)"
+endif
+
+ifeq ($(TARGET_OS),mac)
+CFLAGS += -arch $(MACARCH) -mmacosx-version-min=$(MACVER)
+endif
+
+# these match the directory name in the tarballs that we download
 BOOST_DIR=$(PWD)/boost_$(shell echo $(BOOST_VERSION) | tr '.' '_')
 BSDIFF_DIR=$(PWD)/bsdiff-$(BSDIFF_VERSION)
 BZIP2_DIR=$(PWD)/bzip2-$(BZIP2_VERSION)
@@ -61,6 +82,12 @@ TURBO_DIR=$(PWD)/turbo-$(TURBO_VERSION)
 TVISION_DIR=$(PWD)/tvision-$(TVISION_VERSION)
 XCBPROTO_DIR=$(PWD)/xcb-proto-$(XCBPROTO_VERSION)
 XORGPROTO_DIR=$(PWD)/xorgproto-$(XORGPROTO_VERSION)
+
+ifeq ($(TARGET_OS),mac)
+CMAKE_DIR=$(PWD)/cmake-$(CMAKE_VERSION)-macos-universal
+else
+CMAKE_DIR=$(PWD)/cmake-$(CMAKE_VERSION)-linux-$(shell uname -m)
+endif
 
 ifeq ($(TARGET_OS),win)
 CMAKE_TOOLCHAIN_FLAG=-DCMAKE_TOOLCHAIN_FILE=/tmp/toolchain-cross-mingw64-linux-$(ARCH).cmake
@@ -80,15 +107,25 @@ all: $(NCURSES_DIR)/install $(GOOGLETEST_DIR)/install $(BSDIFF_DIR)/install $(BZ
 # cmake ---------------------------------------------------------------------------------------------------------------
 
 $(CMAKE_DIR)/install:
+ifeq ($(TARGET_OS),mac)
+	curl -L https://github.com/Kitware/CMake/releases/download/v$(CMAKE_VERSION)/cmake-$(CMAKE_VERSION)-macos-universal.tar.gz | tar zx
+	ls -l $(CMAKE_DIR)/CMake.app/Contents/bin/*
+	cp -rf $(CMAKE_DIR)/CMake.app/Contents/bin/* "$(NATIVE_PREFIX)/bin/"
+	cp -rf $(CMAKE_DIR)/CMake.app/Contents/doc/* "$(NATIVE_PREFIX)/doc/"
+	cp -rf $(CMAKE_DIR)/CMake.app/Contents/man/* "$(NATIVE_PREFIX)/man/"
+	cp -rf $(CMAKE_DIR)/CMake.app/Contents/share/* "$(NATIVE_PREFIX)/share/"
+else
 ifneq ($(LINUX_DISTRO),alpine)
 	curl -L https://github.com/Kitware/CMake/releases/download/v$(CMAKE_VERSION)/cmake-$(CMAKE_VERSION)-linux-$(shell uname -m).tar.gz \
 		| tar zx --strip-components=1 -C $(NATIVE_PREFIX)
+endif
 endif
 	touch $@
 
 
 
 # ncurses -------------------------------------------------------------------------------------------------------------
+
 $(NCURSES_DIR)/download:
 	curl -L https://invisible-mirror.net/archives/ncurses/ncurses-$(NCURSES_VERSION).tar.gz | tar zx
 	touch $@
@@ -135,7 +172,7 @@ endif
 ifeq ($(TARGET_OS),linux)
 $(NCURSES_DIR)/install: $(NCURSES_DIR)/download
 	cd $(NCURSES_DIR) && \
-	    mkdir -p build && \
+		mkdir -p build && \
 		cd build && \
 		../configure && \
 		$(MAKE) -C include && \
@@ -164,6 +201,12 @@ $(NCURSES_DIR)/install: $(NCURSES_DIR)/download
 	touch $@
 endif
 
+ifeq ($(TARGET_OS),mac)
+$(NCURSES_DIR)/install:
+	mkdir -p $(@D)
+	touch $@
+endif
+
 
 
 # googletest ----------------------------------------------------------------------------------------------------------
@@ -177,6 +220,7 @@ $(GOOGLETEST_DIR)/install: $(GOOGLETEST_DIR)/download $(CMAKE_DIR)/install
 		mkdir -p build && \
 		cd build && \
 		cmake .. \
+			$(CMAKE_FLAGS) \
 			-DCMAKE_PREFIX_PATH=$(TARGET_PREFIX) \
 			-DCMAKE_INSTALL_PREFIX=$(TARGET_PREFIX) \
 			-DCMAKE_BUILD_TYPE=Release \
@@ -195,21 +239,27 @@ $(BZIP2_DIR)/download:
 
 $(BZIP2_DIR)/install: $(BZIP2_DIR)/download $(CMAKE_DIR)/install
 	cd $(BZIP2_DIR) && \
-		mkdir -p build-linux && \
-		cd build-linux && \
-		cmake .. -DENABLE_STATIC_LIB=ON -DCMAKE_BUILD_TYPE=Release && \
+		mkdir -p build-native && \
+		cd build-native && \
+		cmake .. \
+			$(CMAKE_FLAGS) \
+			-DCMAKE_PREFIX_PATH=$(NATIVE_PREFIX) \
+			-DCMAKE_INSTALL_PREFIX=$(NATIVE_PREFIX) \
+			-DENABLE_STATIC_LIB=ON \
+			-DCMAKE_BUILD_TYPE=Release && \
 		$(MAKE) && \
 		$(MAKE) install
 ifeq ($(TARGET_OS),win)
 	cd $(BZIP2_DIR) && \
-		mkdir -p build-win && \
-		cd build-win && \
+		mkdir -p build-target && \
+		cd build-target && \
 		cmake .. \
-			-DENABLE_STATIC_LIB=ON \
+			$(CMAKE_FLAGS) \
 			-DCMAKE_PREFIX_PATH=$(TARGET_PREFIX) \
 			-DCMAKE_INSTALL_PREFIX=$(TARGET_PREFIX) \
+			-DENABLE_STATIC_LIB=ON \
 			-DCMAKE_BUILD_TYPE=Release \
-			-DCMAKE_TOOLCHAIN_FILE=/tmp/toolchain-cross-mingw64-linux-$(ARCH).cmake && \
+			$(CMAKE_TOOLCHAIN_FLAG) && \
 		$(MAKE) && \
 		$(MAKE) install
 endif
@@ -225,13 +275,14 @@ $(BSDIFF_DIR)/download:
 
 $(BSDIFF_DIR)/install: $(BSDIFF_DIR)/download $(BZIP2_DIR)/install
 	cd $(BSDIFF_DIR) && \
-		gcc -o bsdiff bsdiff.c -DBSDIFF_EXECUTABLE -lbz2 && \
-		gcc -o bspatch bspatch.c -DBSPATCH_EXECUTABLE -lbz2 && \
-		mv bsdiff bspatch $(NATIVE_PREFIX)/bin/ && \
-		$(TARGET_CC) -c bsdiff.c && \
+		gcc $(CFLAGS) -o bsdiff -isystem "$(NATIVE_PREFIX/include)" bsdiff.c -DBSDIFF_EXECUTABLE -L"$(NATIVE_PREFIX)/lib" -lbz2_static && \
+		gcc $(CFLAGS) -o bspatch -isystem "$(NATIVE_PREFIX/include)" bspatch.c -DBSPATCH_EXECUTABLE -L"$(NATIVE_PREFIX)/lib" -lbz2_static && \
+		mv bsdiff bspatch $(NATIVE_PREFIX)/bin/
+	cd $(BSDIFF_DIR) && \
+		$(TARGET_CC) $(CFLAGS) -isystem "$(TARGET_PREFIX/include)" -c bsdiff.c && \
 		$(TARGET_AR) rcs libbsdiff.a bsdiff.o && \
 		mv libbsdiff.a $(TARGET_PREFIX)/lib/ && \
-		$(TARGET_CC) -c bspatch.c && \
+		$(TARGET_CC) $(CFLAGS) -isystem "$(TARGET_PREFIX/include)" -c bspatch.c && \
 		$(TARGET_AR) rcs libbspatch.a bspatch.o && \
 		mv libbspatch.a $(TARGET_PREFIX)/lib/ && \
 		mkdir -p $(TARGET_PREFIX)/include/bsdiff && \
@@ -244,15 +295,31 @@ $(BSDIFF_DIR)/install: $(BSDIFF_DIR)/download $(BZIP2_DIR)/install
 
 $(ICU_DIR)/download:
 	curl -L https://github.com/unicode-org/icu/releases/download/release-$(shell echo $(ICU_VERSION) | tr '.' '-')/icu4c-$(shell echo $(ICU_VERSION) | tr '.' '_')-src.tgz  | tar zx
+	curl -L -o $(ICU_DIR)/source/config.guess 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD'
+	curl -L -o $(ICU_DIR)/source/config.sub 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD'
 	touch $@
+
+ifeq ($(TARGET_OS),mac)
+ICU_PROFILE=MacOSX
+ICU_CONFIGURE_FLAGS=--host=$(MACTRIPLE)
+else
+ICU_PROFILE=Linux/gcc
+ICU_CONFIGURE_FLAGS=
+endif
 
 $(ICU_DIR)/install: $(ICU_DIR)/download
 	cd $(ICU_DIR)/source && \
-		mkdir -p build-linux && \
-		cd build-linux && \
-		CXXFLAGS="-DU_USING_ICU_NAMESPACE=0 -DU_NO_DEFAULT_INCLUDE_UTF_HEADERS=1 -DU_HIDE_OBSOLETE_UTF_OLD_H=1 -std=c++17" \
-			../runConfigureICU "Linux/gcc" --enable-static --disable-shared --disable-tests --disable-samples \
-			--with-data-packaging=static && \
+		mkdir -p build-native && \
+		cd build-native && \
+		CFLAGS="$(CFLAGS)" \
+			CXXFLAGS="$(CFLAGS) -DU_USING_ICU_NAMESPACE=0 -DU_NO_DEFAULT_INCLUDE_UTF_HEADERS=1 -DU_HIDE_OBSOLETE_UTF_OLD_H=1 -std=c++17" \
+			../runConfigureICU "$(ICU_PROFILE)" --enable-static --disable-shared --disable-tests --disable-samples \
+			--with-data-packaging=static --prefix="$(NATIVE_PREFIX)" $(ICU_CONFIGURE_FLAGS)
+ifeq ($(TARGET_OS),mac)
+	cd $(ICU_DIR)/source && \
+		cp -f config/mh-darwin config/mh-unknown
+endif
+	cd $(ICU_DIR)/source/build-native && \
 		$(MAKE) && \
 		$(MAKE) install
 ifeq ($(TARGET_OS),win)
@@ -263,7 +330,7 @@ ifeq ($(TARGET_OS),win)
 			LDFLAGS="-L$(ICU_DIR)/source/lib" \
 			../runConfigureICU "MinGW" --enable-static --enable-shared --disable-tests --disable-samples \
 			--with-data-packaging=static \
-			--host=$(ARCH)-w64-mingw32 --with-cross-build=$(ICU_DIR)/source/build-linux --prefix=$(TARGET_PREFIX) && \
+			--host=$(ARCH)-w64-mingw32 --with-cross-build=$(ICU_DIR)/source/build-linux --prefix="$(TARGET_PREFIX)" && \
 		$(MAKE) && \
 		$(MAKE) install
 endif
@@ -282,7 +349,9 @@ $(FMT_DIR)/install: $(FMT_DIR)/download $(CMAKE_DIR)/install
 	cd $(FMT_DIR) && \
 		mkdir -p build && \
 		cd build && \
-		cmake .. -DCMAKE_BUILD_TYPE=Release -DFMT_TEST=OFF -DFMT_FUZZ=OFF -DFMT_CUDA_TEST=OFF -DFMT_DOC=OFF \
+		cmake .. \
+			$(CMAKE_FLAGS) \
+			-DCMAKE_BUILD_TYPE=Release -DFMT_TEST=OFF -DFMT_FUZZ=OFF -DFMT_CUDA_TEST=OFF -DFMT_DOC=OFF \
 			-DCMAKE_PREFIX_PATH=$(TARGET_PREFIX) \
 			-DCMAKE_INSTALL_PREFIX=$(TARGET_PREFIX) \
 			$(CMAKE_TOOLCHAIN_FLAG) && \
@@ -302,7 +371,9 @@ $(LIBCLIPBOARD_DIR)/install: $(LIBCLIPBOARD_DIR)/download $(CMAKE_DIR)/install $
 	cd $(LIBCLIPBOARD_DIR) && \
 		mkdir -p build && \
 		cd build && \
-		cmake .. -DCMAKE_BUILD_TYPE=Release \
+		cmake .. \
+			$(CMAKE_FLAGS) \
+			-DCMAKE_BUILD_TYPE=Release \
 			-DCMAKE_PREFIX_PATH=$(TARGET_PREFIX) \
 			-DCMAKE_INSTALL_PREFIX=$(TARGET_PREFIX) \
 			$(CMAKE_TOOLCHAIN_FLAG) && \
@@ -320,6 +391,7 @@ $(IMMER_DIR)/download:
 
 $(IMMER_DIR)/install: $(IMMER_DIR)/download $(CMAKE_DIR)/install
 	cd $(IMMER_DIR) && \
+		rm -rf BUILD && \
 		mkdir -p build && \
 		cd build && \
 		cmake .. \
@@ -351,13 +423,24 @@ endif
 
 $(MPDECIMAL_DIR)/download:
 	curl -L https://www.bytereef.org/software/mpdecimal/releases/mpdecimal-$(MPDECIMAL_VERSION).tar.gz | tar zx
+	curl -L -o $(MPDECIMAL_DIR)/config.guess 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD'
+	curl -L -o $(MPDECIMAL_DIR)/config.sub 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD'
 	touch $@
 
 $(MPDECIMAL_DIR)/install: $(MPDECIMAL_DIR)/download
+ifeq ($(TARGET_OS),mac)
+	cd $(MPDECIMAL_DIR) && \
+		CC="clang -arch $(MACARCH) -mmacosx-version-min=$(MACVER)" \
+			CXX="clang++ -arch $(MACARCH) -mmacosx-version-min=$(MACVER)" \
+			./configure --host=$(MACTRIPLE) "--prefix=$(TARGET_PREFIX)" && \
+		$(MAKE) && \
+		$(MAKE) install
+else
 	cd $(MPDECIMAL_DIR) && \
 		./configure $(HOST_FLAG) --prefix=$(TARGET_PREFIX) && \
 		$(MAKE) && \
 		$(MAKE) install
+endif
 	touch $@
 
 
@@ -368,11 +451,22 @@ $(TVISION_DIR)/download:
 	curl -L https://github.com/magiblot/tvision/archive/$(TVISION_VERSION).tar.gz | tar zx
 	touch $@
 
+ifeq ($(TARGET_OS),mac)
+TVISION_CXXFLAGS=-DTVISION_STL=1 -D__cpp_lib_string_view=1
+else
+TVISION_CXXFLAGS=
+endif
+
 $(TVISION_DIR)/install: $(TVISION_DIR)/download $(NCURSES_DIR)/install $(CMAKE_DIR)/install
 	cd $(TVISION_DIR) && \
 		mkdir -p build-native && \
 		cd build-native/ && \
-		cmake .. -DTV_BUILD_USING_GPM=OFF -DCMAKE_BUILD_TYPE=Release && \
+		CXXFLAGS="$(TVISION_CXXFLAGS)" cmake .. \
+			$(CMAKE_FLAGS) \
+			-DCMAKE_PREFIX_PATH=$(NATIVE_PREFIX) \
+			-DCMAKE_INSTALL_PREFIX=$(NATIVE_PREFIX) \
+			-DTV_BUILD_USING_GPM=OFF \
+			-DCMAKE_BUILD_TYPE=Release && \
 		$(MAKE) && \
 		$(MAKE) install
 ifeq ($(TARGET_OS),win)
@@ -380,6 +474,7 @@ ifeq ($(TARGET_OS),win)
 		mkdir -p build-win && \
 		cd build-win && \
 		cmake .. \
+			$(CMAKE_FLAGS) \
 			-DCMAKE_PREFIX_PATH=$(TARGET_PREFIX) \
 			-DCMAKE_INSTALL_PREFIX=$(TARGET_PREFIX) \
 			-DCMAKE_BUILD_TYPE=Release \
@@ -397,6 +492,10 @@ $(TURBO_DIR)/download:
 	curl -L https://github.com/magiblot/turbo/archive/$(TURBO_VERSION).tar.gz | tar zx
 	touch $@
 
+ifeq ($(TARGET_OS),mac)
+TURBO_CMAKE_FLAGS=-DCMAKE_EXE_LINKER_FLAGS="-framework ServiceManagement -framework Foundation -framework Cocoa"
+endif
+
 $(TURBO_DIR)/install: $(TURBO_DIR)/download $(TVISION_DIR)/install $(FMT_DIR)/install $(LIBCLIPBOARD_DIR)/install \
 		$(CMAKE_DIR)/install $(NCURSES_DIR)/install
 	cd $(TURBO_DIR) && \
@@ -408,6 +507,8 @@ $(TURBO_DIR)/install: $(TURBO_DIR)/download $(TVISION_DIR)/install $(FMT_DIR)/in
 		mkdir -p build && \
 		cd build && \
 		cmake .. \
+			$(CMAKE_FLAGS) \
+			$(TURBO_CMAKE_FLAGS) \
 			-DCMAKE_PREFIX_PATH=$(TARGET_PREFIX) \
 			-DCMAKE_INSTALL_PREFIX=$(TARGET_PREFIX) \
 			-DCMAKE_BUILD_TYPE=Release \
