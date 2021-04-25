@@ -247,7 +247,7 @@ class PictureView : public TView {
     bool flashingMask = false;
 
     explicit PictureView(const TRect& bounds) : TView(bounds) {
-        eventMask = evMouseDown | evMouseMove | evMouseUp | evCommand | evBroadcast;
+        eventMask = evMouseDown | evMouseMove | evMouseUp;
         options |= ofSelectable | ofFirstClick;
     }
 
@@ -497,9 +497,9 @@ class PictureWindowPrivate {
 
     // shared between multiple tools
     ViewPtr<Label> toolLabel{ TRect(1, 1, 10, 2) };
-    ViewPtr<CheckBoxes> setFgCheck{ std::vector<std::string>{ "Set FG" }, std::vector<bool>{ true } };
-    ViewPtr<CheckBoxes> setBgCheck{ std::vector<std::string>{ "Set BG" }, std::vector<bool>{ true } };
-    ViewPtr<CheckBoxes> setChCheck{ std::vector<std::string>{ "Set char" }, std::vector<bool>{ true } };
+    ViewPtr<CheckBoxes> setFgCheck{ std::vector<std::string>{ "Set F~G~" }, std::vector<bool>{ true } };
+    ViewPtr<CheckBoxes> setBgCheck{ std::vector<std::string>{ "Set ~B~G" }, std::vector<bool>{ true } };
+    ViewPtr<CheckBoxes> setChCheck{ std::vector<std::string>{ "Set ~c~har" }, std::vector<bool>{ true } };
 
     // mask tool
     ViewPtr<Label> maskHelp{ "Click to toggle between opaque and transparent." };

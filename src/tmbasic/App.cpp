@@ -140,7 +140,7 @@ TMenuBar* App::initMenuBar(TRect r) {
         *new TMenuItem("~T~ype tool", kCmdPictureType, kbF7, hcNoContext, "F7") +
         *new TMenuItem("~M~ask tool", kCmdPictureMask, kbF8, hcNoContext, "F8") + newLine() +
         *new TMenuItem("~O~ptions", kCmdPictureOptions, kbF9, hcNoContext, "F9") + newLine() +
-        *new TMenuItem("C~l~ear", kCmdPictureClear, kbDel, hcNoContext, "Del");
+        *new TMenuItem("C~l~ear", kCmdPictureClear, kbCtrlD, hcNoContext, "Ctrl+D");
 
     auto& debugMenu =
         *new TSubMenu("~D~ebug", kbAltD) + *new TMenuItem("~R~un", kCmdProgramRun, kbCtrlR, hcNoContext, "Ctrl+R");
