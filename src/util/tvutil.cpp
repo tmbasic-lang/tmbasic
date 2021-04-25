@@ -77,4 +77,12 @@ void validateIdentifier(const std::string& text, const char* fieldName) {
     }
 }
 
+std::string ellipsis(const std::string& text, size_t maxLen) {
+    if (text.size() <= maxLen) {
+        return text;
+    } else {
+        return fmt::format("{}...", text.substr(0, maxLen - 3));
+    }
+}
+
 }  // namespace util

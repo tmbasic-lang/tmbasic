@@ -21,6 +21,7 @@ class ProgramWindow : public TWindow {
     void handleEvent(TEvent& event) override;
     void close() override;
     TPalette& getPalette() const override;
+    void setState(uint16_t aState, bool enable) override;
     bool isDirty() const;
     bool preClose();
     void addNewSourceMember(std::unique_ptr<compiler::SourceMember> sourceMember);

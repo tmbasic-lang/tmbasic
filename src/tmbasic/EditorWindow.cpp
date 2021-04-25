@@ -72,6 +72,7 @@ EditorWindow::EditorWindow(const TRect& r, SourceMember* member, std::function<v
     _editor->insertText(member->source.c_str(), member->source.size(), false);
     _editor->setSelect(member->selectionStart, member->selectionEnd, true);
     _editor->trackCursor(false);
+    _pendingText = member->source;
     editor.addTo(this);
 }
 
@@ -145,7 +146,7 @@ void EditorWindow::onTimerTick() {
         updateTitle();
         frame->drawView();
         _pendingUpdate = -1;
-    } else {
+    } else if (_pendingUpdate >= 0) {
         _pendingUpdate++;
     }
 }

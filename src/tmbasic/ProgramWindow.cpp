@@ -26,16 +26,20 @@ class SourceMembersListBox : public util::ListViewer {
         const TRect& bounds,
         uint16_t numCols,
         util::ScrollBar* vScrollBar,
-        const compiler::SourceProgram& program,
-        std::function<void(compiler::SourceMember*)> onMemberOpen)
-        : ListViewer(bounds, numCols, nullptr, vScrollBar), _program(program), _onMemberOpen(std::move(onMemberOpen)) {
-        curCommandSet.enableCmd(cmSave);
-        curCommandSet.enableCmd(cmSaveAs);
+        const SourceProgram& program,
+        std::function<void(SourceMember*)> onMemberOpen,
+        std::function<void()> onEnableDisableCommands)
+        : ListViewer(bounds, numCols, nullptr, vScrollBar),
+          _program(program),
+          _onMemberOpen(std::move(onMemberOpen)),
+          _onEnableDisableCommands(std::move(onEnableDisableCommands)) {}
+
+    SourceMember* getSelectedMember() {
+        return focused >= 0 && static_cast<size_t>(focused) < _items.size() ? _items.at(focused) : nullptr;
     }
 
     void updateItems() {
-        auto* selectedMember =
-            focused >= 0 && static_cast<size_t>(focused) < _items.size() ? _items.at(focused) : nullptr;
+        auto* selectedMember = getSelectedMember();
 
         _items.clear();
 
@@ -59,6 +63,8 @@ class SourceMembersListBox : public util::ListViewer {
         }
 
         drawView();
+
+        _onEnableDisableCommands();
     }
 
     void getText(char* dest, int16_t item, int16_t maxLen) override {
@@ -82,30 +88,21 @@ class SourceMembersListBox : public util::ListViewer {
         }
     }
 
-    const compiler::SourceProgram& _program;
-    std::vector<compiler::SourceMember*> _items;
-    std::function<void(compiler::SourceMember*)> _onMemberOpen;
+    const SourceProgram& _program;
+    std::vector<SourceMember*> _items;
+    std::function<void(SourceMember*)> _onMemberOpen;
+    std::function<void()> _onEnableDisableCommands;
 };
-
-static gsl::owner<TFrame*> initProgramWindowFrame(TRect r) {
-    ViewPtr<util::Frame> f{ r };
-    f->colorPassiveFrame = 0x87;
-    f->colorPassiveTitle = 0x87;
-    f->colorActiveFrame = 0x8F;
-    f->colorActiveTitle = 0x8F;
-    f->colorIcons = 0x8A;
-    return f.take();
-}
 
 class ProgramWindowPrivate {
    public:
     ProgramWindow* window;
     bool dirty{ false };
     std::optional<std::string> filePath;
-    std::unique_ptr<vm::Program> vmProgram{ std::make_unique<Program>() };
-    std::unique_ptr<compiler::SourceProgram> sourceProgram;
+    std::unique_ptr<vm::Program> vmProgram = std::make_unique<Program>();
+    std::unique_ptr<SourceProgram> sourceProgram;
     SourceMembersListBox* contentsListBox{};
-    std::function<void(compiler::SourceMember*)> openMember;
+    std::function<void(SourceMember*)> openMember;
 
     ProgramWindowPrivate(
         ProgramWindow* window,
@@ -117,6 +114,16 @@ class ProgramWindowPrivate {
           openMember(std::move(openMember)),
           filePath(std::move(filePath)) {}
 };
+
+static gsl::owner<TFrame*> initProgramWindowFrame(TRect r) {
+    ViewPtr<util::Frame> f{ r };
+    f->colorPassiveFrame = 0x87;
+    f->colorPassiveTitle = 0x87;
+    f->colorActiveFrame = 0x8F;
+    f->colorActiveTitle = 0x8F;
+    f->colorIcons = 0x8A;
+    return f.take();
+}
 
 static void updateTitle(ProgramWindowPrivate* p) {
     std::ostringstream s;
@@ -132,6 +139,16 @@ static void updateTitle(ProgramWindowPrivate* p) {
 
     delete[] p->window->title;  // NOLINT(cppcoreguidelines-owning-memory)
     p->window->title = newStr(s.str());
+}
+
+static void enableDisableCommands(ProgramWindowPrivate* p, bool enable) {
+    TCommandSet cmds;
+    if (p->contentsListBox->focused >= 0) {
+        cmds.enableCmd(kCmdProgramDeleteItem);
+    } else {
+        TView::disableCommand(kCmdProgramDeleteItem);
+    }
+    (enable ? TView::enableCommands : TView::disableCommands)(cmds);
 }
 
 ProgramWindow::ProgramWindow(
@@ -153,8 +170,12 @@ ProgramWindow::ProgramWindow(
 
     auto contentsListBoxRect = getExtent();
     contentsListBoxRect.grow(-1, -1);
-    ViewPtr<SourceMembersListBox> contentsListBox{ contentsListBoxRect, 1, vScrollBar, *_private->sourceProgram,
-                                                   [this](auto* member) -> void { _private->openMember(member); } };
+    ViewPtr<SourceMembersListBox> contentsListBox{ contentsListBoxRect,
+                                                   1,
+                                                   vScrollBar,
+                                                   *_private->sourceProgram,
+                                                   [this](auto* member) -> void { _private->openMember(member); },
+                                                   [this]() -> void { enableDisableCommands(_private, true); } };
     _private->contentsListBox = contentsListBox;
     _private->contentsListBox->growMode = gfGrowHiX | gfGrowHiY;
     _private->contentsListBox->useDarkGrayPalette();
@@ -216,8 +237,30 @@ static bool onSave(ProgramWindowPrivate* p) {
     return onSaveAs(p);
 }
 
+static void onDeleteItem(ProgramWindowPrivate* p) {
+    auto* member = p->contentsListBox->getSelectedMember();
+    if (member == nullptr) {
+        return;
+    }
+
+    auto choice = messageBox(
+        fmt::format("Are you sure you want to delete \"{}\"?", util::ellipsis(member->identifier, 25)),
+        mfOKCancel | mfConfirmation);
+    if (choice != cmOK) {
+        return;
+    }
+
+    for (auto iter = p->sourceProgram->members.begin(); iter != p->sourceProgram->members.end(); ++iter) {
+        if (member == iter->get()) {
+            p->sourceProgram->members.erase(iter);
+            break;
+        }
+    }
+
+    p->window->updateListItems();
+}
+
 void ProgramWindow::handleEvent(TEvent& event) {
-    TWindow::handleEvent(event);
     if (event.what == evBroadcast) {
         switch (event.message.command) {
             case kCmdProgramSave:
@@ -240,7 +283,12 @@ void ProgramWindow::handleEvent(TEvent& event) {
                 clearEvent(event);
                 break;
         }
+    } else if (event.what == evCommand && event.message.command == kCmdProgramDeleteItem) {
+        onDeleteItem(_private);
+        clearEvent(event);
     }
+
+    TWindow::handleEvent(event);
 }
 
 // true = close, false = stay open
@@ -294,6 +342,14 @@ void ProgramWindow::updateListItems() {
 
 void ProgramWindow::redrawListItems() {
     _private->contentsListBox->drawView();
+}
+
+void ProgramWindow::setState(uint16_t aState, bool enable) {
+    TWindow::setState(aState, enable);
+
+    if (aState == sfActive) {
+        enableDisableCommands(_private, enable);
+    }
 }
 
 }  // namespace tmbasic

@@ -45,6 +45,7 @@ App::App(int /*argc*/, char** /*argv*/)
     ts.enableCmd(cmSaveAs);
     ts.enableCmd(kCmdEditInsertColor);
     ts.enableCmd(kCmdEditInsertSymbol);
+    ts.enableCmd(kCmdProgramDeleteItem);
     ts.enableCmd(kCmdDesignAddButton);
     ts.enableCmd(kCmdDesignAddCheckBox);
     ts.enableCmd(kCmdDesignAddGroupBox);
@@ -117,7 +118,7 @@ TMenuBar* App::initMenuBar(TRect r) {
         *new TMenuItem("Add c~u~stom control", kCmdProgramAddCustomControl, kbNoKey) +
         *new TMenuItem("Add ~p~icture", kCmdProgramAddPicture, kbNoKey) + newLine() +
         *new TMenuItem("~I~mport from .BAS...", kCmdProgramImportItem, kbNoKey, hcNoContext, "F2") + newLine() +
-        *new TMenuItem("~D~elete item", kCmdProgramDeleteItem, kbDel, hcNoContext, "Del");
+        *new TMenuItem("~D~elete item", kCmdProgramDeleteItem, kbCtrlD, hcNoContext, "Ctrl+D");
 
     auto& designMenu = *new TSubMenu("De~s~ign", kbAltS) +
         *new TMenuItem("Add ~b~utton", kCmdDesignAddButton, kbNoKey) +
@@ -182,7 +183,7 @@ TStatusLine* App::initStatusLine(TRect r) {
     auto& programWindowStatusDef = *new TStatusDef(hcide_programWindow, hcide_programWindow) +
         *new TStatusItem("~F1~ Add new item", kbF1, kCmdProgramAddItem) +
         *new TStatusItem("~F2~ Import from .BAS", kbF2, kCmdProgramImportItem) +
-        *new TStatusItem("~Del~ Delete", kbDel, kCmdProgramDeleteItem);
+        *new TStatusItem("~Ctrl+D~ Delete", kbCtrlD, kCmdProgramDeleteItem);
     programWindowStatusDef.next = &designerWindowStatusDef;
 
     ViewPtr<TStatusItem> fg{ "~F1~ FG", kbF1, kCmdPictureFg };
