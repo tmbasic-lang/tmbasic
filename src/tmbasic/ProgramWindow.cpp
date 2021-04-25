@@ -12,7 +12,6 @@
 #include "events.h"
 
 using compiler::SourceMember;
-using compiler::SourceMemberType;
 using compiler::SourceProgram;
 using util::DialogPtr;
 using util::ListViewer;
@@ -20,39 +19,6 @@ using util::ViewPtr;
 using vm::Program;
 
 namespace tmbasic {
-
-// matches the order of SourceMemberType
-static const std::vector<std::string> kSourceMemberTypeStrings{ "Procedures", "Globals", "Types", "Designs",
-                                                                "Pictures" };
-
-class SourceMemberTypesListBox : public util::ListViewer {
-   public:
-    using SourceMemberTypeSelectedFunc = std::function<void()>;
-
-    SourceMemberTypesListBox(const TRect& bounds, uint16_t numCols, SourceMemberTypeSelectedFunc onSelectedFunc)
-        : ListViewer(bounds, numCols, nullptr, nullptr),
-          _onSelectedFunc(std::move(onSelectedFunc)),
-          _selectedType(SourceMemberType::kProcedure) {
-        setRange(kSourceMemberTypeStrings.size());
-    }
-
-    void getText(char* dest, int16_t item, int16_t maxLen) override {
-        strncpy(dest, kSourceMemberTypeStrings.at(item).c_str(), maxLen);
-        dest[maxLen] = '\0';  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-    }
-
-    void focusItem(int16_t item) override {
-        ListViewer::focusItem(item);
-        _selectedType = static_cast<SourceMemberType>(item);
-        _onSelectedFunc();
-    }
-
-    compiler::SourceMemberType getSelectedType() const { return _selectedType; }
-
-   private:
-    SourceMemberTypeSelectedFunc _onSelectedFunc;
-    compiler::SourceMemberType _selectedType;
-};
 
 class SourceMembersListBox : public util::ListViewer {
    public:
@@ -62,18 +28,9 @@ class SourceMembersListBox : public util::ListViewer {
         util::ScrollBar* vScrollBar,
         const compiler::SourceProgram& program,
         std::function<void(compiler::SourceMember*)> onMemberOpen)
-        : ListViewer(bounds, numCols, nullptr, vScrollBar),
-          _program(program),
-          _selectedType(SourceMemberType::kProcedure),
-          _onMemberOpen(std::move(onMemberOpen)) {
+        : ListViewer(bounds, numCols, nullptr, vScrollBar), _program(program), _onMemberOpen(std::move(onMemberOpen)) {
         curCommandSet.enableCmd(cmSave);
         curCommandSet.enableCmd(cmSaveAs);
-        selectType(SourceMemberType::kProcedure);
-    }
-
-    void selectType(compiler::SourceMemberType type) {
-        _selectedType = type;
-        updateItems();
     }
 
     void updateItems() {
@@ -83,9 +40,7 @@ class SourceMembersListBox : public util::ListViewer {
         _items.clear();
 
         for (const auto& member : _program.members) {
-            if (member->memberType == _selectedType) {
-                _items.push_back(member.get());
-            }
+            _items.push_back(member.get());
         }
 
         std::sort(_items.begin(), _items.end(), [](const auto* lhs, const auto* rhs) {
@@ -128,7 +83,6 @@ class SourceMembersListBox : public util::ListViewer {
     }
 
     const compiler::SourceProgram& _program;
-    compiler::SourceMemberType _selectedType;
     std::vector<compiler::SourceMember*> _items;
     std::function<void(compiler::SourceMember*)> _onMemberOpen;
 };
@@ -150,7 +104,6 @@ class ProgramWindowPrivate {
     std::optional<std::string> filePath;
     std::unique_ptr<vm::Program> vmProgram{ std::make_unique<Program>() };
     std::unique_ptr<compiler::SourceProgram> sourceProgram;
-    SourceMemberTypesListBox* typesListBox{};
     SourceMembersListBox* contentsListBox{};
     std::function<void(compiler::SourceMember*)> openMember;
 
@@ -194,34 +147,21 @@ ProgramWindow::ProgramWindow(
     ts.enableCmd(cmSaveAs);
     enableCommands(ts);
 
-    auto vScrollBar = ViewPtr<util::ScrollBar>(TRect(size.x - 1, 1, size.x, size.y - 1));
+    ViewPtr<util::ScrollBar> vScrollBar{ TRect{ size.x - 1, 1, size.x, size.y - 1 } };
     vScrollBar->useWhiteColorScheme();
     vScrollBar.addTo(this);
 
-    auto typesListBoxRect = getExtent();
-    typesListBoxRect.grow(-1, -1);
-    typesListBoxRect.b.x = 15;
-    auto typesListBox = ViewPtr<SourceMemberTypesListBox>(typesListBoxRect, 1, [this]() {
-        _private->contentsListBox->selectType(_private->typesListBox->getSelectedType());
-    });
-    _private->typesListBox = typesListBox;
-    _private->typesListBox->growMode = gfGrowHiY;
-    _private->typesListBox->options |= ofFramed;
-    _private->typesListBox->useDarkGrayPalette();
-    typesListBox.addTo(this);
-
     auto contentsListBoxRect = getExtent();
     contentsListBoxRect.grow(-1, -1);
-    contentsListBoxRect.a.x = 16;
-    auto contentsListBox = ViewPtr<SourceMembersListBox>(
-        contentsListBoxRect, 1, vScrollBar, *_private->sourceProgram,
-        [this](auto* member) -> void { _private->openMember(member); });
+    ViewPtr<SourceMembersListBox> contentsListBox{ contentsListBoxRect, 1, vScrollBar, *_private->sourceProgram,
+                                                   [this](auto* member) -> void { _private->openMember(member); } };
     _private->contentsListBox = contentsListBox;
     _private->contentsListBox->growMode = gfGrowHiX | gfGrowHiY;
     _private->contentsListBox->useDarkGrayPalette();
     contentsListBox.addTo(this);
 
     updateTitle(_private);
+    updateListItems();
 }
 
 ProgramWindow::~ProgramWindow() = default;
