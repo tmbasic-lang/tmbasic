@@ -331,7 +331,7 @@ ifeq ($(TARGET_OS),win)
 			LDFLAGS="-L$(ICU_DIR)/source/lib" \
 			../runConfigureICU "MinGW" --enable-static --enable-shared --disable-tests --disable-samples \
 			--with-data-packaging=static \
-			--host=$(ARCH)-w64-mingw32 --with-cross-build=$(ICU_DIR)/source/build-linux --prefix="$(TARGET_PREFIX)" && \
+			--host=$(ARCH)-w64-mingw32 --with-cross-build=$(ICU_DIR)/source/build-native --prefix="$(TARGET_PREFIX)" && \
 		$(MAKE) && \
 		$(MAKE) install
 endif
