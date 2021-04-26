@@ -326,6 +326,11 @@ void ProgramWindow::handleEvent(TEvent& event) {
     } else if (event.what == evCommand && event.message.command == cmClear) {
         onDeleteItem(_private);
         clearEvent(event);
+    } else if (event.what == evKeyDown && event.keyDown.keyCode == kbEnter) {
+        auto* member = _private->contentsListBox->getSelectedMember();
+        if (member != nullptr) {
+            _private->openMember(member);
+        }
     }
 
     TWindow::handleEvent(event);
