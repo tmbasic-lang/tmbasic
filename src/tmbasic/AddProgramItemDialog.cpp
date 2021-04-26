@@ -52,7 +52,7 @@ class AddProgramItemDialogPrivate {
 };
 
 AddProgramItemDialog::AddProgramItemDialog()
-    : TDialog(TRect{ 0, 0, 0, 0 }, "Add New Item"),
+    : TDialog(TRect{ 0, 0, 0, 0 }, "New Item"),
       TWindowInit(&TDialog::initFrame),
       _private(new AddProgramItemDialogPrivate()) {
     options |= ofCentered;

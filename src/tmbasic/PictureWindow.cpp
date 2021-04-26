@@ -508,7 +508,7 @@ class PictureWindowPrivate {
     ViewPtr<ThinButton> cutButton{ "Cut", cmCut };
     ViewPtr<ThinButton> copyButton{ "Copy", cmCopy };
     ViewPtr<ThinButton> pasteButton{ "Paste", cmPaste };
-    ViewPtr<ThinButton> clearButton{ "Clear", kCmdPictureClear };
+    ViewPtr<ThinButton> clearButton{ "Delete", cmClear };
 
     // select tool -> paste operation
     ViewPtr<Label> pasteHelp{ "Drag or use arrow keys to move." };
@@ -615,7 +615,7 @@ static void enableDisableCommands(PictureWindowPrivate* p, bool enable) {
     ts.enableCmd(kCmdPictureMask);
     ts.enableCmd(kCmdPictureOptions);
     ts.enableCmd(cmPaste);
-    ts.enableCmd(kCmdPictureClear);
+    ts.enableCmd(cmClear);
     (enable ? TView::enableCommands : TView::disableCommands)(ts);
 
     TCommandSet tsClipboard;
@@ -1265,7 +1265,7 @@ void PictureWindow::handleEvent(TEvent& event) {
                 break;
             }
 
-            case kCmdPictureClear:
+            case cmClear:
                 onSelectionClear(_private);
                 clearEvent(event);
                 break;

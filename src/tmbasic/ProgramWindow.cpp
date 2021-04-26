@@ -143,10 +143,10 @@ static void updateTitle(ProgramWindowPrivate* p) {
 
 static void enableDisableCommands(ProgramWindowPrivate* p, bool enable) {
     TCommandSet cmds;
-    if (p->contentsListBox->focused >= 0) {
-        cmds.enableCmd(kCmdProgramDeleteItem);
+    if (p->contentsListBox->range > 0 && p->contentsListBox->focused >= 0) {
+        cmds.enableCmd(cmClear);
     } else {
-        TView::disableCommand(kCmdProgramDeleteItem);
+        TView::disableCommand(cmClear);
     }
     (enable ? TView::enableCommands : TView::disableCommands)(cmds);
 }
@@ -283,7 +283,7 @@ void ProgramWindow::handleEvent(TEvent& event) {
                 clearEvent(event);
                 break;
         }
-    } else if (event.what == evCommand && event.message.command == kCmdProgramDeleteItem) {
+    } else if (event.what == evCommand && event.message.command == cmClear) {
         onDeleteItem(_private);
         clearEvent(event);
     }

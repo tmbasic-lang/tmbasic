@@ -18,7 +18,6 @@ enum : uint16_t {
     kCmdEditInsertSymbol,
     kCmdEditInsertColor,
     kCmdProgramAddItem,
-    kCmdProgramDeleteItem,
     kCmdProgramImportItem,
     kCmdProgramContentsWindow,
     kCmdProgramAddSubroutine,
@@ -48,7 +47,6 @@ enum : uint16_t {
     kCmdPictureType,
     kCmdPictureMask,
     kCmdPictureOptions,
-    kCmdPictureClear,
     kCmdPicturePasteOk,
     kCmdPicturePasteCancel,
 
