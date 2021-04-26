@@ -104,38 +104,12 @@ TMenuBar* App::initMenuBar(TRect r) {
         *new TMenuItem("Cu~t~", cmCut, kbCtrlX, hcNoContext, "Ctrl+X") +
         *new TMenuItem("~C~opy", cmCopy, kbCtrlC, hcNoContext, "Ctrl+C") +
         *new TMenuItem("~P~aste", cmPaste, kbCtrlV, hcNoContext, "Ctrl+V") + newLine() +
-        *new TMenuItem("~D~elete", cmClear, kbCtrlD, hcNoContext, "Ctrl+D") + newLine() +
-        *new TMenuItem("Insert co~l~or...", kCmdEditInsertColor, kbNoKey) +
-        *new TMenuItem("Insert ~s~ymbol...", kCmdEditInsertSymbol, kbNoKey);
+        *new TMenuItem("~D~elete", cmClear, kbCtrlD, hcNoContext, "Ctrl+D");
 
     auto& programMenu = *new TSubMenu("~P~rogram", kbAltP) +
         *new TMenuItem("~N~ew item...", kCmdProgramAddItem, kbNoKey) +
-        *new TMenuItem("~I~mport from .BAS...", kCmdProgramImportItem, kbNoKey);
-
-    auto& designMenu = *new TSubMenu("De~s~ign", kbAltS) +
-        *new TMenuItem("Add ~b~utton", kCmdDesignAddButton, kbNoKey) +
-        *new TMenuItem("Add ~c~heck box", kCmdDesignAddCheckBox, kbNoKey) +
-        *new TMenuItem("Add ~g~roup box", kCmdDesignAddGroupBox, kbNoKey) +
-        *new TMenuItem("Add ~l~abel", kCmdDesignAddLabel, kbNoKey) +
-        *new TMenuItem("Add list bo~x~", kCmdDesignAddListBox, kbNoKey) +
-        *new TMenuItem("Add ~r~adio button", kCmdDesignAddRadioButton, kbNoKey) +
-        *new TMenuItem("Add ~s~croll bar", kCmdDesignAddScrollBar, kbNoKey) +
-        *new TMenuItem("Add ~t~ext box", kCmdDesignAddTextBox, kbNoKey) + newLine() +
-        *new TMenuItem("Add c~u~stom control", kCmdDesignAddCustomControl, kbNoKey);
-
-    auto& pictureMenu = *new TSubMenu("P~i~cture", kbAltI) +
-        *new TMenuItem("~F~oreground color", kCmdPictureFg, kbNoKey) +
-        *new TMenuItem("~B~ackground color", kCmdPictureBg, kbNoKey) +
-        *new TMenuItem("~C~haracter", kCmdPictureCharacter, kbNoKey) + newLine() +
-        *new TMenuItem("~S~elect tool", kCmdPictureSelect, kbNoKey) +
-        *new TMenuItem("~D~raw tool", kCmdPictureDraw, kbNoKey) +
-        *new TMenuItem("~P~ick tool", kCmdPicturePick, kbNoKey) +
-        *new TMenuItem("~T~ype tool", kCmdPictureType, kbNoKey) +
-        *new TMenuItem("~M~ask tool", kCmdPictureMask, kbNoKey) + newLine() +
-        *new TMenuItem("~O~ptions", kCmdPictureOptions, kbNoKey);
-
-    auto& debugMenu =
-        *new TSubMenu("~D~ebug", kbAltD) + *new TMenuItem("~R~un", kCmdProgramRun, kbCtrlR, hcNoContext, "Ctrl+R");
+        *new TMenuItem("~I~mport from .BAS...", kCmdProgramImportItem, kbNoKey) + newLine() +
+        *new TMenuItem("~R~un", kCmdProgramRun, kbCtrlR, hcNoContext, "Ctrl+R");
 
     auto& windowMenu = *new TSubMenu("~W~indow", kbAltW) +
         *new TMenuItem("Program ~w~indow", kCmdProgramContentsWindow, kbCtrlP, hcNoContext, "Ctrl+P") + newLine() +
@@ -151,8 +125,7 @@ TMenuBar* App::initMenuBar(TRect r) {
 
     r.b.y = r.a.y + 1;
     // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
-    return new TMenuBar(
-        r, fileMenu + editMenu + programMenu + designMenu + pictureMenu + debugMenu + windowMenu + helpMenu);
+    return new TMenuBar(r, fileMenu + editMenu + programMenu + windowMenu + helpMenu);
 }
 
 TStatusLine* App::initStatusLine(TRect r) {
@@ -166,9 +139,7 @@ TStatusLine* App::initStatusLine(TRect r) {
 
     editorWindowStatusDef.next = &appStatusDef;
 
-    auto& designerWindowStatusDef = *new TStatusDef(hcide_designerWindow, hcide_designerWindow) +
-        *new TStatusItem("~Ctrl+P~ Program window", kbNoKey, kCmdProgramContentsWindow) +
-        *new TStatusItem("~Ctrl+W~ Close designer", kbNoKey, cmClose);
+    auto& designerWindowStatusDef = *new TStatusDef(hcide_designerWindow, hcide_designerWindow);
     designerWindowStatusDef.next = &editorWindowStatusDef;
 
     auto& programWindowStatusDef = *new TStatusDef(hcide_programWindow, hcide_programWindow) +
