@@ -8,10 +8,14 @@
 #include "../util/path.h"
 #include "../util/tvutil.h"
 #include "../vm/Program.h"
+#include "DesignerWindow.h"
+#include "EditorWindow.h"
+#include "PictureWindow.h"
 #include "constants.h"
 #include "events.h"
 
 using compiler::SourceMember;
+using compiler::SourceMemberType;
 using compiler::SourceProgram;
 using util::DialogPtr;
 using util::ListViewer;
@@ -248,6 +252,42 @@ static void onDeleteItem(ProgramWindowPrivate* p) {
         mfOKCancel | mfConfirmation);
     if (choice != cmOK) {
         return;
+    }
+
+    // if the item is open in an editor window, then close the window.
+    switch (member->memberType) {
+        case SourceMemberType::kDesign: {
+            FindDesignerWindowEventArgs eventArgs{ member, nullptr };
+            message(TProgram::deskTop, evBroadcast, kCmdFindDesignerWindow, &eventArgs);
+            if (eventArgs.window != nullptr) {
+                eventArgs.window->close();
+            }
+            break;
+        }
+
+        case SourceMemberType::kPicture: {
+            FindPictureWindowEventArgs eventArgs{ member, nullptr };
+            message(TProgram::deskTop, evBroadcast, kCmdFindPictureWindow, &eventArgs);
+            if (eventArgs.window != nullptr) {
+                eventArgs.window->close();
+            }
+            break;
+        }
+
+        case SourceMemberType::kGlobal:
+        case SourceMemberType::kProcedure:
+        case SourceMemberType::kType: {
+            FindEditorWindowEventArgs eventArgs{ member, nullptr };
+            message(TProgram::deskTop, evBroadcast, kCmdFindEditorWindow, &eventArgs);
+            if (eventArgs.window != nullptr) {
+                eventArgs.window->close();
+            }
+            break;
+        }
+
+        default:
+            assert(false);
+            break;
     }
 
     for (auto iter = p->sourceProgram->members.begin(); iter != p->sourceProgram->members.end(); ++iter) {
