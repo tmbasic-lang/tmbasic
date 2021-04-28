@@ -7,5 +7,5 @@
 /obj
 /turbo
 /tvision
-/valgrind.txt
+/valgrind*
 debug.log

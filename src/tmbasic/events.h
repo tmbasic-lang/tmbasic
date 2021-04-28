@@ -49,6 +49,9 @@ enum : uint16_t {
     kCmdPictureOptions,
     kCmdPicturePasteOk,
     kCmdPicturePasteCancel,
+    kCmdPictureMove,
+    kCmdPictureMoveOk,
+    kCmdPictureMoveCancel,
 
     // designer window context menu
     kCmdDesignerWindowProperties,

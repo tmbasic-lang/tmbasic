@@ -1,6 +1,7 @@
 # Run "make help" to get started.
 
 OPTFLAGS ?= -g -O0
+STRIP_TMBASIC ?= 0
 
 
 
@@ -368,7 +369,7 @@ endif
 
 .PHONY: release
 release:
-	@OPTFLAGS="-Os" EXTRADEFS="-DNDEBUG" $(MAKE)
+	@OPTFLAGS="-Os" EXTRADEFS="-DNDEBUG" STRIP_TMBASIC=1 $(MAKE)
 
 .PHONY: clean
 clean:
@@ -376,7 +377,8 @@ clean:
 
 .PHONY: run
 run:
-	@bin/tmbasic
+	@bin/tmbasic \
+		|| (printf "\r\nCrash detected! Resetting terminal in 5 seconds...\r\n" && sleep 5 && reset && echo "Eating input. Press Ctrl+D." && cat >/dev/null)
 
 .PHONY: test
 test: bin/test$(EXE_EXTENSION)
@@ -384,7 +386,8 @@ test: bin/test$(EXE_EXTENSION)
 
 .PHONY: valgrind
 valgrind: bin/tmbasic
-	@valgrind --leak-check=full --show-leak-kinds=all --undef-value-errors=no --log-file=valgrind.txt bin/tmbasic
+	@valgrind --leak-check=full --show-leak-kinds=all --undef-value-errors=no --log-file=valgrind.txt bin/tmbasic \
+		|| (printf "\r\nCrash detected! Resetting terminal in 5 seconds...\r\n" && sleep 5 && reset && echo "Eating input. Press Ctrl+D." && cat >/dev/null)
 
 .PHONY: format
 format:
@@ -665,7 +668,9 @@ bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
 		$(ICON_RES_OBJ_FILE) \
 		$(TMBASIC_LDFLAGS) \
 		$(LDFLAGS)
+ifeq ($(STRIP_TMBASIC),1)
 	@$(STRIP) bin/tmbasic$(EXE_EXTENSION)
+endif
 
 ifeq ($(TARGET_OS),win)
 obj/tmbasic/AppWin.res.o: src/tmbasic/AppWin.rc doc/art/favicon/favicon.ico

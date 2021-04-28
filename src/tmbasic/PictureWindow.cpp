@@ -200,6 +200,22 @@ class Picture {
         cells = std::move(newCells);
     }
 
+    Picture crop(TRect bounds) {
+        Picture dst{ bounds.b.x - bounds.a.x, bounds.b.y - bounds.a.y };
+        for (auto yDst = 0; yDst < dst.height; yDst++) {
+            auto ySrc = yDst + bounds.a.y;
+            if (ySrc >= 0 && ySrc < height) {
+                for (auto xDst = 0; xDst < dst.width; xDst++) {
+                    auto xSrc = xDst + bounds.a.x;
+                    if (xSrc >= 0 && xSrc < width) {
+                        dst.cells.at(yDst * dst.width + xDst) = cells.at(ySrc * width + xSrc);
+                    }
+                }
+            }
+        }
+        return dst;
+    }
+
    private:
     static char parseHexNibble(char ch) {
         if (ch >= '0' && ch <= '9') {
@@ -240,8 +256,14 @@ class PictureView : public TView {
     // select and type modes
     std::optional<TRect> selection;
     bool flashingSelection = false;
+
+    // select mode > paste and move operations
     std::optional<Picture> pastedPicture{};
     std::optional<TPoint> pastedPictureLocation{};
+
+    // select mode > move operation
+    std::optional<TRect> moveOriginalRect{};        // where the pastedPicture is being dragged from
+    std::optional<TColorAttr> moveOriginalColor{};  // the color to fill in the original area
 
     // mask mode
     bool flashingMask = false;
@@ -278,7 +300,7 @@ class PictureView : public TView {
         }
     }
 
-    void drawPictureRegion(const Picture& p, int xViewOffset = 0, int yViewOffset = 0) {
+    void drawPictureRegion(const Picture& p, int xViewOffset = 0, int yViewOffset = 0, bool isMainDocPhoto = true) {
         // p may be the user's picture or it may be a pasted photo being shown overlaid
         for (auto pictureY = 0; pictureY < p.height; pictureY++) {
             TDrawBuffer b;
@@ -316,7 +338,10 @@ class PictureView : public TView {
                 }
 
                 const auto& cell = p.cells.at(pictureY * p.width + pictureX);
-                if (cell.transparent) {
+                if (isMainDocPhoto && moveOriginalRect.has_value() &&
+                    moveOriginalRect->contains(TPoint{ pictureX, pictureY })) {
+                    b.moveChar(viewX - minViewX, ' ', *moveOriginalColor, 1);
+                } else if (cell.transparent) {
                     if (flashingMask) {
                         b.moveStr(viewX - minViewX, "░", { 0xDF });
                     } else {
@@ -381,6 +406,7 @@ class PictureView : public TView {
         drawPictureRegion(picture);
 
         // show a pasted picture or a selection, not both
+        // the pasted picture may be either a literal pasted picture, or the user dragging a selection to move it.
         if (pastedPicture.has_value()) {
             auto x = 0;
             auto y = 0;
@@ -388,9 +414,10 @@ class PictureView : public TView {
                 x = pastedPictureLocation->x;
                 y = pastedPictureLocation->y;
             }
-            drawPictureRegion(*pastedPicture, x, y);
+            drawPictureRegion(*pastedPicture, x, y, false);
             drawSelectionRect(
-                *pastedPicture, { x, y, x + pastedPicture->width, y + pastedPicture->height }, x, y, 0x3B);
+                *pastedPicture, { x, y, x + pastedPicture->width, y + pastedPicture->height }, x, y,
+                moveOriginalRect.has_value() ? 0x2A : 0x3B);
         } else if (selection.has_value()) {
             drawSelectionRect(picture, *selection, 0, 0, 0x2A);
         }
@@ -445,6 +472,36 @@ class PictureView : public TView {
         }
 
         return { text.str(), colors, mask };
+    }
+
+    void commitPaste() {
+        const auto& src = *pastedPicture;
+        auto& dst = picture;
+
+        if (moveOriginalRect.has_value()) {
+            for (auto yDst = moveOriginalRect->a.y; yDst < moveOriginalRect->b.y; yDst++) {
+                for (auto xDst = moveOriginalRect->a.x; xDst < moveOriginalRect->b.x; xDst++) {
+                    auto& cellDst = dst.cells.at(yDst * dst.width + xDst);
+                    cellDst = PictureCell{ false, *moveOriginalColor, " " };
+                }
+            }
+        }
+
+        for (auto ySrc = 0; ySrc < src.height; ySrc++) {
+            auto yDst = ySrc + pastedPictureLocation->y;
+            if (yDst < 0 || yDst >= dst.height) {
+                continue;
+            }
+            for (auto xSrc = 0; xSrc < src.width; xSrc++) {
+                auto xDst = xSrc + pastedPictureLocation->x;
+                if (xDst < 0 || xDst >= dst.width) {
+                    continue;
+                }
+                const auto& cellSrc = src.cells.at(ySrc * src.width + xSrc);
+                auto& cellDst = dst.cells.at(yDst * dst.width + xDst);
+                cellDst = cellSrc;
+            }
+        }
     }
 };
 
@@ -521,7 +578,8 @@ enum class PictureWindowMode {
     kMask,
 
     // operations
-    kPaste
+    kPaste,
+    kMove
 };
 
 class PictureWindowPrivate {
@@ -529,12 +587,15 @@ class PictureWindowPrivate {
     void updateScrollBars();
     void enableDisableCommands(bool enable);
     void updateStatusItems();
-    void onSelectionClear();
-    void onSelectionCut();
-    void onSelectionCopy();
-    void onSelectionPaste();
+    void onClear();
+    void onCut();
+    void onCopy();
+    void onPaste();
     void onPasteCancel();
     void onPasteOk();
+    void onMove();
+    void onMoveCancel();
+    void onMoveOk();
     void onMouse(int pictureX, int pictureY, const PictureViewMouseEventArgs& e);
     void onTick();
 
@@ -549,9 +610,12 @@ class PictureWindowPrivate {
     std::optional<TPoint> currentDrag;
 
     // select tool > paste operation
-    std::optional<TPoint> currentPasteDrag;  // the location where the user started dragging
-    std::optional<TPoint>
-        currentPasteDragPictureLocation;  // the position of the picture when the user started dragging
+    std::optional<TPoint> currentPasteDrag;                 // the location where the user started dragging
+    std::optional<TPoint> currentPasteDragPictureLocation;  // pos. of the picture when the user started dragging
+
+    // select tool > move operation
+    std::optional<TPoint> currentMoveDrag;                   // the location where the user started dragging
+    std::optional<TPoint> currentMoveDragSelectionLocation;  // pos. of the selection when the user started dragging
 
     // mask tool
     bool currentDragTransparent = false;
@@ -585,11 +649,17 @@ class PictureWindowPrivate {
     ViewPtr<ThinButton> copyButton{ "Copy", cmCopy };
     ViewPtr<ThinButton> pasteButton{ "Paste", cmPaste };
     ViewPtr<ThinButton> clearButton{ "Delete", cmClear };
+    ViewPtr<ThinButton> moveButton{ "~M~ove", kCmdPictureMove };
 
     // select tool -> paste operation
     ViewPtr<Label> pasteHelp{ "Drag or use arrow keys to move." };
     ViewPtr<ThinButton> pasteOkButton{ "OK", kCmdPicturePasteOk };
     ViewPtr<ThinButton> pasteCancelButton{ "Cancel", kCmdPicturePasteCancel };
+
+    // select tool -> move operation
+    ViewPtr<Label> moveHelp{ "Drag or use arrow keys to move." };
+    ViewPtr<ThinButton> moveOkButton{ "OK", kCmdPictureMoveOk };
+    ViewPtr<ThinButton> moveCancelButton{ "Cancel", kCmdPictureMoveCancel };
 };
 
 static std::string getPictureWindowTitle(const std::string& name) {
@@ -647,6 +717,7 @@ PictureWindow::PictureWindow(
             _private->copyButton.take(),
             _private->pasteButton.take(),
             _private->clearButton.take(),
+            _private->moveButton.take(),
         })
         .addTo(this, 10, 80, 1);
 
@@ -661,6 +732,18 @@ PictureWindow::PictureWindow(
     _private->pasteHelp->hide();
     _private->pasteOkButton->hide();
     _private->pasteCancelButton->hide();
+
+    RowLayout(
+        false,
+        {
+            _private->moveOkButton.take(),
+            _private->moveCancelButton.take(),
+            _private->moveHelp.take(),
+        })
+        .addTo(this, 10, 80, 1);
+    _private->moveHelp->hide();
+    _private->moveOkButton->hide();
+    _private->moveCancelButton->hide();
 
     try {
         _private->pictureView->picture = Picture(member->source);
@@ -706,6 +789,7 @@ void PictureWindowPrivate::enableDisableCommands(bool enable) {
     TCommandSet tsClipboard;
     tsClipboard.enableCmd(cmCut);
     tsClipboard.enableCmd(cmCopy);
+    tsClipboard.enableCmd(kCmdPictureMove);
     (enable && pictureView->selection.has_value() ? TView::enableCommands : TView::disableCommands)(tsClipboard);
 }
 
@@ -767,13 +851,16 @@ void PictureWindowPrivate::updateStatusItems() {
         case PictureWindowMode::kPaste:
             labelText = "Paste";
             break;
+        case PictureWindowMode::kMove:
+            labelText = "Move";
+            break;
         default:
             assert(false);
             break;
     }
 
     // Copy, Move, Fill
-    showHide(mode == PictureWindowMode::kSelect, { copyButton, cutButton, pasteButton, clearButton });
+    showHide(mode == PictureWindowMode::kSelect, { copyButton, cutButton, pasteButton, clearButton, moveButton });
 
     // Set FG, Set BG
     showHide(
@@ -801,6 +888,9 @@ void PictureWindowPrivate::updateStatusItems() {
     // Paste
     showHide(mode == PictureWindowMode::kPaste, { pasteHelp, pasteOkButton, pasteCancelButton });
 
+    // Selection > Move
+    showHide(mode == PictureWindowMode::kMove, { moveHelp, moveOkButton, moveCancelButton });
+
     // Mask help
     showHide(mode == PictureWindowMode::kMask, { maskHelp });
 
@@ -808,7 +898,7 @@ void PictureWindowPrivate::updateStatusItems() {
     toolLabel->drawView();
 }
 
-void PictureWindowPrivate::onSelectionClear() {
+void PictureWindowPrivate::onClear() {
     PictureCell pictureCell{ false, { fg, bg }, " " };
 
     auto& picture = pictureView->picture;
@@ -825,17 +915,17 @@ void PictureWindowPrivate::onSelectionClear() {
     pictureView->drawView();
 }
 
-void PictureWindowPrivate::onSelectionCut() {
+void PictureWindowPrivate::onCut() {
     try {
         _clipboardText = pictureView->getSelectionTextForClipboard();
         util::setClipboard(_clipboardText.text);
-        onSelectionClear();
+        onClear();
     } catch (std::runtime_error& ex) {
         messageBox(ex.what(), mfError | mfOKButton);
     }
 }
 
-void PictureWindowPrivate::onSelectionCopy() {
+void PictureWindowPrivate::onCopy() {
     try {
         _clipboardText = pictureView->getSelectionTextForClipboard();
         util::setClipboard(_clipboardText.text);
@@ -844,7 +934,7 @@ void PictureWindowPrivate::onSelectionCopy() {
     }
 }
 
-void PictureWindowPrivate::onSelectionPaste() {
+void PictureWindowPrivate::onPaste() {
     ClipboardText ct{};
     try {
         ct.text = util::getClipboard();
@@ -931,25 +1021,38 @@ void PictureWindowPrivate::onPasteCancel() {
 }
 
 void PictureWindowPrivate::onPasteOk() {
-    const auto& src = *pictureView->pastedPicture;
-    auto& dst = pictureView->picture;
-    for (auto ySrc = 0; ySrc < src.height; ySrc++) {
-        auto yDst = ySrc + pictureView->pastedPictureLocation->y;
-        if (yDst < 0 || yDst >= dst.height) {
-            continue;
-        }
-        for (auto xSrc = 0; xSrc < src.width; xSrc++) {
-            auto xDst = xSrc + pictureView->pastedPictureLocation->x;
-            if (xDst < 0 || xDst >= dst.width) {
-                continue;
-            }
-            const auto& cellSrc = src.cells.at(ySrc * src.width + xSrc);
-            auto& cellDst = dst.cells.at(yDst * dst.width + xDst);
-            cellDst = cellSrc;
-        }
-    }
+    pictureView->commitPaste();
     pictureView->drawView();
     onPasteCancel();
+}
+
+void PictureWindowPrivate::onMove() {
+    if (!pictureView->selection.has_value()) {
+        return;
+    }
+
+    pictureView->pastedPicture = pictureView->picture.crop(*pictureView->selection);
+    pictureView->pastedPictureLocation = pictureView->selection->a;
+    pictureView->moveOriginalColor = { fg, bg };
+    pictureView->moveOriginalRect = pictureView->selection;
+    mode = PictureWindowMode::kMove;
+    updateStatusItems();
+}
+
+void PictureWindowPrivate::onMoveCancel() {
+    currentMoveDrag = {};
+    currentMoveDragSelectionLocation = {};
+    pictureView->pastedPicture = {};
+    pictureView->pastedPictureLocation = {};
+    pictureView->moveOriginalColor = {};
+    pictureView->moveOriginalRect = {};
+    pictureView->drawView();
+}
+
+void PictureWindowPrivate::onMoveOk() {
+    pictureView->commitPaste();
+    pictureView->drawView();
+    onMoveCancel();
 }
 
 void PictureWindowPrivate::onMouse(int pictureX, int pictureY, const PictureViewMouseEventArgs& e) {
@@ -1023,7 +1126,6 @@ void PictureWindowPrivate::onMouse(int pictureX, int pictureY, const PictureView
                 onPasteOk();
                 mode = PictureWindowMode::kSelect;
                 updateStatusItems();
-                return;  // don't proceed to interpret this mouse click as the start of a drag selection
             }
         }
         if ((e.up || (e.move && e.buttons == 0)) && currentPasteDrag.has_value()) {
@@ -1032,6 +1134,42 @@ void PictureWindowPrivate::onMouse(int pictureX, int pictureY, const PictureView
             currentPasteDragPictureLocation = {};
         }
         pictureView->drawView();
+        return;
+    }
+
+    // move handled earlier here because in this mode, the user may click outside the picture
+    if (mode == PictureWindowMode::kMove) {
+        if (currentMoveDrag.has_value()) {
+            // the user is continuing to drag-move a selection
+            auto xOffset = pictureX - currentMoveDrag->x;
+            auto yOffset = pictureY - currentMoveDrag->y;
+            auto xNew = currentMoveDragSelectionLocation->x + xOffset;
+            auto yNew = currentMoveDragSelectionLocation->y + yOffset;
+            auto w = pictureView->selection->b.x - pictureView->selection->a.x;
+            auto h = pictureView->selection->b.y - pictureView->selection->a.y;
+            pictureView->selection = TRect{ xNew, yNew, xNew + w, yNew + h };
+            pictureView->pastedPictureLocation = pictureView->selection->a;
+        } else if (e.down) {
+            // if this is inside the selection, then the user has started to drag it
+            // if this is outside the selection, then the user is accepting the move
+            auto& loc = pictureView->pastedPictureLocation;
+            if (pictureX >= loc->x && pictureY >= loc->y && pictureX < loc->x + pictureView->pastedPicture->width &&
+                pictureY < loc->y + pictureView->pastedPicture->height) {
+                currentMoveDrag = { pictureX, pictureY };
+                currentMoveDragSelectionLocation = pictureView->pastedPictureLocation;
+            } else {
+                onMoveOk();
+                mode = PictureWindowMode::kSelect;
+                updateStatusItems();
+            }
+        }
+        if ((e.up || (e.move && e.buttons == 0)) && currentMoveDrag.has_value()) {
+            // the user has stopped dragging the selection
+            currentMoveDrag = {};
+            currentMoveDragSelectionLocation = {};
+        }
+        pictureView->drawView();
+        return;
     }
 
     if (pt.x < 0 || pt.x >= picture.width || pt.y < 0 || pt.y >= picture.height) {
@@ -1061,10 +1199,19 @@ void PictureWindowPrivate::onMouse(int pictureX, int pictureY, const PictureView
                 pictureView->selection = TRect(x1, y1, x2, y2);
                 enableDisableCommands(true);
             } else if (e.down) {
-                // the user has started drag-selecting
-                currentDrag = { pictureX, pictureY };
-                pictureView->selection = TRect(*currentDrag, TPoint{ currentDrag->x + 1, currentDrag->y + 1 });
-                enableDisableCommands(true);
+                // the user has started some kind of drag operation
+                if (pictureView->selection.has_value() &&
+                    pictureView->selection->contains(TPoint{ pictureX, pictureY })) {
+                    // the user has started drag-moving
+                    onMove();
+                    currentMoveDrag = { pictureX, pictureY };
+                    currentMoveDragSelectionLocation = pictureView->pastedPictureLocation;
+                } else {
+                    // the user has started drag-selecting
+                    currentDrag = { pictureX, pictureY };
+                    pictureView->selection = TRect(*currentDrag, TPoint{ currentDrag->x + 1, currentDrag->y + 1 });
+                    enableDisableCommands(true);
+                }
             }
             if ((e.up || (e.move && e.buttons == 0)) && currentDrag.has_value()) {
                 // the user has stopped drag-selecting
@@ -1145,7 +1292,7 @@ void PictureWindowPrivate::onTick() {
             pictureView->drawView();
         } else if (
             mode == PictureWindowMode::kSelect || mode == PictureWindowMode::kType ||
-            mode == PictureWindowMode::kPaste) {
+            mode == PictureWindowMode::kPaste || mode == PictureWindowMode::kMove) {
             pictureView->flashingSelection = !pictureView->flashingSelection;
             pictureView->drawView();
         }
@@ -1191,6 +1338,18 @@ void PictureWindow::handleEvent(TEvent& event) {
         } else if (event.keyDown.keyCode == kbEnter && _private->mode == PictureWindowMode::kPaste) {
             // user is pressing Enter to confirm a paste
             _private->onPasteOk();
+            _private->mode = PictureWindowMode::kSelect;
+            _private->updateStatusItems();
+            clearEvent(event);
+        } else if (event.keyDown.keyCode == kbEsc && _private->mode == PictureWindowMode::kMove) {
+            // user is pressing ESC to cancel a move
+            _private->onMoveCancel();
+            _private->mode = PictureWindowMode::kSelect;
+            _private->updateStatusItems();
+            clearEvent(event);
+        } else if (event.keyDown.keyCode == kbEnter && _private->mode == PictureWindowMode::kMove) {
+            // user is pressing Enter to confirm a move
+            _private->onMoveOk();
             _private->mode = PictureWindowMode::kSelect;
             _private->updateStatusItems();
             clearEvent(event);
@@ -1244,10 +1403,10 @@ void PictureWindow::handleEvent(TEvent& event) {
                 _private->pictureView->drawView();
             }
         } else if (
-            _private->mode == PictureWindowMode::kPaste &&
+            (_private->mode == PictureWindowMode::kPaste || _private->mode == PictureWindowMode::kMove) &&
             (event.keyDown.keyCode == kbLeft || event.keyDown.keyCode == kbRight || event.keyDown.keyCode == kbUp ||
              event.keyDown.keyCode == kbDown)) {
-            // user is using the arrow keys to move the pasted picture in paste mode
+            // user is using the arrow keys to move the pasted picture in paste or move mode
             auto deltaX = 0;
             auto deltaY = 0;
             getArrowKeyDirection(event.keyDown.keyCode, &deltaX, &deltaY);
@@ -1276,7 +1435,29 @@ void PictureWindow::handleEvent(TEvent& event) {
             }
 
             case cmClear:
-                _private->onSelectionClear();
+                _private->onClear();
+                clearEvent(event);
+                break;
+
+            case cmCut:
+                if (_private->mode == PictureWindowMode::kSelect) {
+                    _private->onCut();
+                }
+                clearEvent(event);
+                break;
+
+            case cmCopy:
+                if (_private->mode == PictureWindowMode::kSelect) {
+                    _private->onCopy();
+                }
+                clearEvent(event);
+                break;
+
+            case cmPaste:
+                if (_private->mode == PictureWindowMode::kPaste) {
+                    _private->onPasteOk();
+                }
+                _private->onPaste();
                 clearEvent(event);
                 break;
 
@@ -1294,25 +1475,24 @@ void PictureWindow::handleEvent(TEvent& event) {
                 clearEvent(event);
                 break;
 
-            case cmCut:
+            case kCmdPictureMove:
                 if (_private->mode == PictureWindowMode::kSelect) {
-                    _private->onSelectionCut();
+                    _private->onMove();
                 }
                 clearEvent(event);
                 break;
 
-            case cmCopy:
-                if (_private->mode == PictureWindowMode::kSelect) {
-                    _private->onSelectionCopy();
-                }
+            case kCmdPictureMoveCancel:
+                _private->onMoveCancel();
+                _private->mode = PictureWindowMode::kSelect;
+                _private->updateStatusItems();
                 clearEvent(event);
                 break;
 
-            case cmPaste:
-                if (_private->mode == PictureWindowMode::kPaste) {
-                    _private->onPasteOk();
-                }
-                _private->onSelectionPaste();
+            case kCmdPictureMoveOk:
+                _private->onMoveOk();
+                _private->mode = PictureWindowMode::kSelect;
+                _private->updateStatusItems();
                 clearEvent(event);
                 break;
         }
