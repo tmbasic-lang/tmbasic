@@ -65,7 +65,7 @@ EditorWindow::EditorWindow(const TRect& r, SourceMember* member, std::function<v
 
     auto editorRect = TRect(getExtent());
     editorRect.grow(-1, -1);
-    auto editor = ViewPtr<TEditor>(editorRect, hScrollBar, vScrollBar, indicator, kBufferSize);
+    auto editor = ViewPtr<CodeEditor>(editorRect, hScrollBar, vScrollBar, indicator, kBufferSize);
     _editor = editor;
     _editor->modified = false;
 

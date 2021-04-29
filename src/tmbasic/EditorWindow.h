@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../common.h"
+#include "CodeEditor.h"
 #include "compiler/SourceProgram.h"
 
 namespace tmbasic {
@@ -20,7 +21,7 @@ class EditorWindow : public TWindow {
     void onTimerTick();
     void updateTitle();
 
-    TEditor* _editor = nullptr;
+    CodeEditor* _editor = nullptr;
     compiler::SourceMember* _member;
     std::function<void()> _onEdited;
     int _pendingUpdate = -1;   // -1=no edit pending, 0+=number of ticks since the last edit
