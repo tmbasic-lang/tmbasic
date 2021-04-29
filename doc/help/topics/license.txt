@@ -18,8 +18,6 @@ li@{"libxcb" License:license_libxcb}@
 li@{"mpdecimal" License:license_mpdecimal}@
 li@{"musl" License:license_musl}@
 li@{"ncurses" License:license_ncurses}@
-li@{"scintilla" License:license_scintilla}@
-li@{"turbo" License:license_turbo}@
 li@{"tvision" License:license_tvision}@
 @
 
