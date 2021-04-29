@@ -80,9 +80,20 @@ void validateIdentifier(const std::string& text, const char* fieldName) {
 std::string ellipsis(const std::string& text, size_t maxLen) {
     if (text.size() <= maxLen) {
         return text;
-    } else {
-        return fmt::format("{}...", text.substr(0, maxLen - 3));
     }
+    return fmt::format("{}...", text.substr(0, maxLen - 3));
+}
+
+void enableDisableCommand(bool enable, uint16_t command) {
+    (enable ? TView::enableCommand : TView::disableCommand)(command);
+}
+
+void enableDisableCommands(bool enable, std::initializer_list<uint16_t> commands) {
+    TCommandSet commandSet;
+    for (auto command : commands) {
+        commandSet.enableCmd(command);
+    }
+    (enable ? TView::enableCommands : TView::disableCommands)(commandSet);
 }
 
 }  // namespace util
