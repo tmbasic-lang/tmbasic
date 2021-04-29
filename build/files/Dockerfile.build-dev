@@ -71,4 +71,6 @@ RUN echo "export ARCH=\"$ARCH\"" >> /etc/profile.d/tmbasic.sh && \
     chmod +x /etc/profile.d/tmbasic.sh
 
 USER $HOST_UID
+RUN git config --global user.name "$GIT_NAME" && \
+    git config --global user.email "$GIT_EMAIL"
 ENTRYPOINT ["/bin/bash", "-l"]
