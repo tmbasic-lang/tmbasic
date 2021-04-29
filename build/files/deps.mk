@@ -64,6 +64,10 @@ ifeq ($(TARGET_OS),mac)
 CFLAGS += -arch $(MACARCH) -mmacosx-version-min=$(MACVER)
 endif
 
+ifeq ($(TARGET_OS),win)
+EXE_EXTENSION=.exe
+endif
+
 # these match the directory name in the tarballs that we download
 BOOST_DIR=$(PWD)/boost_$(shell echo $(BOOST_VERSION) | tr '.' '_')
 BSDIFF_DIR=$(PWD)/bsdiff-$(BSDIFF_VERSION)
@@ -518,7 +522,8 @@ $(TURBO_DIR)/install: $(TURBO_DIR)/download $(TVISION_DIR)/install $(FMT_DIR)/in
 			$(CMAKE_TOOLCHAIN_FLAG) && \
 		$(MAKE) && \
 		cp -f *.a $(TARGET_PREFIX)/lib/ && \
-		cp $(shell find $(TURBO_DIR) -name '*.h') $(TARGET_PREFIX)/include/
+		cp $(shell find $(TURBO_DIR) -name '*.h') $(TARGET_PREFIX)/include/ && \
+		cp turbo$(EXE_EXTENSION) $(TARGET_PREFIX)/bin/
 	touch $@
 
 
