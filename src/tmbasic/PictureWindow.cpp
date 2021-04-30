@@ -5,6 +5,7 @@
 #include "../util/DialogPtr.h"
 #include "../util/InputLine.h"
 #include "../util/Label.h"
+#include "../util/PictureView.h"
 #include "../util/ScrollBar.h"
 #include "../util/StatusLine.h"
 #include "../util/ThinButton.h"
@@ -26,6 +27,8 @@ using util::CheckBoxes;
 using util::DialogPtr;
 using util::InputLine;
 using util::Label;
+using util::Picture;
+using util::PictureCell;
 using util::ScrollBar;
 using util::StatusLine;
 using util::ThinButton;
@@ -45,201 +48,7 @@ class ClipboardText {
 // clipboard matches this text, then we use these colors.
 static ClipboardText _clipboardText{};
 
-class PictureCell {
-   public:
-    bool transparent = false;
-    TColorAttr colorAttr{ TColorRGB{ 0, 0, 0 }, TColorRGB{ 255, 255, 255 } };
-    std::string ch = " ";
-};
-
-class Picture {
-   public:
-    std::string name = "Untitled";
-    std::vector<PictureCell> cells;
-    int width{};
-    int height{};
-
-    Picture(int width, int height) : cells(width * height, PictureCell()), width(width), height(height) {}
-
-    explicit Picture(const std::string& source) {
-        std::istringstream s{ source };
-        s >> std::hex;
-        std::string pictureKeyword;
-        std::string sizeSeparator;
-        s >> pictureKeyword >> name >> sizeSeparator >> width >> height;
-        if (pictureKeyword != "picture" || sizeSeparator != "Z") {
-            throw std::runtime_error("Unexpected data in picture source.");
-        }
-        cells = { static_cast<size_t>(width * height), PictureCell() };
-        uint32_t fg = 0;
-        uint32_t bg = 0;
-        int transparent = 0;
-        std::string utf8 = " ";
-        for (auto y = 0; y < height; y++) {
-            for (auto x = 0; x < width; x++) {
-                std::string command;
-                s >> command;
-
-                auto changesBitMask = command.at(0) - 'A';
-                auto charChanged = (changesBitMask & 0x01) != 0;
-                auto transparentChanged = (changesBitMask & 0x02) != 0;
-                auto fgChanged = (changesBitMask & 0x04) != 0;
-                auto bgChanged = (changesBitMask & 0x08) != 0;
-
-                if (charChanged) {
-                    std::string utf8Hex;
-                    s >> utf8Hex;
-                    if ((utf8Hex.size() % 2) != 0) {
-                        throw std::runtime_error("Unexpected data in picture source.");
-                    }
-                    utf8 = "";
-                    for (size_t i = 0; i < utf8Hex.size(); i += 2) {
-                        auto ch = parseHexByte(utf8Hex.at(i), utf8Hex.at(i + 1));
-                        utf8 += ch;
-                    }
-                }
-                if (transparentChanged) {
-                    s >> transparent;
-                }
-                if (fgChanged) {
-                    s >> fg;
-                }
-                if (bgChanged) {
-                    s >> bg;
-                }
-
-                auto& cell = cells.at(y * width + x);
-                cell.transparent = transparent != 0;
-                cell.colorAttr = { TColorRGB(fg), TColorRGB(bg) };
-                cell.ch = utf8;
-            }
-        }
-    }
-
-    std::string exportToString() {
-        std::ostringstream s;
-        s << "picture " << name << "\n";
-        auto lineStart = s.tellp();
-        s << "Z " << std::hex << width << " " << height;
-        uint32_t previousFg = 0;
-        uint32_t previousBg = 0;
-        auto previousTransparent = false;
-        std::string previousChar = " ";
-        std::function<void()> newlineOrSpace = [&s, &lineStart]() -> void {
-            if (s.tellp() - lineStart >= 110) {
-                s << "\n";
-                lineStart = s.tellp();
-            } else {
-                s << " ";
-            }
-        };
-        for (auto y = 0; y < height; y++) {
-            for (auto x = 0; x < width; x++) {
-                auto n = y * width + x;
-                auto& cell = cells.at(n);
-                auto fg = static_cast<uint32_t>(getFore(cell.colorAttr).asRGB());
-                auto bg = static_cast<uint32_t>(getBack(cell.colorAttr).asRGB());
-
-                newlineOrSpace();
-
-                auto changesBitMask = (previousChar != cell.ch ? 0x01 : 0) |
-                    (previousTransparent != cell.transparent ? 0x02 : 0) | (previousFg != fg ? 0x04 : 0) |
-                    (previousBg != bg ? 0x08 : 0);
-                char command = 'A' + changesBitMask;
-
-                s << command;
-
-                if (previousChar != cell.ch) {
-                    newlineOrSpace();
-                    for (auto ch : cell.ch) {
-                        s << std::setw(2) << std::setfill('0') << static_cast<int>(ch & 0xFF);
-                    }
-                }
-
-                if (previousTransparent != cell.transparent) {
-                    newlineOrSpace();
-                    s << (cell.transparent ? 1 : 0);
-                }
-
-                if (previousFg != fg) {
-                    newlineOrSpace();
-                    s << fg;
-                }
-
-                if (previousBg != bg) {
-                    newlineOrSpace();
-                    s << bg;
-                }
-
-                previousChar = cell.ch;
-                previousTransparent = cell.transparent;
-                previousFg = fg;
-                previousBg = bg;
-            }
-        }
-        s << "\nend picture\n";
-        return s.str();
-    }
-
-    void resize(int newWidth, int newHeight) {
-        if (newWidth < 1) {
-            newWidth = 1;
-        }
-        if (newHeight < 1) {
-            newHeight = 1;
-        }
-        std::vector<PictureCell> newCells{ static_cast<size_t>(newWidth * newHeight), PictureCell() };
-        auto commonWidth = std::min(width, newWidth);
-        auto commonHeight = std::min(height, newHeight);
-        for (auto x = 0; x < commonWidth; x++) {
-            for (auto y = 0; y < commonHeight; y++) {
-                newCells.at(y * newWidth + x) = cells.at(y * width + x);
-            }
-        }
-        width = newWidth;
-        height = newHeight;
-        cells = std::move(newCells);
-    }
-
-    Picture crop(TRect bounds) {
-        Picture dst{ bounds.b.x - bounds.a.x, bounds.b.y - bounds.a.y };
-        for (auto yDst = 0; yDst < dst.height; yDst++) {
-            auto ySrc = yDst + bounds.a.y;
-            if (ySrc >= 0 && ySrc < height) {
-                for (auto xDst = 0; xDst < dst.width; xDst++) {
-                    auto xSrc = xDst + bounds.a.x;
-                    if (xSrc >= 0 && xSrc < width) {
-                        dst.cells.at(yDst * dst.width + xDst) = cells.at(ySrc * width + xSrc);
-                    }
-                }
-            }
-        }
-        return dst;
-    }
-
-   private:
-    static char parseHexNibble(char ch) {
-        if (ch >= '0' && ch <= '9') {
-            return ch - '0';
-        }
-        if (ch >= 'a' && ch <= 'f') {
-            return ch - 'a' + 10;
-        }
-        if (ch >= 'A' && ch <= 'F') {
-            return ch - 'A' + 10;
-        }
-        return 0;
-    }
-
-    static char parseHexByte(char hi, char lo) {
-        char value = parseHexNibble(hi);
-        value <<= 4;
-        value |= parseHexNibble(lo);
-        return value;
-    }
-};
-
-class PictureViewMouseEventArgs {
+class CanvasViewMouseEventArgs {
    public:
     TPoint viewPoint;
     uint8_t buttons;
@@ -248,7 +57,7 @@ class PictureViewMouseEventArgs {
     bool up;
 };
 
-class PictureView : public TView {
+class CanvasView : public TView {
    public:
     Picture picture{ 40, 15 };
     int scrollTop = 0;
@@ -269,7 +78,7 @@ class PictureView : public TView {
     // mask mode
     bool flashingMask = false;
 
-    explicit PictureView(const TRect& bounds) : TView(bounds) {
+    explicit CanvasView(const TRect& bounds) : TView(bounds) {
         eventMask = evMouseDown | evMouseMove | evMouseUp;
         options |= ofSelectable | ofFirstClick;
     }
@@ -294,8 +103,8 @@ class PictureView : public TView {
         TView::handleEvent(event);
         if (event.what == evMouseDown || event.what == evMouseMove || event.what == evMouseUp) {
             auto lastMouse = makeLocal(event.mouse.where);
-            PictureViewMouseEventArgs e{ lastMouse, event.mouse.buttons, event.what == evMouseDown,
-                                         event.what == evMouseMove, event.what == evMouseUp };
+            CanvasViewMouseEventArgs e{ lastMouse, event.mouse.buttons, event.what == evMouseDown,
+                                        event.what == evMouseMove, event.what == evMouseUp };
             message(owner, evCommand, kCmdPictureViewMouse, &e);
             clearEvent(event);
         }
@@ -598,7 +407,7 @@ class PictureWindowPrivate {
     void onMove();
     void onMoveCancel();
     void onMoveOk();
-    void onMouse(int pictureX, int pictureY, const PictureViewMouseEventArgs& e);
+    void onMouse(int pictureX, int pictureY, const CanvasViewMouseEventArgs& e);
     void onTick();
     void checkpoint();
     void onUndo();
@@ -638,7 +447,7 @@ class PictureWindowPrivate {
     bool resizingHorizontal = false;
 
     // shared GUI
-    ViewPtr<PictureView> pictureView{ TRect() };
+    ViewPtr<CanvasView> canvasView{ TRect() };
     ViewPtr<ScrollBar> vScrollBar{ TRect(0, 0, 1, 10) };
     ViewPtr<ScrollBar> hScrollBar{ TRect(0, 0, 10, 1) };
     ViewPtr<Label> toolLabel{ TRect(1, 1, 10, 2) };
@@ -751,14 +560,14 @@ PictureWindow::PictureWindow(
     _private->moveCancelButton->hide();
 
     try {
-        _private->pictureView->picture = Picture(member->source);
+        _private->canvasView->picture = Picture(member->source);
     } catch (...) {
     }
 
-    _private->pictureView->setBounds(TRect(1, 2, size.x - 1, size.y - 1));
-    _private->pictureView->growMode = gfGrowHiX | gfGrowHiY;
-    _private->pictureView.addTo(this);
-    _private->pictureView->select();
+    _private->canvasView->setBounds(TRect(1, 2, size.x - 1, size.y - 1));
+    _private->canvasView->growMode = gfGrowHiX | gfGrowHiY;
+    _private->canvasView.addTo(this);
+    _private->canvasView->select();
 
     _private->updateScrollBars();
 }
@@ -769,11 +578,11 @@ PictureWindow::~PictureWindow() {
 
 void PictureWindowPrivate::updateScrollBars() {
     vScrollBar->setParams(
-        vScrollBar->value, 0, std::max(0, pictureView->picture.height + 5 - (pictureView->size.y - 1)),
-        pictureView->size.y - 1, 1);
+        vScrollBar->value, 0, std::max(0, canvasView->picture.height + 5 - (canvasView->size.y - 1)),
+        canvasView->size.y - 1, 1);
     hScrollBar->setParams(
-        hScrollBar->value, 0, std::max(0, pictureView->picture.width + 10 - (pictureView->size.x - 1)),
-        pictureView->size.x - 1, 1);
+        hScrollBar->value, 0, std::max(0, canvasView->picture.width + 10 - (canvasView->size.x - 1)),
+        canvasView->size.x - 1, 1);
 }
 
 void PictureWindowPrivate::enableDisableCommands(bool enable) {
@@ -794,7 +603,7 @@ void PictureWindowPrivate::enableDisableCommands(bool enable) {
         });
 
     util::enableDisableCommands(
-        enable && pictureView->selection.has_value(),
+        enable && canvasView->selection.has_value(),
         {
             cmCut,
             cmCopy,
@@ -897,17 +706,17 @@ void PictureWindowPrivate::updateStatusItems() {
     showHide(mode == PictureWindowMode::kDraw || mode == PictureWindowMode::kPick, { setChCheck });
 
     // Selection
-    if (pictureView->selection.has_value()) {
-        auto sel = *pictureView->selection;
+    if (canvasView->selection.has_value()) {
+        auto sel = *canvasView->selection;
         if (mode != PictureWindowMode::kSelect && mode != PictureWindowMode::kType) {
-            pictureView->selection = {};
+            canvasView->selection = {};
             enableDisableCommands(true);
-            pictureView->drawView();
+            canvasView->drawView();
         }
         if (mode == PictureWindowMode::kType && (sel.b.x > sel.a.x + 1 || sel.b.y > sel.a.y + 1)) {
-            pictureView->selection = TRect(sel.a.x, sel.a.y, sel.a.x + 1, sel.a.y + 1);
+            canvasView->selection = TRect(sel.a.x, sel.a.y, sel.a.x + 1, sel.a.y + 1);
             enableDisableCommands(true);
-            pictureView->drawView();
+            canvasView->drawView();
         }
     }
 
@@ -928,23 +737,23 @@ void PictureWindowPrivate::onClear() {
     checkpoint();
     PictureCell pictureCell{ false, { fg, bg }, " " };
 
-    auto& picture = pictureView->picture;
+    auto& picture = canvasView->picture;
     const auto selection =
-        pictureView->selection.has_value() ? *pictureView->selection : TRect{ 0, 0, picture.width, picture.height };
+        canvasView->selection.has_value() ? *canvasView->selection : TRect{ 0, 0, picture.width, picture.height };
     for (auto y = selection.a.y; y < selection.b.y; y++) {
         for (auto x = selection.a.x; x < selection.b.x; x++) {
             picture.cells.at(y * picture.width + x) = pictureCell;
         }
     }
 
-    pictureView->selection = {};
+    canvasView->selection = {};
     enableDisableCommands(true);
-    pictureView->drawView();
+    canvasView->drawView();
 }
 
 void PictureWindowPrivate::onCut() {
     try {
-        _clipboardText = pictureView->getSelectionTextForClipboard();
+        _clipboardText = canvasView->getSelectionTextForClipboard();
         util::setClipboard(_clipboardText.text);
         checkpoint();
         onClear();
@@ -955,7 +764,7 @@ void PictureWindowPrivate::onCut() {
 
 void PictureWindowPrivate::onCopy() {
     try {
-        _clipboardText = pictureView->getSelectionTextForClipboard();
+        _clipboardText = canvasView->getSelectionTextForClipboard();
         util::setClipboard(_clipboardText.text);
     } catch (std::runtime_error& ex) {
         messageBox(ex.what(), mfError | mfOKButton);
@@ -1012,9 +821,9 @@ void PictureWindowPrivate::onPaste() {
         }
     }
 
-    pictureView->pastedPicture = { maxLineLength, static_cast<int>(charsByRowThenColumn.size()) };
-    pictureView->pastedPictureLocation = { 0, 0 };
-    auto& pastedPicture = *pictureView->pastedPicture;
+    canvasView->pastedPicture = { maxLineLength, static_cast<int>(charsByRowThenColumn.size()) };
+    canvasView->pastedPictureLocation = { 0, 0 };
+    auto& pastedPicture = *canvasView->pastedPicture;
     for (int y = 0; y < static_cast<int>(charsByRowThenColumn.size()); y++) {
         const auto& charsByColumn = charsByRowThenColumn.at(y);
         for (int x = 0; x < maxLineLength; x++) {
@@ -1037,15 +846,15 @@ void PictureWindowPrivate::onPaste() {
     mode = PictureWindowMode::kPaste;
     enableDisableCommands(true);
     updateStatusItems();
-    pictureView->drawView();
+    canvasView->drawView();
 }
 
 void PictureWindowPrivate::onPasteCancel() {
     currentPasteDrag = {};
     currentPasteDragPictureLocation = {};
-    pictureView->pastedPicture = {};
-    pictureView->pastedPictureLocation = {};
-    pictureView->drawView();
+    canvasView->pastedPicture = {};
+    canvasView->pastedPictureLocation = {};
+    canvasView->drawView();
     mode = PictureWindowMode::kSelect;
     updateStatusItems();
     enableDisableCommands(true);
@@ -1053,20 +862,20 @@ void PictureWindowPrivate::onPasteCancel() {
 
 void PictureWindowPrivate::onPasteOk() {
     checkpoint();
-    pictureView->commitPaste();
-    pictureView->drawView();
+    canvasView->commitPaste();
+    canvasView->drawView();
     onPasteCancel();
 }
 
 void PictureWindowPrivate::onMove() {
-    if (!pictureView->selection.has_value()) {
+    if (!canvasView->selection.has_value()) {
         return;
     }
 
-    pictureView->pastedPicture = pictureView->picture.crop(*pictureView->selection);
-    pictureView->pastedPictureLocation = pictureView->selection->a;
-    pictureView->moveOriginalColor = { fg, bg };
-    pictureView->moveOriginalRect = pictureView->selection;
+    canvasView->pastedPicture = canvasView->picture.crop(*canvasView->selection);
+    canvasView->pastedPictureLocation = canvasView->selection->a;
+    canvasView->moveOriginalColor = { fg, bg };
+    canvasView->moveOriginalRect = canvasView->selection;
     mode = PictureWindowMode::kMove;
     updateStatusItems();
     enableDisableCommands(true);
@@ -1075,11 +884,11 @@ void PictureWindowPrivate::onMove() {
 void PictureWindowPrivate::onMoveCancel() {
     currentMoveDrag = {};
     currentMoveDragSelectionLocation = {};
-    pictureView->pastedPicture = {};
-    pictureView->pastedPictureLocation = {};
-    pictureView->moveOriginalColor = {};
-    pictureView->moveOriginalRect = {};
-    pictureView->drawView();
+    canvasView->pastedPicture = {};
+    canvasView->pastedPictureLocation = {};
+    canvasView->moveOriginalColor = {};
+    canvasView->moveOriginalRect = {};
+    canvasView->drawView();
     mode = PictureWindowMode::kSelect;
     updateStatusItems();
     enableDisableCommands(true);
@@ -1087,19 +896,19 @@ void PictureWindowPrivate::onMoveCancel() {
 
 void PictureWindowPrivate::onMoveOk() {
     checkpoint();
-    pictureView->commitPaste();
-    pictureView->drawView();
+    canvasView->commitPaste();
+    canvasView->drawView();
     onMoveCancel();
 }
 
 void PictureWindowPrivate::checkpoint() {
-    undoStack.push(pictureView->picture);
+    undoStack.push(canvasView->picture);
     enableDisableCommands(true);
 }
 
 void PictureWindowPrivate::onUndo() {
-    pictureView->picture = undoStack.undo(std::move(pictureView->picture));
-    pictureView->drawView();
+    canvasView->picture = undoStack.undo(std::move(canvasView->picture));
+    canvasView->drawView();
     if (mode == PictureWindowMode::kPaste) {
         onPasteCancel();
     }
@@ -1110,8 +919,8 @@ void PictureWindowPrivate::onUndo() {
 }
 
 void PictureWindowPrivate::onRedo() {
-    pictureView->picture = undoStack.redo(std::move(pictureView->picture));
-    pictureView->drawView();
+    canvasView->picture = undoStack.redo(std::move(canvasView->picture));
+    canvasView->drawView();
     if (mode == PictureWindowMode::kPaste) {
         onPasteCancel();
     }
@@ -1121,9 +930,9 @@ void PictureWindowPrivate::onRedo() {
     enableDisableCommands(true);
 }
 
-void PictureWindowPrivate::onMouse(int pictureX, int pictureY, const PictureViewMouseEventArgs& e) {
+void PictureWindowPrivate::onMouse(int pictureX, int pictureY, const CanvasViewMouseEventArgs& e) {
     TPoint pt{ pictureX, pictureY };
-    auto& picture = pictureView->picture;
+    auto& picture = canvasView->picture;
     auto leftMouseDown = e.down && (e.buttons & mbLeftButton) != 0;
     auto rightMouseDown = e.down && (e.buttons & mbRightButton) != 0;
     auto leftDragging = e.move && (e.buttons & mbLeftButton) != 0;
@@ -1140,9 +949,9 @@ void PictureWindowPrivate::onMouse(int pictureX, int pictureY, const PictureView
         resizingOriginalPicture = picture;
         resizingVertical = pt == verticalGripper || pt == diagonalGripper;
         resizingHorizontal = pt == horizontalGripper || pt == diagonalGripper;
-        pictureView->selection = {};
+        canvasView->selection = {};
         enableDisableCommands(true);
-        pictureView->drawView();
+        canvasView->drawView();
         return;
     }
     if (leftDragging && resizing) {
@@ -1157,17 +966,17 @@ void PictureWindowPrivate::onMouse(int pictureX, int pictureY, const PictureView
         }
         auto newWidth = resizingOriginalPicture->width + deltaX;
         auto newHeight = resizingOriginalPicture->height + deltaY;
-        pictureView->picture = *resizingOriginalPicture;
-        pictureView->picture.resize(newWidth, newHeight);
-        pictureView->selection = {};
+        canvasView->picture = *resizingOriginalPicture;
+        canvasView->picture.resize(newWidth, newHeight);
+        canvasView->selection = {};
         enableDisableCommands(true);
-        pictureView->drawView();
+        canvasView->drawView();
         return;
     }
     if (e.up && resizing) {
         // the user has stopped dragging the resize gripper
-        if (pictureView->picture.width == resizingOriginalPicture->width &&
-            pictureView->picture.height == resizingOriginalPicture->height) {
+        if (canvasView->picture.width == resizingOriginalPicture->width &&
+            canvasView->picture.height == resizingOriginalPicture->height) {
             // the user didn't actually change the size of the picture so don't create an undo record for this
             undoStack.abandon();
         }
@@ -1185,15 +994,15 @@ void PictureWindowPrivate::onMouse(int pictureX, int pictureY, const PictureView
             auto yOffset = pictureY - currentPasteDrag->y;
             auto xNew = currentPasteDragPictureLocation->x + xOffset;
             auto yNew = currentPasteDragPictureLocation->y + yOffset;
-            pictureView->pastedPictureLocation = { xNew, yNew };
+            canvasView->pastedPictureLocation = { xNew, yNew };
         } else if (e.down) {
             // if this is inside the pasted picture, then the user has started to drag it
             // if this is outside the pasted picture, then the user is accepting the paste
-            auto& loc = pictureView->pastedPictureLocation;
-            if (pictureX >= loc->x && pictureY >= loc->y && pictureX < loc->x + pictureView->pastedPicture->width &&
-                pictureY < loc->y + pictureView->pastedPicture->height) {
+            auto& loc = canvasView->pastedPictureLocation;
+            if (pictureX >= loc->x && pictureY >= loc->y && pictureX < loc->x + canvasView->pastedPicture->width &&
+                pictureY < loc->y + canvasView->pastedPicture->height) {
                 currentPasteDrag = { pictureX, pictureY };
-                currentPasteDragPictureLocation = pictureView->pastedPictureLocation;
+                currentPasteDragPictureLocation = canvasView->pastedPictureLocation;
             } else {
                 onPasteOk();
                 updateStatusItems();
@@ -1204,7 +1013,7 @@ void PictureWindowPrivate::onMouse(int pictureX, int pictureY, const PictureView
             currentPasteDrag = {};
             currentPasteDragPictureLocation = {};
         }
-        pictureView->drawView();
+        canvasView->drawView();
         return;
     }
 
@@ -1216,18 +1025,18 @@ void PictureWindowPrivate::onMouse(int pictureX, int pictureY, const PictureView
             auto yOffset = pictureY - currentMoveDrag->y;
             auto xNew = currentMoveDragSelectionLocation->x + xOffset;
             auto yNew = currentMoveDragSelectionLocation->y + yOffset;
-            auto w = pictureView->selection->b.x - pictureView->selection->a.x;
-            auto h = pictureView->selection->b.y - pictureView->selection->a.y;
-            pictureView->selection = TRect{ xNew, yNew, xNew + w, yNew + h };
-            pictureView->pastedPictureLocation = pictureView->selection->a;
+            auto w = canvasView->selection->b.x - canvasView->selection->a.x;
+            auto h = canvasView->selection->b.y - canvasView->selection->a.y;
+            canvasView->selection = TRect{ xNew, yNew, xNew + w, yNew + h };
+            canvasView->pastedPictureLocation = canvasView->selection->a;
         } else if (e.down) {
             // if this is inside the selection, then the user has started to drag it
             // if this is outside the selection, then the user is accepting the move
-            auto& loc = pictureView->pastedPictureLocation;
-            if (pictureX >= loc->x && pictureY >= loc->y && pictureX < loc->x + pictureView->pastedPicture->width &&
-                pictureY < loc->y + pictureView->pastedPicture->height) {
+            auto& loc = canvasView->pastedPictureLocation;
+            if (pictureX >= loc->x && pictureY >= loc->y && pictureX < loc->x + canvasView->pastedPicture->width &&
+                pictureY < loc->y + canvasView->pastedPicture->height) {
                 currentMoveDrag = { pictureX, pictureY };
-                currentMoveDragSelectionLocation = pictureView->pastedPictureLocation;
+                currentMoveDragSelectionLocation = canvasView->pastedPictureLocation;
             } else {
                 onMoveOk();
             }
@@ -1237,7 +1046,7 @@ void PictureWindowPrivate::onMouse(int pictureX, int pictureY, const PictureView
             currentMoveDrag = {};
             currentMoveDragSelectionLocation = {};
         }
-        pictureView->drawView();
+        canvasView->drawView();
         return;
     }
 
@@ -1265,20 +1074,20 @@ void PictureWindowPrivate::onMouse(int pictureX, int pictureY, const PictureView
                 }
                 x2++;
                 y2++;
-                pictureView->selection = TRect(x1, y1, x2, y2);
+                canvasView->selection = TRect(x1, y1, x2, y2);
                 enableDisableCommands(true);
             } else if (e.down) {
                 // the user has started some kind of drag operation
-                if (pictureView->selection.has_value() &&
-                    pictureView->selection->contains(TPoint{ pictureX, pictureY })) {
+                if (canvasView->selection.has_value() &&
+                    canvasView->selection->contains(TPoint{ pictureX, pictureY })) {
                     // the user has started drag-moving
                     onMove();
                     currentMoveDrag = { pictureX, pictureY };
-                    currentMoveDragSelectionLocation = pictureView->pastedPictureLocation;
+                    currentMoveDragSelectionLocation = canvasView->pastedPictureLocation;
                 } else {
                     // the user has started drag-selecting
                     currentDrag = { pictureX, pictureY };
-                    pictureView->selection = TRect(*currentDrag, TPoint{ currentDrag->x + 1, currentDrag->y + 1 });
+                    canvasView->selection = TRect(*currentDrag, TPoint{ currentDrag->x + 1, currentDrag->y + 1 });
                     enableDisableCommands(true);
                 }
             }
@@ -1286,7 +1095,7 @@ void PictureWindowPrivate::onMouse(int pictureX, int pictureY, const PictureView
                 // the user has stopped drag-selecting
                 currentDrag = {};
             }
-            pictureView->drawView();
+            canvasView->drawView();
             break;
 
         case PictureWindowMode::kDraw:
@@ -1308,7 +1117,7 @@ void PictureWindowPrivate::onMouse(int pictureX, int pictureY, const PictureView
                     cell.ch = ch;
                 }
                 cell.transparent = false;
-                pictureView->drawView();
+                canvasView->drawView();
             }
             break;
 
@@ -1336,9 +1145,9 @@ void PictureWindowPrivate::onMouse(int pictureX, int pictureY, const PictureView
         case PictureWindowMode::kType:
             if (leftMouseDown || leftDragging) {
                 // the user is clicking to move the cursor in type mode
-                pictureView->selection = TRect(pictureX, pictureY, pictureX + 1, pictureY + 1);
+                canvasView->selection = TRect(pictureX, pictureY, pictureX + 1, pictureY + 1);
                 enableDisableCommands(true);
-                pictureView->drawView();
+                canvasView->drawView();
             }
             break;
 
@@ -1351,7 +1160,7 @@ void PictureWindowPrivate::onMouse(int pictureX, int pictureY, const PictureView
             if (leftMouseDown || leftDragging) {
                 // the user is continuing to draw in mask mode
                 cell.transparent = currentDragTransparent;
-                pictureView->drawView();
+                canvasView->drawView();
             }
             break;
 
@@ -1366,13 +1175,13 @@ void PictureWindowPrivate::onTick() {
     ticks++;
     if (ticks >= 2) {
         if (mode == PictureWindowMode::kMask) {
-            pictureView->flashingMask = !pictureView->flashingMask;
-            pictureView->drawView();
+            canvasView->flashingMask = !canvasView->flashingMask;
+            canvasView->drawView();
         } else if (
             mode == PictureWindowMode::kSelect || mode == PictureWindowMode::kType ||
             mode == PictureWindowMode::kPaste || mode == PictureWindowMode::kMove) {
-            pictureView->flashingSelection = !pictureView->flashingSelection;
-            pictureView->drawView();
+            canvasView->flashingSelection = !canvasView->flashingSelection;
+            canvasView->drawView();
         }
         ticks = 0;
     }
@@ -1403,9 +1212,9 @@ void PictureWindow::handleEvent(TEvent& event) {
     if (event.what == evKeyboard) {
         if (event.keyDown.keyCode == kbEsc && _private->mode == PictureWindowMode::kSelect) {
             // user is pressing ESC to deselect
-            _private->pictureView->selection = {};
+            _private->canvasView->selection = {};
             _private->enableDisableCommands(true);
-            _private->pictureView->drawView();
+            _private->canvasView->drawView();
             clearEvent(event);
         } else if (event.keyDown.keyCode == kbEsc && _private->mode == PictureWindowMode::kPaste) {
             // user is pressing ESC to cancel a paste
@@ -1424,13 +1233,13 @@ void PictureWindow::handleEvent(TEvent& event) {
             _private->onMoveOk();
             clearEvent(event);
         } else if (
-            _private->mode == PictureWindowMode::kType && _private->pictureView->selection.has_value() &&
+            _private->mode == PictureWindowMode::kType && _private->canvasView->selection.has_value() &&
             event.keyDown.text[0] != '\0' && event.keyDown.charScan.charCode != 0) {
             // user is typing text in type mode
             _private->checkpoint();
-            auto rect = *_private->pictureView->selection;
+            auto rect = *_private->canvasView->selection;
             auto& cell =
-                _private->pictureView->picture.cells.at(rect.a.y * _private->pictureView->picture.width + rect.a.x);
+                _private->canvasView->picture.cells.at(rect.a.y * _private->canvasView->picture.width + rect.a.x);
             auto fg = getFore(cell.colorAttr).asRGB();
             auto bg = getBack(cell.colorAttr).asRGB();
             if (_private->setFgCheck->mark(0)) {
@@ -1443,35 +1252,35 @@ void PictureWindow::handleEvent(TEvent& event) {
             cell.colorAttr = TColorAttr(fg, bg);
             cell.transparent = false;
 
-            if (rect.a.x < _private->pictureView->picture.width - 1) {
+            if (rect.a.x < _private->canvasView->picture.width - 1) {
                 rect.a.x++;
                 rect.b.x++;
             }
-            _private->pictureView->selection = rect;
+            _private->canvasView->selection = rect;
             _private->enableDisableCommands(true);
-            _private->pictureView->drawView();
+            _private->canvasView->drawView();
             clearEvent(event);
         } else if (
             (_private->mode == PictureWindowMode::kSelect || _private->mode == PictureWindowMode::kType) &&
             (event.keyDown.keyCode == kbLeft || event.keyDown.keyCode == kbRight || event.keyDown.keyCode == kbUp ||
              event.keyDown.keyCode == kbDown) &&
             // user is using the arrow keys to move the cursor in select or type mode
-            _private->pictureView->selection.has_value()) {
+            _private->canvasView->selection.has_value()) {
             auto deltaX = 0;
             auto deltaY = 0;
             getArrowKeyDirection(event.keyDown.keyCode, &deltaX, &deltaY);
-            auto width = _private->pictureView->picture.width;
-            auto height = _private->pictureView->picture.height;
-            auto r = *_private->pictureView->selection;
+            auto width = _private->canvasView->picture.width;
+            auto height = _private->canvasView->picture.height;
+            auto r = *_private->canvasView->selection;
             r.a.x += deltaX;
             r.b.x += deltaX;
             r.a.y += deltaY;
             r.b.y += deltaY;
             if (r.a.x >= 0 && r.a.x <= width && r.b.x >= 0 && r.b.x <= width && r.a.y >= 0 && r.a.y <= height &&
                 r.b.y >= 0 && r.b.y <= height) {
-                _private->pictureView->selection = r;
+                _private->canvasView->selection = r;
                 _private->enableDisableCommands(true);
-                _private->pictureView->drawView();
+                _private->canvasView->drawView();
             }
         } else if (
             (_private->mode == PictureWindowMode::kPaste || _private->mode == PictureWindowMode::kMove) &&
@@ -1481,14 +1290,14 @@ void PictureWindow::handleEvent(TEvent& event) {
             auto deltaX = 0;
             auto deltaY = 0;
             getArrowKeyDirection(event.keyDown.keyCode, &deltaX, &deltaY);
-            auto width = _private->pictureView->picture.width;
-            auto height = _private->pictureView->picture.height;
-            auto p = *_private->pictureView->pastedPictureLocation;
+            auto width = _private->canvasView->picture.width;
+            auto height = _private->canvasView->picture.height;
+            auto p = *_private->canvasView->pastedPictureLocation;
             p.x += deltaX;
             p.y += deltaY;
             if (p.x >= 0 && p.x < width && p.y >= 0 && p.y < height) {
-                _private->pictureView->pastedPictureLocation = p;
-                _private->pictureView->drawView();
+                _private->canvasView->pastedPictureLocation = p;
+                _private->canvasView->drawView();
             }
         }
     }
@@ -1498,9 +1307,9 @@ void PictureWindow::handleEvent(TEvent& event) {
     if (event.what == evCommand) {
         switch (event.message.command) {
             case kCmdPictureViewMouse: {
-                auto* e = reinterpret_cast<PictureViewMouseEventArgs*>(event.message.infoPtr);  // NOLINT
-                auto pictureX = _private->pictureView->viewXToPicture(e->viewPoint.x);
-                auto pictureY = _private->pictureView->viewYToPicture(e->viewPoint.y);
+                auto* e = reinterpret_cast<CanvasViewMouseEventArgs*>(event.message.infoPtr);  // NOLINT
+                auto pictureX = _private->canvasView->viewXToPicture(e->viewPoint.x);
+                auto pictureY = _private->canvasView->viewYToPicture(e->viewPoint.y);
                 _private->onMouse(pictureX, pictureY, *e);
                 break;
             }
@@ -1585,9 +1394,9 @@ void PictureWindow::handleEvent(TEvent& event) {
             }
 
             case cmScrollBarChanged:
-                _private->pictureView->scrollTop = _private->vScrollBar->value;
-                _private->pictureView->scrollLeft = _private->hScrollBar->value;
-                _private->pictureView->drawView();
+                _private->canvasView->scrollTop = _private->vScrollBar->value;
+                _private->canvasView->scrollLeft = _private->hScrollBar->value;
+                _private->canvasView->drawView();
                 break;
 
             case kCmdTimerTick:
@@ -1602,7 +1411,7 @@ uint16_t PictureWindow::getHelpCtx() {
 }
 
 void PictureWindow::close() {
-    auto newSource = _private->pictureView->picture.exportToString();
+    auto newSource = _private->canvasView->picture.exportToString();
     if (newSource != _private->member->source) {
         _private->member->setSource(newSource);
         _private->onEdited();
@@ -1637,8 +1446,8 @@ void PictureWindow::onStatusLineCommand(ushort cmd) {
     auto previousMode = _private->mode;
 
     if (cmd != kCmdPictureMask) {
-        _private->pictureView->flashingMask = false;
-        _private->pictureView->drawView();
+        _private->canvasView->flashingMask = false;
+        _private->canvasView->drawView();
     }
 
     switch (cmd) {
@@ -1686,11 +1495,11 @@ void PictureWindow::onStatusLineCommand(ushort cmd) {
 
         case kCmdPictureType:
             _private->mode = PictureWindowMode::kType;
-            if (!_private->pictureView->selection.has_value() && _private->pictureView->picture.width > 0 &&
-                _private->pictureView->picture.height > 0) {
-                _private->pictureView->selection = { 0, 0, 1, 1 };
+            if (!_private->canvasView->selection.has_value() && _private->canvasView->picture.width > 0 &&
+                _private->canvasView->picture.height > 0) {
+                _private->canvasView->selection = { 0, 0, 1, 1 };
                 _private->enableDisableCommands(true);
-                _private->pictureView->drawView();
+                _private->canvasView->drawView();
             }
             _private->updateStatusItems();
             break;
@@ -1701,22 +1510,22 @@ void PictureWindow::onStatusLineCommand(ushort cmd) {
             break;
 
         case kCmdPictureOptions: {
-            DialogPtr<PictureOptionsDialog> dialog{ &_private->pictureView->picture };
+            DialogPtr<PictureOptionsDialog> dialog{ &_private->canvasView->picture };
             if (TProgram::deskTop->execView(dialog) == cmOK) {
                 bool edited = false;
-                auto& pic = _private->pictureView->picture;
+                auto& pic = _private->canvasView->picture;
                 if (pic.name != dialog->selectedName) {
                     pic.name = dialog->selectedName;
                     delete[] title;
-                    title = newStr(getPictureWindowTitle(_private->pictureView->picture.name));
+                    title = newStr(getPictureWindowTitle(_private->canvasView->picture.name));
                     frame->drawView();
                     edited = true;
                 }
 
                 if (pic.width != dialog->selectedWidth || pic.height != dialog->selectedHeight) {
                     _private->checkpoint();
-                    _private->pictureView->picture.resize(dialog->selectedWidth, dialog->selectedHeight);
-                    _private->pictureView->drawView();
+                    _private->canvasView->picture.resize(dialog->selectedWidth, dialog->selectedHeight);
+                    _private->canvasView->drawView();
                     _private->updateScrollBars();
                     edited = true;
                 }
