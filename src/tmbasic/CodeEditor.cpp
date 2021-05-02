@@ -2,6 +2,7 @@
 #include "compiler/Token.h"
 #include "compiler/TokenKind.h"
 #include "compiler/tokenize.h"
+#include "util/clipboard.h"
 
 namespace tmbasic {
 
@@ -183,6 +184,25 @@ class CodeEditorPrivate {
         }
     }
 
+    bool clipCopy() const {
+        auto offset = editor->bufPtr(editor->selStart);
+        auto length = editor->selEnd - editor->selStart;
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        util::setClipboard(std::string{ &editor->buffer[offset], length });
+        return true;
+    }
+
+    void clipCut() const {
+        if (clipCopy()) {
+            editor->deleteSelect();
+        }
+    }
+
+    void clipPaste() const {
+        auto str = util::getClipboard();
+        editor->insertBuffer(str.c_str(), 0, str.size(), true, false);
+    }
+
     CodeEditor* editor;
 };
 
@@ -210,11 +230,41 @@ void CodeEditor::draw() {
 void CodeEditor::handleEvent(TEvent& event) {
     auto initialCurPos = curPos;
 
+    if (event.what == evCommand) {
+        switch (event.message.command) {
+            case cmCut:
+                _private->clipCut();
+                clearEvent(event);
+                break;
+            case cmCopy:
+                _private->clipCopy();
+                clearEvent(event);
+                break;
+            case cmPaste:
+                _private->clipPaste();
+                clearEvent(event);
+                break;
+        }
+    }
+
     TEditor::handleEvent(event);
 
     if (curPos.y != initialCurPos.y) {
         drawView();  // force syntax coloring to be drawn for newly edited lines
     }
+}
+
+void CodeEditor::updateCommands() {
+    TEditor::updateCommands();
+    setCmdState(cmCut, hasSelection());
+    setCmdState(cmCopy, hasSelection());
+    setCmdState(cmPaste, true);
+}
+
+TMenuItem& CodeEditor::initContextMenu(TPoint /*pt*/) {
+    return *new TMenuItem("Cu~t~", cmCut, kbCtrlX, hcNoContext, "Ctrl+X") +
+        *new TMenuItem("~C~opy", cmCopy, kbCtrlC, hcNoContext, "Ctrl+C") +
+        *new TMenuItem("~P~aste", cmPaste, kbCtrlV, hcNoContext, "Ctrl+V");
 }
 
 }  // namespace tmbasic

@@ -17,6 +17,8 @@ class CodeEditor : public TEditor {
     virtual ~CodeEditor();
     void draw() override;
     void handleEvent(TEvent& event) override;
+    void updateCommands() override;
+    TMenuItem& initContextMenu(TPoint pt) override;
 
    private:
     gsl::owner<CodeEditorPrivate*> _private;
