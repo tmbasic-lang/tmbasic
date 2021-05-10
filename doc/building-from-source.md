@@ -46,7 +46,7 @@ Linux and Windows builds must be produced on a Linux build machine. Ubuntu Linux
     This will create a development build for Linux suitable for debugging.
     This build of TMBASIC will be unable to produce executables for other platforms because it does not contain the necessary builds of the interpreter.
 
-    Use one of the `linux-*.sh`, `mac-*.sh`, or `win-*.sh` scripts instead of `dev.sh` to produce a build for a particular target platform.
+    Use one of the `linux-*.sh` or `win-*.sh` scripts instead of `dev.sh` to produce a build for a particular target platform.
 
 1. Type `exit` to leave the build environment.
 
