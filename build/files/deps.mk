@@ -15,6 +15,7 @@ LIBXCB_VERSION=1.14
 MPDECIMAL_VERSION=2.5.1
 NAMEOF_VERSION=a9813bd7a15c92293384f2505e44bcb4005b97ba
 NCURSES_VERSION=6.2
+TURBO_VERSION=506457abf46ff467ba296fd774521c95a5c2540d
 TVISION_VERSION=dd5da212548ae0af7ac4a05456fae3d8b5211b5c
 XCBPROTO_VERSION=1.14
 XORGPROTO_VERSION=2021.3
@@ -81,6 +82,7 @@ LIBXCB_DIR=$(PWD)/libxcb-$(LIBXCB_VERSION)
 MPDECIMAL_DIR=$(PWD)/mpdecimal-$(MPDECIMAL_VERSION)
 NAMEOF_DIR=$(PWD)/nameof-$(NAMEOF_VERSION)
 NCURSES_DIR=$(PWD)/ncurses-$(NCURSES_VERSION)
+TURBO_DIR=$(PWD)/turbo-$(TURBO_VERSION)
 TVISION_DIR=$(PWD)/tvision-$(TVISION_VERSION)
 XCBPROTO_DIR=$(PWD)/xcb-proto-$(XCBPROTO_VERSION)
 XORGPROTO_DIR=$(PWD)/xorgproto-$(XORGPROTO_VERSION)
@@ -102,7 +104,7 @@ endif
 .PHONY: all
 all: $(NCURSES_DIR)/install $(GOOGLETEST_DIR)/install $(BSDIFF_DIR)/install $(BZIP2_DIR)/install $(ICU_DIR)/install \
 	$(FMT_DIR)/install $(LIBCLIPBOARD_DIR)/install $(IMMER_DIR)/install $(BOOST_DIR)/install $(MPDECIMAL_DIR)/install \
-	$(TVISION_DIR)/install $(NAMEOF_DIR)/install
+	$(TVISION_DIR)/install $(TURBO_DIR)/install $(NAMEOF_DIR)/install
 
 
 
@@ -485,6 +487,43 @@ ifeq ($(TARGET_OS),win)
 		$(MAKE) && \
 		$(MAKE) install
 endif
+	touch $@
+
+
+
+# turbo ---------------------------------------------------------------------------------------------------------------
+
+$(TURBO_DIR)/download:
+	curl -L https://github.com/magiblot/turbo/archive/$(TURBO_VERSION).tar.gz | tar zx
+	touch $@
+
+ifeq ($(TARGET_OS),mac)
+TURBO_CMAKE_FLAGS=-DCMAKE_EXE_LINKER_FLAGS="-framework ServiceManagement -framework Foundation -framework Cocoa"
+endif
+
+$(TURBO_DIR)/install: $(TURBO_DIR)/download $(TVISION_DIR)/install $(FMT_DIR)/install $(LIBCLIPBOARD_DIR)/install \
+		$(CMAKE_DIR)/install $(NCURSES_DIR)/install
+	cd $(TURBO_DIR) && \
+		mv scintilla/lexers/LexBasic.cxx . && \
+		rm -f scintilla/lexers/* && \
+		mv -f LexBasic.cxx scintilla/lexers/LexBasic.cxx && \
+		cat scintilla/src/Catalogue.cxx | sed 's:LINK_LEXER(lm.*::g; s:return 1;:LINK_LEXER(lmFreeBasic); return 1;:g' > Catalogue.cxx && \
+		mv -f Catalogue.cxx scintilla/src/Catalogue.cxx && \
+		mkdir -p build && \
+		cd build && \
+		cmake .. \
+			$(CMAKE_FLAGS) \
+			$(TURBO_CMAKE_FLAGS) \
+			-DCMAKE_PREFIX_PATH=$(TARGET_PREFIX) \
+			-DCMAKE_INSTALL_PREFIX=$(TARGET_PREFIX) \
+			-DCMAKE_BUILD_TYPE=Release \
+			-DTURBO_USE_SYSTEM_TVISION=ON \
+			-DTURBO_USE_SYSTEM_DEPS=ON \
+			$(CMAKE_TOOLCHAIN_FLAG) && \
+		$(MAKE) && \
+		cp -f *.a $(TARGET_PREFIX)/lib/ && \
+		cp $(shell find $(TURBO_DIR) -name '*.h') $(TARGET_PREFIX)/include/ && \
+		cp turbo$(EXE_EXTENSION) $(TARGET_PREFIX)/bin/
 	touch $@
 
 

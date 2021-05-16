@@ -5,6 +5,7 @@
 /mac-arm64
 /mac-x64
 /obj
+/turbo
 /tvision
 /valgrind*
 debug.log

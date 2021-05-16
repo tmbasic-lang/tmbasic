@@ -21,7 +21,9 @@ Component | License
 [mpdecimal](https://www.bytereef.org/mpdecimal/) |[BSD-2-Clause](https://github.com/electroly/tmbasic/blob/master/doc/licenses/mpdecimal/LICENSE.txt)
 [musl](https://musl.libc.org/) | [MIT](https://github.com/electroly/tmbasic/blob/master/doc/licenses/musl/COPYRIGHT)
 [ncurses](https://invisible-island.net/ncurses/) | [X11](https://github.com/electroly/tmbasic/blob/master/doc/licenses/ncurses/COPYING)
+[turbo](https://github.com/magiblot/turbo) | [MIT](https://github.com/electroly/tmbasic/blob/master/doc/licenses/turbo/COPYRIGHT)
 [tvision](https://github.com/magiblot/tvision) | [Borland, MIT](https://github.com/electroly/tmbasic/blob/master/doc/licenses/tvision/COPYRIGHT)
+[scintilla](https://www.scintilla.org/) | [HPND](https://github.com/electroly/tmbasic/blob/master/doc/licenses/scintilla/License.txt)
 
 ## Libraries included only in TMBASIC
 

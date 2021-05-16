@@ -134,7 +134,9 @@ LICENSE_FILES=\
 	doc/licenses/fmt/LICENSE.rst \
 	doc/licenses/libclipboard/LICENSE \
 	doc/licenses/libXau/COPYING \
-	doc/licenses/libxcb/COPYING
+	doc/licenses/libxcb/COPYING \
+	doc/licenses/scintilla/License.txt \
+	doc/licenses/turbo/COPYRIGHT
 LICENSE_DIAGRAM_TXT_TIMESTAMP_FILE=obj/doc-temp/diagrams-license/timestamp
 LICENSE_DIAGRAM_TXT_FILES=\
 	obj/doc-temp/diagrams-license/license_tmbasic.txt \
@@ -154,7 +156,9 @@ LICENSE_DIAGRAM_TXT_FILES=\
 	obj/doc-temp/diagrams-license/license_fmt.txt \
 	obj/doc-temp/diagrams-license/license_libclipboard.txt \
 	obj/doc-temp/diagrams-license/license_libxau.txt \
-	obj/doc-temp/diagrams-license/license_libxcb.txt
+	obj/doc-temp/diagrams-license/license_libxcb.txt \
+	obj/doc-temp/diagrams-license/license_scintilla.txt \
+	obj/doc-temp/diagrams-license/license_turbo.txt
 
 # icon resource
 ifeq ($(TARGET_OS),win)
@@ -261,14 +265,14 @@ ifeq ($(TARGET_OS),mac)
 LDFLAGS += -framework AppKit -L$(PREFIX)/lib
 endif
 
-# Linker flag to include libclipboard and libfmt and friends
+# Linker flag to include turbo and friends.
 ifeq ($(TARGET_OS),linux)
-LDFLAGS += -lclipboard -lxcb -lXau -lfmt
+LDFLAGS += -lscintilla -lscilexers -lsciplatform -lturbo-ui -lclipboard -lxcb -lXau -lfmt
 ifeq ($(LINUX_DISTRO),ubuntu)
 LDFLAGS += -lpthread
 endif
 else
-LDFLAGS += -lclipboard -lfmt
+LDFLAGS += -lscintilla -lscilexers -lsciplatform -lturbo-ui -lclipboard -lfmt
 endif
 
 # Linker flag to include tvision.
@@ -508,8 +512,14 @@ bin/LICENSE.txt: $(LICENSE_FILES)
 	@echo === ncurses license === >> $@
 	@cat doc/licenses/ncurses/COPYING >> $@
 	@echo >> $@
+	@echo === turbo license === >> $@
+	@cat doc/licenses/turbo/COPYRIGHT >> $@
+	@echo >> $@
 	@echo === tvision license === >> $@
 	@cat doc/licenses/tvision/COPYRIGHT >> $@
+	@echo >> $@
+	@echo === scintilla license === >> $@
+	@cat doc/licenses/scintilla/License.txt >> $@
 	@echo >> $@
 	@$(LICENSE_PROCESS_CMD) $@
 
