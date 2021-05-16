@@ -412,7 +412,7 @@ $(IMMER_DIR)/install: $(IMMER_DIR)/download $(CMAKE_DIR)/install
 # boost ---------------------------------------------------------------------------------------------------------------
 
 $(BOOST_DIR)/download:
-	curl -L https://dl.bintray.com/boostorg/release/$(BOOST_VERSION)/source/boost_$(shell echo $(BOOST_VERSION) | tr '.' '_').tar.gz | tar zx
+	curl -L https://boostorg.jfrog.io/artifactory/main/release/$(BOOST_VERSION)/source/boost_$(shell echo $(BOOST_VERSION) | tr '.' '_').tar.gz | tar zx
 	touch $@
 
 $(BOOST_DIR)/install: $(BOOST_DIR)/download
