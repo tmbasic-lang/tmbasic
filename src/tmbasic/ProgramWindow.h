@@ -3,7 +3,6 @@
 #include "../common.h"
 #include "compiler/SourceProgram.h"
 #include "vm/Program.h"
-#include "tmbasic/EditorWindow.h"
 
 namespace tmbasic {
 

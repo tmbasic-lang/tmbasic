@@ -9,7 +9,7 @@
 #include "../util/tvutil.h"
 #include "../vm/Program.h"
 #include "DesignerWindow.h"
-#include "EditorWindow.h"
+#include "CodeEditorWindow.h"
 #include "PictureWindow.h"
 #include "constants.h"
 #include "events.h"

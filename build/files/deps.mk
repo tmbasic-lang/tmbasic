@@ -15,7 +15,7 @@ LIBXCB_VERSION=1.14
 MPDECIMAL_VERSION=2.5.1
 NAMEOF_VERSION=a9813bd7a15c92293384f2505e44bcb4005b97ba
 NCURSES_VERSION=6.2
-TURBO_VERSION=506457abf46ff467ba296fd774521c95a5c2540d
+TURBO_VERSION=a868d2bfedb77a83e9f991154d002ec99e5a180e
 TVISION_VERSION=dd5da212548ae0af7ac4a05456fae3d8b5211b5c
 XCBPROTO_VERSION=1.14
 XORGPROTO_VERSION=2021.3
@@ -504,10 +504,9 @@ endif
 $(TURBO_DIR)/install: $(TURBO_DIR)/download $(TVISION_DIR)/install $(FMT_DIR)/install $(LIBCLIPBOARD_DIR)/install \
 		$(CMAKE_DIR)/install $(NCURSES_DIR)/install
 	cd $(TURBO_DIR) && \
-		mv scintilla/lexers/LexBasic.cxx . && \
 		rm -f scintilla/lexers/* && \
-		mv -f LexBasic.cxx scintilla/lexers/LexBasic.cxx && \
-		cat scintilla/src/Catalogue.cxx | sed 's:LINK_LEXER(lm.*::g; s:return 1;:LINK_LEXER(lmFreeBasic); return 1;:g' > Catalogue.cxx && \
+		touch scintilla/lexers/LexEmpty.cxx && \
+		cat scintilla/src/Catalogue.cxx | sed 's/LINK_LEXER(lm.*//g' > Catalogue.cxx && \
 		mv -f Catalogue.cxx scintilla/src/Catalogue.cxx && \
 		mkdir -p build && \
 		cd build && \

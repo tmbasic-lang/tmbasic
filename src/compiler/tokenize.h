@@ -10,6 +10,6 @@ enum class TokenizeType {
     kFormat    // include everything
 };
 
-std::vector<Token> tokenize(const std::string& input, TokenizeType type);
+std::vector<Token> tokenize(std::string_view input, TokenizeType type);
 
 }  // namespace compiler

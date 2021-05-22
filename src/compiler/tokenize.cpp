@@ -4,7 +4,7 @@ namespace compiler {
 
 class Scanner {
    public:
-    static std::vector<Token> tokenize(const std::string& input);
+    static std::vector<Token> tokenize(std::string_view input);
 
    private:
     std::vector<Token> _tokens;
@@ -45,7 +45,7 @@ static void removeBlankLines(std::vector<Token>* tokens) {
     }
 }
 
-std::vector<Token> tokenize(const std::string& input, TokenizeType type) {
+std::vector<Token> tokenize(std::string_view input, TokenizeType type) {
     auto tokens = Scanner::tokenize(input);
     if (type == TokenizeType::kCompile) {
         removeComments(&tokens);
@@ -54,7 +54,7 @@ std::vector<Token> tokenize(const std::string& input, TokenizeType type) {
     return tokens;
 }
 
-std::vector<Token> Scanner::tokenize(const std::string& input) {
+std::vector<Token> Scanner::tokenize(std::string_view input) {
     Scanner scanner;
 
     auto previousChar = '\0';

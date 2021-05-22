@@ -36,7 +36,7 @@ vector<uint8_t> decompressBz2(const uint8_t compressedData[], uint compressedLen
     auto buffer = array<char, bufferLength>();
 
     // bzip2 is very naughty and does not use "const" for input
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast,cppcoreguidelines-pro-type-reinterpret-cast)
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     bz.stream.next_in = reinterpret_cast<char*>(const_cast<uint8_t*>(compressedData));
     bz.stream.avail_in = compressedLength;
 

@@ -9,8 +9,8 @@ class ClipboardPtr {
    public:
     ClipboardPtr() : clipboard(clipboard_new(nullptr)) {}
     ClipboardPtr(const ClipboardPtr&) = delete;
-    ClipboardPtr& operator=(const ClipboardPtr&) = delete;
     ClipboardPtr(ClipboardPtr&&) = delete;
+    ClipboardPtr& operator=(const ClipboardPtr&) = delete;
     ClipboardPtr& operator=(ClipboardPtr&&) = delete;
     ~ClipboardPtr() {
         if (clipboard != nullptr) {

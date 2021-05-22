@@ -267,12 +267,12 @@ endif
 
 # Linker flag to include turbo and friends.
 ifeq ($(TARGET_OS),linux)
-LDFLAGS += -lscintilla -lscilexers -lsciplatform -lturbo-ui -lclipboard -lxcb -lXau -lfmt
+LDFLAGS += -lturbo-ui -lscintilla -lscilexers -lsciplatform -lclipboard -lxcb -lXau -lfmt
 ifeq ($(LINUX_DISTRO),ubuntu)
 LDFLAGS += -lpthread
 endif
 else
-LDFLAGS += -lscintilla -lscilexers -lsciplatform -lturbo-ui -lclipboard -lfmt
+LDFLAGS += -lturbo-ui -lscintilla -lscilexers -lsciplatform -lclipboard -lfmt
 endif
 
 # Linker flag to include tvision.
@@ -401,7 +401,7 @@ lint:
 tidy: $(TIDY_TARGETS)
 
 .PHONY: tidy-commit
-tidy-commit: $(shell 2>/dev/null git status | grep "\.cpp" | grep -v "deleted:" | sed 's/modified://' | sed 's:src:obj/tidy:g; s/cpp$$/tidy/g')
+tidy-commit: $(shell 2>/dev/null git status | grep "\.cpp" | grep -v "deleted:" | sed 's/modified://g' | sed 's/new file://g' | sed 's:src:obj/tidy:g; s/cpp$$/tidy/g')
 
 .PHONY: ghpages
 ghpages: obj/resources/help/help.txt bin/ghpages/index.html

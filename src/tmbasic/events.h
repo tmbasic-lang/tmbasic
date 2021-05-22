@@ -1,13 +1,12 @@
 #pragma once
 
 #include "../common.h"
-#include "compiler/SourceProgram.h"
+
+namespace compiler {
+class SourceMember;
+}
 
 namespace tmbasic {
-
-class DesignerWindow;
-class EditorWindow;
-class PictureWindow;
 
 enum : uint16_t {
     // top menu commands
@@ -66,7 +65,7 @@ enum : uint16_t {
     // broadcast to find a ProgramWindow. ProgramWindow** infoPtr
     kCmdFindProgramWindow,
 
-    // broadcast to find an EditorWindow for the specified member. FindEditorWindowEventArgs* infoPtr
+    // broadcast to find a CodeEditorWindow for the specified member. FindEditorWindowEventArgs* infoPtr
     kCmdFindEditorWindow,
 
     // broadcast to find a DesignerWindow for the specified member. FindDesignerWindowEventArgs* infoPtr
@@ -87,17 +86,17 @@ enum : uint16_t {
 
 struct FindEditorWindowEventArgs {
     compiler::SourceMember* member;  // input
-    EditorWindow* window;            // output
+    class CodeEditorWindow* window;  // output
 };
 
 struct FindDesignerWindowEventArgs {
     compiler::SourceMember* member;  // input
-    DesignerWindow* window;          // output
+    class DesignerWindow* window;    // output
 };
 
 struct FindPictureWindowEventArgs {
     compiler::SourceMember* member;  // input
-    PictureWindow* window;           // output
+    class PictureWindow* window;     // output
 };
 
 }  // namespace tmbasic

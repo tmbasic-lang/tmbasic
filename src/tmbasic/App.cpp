@@ -9,7 +9,7 @@
 #include "AboutDialog.h"
 #include "AddProgramItemDialog.h"
 #include "DesignerWindow.h"
-#include "EditorWindow.h"
+#include "CodeEditorWindow.h"
 #include "HelpWindow.h"
 #include "ProgramWindow.h"
 #include "Resource.h"
@@ -462,7 +462,7 @@ void App::showEditorWindow(SourceMember* member) {
     if (e.window != nullptr) {
         e.window->select();
     } else {
-        auto* window = new EditorWindow(getNewWindowRect(82, 30), member, []() -> void {
+        auto* window = new CodeEditorWindow(getNewWindowRect(82, 30), member, []() -> void {
             // onUpdated
             auto* programWindow = findProgramWindow(deskTop);
             if (programWindow != nullptr) {
@@ -652,8 +652,7 @@ TRect App::centeredRect(int width, int height) {
 
 void App::openHelpTopic(uint16_t topic) {
     try {
-        auto* start = reinterpret_cast<char*>(kResourceHelp);  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+        auto* start = reinterpret_cast<char*>(kResourceHelp);
         auto* end = reinterpret_cast<char*>(&kResourceHelp[kResourceHelp_len]);
         auto* stream = new MemoryIopstream(start, end);  // NOLINT(cppcoreguidelines-owning-memory)
         auto* helpFile = new THelpFile(*stream);         // NOLINT(cppcoreguidelines-owning-memory)

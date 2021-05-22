@@ -97,6 +97,8 @@
 
 #include <fmt/format.h>
 
+#include <editwindow.h>
+
 #ifdef _WIN32
 #include <windows.h>
 #include <tchar.h>
