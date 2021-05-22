@@ -16,7 +16,7 @@ ___
 ## Build for Linux and Windows
 Linux and Windows builds must be produced on a Linux build machine. Ubuntu Linux is recommended.
 
-1. Install Docker and give your user account permission to run `docker`.
+1. Install git and Docker. Give your user account permission to run `docker`.
 
     ```
     sudo apt-get update -y && \
@@ -24,7 +24,7 @@ Linux and Windows builds must be produced on a Linux build machine. Ubuntu Linux
     sudo apt-get install -y git && \
     sudo curl -fsSL https://get.docker.com -o get-docker.sh && \
     sudo sh get-docker.sh && \
-    sudo usermod -aG docker ubuntu && \
+    sudo usermod -aG docker $(whoami) && \
     sudo reboot
     ```
 

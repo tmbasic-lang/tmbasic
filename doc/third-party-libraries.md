@@ -18,7 +18,7 @@ Component | License
 [libstdc++](https://gcc.gnu.org/onlinedocs/libstdc++/) | [GPL-3.0-only](https://github.com/electroly/tmbasic/blob/master/doc/licenses/gcc/GPL-3) WITH [GCC-exception-3.1](https://github.com/electroly/tmbasic/blob/master/doc/licenses/gcc/copyright)
 [libXau](https://gitlab.freedesktop.org/xorg/lib/libxau) | [MIT-open-group](https://github.com/electroly/tmbasic/blob/master/doc/licenses/libXau/COPYING)
 [libxcb](https://xcb.freedesktop.org/) | [X11](https://github.com/electroly/tmbasic/blob/master/doc/licenses/libxcb/COPYING)
-[mpdecimal](https://www.bytereef.org/mpdecimal/) |[BSD-2-Clause](https://github.com/electroly/tmbasic/blob/master/doc/licenses/mpdecimal/LICENSE.txt)
+[mpdecimal](https://www.bytereef.org/mpdecimal/) | [BSD-2-Clause](https://github.com/electroly/tmbasic/blob/master/doc/licenses/mpdecimal/LICENSE.txt)
 [musl](https://musl.libc.org/) | [MIT](https://github.com/electroly/tmbasic/blob/master/doc/licenses/musl/COPYRIGHT)
 [ncurses](https://invisible-island.net/ncurses/) | [X11](https://github.com/electroly/tmbasic/blob/master/doc/licenses/ncurses/COPYING)
 [turbo](https://github.com/magiblot/turbo) | [MIT](https://github.com/electroly/tmbasic/blob/master/doc/licenses/turbo/COPYRIGHT)

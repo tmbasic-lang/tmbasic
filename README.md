@@ -1,7 +1,7 @@
 # TMBASIC <wbr><span class="tagline">(Text Mode BASIC)</span>
 
 <!-- See DEVELOPERS.md for instructions on generating this screenshot. -->
-<a href="https://tmbasic.com/screenshot.png"><img src="https://tmbasic.com/screenshot.png" alt="Screenshot" class="screenshot"></a>
+<a href="https://tmbasic.com/screenshot.png"><img src="https://tmbasic.com/screenshot.png" alt="Screenshot" class="screenshot" width="500"></a>
 
 TMBASIC is a simple programming language for creating console applications that run on Windows, macOS, and Linux.
 Apps written in TMBASIC can be simple command line tools or sophisticated mouse-driven user interfaces.
@@ -18,29 +18,29 @@ TMBASIC is under development. Stay tuned!
 
 There are many options for developing rich graphical user interfaces (GUIs) today, both on the web and on the desktop. Text user interfaces (TUIs) are an older technology, so why consider writing a TUI-based app using TMBASIC today?
 
-<strong><i>Timeless.</i></strong> As modern interface conventions continue to evolve, web and desktop apps look outdated after just a few years. A text user interface will not look any more dated in the future than it does today.
+<strong><i>Timeless.</i></strong> Modern interface conventions are constantly evolving. Web and desktop apps look outdated after a few years. TUIs have a classic appeal that transcends modern fads and trends.
 
-<strong><i>Easy to write.</i></strong> Developing a high-quality modern GUI is time-consuming and requires significant expertise. TUIs have fewer options for visual effects, so the time and skill required is lower.
+<strong><i>Easy to write.</i></strong> Developing a high-quality modern GUI requires professional-level expertise. TUIs have few options for visual effects, and even a novice can produce quality results.
 
-<strong><i>Easy to publish.</i></strong> Deploying web apps on servers is complicated. Similarly, desktop toolkits like Qt or Electron require a lot of moving parts. TMBASIC apps are standalone executable files that require no supporting libraries. They can be copied and opened without installation.
+<strong><i>Easy to publish.</i></strong> TMBASIC apps are standalone executable files that require no supporting libraries. They can be copied and opened without installation.
 
-<strong><i>Easy cross-platform support.</i></strong> Windows, macOS, and Linux each have their own user interface styles and conventions which high-quality GUI apps must follow. The same is not true of TUIs, where expectations are the same everywhere. One build in TMBASIC produces executables for all supported platforms.
+<strong><i>Easy cross-platform support.</i></strong> The same TUI works identically on Windows, macOS, and Linux. One build in TMBASIC produces executables for all supported platforms.
 
-<strong><i>Easy to get started.</i></strong> Everything you need to develop and distribute sophisticated apps is included in TMBASIC. The BASIC language will feel familiar to anyone with programming experience and is easy to learn for new programmers.
+<strong><i>Easy to get started.</i></strong> The BASIC language will feel familiar to anyone with programming experience. New programmers will find it easy to learn. Everything you need to develop and distribute sophisticated apps is included in TMBASIC.
 
 ## Compatibility
 
 <div id="platformSupportTable">
 
-<table><tr><td><img src="https://tmbasic.com/windows-logo.png" width=64 height=64 alt="Windows"></td><td><strong>Windows</strong></td><td><span class="arch">Windows 7, 8, 10<br>64-bit &bull; 32-bit</span></td></tr><tr><td><img src="https://tmbasic.com/apple-logo.png" width=64 height=64 alt="macOS"></td><td><strong>Mac</strong></td><td><span class="arch">macOS 10.13+<br>Intel &bull; Apple Silicon</span></td><tr><td><img src="https://tmbasic.com/linux-logo.png" width=64 height=64 alt="Linux"></td><td><strong>Linux</strong></td><td><span class="arch">Ubuntu &bull; Raspbian &bull; <a href="https://apps.apple.com/us/app/ish-shell/id1436902243">iSH&nbsp;Shell</a>&nbsp;(iOS) &bull; <a href="https://termux.com/">Termux</a>&nbsp;(Android)<br>64-bit &bull; 32-bit &bull; ARM64 &bull; ARM32</span></td></tr></table>
+<table><tr><td><img src="https://tmbasic.com/windows-logo.png" width=64 height=64 alt="Windows"></td><td><strong>Windows</strong></td><td><span class="arch">Windows 7 (or newer)<br>64-bit &bull; 32-bit</span></td></tr><tr><td><img src="https://tmbasic.com/apple-logo.png" width=64 height=64 alt="macOS"></td><td><strong>Mac</strong></td><td><span class="arch">macOS 10.13 (or newer)<br>Intel &bull; Apple Silicon</span></td><tr><td><img src="https://tmbasic.com/linux-logo.png" width=64 height=64 alt="Linux"></td><td><strong>Linux</strong></td><td><span class="arch">Ubuntu &bull; Raspbian &bull; Alpine<br>64-bit &bull; 32-bit &bull; ARM64 &bull; ARM32</span></td></tr></table>
 
 </div>
 
-TMBASIC supports all major desktop systems. It runs on mobile platforms using the popular terminal apps <a href="https://apps.apple.com/us/app/ish-shell/id1436902243">iSH Shell</a> and <a href="https://termux.com/">Termux</a>. TMBASIC running on any platform can produce single-file executables for any other supported platform. Compiled BASIC programs require no external libraries.
+TMBASIC supports all major desktop computers. It even runs on mobile devices using the terminal apps <a href="https://apps.apple.com/us/app/ish-shell/id1436902243">iSH Shell</a> (iOS) and <a href="https://termux.com/">Termux</a> (Android). TMBASIC running on any platform can produce single-file executables for any other supported platform. No external libraries are required.
 
 ## License
-TMBASIC is [open source software](https://en.wikipedia.org/wiki/Open-source_software) available free of charge. Read the [Third Party Libraries](https://github.com/electroly/tmbasic/blob/master/doc/third-party-libraries.md) document for a list of open source components included in TMBASIC and in compiled programs. You must obey the licenses of these open source components when you share your compiled programs.
+TMBASIC is [open source software](https://en.wikipedia.org/wiki/Open-source_software) available free of charge. Read the [Third Party Libraries](https://github.com/electroly/tmbasic/blob/master/doc/third-party-libraries.md) document for a list of open source components included in TMBASIC and in compiled programs. You must obey the licenses of these open source components when you share your programs.
 
-These components have permissive, commercial-friendly open source licenses that do not require you to release your BASIC source code. When you generate an executable, TMBASIC generates a `LICENSE.txt` file that combines these licenses for your convenience. Include this license file along with your executable when you distribute your TMBASIC app.
+These components have permissive, commercial-friendly open source licenses. You do not need to share your BASIC source code. When you compile your program, TMBASIC produces a `LICENSE.txt` file that combines these licenses for your convenience. Include this license file along with your program when you share your TMBASIC app.
 
 The Windows, macOS, and Linux logo icons used on the TMBASIC website were created by [Erik Ragnar Eliasson](https://www.iconfinder.com/Erik_Rgnr).

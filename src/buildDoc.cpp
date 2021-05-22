@@ -590,7 +590,7 @@ static void buildProcedureIndex(
                     (o->parameters.empty() && t == "(None)") || (!o->parameters.empty() && t == o->parameters[0]->type);
             }
             if (includeThisProcedure) {
-                o << "li@b[{`" << p->name << "`:procedure_" << p->name << "}] - " << p->blurb << "@\n";
+                o << "li@b[{`" << p->name << "`:procedure_" << p->name << "}] <EM_DASH> " << p->blurb << "@\n";
             }
         }
         o << "@\n\n";
