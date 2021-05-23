@@ -8,16 +8,20 @@ mkdir -p $TESTDIR
 ssh -i $ARM_KEY $ARM_USER@$ARM_HOST "rm -rf $TESTDIR && mkdir -p $TESTDIR"
 ssh -i $X64_KEY $X64_USER@$X64_HOST "rm -rf $TESTDIR && mkdir -p $TESTDIR"
 
+# set up mac deps
+pushd ../  # build directory
+./mac-arm64.sh -c "make clean"
+./mac-x64.sh -c "make clean"
+popd
+
 # create a tarball of the local source directory
 export LOCAL_TAR=$TESTDIR/tmbasic-local.tar.gz
 pushd ../../  # root of repository
-mv bin .bin
-mv obj .obj
-mv mac .mac
+mv mac-x64 .mac-x64
+mv mac-arm64 .mac-arm64
 tar zcf $LOCAL_TAR *  # wildcard excludes dot files
-mv .bin bin
-mv .obj obj
-mv .mac mac
+mv .mac-x64 mac-x64
+mv .mac-arm64 mac-arm64
 popd
 
 # copy and extract the tarball on the Linux machines
@@ -31,8 +35,12 @@ ssh -i $X64_KEY $X64_USER@$X64_HOST "rm -rf $TESTDIR/tmbasic && mkdir -p $TESTDI
 
 # run tests
 pushd ../  # build directory
-./mac-x64.sh -ic "make clean && make test"
+./mac-arm64.sh -c "make clean && make test"
+./mac-x64.sh -c "make clean && make test"
 popd
 
-ssh -i $X64_KEY $ARM_USER@$ARM_HOST "bash -is" < runArmTests.sh
-ssh -i $X64_KEY $X64_USER@$X64_HOST "bash -is" < runIntelTests.sh
+scp -i $ARM_KEY runArmTests.sh $ARM_USER@$ARM_HOST:$TESTDIR/runArmTests.sh
+ssh -i $ARM_KEY $ARM_USER@$ARM_HOST "bash $TESTDIR/runArmTests.sh"
+
+scp -i $X64_KEY runIntelTests.sh $X64_USER@$X64_HOST:$TESTDIR/runIntelTests.sh
+ssh -i $X64_KEY $X64_USER@$X64_HOST "bash $TESTDIR/runIntelTests.sh"

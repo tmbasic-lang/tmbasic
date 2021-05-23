@@ -8,7 +8,7 @@ export ARCH="x86_64"
 export LIB3264="--disable-lib32 --enable-lib64"
 
 if [ $(uname -m) == 'x86_64' ]; then
-export WINE_INSTALL="RUN dpkg --add-architecture i386 && apt-get install -y wine64"
+export WINE_INSTALL="RUN dpkg --add-architecture i386 ; apt-get install -y wine64"
 else
 export WINE_INSTALL="RUN echo Not installing wine on this platform."
 fi

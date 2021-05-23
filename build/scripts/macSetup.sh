@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euxo pipefail
+set -euo pipefail
 
 # arguments: $ARCH
 # $ARCH: x86_64 or arm64v8
