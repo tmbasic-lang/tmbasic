@@ -40,7 +40,7 @@ pngcrush -brute -reduce -ow screenshot.png
 1. Commit as "Update foobar to version ____" or "Update foobar to commit ____".
 
 ## Make a release build
-1. Start the following three build machines. Prepare them for building using the instructions at the beginning of this document.
+1. Start the following three build machines. Prepare them for building using the instructions in the [Building from Source](https://github.com/electroly/tmbasic/blob/master/doc/building-from-source.md) document.
 
     - Ubuntu Linux &bull; ARM64 (AWS `c6g.2xlarge`)
     - Ubuntu Linux &bull; x64 (AWS `c5a.2xlarge`)
