@@ -3,30 +3,33 @@
 <!-- See DEVELOPERS.md for instructions on generating this screenshot. -->
 <a href="https://tmbasic.com/screenshot.png"><img src="https://tmbasic.com/screenshot.png" alt="Screenshot" class="screenshot" width="500"></a>
 
-TMBASIC is a simple programming language for creating console applications that run on Windows, macOS, and Linux.
-Apps written in TMBASIC can be simple command line tools or sophisticated mouse-driven user interfaces.
+TMBASIC is a simple programming language for creating console programs that run on Windows, macOS, and Linux.
+Programs written in TMBASIC can be simple command line tools or sophisticated mouse-driven user interfaces.
 Everything you need is built-in.
 
 [Read the documentation online](https://tmbasic.com/doc.html) or in TMBASIC's integrated help viewer.
-
 Try the [Cheat Sheet for Experienced Programmers](https://tmbasic.com/cheat.html) to get started quickly.
 
 ## Project status
 TMBASIC is under development. Stay tuned!
 
-## Why?
+## What can I make with TMBASIC?
 
-There are many options for developing rich graphical user interfaces (GUIs) today, both on the web and on the desktop. Text user interfaces (TUIs) are an older technology, so why consider writing a TUI-based app using TMBASIC today?
+<strong><i>Command line interfaces (CLI)</strong></i> &mdash; The simplest type of program. Read input from [shell arguments](https://en.wikipedia.org/wiki/Command-line_interface#Arguments) or directly from the keyboard. Print lines of text as output. Examples include developer tools like [git](https://en.wikipedia.org/wiki/Git) and [interactive fiction](https://en.wikipedia.org/wiki/Interactive_fiction) games like [Zork](https://en.wikipedia.org/wiki/Zork).
 
-<strong><i>Timeless.</i></strong> Modern interface conventions are constantly evolving. Web and desktop apps look outdated after a few years. TUIs have a classic appeal that transcends modern fads and trends.
+<strong><i>Text-based user interfaces (TUI)</strong></i> &mdash; Rich mouse-driven programs featuring windows, buttons, pull-down menus, and other modern user interface concepts. [Midnight Commander](https://en.wikipedia.org/wiki/Midnight_Commander) and TMBASIC itself are TUI programs.
 
-<strong><i>Easy to write.</i></strong> Developing a high-quality modern GUI requires professional-level expertise. TUIs have few options for visual effects, and even a novice can produce quality results.
+<strong><i>Text-mode games</strong></i> &mdash; Start with a blank screen and draw your own program elements from scratch. Use box-drawing characters and other Unicode symbols to create primitive graphics. [NetHack](https://en.wikipedia.org/wiki/NetHack) and [ZZT](https://en.wikipedia.org/wiki/ZZT) are examples of text-mode games.
 
-<strong><i>Easy to publish.</i></strong> TMBASIC apps are standalone executable files that require no supporting libraries. They can be copied and opened without installation.
+## It's easy!
 
-<strong><i>Easy cross-platform support.</i></strong> The same TUI works identically on Windows, macOS, and Linux. One build in TMBASIC produces executables for all supported platforms.
+<strong><i>Easy to get started</i></strong> &mdash; The BASIC language will feel familiar to anyone with programming experience. New programmers will find it easy to learn. Everything you need to develop and distribute sophisticated apps is included in TMBASIC.
 
-<strong><i>Easy to get started.</i></strong> The BASIC language will feel familiar to anyone with programming experience. New programmers will find it easy to learn. Everything you need to develop and distribute sophisticated apps is included in TMBASIC.
+<strong><i>Easy to write</i></strong> &mdash; Developing a high-quality modern GUI requires professional-level expertise. Text-based apps have few options for visual effects, and even a novice can produce quality results.
+
+<strong><i>Easy to publish</i></strong> &mdash; TMBASIC apps are standalone executable files that require no supporting libraries. They can be copied and opened without installation.
+
+<strong><i>Easy cross-platform support</i></strong> &mdash; The same text-based user interface works identically on Windows, macOS, and Linux. One build in TMBASIC produces executables for all supported platforms.
 
 ## Compatibility
 
