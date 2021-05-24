@@ -369,7 +369,7 @@ endif
 
 .PHONY: release
 release:
-	@OPTFLAGS="-Os" EXTRADEFS="-DNDEBUG" STRIP_TMBASIC=1 $(MAKE)
+	@OPTFLAGS="-Os" EXTRADEFS="-DNDEBUG" STRIP_TMBASIC=1 $(MAKE) bin/tmbasic$(EXE_EXTENSION) bin/LICENSE.txt
 
 .PHONY: clean
 clean:
