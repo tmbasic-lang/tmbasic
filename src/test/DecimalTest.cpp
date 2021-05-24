@@ -233,14 +233,14 @@ static double setLastBit(double input) {
 
 TEST(DecimalTest, DecimalToDouble1234567_875) {
     auto actual = decimalToDouble(Decimal("1234567.875"));
-    auto expected = 1234567.875d;
+    double expected = 1234567.875;
     // on win64 the last bit differs. why?
     ASSERT_EQ(setLastBit(expected), setLastBit(actual));
 }
 
 TEST(DecimalTest, DecimalToDoubleNeg1234567_875) {
     auto actual = decimalToDouble(Decimal("-1234567.875"));
-    auto expected = -1234567.875d;
+    double expected = -1234567.875;
     // on win64 the last bit differs. why?
     ASSERT_EQ(setLastBit(expected), setLastBit(actual));
 }
