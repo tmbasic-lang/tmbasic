@@ -363,7 +363,6 @@ ifeq ($(LINUX_DISTRO),ubuntu)
 	@echo "make tidy          Check code with clang-tidy"
 	@echo "make tidy-commit   Check 'git status' files with clang-tidy"
 	@echo "make ghpages       Build tmbasic-gh-pages"
-	@echo "make ghpages-test  Host tmbasic-gh-pages on port 5000"
 endif
 	@echo ""
 
@@ -407,10 +406,6 @@ tidy-commit: $(shell 2>/dev/null git status | grep "\.cpp" | grep -v "deleted:" 
 ghpages: obj/resources/help/help.txt bin/ghpages/index.html
 	@mkdir -p bin/ghpages
 	@cp obj/doc-html/* bin/ghpages/
-
-.PHONY: ghpages-test
-ghpages-test:
-	@cd bin/ghpages && python3 -m http.server 5000
 
 .PHONY: runners
 runners: $(patsubst %,bin/runners/%,$(BZIPPED_RUNNER_SIZE:=.bz2)) \

@@ -66,8 +66,10 @@ RUN echo "export ARCH=\"$ARCH\"" >> /etc/profile.d/tmbasic.sh && \
     echo "export TARGET_OS=linux" >> /etc/profile.d/tmbasic.sh && \
     echo "export LINUX_DISTRO=ubuntu" >> /etc/profile.d/tmbasic.sh && \
     echo "alias dev='/home/user/devPrompt.sh'" >> /etc/profile.d/tmbasic.sh && \
-    echo "make -f /code/Makefile help" >> /etc/profile.d/tmbasic.sh && \
     echo "export TERM=xterm-256color" >> /etc/profile.d/tmbasic.sh && \
+    echo "mkdir -p /code/bin/ghpages && cd /code/bin/ghpages && >/dev/null python3 -m http.server 5000 &" >> /etc/profile.d/tmbasic.sh && \
+    echo "echo HTTP server running on port 5000." >> /etc/profile.d/tmbasic.sh && \
+    echo "make -f /code/Makefile help" >> /etc/profile.d/tmbasic.sh && \
     chmod +x /etc/profile.d/tmbasic.sh
 
 USER $HOST_UID
