@@ -33,8 +33,29 @@ std::array<char, 9> App::helpWindowPalette = {};
 static PictureWindowStatusItems _newestPictureWindowStatusItems;
 TStatusItem* App::insertColorDialogHelpStatusItem;
 
+class Background : public TBackground {
+   public:
+    explicit Background(const TRect& bounds) : TBackground(bounds, ' ') {}
+    TColorAttr mapColor(uchar /*index*/) override { return { TColorRGB(95, 135, 175), TColorRGB(95, 135, 175) }; }
+};
+
+static TBackground* initTmBackground(TRect r) {
+    return new Background(r);
+}
+
+class DeskTop : public TDeskTop {
+   public:
+    explicit DeskTop(const TRect& r) : TDeskTop(r), TDeskInit(initTmBackground) {}
+};
+
+static TDeskTop* initTmDeskTop(TRect r) {
+    r.a.y++;
+    r.b.y--;
+    return new DeskTop(r);
+}
+
 App::App(int /*argc*/, char** /*argv*/)
-    : TProgInit(initStatusLine, initMenuBar, TApplication::initDeskTop), _newWindowX(2), _newWindowY(1) {
+    : TProgInit(initStatusLine, initMenuBar, initTmDeskTop), _newWindowX(2), _newWindowY(1) {
     TCommandSet ts;
     ts.enableCmd(cmUndo);
     ts.enableCmd(kCmdEditRedo);
