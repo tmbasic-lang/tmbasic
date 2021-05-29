@@ -1,6 +1,20 @@
 h1[TMBASIC Documentation]
 
-h2[General]
+h2[Beginner's Guide to TMBASIC]
+
+ul@
+li@What is Programming?@
+li@Using the TMBASIC Programming Environment@
+li@Inputs, Outputs, and Variables@
+li@Doing Math in TMBASIC@
+li@Making Decisions with "If" Statements@
+li@Subroutines and Functions@
+li@Lists and Loops@
+@
+
+h2[BASIC Reference]
+
+h3[General]
 
 ul@
 li@{Cheat Sheet for Experienced Programmers:cheat}@
@@ -9,7 +23,7 @@ li@{Language Grammar:ref_grammar}@
 li@{License:license}@
 @
 
-h2[Procedures]
+h3[Procedures]
 
 ul@
 li@{All Procedures:procedure}@
@@ -18,7 +32,7 @@ li@{Optionals:procedures_optionals}@
 li@{Strings:procedures_strings}@
 @
 
-h2[Types]
+h3[Types]
 
 ul@
 li@{`Boolean` Type:type_Boolean}@
@@ -35,14 +49,14 @@ li@{`TimeSpan` Type:type_TimeSpan}@
 li@{`TimeZone` Type:type_TimeZone}@
 @
 
-h2[Statements]
+h3[Statements]
 
 ul@
 li@{`if` Statement:ref_if}@
 li@{`while` Statement:ref_while}@
 @
 
-h2[Operators]
+h3[Operators]
 
 ul@
 li@{Algebraic Operators:ref_algebraic}@
