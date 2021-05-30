@@ -219,6 +219,7 @@ static string processText(string str) {
     str = replaceRegex(str, R"(h3\[([^\]]+)\])", "$1");
     str = replaceRegex(str, R"(bar\[([^\]]+)\])", "$1");
     str = replaceRegex(str, "code@([^@]+)@", [](auto& match) -> string { return indent(match[1].str()); });
+    str = replaceRegex(str, "pre@([^@]+)@", [](auto& match) -> string { return indent(match[1].str()); });
     str = replaceRegex(str, "nav@([^@]+)@", "$1");
     str = replaceRegex(str, "`([^`]+)`", "\"$1\"");
     str = replaceRegex(str, "li@([^@]+)@\n*", string(kCharBullet) + " $1\n\n");
@@ -257,6 +258,9 @@ static string processHtml(string str) {
         x = string("<div class=\"code\"><div>") + x + "</div></div>";
         x = replace(x, "<div></div>", "<pre></pre>");
         return x;
+    });
+    str = replaceRegex(str, "pre@\n*([^@]+)\n*@\n*", [](auto& match) -> string {
+        return string("<div><pre class=\"diagram\">") + match[1].str() + "</pre></div>";
     });
     str = replaceRegex(str, "nav@([^@]+)@", "<div class=\"backlinks\">$1</div>");
     str = replaceRegex(str, "`([^`]+)`", "<span class=\"tt\">$1</span>");

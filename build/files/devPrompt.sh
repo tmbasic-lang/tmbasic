@@ -1,7 +1,7 @@
 #!/bin/bash
 while true
 do
-    echo -ne "(m)ake (r)un (x)term (f)ormat (t)est tid(y) (g)hpages (c)lean (q)uit? "
+    echo -ne "(m)ake (r)un (1)6color (2)56color (f)ormat (t)est tid(y) (g)hpages (c)lean? "
     read -n1 x
     echo
     if [ "$x" == "m" ]
@@ -10,13 +10,16 @@ do
         make
     elif [ "$x" == "r" ] 
     then
-        make run
+        TERM=xterm-256color COLORTERM=truecolor make run
     elif [ "$x" == "y" ]
     then
         make tidy-commit
-    elif [ "$x" == "x" ]
+    elif [ "$x" == "1" ]
     then
-        TERM=xterm make run
+        TERM=xterm COLORTERM= make run
+    elif [ "$x" == "2" ]
+    then
+        TERM=xterm-256color COLORTERM= make run
     elif [ "$x" == "f" ]
     then
         make format

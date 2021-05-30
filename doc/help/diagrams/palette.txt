@@ -1,8 +1,0 @@
-16-Color Palette
-┌─────┬─────┬─────┬──────┬─────┬─────┬─────┬───────┐
-│     │Light│Light│Light │Light│Light│Light│Light  │
-│White│Gray │Red  │Yellow│Green│Cyan │Blue │Magenta│
-├─────┼─────┼─────┼──────┼─────┼─────┼─────┼───────┤
-│     │Dark │Dark │Dark  │Dark │Dark │Dark │Dark   │
-│Black│Gray │Red  │Yellow│Green│Cyan │Blue │Magenta│
-└─────┴─────┴─────┴──────┴─────┴─────┴─────┴───────┘

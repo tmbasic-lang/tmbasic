@@ -1,0 +1,55 @@
+nav@{TMBASIC Documentation:doc}@
+
+h1[Color Support]
+
+At minimum, 16 colors are supported on all TMBASIC platforms.
+
+pre@
+┌─────┬─────┬─────┬──────┬─────┬─────┬─────┬───────┐
+│     │Light│Light│Light │Light│Light│Light│Light  │
+│White│Gray │Red  │Yellow│Green│Cyan │Blue │Magenta│
+├─────┼─────┼─────┼──────┼─────┼─────┼─────┼───────┤
+│     │Dark │Dark │Dark  │Dark │Dark │Dark │Dark   │
+│Black│Gray │Red  │Yellow│Green│Cyan │Blue │Magenta│
+└─────┴─────┴─────┴──────┴─────┴─────┴─────┴───────┘
+@
+
+In most cases, it is possible to display more colors.
+
+h2[Windows]
+
+Microsoft added 24-bit "true color" support to Windows 10's built-in console in 2017.
+TMBASIC will automatically recognize the true color support.
+If you see only 16 colors, update to the latest Windows 10 version using Windows Update.
+
+Additionally, Microsoft's new {Windows Terminal:https://www.microsoft.com/en-us/p/windows-terminal/9n0dx20hk701} app for Windows 10 supports true color.
+
+On versions of Windows prior to Windows 10, only 16 colors are available.
+
+h2[macOS]
+
+The built-in Terminal app supports 256 colors.
+If you see only 16 colors, then run the following command before running `tmbasic` to enable 256 color mode:
+
+pre@
+export TERM=xterm-256color
+@
+
+The {iTerm2:https://iterm2.com/} app supports 24-bit "true color." It should work automatically, but if not, try running the following two commands before running `tmbasic`:
+
+pre@
+export TERM=xterm-256color
+export COLORTERM=truecolor
+@
+
+h2[Linux]
+
+Capabilities vary between terminal emulator programs.
+Up-to-date versions of most major terminals support true color.
+Try the following commands:
+
+pre@
+export TERM=xterm-256color
+# if your terminal supports true color, then:
+export COLORTERM=truecolor
+@

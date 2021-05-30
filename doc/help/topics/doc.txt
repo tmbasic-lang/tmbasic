@@ -18,7 +18,8 @@ h3[General]
 
 ul@
 li@{Cheat Sheet for Experienced Programmers:cheat}@
-li@{How to Use TMBASIC:ide}@
+li@{Color Support:colors}@
+li@{IDE Dialog Boxes:ide}@
 li@{Language Grammar:ref_grammar}@
 li@{License:license}@
 @

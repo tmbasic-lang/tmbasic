@@ -1,15 +1,33 @@
-nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {How to Use TMBASIC:ide}@
+nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {IDE Dialog Boxes:ide}@
 
 h1["Insert Color" Dialog]
 
-Color support varies from platform to platform.
-At minimum, 16 colors are supported on all TMBASIC platforms.
-If you are seeing a black and white display on macOS or Linux, try running the command `export TERM=xterm` before running `tmbasic`.
+This dialog lets you choose a color from one of three palettes:
 
-dia[palette]
+ul@
+li@16 colors@
+li@256 colors@
+li@24-bit true color@
+@
 
-h2[256 Color Support]
+The 16-color version of this dialog is shown below.
 
-On macOS or Linux, run the command `export TERM=xterm-256color` before running `tmbasic` to enable 256 color mode.
-On Windows, the built-in console does not support 256 colors.
-Microsoft's Windows Terminal app supports 256 colors, but it does not support mouse input and is not recommended.
+pre@
+╔═[■]═══════════════════════ Insert Color ═══════════════════════════╗
+║  ┌──────────────────────────────────────────────────────────────┐  ║
+║  │██████████████████████████████████████████████████████████████│  ║
+║  │██████████████████████████████████████████████████████████████│  ║
+║  │██████████████████████████████████████████████████████████████│  ║
+║  │██████████████████████████████████████████████████████████████│  ║
+║  ├──────┬───────────────────────────────────────────────────────┘  ║
+║  │██████│   R:      G:      B:                                     ║
+║  │██████│   255     255     255            Insert  ▄    Cancel  ▄  ║
+║  └──────┘                                 ▀▀▀▀▀▀▀▀▀▀   ▀▀▀▀▀▀▀▀▀▀  ║
+╚════════════════════════════════════════════════════════════════════╝
+@
+
+The available colors depend on your computer's operating system and terminal program.
+See the {Color Support:colors} topic for more information.
+
+Even if your system does not support 24-bit true color, you can still enter the numeric red, green, and blue values to specify colors manually.
+Each color value is a whole number from 0 to 255.
