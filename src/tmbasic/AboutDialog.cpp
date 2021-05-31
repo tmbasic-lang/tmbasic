@@ -30,11 +30,23 @@ static const std::string kLogoPicture =
     "ff B e29688 A A A B e29680 F 20 ffffff A A A E ff A F e29688 800080 A F 20 ff A A F e29688 800080 A F 20 ff E "
     "ffffff A A A A A A A A A E ff A A A A A A A A A A A A A A A A A A A A A end picture";
 
-AboutDialog::AboutDialog() : TDialog(TRect(0, 0, 0, 0), "About TMBASIC"), TWindowInit(&TDialog::initFrame) {
+static Picture getLogoPicture() {
+    Picture picture{ kLogoPicture };
+    // replace RGB #C0C0C0 with BIOS color 7 otherwise it won't exactly match the background of the dialog box
+    TColorRGB c0c0c0{ 0xC0C0C0 };
+    for (auto& cell : picture.cells) {
+        if (getBack(cell.colorAttr) == c0c0c0) {
+            cell.colorAttr = { getFore(cell.colorAttr), TColorBIOS{ 7 } };
+        }
+    }
+    return picture;
+}
+
+AboutDialog::AboutDialog() : TDialog(TRect(0, 0, 0, 0), "About TMBASIC"), TWindowInit(initFrame) {
     GridLayout(
         1,
         {
-            new PictureView(Picture{ kLogoPicture }, 0x7),
+            new PictureView(getLogoPicture(), 0x7),
             nullptr,
             new Label("© 2020-2021 Brian Luft"),
             new Label("tmbasic.com"),
