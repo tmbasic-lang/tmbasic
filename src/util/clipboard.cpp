@@ -32,6 +32,9 @@ std::string getClipboard() {
     ClipboardPtr clipboard{};
     if (clipboard.valid()) {
         std::unique_ptr<char, CStringFree> buf{ clipboard_text(clipboard.get()) };
+        if (buf == nullptr) {
+            return "";
+        }
         return buf.get();
     }
     return _fallbackClipboardText;
