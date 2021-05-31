@@ -14,37 +14,44 @@ using util::DialogPtr;
 
 namespace tmbasic {
 
+const TColorRGB kEditorBackground{ 0x000080 };
+const TColorRGB kEditorNormalForeground{ 0xC0C0C0 };
+const TColorRGB kEditorStringForeground{ 0xFF8AE2 };
+const TColorRGB kEditorKeywordForeground{ 0xFFFF00 };
+const TColorRGB kEditorCommentForeground{ 0x00FFFF };
+const TColorRGB kEditorIdentifierForeground{ 0xFFFFFF };
+
 static const std::vector<TColorAttr> _codeEditorColors{
-    '\x17',  // sNormal
-    '\x71',  // sSelection
-    '\x1D',  // sWhitespace
-    '\x17',  // sCtrlChar
-    '\x13',  // sLineNums
-    '\x1E',  // sKeyword1
-    '\x1E',  // sKeyword2
-    '\x17',  // sMisc
-    '\x17',  // sPreprocessor
-    '\x17',  // sOperator
-    '\x1B',  // sComment
-    '\x1D',  // sStringLiteral
-    '\x1D',  // sCharLiteral
-    '\x17',  // sNumberLiteral
-    '\x17',  // sEscapeSequence
-    '\x17',  // sError
-    '\x17',  // sBraceMatch
-    '\x17',  // sFramePassive
-    '\x1F',  // sFrameActive
-    '\x1A',  // sFrameIcon
-    '\x1F',  // sStaticText
-    '\x18',  // sLabelNormal
-    '\x1F',  // sLabelSelected
-    '\x16',  // sLabelShortcut
-    '\x20',  // sButtonNormal
-    '\x2B',  // sButtonDefault
-    '\x2F',  // sButtonSelected
-    '\x78',  // sButtonDisabled
-    '\x2E',  // sButtonShortcut
-    '\x18',  // sButtonShadow
+    TColorAttr{ kEditorNormalForeground, kEditorBackground },  // sNormal
+    TColorAttr{ kEditorBackground, kEditorNormalForeground },  // sSelection
+    TColorAttr{ kEditorNormalForeground, kEditorBackground },  // sWhitespace
+    TColorAttr{ kEditorNormalForeground, kEditorBackground },  // sCtrlChar
+    TColorAttr{ kEditorNormalForeground, kEditorBackground },  // sLineNums
+    TColorAttr{ kEditorNormalForeground, kEditorBackground },  // sKeyword1
+    TColorAttr{ kEditorNormalForeground, kEditorBackground },  // sKeyword2
+    TColorAttr{ kEditorNormalForeground, kEditorBackground },  // sMisc
+    TColorAttr{ kEditorNormalForeground, kEditorBackground },  // sPreprocessor
+    TColorAttr{ kEditorNormalForeground, kEditorBackground },  // sOperator
+    TColorAttr{ kEditorNormalForeground, kEditorBackground },  // sComment
+    TColorAttr{ kEditorNormalForeground, kEditorBackground },  // sStringLiteral
+    TColorAttr{ kEditorNormalForeground, kEditorBackground },  // sCharLiteral
+    TColorAttr{ kEditorNormalForeground, kEditorBackground },  // sNumberLiteral
+    TColorAttr{ kEditorNormalForeground, kEditorBackground },  // sEscapeSequence
+    TColorAttr{ kEditorNormalForeground, kEditorBackground },  // sError
+    TColorAttr{ kEditorNormalForeground, kEditorBackground },  // sBraceMatch
+    TColorAttr{ TColorBIOS{ 0x7 }, kEditorBackground },        // sFramePassive
+    TColorAttr{ TColorBIOS{ 0xF }, kEditorBackground },        // sFrameActive
+    TColorAttr{ TColorBIOS{ 0xA }, kEditorBackground },        // sFrameIcon
+    TColorAttr{ TColorBIOS{ 0xF }, kEditorBackground },        // sStaticText
+    TColorAttr{ TColorBIOS{ 0x8 }, kEditorBackground },        // sLabelNormal
+    TColorAttr{ TColorBIOS{ 0xF }, kEditorBackground },        // sLabelSelected
+    TColorAttr{ TColorBIOS{ 0x6 }, kEditorBackground },        // sLabelShortcut
+    TColorAttr{ TColorBIOS{ 0x0 }, TColorBIOS{ 0x2 } },        // sButtonNormal
+    TColorAttr{ TColorBIOS{ 0xB }, TColorBIOS{ 0x2 } },        // sButtonDefault
+    TColorAttr{ TColorBIOS{ 0xF }, TColorBIOS{ 0x2 } },        // sButtonSelected
+    TColorAttr{ TColorBIOS{ 0x8 }, TColorBIOS{ 0x7 } },        // sButtonDisabled
+    TColorAttr{ TColorBIOS{ 0xE }, TColorBIOS{ 0x2 } },        // sButtonShortcut
+    TColorAttr{ TColorBIOS{ 0x8 }, TColorBIOS{ 0x1 } },        // sButtonShadow
 };
 
 class TurboClipboard : public Clipboard {
@@ -56,6 +63,22 @@ class TurboClipboard : public Clipboard {
         return strdup(s.c_str());
     }
 };
+
+class CodeEditorFrame : public EditorFrame {
+   public:
+    CodeEditorFrame(TRect r) : EditorFrame(r) {}
+    TColorAttr mapColor(uchar index) override {
+        auto attr = EditorFrame::mapColor(index);
+        if (getBack(attr) == TColorBIOS(1)) {
+            return TColorAttr{ getFore(attr), kEditorBackground };
+        }
+        return attr;
+    }
+};
+
+static TFrame* initCodeEditorFrame(TRect r) {
+    return new CodeEditorFrame(r);
+}
 
 class CodeEditorWindowPrivate {
    public:
@@ -161,7 +184,7 @@ CodeEditorWindow::CodeEditorWindow(
     const TRect& r,
     compiler::SourceMember* member,
     const std::function<void()>& onEdited)
-    : TWindowInit(&initFrame), BaseEditorWindow(r), _private(new CodeEditorWindowPrivate()) {
+    : TWindowInit(initCodeEditorFrame), BaseEditorWindow(r), _private(new CodeEditorWindowPrivate()) {
     _private->window = this;
     _private->member = member;
     _private->onEdited = onEdited;
@@ -170,10 +193,10 @@ CodeEditorWindow::CodeEditorWindow(
     loadText(member->source);
     setUpEditorPostLoad();
     editor.WndProc(SCI_SETLEXER, SCLEX_CONTAINER, 0);
-    editor.setStyleColor(1, 0x1E);  // keyword
-    editor.setStyleColor(2, 0x1D);  // string
-    editor.setStyleColor(3, 0x1B);  // comment
-    editor.setStyleColor(4, 0x1F);  // identifier
+    editor.setStyleColor(1, TColorAttr{ kEditorKeywordForeground, kEditorBackground });     // keyword
+    editor.setStyleColor(2, TColorAttr{ kEditorStringForeground, kEditorBackground });      // string
+    editor.setStyleColor(3, TColorAttr{ kEditorCommentForeground, kEditorBackground });     // comment
+    editor.setStyleColor(4, TColorAttr{ kEditorIdentifierForeground, kEditorBackground });  // identifier
     editor.WndProc(SCI_SETSEL, member->selectionStart, member->selectionEnd);
     editor.clipboard = &_private->clipboard;
     lineNumbers.setState(true);

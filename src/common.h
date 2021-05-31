@@ -99,6 +99,7 @@
 #include <fmt/format.h>
 
 #include <editwindow.h>
+#include <editframe.h>
 
 #ifdef _WIN32
 #include <windows.h>
