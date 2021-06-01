@@ -1234,6 +1234,32 @@ void PictureWindow::handleEvent(TEvent& event) {
             clearEvent(event);
         } else if (
             _private->mode == PictureWindowMode::kType && _private->canvasView->selection.has_value() &&
+            event.keyDown.keyCode == kbBack) {
+            // user is pressing Backspace in type mode
+            auto width = _private->canvasView->picture.width;
+            auto height = _private->canvasView->picture.height;
+            auto r = *_private->canvasView->selection;
+            r.a.x -= 1;
+            r.b.x -= 1;
+            if (r.a.x >= 0 && r.a.x <= width && r.b.x >= 0 && r.b.x <= width && r.a.y >= 0 && r.a.y <= height &&
+                r.b.y >= 0 && r.b.y <= height) {
+                auto& cell =
+                    _private->canvasView->picture.cells.at(r.a.y * _private->canvasView->picture.width + r.a.x);
+                cell.ch = ' ';
+                _private->canvasView->selection = r;
+                _private->enableDisableCommands(true);
+                _private->canvasView->drawView();
+            }
+        } else if (
+            _private->mode == PictureWindowMode::kType && _private->canvasView->selection.has_value() &&
+            event.keyDown.keyCode == kbDel) {
+            // user is pressing Delete in type mode
+            auto r = *_private->canvasView->selection;
+            auto& cell = _private->canvasView->picture.cells.at(r.a.y * _private->canvasView->picture.width + r.a.x);
+            cell.ch = ' ';
+            _private->canvasView->drawView();
+        } else if (
+            _private->mode == PictureWindowMode::kType && _private->canvasView->selection.has_value() &&
             event.keyDown.text[0] != '\0' && event.keyDown.charScan.charCode != 0) {
             // user is typing text in type mode
             _private->checkpoint();
