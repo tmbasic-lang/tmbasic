@@ -12,7 +12,7 @@ BEGIN
       VALUE "FileDescription", "TMBASIC Programming Language"
       VALUE "FileVersion", "1.0"
       VALUE "InternalName", "tmbasic"
-      VALUE "LegalCopyright", "(C) 2020 Brian Luft"
+      VALUE "LegalCopyright", "(C) 2020-2021 Brian Luft"
       VALUE "OriginalFilename", "tmbasic.exe"
       VALUE "ProductName", "TMBASIC"
       VALUE "ProductVersion", "1.0"
