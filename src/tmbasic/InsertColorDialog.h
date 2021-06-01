@@ -4,8 +4,6 @@
 
 namespace tmbasic {
 
-class InsertColorDialogPrivate;
-
 class InsertColorDialog : public TDialog {
    public:
     static bool go(const std::string& title, const std::string& insertButtonText, TColorRGB* output);
@@ -16,7 +14,7 @@ class InsertColorDialog : public TDialog {
     bool didClickHelp = false;
 
    private:
-    gsl::owner<InsertColorDialogPrivate*> _private;
+    gsl::owner<class InsertColorDialogPrivate*> _private;
 };
 
 }  // namespace tmbasic

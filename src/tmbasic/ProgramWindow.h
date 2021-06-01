@@ -6,8 +6,6 @@
 
 namespace tmbasic {
 
-class ProgramWindowPrivate;
-
 class ProgramWindow : public TWindow {
    public:
     ProgramWindow(
@@ -28,7 +26,7 @@ class ProgramWindow : public TWindow {
     void redrawListItems();
 
    private:
-    ProgramWindowPrivate* _private;
+    gsl::owner<class ProgramWindowPrivate*> _private;
 };
 
 }  // namespace tmbasic

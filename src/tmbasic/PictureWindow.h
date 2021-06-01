@@ -6,8 +6,6 @@
 
 namespace tmbasic {
 
-class PictureWindowPrivate;
-
 class PictureWindowStatusItems {
    public:
     util::StatusLine* statusLine = nullptr;
@@ -48,7 +46,7 @@ class PictureWindow : public TWindow {
     void onStatusLineCommand(ushort cmd);
 
    private:
-    gsl::owner<PictureWindowPrivate*> _private;
+    gsl::owner<class PictureWindowPrivate*> _private;
 };
 
 }  // namespace tmbasic

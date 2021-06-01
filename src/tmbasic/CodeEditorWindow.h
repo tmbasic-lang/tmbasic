@@ -16,7 +16,7 @@ class CodeEditorWindow : public BaseEditorWindow {
     void notifyStyleToNeeded(Sci::Position endStyleNeeded) override;
 
    private:
-    class CodeEditorWindowPrivate* _private;
+    gsl::owner<class CodeEditorWindowPrivate*> _private;
 };
 
 }  // namespace tmbasic

@@ -4,8 +4,6 @@
 
 namespace tmbasic {
 
-class AddProgramItemDialogPrivate;
-
 class AddProgramItemDialog : public TDialog {
    public:
     AddProgramItemDialog();
@@ -13,7 +11,7 @@ class AddProgramItemDialog : public TDialog {
     void handleEvent(TEvent& event) override;
 
    private:
-    gsl::owner<AddProgramItemDialogPrivate*> _private;
+    gsl::owner<class AddProgramItemDialogPrivate*> _private;
 };
 
 }  // namespace tmbasic
