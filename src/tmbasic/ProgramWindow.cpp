@@ -297,6 +297,9 @@ static void onDeleteItem(ProgramWindowPrivate* p) {
         }
     }
 
+    p->dirty = true;
+    updateTitle(p);
+    p->window->frame->drawView();
     p->window->updateListItems();
 }
 
