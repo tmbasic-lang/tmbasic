@@ -3,7 +3,7 @@
 <!-- See DEVELOPERS.md for instructions on generating this screenshot. -->
 <a href="https://tmbasic.com/screenshot.png"><img src="https://tmbasic.com/screenshot.png" alt="Screenshot" class="screenshot" width="500"></a>
 
-TMBASIC is a simple programming language for creating console programs that run on Windows, macOS, and Linux.
+<strong>TMBASIC</strong> is a simple programming language for creating console programs that run on Windows, macOS, and Linux.
 Programs written in TMBASIC can be simple command line tools or sophisticated mouse-driven user interfaces.
 Everything you need is built-in.
 
@@ -15,21 +15,21 @@ TMBASIC is under development. Stay tuned!
 
 ## What can I make with TMBASIC?
 
-<strong><i>Command line interfaces (CLI)</strong></i> &mdash; The simplest type of program. Read input from [shell arguments](https://en.wikipedia.org/wiki/Command-line_interface#Arguments) or directly from the keyboard. Print lines of text as output. Examples include developer tools like [git](https://en.wikipedia.org/wiki/Git) and [interactive fiction](https://en.wikipedia.org/wiki/Interactive_fiction) games like [Zork](https://en.wikipedia.org/wiki/Zork).
+<strong>Command line interfaces (CLI)</strong> &mdash; The simplest type of program. Read input from [shell arguments](https://en.wikipedia.org/wiki/Command-line_interface#Arguments) or directly from the keyboard. Print lines of text as output. Examples include developer tools like [git](https://en.wikipedia.org/wiki/Git) and [interactive fiction](https://en.wikipedia.org/wiki/Interactive_fiction) games like [Zork](https://en.wikipedia.org/wiki/Zork).
 
-<strong><i>Text-based user interfaces (TUI)</strong></i> &mdash; Rich mouse-driven programs featuring windows, buttons, pull-down menus, and other modern user interface concepts. [Midnight Commander](https://en.wikipedia.org/wiki/Midnight_Commander) and TMBASIC itself are TUI programs.
+<strong>Text-based user interfaces (TUI)</strong> &mdash; Rich mouse-driven programs featuring windows, buttons, pull-down menus, and other modern user interface concepts. [Midnight Commander](https://en.wikipedia.org/wiki/Midnight_Commander) and TMBASIC itself are TUI programs.
 
-<strong><i>Text-mode games</strong></i> &mdash; Start with a blank screen and draw your own program elements from scratch. Use box-drawing characters and other Unicode symbols to create primitive graphics. [NetHack](https://en.wikipedia.org/wiki/NetHack) and [ZZT](https://en.wikipedia.org/wiki/ZZT) are examples of text-mode games.
+<strong>Text-mode games</strong> &mdash; Start with a blank screen and draw your own program elements from scratch. Use box-drawing characters and other Unicode symbols to create primitive graphics. [NetHack](https://en.wikipedia.org/wiki/NetHack) and [ZZT](https://en.wikipedia.org/wiki/ZZT) are examples of text-mode games.
 
 ## It's easy!
 
-<strong><i>Easy to get started</i></strong> &mdash; The BASIC language will feel familiar to anyone with programming experience. New programmers will find it easy to learn. Everything you need to develop and distribute sophisticated apps is included in TMBASIC.
+<strong>Easy to get started</strong> &mdash; The BASIC language will feel familiar to anyone with programming experience. New programmers will find it easy to learn. Everything you need to develop and distribute sophisticated apps is included in TMBASIC.
 
-<strong><i>Easy to write</i></strong> &mdash; Developing a high-quality modern GUI requires professional-level expertise. Text-based apps have few options for visual effects, and even a novice can produce quality results.
+<strong>Easy to write</strong> &mdash; Developing a high-quality modern GUI requires professional-level expertise. Text-based apps have few options for visual effects, and even a novice can produce quality results.
 
-<strong><i>Easy to publish</i></strong> &mdash; TMBASIC apps are standalone executable files that require no supporting libraries. They can be copied and opened without installation.
+<strong>Easy to publish</strong> &mdash; TMBASIC apps are standalone executable files that require no supporting libraries. They can be copied and opened without installation.
 
-<strong><i>Easy cross-platform support</i></strong> &mdash; The same text-based user interface works identically on Windows, macOS, and Linux. One build in TMBASIC produces executables for all supported platforms.
+<strong>Easy cross-platform support</strong> &mdash; The same text-based user interface works identically on Windows, macOS, and Linux. One build in TMBASIC produces executables for all supported platforms.
 
 ## Compatibility
 
