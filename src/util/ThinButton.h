@@ -25,7 +25,7 @@ class ThinButton : public Button {
     void handleEvent(TEvent& event) override;
 
    private:
-    void drawTitle(TDrawBuffer& b, int s, int i, TAttrPair cButton, bool down);
+    void drawTitle(TDrawBuffer* b, int s, int i, TAttrPair cButton, bool down);
 };
 
 }  // namespace util

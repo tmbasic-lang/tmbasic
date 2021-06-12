@@ -24,7 +24,7 @@ void ThinButton::draw() {
     drawState(false);
 }
 
-void ThinButton::drawTitle(TDrawBuffer& b, int s, int i, TAttrPair cButton, bool down) {
+void ThinButton::drawTitle(TDrawBuffer* b, int s, int i, TAttrPair cButton, bool down) {
     int l = 0;
     if ((flags & bfLeftJust) != 0) {
         l = 1;
@@ -34,7 +34,7 @@ void ThinButton::drawTitle(TDrawBuffer& b, int s, int i, TAttrPair cButton, bool
             l = 1;
         }
     }
-    b.moveCStr(i + l, title, cButton);
+    b->moveCStr(i + l, title, cButton);
 
     if (showMarkers && !down) {
         int scOff = 4;
@@ -43,8 +43,8 @@ void ThinButton::drawTitle(TDrawBuffer& b, int s, int i, TAttrPair cButton, bool
         } else if (amDefault) {
             scOff = 2;
         }
-        b.putChar(0, specialChars[scOff]);
-        b.putChar(s, specialChars[scOff + 1]);
+        b->putChar(0, specialChars[scOff]);
+        b->putChar(s, specialChars[scOff + 1]);
     }
 }
 
@@ -73,7 +73,7 @@ void ThinButton::drawState(bool down) {
     b.moveChar(0, ' ', cButton, size.x);
 
     if (title != nullptr) {
-        drawTitle(b, s, 1, cButton, down);
+        drawTitle(&b, s, 1, cButton, down);
     }
 
     if (showMarkers && !down) {
@@ -142,13 +142,13 @@ void ThinButton::handleEvent(TEvent& event) {
                 case cmGrabDefault:
                 case cmReleaseDefault:
                     if ((flags & bfDefault) != 0) {
-                        amDefault = bool(event.message.command == cmReleaseDefault);
+                        amDefault = event.message.command == cmReleaseDefault;
                         drawView();
                     }
                     break;
 
                 case cmCommandSetChanged:
-                    setState(sfDisabled, bool(!commandEnabled(command)));
+                    setState(sfDisabled, !commandEnabled(command));
                     drawView();
                     break;
             }

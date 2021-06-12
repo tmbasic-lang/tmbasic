@@ -66,7 +66,7 @@ class TurboClipboard : public Clipboard {
 
 class CodeEditorFrame : public EditorFrame {
    public:
-    CodeEditorFrame(TRect r) : EditorFrame(r) {}
+    explicit CodeEditorFrame(TRect r) : EditorFrame(r) {}
     TColorAttr mapColor(uchar index) override {
         auto attr = EditorFrame::mapColor(index);
         if (getBack(attr) == TColorBIOS(1)) {
