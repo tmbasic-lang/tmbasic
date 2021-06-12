@@ -4,7 +4,7 @@
 
 namespace tmbasic {
 
-class HelpWindow : public THelpWindow {
+class HelpWindow : public TWindow {
    public:
     HelpWindow(THelpFile* hFile, ushort context);
     TPalette& getPalette() const override;

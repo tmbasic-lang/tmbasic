@@ -10,10 +10,14 @@ class ViewPtr {
    public:
     template <typename... Args>
     explicit ViewPtr(Args&&... args) : _ptr(new T(std::forward<Args>(args)...)) {}
+    ViewPtr(const ViewPtr& x) = delete;
+    ViewPtr(ViewPtr& x) : _ptr(x.take()) {}
+    ViewPtr(ViewPtr&& x) : _ptr(x.take()) {}
 
     ~ViewPtr() {
         if (_owned) {
             delete _ptr;
+            _ptr = nullptr;
         }
     }
 
