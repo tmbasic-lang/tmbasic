@@ -93,6 +93,7 @@ void Scanner::processChar(char ch, char peek) {
                 // "" is how quotes are escaped inside string literals
                 _skipNext = true;
             } else {
+                endCurrentToken();  // no whitespace necessary after a string literal
                 _currentTokenIsString = false;
             }
         }

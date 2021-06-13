@@ -150,3 +150,7 @@ TEST(ScannerTest, ForLoop) {
 TEST(ScannerTest, ScanSimpleSub) {
     scanMatch("SimpleSub");
 }
+
+TEST(ScannerTest, ScanStringWithoutTrailingSpace) {
+    scanMatch("StringWithoutTrailingSpace");
+}
