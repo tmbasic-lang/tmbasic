@@ -437,14 +437,14 @@ TokenKind Scanner::classifyToken(const std::string& text) {
                     return TokenKind::kSelect;
                 } else if (lc == "step") {
                     return TokenKind::kStep;
+                } else if (lc == "string") {
+                    return TokenKind::kString;
                 } else if (lc == "sub") {
                     return TokenKind::kSub;
                 }
                 break;
             case 't':
-                if (lc == "text") {
-                    return TokenKind::kString;
-                } else if (lc == "then") {
+                if (lc == "then") {
                     return TokenKind::kThen;
                 } else if (lc == "throw") {
                     return TokenKind::kThrow;
