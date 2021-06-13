@@ -5,6 +5,7 @@
 #include "compiler/tokenize.h"
 #include "compiler/typeCheck.h"
 #include "util/cast.h"
+#include "vm/Opcode.h"
 
 using util::dynamic_cast_move;
 
@@ -35,6 +36,10 @@ CompilerResult compileProcedure(const SourceMember& sourceMember, CompiledProgra
     if (!compilerResult.isSuccess) {
         return compilerResult;
     }
+
+    auto vmProcedure = std::make_unique<vm::Procedure>();
+    vmProcedure->instructions.push_back(static_cast<uint8_t>(vm::Opcode::kExit));
+    compiledProgram->vmProgram.procedures.push_back(std::move(vmProcedure));
 
     return CompilerResult::success();
 }

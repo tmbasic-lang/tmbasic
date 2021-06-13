@@ -45,7 +45,7 @@ void Interpreter::init(int procedureIndex) {
     _recordBuilderStack = {};
     _objectListBuilderStack = {};
     _valueListBuilderStack = {};
-    _procedure = _program->procedures[procedureIndex].get();
+    _procedure = _program->procedures.at(procedureIndex).get();
     _a = {};
     _b = {};
     _x = nullptr;

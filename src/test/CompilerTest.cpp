@@ -1,13 +1,24 @@
 #include "../common.h"
-#include "gtest/gtest.h"
+#include "assemble.h"
+#include "compiler/compileProcedure.h"
 #include "compiler/TargetPlatform.h"
 #include "compiler/makeExeFile.h"
+#include "gtest/gtest.h"
+#include "helpers.h"
+#include "vm/Interpreter.h"
+#include "vm/Procedure.h"
+#include "vm/Program.h"
 
+using compiler::compileProcedure;
 using compiler::makeExeFile;
 using compiler::TargetPlatform;
+using std::istringstream;
+using std::make_unique;
+using std::ostringstream;
 using std::runtime_error;
 using std::string;
 using std::vector;
+using vm::Interpreter;
 
 static TargetPlatform getCurrentPlatform() {
     auto platform = string(getenv("TARGET_OS")) + "/" + getenv("ARCH");
@@ -50,6 +61,61 @@ static bool contains(const vector<uint8_t>& haystack, const vector<uint8_t>& nee
     return false;
 }
 
+static void run(string filenameWithoutExtension) {
+    auto pcodeFile = readFile(filenameWithoutExtension + ".bas");
+
+    string inputSentinel = "--input--\n";
+    auto inputStart = pcodeFile.find(inputSentinel);
+
+    string outputSentinel = "--output--\n";
+    auto outputStart = pcodeFile.find(outputSentinel);
+
+    string input;
+    if (inputStart != string::npos) {
+        if (outputStart == string::npos) {
+            input = pcodeFile.substr(inputStart + inputSentinel.size());
+        } else {
+            input =
+                pcodeFile.substr(inputStart + inputSentinel.size(), outputStart - inputStart - inputSentinel.size());
+        }
+    }
+
+    string expectedOutput;
+    if (outputStart != string::npos) {
+        expectedOutput = pcodeFile.substr(outputStart + outputSentinel.size());
+    }
+
+    string source;
+    if (inputStart != string::npos) {
+        source = pcodeFile.substr(0, inputStart);
+    } else if (outputStart != string::npos) {
+        source = pcodeFile.substr(0, outputStart);
+    } else {
+        source = pcodeFile;
+    }
+
+    compiler::CompiledProgram program{};
+    compiler::SourceMember mainSourceMember{ compiler::SourceMemberType::kProcedure, source, 0, 0 };
+    auto compilerResult = compileProcedure(mainSourceMember, &program);
+    if (!compilerResult.isSuccess) {
+        std::cerr << compilerResult.message << std::endl
+                  << NAMEOF_ENUM(compilerResult.token.type) << " \"" << compilerResult.token.text << "\" ("
+                  << compilerResult.token.lineIndex + 1 << ":" << compilerResult.token.columnIndex + 1 << ")"
+                  << std::endl;
+        GTEST_FAIL();
+    }
+    ASSERT_EQ(1, program.vmProgram.procedures.size());
+
+    istringstream consoleInputStream(input);
+    ostringstream consoleOutputStream;
+    auto interpreter = make_unique<Interpreter>(&program.vmProgram, &consoleInputStream, &consoleOutputStream);
+    interpreter->init(0);
+    while (interpreter->run(10000)) {
+    }
+    auto actualOutput = consoleOutputStream.str();
+    ASSERT_EQ(expectedOutput, actualOutput);
+}
+
 TEST(CompilerTest, BuildDummyBytecode) {
     auto bytecode = buildDummyBytecode(1000);
     ASSERT_EQ(0, bytecode.at(0));
@@ -78,4 +144,8 @@ TEST(CompilerTest, MakeExeFile1_000_000) {
     auto bytecode = buildDummyBytecode(1000000);
     auto exe = makeExeFile(bytecode, getCurrentPlatform());
     ASSERT_TRUE(contains(exe, bytecode));
+}
+
+TEST(CompilerTest, EmptyMain) {
+    run("EmptyMain");
 }
