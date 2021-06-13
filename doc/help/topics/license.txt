@@ -6,30 +6,30 @@ TMBASIC is open source software available free of charge.
 The following components are included in the TMBASIC development environment and in compiled programs.
 You must obey the licenses of these open source components when you share your compiled programs.
 
-ul@li@{"tmbasic" License:license_tmbasic}@
-li@{"boost" License:license_boost}@
-li@{"fmt" License:license_fmt}@
-li@{"icu" License:license_icu}@
-li@{"immer" License:license_immer}@
-li@{"libclipboard" License:license_libclipboard}@
-li@"libstdc++" License - {Part 1:license_libstdcxx1}, {Part 2:license_libstdcxx2}, {Part 3:license_libstdcxx3}@
-li@{"libXau" License:license_libxau}@
-li@{"libxcb" License:license_libxcb}@
-li@{"mpdecimal" License:license_mpdecimal}@
-li@{"musl" License:license_musl}@
-li@{"ncurses" License:license_ncurses}@
-li@{"scintilla" License:license_scintilla}@
-li@{"turbo" License:license_turbo}@
-li@{"tvision" License:license_tvision}@
+ul@li@{tmbasic:license_tmbasic}@
+li@{boost:license_boost}@
+li@{fmt:license_fmt}@
+li@{icu:license_icu}@
+li@{immer:license_immer}@
+li@{libclipboard:license_libclipboard}@
+li@libstdc++ - {Part 1:license_libstdcxx1}, {Part 2:license_libstdcxx2}, {Part 3:license_libstdcxx3}@
+li@{libXau:license_libxau}@
+li@{libxcb:license_libxcb}@
+li@{mpdecimal:license_mpdecimal}@
+li@{musl:license_musl}@
+li@{ncurses:license_ncurses}@
+li@{scintilla:license_scintilla}@
+li@{turbo:license_turbo}@
+li@{tvision:license_tvision}@
 @
 
-These components have permissive, commercial-friendly open source licenses that do not require you to release your BASIC source code.
-When you generate an executable, TMBASIC generates a `LICENSE.txt` file that combines these licenses for your convenience.
-Include this license file along with your executable when you distribute your TMBASIC app.
+These licenses are permissive and commercial-friendly.
+When you compile your program, TMBASIC produces a `LICENSE.txt` file for your convenience.
+Include this license file when sharing your TMBASIC app.
 
 The following additional components are included in the TMBASIC development environment only.
 
-ul@li@{"bsdiff" License:license_bsdiff}@
-li@{"bzip2" License:license_bzip2}@
-li@{"nameof" License:license_nameof}@
+ul@li@{bsdiff:license_bsdiff}@
+li@{bzip2:license_bzip2}@
+li@{nameof:license_nameof}@
 @
