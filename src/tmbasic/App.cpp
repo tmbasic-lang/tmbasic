@@ -454,7 +454,7 @@ void App::showNewProgramWindow(std::optional<std::string> filePath) {
     }
 
     auto* window = new ProgramWindow(
-        TRect(0, 0, 60, 15), std::move(sourceProgram), filePath,
+        TRect(0, 0, 30, deskTop->size.y), std::move(sourceProgram), filePath,
         [this](auto* member) -> void { openEditorOrDesignerWindow(member); });
     deskTop->insert(window);
 }
@@ -483,7 +483,7 @@ void App::showEditorWindow(SourceMember* member) {
     if (e.window != nullptr) {
         e.window->select();
     } else {
-        auto* window = new CodeEditorWindow(getNewWindowRect(82, 30), member, []() -> void {
+        auto* window = new CodeEditorWindow(getNewWindowRect(75, 20), member, []() -> void {
             // onUpdated
             auto* programWindow = findProgramWindow(deskTop);
             if (programWindow != nullptr) {
@@ -491,9 +491,11 @@ void App::showEditorWindow(SourceMember* member) {
             }
         });
         deskTop->insert(window);
-        if (deskTop->size.x < 82 && deskTop->size.y < 30) {
-            window->zoom();
-        }
+
+        // workaround for the editor not showing line numbers and syntax coloring on first draw. this is not the best
+        // fix but it works for now.
+        window->zoom();
+        window->zoom();
     }
 }
 

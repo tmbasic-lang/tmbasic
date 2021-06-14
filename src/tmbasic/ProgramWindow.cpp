@@ -121,11 +121,12 @@ class ProgramWindowPrivate {
 
 static gsl::owner<TFrame*> initProgramWindowFrame(TRect r) {
     ViewPtr<util::Frame> f{ r };
-    f->colorPassiveFrame = 0x87;
-    f->colorPassiveTitle = 0x87;
-    f->colorActiveFrame = 0x8F;
-    f->colorActiveTitle = 0x8F;
-    f->colorIcons = 0x8A;
+    TColorRGB darkgray{ 59, 59, 59 };
+    f->colorPassiveFrame = { TColorBIOS{ 0x7 }, darkgray };
+    f->colorPassiveTitle = { TColorBIOS{ 0x7 }, darkgray };
+    f->colorActiveFrame = { TColorBIOS{ 0xF }, darkgray };
+    f->colorActiveTitle = { TColorBIOS{ 0xF }, darkgray };
+    f->colorIcons = { TColorBIOS{ 0xA }, darkgray };
     return f.take();
 }
 
@@ -163,6 +164,8 @@ ProgramWindow::ProgramWindow(
     : TWindow(r, "Untitled - Program", wnNoNumber),
       TWindowInit(initProgramWindowFrame),
       _private(new ProgramWindowPrivate(this, std::move(sourceProgram), std::move(openMember), std::move(filePath))) {
+    setState(sfShadow, false);
+
     TCommandSet ts;
     ts.enableCmd(cmSave);
     ts.enableCmd(cmSaveAs);
@@ -182,7 +185,10 @@ ProgramWindow::ProgramWindow(
                                                    [this]() -> void { enableDisableCommands(_private, true); } };
     _private->contentsListBox = contentsListBox;
     _private->contentsListBox->growMode = gfGrowHiX | gfGrowHiY;
-    _private->contentsListBox->useDarkGrayPalette();
+    TColorRGB listBack{ 59, 59, 59 };
+    _private->contentsListBox->colorActive = { TColorRGB{ 204, 204, 204 }, listBack };
+    _private->contentsListBox->colorInactive = { TColorBIOS{ 0x7 }, listBack };
+    _private->contentsListBox->colorSelected = { TColorBIOS{ 0xE }, listBack };
     contentsListBox.addTo(this);
 
     updateTitle(_private);
