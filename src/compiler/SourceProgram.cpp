@@ -77,26 +77,19 @@ static std::vector<const SourceMember*> sortMembers(const SourceProgram* program
     return result;
 }
 
-static std::string removeLeadingAndTrailingNonCodeLines(std::list<std::string>* linesPtr) {
-    auto& lines = *linesPtr;
-    auto whitespaceRegex = std::regex("^[ \t]*$");
-
-    // remove leading lines
-    while (!lines.empty() && std::regex_match(lines.front(), whitespaceRegex)) {
-        lines.erase(lines.begin());
+static void loadEndCurrentBlock(
+    std::vector<std::string>* currentBlock,
+    std::vector<std::unique_ptr<SourceMember>>* members,
+    SourceMemberType currentMemberType) {
+    if (!currentBlock->empty()) {
+        std::ostringstream s;
+        for (auto& line : *currentBlock) {
+            s << line << "\n";
+        }
+        members->push_back(std::make_unique<SourceMember>(
+            currentMemberType, boost::trim_copy(boost::replace_all_copy(s.str(), "##", "#")) + "\n", 0, 0));
+        currentBlock->clear();
     }
-
-    // remove trailing lines
-    while (!lines.empty() && std::regex_match(lines.back(), whitespaceRegex)) {
-        lines.erase(--lines.end());
-    }
-
-    // join into a string
-    std::ostringstream s;
-    for (auto& line : lines) {
-        s << line << "\n";
-    }
-    return s.str();
 }
 
 void SourceProgram::load(const std::string& filePath) {
@@ -107,56 +100,67 @@ void SourceProgram::load(const std::string& filePath) {
         throw std::system_error(errno, std::system_category());
     }
 
-    auto endSubRegex = std::regex("^[ \t]*[Ee][Nn][Dd][ \t]+[Ss][Uu][Bb].*$");
-    auto endFunctionRegex = std::regex("^[ \t]*[Ee][Nn][Dd][ \t]+[Ff][Uu][Nn][Cc][Tt][Ii][Oo][Nn].*$");
-    auto dimRegex = std::regex("^[ \t]*[Dd][Ii][Mm][ \t].*$");
-    auto constRegex = std::regex("^[ \t]*[Cc][Oo][Nn][Ss][Tt][ \t].*$");
-    auto endTypeRegex = std::regex("^[ \t]*[Ee][Nn][Dd][ \t]+[Tt][Yy][Pp][Ee].*$");
-    auto endPictureRegex = std::regex("^[ \t]*[Ee][Nn][Dd][ \t]+[Pp][Ii][Cc][Tt][Uu][Rr][Ee].*$");
-
-    std::list<std::string> currentBlock;
+    std::vector<std::string> currentBlock;
+    auto currentMemberType = SourceMemberType::kProcedure;
     std::string line;
+
     while (std::getline(file, line)) {
         auto isBlockDone = false;
         SourceMemberType memberType;  // set this when setting isBlockDone=true
-        auto includeThisLine = true;
 
-        if (std::regex_match(line, endSubRegex) || std::regex_match(line, endFunctionRegex)) {
-            memberType = SourceMemberType::kProcedure;
+        if (line.find("#design") == 0) {
+            memberType = SourceMemberType::kDesign;
             isBlockDone = true;
-        } else if (std::regex_match(line, dimRegex)) {
+        } else if (line.find("#global") == 0) {
             memberType = SourceMemberType::kGlobal;
             isBlockDone = true;
-        } else if (std::regex_match(line, constRegex)) {
-            memberType = SourceMemberType::kGlobal;
-            isBlockDone = true;
-        } else if (std::regex_match(line, endTypeRegex)) {
-            memberType = SourceMemberType::kType;
-            isBlockDone = true;
-        } else if (std::regex_match(line, endPictureRegex)) {
+        } else if (line.find("#picture") == 0) {
             memberType = SourceMemberType::kPicture;
             isBlockDone = true;
-        }
-
-        if (includeThisLine) {
-            currentBlock.push_back(line);
+        } else if (line.find("#procedure") == 0) {
+            memberType = SourceMemberType::kProcedure;
+            isBlockDone = true;
+        } else if (line.find("#type") == 0) {
+            memberType = SourceMemberType::kType;
+            isBlockDone = true;
         }
 
         if (isBlockDone) {
-            members.push_back(std::make_unique<SourceMember>(
-                memberType, boost::replace_all_copy(removeLeadingAndTrailingNonCodeLines(&currentBlock), "##", "#"), 0,
-                0));
-            currentBlock.clear();
+            loadEndCurrentBlock(&currentBlock, &members, currentMemberType);
+            currentMemberType = memberType;
+        } else {
+            currentBlock.push_back(line);
         }
     }
+
+    loadEndCurrentBlock(&currentBlock, &members, currentMemberType);
 }
 
 void SourceProgram::save(const std::string& filePath) const {
     auto stream = std::ofstream(filePath);
 
     for (const auto* member : sortMembers(this)) {
-        auto trimmedSource = boost::trim_copy(member->source);
-        stream << trimmedSource << "\n\n";
+        switch (member->memberType) {
+            case SourceMemberType::kDesign:
+                stream << "#design";
+                break;
+            case SourceMemberType::kGlobal:
+                stream << "#global";
+                break;
+            case SourceMemberType::kPicture:
+                stream << "#picture";
+                break;
+            case SourceMemberType::kProcedure:
+                stream << "#procedure";
+                break;
+            case SourceMemberType::kType:
+                stream << "#type";
+                break;
+            default:
+                assert(false);
+                break;
+        }
+        stream << "\n" << boost::trim_copy(boost::replace_all_copy(member->source, "#", "##")) << "\n\n";
     }
 }
 
