@@ -34,7 +34,7 @@ static bool isCommentToken(const Token& x) {
 }
 
 static void removeComments(std::vector<Token>* tokens) {
-    tokens->erase(std::remove_if(tokens->begin(), tokens->end(), isCommentToken));
+    tokens->erase(std::remove_if(tokens->begin(), tokens->end(), isCommentToken), tokens->end());
 }
 
 static void removeBlankLines(std::vector<Token>* tokens) {
