@@ -17,8 +17,8 @@ NAMEOF_VERSION=a9813bd7a15c92293384f2505e44bcb4005b97ba
 NCURSES_VERSION=6.2
 TURBO_VERSION=a868d2bfedb77a83e9f991154d002ec99e5a180e
 TVISION_VERSION=c36e190174463ece471bdd1c06959fb8dc343c3c
-XCBPROTO_VERSION=1.14
-XORGPROTO_VERSION=2021.3
+XCBPROTO_VERSION=496e3ce329c3cc9b32af4054c30fa0f306deb007
+XORGPROTO_VERSION=2021.4
 
 ifneq ($(ARCH),i686)
 ifneq ($(ARCH),x86_64)
@@ -84,7 +84,7 @@ NAMEOF_DIR=$(PWD)/nameof-$(NAMEOF_VERSION)
 NCURSES_DIR=$(PWD)/ncurses-$(NCURSES_VERSION)
 TURBO_DIR=$(PWD)/turbo-$(TURBO_VERSION)
 TVISION_DIR=$(PWD)/tvision-$(TVISION_VERSION)
-XCBPROTO_DIR=$(PWD)/xcb-proto-$(XCBPROTO_VERSION)
+XCBPROTO_DIR=$(PWD)/xcbproto-$(XCBPROTO_VERSION)
 XORGPROTO_DIR=$(PWD)/xorgproto-$(XORGPROTO_VERSION)
 
 ifeq ($(TARGET_OS),mac)
@@ -573,7 +573,7 @@ endif
 
 $(XCBPROTO_DIR)/download:
 ifeq ($(TARGET_OS),linux)
-	curl -L https://xorg.freedesktop.org/archive/individual/xcb/xcb-proto-${XCBPROTO_VERSION}.tar.gz | tar zx
+	curl -L https://gitlab.freedesktop.org/xorg/proto/xcbproto/-/archive/${XCBPROTO_VERSION}/xcbproto-${XCBPROTO_VERSION}.tar.gz | tar zx
 else
 	mkdir -p $(XCBPROTO_DIR)
 endif
@@ -582,6 +582,7 @@ endif
 $(XCBPROTO_DIR)/install: $(LIBXAU_DIR)/install $(XCBPROTO_DIR)/download
 ifeq ($(TARGET_OS),linux)
 	cd $(XCBPROTO_DIR) && \
+		./autogen.sh && \
 		./configure && \
 		$(MAKE) && \
 		$(MAKE) install

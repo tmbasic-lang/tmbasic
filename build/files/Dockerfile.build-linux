@@ -1,4 +1,4 @@
-FROM $DOCKER_ARCH/alpine:3.13
+FROM $DOCKER_ARCH/alpine:3.14
 
 RUN apk update && \
     apk upgrade && \
@@ -12,7 +12,9 @@ RUN apk update && \
         pkgconfig \
         xxd \
         python3 \
-        cmake
+        cmake \
+        autoconf \
+        automake
 
 # unprivileged user
 RUN (addgroup -g $HOST_GID user || true) && \
