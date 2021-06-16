@@ -2,10 +2,9 @@
 set -euxo pipefail
 
 export PKG_CONFIG_VERSION=0.29.2
-export CMAKE_VERSION=3.20.1
 export BINUTILS_VERSION=2.36.1
-export MINGW_VERSION=8.0.0
-export GCC_VERSION=10.3.0
+export MINGW_VERSION=9.0.0
+export GCC_VERSION=11.1.0
 
 curl -L https://pkg-config.freedesktop.org/releases/pkg-config-$PKG_CONFIG_VERSION.tar.gz | tar -xz &
 curl -L https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VERSION.tar.xz | tar -xJ &
