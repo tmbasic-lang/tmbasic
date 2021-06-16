@@ -19,7 +19,9 @@ RUN apt-get update -y && \
         software-properties-common \
         unzip \
         valgrind \
-        xxd
+        xxd \
+        autoconf \
+        automake
 
 # unprivileged user
 RUN mkdir -p /code && \
