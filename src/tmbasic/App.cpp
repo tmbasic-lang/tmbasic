@@ -36,7 +36,7 @@ TStatusItem* App::insertColorDialogHelpStatusItem;
 class Background : public TBackground {
    public:
     explicit Background(const TRect& bounds) : TBackground(bounds, ' ') {}
-    TColorAttr mapColor(uchar /*index*/) override { return { TColorRGB(95, 135, 175), TColorRGB(95, 135, 175) }; }
+    TColorAttr mapColor(uchar /*index*/) override { return 0x88; }
 };
 
 static TBackground* initTmBackground(TRect r) {
@@ -454,7 +454,7 @@ void App::showNewProgramWindow(std::optional<std::string> filePath) {
     }
 
     auto* window = new ProgramWindow(
-        TRect(0, 0, 30, deskTop->size.y), std::move(sourceProgram), filePath,
+        TRect(deskTop->size.x - 30, 0, deskTop->size.x, deskTop->size.y), std::move(sourceProgram), filePath,
         [this](auto* member) -> void { openEditorOrDesignerWindow(member); });
     deskTop->insert(window);
 }
@@ -527,7 +527,7 @@ void App::showPictureWindow(SourceMember* member) {
         e.window->select();
     } else {
         auto* window = new PictureWindow(
-            getNewWindowRect(90, 31), member,
+            getNewWindowRect(80, 25), member,
             []() -> void {
                 // onUpdated
                 auto* programWindow = findProgramWindow(deskTop);
@@ -537,7 +537,7 @@ void App::showPictureWindow(SourceMember* member) {
             },
             _pictureWindowStatusItems);
         deskTop->insert(window);
-        if (deskTop->size.x < 90 && deskTop->size.y < 31) {
+        if (deskTop->size.x < 85 && deskTop->size.y < 29) {
             window->zoom();
         }
     }

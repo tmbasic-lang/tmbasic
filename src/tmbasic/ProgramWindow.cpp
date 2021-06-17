@@ -119,17 +119,6 @@ class ProgramWindowPrivate {
           filePath(std::move(filePath)) {}
 };
 
-static gsl::owner<TFrame*> initProgramWindowFrame(TRect r) {
-    ViewPtr<util::Frame> f{ r };
-    TColorRGB darkgray{ 59, 59, 59 };
-    f->colorPassiveFrame = { TColorBIOS{ 0x7 }, darkgray };
-    f->colorPassiveTitle = { TColorBIOS{ 0x7 }, darkgray };
-    f->colorActiveFrame = { TColorBIOS{ 0xF }, darkgray };
-    f->colorActiveTitle = { TColorBIOS{ 0xF }, darkgray };
-    f->colorIcons = { TColorBIOS{ 0xA }, darkgray };
-    return f.take();
-}
-
 static void updateTitle(ProgramWindowPrivate* p) {
     std::ostringstream s;
     if (p->dirty) {
@@ -162,7 +151,7 @@ ProgramWindow::ProgramWindow(
     std::optional<std::string> filePath,
     std::function<void(SourceMember*)> openMember)
     : TWindow(r, "Untitled - Program", wnNoNumber),
-      TWindowInit(initProgramWindowFrame),
+      TWindowInit(initFrame),
       _private(new ProgramWindowPrivate(this, std::move(sourceProgram), std::move(openMember), std::move(filePath))) {
     setState(sfShadow, false);
 
@@ -172,7 +161,6 @@ ProgramWindow::ProgramWindow(
     enableCommands(ts);
 
     ViewPtr<util::ScrollBar> vScrollBar{ TRect{ size.x - 1, 1, size.x, size.y - 1 } };
-    vScrollBar->useWhiteColorScheme();
     vScrollBar.addTo(this);
 
     auto contentsListBoxRect = getExtent();
@@ -185,10 +173,6 @@ ProgramWindow::ProgramWindow(
                                                    [this]() -> void { enableDisableCommands(_private, true); } };
     _private->contentsListBox = contentsListBox;
     _private->contentsListBox->growMode = gfGrowHiX | gfGrowHiY;
-    TColorRGB listBack{ 59, 59, 59 };
-    _private->contentsListBox->colorActive = { TColorRGB{ 204, 204, 204 }, listBack };
-    _private->contentsListBox->colorInactive = { TColorBIOS{ 0x7 }, listBack };
-    _private->contentsListBox->colorSelected = { TColorBIOS{ 0xE }, listBack };
     contentsListBox.addTo(this);
 
     updateTitle(_private);
@@ -198,7 +182,7 @@ ProgramWindow::ProgramWindow(
 ProgramWindow::~ProgramWindow() = default;
 
 TPalette& ProgramWindow::getPalette() const {
-    static auto palette = TPalette(cpBlueDialog, sizeof(cpBlueDialog) - 1);
+    static auto palette = TPalette(cpGrayDialog, sizeof(cpGrayDialog) - 1);
     return palette;
 }
 
