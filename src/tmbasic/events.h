@@ -12,6 +12,7 @@ enum : uint16_t {
     // top menu commands
     kCmdHelpBasicReference = 100,
     kCmdHelpDocumentation,
+    kCmdHelpLicense,
     kCmdHelpAbout,
     kCmdEditRedo,
     kCmdEditInsertSymbol,

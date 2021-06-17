@@ -142,6 +142,7 @@ TMenuBar* App::initMenuBar(TRect r) {
 
     auto& helpMenu = *new TSubMenu("~H~elp", kbAltH) +
         *new TMenuItem("~D~ocumentation", kCmdHelpDocumentation, kbNoKey) +
+        *new TMenuItem("~L~icense", kCmdHelpLicense, kbNoKey) + newLine() +
         *new TMenuItem("~A~bout TMBASIC", kCmdHelpAbout, kbNoKey);
 
     r.b.y = r.a.y + 1;
@@ -346,6 +347,10 @@ bool App::handleCommand(TEvent* event) {
 
         case kCmdHelpDocumentation:
             onHelpDocumentation();
+            return true;
+
+        case kCmdHelpLicense:
+            openHelpTopic(hclicense);
             return true;
 
         case kCmdHelpAbout:
