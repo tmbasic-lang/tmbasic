@@ -29,6 +29,7 @@ class SourceProgram {
    public:
     std::vector<std::unique_ptr<SourceMember>> members;
 
+    void loadFromContent(const std::string& content);
     void load(const std::string& filePath);
     void save(const std::string& filePath) const;
 };

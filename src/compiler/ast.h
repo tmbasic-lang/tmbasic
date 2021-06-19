@@ -170,10 +170,19 @@ class CallExpressionNode : public ExpressionNode {
     ExpressionType getExpressionType() const override;
 };
 
+enum class ConstValueExpressionType {
+    kArray,
+    kBoolean,
+    kNumber,
+    kRecord,
+    kString,
+};
+
 class ConstValueExpressionNode : public ExpressionNode {
    public:
     explicit ConstValueExpressionNode(Token token);
     ExpressionType getExpressionType() const override;
+    virtual ConstValueExpressionType getConstValueExpressionType() const = 0;
 };
 
 class ConvertExpressionNode : public ExpressionNode {
@@ -220,6 +229,7 @@ class LiteralArrayExpressionNode : public ConstValueExpressionNode {
     LiteralArrayExpressionNode(std::vector<std::unique_ptr<ExpressionNode>> elements, Token token);
     void dump(std::ostringstream& s, int n) const override;
     bool visitExpressions(const VisitExpressionFunc& func) const override;
+    ConstValueExpressionType getConstValueExpressionType() const override;
 };
 
 class LiteralBooleanExpressionNode : public ConstValueExpressionNode {
@@ -227,6 +237,7 @@ class LiteralBooleanExpressionNode : public ConstValueExpressionNode {
     bool value;
     LiteralBooleanExpressionNode(bool value, Token token);
     void dump(std::ostringstream& s, int n) const override;
+    ConstValueExpressionType getConstValueExpressionType() const override;
 };
 
 class LiteralNumberExpressionNode : public ConstValueExpressionNode {
@@ -234,6 +245,7 @@ class LiteralNumberExpressionNode : public ConstValueExpressionNode {
     decimal::Decimal value;
     LiteralNumberExpressionNode(decimal::Decimal value, Token token);
     void dump(std::ostringstream& s, int n) const override;
+    ConstValueExpressionType getConstValueExpressionType() const override;
 };
 
 class LiteralRecordFieldNode : public Node {
@@ -251,6 +263,7 @@ class LiteralRecordExpressionNode : public ConstValueExpressionNode {
     LiteralRecordExpressionNode(std::vector<std::unique_ptr<LiteralRecordFieldNode>>, Token token);
     void dump(std::ostringstream& s, int n) const override;
     bool visitExpressions(const VisitExpressionFunc& func) const override;
+    ConstValueExpressionType getConstValueExpressionType() const override;
 };
 
 class LiteralStringExpressionNode : public ConstValueExpressionNode {
@@ -258,6 +271,7 @@ class LiteralStringExpressionNode : public ConstValueExpressionNode {
     std::string value;
     LiteralStringExpressionNode(std::string value, Token token);
     void dump(std::ostringstream& s, int n) const override;
+    ConstValueExpressionType getConstValueExpressionType() const override;
 };
 
 class NotExpressionNode : public ExpressionNode {

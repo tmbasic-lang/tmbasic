@@ -1937,7 +1937,9 @@ class TypeDeclarationProduction : public Production {
                   }),
                   term(TokenKind::kEnd),
                   term(TokenKind::kType),
-                  term(TokenKind::kEndOfLine),
+                  zeroOrMore({
+                      term(TokenKind::kEndOfLine),
+                  }),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
@@ -1965,7 +1967,9 @@ class FunctionProduction : public Production {
                   capture(3, prod(body)),
                   term(TokenKind::kEnd),
                   term(TokenKind::kFunction),
-                  term(TokenKind::kEndOfLine),
+                  zeroOrMore({
+                      term(TokenKind::kEndOfLine),
+                  }),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
@@ -1992,7 +1996,9 @@ class SubroutineProduction : public Production {
                   capture(2, prod(body)),
                   term(TokenKind::kEnd),
                   term(TokenKind::kSub),
-                  term(TokenKind::kEndOfLine),
+                  zeroOrMore({
+                      term(TokenKind::kEndOfLine),
+                  }),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {

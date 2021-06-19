@@ -4,6 +4,7 @@
 #include "compiler/tokenize.h"
 #include "compiler/typeCheck.h"
 #include "util/cast.h"
+#include "vm/String.h"
 
 namespace compiler {
 
@@ -27,29 +28,34 @@ static boost::local_shared_ptr<TypeNode> getTypeForLiteralToken(const Token& tok
     return boost::make_local_shared<TypeNode>(kind, token);
 }
 
-static int getFirstAvailableGlobalVariableIndex(const CompiledProgram& compiledProgram) {
-    int maxIndex = -1;
-    for (const auto& g : compiledProgram.globalVariables) {
-        if (g->index > maxIndex) {
-            maxIndex = g->index;
-        }
-    }
+static boost::local_shared_ptr<vm::Object> getConstString(const LiteralStringExpressionNode& node) {
+    return boost::make_local_shared<vm::String>(node.value);
+}
 
-    auto inUse = std::vector<bool>(maxIndex + 1, false);
-    for (const auto& g : compiledProgram.globalVariables) {
-        // the variable we are trying to allocate will have -1 for its index
-        if (g->index != -1) {
-            inUse.at(g->index) = true;
-        }
-    }
+static boost::local_shared_ptr<vm::Object> getConstObject(const ConstValueExpressionNode& node) {
+    switch (node.getConstValueExpressionType()) {
+        case ConstValueExpressionType::kString:
+            return getConstString(dynamic_cast<const LiteralStringExpressionNode&>(node));
 
-    for (auto i = 0; i <= maxIndex; i++) {
-        if (!inUse.at(i)) {
-            return i;
-        }
+        default:
+            assert(false);
+            return nullptr;
     }
+}
 
-    return maxIndex + 1;
+static vm::Value getConstValue(const ConstValueExpressionNode& node) {
+    switch (node.getConstValueExpressionType()) {
+        case ConstValueExpressionType::kBoolean:
+            return vm::Value{ decimal::Decimal{ dynamic_cast<const LiteralBooleanExpressionNode&>(node).value ? 1
+                                                                                                              : 0 } };
+
+        case ConstValueExpressionType::kNumber:
+            return vm::Value{ dynamic_cast<const LiteralNumberExpressionNode&>(node).value };
+
+        default:
+            assert(false);
+            return {};
+    }
 }
 
 CompilerResult compileGlobal(const SourceMember& sourceMember, CompiledProgram* compiledProgram) {
@@ -59,19 +65,17 @@ CompilerResult compileGlobal(const SourceMember& sourceMember, CompiledProgram* 
     // see if the compiled global already exists
     for (auto& g : compiledProgram->globalVariables) {
         if (g->lowercaseName == lowercaseIdentifier) {
-            compiledGlobalVariable = g.get();
+            return CompilerResult::error(fmt::format("The global variable name \"{}\" already exists."), {});
         }
     }
 
     // if not then create a new one
-    if (compiledGlobalVariable == nullptr) {
-        auto g = std::make_unique<CompiledGlobalVariable>();
-        g->lowercaseName = lowercaseIdentifier;
-        compiledGlobalVariable = g.get();
-        compiledProgram->globalVariables.push_back(std::move(g));
-    }
+    auto g = std::make_unique<CompiledGlobalVariable>();
+    g->lowercaseName = lowercaseIdentifier;
+    compiledGlobalVariable = g.get();
+    compiledProgram->globalVariables.push_back(std::move(g));
 
-    auto tokens = tokenize(sourceMember.source, TokenizeType::kCompile);
+    auto tokens = tokenize(sourceMember.source + "\n", TokenizeType::kCompile);
     auto parserResult = parse(ParserRootProduction::kMember, tokens);
     if (!parserResult.isSuccess) {
         return CompilerResult::error(parserResult.message, *parserResult.token);
@@ -102,8 +106,39 @@ CompilerResult compileGlobal(const SourceMember& sourceMember, CompiledProgram* 
     }
 
     compiledGlobalVariable->isValue = compiledGlobalVariable->type->isValueType();
-    compiledGlobalVariable->index = -1;  // it may already be set, so unset it before allocating an index
-    compiledGlobalVariable->index = getFirstAvailableGlobalVariableIndex(*compiledProgram);
+    compiledGlobalVariable->index = compiledProgram->vmProgram.globalValues.size();
+    vm::Value initialValue{ decimal::Decimal{ 0 } };
+    boost::local_shared_ptr<vm::Object> initialObject{};
+
+    ExpressionNode* valueExpr = nullptr;
+    if (parserResult.node->getMemberType() == MemberType::kDimStatement) {
+        auto* dimNode = util::dynamic_cast_borrow<DimStatementNode>(parserResult.node);
+        valueExpr = dimNode->value.get();
+    }
+    if (parserResult.node->getMemberType() == MemberType::kConstStatement) {
+        auto* constNode = util::dynamic_cast_borrow<ConstStatementNode>(parserResult.node);
+        valueExpr = constNode->value.get();
+    }
+    if (valueExpr) {
+        if (valueExpr->getExpressionType() != ExpressionType::kConstValue) {
+            return CompilerResult::error(
+                "The initial value of a global variable must be a boolean, number, or string literal.",
+                valueExpr->token);
+        }
+        auto& constValueExpr = dynamic_cast<ConstValueExpressionNode&>(*valueExpr);
+        if (compiledGlobalVariable->isValue) {
+            initialValue = getConstValue(constValueExpr);
+        } else {
+            initialObject = getConstObject(constValueExpr);
+        }
+    }
+    if (compiledGlobalVariable->isValue) {
+        compiledGlobalVariable->index = compiledProgram->vmProgram.globalValues.size();
+        compiledProgram->vmProgram.globalValues.push_back(initialValue);
+    } else {
+        compiledGlobalVariable->index = compiledProgram->vmProgram.globalObjects.size();
+        compiledProgram->vmProgram.globalObjects.push_back(std::move(initialObject));
+    }
 
     return CompilerResult::success();
 }

@@ -465,6 +465,10 @@ bool LiteralArrayExpressionNode::visitExpressions(const VisitExpressionFunc& fun
     return true;
 }
 
+ConstValueExpressionType LiteralArrayExpressionNode::getConstValueExpressionType() const {
+    return ConstValueExpressionType::kArray;
+}
+
 LiteralBooleanExpressionNode::LiteralBooleanExpressionNode(bool value, Token token)
     : ConstValueExpressionNode(std::move(token)), value(value) {}
 
@@ -473,12 +477,20 @@ void LiteralBooleanExpressionNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR(value);
 }
 
+ConstValueExpressionType LiteralBooleanExpressionNode::getConstValueExpressionType() const {
+    return ConstValueExpressionType::kBoolean;
+}
+
 LiteralNumberExpressionNode::LiteralNumberExpressionNode(decimal::Decimal value, Token token)
     : ConstValueExpressionNode(std::move(token)), value(std::move(value)) {}
 
 void LiteralNumberExpressionNode::dump(std::ostringstream& s, int n) const {
     DUMP_TYPE(LiteralNumberExpressionNode);
     DUMP_VAR_DECIMAL(value);
+}
+
+ConstValueExpressionType LiteralNumberExpressionNode::getConstValueExpressionType() const {
+    return ConstValueExpressionType::kNumber;
 }
 
 LiteralRecordFieldNode::LiteralRecordFieldNode(std::string key, std::unique_ptr<ExpressionNode> value, Token token)
@@ -513,12 +525,20 @@ bool LiteralRecordExpressionNode::visitExpressions(const VisitExpressionFunc& fu
     return true;
 }
 
+ConstValueExpressionType LiteralRecordExpressionNode::getConstValueExpressionType() const {
+    return ConstValueExpressionType::kRecord;
+}
+
 LiteralStringExpressionNode::LiteralStringExpressionNode(std::string value, Token token)
     : ConstValueExpressionNode(std::move(token)), value(std::move(value)) {}
 
 void LiteralStringExpressionNode::dump(std::ostringstream& s, int n) const {
     DUMP_TYPE(LiteralStringExpressionNode);
     DUMP_VAR(value);
+}
+
+ConstValueExpressionType LiteralStringExpressionNode::getConstValueExpressionType() const {
+    return ConstValueExpressionType::kString;
 }
 
 NotExpressionNode::NotExpressionNode(std::unique_ptr<ExpressionNode> operand, Token token)

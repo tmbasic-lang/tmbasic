@@ -7,9 +7,9 @@ h2[Top Level]
 ul@
 li@Program ::= Member*@
 li@Member ::= Subroutine | Function | DimStatement | ConstStatement | TypeDeclaration@
-li@Subroutine ::= "sub" identifier "(" ParameterList ")" "\n" Body "end" "sub" "\n"@
-li@Function ::= "function" identifier "(" ParameterList ")" "as" Type "\n" Body "end" "function" "\n"@
-li@TypeDeclaration ::= "type" identifier "\n" (Parameter "\n")* "end" "type" "\n"@
+li@Subroutine ::= "sub" identifier "(" ParameterList ")" "\n" Body "end" "sub" "\n"*@
+li@Function ::= "function" identifier "(" ParameterList ")" "as" Type "\n" Body "end" "function" "\n"*@
+li@TypeDeclaration ::= "type" identifier "\n" (Parameter "\n")* "end" "type" "\n"*@
 li@Statement ::= DeclarationStatement | BlockStatement | CommandStatement@
 @
 

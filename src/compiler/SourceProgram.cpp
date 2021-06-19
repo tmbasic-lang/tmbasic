@@ -93,12 +93,21 @@ static void loadEndCurrentBlock(
 }
 
 void SourceProgram::load(const std::string& filePath) {
-    members.clear();
-
+    std::ostringstream s;
     std::ifstream file(filePath);
     if (!file) {
         throw std::system_error(errno, std::system_category());
     }
+    std::string line;
+    while (std::getline(file, line)) {
+        s << line << "\n";
+    }
+    loadFromContent(s.str());
+}
+
+void SourceProgram::loadFromContent(const std::string& content) {
+    std::istringstream file{ content };
+    members.clear();
 
     std::vector<std::string> currentBlock;
     auto currentMemberType = SourceMemberType::kProcedure;
