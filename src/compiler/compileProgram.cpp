@@ -5,7 +5,7 @@
 namespace compiler {
 
 CompilerResult compileProgram(const SourceProgram& sourceProgram, CompiledProgram* compiledProgram) {
-    for (auto& member : sourceProgram.members) {
+    for (const auto& member : sourceProgram.members) {
         if (member->memberType == SourceMemberType::kGlobal) {
             auto result = compileGlobal(*member, compiledProgram);
             if (!result.isSuccess) {
@@ -13,7 +13,7 @@ CompilerResult compileProgram(const SourceProgram& sourceProgram, CompiledProgra
             }
         }
     }
-    for (auto& member : sourceProgram.members) {
+    for (const auto& member : sourceProgram.members) {
         if (member->memberType == SourceMemberType::kProcedure) {
             auto result = compileProcedure(*member, compiledProgram);
             if (!result.isSuccess) {
