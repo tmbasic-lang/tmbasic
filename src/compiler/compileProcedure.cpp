@@ -12,8 +12,8 @@ using util::dynamic_cast_move;
 namespace compiler {
 
 CompilerResult compileProcedure(const SourceMember& sourceMember, CompiledProgram* compiledProgram) {
-    auto tokens = tokenize(sourceMember.source, TokenizeType::kCompile);
-    auto parserResult = parse(ParserRootProduction::kMember, tokens);
+    auto tokens = tokenize(sourceMember.source, TokenizeType::kCompile, &sourceMember);
+    auto parserResult = parse(&sourceMember, ParserRootProduction::kMember, tokens);
     if (!parserResult.isSuccess) {
         return CompilerResult::error(parserResult.message, *parserResult.token);
     }

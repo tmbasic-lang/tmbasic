@@ -400,7 +400,7 @@ lint:
 tidy: $(TIDY_TARGETS)
 
 .PHONY: tidy-commit
-tidy-commit: $(shell 2>/dev/null git status | grep "\.cpp" | grep -v "deleted:" | sed 's/modified://g' | sed 's/new file://g' | sed 's:src:obj/tidy:g; s/cpp$$/tidy/g')
+tidy-commit: $(shell 2>/dev/null git status | grep "\.cpp" | grep -v "/test/" | grep -v "deleted:" | sed 's/modified://g' | sed 's/new file://g' | sed 's:src:obj/tidy:g; s/cpp$$/tidy/g')
 
 .PHONY: ghpages
 ghpages: obj/resources/help/help.txt bin/ghpages/index.html
@@ -655,9 +655,9 @@ bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
 		$(CXXFLAGS) \
 		$(STATIC_FLAG) \
 		-include obj/common.h \
-		obj/util.a \
-		obj/vm.a \
 		obj/compiler.a \
+		obj/vm.a \
+		obj/util.a \
 		obj/resources/help/helpfile.o \
 		$(ALL_PLATFORM_RUNNER_OBJ_FILES) \
 		$(ICON_RES_OBJ_FILE) \
@@ -706,9 +706,9 @@ bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) \
 		$(STATIC_FLAG) \
 		-include obj/common.h \
 		$(TEST_OBJ_FILES) \
-		obj/util.a \
-		obj/vm.a \
 		obj/compiler.a \
+		obj/vm.a \
+		obj/util.a \
 		obj/resources/help/helpfile.o \
 		$(ALL_PLATFORM_RUNNER_OBJ_FILES) \
 		$(TMBASIC_LDFLAGS) \

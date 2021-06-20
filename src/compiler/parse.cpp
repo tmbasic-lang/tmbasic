@@ -2160,11 +2160,15 @@ static ProductionCollection _productionCollection;
 
 class InputState {
    public:
+    const SourceMember* sourceMember;
     const std::vector<Token>& tokens;
     size_t tokenIndex;
 
-    explicit InputState(const std::vector<Token>& tokens)
-        : tokens(tokens), tokenIndex(0), _endOfFileToken(Token(-1, 0, TokenKind::kEndOfFile, "")) {}
+    InputState(const std::vector<Token>& tokens, const SourceMember* sourceMember)
+        : sourceMember(sourceMember),
+          tokens(tokens),
+          tokenIndex(0),
+          _endOfFileToken(Token(-1, 0, TokenKind::kEndOfFile, "", sourceMember)) {}
 
     const Token& currentToken() {
         if (tokenIndex < tokens.size()) {
@@ -2278,7 +2282,7 @@ class ParseStackFrame {
     size_t step = 0;
 
     ParseStackFrame()
-        : productionState(boost::make_local_shared<ProductionState>(Token(0, 0, TokenKind::kEndOfFile, ""))) {}
+        : productionState(boost::make_local_shared<ProductionState>(Token(0, 0, TokenKind::kEndOfFile, "", nullptr))) {}
     ParseStackFrame(
         const Production& production,
         InputState* inputState,
@@ -2299,7 +2303,7 @@ static Token peekToken(const InputState* inputState) {
     if (inputState->tokenIndex < inputState->tokens.size()) {
         return inputState->tokens.at(inputState->tokenIndex);
     }
-    return Token(-1, 0, TokenKind::kEndOfFile, "");
+    return Token(-1, 0, TokenKind::kEndOfFile, "", inputState->sourceMember);
 }
 
 static void acceptToken(InputState* inputState) {
@@ -2661,8 +2665,11 @@ static void pumpParse(std::stack<std::unique_ptr<ParseStackFrame>>* stack, Input
     }
 }
 
-static ParserResult parseRootProduction(const Production& production, const std::vector<Token>& tokens) {
-    auto inputState = InputState(tokens);
+static ParserResult parseRootProduction(
+    const SourceMember* sourceMember,
+    const Production& production,
+    const std::vector<Token>& tokens) {
+    auto inputState = InputState(tokens, sourceMember);
     auto stack = std::stack<std::unique_ptr<ParseStackFrame>>();
 
     stack.push(std::make_unique<ParseStackFrame>());
@@ -2689,14 +2696,17 @@ static ParserResult parseRootProduction(const Production& production, const std:
     return ParserResult("This token was unexpected.", inputState.tokens.at(inputState.tokenIndex));
 }
 
-ParserResult parse(ParserRootProduction rootProduction, const std::vector<Token>& tokens) {
+ParserResult parse(
+    const SourceMember* sourceMember,
+    ParserRootProduction rootProduction,
+    const std::vector<Token>& tokens) {
     switch (rootProduction) {
         case ParserRootProduction::kMember:
-            return parseRootProduction(*_productionCollection.memberProduction, tokens);
+            return parseRootProduction(sourceMember, *_productionCollection.memberProduction, tokens);
         case ParserRootProduction::kProgram:
-            return parseRootProduction(*_productionCollection.programProduction, tokens);
+            return parseRootProduction(sourceMember, *_productionCollection.programProduction, tokens);
         default:
-            return ParserResult("Invalid root production.", Token(0, 0, TokenKind::kError, ""));
+            return ParserResult("Invalid root production.", Token(0, 0, TokenKind::kError, "", sourceMember));
     }
 }
 

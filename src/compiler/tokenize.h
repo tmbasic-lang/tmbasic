@@ -1,7 +1,8 @@
 #pragma once
 
 #include "../common.h"
-#include "compiler/Token.h"
+#include "SourceProgram.h"
+#include "Token.h"
 
 namespace compiler {
 
@@ -10,6 +11,6 @@ enum class TokenizeType {
     kFormat    // include everything
 };
 
-std::vector<Token> tokenize(std::string_view input, TokenizeType type);
+std::vector<Token> tokenize(std::string_view input, TokenizeType type, const SourceMember* sourceMember);
 
 }  // namespace compiler

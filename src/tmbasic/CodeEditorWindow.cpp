@@ -275,7 +275,7 @@ void CodeEditorWindow::close() {
 }
 
 static std::vector<compiler::TokenKind> tokenizeLine(std::string_view str) {
-    auto tokens = compiler::tokenize(str, compiler::TokenizeType::kFormat);
+    auto tokens = compiler::tokenize(str, compiler::TokenizeType::kFormat, nullptr);
     std::vector<compiler::TokenKind> vec;
     auto x = 0;
     for (auto& token : tokens) {

@@ -24,6 +24,7 @@ class ProgramWindow : public TWindow {
     void addNewSourceMember(std::unique_ptr<compiler::SourceMember> sourceMember);
     void updateListItems();
     void redrawListItems();
+    void checkForErrors();
 
    private:
     gsl::owner<class ProgramWindowPrivate*> _private;

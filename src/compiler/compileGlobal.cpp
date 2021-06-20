@@ -45,9 +45,10 @@ static boost::local_shared_ptr<vm::Object> getConstObject(const ConstValueExpres
 
 static vm::Value getConstValue(const ConstValueExpressionNode& node) {
     switch (node.getConstValueExpressionType()) {
-        case ConstValueExpressionType::kBoolean:
-            return vm::Value{ decimal::Decimal{ dynamic_cast<const LiteralBooleanExpressionNode&>(node).value ? 1
-                                                                                                              : 0 } };
+        case ConstValueExpressionType::kBoolean: {
+            decimal::Decimal dec{ dynamic_cast<const LiteralBooleanExpressionNode&>(node).value ? 1 : 0 };
+            return vm::Value{ dec };
+        }
 
         case ConstValueExpressionType::kNumber:
             return vm::Value{ dynamic_cast<const LiteralNumberExpressionNode&>(node).value };
@@ -75,8 +76,8 @@ CompilerResult compileGlobal(const SourceMember& sourceMember, CompiledProgram* 
     compiledGlobalVariable = g.get();
     compiledProgram->globalVariables.push_back(std::move(g));
 
-    auto tokens = tokenize(sourceMember.source + "\n", TokenizeType::kCompile);
-    auto parserResult = parse(ParserRootProduction::kMember, tokens);
+    auto tokens = tokenize(sourceMember.source + "\n", TokenizeType::kCompile, &sourceMember);
+    auto parserResult = parse(&sourceMember, ParserRootProduction::kMember, tokens);
     if (!parserResult.isSuccess) {
         return CompilerResult::error(parserResult.message, *parserResult.token);
     }

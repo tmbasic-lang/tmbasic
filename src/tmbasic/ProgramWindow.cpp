@@ -1,5 +1,6 @@
 #include "ProgramWindow.h"
 #include "../../obj/resources/help/helpfile.h"
+#include "../compiler/compileProgram.h"
 #include "../util/DialogPtr.h"
 #include "../util/Frame.h"
 #include "../util/ListViewer.h"
@@ -8,8 +9,8 @@
 #include "../util/path.h"
 #include "../util/tvutil.h"
 #include "../vm/Program.h"
-#include "DesignerWindow.h"
 #include "CodeEditorWindow.h"
+#include "DesignerWindow.h"
 #include "PictureWindow.h"
 #include "constants.h"
 #include "events.h"
@@ -387,6 +388,20 @@ void ProgramWindow::setState(uint16_t aState, bool enable) {
 
     if (aState == sfActive) {
         enableDisableCommands(_private, enable);
+    }
+}
+
+void ProgramWindow::checkForErrors() {
+    compiler::CompiledProgram program;
+    auto compilerResult = compiler::compileProgram(*_private->sourceProgram, &program);
+    if (compilerResult.isSuccess) {
+        messageBox("No errors!", mfInformation | mfOKButton);
+    } else {
+        messageBox(
+            fmt::format(
+                "Error in \"{}\"\nLn {}, Col {}\n{}", compilerResult.token.sourceMember->identifier,
+                compilerResult.token.lineIndex + 1, compilerResult.token.columnIndex + 1, compilerResult.message),
+            mfError | mfOKButton);
     }
 }
 

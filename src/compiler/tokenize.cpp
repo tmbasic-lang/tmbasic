@@ -4,7 +4,7 @@ namespace compiler {
 
 class Scanner {
    public:
-    static std::vector<Token> tokenize(std::string_view input);
+    static std::vector<Token> tokenize(std::string_view input, const SourceMember* sourceMember);
 
    private:
     std::vector<Token> _tokens;
@@ -18,8 +18,9 @@ class Scanner {
     const std::regex _integerRegex = std::regex("^[-]?[0-9]+$");
     const std::regex _numberRegex = std::regex("^[-]?[0-9]+(\\.[0-9]+)?$");
     const std::regex _identifierRegex = std::regex("^[A-Za-z][A-Za-z0-9_]*$");
+    const SourceMember* sourceMember = nullptr;
 
-    Scanner();
+    explicit Scanner(const SourceMember* sourceMember);
     void processChar(char ch, char peek);
     void append(char ch);
     void endCurrentToken();
@@ -27,7 +28,7 @@ class Scanner {
     TokenKind classifyToken(const std::string& text);
 };
 
-Scanner::Scanner() = default;
+Scanner::Scanner(const SourceMember* sourceMember) : sourceMember(sourceMember) {}
 
 static bool isCommentToken(const Token& x) {
     return x.type == TokenKind::kComment;
@@ -45,8 +46,8 @@ static void removeBlankLines(std::vector<Token>* tokens) {
     }
 }
 
-std::vector<Token> tokenize(std::string_view input, TokenizeType type) {
-    auto tokens = Scanner::tokenize(input);
+std::vector<Token> tokenize(std::string_view input, TokenizeType type, const SourceMember* sourceMember) {
+    auto tokens = Scanner::tokenize(input, sourceMember);
     if (type == TokenizeType::kCompile) {
         removeComments(&tokens);
         removeBlankLines(&tokens);
@@ -54,8 +55,8 @@ std::vector<Token> tokenize(std::string_view input, TokenizeType type) {
     return tokens;
 }
 
-std::vector<Token> Scanner::tokenize(std::string_view input) {
-    Scanner scanner;
+std::vector<Token> Scanner::tokenize(std::string_view input, const SourceMember* sourceMember) {
+    Scanner scanner{ sourceMember };
 
     auto previousChar = '\0';
     for (auto ch : input) {
@@ -214,7 +215,7 @@ void Scanner::endCurrentToken() {
     if (!isCurrentTokenTextEmpty()) {
         auto text = _currentTokenText.str();
         auto type = classifyToken(text);
-        _tokens.emplace_back(_lineIndex, _currentTokenColumnIndex, type, std::move(text));
+        _tokens.emplace_back(_lineIndex, _currentTokenColumnIndex, type, std::move(text), sourceMember);
         _currentTokenText = std::ostringstream();
     }
 }

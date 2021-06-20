@@ -80,7 +80,8 @@ class AppPrivate {
         auto& programMenu = *new TSubMenu("~P~rogram", kbAltP) +
             *new TMenuItem("~N~ew item...", kCmdProgramAddItem, kbNoKey) +
             *new TMenuItem("~I~mport from .BAS...", kCmdProgramImportItem, kbNoKey) + newLine() +
-            *new TMenuItem("~R~un", kCmdProgramRun, kbCtrlR, hcNoContext, "Ctrl+R");
+            *new TMenuItem("~R~un", kCmdProgramRun, kbCtrlR, hcNoContext, "Ctrl+R") +
+            *new TMenuItem("~C~heck for errors", kCmdProgramCheckForErrors, kbCtrlE, hcNoContext, "Ctrl+E");
 
         auto& windowMenu = *new TSubMenu("~W~indow", kbAltW) +
             *new TMenuItem("Program ~w~indow", kCmdProgramContentsWindow, kbCtrlP, hcNoContext, "Ctrl+P") + newLine() +
@@ -259,6 +260,10 @@ class AppPrivate {
                 }
                 return true;
             }
+
+            case kCmdProgramCheckForErrors:
+                onProgramCheckForErrors();
+                return true;
 
             default:
                 return false;
@@ -558,6 +563,15 @@ class AppPrivate {
                 window->zoom();
             }
         }
+    }
+
+    static void onProgramCheckForErrors() {
+        auto* programWindow = findProgramWindow();
+        if (!programWindow) {
+            return;
+        }
+
+        programWindow->checkForErrors();
     }
 };
 

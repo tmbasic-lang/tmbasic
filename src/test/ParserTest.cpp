@@ -25,8 +25,8 @@ static std::string dump(const Node& node) {
 static void parseMatch(std::string filenameWithoutExtension) {
     auto ast = readFile(filenameWithoutExtension + ".ast");
     auto bas = readFile(filenameWithoutExtension + ".bas");
-    auto tokens = tokenize(bas, TokenizeType::kFormat);
-    auto result = parse(ParserRootProduction::kProgram, tokens);
+    auto tokens = tokenize(bas, TokenizeType::kFormat, nullptr);
+    auto result = parse(nullptr, ParserRootProduction::kProgram, tokens);
     if (!result.isSuccess) {
         std::cout << "Token: " << (*result.token).text << std::endl;
         std::cout << "Message: " << result.message << std::endl;
@@ -41,7 +41,7 @@ static void parseMatch(std::string filenameWithoutExtension) {
 }
 
 TEST(ParserTest, SingleProgramNodeDump) {
-    auto n = ProgramNode(std::vector<std::unique_ptr<Node>>(), Token(0, 0, TokenKind::kEndOfFile, ""));
+    auto n = ProgramNode(std::vector<std::unique_ptr<Node>>(), Token(0, 0, TokenKind::kEndOfFile, "", nullptr));
     ASSERT_EQ("compiler::ProgramNode\n", dump(n));
 }
 

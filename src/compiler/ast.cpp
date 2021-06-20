@@ -1314,7 +1314,7 @@ std::optional<std::string> ParameterNode::getSymbolDeclaration() const {
 }
 
 GlobalVariableNode::GlobalVariableNode(const CompiledGlobalVariable& compiledGlobalVariable)
-    : Node(Token(0, 0, TokenKind::kError, "")), compiledGlobalVariable(compiledGlobalVariable) {}
+    : Node(Token(0, 0, TokenKind::kError, "", nullptr)), compiledGlobalVariable(compiledGlobalVariable) {}
 
 void GlobalVariableNode::dump(std::ostringstream& s, int n) const {
     DUMP_TYPE(GlobalVariableNode);
