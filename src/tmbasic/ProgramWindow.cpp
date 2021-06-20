@@ -12,12 +12,14 @@
 #include "CodeEditorWindow.h"
 #include "DesignerWindow.h"
 #include "PictureWindow.h"
+#include "compiler/TargetPlatform.h"
 #include "constants.h"
 #include "events.h"
 
 using compiler::SourceMember;
 using compiler::SourceMemberType;
 using compiler::SourceProgram;
+using compiler::TargetPlatform;
 using util::DialogPtr;
 using util::ListViewer;
 using util::ViewPtr;
@@ -391,17 +393,52 @@ void ProgramWindow::setState(uint16_t aState, bool enable) {
     }
 }
 
+static void compilerErrorMessageBox(const compiler::CompilerResult& compilerResult) {
+    messageBox(
+        fmt::format(
+            "Error in \"{}\"\nLn {}, Col {}\n{}", compilerResult.token.sourceMember->identifier,
+            compilerResult.token.lineIndex + 1, compilerResult.token.columnIndex + 1, compilerResult.message),
+        mfError | mfOKButton);
+}
+
 void ProgramWindow::checkForErrors() {
     compiler::CompiledProgram program;
     auto compilerResult = compiler::compileProgram(*_private->sourceProgram, &program);
     if (compilerResult.isSuccess) {
         messageBox("No errors!", mfInformation | mfOKButton);
     } else {
-        messageBox(
-            fmt::format(
-                "Error in \"{}\"\nLn {}, Col {}\n{}", compilerResult.token.sourceMember->identifier,
-                compilerResult.token.lineIndex + 1, compilerResult.token.columnIndex + 1, compilerResult.message),
-            mfError | mfOKButton);
+        compilerErrorMessageBox(compilerResult);
+    }
+}
+
+static void publishPlatform(TargetPlatform platform, const std::string& programName) {
+    auto isZip = compiler::getTargetPlatformArchiveType(platform) == compiler::TargetPlatformArchiveType::kZip;
+    auto archiveFilename =
+        fmt::format("{}-{}.{}", programName, compiler::getPlatformName(platform), isZip ? "zip" : "tar.gz");
+    (void)archiveFilename;
+    throw std::runtime_error("not impl");
+}
+
+void ProgramWindow::publish() {
+    if (!_private->filePath.has_value()) {
+        messageBox("Please save your program first.", mfError | mfOKButton);
+        return;
+    }
+
+    compiler::CompiledProgram program;
+    auto compilerResult = compiler::compileProgram(*_private->sourceProgram, &program);
+    if (!compilerResult.isSuccess) {
+        compilerErrorMessageBox(compilerResult);
+        return;
+    }
+
+    auto publishDir = std::filesystem::path{ *_private->filePath }.parent_path().append("publish");
+    std::filesystem::create_directory(publishDir);
+
+    auto programName = std::filesystem::path{ *_private->filePath }.stem();
+
+    for (auto platform : compiler::getTargetPlatforms()) {
+        publishPlatform(platform, programName);
     }
 }
 

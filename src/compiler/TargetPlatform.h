@@ -15,4 +15,10 @@ enum class TargetPlatform {
     kWinX64,
 };
 
+enum class TargetPlatformArchiveType { kZip, kTarGz };
+
+const std::vector<TargetPlatform>& getTargetPlatforms();
+const char* getPlatformName(TargetPlatform platform);
+TargetPlatformArchiveType getTargetPlatformArchiveType(TargetPlatform platform);
+
 }  // namespace compiler
