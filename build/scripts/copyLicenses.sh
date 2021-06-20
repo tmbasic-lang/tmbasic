@@ -20,3 +20,6 @@ cp -f doc/licenses/libXau/COPYING obj/doc-temp/diagrams-license/license_libxau.t
 cp -f doc/licenses/libxcb/COPYING obj/doc-temp/diagrams-license/license_libxcb.txt
 cp -f doc/licenses/scintilla/License.txt obj/doc-temp/diagrams-license/license_scintilla.txt
 cp -f doc/licenses/turbo/COPYRIGHT obj/doc-temp/diagrams-license/license_turbo.txt
+cp -f doc/licenses/libzip/LICENSE obj/doc-temp/diagrams-license/license_libzip.txt
+cp -f doc/licenses/microtar/LICENSE obj/doc-temp/diagrams-license/license_microtar.txt
+cp -f doc/licenses/zlib/LICENSE.txt obj/doc-temp/diagrams-license/license_zlib.txt

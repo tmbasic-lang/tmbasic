@@ -136,7 +136,10 @@ LICENSE_FILES=\
 	doc/licenses/libXau/COPYING \
 	doc/licenses/libxcb/COPYING \
 	doc/licenses/scintilla/License.txt \
-	doc/licenses/turbo/COPYRIGHT
+	doc/licenses/turbo/COPYRIGHT \
+	doc/licenses/libzip/LICENSE \
+	doc/licenses/microtar/LICENSE \
+	doc/licenses/zlib/LICENSE.txt
 LICENSE_DIAGRAM_TXT_TIMESTAMP_FILE=obj/doc-temp/diagrams-license/timestamp
 LICENSE_DIAGRAM_TXT_FILES=\
 	obj/doc-temp/diagrams-license/license_tmbasic.txt \
@@ -158,7 +161,11 @@ LICENSE_DIAGRAM_TXT_FILES=\
 	obj/doc-temp/diagrams-license/license_libxau.txt \
 	obj/doc-temp/diagrams-license/license_libxcb.txt \
 	obj/doc-temp/diagrams-license/license_scintilla.txt \
-	obj/doc-temp/diagrams-license/license_turbo.txt
+	obj/doc-temp/diagrams-license/license_turbo.txt \
+	obj/doc-temp/diagrams-license/license_libzip.txt \
+	obj/doc-temp/diagrams-license/license_microtar.txt \
+	obj/doc-temp/diagrams-license/license_zlib.txt
+	
 
 # icon resource
 ifeq ($(TARGET_OS),win)

@@ -1,10 +1,10 @@
 #!/bin/bash
 set -euxo pipefail
 
-export PKG_CONFIG_VERSION=0.29.2
-export BINUTILS_VERSION=2.36.1
-export MINGW_VERSION=9.0.0
-export GCC_VERSION=11.1.0
+export PKG_CONFIG_VERSION=0.29.2  # https://pkg-config.freedesktop.org/releases/
+export BINUTILS_VERSION=2.36.1  # https://ftp.gnu.org/gnu/binutils
+export MINGW_VERSION=9.0.0  # https://sourceforge.net/projects/mingw-w64/files/mingw-w64/mingw-w64-release
+export GCC_VERSION=11.1.0  # https://ftp.gnu.org/gnu/gcc/
 
 curl -L https://pkg-config.freedesktop.org/releases/pkg-config-$PKG_CONFIG_VERSION.tar.gz | tar -xz &
 curl -L https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VERSION.tar.xz | tar -xJ &

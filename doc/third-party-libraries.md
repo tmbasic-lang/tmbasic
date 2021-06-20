@@ -31,4 +31,7 @@ Component | License
 -- | --
 [bsdiff](https://github.com/mendsley/bsdiff) | [BSD-2-Clause](https://github.com/electroly/tmbasic/blob/master/doc/licenses/bsdiff/LICENSE)
 [bzip2](https://gitlab.com/federicomenaquintero/bzip2) | [bzip2-1.0.6](https://github.com/electroly/tmbasic/blob/master/doc/licenses/bzip2/COPYING)
+[libzip](https://github.com/nih-at/libzip) | [BSD-3-Clause](https://github.com/electroly/tmbasic/blob/master/doc/licenses/libzip/LICENSE)
+[microtar](https://github.com/rxi/microtar) | [MIT](https://github.com/electroly/tmbasic/blob/master/doc/licenses/microtar/LICENSE)
 [nameof](https://github.com/Neargye/nameof) | [MIT](https://github.com/electroly/tmbasic/blob/master/doc/licenses/nameof/LICENSE.txt)
+[zlib](https://zlib.net) | [Zlib](https://github.com/electroly/tmbasic/blob/master/doc/licenses/zlib/LICENSE.txt)

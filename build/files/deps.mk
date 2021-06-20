@@ -1,24 +1,88 @@
 # set by caller: $(ARCH) $(TARGET_OS) $(TARGET_PREFIX) $(NATIVE_PREFIX) $(TARGET_COMPILER_PREFIX)
 # $NATIVE_PREFIX/bin should be in the $PATH
 
+# https://boostorg.jfrog.io/artifactory/main/release/
 BOOST_VERSION=1.76.0
+BOOST_DIR=$(PWD)/boost_$(shell echo $(BOOST_VERSION) | tr '.' '_')
+
+# https://github.com/mendsley/bsdiff
 BSDIFF_VERSION=b817e9491cf7b8699c8462ef9e2657ca4ccd7667
+BSDIFF_DIR=$(PWD)/bsdiff-$(BSDIFF_VERSION)
+
+# https://gitlab.com/federicomenaquintero/bzip2
 BZIP2_VERSION=bf905ea2251191ff9911ae7ec0cfc35d41f9f7f6
+BZIP2_DIR=$(PWD)/bzip2-$(BZIP2_VERSION)
+
+# https://github.com/Kitware/CMake/releases
 CMAKE_VERSION=3.20.4
+
+# https://github.com/fmtlib/fmt/releases
 FMT_VERSION=7.1.3
+FMT_DIR=$(PWD)/fmt-$(FMT_VERSION)
+
+# https://github.com/google/googletest/releases
 GOOGLETEST_VERSION=1.11.0
+GOOGLETEST_DIR=$(PWD)/googletest-release-$(GOOGLETEST_VERSION)
+
+# https://github.com/unicode-org/icu/releases
 ICU_VERSION=69.1
+ICU_DIR=$(PWD)/icu
+
+# https://github.com/arximboldi/immer
 IMMER_VERSION=a11df7243cb516a1aeffc83c31366d7259c79e82
+IMMER_DIR=$(PWD)/immer-$(IMMER_VERSION)
+
+# https://github.com/jtanx/libclipboard/releases
 LIBCLIPBOARD_VERSION=1.1
+LIBCLIPBOARD_DIR=$(PWD)/libclipboard-$(LIBCLIPBOARD_VERSION)
+
+# https://xorg.freedesktop.org/archive/individual/lib
 LIBXAU_VERSION=1.0.9
+LIBXAU_DIR=$(PWD)/libXau-$(LIBXAU_VERSION)
+
+# https://xorg.freedesktop.org/archive/individual/lib
 LIBXCB_VERSION=1.14
+LIBXCB_DIR=$(PWD)/libxcb-$(LIBXCB_VERSION)
+
+# https://github.com/nih-at/libzip/releases
+LIBZIP_VERSION=1.8.0
+LIBZIP_DIR=$(PWD)/libzip-$(LIBZIP_VERSION)
+
+# https://github.com/rxi/microtar
+MICROTAR_VERSION=27076e1b9290e9c7842bb7890a54fcf172406c84
+MICROTAR_DIR=$(PWD)/microtar-$(MICROTAR_VERSION)
+
+# https://www.bytereef.org/mpdecimal/
 MPDECIMAL_VERSION=2.5.1
+MPDECIMAL_DIR=$(PWD)/mpdecimal-$(MPDECIMAL_VERSION)
+
+# https://github.com/Neargye/nameof
 NAMEOF_VERSION=d69f91daa513585d37b4bc600fb6af8b6d99a073
+NAMEOF_DIR=$(PWD)/nameof-$(NAMEOF_VERSION)
+
+# https://invisible-mirror.net/ncurses/announce.html
 NCURSES_VERSION=6.2
+NCURSES_DIR=$(PWD)/ncurses-$(NCURSES_VERSION)
+
+# https://github.com/magiblot/turbo
 TURBO_VERSION=a868d2bfedb77a83e9f991154d002ec99e5a180e
+TURBO_DIR=$(PWD)/turbo-$(TURBO_VERSION)
+
+# https://github.com/magiblot/tvision
 TVISION_VERSION=46b1b705144bc0d4c6504b99302a39076147896f
+TVISION_DIR=$(PWD)/tvision-$(TVISION_VERSION)
+
+# https://gitlab.freedesktop.org/xorg/proto/xcbproto
 XCBPROTO_VERSION=496e3ce329c3cc9b32af4054c30fa0f306deb007
-XORGPROTO_VERSION=2021.4
+XCBPROTO_DIR=$(PWD)/xcbproto-$(XCBPROTO_VERSION)
+
+# https://xorg.freedesktop.org/archive/individual/proto/
+XORGPROTO_VERSION=2021.4.99.2
+XORGPROTO_DIR=$(PWD)/xorgproto-$(XORGPROTO_VERSION)
+
+# https://zlib.net
+ZLIB_VERSION=1.2.11
+ZLIB_DIR=$(PWD)/zlib-$(ZLIB_VERSION)
 
 ifneq ($(ARCH),i686)
 ifneq ($(ARCH),x86_64)
@@ -68,25 +132,6 @@ ifeq ($(TARGET_OS),win)
 EXE_EXTENSION=.exe
 endif
 
-# these match the directory name in the tarballs that we download
-BOOST_DIR=$(PWD)/boost_$(shell echo $(BOOST_VERSION) | tr '.' '_')
-BSDIFF_DIR=$(PWD)/bsdiff-$(BSDIFF_VERSION)
-BZIP2_DIR=$(PWD)/bzip2-$(BZIP2_VERSION)
-FMT_DIR=$(PWD)/fmt-$(FMT_VERSION)
-GOOGLETEST_DIR=$(PWD)/googletest-release-$(GOOGLETEST_VERSION)
-ICU_DIR=$(PWD)/icu
-IMMER_DIR=$(PWD)/immer-$(IMMER_VERSION)
-LIBCLIPBOARD_DIR=$(PWD)/libclipboard-$(LIBCLIPBOARD_VERSION)
-LIBXAU_DIR=$(PWD)/libXau-$(LIBXAU_VERSION)
-LIBXCB_DIR=$(PWD)/libxcb-$(LIBXCB_VERSION)
-MPDECIMAL_DIR=$(PWD)/mpdecimal-$(MPDECIMAL_VERSION)
-NAMEOF_DIR=$(PWD)/nameof-$(NAMEOF_VERSION)
-NCURSES_DIR=$(PWD)/ncurses-$(NCURSES_VERSION)
-TURBO_DIR=$(PWD)/turbo-$(TURBO_VERSION)
-TVISION_DIR=$(PWD)/tvision-$(TVISION_VERSION)
-XCBPROTO_DIR=$(PWD)/xcbproto-$(XCBPROTO_VERSION)
-XORGPROTO_DIR=$(PWD)/xorgproto-$(XORGPROTO_VERSION)
-
 ifeq ($(TARGET_OS),mac)
 CMAKE_DIR=$(PWD)/cmake-$(CMAKE_VERSION)-macos-universal
 else
@@ -104,7 +149,8 @@ endif
 .PHONY: all
 all: $(NCURSES_DIR)/install $(GOOGLETEST_DIR)/install $(BSDIFF_DIR)/install $(BZIP2_DIR)/install $(ICU_DIR)/install \
 	$(FMT_DIR)/install $(LIBCLIPBOARD_DIR)/install $(IMMER_DIR)/install $(BOOST_DIR)/install $(MPDECIMAL_DIR)/install \
-	$(TVISION_DIR)/install $(TURBO_DIR)/install $(NAMEOF_DIR)/install
+	$(TVISION_DIR)/install $(TURBO_DIR)/install $(NAMEOF_DIR)/install $(ZLIB_DIR)/install $(MICROTAR_DIR)/install \
+	$(LIBZIP_DIR)/install
 
 
 
@@ -400,6 +446,8 @@ $(IMMER_DIR)/install: $(IMMER_DIR)/download $(CMAKE_DIR)/install
 		mkdir -p build && \
 		cd build && \
 		cmake .. \
+			$(CMAKE_FLAGS) \
+			-DCMAKE_BUILD_TYPE=Release \
 			-DCMAKE_PREFIX_PATH=$(TARGET_PREFIX) \
 			-DCMAKE_INSTALL_PREFIX=$(TARGET_PREFIX) \
 			$(CMAKE_TOOLCHAIN_FLAG) && \
@@ -623,4 +671,67 @@ $(NAMEOF_DIR)/install: $(NAMEOF_DIR)/download
 ifeq ($(TARGET_OS),win)
 	ln -s $(NATIVE_PREFIX)/include/nameof.hpp $(TARGET_PREFIX)/include/nameof.hpp
 endif
+	touch $@
+
+
+
+# zlib ----------------------------------------------------------------------------------------------------------------
+
+$(ZLIB_DIR)/download:
+	curl -L https://zlib.net/zlib-${ZLIB_VERSION}.tar.gz | tar zx
+	touch $@
+
+$(ZLIB_DIR)/install: $(ZLIB_DIR)/download
+	cd $(ZLIB_DIR) && \
+		./configure --static --prefix=$(TARGET_PREFIX) && \
+		$(MAKE) && \
+		$(MAKE) install
+	touch $@
+
+
+
+# microtar ------------------------------------------------------------------------------------------------------------
+
+$(MICROTAR_DIR)/download:
+	curl -L https://github.com/rxi/microtar/archive/${MICROTAR_VERSION}.tar.gz | tar zx
+	touch $@
+
+$(MICROTAR_DIR)/install: $(MICROTAR_DIR)/download
+	cd $(MICROTAR_DIR)/src && \
+		$(TARGET_CC) $(CFLAGS) -isystem "$(TARGET_PREFIX/include)" -c microtar.c && \
+		$(TARGET_AR) rcs libmicrotar.a microtar.o && \
+		mv libmicrotar.a $(TARGET_PREFIX)/lib/ && \
+		cp microtar.h $(TARGET_PREFIX)/include/
+	touch $@
+
+
+
+# libzip --------------------------------------------------------------------------------------------------------------
+
+$(LIBZIP_DIR)/download:
+	curl -L https://github.com/nih-at/libzip/releases/download/v${LIBZIP_VERSION}/libzip-${LIBZIP_VERSION}.tar.gz | tar zx
+	touch $@
+
+$(LIBZIP_DIR)/install: $(LIBZIP_DIR)/download $(CMAKE_DIR)/install $(ZLIB_DIR)/install
+	cd $(LIBZIP_DIR) && \
+		mkdir -p build && \
+		cd build && \
+		cmake .. \
+			-DBUILD_SHARED_LIBS=OFF \
+			-DENABLE_COMMONCRYPTO=OFF \
+			-DENABLE_GNUTLS=OFF \
+			-DENABLE_MBEDTLS=OFF \
+			-DENABLE_OPENSSL=OFF \
+			-DENABLE_WINDOWS_CRYPTO=OFF \
+			-DBUILD_TOOLS=OFF \
+			-DBUILD_REGRESS=OFF \
+			-DBUILD_EXAMPLES=OFF \
+			-DBUILD_DOC=OFF \
+			$(CMAKE_FLAGS) \
+			-DCMAKE_BUILD_TYPE=Release \
+			-DCMAKE_PREFIX_PATH=$(TARGET_PREFIX) \
+			-DCMAKE_INSTALL_PREFIX=$(TARGET_PREFIX) \
+			$(CMAKE_TOOLCHAIN_FLAG) && \
+		$(MAKE) && \
+		$(MAKE) install
 	touch $@
