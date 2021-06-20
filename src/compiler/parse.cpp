@@ -2357,10 +2357,10 @@ static void pumpParseAnd(
         if (!frame->subTermResult->isMatch) {
             auto result = std::move(frame->subTermResult);
             frame->checkpoint->revert(inputState, frame->productionState.get());
-            stack->pop();
             if (frame->cutHasBeenHit) {
                 result->isError = true;
             }
+            stack->pop();
             stack->top()->subTermResult = std::move(result);
             return;
         }
@@ -2452,8 +2452,9 @@ static void pumpParseOptional(
         if (!frame->subTermResult->isMatch) {
             auto result = std::move(frame->subTermResult);
             frame->checkpoint->revert(inputState, frame->productionState.get());
+            auto cutHasBeenHit = frame->cutHasBeenHit;
             stack->pop();
-            if (frame->cutHasBeenHit) {
+            if (cutHasBeenHit) {
                 result->isError = true;
                 stack->top()->subTermResult = std::move(result);
             } else {
@@ -2580,10 +2581,10 @@ static void pumpParseProduction(
         if (frame->subTermResult->isMatch) {
             auto termResult = TermResult::newSuccess(
                 frame->production->parse(&frame->productionState->captures, frame->productionState->firstToken));
-            stack->pop();
             if (frame->cutHasBeenHit) {
                 termResult->isError = true;
             }
+            stack->pop();
             stack->top()->subTermResult = std::move(termResult);
         } else {
             auto result = std::move(frame->subTermResult);
