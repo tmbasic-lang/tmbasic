@@ -681,9 +681,13 @@ $(ZLIB_DIR)/download:
 	curl -L https://zlib.net/zlib-${ZLIB_VERSION}.tar.gz | tar zx
 	touch $@
 
+ifeq ($(TARGET_OS),mac)
+ZLIB_CONFIGURE_FLAGS=--archs="-arch $(MACARCH)"
+endif
+
 $(ZLIB_DIR)/install: $(ZLIB_DIR)/download
 	cd $(ZLIB_DIR) && \
-		./configure --static --prefix=$(TARGET_PREFIX) && \
+		./configure --static --prefix=$(TARGET_PREFIX) $(ZLIB_CONFIGURE_FLAGS) && \
 		$(MAKE) && \
 		$(MAKE) install
 	touch $@

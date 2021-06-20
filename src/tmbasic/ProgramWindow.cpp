@@ -432,13 +432,18 @@ void ProgramWindow::publish() {
         return;
     }
 
-    auto publishDir = std::filesystem::path{ *_private->filePath }.parent_path().append("publish");
-    std::filesystem::create_directory(publishDir);
+    auto basFilePath = *_private->filePath;
+    auto basFilename = util::getFileName(basFilePath);
+    auto publishDir = util::getDirectoryName(basFilePath);
+    util::createDirectory(publishDir);
+    auto programName = basFilename.size() > 4 ? basFilename.substr(0, basFilename.size() - 3) : basFilename;
 
-    auto programName = std::filesystem::path{ *_private->filePath }.stem();
-
-    for (auto platform : compiler::getTargetPlatforms()) {
-        publishPlatform(platform, programName);
+    try {
+        for (auto platform : compiler::getTargetPlatforms()) {
+            publishPlatform(platform, programName);
+        }
+    } catch (const std::runtime_error& ex) {
+        messageBox(ex.what(), mfError | mfOKButton);
     }
 }
 
