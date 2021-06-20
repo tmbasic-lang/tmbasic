@@ -2,6 +2,8 @@ set -euxo pipefail
 export PUBLISHDIR=/tmp/tmbasic-publish
 
 cd $PUBLISHDIR/tmbasic/build
+mkdir -p $PUBLISHDIR/tmbasic/obj/resources/runners
+mkdir -p $PUBLISHDIR/tmbasic/bin
 
 export DOCKER_FLAGS="--entrypoint /bin/bash"
 export TTY_FLAG=" "
