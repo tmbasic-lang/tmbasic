@@ -1,6 +1,7 @@
 #include "../common.h"
 #include "compiler/compressGz.h"
 #include "compiler/createTarArchive.h"
+#include "compiler/createZipArchive.h"
 #include "compiler/decompressBz2.h"
 #include "compiler/patchBsdiff.h"
 #include "gtest/gtest.h"
@@ -8,9 +9,11 @@
 
 using compiler::compressGz;
 using compiler::createTarArchive;
+using compiler::createZipArchive;
 using compiler::decompressBz2;
 using compiler::patchBsdiff;
 using compiler::TarEntry;
+using compiler::ZipEntry;
 
 TEST(CompressionTest, DecompressBz2) {
     auto compressed = readBinaryFile("bziptest.bz2");
@@ -45,4 +48,17 @@ TEST(CompressionTest, CompressGz) {
     std::vector<uint8_t> vec{ 1, 2, 3 };
     auto gz = compressGz(vec);
     ASSERT_EQ(23, gz.size());
+}
+
+TEST(CompressionTest, CreateZipArchive) {
+    std::vector<ZipEntry> entries{
+        ZipEntry{ "a", std::vector<uint8_t>{ 1, 2, 3 } },
+        ZipEntry{ "b", std::vector<uint8_t>{ 'H', 'i' } },
+    };
+    const std::string kZipFilePath = "/tmp/tmbasic_CompressionTest_CreateZipArchive.zip";
+    createZipArchive(kZipFilePath, entries);
+    struct stat st;
+    stat(kZipFilePath.c_str(), &st);
+    unlink(kZipFilePath.c_str());
+    ASSERT_EQ(183, st.st_size);
 }
