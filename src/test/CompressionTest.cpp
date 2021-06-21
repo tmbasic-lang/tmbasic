@@ -1,11 +1,16 @@
 #include "../common.h"
+#include "compiler/compressGz.h"
+#include "compiler/createTarArchive.h"
 #include "compiler/decompressBz2.h"
 #include "compiler/patchBsdiff.h"
 #include "gtest/gtest.h"
 #include "helpers.h"
 
+using compiler::compressGz;
+using compiler::createTarArchive;
 using compiler::decompressBz2;
 using compiler::patchBsdiff;
+using compiler::TarEntry;
 
 TEST(CompressionTest, DecompressBz2) {
     auto compressed = readBinaryFile("bziptest.bz2");
@@ -25,4 +30,19 @@ TEST(CompressionTest, PatchBsdiff) {
     for (size_t i = 0; i < expectedNewData.size(); i++) {
         ASSERT_EQ(expectedNewData.at(i), actualNewData.at(i));
     }
+}
+
+TEST(CompressionTest, CreateTarArchive) {
+    std::vector<TarEntry> entries{
+        TarEntry{ "a", std::vector<uint8_t>{ 1, 2, 3 }, 0777 },
+        TarEntry{ "b", std::vector<uint8_t>{ 'H', 'i' }, 0664 },
+    };
+    auto tarBytes = createTarArchive(entries);
+    ASSERT_EQ(3072, tarBytes.size());
+}
+
+TEST(CompressionTest, CompressGz) {
+    std::vector<uint8_t> vec{ 1, 2, 3 };
+    auto gz = compressGz(vec);
+    ASSERT_EQ(23, gz.size());
 }

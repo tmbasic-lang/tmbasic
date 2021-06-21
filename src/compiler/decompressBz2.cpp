@@ -9,7 +9,7 @@ namespace compiler {
 
 class BzStream {
    public:
-    bz_stream stream = { nullptr };
+    bz_stream stream{ nullptr };
 
     BzStream() {
         auto bzResult = BZ2_bzDecompressInit(&stream, 0, 0);

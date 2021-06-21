@@ -314,11 +314,8 @@ ifeq ($(TARGET_OS),linux)
 LDFLAGS += -ldl
 endif
 
-# Linker flag to include bzip2 in tmbasic/test only.
-TMBASIC_LDFLAGS += -lbz2_static
-
-# Linker flag to include libbspatch in tmbasic/test only.
-TMBASIC_LDFLAGS += -lbspatch
+# Linker flag to include bzip2, libbspatch, microtar, zlib in tmbasic/test only (not runners).
+TMBASIC_LDFLAGS += -lbz2_static -lbspatch -lmicrotar -lz
 
 # Linker flag to include libgtest (googletest).
 LIBGTEST_FLAG += -lgtest -lgtest_main
