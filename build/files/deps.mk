@@ -685,9 +685,13 @@ ifeq ($(TARGET_OS),mac)
 ZLIB_CONFIGURE_FLAGS=--archs="-arch $(MACARCH)"
 endif
 
+ifeq ($(TARGET_OS),win)
+ZLIB_CONFIGURE_ENV=AR=$(ARCH)-w64-mingw32-ar CC=$(ARCH)-w64-mingw32-gcc RANLIB=$(ARCH)-w64-mingw32-ranlib
+endif
+
 $(ZLIB_DIR)/install: $(ZLIB_DIR)/download
 	cd $(ZLIB_DIR) && \
-		./configure --static --prefix=$(TARGET_PREFIX) $(ZLIB_CONFIGURE_FLAGS) && \
+		$(ZLIB_CONFIGURE_ENV) ./configure --static --prefix=$(TARGET_PREFIX) $(ZLIB_CONFIGURE_FLAGS) && \
 		$(MAKE) CFLAGS="$(CFLAGS)" && \
 		$(MAKE) install
 	touch $@
