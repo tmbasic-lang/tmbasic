@@ -12,6 +12,7 @@ ssh -i $X64_KEY $X64_USER@$X64_HOST "rm -rf $TESTDIR && mkdir -p $TESTDIR"
 pushd ../  # build directory
 ./mac-arm64.sh -c "make clean"
 ./mac-x64.sh -c "make clean"
+rm -rf ../dist
 popd
 
 # create a tarball of the local source directory

@@ -463,8 +463,9 @@ obj/common.h.gch: src/common.h
 # help ----------------------------------------------------------------------------------------------------------------
 
 obj/resources/LICENSE.o: obj/resources/LICENSE.txt
-	xxd -i $< | sed s/obj_resources_LICENSE_txt/kLicense/g > obj/resources/LICENSE.cpp
-	$(CXX) -o $@ -c obj/resources/LICENSE.cpp
+	@printf "%16s  %s\n" "$(CXX)" "$@"
+	@xxd -i $< | sed s/obj_resources_LICENSE_txt/kLicense/g > obj/resources/LICENSE.cpp
+	@$(CXX) -o $@ $(CXXFLAGS) -c obj/resources/LICENSE.cpp
 
 obj/resources/LICENSE.txt: $(LICENSE_FILES)
 	@printf "%16s  %s\n" "cat" "$@"

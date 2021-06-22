@@ -688,7 +688,7 @@ endif
 $(ZLIB_DIR)/install: $(ZLIB_DIR)/download
 	cd $(ZLIB_DIR) && \
 		./configure --static --prefix=$(TARGET_PREFIX) $(ZLIB_CONFIGURE_FLAGS) && \
-		$(MAKE) && \
+		$(MAKE) CFLAGS="$(CFLAGS)" && \
 		$(MAKE) install
 	touch $@
 
