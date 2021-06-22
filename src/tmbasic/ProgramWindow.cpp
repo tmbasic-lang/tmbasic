@@ -455,8 +455,8 @@ static void publishPlatform(
 
 class PublishStatusWindow : public TWindow {
    public:
-    ViewPtr<Label> labelTop{ TRect{ 0, 0, 20, 1 }, "Publishing..." };
-    ViewPtr<Label> labelBottom{ TRect{ 0, 0, 20, 1 }, "" };
+    ViewPtr<Label> labelTop{ TRect{ 0, 0, 30, 1 }, "Checking for errors..." };
+    ViewPtr<Label> labelBottom{ TRect{ 0, 0, 30, 1 }, "" };
     PublishStatusWindow() : TWindow(TRect{ 0, 0, 0, 0 }, "Please Wait", wnNoNumber), TWindowInit(initFrame) {
         palette = wpGrayWindow;
         options |= ofCentered;
@@ -486,6 +486,7 @@ void ProgramWindow::publish() {
     compiler::CompiledProgram program;
     auto compilerResult = compiler::compileProgram(*_private->sourceProgram, &program);
     if (!compilerResult.isSuccess) {
+        statusWindow.get()->close();
         compilerErrorMessageBox(compilerResult);
         return;
     }
@@ -506,13 +507,13 @@ void ProgramWindow::publish() {
             TScreen::flushScreen();
             publishPlatform(platform, programName, pcode, publishDir);
         }
+        statusWindow.get()->close();
+        messageBox("Publish successful!", mfInformation | mfOKButton);
+
     } catch (const std::runtime_error& ex) {
+        statusWindow.get()->close();
         messageBox(ex.what(), mfError | mfOKButton);
     }
-
-    statusWindow.get()->close();
-
-    messageBox("Publish successful!", mfInformation | mfOKButton);
 }
 
 }  // namespace tmbasic
