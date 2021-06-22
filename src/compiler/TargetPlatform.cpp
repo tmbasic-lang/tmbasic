@@ -1,5 +1,8 @@
 #include "TargetPlatform.h"
 
+extern char kLicense[];  // NOLINT(modernize-avoid-c-arrays)
+extern uint kLicense_len;
+
 namespace compiler {
 
 static const std::vector<TargetPlatform> _targetPlatforms{
@@ -52,6 +55,36 @@ TargetPlatformArchiveType getTargetPlatformArchiveType(TargetPlatform platform) 
         default:
             assert(false);
             return {};
+    }
+}
+
+const char* getPlatformExeExtension(TargetPlatform platform) {
+    switch (platform) {
+        case TargetPlatform::kWinX86:
+        case TargetPlatform::kWinX64:
+            return ".exe";
+        default:
+            return "";
+    }
+}
+
+std::string getLicenseForPlatform(TargetPlatform platform) {
+    std::string_view sv{ kLicense, kLicense_len };
+    switch (platform) {
+        case TargetPlatform::kWinX86:
+        case TargetPlatform::kWinX64: {
+            std::ostringstream o;
+            for (auto ch : sv) {
+                if (ch == '\n') {
+                    o << '\r';
+                }
+                o << ch;
+            }
+            return o.str();
+        }
+
+        default:
+            return std::string{ sv };
     }
 }
 

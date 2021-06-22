@@ -1,11 +1,18 @@
 #include "../common.h"
+#include "vm/Interpreter.h"
+#include "vm/Program.h"
 
 extern uint8_t kResourcePcode[];  // NOLINT(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
 extern uint kResourcePcode_len;
 
 int main(int /*argc*/, const char* /*argv*/[]) {
-    for (size_t i = 0; i < kResourcePcode_len; i++) {
-        std::cout << static_cast<char>(kResourcePcode[i]);
+    std::vector<uint8_t> pcode{};
+    pcode.insert(pcode.end(), kResourcePcode, kResourcePcode + kResourcePcode_len);
+    vm::Program program{};
+    program.deserialize(pcode);
+    vm::Interpreter interpreter{ &program, &std::cin, &std::cout };
+    interpreter.init(0);
+    while (interpreter.run(10000)) {
     }
     return 0;
 }

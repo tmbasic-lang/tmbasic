@@ -153,7 +153,12 @@ static ResourceData getRunnerCompressedData(TargetPlatform platform, int size) {
 
 static vector<uint8_t> getRunnerTemplate(TargetPlatform platform, size_t bytecodeSize) {
     auto runner524288_bz2 = getRunnerCompressedData(platform, 524288);
-    assert(runner524288_bz2.len > 0);
+
+    // return blank file if this is a dev build without the runners linked in
+    if (runner524288_bz2.len == 0) {
+        return {};
+    }
+
     auto runner524288 = decompressBz2(runner524288_bz2.data, runner524288_bz2.len);
     if (bytecodeSize <= 524288) {
         return runner524288;
@@ -186,6 +191,12 @@ static size_t findBytecodeIndex(const vector<uint8_t>& runnerBinary) {
 
 vector<uint8_t> makeExeFile(const vector<uint8_t>& bytecode, TargetPlatform platform) {
     auto runnerBinary = getRunnerTemplate(platform, bytecode.size());
+
+    // return blank file if this is a dev build without the runners linked in
+    if (runnerBinary.size() == 0) {
+        return runnerBinary;
+    }
+
     auto bytecodeIndex = findBytecodeIndex(runnerBinary);
     memcpy(&runnerBinary.at(bytecodeIndex), bytecode.data(), bytecode.size());
     return runnerBinary;

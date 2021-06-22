@@ -203,14 +203,6 @@ else
 TEST_CMD=./test
 endif
 
-# LICENSE_PROCESS_CMD: This command is applied to the license text file to produce the release-ready file for this
-# platform. On Windows we use this to get CRLF line endings.
-ifeq ($(TARGET_OS),win)
-LICENSE_PROCESS_CMD=unix2dos
-else
-LICENSE_PROCESS_CMD=>/dev/null echo
-endif
-
 
 
 ### Compiler flags ####################################################################################################
@@ -325,7 +317,7 @@ LIBGTEST_FLAG += -lgtest -lgtest_main
 ### Phony targets #####################################################################################################
 
 .PHONY: all
-all: bin/tmbasic$(EXE_EXTENSION) bin/test$(EXE_EXTENSION) bin/LICENSE.txt runners
+all: bin/tmbasic$(EXE_EXTENSION) bin/test$(EXE_EXTENSION) runners
 
 .PHONY: versions
 ifeq ($(TARGET_OS),linux)
@@ -372,7 +364,7 @@ endif
 
 .PHONY: release
 release:
-	@OPTFLAGS="-Os" EXTRADEFS="-DNDEBUG" STRIP_TMBASIC=1 $(MAKE) bin/tmbasic$(EXE_EXTENSION) bin/LICENSE.txt
+	@OPTFLAGS="-Os" EXTRADEFS="-DNDEBUG" STRIP_TMBASIC=1 $(MAKE) bin/tmbasic$(EXE_EXTENSION)
 
 .PHONY: clean
 clean:
@@ -470,7 +462,11 @@ obj/common.h.gch: src/common.h
 
 # help ----------------------------------------------------------------------------------------------------------------
 
-bin/LICENSE.txt: $(LICENSE_FILES)
+obj/resources/LICENSE.o: obj/resources/LICENSE.txt
+	xxd -i $< | sed s/obj_resources_LICENSE_txt/kLicense/g > obj/resources/LICENSE.cpp
+	$(CXX) -o $@ -c obj/resources/LICENSE.cpp
+
+obj/resources/LICENSE.txt: $(LICENSE_FILES)
 	@printf "%16s  %s\n" "cat" "$@"
 	@mkdir -p bin
 	@rm -f $@
@@ -520,7 +516,6 @@ bin/LICENSE.txt: $(LICENSE_FILES)
 	@echo === scintilla license === >> $@
 	@cat doc/licenses/scintilla/License.txt >> $@
 	@echo >> $@
-	@$(LICENSE_PROCESS_CMD) $@
 
 $(LICENSE_DIAGRAM_TXT_TIMESTAMP_FILE): $(LICENSE_FILES)
 	@printf "%16s  %s\n" "copyLicenses.sh" "$@"
@@ -572,10 +567,10 @@ $(COMPILER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(UTIL_H_FILES) $(VM_
 	@mkdir -p $(@D)
 	@$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
 
-obj/compiler.a: $(COMPILER_OBJ_FILES)
+obj/compiler.a: $(COMPILER_OBJ_FILES) obj/resources/LICENSE.o
 	@printf "%16s  %s\n" "$(AR)" "$@"
 	@mkdir -p $(@D)
-	@$(AR) rcs $@ $(COMPILER_OBJ_FILES)
+	@$(AR) rcs $@ $(COMPILER_OBJ_FILES) obj/resources/LICENSE.o
 
 
 
@@ -747,8 +742,8 @@ $(THIS_PLATFORM_RUNNER_BIN_FILES): bin/runners/%$(EXE_EXTENSION): \
 		-include obj/common.h \
 		$(RUNNER_OBJ_FILES) \
 		obj/resources/pcode/$(patsubst bin/runners/%$(EXE_EXTENSION),%,$@).o \
-		obj/util.a \
 		obj/vm.a \
+		obj/util.a \
 		$(LDFLAGS)
 	@$(STRIP) $@
 

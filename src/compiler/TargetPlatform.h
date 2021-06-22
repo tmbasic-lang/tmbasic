@@ -19,6 +19,8 @@ enum class TargetPlatformArchiveType { kZip, kTarGz };
 
 const std::vector<TargetPlatform>& getTargetPlatforms();
 const char* getPlatformName(TargetPlatform platform);
+const char* getPlatformExeExtension(TargetPlatform platform);
 TargetPlatformArchiveType getTargetPlatformArchiveType(TargetPlatform platform);
+std::string getLicenseForPlatform(TargetPlatform platform);
 
 }  // namespace compiler

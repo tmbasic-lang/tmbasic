@@ -1,18 +1,25 @@
 #include "ProgramWindow.h"
 #include "../../obj/resources/help/helpfile.h"
+#include "../compiler/TargetPlatform.h"
 #include "../compiler/compileProgram.h"
+#include "../compiler/compressGz.h"
+#include "../compiler/createTarArchive.h"
+#include "../compiler/createZipArchive.h"
+#include "../compiler/makeExeFile.h"
 #include "../util/DialogPtr.h"
 #include "../util/Frame.h"
+#include "../util/Label.h"
 #include "../util/ListViewer.h"
 #include "../util/ScrollBar.h"
 #include "../util/ViewPtr.h"
+#include "../util/WindowPtr.h"
 #include "../util/path.h"
 #include "../util/tvutil.h"
 #include "../vm/Program.h"
 #include "CodeEditorWindow.h"
 #include "DesignerWindow.h"
+#include "GridLayout.h"
 #include "PictureWindow.h"
-#include "compiler/TargetPlatform.h"
 #include "constants.h"
 #include "events.h"
 
@@ -21,8 +28,10 @@ using compiler::SourceMemberType;
 using compiler::SourceProgram;
 using compiler::TargetPlatform;
 using util::DialogPtr;
+using util::Label;
 using util::ListViewer;
 using util::ViewPtr;
+using util::WindowPtr;
 using vm::Program;
 
 namespace tmbasic {
@@ -411,19 +420,68 @@ void ProgramWindow::checkForErrors() {
     }
 }
 
-static void publishPlatform(TargetPlatform platform, const std::string& programName) {
+static void publishPlatform(
+    TargetPlatform platform,
+    const std::string& programName,
+    const std::vector<uint8_t>& pcode,
+    const std::string& publishDir) {
     auto isZip = compiler::getTargetPlatformArchiveType(platform) == compiler::TargetPlatformArchiveType::kZip;
     auto archiveFilename =
         fmt::format("{}-{}.{}", programName, compiler::getPlatformName(platform), isZip ? "zip" : "tar.gz");
-    (void)archiveFilename;
-    throw std::runtime_error("not impl");
+    auto archiveFilePath = util::pathCombine(publishDir, archiveFilename);
+    auto exeData = compiler::makeExeFile(pcode, platform);
+    auto exeFilename = fmt::format("{}{}", programName, compiler::getPlatformExeExtension(platform));
+    const auto* licFilename = "LICENSE.txt";
+    auto licString = compiler::getLicenseForPlatform(platform);
+    std::vector<uint8_t> licData{};
+    licData.insert(licData.end(), licString.begin(), licString.end());
+    if (isZip) {
+        std::vector<compiler::ZipEntry> entries{
+            compiler::ZipEntry{ exeFilename, exeData },
+            compiler::ZipEntry{ licFilename, licData },
+        };
+        compiler::createZipArchive(archiveFilePath, entries);
+    } else {
+        std::vector<compiler::TarEntry> entries{
+            compiler::TarEntry{ exeFilename, exeData, 0777 },
+            compiler::TarEntry{ licFilename, licData, 0664 },
+        };
+        auto tar = compiler::createTarArchive(entries);
+        auto gz = compiler::compressGz(tar);
+        std::ofstream f{ archiveFilePath, std::ios::out | std::ios::binary };
+        f.write(reinterpret_cast<const char*>(gz.data()), gz.size());
+    }
 }
+
+class PublishStatusWindow : public TWindow {
+   public:
+    ViewPtr<Label> labelTop{ TRect{ 0, 0, 20, 1 }, "Publishing..." };
+    ViewPtr<Label> labelBottom{ TRect{ 0, 0, 20, 1 }, "" };
+    PublishStatusWindow() : TWindow(TRect{ 0, 0, 0, 0 }, "Please Wait", wnNoNumber), TWindowInit(initFrame) {
+        palette = wpGrayWindow;
+        options |= ofCentered;
+        flags &= ~(wfClose | wfZoom);
+        GridLayout(
+            1,
+            {
+                labelTop.take(),
+                labelBottom.take(),
+            })
+            .setRowSpacing(0)
+            .addTo(this);
+        labelBottom->colorActive = { TColorBIOS{ 4 }, TColorBIOS{ 7 } };
+    }
+};
 
 void ProgramWindow::publish() {
     if (!_private->filePath.has_value()) {
         messageBox("Please save your program first.", mfError | mfOKButton);
         return;
     }
+
+    WindowPtr<PublishStatusWindow> statusWindow{};
+    statusWindow.get()->drawView();
+    TScreen::flushScreen();
 
     compiler::CompiledProgram program;
     auto compilerResult = compiler::compileProgram(*_private->sourceProgram, &program);
@@ -434,17 +492,27 @@ void ProgramWindow::publish() {
 
     auto basFilePath = *_private->filePath;
     auto basFilename = util::getFileName(basFilePath);
-    auto publishDir = util::getDirectoryName(basFilePath);
+    auto publishDir = util::pathCombine(util::getDirectoryName(basFilePath), "publish");
     util::createDirectory(publishDir);
-    auto programName = basFilename.size() > 4 ? basFilename.substr(0, basFilename.size() - 3) : basFilename;
+    auto programName = basFilename.size() > 4 ? basFilename.substr(0, basFilename.size() - 4) : basFilename;
+    auto pcode = program.vmProgram.serialize();
 
     try {
         for (auto platform : compiler::getTargetPlatforms()) {
-            publishPlatform(platform, programName);
+            statusWindow.get()->labelTop->setTitle("Publishing:");
+            statusWindow.get()->labelTop->drawView();
+            statusWindow.get()->labelBottom->setTitle(compiler::getPlatformName(platform));
+            statusWindow.get()->labelBottom->drawView();
+            TScreen::flushScreen();
+            publishPlatform(platform, programName, pcode, publishDir);
         }
     } catch (const std::runtime_error& ex) {
         messageBox(ex.what(), mfError | mfOKButton);
     }
+
+    statusWindow.get()->close();
+
+    messageBox("Publish successful!", mfInformation | mfOKButton);
 }
 
 }  // namespace tmbasic
