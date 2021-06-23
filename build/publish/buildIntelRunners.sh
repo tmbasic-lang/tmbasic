@@ -24,4 +24,5 @@ cp -f ../bin/runners/5242880.bsdiff $PUBLISHDIR/linux_x64_5242880.bsdiff
 cp -f ../bin/runners/524288.bz2     $PUBLISHDIR/linux_x86_524288.bz2
 cp -f ../bin/runners/5242880.bsdiff $PUBLISHDIR/linux_x86_5242880.bsdiff
 
-tar cf $PUBLISHDIR/runners_intel.tar $PUBLISHDIR/*.bz2 $PUBLISHDIR/*.bsdiff
+cd $PUBLISHDIR
+tar cf runners_intel.tar *.bz2 *.bsdiff

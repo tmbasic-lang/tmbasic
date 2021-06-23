@@ -83,7 +83,7 @@ mkdir -p obj/resources/runners/
 cp -f $PUBLISHDIR/runners/*.bz2 $PUBLISHDIR/runners/*.bsdiff obj/resources/runners/
 pushd build && ./mac-arm64.sh -c "make" && popd
 cd bin
-zip -9 ../dist/tmbasic-mac-arm64.zip tmbasic LICENSE.txt
+zip -9 ../dist/tmbasic-mac-arm64.zip tmbasic
 popd
 
 pushd ../../  # root of repository
@@ -92,7 +92,7 @@ mkdir -p obj/resources/runners/
 cp -f $PUBLISHDIR/runners/*.bz2 $PUBLISHDIR/runners/*.bsdiff obj/resources/runners/
 pushd build && ./mac-x64.sh -c "make" && popd
 cd bin
-zip -9 ../dist/tmbasic-mac-x64.zip tmbasic LICENSE.txt
+zip -9 ../dist/tmbasic-mac-x64.zip tmbasic
 popd
 
 #
