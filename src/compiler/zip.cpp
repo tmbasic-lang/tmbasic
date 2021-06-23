@@ -1,4 +1,4 @@
-#include "createZipArchive.h"
+#include "zip.h"
 #include <zip.h>
 
 namespace compiler {
@@ -13,7 +13,7 @@ struct ZipClose {
     }
 };
 
-void createZipArchive(const std::string& zipFilePath, const std::vector<ZipEntry>& entries) {
+void zip(const std::string& zipFilePath, const std::vector<ZipEntry>& entries) {
     int zipError = 0;
     auto zip = std::unique_ptr<zip_t, ZipClose>(zip_open(zipFilePath.c_str(), ZIP_CREATE | ZIP_TRUNCATE, &zipError));
     if (!zip) {

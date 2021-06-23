@@ -4,11 +4,8 @@ set -euo pipefail
 export NAME=$(basename $RUNNER_FILE)
 export BIN_FILE=obj/resources/runners/$NAME
 
-if [ "$NAME" == "${TARGET_OS}_${SHORT_ARCH}_524288.bz2" ]; then
-    cp -f bin/runners/524288.bz2 $BIN_FILE
-fi
-if [ "$NAME" == "${TARGET_OS}_${SHORT_ARCH}_5242880.bsdiff" ]; then
-    cp -f bin/runners/5242880.bsdiff $BIN_FILE
+if [ "$NAME" == "${TARGET_OS}_${SHORT_ARCH}.gz" ]; then
+    cp -f bin/runner.gz $BIN_FILE
 fi
 
 touch $BIN_FILE

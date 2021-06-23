@@ -2,10 +2,10 @@
 #include "../../obj/resources/help/helpfile.h"
 #include "../compiler/TargetPlatform.h"
 #include "../compiler/compileProgram.h"
-#include "../compiler/compressGz.h"
-#include "../compiler/createTarArchive.h"
-#include "../compiler/createZipArchive.h"
+#include "../compiler/gzip.h"
 #include "../compiler/makeExeFile.h"
+#include "../compiler/tar.h"
+#include "../compiler/zip.h"
 #include "../util/DialogPtr.h"
 #include "../util/Frame.h"
 #include "../util/Label.h"
@@ -440,14 +440,13 @@ static void publishPlatform(
             compiler::ZipEntry{ exeFilename, exeData },
             compiler::ZipEntry{ licFilename, licData },
         };
-        compiler::createZipArchive(archiveFilePath, entries);
+        compiler::zip(archiveFilePath, entries);
     } else {
         std::vector<compiler::TarEntry> entries{
             compiler::TarEntry{ exeFilename, exeData, 0777 },
             compiler::TarEntry{ licFilename, licData, 0664 },
         };
-        auto tar = compiler::createTarArchive(entries);
-        auto gz = compiler::compressGz(tar);
+        auto gz = compiler::gzip(compiler::tar(entries));
         std::ofstream f{ archiveFilePath, std::ios::out | std::ios::binary };
         f.write(reinterpret_cast<const char*>(gz.data()), gz.size());
     }

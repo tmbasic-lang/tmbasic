@@ -5,14 +5,6 @@
 BOOST_VERSION=1.76.0
 BOOST_DIR=$(PWD)/boost_$(shell echo $(BOOST_VERSION) | tr '.' '_')
 
-# https://github.com/mendsley/bsdiff
-BSDIFF_VERSION=b817e9491cf7b8699c8462ef9e2657ca4ccd7667
-BSDIFF_DIR=$(PWD)/bsdiff-$(BSDIFF_VERSION)
-
-# https://gitlab.com/federicomenaquintero/bzip2
-BZIP2_VERSION=bf905ea2251191ff9911ae7ec0cfc35d41f9f7f6
-BZIP2_DIR=$(PWD)/bzip2-$(BZIP2_VERSION)
-
 # https://github.com/Kitware/CMake/releases
 CMAKE_VERSION=3.20.4
 
@@ -147,10 +139,21 @@ HOST_FLAG=
 endif
 
 .PHONY: all
-all: $(NCURSES_DIR)/install $(GOOGLETEST_DIR)/install $(BSDIFF_DIR)/install $(BZIP2_DIR)/install $(ICU_DIR)/install \
-	$(FMT_DIR)/install $(LIBCLIPBOARD_DIR)/install $(IMMER_DIR)/install $(BOOST_DIR)/install $(MPDECIMAL_DIR)/install \
-	$(TVISION_DIR)/install $(TURBO_DIR)/install $(NAMEOF_DIR)/install $(ZLIB_DIR)/install $(MICROTAR_DIR)/install \
-	$(LIBZIP_DIR)/install
+all: \
+	$(BOOST_DIR)/install \
+	$(FMT_DIR)/install \
+	$(GOOGLETEST_DIR)/install \
+	$(ICU_DIR)/install \
+	$(IMMER_DIR)/install \
+	$(LIBCLIPBOARD_DIR)/install \
+	$(LIBZIP_DIR)/install \
+	$(MICROTAR_DIR)/install \
+	$(MPDECIMAL_DIR)/install \
+	$(NAMEOF_DIR)/install \
+	$(NCURSES_DIR)/install \
+	$(TURBO_DIR)/install \
+	$(TVISION_DIR)/install \
+	$(ZLIB_DIR)/install
 
 
 
@@ -278,66 +281,6 @@ $(GOOGLETEST_DIR)/install: $(GOOGLETEST_DIR)/download $(CMAKE_DIR)/install
 			$(CMAKE_TOOLCHAIN_FLAG) && \
 		$(MAKE) && \
 		$(MAKE) install
-	touch $@
-
-
-
-# bzip2 ---------------------------------------------------------------------------------------------------------------
-
-$(BZIP2_DIR)/download:
-	curl -L https://gitlab.com/federicomenaquintero/bzip2/-/archive/$(BZIP2_VERSION)/bzip2-$(BZIP2_VERSION).tar.gz | tar zx
-	touch $@
-
-$(BZIP2_DIR)/install: $(BZIP2_DIR)/download $(CMAKE_DIR)/install
-	cd $(BZIP2_DIR) && \
-		mkdir -p build-native && \
-		cd build-native && \
-		cmake .. \
-			$(CMAKE_FLAGS) \
-			-DCMAKE_PREFIX_PATH=$(NATIVE_PREFIX) \
-			-DCMAKE_INSTALL_PREFIX=$(NATIVE_PREFIX) \
-			-DENABLE_STATIC_LIB=ON \
-			-DCMAKE_BUILD_TYPE=Release && \
-		$(MAKE) && \
-		$(MAKE) install
-ifeq ($(TARGET_OS),win)
-	cd $(BZIP2_DIR) && \
-		mkdir -p build-target && \
-		cd build-target && \
-		cmake .. \
-			$(CMAKE_FLAGS) \
-			-DCMAKE_PREFIX_PATH=$(TARGET_PREFIX) \
-			-DCMAKE_INSTALL_PREFIX=$(TARGET_PREFIX) \
-			-DENABLE_STATIC_LIB=ON \
-			-DCMAKE_BUILD_TYPE=Release \
-			$(CMAKE_TOOLCHAIN_FLAG) && \
-		$(MAKE) && \
-		$(MAKE) install
-endif
-	touch $@
-
-
-
-# bsdiff --------------------------------------------------------------------------------------------------------------
-
-$(BSDIFF_DIR)/download:
-	curl -L https://github.com/mendsley/bsdiff/archive/$(BSDIFF_VERSION).tar.gz | tar zx
-	touch $@
-
-$(BSDIFF_DIR)/install: $(BSDIFF_DIR)/download $(BZIP2_DIR)/install
-	cd $(BSDIFF_DIR) && \
-		gcc $(CFLAGS) -o bsdiff -isystem "$(NATIVE_PREFIX/include)" bsdiff.c -DBSDIFF_EXECUTABLE -L"$(NATIVE_PREFIX)/lib" -lbz2_static && \
-		gcc $(CFLAGS) -o bspatch -isystem "$(NATIVE_PREFIX/include)" bspatch.c -DBSPATCH_EXECUTABLE -L"$(NATIVE_PREFIX)/lib" -lbz2_static && \
-		mv bsdiff bspatch $(NATIVE_PREFIX)/bin/
-	cd $(BSDIFF_DIR) && \
-		$(TARGET_CC) $(CFLAGS) -isystem "$(TARGET_PREFIX/include)" -c bsdiff.c && \
-		$(TARGET_AR) rcs libbsdiff.a bsdiff.o && \
-		mv libbsdiff.a $(TARGET_PREFIX)/lib/ && \
-		$(TARGET_CC) $(CFLAGS) -isystem "$(TARGET_PREFIX/include)" -c bspatch.c && \
-		$(TARGET_AR) rcs libbspatch.a bspatch.o && \
-		mv libbspatch.a $(TARGET_PREFIX)/lib/ && \
-		mkdir -p $(TARGET_PREFIX)/include/bsdiff && \
-		cp *.h $(TARGET_PREFIX)/include/bsdiff/
 	touch $@
 
 
@@ -731,6 +674,9 @@ $(LIBZIP_DIR)/install: $(LIBZIP_DIR)/download $(CMAKE_DIR)/install $(ZLIB_DIR)/i
 			-DENABLE_MBEDTLS=OFF \
 			-DENABLE_OPENSSL=OFF \
 			-DENABLE_WINDOWS_CRYPTO=OFF \
+			-DENABLE_BZIP2=OFF \
+			-DENABLE_LZMA=OFF \
+			-DENABLE_ZSTD=OFF \
 			-DBUILD_TOOLS=OFF \
 			-DBUILD_REGRESS=OFF \
 			-DBUILD_EXAMPLES=OFF \

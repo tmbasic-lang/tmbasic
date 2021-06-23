@@ -1,4 +1,4 @@
-#include "createTarArchive.h"
+#include "tar.h"
 #include <microtar.h>
 
 namespace compiler {
@@ -55,7 +55,7 @@ class TarArchive {
     }
 };
 
-std::vector<uint8_t> createTarArchive(const std::vector<TarEntry>& entries) {
+std::vector<uint8_t> tar(const std::vector<TarEntry>& entries) {
     TarArchive archive{};
     mtar_t mtar{};
     mtar.read = TarArchive::read;

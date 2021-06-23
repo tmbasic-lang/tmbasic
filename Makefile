@@ -61,25 +61,11 @@ endif
 # Operating system + architecture pairs
 PLATFORMS=linux_arm64 linux_arm32 linux_x64 linux_x86 mac_x64 mac_arm64  win_x64 win_x86
 
-# We build several runners for each platform, each with a different length of dummy pcode. These sizes refer to the
-# length of that pcode in bytes.
-BZIPPED_RUNNER_SIZE=524288
-BSDIFFED_RUNNER_SIZES=5242880
-RUNNER_SIZES=$(BZIPPED_RUNNER_SIZE) $(BSDIFFED_RUNNER_SIZES)
-
 # Input runner builds, which will be 0-byte files for debug builds. for full release builds, these runners will be built
 # separately and provided ahead of time.
-ALL_PLATFORM_RUNNER_BIN_FILENAMES=$(foreach X,$(PLATFORMS),$(foreach Y,$(RUNNER_SIZES),$X_$Y))
-ALL_PLATFORM_RUNNER_COMPRESSED_FILENAMES=\
-	$(foreach X,$(PLATFORMS),$(foreach Y,$(BZIPPED_RUNNER_SIZE),$X_$Y.bz2)) \
-	$(foreach X,$(PLATFORMS),$(foreach Y,$(BSDIFFED_RUNNER_SIZES),$X_$Y.bsdiff))
+ALL_PLATFORM_RUNNER_COMPRESSED_FILENAMES=$(foreach X,$(PLATFORMS),$X.gz)
 ALL_PLATFORM_RUNNER_OBJ_FILES=$(patsubst %,obj/resources/runners/%,$(ALL_PLATFORM_RUNNER_COMPRESSED_FILENAMES:=.o))
 ALL_PLATFORM_RUNNER_COMPRESSED_FILES=$(ALL_PLATFORM_RUNNER_OBJ_FILES:.o=)
-
-# Output runner builds for the particular platform targeted by this build.
-THIS_PLATFORM_RUNNER_BIN_FILES=$(patsubst %,bin/runners/%,$(RUNNER_SIZES:=$(EXE_EXTENSION)))
-THIS_PLATFORM_RUNNER_BSDIFF_FILES=$(patsubst %,bin/runners/%,$(BSDIFFED_RUNNER_SIZES:=.bsdiff))
-THIS_PLATFORM_RUNNER_BZIP_FILES=$(patsubst %,bin/runners/%,$(BZIPPED_RUNNER_SIZE:=.bz2))
 
 # C++ build files
 COMPILER_SRC_FILES=$(shell find src/compiler -type f -name "*.cpp")
@@ -128,8 +114,6 @@ LICENSE_FILES=\
 	doc/licenses/nameof/LICENSE.txt \
 	doc/licenses/ncurses/COPYING \
 	doc/licenses/tvision/COPYRIGHT \
-	doc/licenses/bsdiff/LICENSE \
-	doc/licenses/bzip2/COPYING \
 	doc/licenses/icu/LICENSE \
 	doc/licenses/fmt/LICENSE.rst \
 	doc/licenses/libclipboard/LICENSE \
@@ -153,8 +137,6 @@ LICENSE_DIAGRAM_TXT_FILES=\
 	obj/doc-temp/diagrams-license/license_nameof.txt \
 	obj/doc-temp/diagrams-license/license_ncurses.txt \
 	obj/doc-temp/diagrams-license/license_tvision.txt \
-	obj/doc-temp/diagrams-license/license_bsdiff.txt \
-	obj/doc-temp/diagrams-license/license_bzip2.txt \
 	obj/doc-temp/diagrams-license/license_icu.txt \
 	obj/doc-temp/diagrams-license/license_fmt.txt \
 	obj/doc-temp/diagrams-license/license_libclipboard.txt \
@@ -306,8 +288,8 @@ ifeq ($(TARGET_OS),linux)
 LDFLAGS += -ldl
 endif
 
-# Linker flag to include bzip2, libbspatch, libzip, microtar, zlib in tmbasic/test only (not runners).
-TMBASIC_LDFLAGS += -lbz2_static -lbspatch -lzip -lmicrotar -lz
+# Linker flag to include libzip, microtar, zlib in tmbasic/test only (not runners).
+TMBASIC_LDFLAGS += -lzip -lmicrotar -lz
 
 # Linker flag to include libgtest (googletest).
 LIBGTEST_FLAG += -lgtest -lgtest_main
@@ -404,8 +386,7 @@ ghpages: obj/resources/help/help.txt bin/ghpages/index.html
 	@cp obj/doc-html/* bin/ghpages/
 
 .PHONY: runners
-runners: $(patsubst %,bin/runners/%,$(BZIPPED_RUNNER_SIZE:=.bz2)) \
-		$(patsubst %,bin/runners/%,$(BSDIFFED_RUNNER_SIZES:=.bsdiff))
+runners: $(THIS_PLATFORM_RUNNER_GZ_FILE)
 
 
 
@@ -611,7 +592,7 @@ obj/resources/help/helpfile.o: obj/resources/help/help.h32
 	@xxd -i $< | sed s/obj_resources_help_help_h32/kResourceHelp/g > obj/resources/help/kResourceHelp.cpp
 	@$(CXX) -o $@ $(CXXFLAGS) -c obj/resources/help/kResourceHelp.cpp
 
-$(ALL_PLATFORM_RUNNER_COMPRESSED_FILES): %: $(THIS_PLATFORM_RUNNER_BSDIFF_FILES) $(THIS_PLATFORM_RUNNER_BZIP_FILES)
+$(ALL_PLATFORM_RUNNER_COMPRESSED_FILES): %: bin/runner.gz
 	@printf "%16s  %s\n" "runnerFile.sh" "$@"
 	@mkdir -p $(@D)
 	@TARGET_OS=$(TARGET_OS) SHORT_ARCH=$(SHORT_ARCH) RUNNER_FILE=$@ build/scripts/runnerFile.sh
@@ -719,21 +700,20 @@ bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) \
 
 
 # runner (this platform) ----------------------------------------------------------------------------------------------
-# We build several versions that are identical except for the length of the dummy pcode they have embedded.
-# We ship the 100KB runner and a set of binary patches to convert the 100KB runner to the other sizes.
 
 $(RUNNER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(UTIL_H_FILES) $(VM_H_FILES) $(RUNNER_H_FILES)
 	@printf "%16s  %s\n" "$(CXX)" "$@"
 	@mkdir -p $(@D)
 	@$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
 
-$(patsubst %,obj/resources/pcode/%,$(RUNNER_SIZES:=.o)): %:
-	@printf "%16s  %s\n" "pcodeRes.sh" "$@"
+obj/resources/pcode/pcode.o: %:
+	@printf "%16s  %s\n" "$(CXX)" "$@"
 	@mkdir -p $(@D)
-	@OBJ_FILE=$@ CXX="$(CXX) $(CXXFLAGS)" build/scripts/pcodeRes.sh
+	@head -c 5242880 /dev/zero | tr '\0' 'T' > obj/resources/pcode/5242880
+	@xxd -i obj/resources/pcode/5242880 | sed s/obj_resources_pcode_5242880/kResourcePcode/g > obj/resources/pcode/pcode.cpp
+	@$(CXX) $(CXXFLAGS) -o $@ -c obj/resources/pcode/pcode.cpp
 
-$(THIS_PLATFORM_RUNNER_BIN_FILES): bin/runners/%$(EXE_EXTENSION): \
-		obj/resources/pcode/%.o $(RUNNER_OBJ_FILES) obj/util.a obj/vm.a
+bin/runner: obj/resources/pcode/pcode.o $(RUNNER_OBJ_FILES) obj/util.a obj/vm.a
 	@printf "%16s  %s\n" "$(CXX)" "$@"
 	@mkdir -p $(@D)
 	@$(CXX) \
@@ -742,21 +722,15 @@ $(THIS_PLATFORM_RUNNER_BIN_FILES): bin/runners/%$(EXE_EXTENSION): \
 		$(STATIC_FLAG) \
 		-include obj/common.h \
 		$(RUNNER_OBJ_FILES) \
-		obj/resources/pcode/$(patsubst bin/runners/%$(EXE_EXTENSION),%,$@).o \
+		obj/resources/pcode/pcode.o \
 		obj/vm.a \
 		obj/util.a \
 		$(LDFLAGS)
 	@$(STRIP) $@
 
-$(THIS_PLATFORM_RUNNER_BSDIFF_FILES): bin/runners/%.bsdiff: bin/runners/%$(EXE_EXTENSION) \
-		bin/runners/$(BZIPPED_RUNNER_SIZE)$(EXE_EXTENSION)
-	@printf "%16s  %s\n" "bsdiff" "$@"
-	@mkdir -p $(@D)
-	@$(BSDIFF) bin/runners/$(BZIPPED_RUNNER_SIZE)$(EXE_EXTENSION) $< $@
-
-$(THIS_PLATFORM_RUNNER_BZIP_FILES): bin/runners/%.bz2: bin/runners/%$(EXE_EXTENSION)
-	@printf "%16s  %s\n" "bzip2" "$@"
+bin/runner.gz: bin/runner
+	@printf "%16s  %s\n" "gzip" "$@"
 	@mkdir -p $(@D)
 	@rm -f $@
-	@cat $< | $(BZIP2) --keep --best > $@
+	@cat $< | gzip --keep --fast > $@
 	@[ -e "$@" ] && touch $@

@@ -12,6 +12,6 @@ class TarEntry {
     TarEntry(std::string name, std::vector<uint8_t> data, uint mode);
 };
 
-std::vector<uint8_t> createTarArchive(const std::vector<TarEntry>& entries);
+std::vector<uint8_t> tar(const std::vector<TarEntry>& entries);
 
 }  // namespace compiler

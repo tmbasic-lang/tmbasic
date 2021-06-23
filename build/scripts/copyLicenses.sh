@@ -11,8 +11,6 @@ cp -f doc/licenses/mpdecimal/LICENSE.txt obj/doc-temp/diagrams-license/license_m
 cp -f doc/licenses/nameof/LICENSE.txt obj/doc-temp/diagrams-license/license_nameof.txt
 cp -f doc/licenses/ncurses/COPYING obj/doc-temp/diagrams-license/license_ncurses.txt
 cp -f doc/licenses/tvision/COPYRIGHT obj/doc-temp/diagrams-license/license_tvision.txt
-cp -f doc/licenses/bsdiff/LICENSE obj/doc-temp/diagrams-license/license_bsdiff.txt
-cp -f doc/licenses/bzip2/COPYING obj/doc-temp/diagrams-license/license_bzip2.txt
 cp -f doc/licenses/icu/LICENSE obj/doc-temp/diagrams-license/license_icu.txt
 cp -f doc/licenses/fmt/LICENSE.rst obj/doc-temp/diagrams-license/license_fmt.txt
 cp -f doc/licenses/libclipboard/LICENSE obj/doc-temp/diagrams-license/license_libclipboard.txt

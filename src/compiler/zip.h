@@ -11,6 +11,6 @@ class ZipEntry {
     ZipEntry(std::string name, std::vector<uint8_t> data);
 };
 
-void createZipArchive(const std::string& zipFilePath, const std::vector<ZipEntry>& entries);
+void zip(const std::string& zipFilePath, const std::vector<ZipEntry>& entries);
 
 }  // namespace compiler
