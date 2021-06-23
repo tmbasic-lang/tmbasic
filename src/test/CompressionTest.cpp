@@ -42,5 +42,5 @@ TEST(CompressionTest, Zip) {
     struct stat st;
     stat(kZipFilePath.c_str(), &st);
     unlink(kZipFilePath.c_str());
-    ASSERT_EQ(183, st.st_size);
+    ASSERT_EQ(187, st.st_size);
 }
