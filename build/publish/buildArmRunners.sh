@@ -5,15 +5,13 @@ cd $PUBLISHDIR/tmbasic/build
 export DOCKER_FLAGS="--entrypoint /bin/bash"
 export TTY_FLAG=" "
 
-export MAKE_CMD="source /etc/profile.d/tmbasic.sh && make clean && OPTFLAGS='-Os' EXTRADEFS='-DNDEBUG' make runners"
+export MAKE_CMD="source /etc/profile.d/tmbasic.sh && make clean && OPTFLAGS='-Os' EXTRADEFS='-DNDEBUG' make runner"
 
 ./linux-arm64.sh -c "$MAKE_CMD"
-cp -f ../bin/runners/524288.bz2     $PUBLISHDIR/linux_arm64_524288.bz2
-cp -f ../bin/runners/5242880.bsdiff $PUBLISHDIR/linux_arm64_5242880.bsdiff
+cp -f ../bin/runner.gz $PUBLISHDIR/linux_arm64.gz
 
 ./linux-arm32.sh -c "$MAKE_CMD"
-cp -f ../bin/runners/524288.bz2     $PUBLISHDIR/linux_arm32_524288.bz2
-cp -f ../bin/runners/5242880.bsdiff $PUBLISHDIR/linux_arm32_5242880.bsdiff
+cp -f ../bin/runner.gz $PUBLISHDIR/linux_arm32.gz
 
 cd $PUBLISHDIR
-tar cf runners_arm.tar *.bz2 *.bsdiff
+tar cf runners_arm.tar *.gz

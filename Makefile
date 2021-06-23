@@ -299,7 +299,7 @@ LIBGTEST_FLAG += -lgtest -lgtest_main
 ### Phony targets #####################################################################################################
 
 .PHONY: all
-all: bin/tmbasic$(EXE_EXTENSION) bin/test$(EXE_EXTENSION) runners
+all: bin/tmbasic$(EXE_EXTENSION) bin/test$(EXE_EXTENSION) runner
 
 .PHONY: versions
 ifeq ($(TARGET_OS),linux)
@@ -385,8 +385,8 @@ ghpages: obj/resources/help/help.txt bin/ghpages/index.html
 	@mkdir -p bin/ghpages
 	@cp obj/doc-html/* bin/ghpages/
 
-.PHONY: runners
-runners: $(THIS_PLATFORM_RUNNER_GZ_FILE)
+.PHONY: runner
+runner: bin/runner.gz
 
 
 
@@ -709,11 +709,11 @@ $(RUNNER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(UTIL_H_FILES) $(VM_H_
 obj/resources/pcode/pcode.o: %:
 	@printf "%16s  %s\n" "$(CXX)" "$@"
 	@mkdir -p $(@D)
-	@head -c 5242880 /dev/zero | tr '\0' 'T' > obj/resources/pcode/5242880
-	@xxd -i obj/resources/pcode/5242880 | sed s/obj_resources_pcode_5242880/kResourcePcode/g > obj/resources/pcode/pcode.cpp
+	@head -c 2097152 /dev/zero | tr '\0' 'T' > obj/resources/pcode/pcode.dat
+	@xxd -i obj/resources/pcode/pcode.dat | sed s/obj_resources_pcode_pcode_dat/kResourcePcode/g > obj/resources/pcode/pcode.cpp
 	@$(CXX) $(CXXFLAGS) -o $@ -c obj/resources/pcode/pcode.cpp
 
-bin/runner: obj/resources/pcode/pcode.o $(RUNNER_OBJ_FILES) obj/util.a obj/vm.a
+bin/runner$(EXE_EXTENSION): obj/resources/pcode/pcode.o $(RUNNER_OBJ_FILES) obj/util.a obj/vm.a
 	@printf "%16s  %s\n" "$(CXX)" "$@"
 	@mkdir -p $(@D)
 	@$(CXX) \
@@ -728,7 +728,7 @@ bin/runner: obj/resources/pcode/pcode.o $(RUNNER_OBJ_FILES) obj/util.a obj/vm.a
 		$(LDFLAGS)
 	@$(STRIP) $@
 
-bin/runner.gz: bin/runner
+bin/runner.gz: bin/runner$(EXE_EXTENSION)
 	@printf "%16s  %s\n" "gzip" "$@"
 	@mkdir -p $(@D)
 	@rm -f $@

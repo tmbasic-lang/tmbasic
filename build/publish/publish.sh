@@ -16,13 +16,11 @@ rm -rf ../../dist
 #
 
 pushd ../  # build directory
-./mac-arm64.sh -ic "make clean && make runners"
-cp -f ../bin/runners/524288.bz2     $PUBLISHDIR/runners/mac_arm64_524288.bz2
-cp -f ../bin/runners/5242880.bsdiff $PUBLISHDIR/runners/mac_arm64_5242880.bsdiff
+./mac-arm64.sh -ic "make clean && make runner"
+cp -f ../bin/runner.gz $PUBLISHDIR/runners/mac_arm64.gz
 
-./mac-x64.sh -ic "make clean && make runners"
-cp -f ../bin/runners/524288.bz2     $PUBLISHDIR/runners/mac_x64_524288.bz2
-cp -f ../bin/runners/5242880.bsdiff $PUBLISHDIR/runners/mac_x64_5242880.bsdiff
+./mac-x64.sh -ic "make clean && make runner"
+cp -f ../bin/runner.gz $PUBLISHDIR/runners/mac_x64.gz
 popd
 
 #
@@ -80,19 +78,19 @@ mkdir -p ../../dist
 pushd ../../  # root of repository
 pushd build && ./mac-arm64.sh -c "make clean" && popd
 mkdir -p obj/resources/runners/
-cp -f $PUBLISHDIR/runners/*.bz2 $PUBLISHDIR/runners/*.bsdiff obj/resources/runners/
+cp -f $PUBLISHDIR/runners/*.gz obj/resources/runners/
 pushd build && ./mac-arm64.sh -c "make" && popd
 cd bin
-zip -9 ../dist/tmbasic-mac-arm64.zip tmbasic
+zip -1 ../dist/tmbasic-mac-arm64.zip tmbasic
 popd
 
 pushd ../../  # root of repository
 pushd build && ./mac-x64.sh -c "make clean" && popd
 mkdir -p obj/resources/runners/
-cp -f $PUBLISHDIR/runners/*.bz2 $PUBLISHDIR/runners/*.bsdiff obj/resources/runners/
+cp -f $PUBLISHDIR/runners/*.gz obj/resources/runners/
 pushd build && ./mac-x64.sh -c "make" && popd
 cd bin
-zip -9 ../dist/tmbasic-mac-x64.zip tmbasic
+zip -1 ../dist/tmbasic-mac-x64.zip tmbasic
 popd
 
 #
@@ -101,7 +99,7 @@ popd
 
 # copy the runners to the Linux machines
 pushd $PUBLISHDIR/runners
-tar cf $PUBLISHDIR/runners.tar *.bz2 *.bsdiff
+tar cf $PUBLISHDIR/runners.tar *.gz
 scp -i $ARM_KEY $PUBLISHDIR/runners.tar $ARM_USER@$ARM_HOST:$PUBLISHDIR/runners.tar
 scp -i $X64_KEY $PUBLISHDIR/runners.tar $X64_USER@$X64_HOST:$PUBLISHDIR/runners.tar
 popd

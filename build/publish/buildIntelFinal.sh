@@ -13,13 +13,13 @@ export BUILD_CMD="source /etc/profile.d/tmbasic.sh && make release"
 mkdir -p $PUBLISHDIR/tmbasic/obj/resources/runners
 pushd $PUBLISHDIR/tmbasic/obj/resources/runners && tar xf $PUBLISHDIR/runners.tar && popd
 ./win-x64.sh -c "$BUILD_CMD"
-pushd $PUBLISHDIR/tmbasic/bin && zip -9 $PUBLISHDIR/tmbasic-win-x64.zip tmbasic.exe && popd
+pushd $PUBLISHDIR/tmbasic/bin && zip -1 $PUBLISHDIR/tmbasic-win-x64.zip tmbasic.exe && popd
 
 ./win-x86.sh -c "$CLEAN_CMD"
 mkdir -p $PUBLISHDIR/tmbasic/obj/resources/runners
 pushd $PUBLISHDIR/tmbasic/obj/resources/runners && tar xf $PUBLISHDIR/runners.tar && popd
 ./win-x86.sh -c "$BUILD_CMD"
-pushd $PUBLISHDIR/tmbasic/bin && zip -9 $PUBLISHDIR/tmbasic-win-x86.zip tmbasic.exe && popd
+pushd $PUBLISHDIR/tmbasic/bin && zip -1 $PUBLISHDIR/tmbasic-win-x86.zip tmbasic.exe && popd
 
 ./linux-x64.sh -c "$CLEAN_CMD"
 mkdir -p $PUBLISHDIR/tmbasic/obj/resources/runners
