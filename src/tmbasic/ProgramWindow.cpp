@@ -431,20 +431,20 @@ static void publishPlatform(
     auto archiveFilePath = util::pathCombine(publishDir, archiveFilename);
     auto exeData = compiler::makeExeFile(pcode, platform);
     auto exeFilename = fmt::format("{}{}", programName, compiler::getPlatformExeExtension(platform));
-    const auto* licFilename = "LICENSE.txt";
+    const std::string licFilename{ "LICENSE.txt" };
     auto licString = compiler::getLicenseForPlatform(platform);
     std::vector<uint8_t> licData{};
     licData.insert(licData.end(), licString.begin(), licString.end());
     if (isZip) {
         std::vector<compiler::ZipEntry> entries{
-            compiler::ZipEntry{ exeFilename, exeData },
-            compiler::ZipEntry{ licFilename, licData },
+            compiler::ZipEntry{ std::move(exeFilename), std::move(exeData) },
+            compiler::ZipEntry{ std::move(licFilename), std::move(licData) },
         };
         compiler::zip(archiveFilePath, entries);
     } else {
         std::vector<compiler::TarEntry> entries{
-            compiler::TarEntry{ exeFilename, exeData, 0777 },
-            compiler::TarEntry{ licFilename, licData, 0664 },
+            compiler::TarEntry{ std::move(exeFilename), std::move(exeData), 0777 },
+            compiler::TarEntry{ std::move(licFilename), std::move(licData), 0664 },
         };
         auto gz = compiler::gzip(compiler::tar(entries));
         std::ofstream f{ archiveFilePath, std::ios::out | std::ios::binary };

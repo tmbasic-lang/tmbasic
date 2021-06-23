@@ -12,7 +12,7 @@ class ZStream {
     explicit ZStream(bool compress) : compress(compress) {
         // + 16 means gzip format
         if (compress) {
-            if (deflateInit2(&stream, Z_DEFAULT_COMPRESSION, Z_DEFLATED, 15 + 16, 8, Z_DEFAULT_STRATEGY) != Z_OK) {
+            if (deflateInit2(&stream, Z_BEST_SPEED, Z_DEFLATED, 15 + 16, 8, Z_DEFAULT_STRATEGY) != Z_OK) {
                 throw std::runtime_error("Failed to initialize zlib.");
             }
         } else {

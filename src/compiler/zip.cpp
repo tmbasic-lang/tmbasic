@@ -25,10 +25,12 @@ void zip(const std::string& zipFilePath, const std::vector<ZipEntry>& entries) {
             throw std::runtime_error(
                 fmt::format("Failed to create zip file. zip_source_buffer_create error: {}", zip_strerror(zip.get())));
         }
-        if (-1 == zip_file_add(zip.get(), entry.name.c_str(), zipSource, ZIP_FL_OVERWRITE | ZIP_FL_ENC_UTF_8)) {
+        auto fileIndex = zip_file_add(zip.get(), entry.name.c_str(), zipSource, ZIP_FL_OVERWRITE | ZIP_FL_ENC_UTF_8);
+        if (fileIndex == -1) {
             throw std::runtime_error(
                 fmt::format("Failed to create zip file. zip_file_add error: {}", zip_strerror(zip.get())));
         }
+        zip_set_file_compression(zip.get(), fileIndex, ZIP_CM_DEFLATE, 1 /* fastest */);
     }
 }
 
