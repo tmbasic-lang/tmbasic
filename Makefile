@@ -732,5 +732,5 @@ bin/runner.gz: bin/runner
 	@printf "%16s  %s\n" "gzip" "$@"
 	@mkdir -p $(@D)
 	@rm -f $@
-	@cat $< | gzip --keep --fast > $@
+	@cat $< | gzip -k -1 > $@
 	@[ -e "$@" ] && touch $@
