@@ -1,36 +1,42 @@
-FROM $DOCKER_ARCH/alpine:3.14
+FROM alpine:3.14
 
 RUN apk update && \
     apk upgrade && \
     apk add \
         bash \
-        build-base \
+        clang \
         curl \
-        gtest-dev \
-        linux-headers \
         make \
         pkgconfig \
         xxd \
         python3 \
         cmake \
         autoconf \
-        automake
+        automake \
+        gcc \
+        g++ \
+        musl-dev \
+        patch \
+        linux-headers
 
 # unprivileged user
 RUN (addgroup -g $HOST_GID user || true) && \
     (adduser -h /home/user -s /bin/bash -g $HOST_GID -u $HOST_UID -D user || true)
 
 # tmbasic dependencies
-COPY deps.mk /tmp/deps.mk
-RUN mkdir -p /tmp/deps && \
+COPY cmake-toolchain-linux-$ARCH.cmake /tmp/
+COPY libclipboard-CMakeLists.txt.diff /tmp/
+COPY turbo-CMakeLists.txt.diff /tmp/
+COPY deps.mk /tmp/
+RUN mkdir -p /usr/local/$TRIPLE/include && \
+    mkdir -p /tmp/deps && \
     cd /tmp/deps && \
     NATIVE_PREFIX=/usr \
-        TARGET_PREFIX=/usr \
+        TARGET_PREFIX=/usr/local/$TRIPLE \
         ARCH=$ARCH \
         LINUX_DISTRO=alpine \
+        LINUX_TRIPLE=$TRIPLE \
         TARGET_OS=linux \
-        TARGET_CC=gcc \
-        TARGET_AR=ar \
         make -j$(nproc) -f /tmp/deps.mk && \
     rm -rf /tmp/deps /tmp/deps.mk
 
@@ -41,6 +47,8 @@ RUN echo "export ARCH=\"$ARCH\"" >> /etc/profile.d/tmbasic.sh && \
     echo "export MAKEFLAGS=\"-j$(nproc)\"" >> /etc/profile.d/tmbasic.sh && \
     echo "export TARGET_OS=linux" >> /etc/profile.d/tmbasic.sh && \
     echo "export LINUX_DISTRO=alpine" >> /etc/profile.d/tmbasic.sh && \
+    echo "export LINUX_TRIPLE=$TRIPLE" >> /etc/profile.d/tmbasic.sh && \
+    echo "export PREFIX=/usr/local/$TRIPLE" >> /etc/profile.d/tmbasic.sh && \
     echo "make -f /code/Makefile help" >> /etc/profile.d/tmbasic.sh && \
     chmod +x /etc/profile.d/tmbasic.sh
 

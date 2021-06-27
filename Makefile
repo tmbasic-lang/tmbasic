@@ -25,6 +25,23 @@ endif
 endif
 endif
 
+# LINUX_TRIPLE
+ifeq ($(TARGET_OS),linux)
+ifneq ($(LINUX_TRIPLE),i586-alpine-linux-musl)
+ifneq ($(LINUX_TRIPLE),x86_64-alpine-linux-musl)
+ifneq ($(LINUX_TRIPLE),armhf-alpine-linux-musl)
+ifneq ($(LINUX_TRIPLE),aarch64-alpine-linux-musl)
+ifneq ($(LINUX_TRIPLE),x86_64-linux-gnu)
+ifneq ($(LINUX_TRIPLE),aarch64-linux-gnu)
+$(error Unknown LINUX_TRIPLE '$(LINUX_TRIPLE)')
+endif
+endif
+endif
+endif
+endif
+endif
+endif
+
 # ARCH
 ifneq ($(ARCH),i686)
 ifneq ($(ARCH),x86_64)
@@ -166,7 +183,7 @@ TVHC=tvhc
 BUILDCXX=$(CXX)
 STRIP=strip
 
-# Toolchain: We use cross-compilation to build the Windows binaries on Linux.
+# Toolchain: We use cross-compilation to build Windows and Linux binaries.
 ifeq ($(TARGET_OS),win)
 BUILDCXX=g++
 CC=$(ARCH)-w64-mingw32-gcc
@@ -175,6 +192,18 @@ AR=$(ARCH)-w64-mingw32-ar
 LD=$(ARCH)-w64-mingw32-ld
 STRIP=$(ARCH)-w64-mingw32-strip
 WINDRES=$(ARCH)-w64-mingw32-windres
+endif
+
+ifeq ($(TARGET_OS),linux)
+ifeq ($(LINUX_DISTRO),alpine)
+BUILDCXX=g++
+CC=clang --target=$(LINUX_TRIPLE) --sysroot=/target-sysroot
+CXX=clang++ --target=$(LINUX_TRIPLE) --sysroot=/target-sysroot
+LD=$(LINUX_TRIPLE)-ld
+AR=$(LINUX_TRIPLE)-ar
+RANLIB=$(LINUX_TRIPLE)-ranlib
+STRIP=$(LINUX_TRIPLE)-strip
+endif
 endif
 
 # TEST_CMD: We run our unit test executable in "make test". For the Windows target, we use Wine since we cross-compile
@@ -190,6 +219,10 @@ endif
 ### Compiler flags ####################################################################################################
 
 # Architecture and header search paths.
+ifeq ($(TARGET_OS),linux)
+CXXFLAGS += -isystem $(PREFIX)/include
+endif
+
 ifeq ($(TARGET_OS),mac)
 ifeq ($(SHORT_ARCH),x64)
 CXXFLAGS += -arch x86_64 -mmacosx-version-min=10.13
@@ -198,6 +231,7 @@ CXXFLAGS += -arch arm64 -mmacosx-version-min=11.0
 endif
 CXXFLAGS += -isystem $(PREFIX)/include
 endif
+
 ifeq ($(TARGET_OS),win)
 CXXFLAGS += \
 	-isystem /usr/$(ARCH)-w64-mingw32/include/libmpdec \
@@ -241,6 +275,13 @@ ifeq ($(TARGET_OS),win)
 STATIC_FLAG=-static
 endif
 
+# In our Ubuntu-based dev container we need to provide a search path
+ifeq ($(TARGET_OS),linux)
+ifeq ($(LINUX_DISTRO),ubuntu)
+LDFLAGS += -L/usr/local/$(LINUX_TRIPLE)/lib
+endif
+endif
+
 # On macOS we need to link against AppKit to access the clipboard. Add our deps prefix to the search path.
 ifeq ($(TARGET_OS),mac)
 LDFLAGS += -framework AppKit -L$(PREFIX)/lib
@@ -268,11 +309,7 @@ LDFLAGS += -lncursesw
 endif
 
 # Linker flag to include libmpdec and libmpdec++ (mpdecimal).
-ifeq ($(TARGET_OS),win)
-LDFLAGS += /usr/$(ARCH)-w64-mingw32/lib/libmpdec.a /usr/$(ARCH)-w64-mingw32/lib/libmpdec++.a
-else
 LDFLAGS += -lmpdec -lmpdec++
-endif
 
 # Linker flag to include ICU.
 ifeq ($(TARGET_OS),win)
@@ -435,7 +472,7 @@ $(PNG_OUT_FILES): bin/ghpages/%: doc/art/%
 # precompiled header --------------------------------------------------------------------------------------------------
 
 obj/common.h.gch: src/common.h
-	@printf "%16s  %s\n" "$(CXX)" "$@"
+	@printf "%16s  %s\n" "c++" "$@"
 	@mkdir -p $(@D)
 	@$(CXX) -o $@ $(CXXFLAGS) -x c++-header src/common.h
 
@@ -444,13 +481,13 @@ obj/common.h.gch: src/common.h
 # help ----------------------------------------------------------------------------------------------------------------
 
 obj/resources/LICENSE.o: obj/resources/LICENSE.txt
-	@printf "%16s  %s\n" "$(CXX)" "$@"
+	@printf "%16s  %s\n" "c++" "$@"
 	@xxd -i $< | sed s/obj_resources_LICENSE_txt/kLicense/g > obj/resources/LICENSE.cpp
 	@$(CXX) -o $@ $(CXXFLAGS) -c obj/resources/LICENSE.cpp
 
 obj/resources/LICENSE.txt: $(LICENSE_FILES)
 	@printf "%16s  %s\n" "cat" "$@"
-	@mkdir -p bin
+	@mkdir -p $(@D)
 	@rm -f $@
 	@echo === tmbasic license === >> $@
 	@cat LICENSE >> $@
@@ -545,12 +582,12 @@ obj/resources/help/help.txt: $(DOC_FILES) $(TOPIC_SRC_FILES) $(PROCEDURES_SRC_FI
 # compiler ------------------------------------------------------------------------------------------------------------
 
 $(COMPILER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(UTIL_H_FILES) $(VM_H_FILES) $(COMPILER_H_FILES)
-	@printf "%16s  %s\n" "$(CXX)" "$@"
+	@printf "%16s  %s\n" "c++" "$@"
 	@mkdir -p $(@D)
 	@$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
 
 obj/compiler.a: $(COMPILER_OBJ_FILES) obj/resources/LICENSE.o
-	@printf "%16s  %s\n" "$(AR)" "$@"
+	@printf "%16s  %s\n" "ar" "$@"
 	@mkdir -p $(@D)
 	@$(AR) rcs $@ $(COMPILER_OBJ_FILES) obj/resources/LICENSE.o
 
@@ -559,12 +596,12 @@ obj/compiler.a: $(COMPILER_OBJ_FILES) obj/resources/LICENSE.o
 # util ----------------------------------------------------------------------------------------------------------------
 
 $(UTIL_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(UTIL_H_FILES)
-	@printf "%16s  %s\n" "$(CXX)" "$@"
+	@printf "%16s  %s\n" "c++" "$@"
 	@mkdir -p $(@D)
 	@$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
 
 obj/util.a: $(UTIL_OBJ_FILES)
-	@printf "%16s  %s\n" "$(AR)" "$@"
+	@printf "%16s  %s\n" "ar" "$@"
 	@mkdir -p $(@D)
 	@$(AR) rcs $@ $(UTIL_OBJ_FILES)
 
@@ -573,12 +610,12 @@ obj/util.a: $(UTIL_OBJ_FILES)
 # vm ------------------------------------------------------------------------------------------------------------------
 
 $(VM_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(VM_H_FILES)
-	@printf "%16s  %s\n" "$(CXX)" "$@"
+	@printf "%16s  %s\n" "c++" "$@"
 	@mkdir -p $(@D)
 	@$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
 
 obj/vm.a: $(VM_OBJ_FILES)
-	@printf "%16s  %s\n" "$(AR)" "$@"
+	@printf "%16s  %s\n" "ar" "$@"
 	@mkdir -p $(@D)
 	@$(AR) rcs $@ $(VM_OBJ_FILES)
 
@@ -587,7 +624,7 @@ obj/vm.a: $(VM_OBJ_FILES)
 # resources -----------------------------------------------------------------------------------------------------------
 
 obj/resources/help/helpfile.o: obj/resources/help/help.h32
-	@printf "%16s  %s\n" "$(CXX)" "$@"
+	@printf "%16s  %s\n" "c++" "$@"
 	@mkdir -p $(@D)
 	@xxd -i $< | sed s/obj_resources_help_help_h32/kResourceHelp/g > obj/resources/help/kResourceHelp.cpp
 	@$(CXX) -o $@ $(CXXFLAGS) -c obj/resources/help/kResourceHelp.cpp
@@ -615,7 +652,7 @@ $(TMBASIC_OBJ_FILES): obj/%.o: src/%.cpp \
 		$(UTIL_H_FILES) \
 		$(VM_H_FILES) \
 		$(TMBASIC_H_FILES)
-	@printf "%16s  %s\n" "$(CXX)" "$@"
+	@printf "%16s  %s\n" "c++" "$@"
 	@mkdir -p $(@D)
 	@$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
 
@@ -629,7 +666,7 @@ bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
 		obj/resources/help/helpfile.o \
 		$(ALL_PLATFORM_RUNNER_OBJ_FILES) \
 		$(ICON_RES_OBJ_FILE)
-	@printf "%16s  %s\n" "$(CXX)" "$@"
+	@printf "%16s  %s\n" "c++" "$@"
 	@mkdir -p $(@D)
 	@$(CXX) \
 		-o $@ $(TMBASIC_OBJ_FILES) \
@@ -650,7 +687,7 @@ endif
 
 ifeq ($(TARGET_OS),win)
 obj/tmbasic/AppWin.res.o: src/tmbasic/AppWin.rc doc/art/favicon/favicon.ico
-	@printf "%16s  %s\n" "$(WINDRES)" "$@"
+	@printf "%16s  %s\n" "windres" "$@"
 	@mkdir -p $(@D)
 	@$(WINDRES) $< -o $@
 endif
@@ -666,7 +703,7 @@ $(TEST_OBJ_FILES): obj/%.o: src/%.cpp \
 		$(COMPILER_H_FILES) \
 		$(UTIL_H_FILES) \
 		$(VM_H_FILES)
-	@printf "%16s  %s\n" "$(CXX)" "$@"
+	@printf "%16s  %s\n" "c++" "$@"
 	@mkdir -p $(@D)
 	@$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
 
@@ -679,7 +716,7 @@ bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) \
 		obj/resources/help/help.h32 \
 		obj/resources/help/helpfile.o \
 		$(ALL_PLATFORM_RUNNER_OBJ_FILES)
-	@printf "%16s  %s\n" "$(CXX)" "$@"
+	@printf "%16s  %s\n" "c++" "$@"
 	@mkdir -p $(@D)
 	@$(CXX) \
 		-o $@ \
@@ -702,19 +739,19 @@ bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) \
 # runner (this platform) ----------------------------------------------------------------------------------------------
 
 $(RUNNER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(UTIL_H_FILES) $(VM_H_FILES) $(RUNNER_H_FILES)
-	@printf "%16s  %s\n" "$(CXX)" "$@"
+	@printf "%16s  %s\n" "c++" "$@"
 	@mkdir -p $(@D)
 	@$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
 
 obj/resources/pcode/pcode.o: %:
-	@printf "%16s  %s\n" "$(CXX)" "$@"
+	@printf "%16s  %s\n" "c++" "$@"
 	@mkdir -p $(@D)
 	@head -c 2097152 /dev/zero | tr '\0' 'T' > obj/resources/pcode/pcode.dat
 	@xxd -i obj/resources/pcode/pcode.dat | sed s/obj_resources_pcode_pcode_dat/kResourcePcode/g > obj/resources/pcode/pcode.cpp
 	@$(CXX) $(CXXFLAGS) -o $@ -c obj/resources/pcode/pcode.cpp
 
 bin/runner$(EXE_EXTENSION): obj/resources/pcode/pcode.o $(RUNNER_OBJ_FILES) obj/util.a obj/vm.a
-	@printf "%16s  %s\n" "$(CXX)" "$@"
+	@printf "%16s  %s\n" "c++" "$@"
 	@mkdir -p $(@D)
 	@$(CXX) \
 		-o $@ \

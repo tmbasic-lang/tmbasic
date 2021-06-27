@@ -67,8 +67,10 @@ RUN apt-get install -y \
 $WINE_INSTALL
 
 # tmbasic dependencies
+COPY cmake-toolchain-win-$ARCH.cmake /tmp/
+COPY libclipboard-CMakeLists.txt.diff /tmp/
+COPY turbo-CMakeLists.txt.diff /tmp/
 COPY deps.mk /tmp/deps.mk
-COPY toolchain-cross-mingw64-linux-$ARCH.cmake /tmp/
 RUN mkdir -p /tmp/deps && \
     cd /tmp/deps && \
     NATIVE_PREFIX=/usr \

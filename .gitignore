@@ -9,3 +9,4 @@
 /tvision
 /valgrind*
 debug.log
+/build/files/sysroot-*

@@ -21,7 +21,8 @@ RUN apt-get update -y && \
         valgrind \
         xxd \
         autoconf \
-        automake
+        automake \
+        dos2unix
 
 # unprivileged user
 RUN mkdir -p /code && \
@@ -37,25 +38,31 @@ RUN pip3 install cpplint
 # doctoc
 RUN npm install -g doctoc
 
-# clang-format, clang-tidy
+# clang
 RUN curl -L https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
     add-apt-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-10 main" && \
     apt-get update -y && \
-    apt-get install -y clang-format-10 clang-tidy-10 && \
-    update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-10 9999 && \
-    update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-10 9999
+    apt-get install -y clang clang-format clang-tidy
+
+# sysroot
+COPY sysroot-$ARCH.tar.gz /tmp/sysroot.tar.gz
+RUN mkdir /target-sysroot && \
+    cd /target-sysroot && \
+    tar zxf /tmp/sysroot.tar.gz
 
 # tmbasic dependencies
+COPY libclipboard-CMakeLists.txt.diff /tmp/
+COPY turbo-CMakeLists.txt.diff /tmp/
 COPY deps.mk /tmp/deps.mk
-RUN mkdir -p /tmp/deps && \
+RUN mkdir -p /usr/local/$(uname -m)-linux-gnu/include && \
+    mkdir -p /tmp/deps && \
     cd /tmp/deps && \
     NATIVE_PREFIX=/usr \
-        TARGET_PREFIX=/usr \
+        TARGET_PREFIX=/usr/local/$(uname -m)-linux-gnu \
         ARCH=$ARCH \
         LINUX_DISTRO=ubuntu \
+        LINUX_TRIPLE=$(uname -m)-linux-gnu \
         TARGET_OS=linux \
-        TARGET_CC=gcc \
-        TARGET_AR=ar \
         make -j$(nproc) -f /tmp/deps.mk && \
     rm -rf /tmp/deps /tmp/deps.mk
 
@@ -67,6 +74,9 @@ RUN echo "export ARCH=\"$ARCH\"" >> /etc/profile.d/tmbasic.sh && \
     echo "export MAKEFLAGS=\"-j$(nproc)\"" >> /etc/profile.d/tmbasic.sh && \
     echo "export TARGET_OS=linux" >> /etc/profile.d/tmbasic.sh && \
     echo "export LINUX_DISTRO=ubuntu" >> /etc/profile.d/tmbasic.sh && \
+    echo "export LINUX_TRIPLE=$(uname -m)-linux-gnu" >> /etc/profile.d/tmbasic.sh && \
+    echo "export PREFIX=/usr/local/$(uname -m)-linux-gnu" >> /etc/profile.d/tmbasic.sh && \
+    echo "export LD_LIBRARY_PATH=/usr/lib:/usr/local/lib:/usr/local/$(uname -m)-linux-gnu/lib" >> /etc/profile.d/tmbasic.sh && \
     echo "alias dev='/home/user/devPrompt.sh'" >> /etc/profile.d/tmbasic.sh && \
     echo "export TERM=xterm-256color" >> /etc/profile.d/tmbasic.sh && \
     echo "mkdir -p /code/bin/ghpages && cd /code/bin/ghpages && >/dev/null python3 -m http.server 5000 &" >> /etc/profile.d/tmbasic.sh && \

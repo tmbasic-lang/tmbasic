@@ -1,0 +1,13 @@
+--- CMakeLists.txt.old
++++ CMakeLists.txt
+@@ -123,10 +123,3 @@
+     )
+     set_target_properties(sciplatform PROPERTIES UNITY_BUILD ON)
+ endif()
+-
+-# Target 'turbo'
+-
+-add_executable(${PROJECT_NAME} ${TURBO_MAIN})
+-target_link_libraries(${PROJECT_NAME} PRIVATE
+-    ${PROJECT_NAME}-ui
+-)
