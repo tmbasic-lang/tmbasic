@@ -2,7 +2,7 @@
 # arguments: $DOCKER_ARCH
 set -euo pipefail
 TIMESTAMP=$(date --utc "+%Y%m%d%H%M%S")
-FILENAME=sysroot-$DOCKER_ARCH-$TIMESTAMP.tar.gz
+FILENAME=sysroot-$(echo $DOCKER_ARCH | sed s:/::g)-$TIMESTAMP.tar.gz
 
 echo "--------------------------------------------------------------------------------"
 echo "Generating sysroot for $DOCKER_ARCH..."
