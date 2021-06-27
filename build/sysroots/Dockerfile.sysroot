@@ -1,2 +1,2 @@
 FROM alpine:3.14
-RUN apk update && apk upgrade && apk add clang linux-headers
+RUN apk update && apk upgrade && apk add clang linux-headers g++ musl-dev
