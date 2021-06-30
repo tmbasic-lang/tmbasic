@@ -10,3 +10,4 @@
 /valgrind*
 debug.log
 /build/files/sysroot-*
+/build/sysroots/sysroot-*
