@@ -11,3 +11,5 @@
 debug.log
 /build/files/sysroot-*
 /build/sysroots/sysroot-*
+/build/terminfo/terminfo-*
+/build/terminfo/temp
