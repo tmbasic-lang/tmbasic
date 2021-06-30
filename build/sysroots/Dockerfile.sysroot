@@ -1,3 +1,55 @@
 FROM $IMAGE_ARCH/alpine:3.14
 RUN apk update && apk upgrade && apk add clang linux-headers g++ musl-dev
+
+# We build ncurses here because I can't get it to work properly when cross-compiling. I can cross-compile ncurses
+# with clang just fine, but the resulting libncursesw will only display blank-and-white OR true-color, with no 16-
+# or 256-color modes. I confirmed that the terminfo entries are present and it is using them. I am certain this can be
+# fixed, but until I figure that out, building ncurses on the target platform rather than cross-compiling fixes the
+# issue.
+
+# https://invisible-mirror.net/ncurses/announce.html
+RUN apk add make curl && \
+    cd /tmp && \
+    curl -L https://invisible-mirror.net/archives/ncurses/ncurses-6.2.tar.gz | tar zx && \
+    cd ncurses-*/ && \
+    mkdir build1 && \
+    cd build1 && \
+    CC=clang ../configure \
+		--without-ada \
+		--without-tests \
+		--disable-rpath-hack \
+		--disable-stripping \
+		--without-cxx-binding \
+		--enable-pc-files \
+		--with-static \
+		--enable-widec \
+		--without-debug \
+        && \
+    make -j$(nproc) && \
+    make install && \
+    cd .. && \
+    mkdir build2 && \
+    cd build2 && \
+    CC=clang ../configure \
+		--with-fallbacks=ansi,cons25,cons25-debian,dumb,linux,rxvt,screen,screen-256color,screen-256color-bce,screen-bce,screen-s,screen-w,screen.xterm-256color,tmux,tmux-256color,vt100,vt102,vt220,vt52,xterm,xterm-256color,xterm-color,xterm-mono,xterm-r5,xterm-r6,xterm-vt220,xterm-xfree86 \
+		--without-ada \
+		--without-tests \
+		--disable-rpath-hack \
+		--disable-stripping \
+		--without-cxx-binding \
+		--enable-pc-files \
+		--with-static \
+		--enable-widec \
+		--without-debug \
+        && \
+    make -j$(nproc) && \
+    make install && \
+    rm -rf /tmp/ncurses-* && \
+    apk del make curl
+
+# /usr/share/terminfo contains files that only differ by capitalization, which is a problem on macOS's case insensitive
+# filesystem. we don't need this terminfo database anyway so just delete the whole thing.
+RUN rm -rf /usr/share/terminfo
+
+# we also don't need any binaries for this target
 RUN rm -rf /usr/bin/* && rm -rf /usr/local/bin/* && rm -rf /bin/*

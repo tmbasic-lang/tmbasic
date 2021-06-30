@@ -12,7 +12,7 @@ docker create --platform "$BUILDX_ARCH" --name sysroot sysroot
 docker export sysroot > sysroot-temp.tar
 docker container rm sysroot
 docker image rm sysroot
-gzip -9 sysroot-temp.tar
+gzip -1 sysroot-temp.tar
 mv sysroot-temp.tar.gz $FILENAME
 aws s3 cp $FILENAME s3://tmbasic/linux-sysroots/$FILENAME --acl public-read
 rm $FILENAME
