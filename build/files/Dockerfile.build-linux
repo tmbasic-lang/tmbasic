@@ -23,6 +23,12 @@ RUN apk update && \
 RUN (addgroup -g $HOST_GID user || true) && \
     (adduser -h /home/user -s /bin/bash -g $HOST_GID -u $HOST_UID -D user || true)
 
+# sysroot
+COPY sysroot-$ARCH.tar.gz /tmp/sysroot.tar.gz
+RUN mkdir /target-sysroot && \
+    cd /target-sysroot && \
+    tar zxf /tmp/sysroot.tar.gz
+
 # tmbasic dependencies
 COPY cmake-toolchain-linux-$ARCH.cmake /tmp/
 COPY libclipboard-CMakeLists.txt.diff /tmp/
