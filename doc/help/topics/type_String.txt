@@ -18,7 +18,7 @@ Print "hello world!"
 TMBASIC supports {Unicode:https://en.wikipedia.org/wiki/Unicode}, a standard for representing world writing systems on computers.
 Strings are stored in memory using the {UTF-16:https://en.wikipedia.org/wiki/UTF-16} encoding.
 This means that each distinct element in a string is a 16-bit "code unit."
-Either one or two 16-bit code unit units form a Unicode {"code point.":https://en.wikipedia.org/wiki/Code_point}
+Either one or two 16-bit code units form a Unicode {"code point.":https://en.wikipedia.org/wiki/Code_point}
 Unicode assigns a code point number to every character, accent, and symbol.
 In plain English text, a single letter or digit is one Unicode code point and is encoded in a single 16-bit code unit.
 
