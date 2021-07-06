@@ -118,7 +118,8 @@ class AppPrivate {
 
         auto& programWindowStatusDef = *new TStatusDef(hcide_programWindow, hcide_programWindow) +
             *new TStatusItem("~F1~ New item", kbF1, kCmdProgramAddItem) +
-            *new TStatusItem("~F2~ Import from .BAS", kbF2, kCmdProgramImportItem);
+            *new TStatusItem("~F2~ Import from .BAS", kbF2, kCmdProgramImportItem) +
+            *new TStatusItem("~Ctrl+D~ Delete item", kbCtrlD, cmClear);
         programWindowStatusDef.next = &designerWindowStatusDef;
 
         ViewPtr<TStatusItem> fg{ "~F1~ FG", kbF1, kCmdPictureFg };
