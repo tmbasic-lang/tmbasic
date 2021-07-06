@@ -6,7 +6,7 @@ export HOST_UID=$(id -u "$USER")
 export HOST_GID=$(id -g "$USER")
 export DOCKER_ARCH="arm32v7"
 export ARCH="arm32v7"
-export TRIPLE="armhf-alpine-linux-musl"
+export TRIPLE="armv7-alpine-linux-musleabihf"
 
 if [ ! -f "files/sysroot-$ARCH.tar.gz" ]; then
     aws s3 cp s3://tmbasic/linux-sysroots/sysroot-arm32v7-20210706081140.tar.gz files/sysroot-$ARCH.tar.gz --request-payer

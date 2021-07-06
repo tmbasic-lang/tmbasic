@@ -29,7 +29,7 @@ endif
 ifeq ($(TARGET_OS),linux)
 ifneq ($(LINUX_TRIPLE),i586-alpine-linux-musl)
 ifneq ($(LINUX_TRIPLE),x86_64-alpine-linux-musl)
-ifneq ($(LINUX_TRIPLE),armhf-alpine-linux-musl)
+ifneq ($(LINUX_TRIPLE),armv7-alpine-linux-musleabihf)
 ifneq ($(LINUX_TRIPLE),aarch64-alpine-linux-musl)
 ifneq ($(LINUX_TRIPLE),x86_64-linux-gnu)
 ifneq ($(LINUX_TRIPLE),aarch64-linux-gnu)

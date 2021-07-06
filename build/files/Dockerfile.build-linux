@@ -37,13 +37,13 @@ COPY deps.mk /tmp/
 RUN mkdir -p /usr/local/$TRIPLE/include && \
     mkdir -p /tmp/deps && \
     cd /tmp/deps && \
-    NATIVE_PREFIX=/usr \
-        TARGET_PREFIX=/usr/local/$TRIPLE \
-        ARCH=$ARCH \
-        LINUX_DISTRO=alpine \
-        LINUX_TRIPLE=$TRIPLE \
-        TARGET_OS=linux \
-        make -j$(nproc) -f /tmp/deps.mk && \
+    export NATIVE_PREFIX=/usr && \
+    export TARGET_PREFIX=/usr/local/$TRIPLE && \
+    export ARCH=$ARCH && \
+    export LINUX_DISTRO=alpine && \
+    export LINUX_TRIPLE=$TRIPLE && \
+    export TARGET_OS=linux && \
+    make -j$(nproc) -f /tmp/deps.mk && \
     rm -rf /tmp/deps /tmp/deps.mk
 
 # environment
