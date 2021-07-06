@@ -32,3 +32,15 @@ mkdir -p $PUBLISHDIR/tmbasic/obj/resources/runners
 pushd $PUBLISHDIR/tmbasic/obj/resources/runners && tar xf $PUBLISHDIR/runners.tar && popd
 ./linux-x86.sh -c "$BUILD_CMD"
 pushd $PUBLISHDIR/tmbasic/bin && tar zcf $PUBLISHDIR/tmbasic-linux-x86.tar.gz tmbasic && popd
+
+./linux-arm64.sh -c "$CLEAN_CMD"
+mkdir -p $PUBLISHDIR/tmbasic/obj/resources/runners
+pushd $PUBLISHDIR/tmbasic/obj/resources/runners && tar xf $PUBLISHDIR/runners.tar && popd
+./linux-arm64.sh -c "$BUILD_CMD"
+pushd $PUBLISHDIR/tmbasic/bin && tar zcf $PUBLISHDIR/tmbasic-linux-arm64.tar.gz tmbasic && popd
+
+./linux-arm32.sh -c "$CLEAN_CMD"
+mkdir -p $PUBLISHDIR/tmbasic/obj/resources/runners
+pushd $PUBLISHDIR/tmbasic/obj/resources/runners && tar xf $PUBLISHDIR/runners.tar && popd
+./linux-arm32.sh -c "$BUILD_CMD"
+pushd $PUBLISHDIR/tmbasic/bin && tar zcf $PUBLISHDIR/tmbasic-linux-arm32.tar.gz tmbasic && popd
