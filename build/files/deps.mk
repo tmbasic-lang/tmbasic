@@ -21,6 +21,7 @@ GOOGLETEST_VERSION=1.11.0
 GOOGLETEST_DIR=$(PWD)/googletest-release-$(GOOGLETEST_VERSION)
 
 # https://github.com/unicode-org/icu/releases
+# note: also in Dockerfile.sysroot
 ICU_VERSION=69.1
 ICU_DIR=$(PWD)/icu
 
