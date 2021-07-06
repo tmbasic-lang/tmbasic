@@ -623,6 +623,11 @@ App::App(int /*argc*/, char** /*argv*/)
     ts.enableCmd(kCmdPictureOptions);
     ts.enableCmd(kCmdPicturePasteOk);
     ts.enableCmd(kCmdPicturePasteCancel);
+    ts.enableCmd(kCmdProgramAddItem);
+    ts.enableCmd(kCmdProgramImportItem);
+    ts.enableCmd(kCmdProgramRun);
+    ts.enableCmd(kCmdProgramCheckForErrors);
+    ts.enableCmd(kCmdProgramPublish);
     disableCommands(ts);
 
     _private->app = this;

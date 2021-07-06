@@ -170,6 +170,11 @@ ProgramWindow::ProgramWindow(
     TCommandSet ts;
     ts.enableCmd(cmSave);
     ts.enableCmd(cmSaveAs);
+    ts.enableCmd(kCmdProgramAddItem);
+    ts.enableCmd(kCmdProgramImportItem);
+    ts.enableCmd(kCmdProgramRun);
+    ts.enableCmd(kCmdProgramCheckForErrors);
+    ts.enableCmd(kCmdProgramPublish);
     enableCommands(ts);
 
     ViewPtr<util::ScrollBar> vScrollBar{ TRect{ size.x - 1, 1, size.x, size.y - 1 } };
@@ -369,6 +374,11 @@ void ProgramWindow::close() {
         TCommandSet ts;
         ts.enableCmd(cmSave);
         ts.enableCmd(cmSaveAs);
+        ts.enableCmd(kCmdProgramAddItem);
+        ts.enableCmd(kCmdProgramImportItem);
+        ts.enableCmd(kCmdProgramRun);
+        ts.enableCmd(kCmdProgramCheckForErrors);
+        ts.enableCmd(kCmdProgramPublish);
         disableCommands(ts);
 
         TWindow::close();
