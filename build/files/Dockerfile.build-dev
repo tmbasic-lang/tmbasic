@@ -7,8 +7,6 @@ RUN apt-get update -y && \
         curl \
         git \
         language-pack-en \
-        libncursesw5 \
-        libncursesw5-dev \
         make \
         nodejs \
         npm \
