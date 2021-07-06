@@ -2,11 +2,10 @@
 set -euxo pipefail
 export PUBLISHDIR=/tmp/tmbasic-publish
 
-# we will use $PUBLISHDIR on all three machines as a working area
+# we will use $PUBLISHDIR on both machines as a working area
 rm -rf $PUBLISHDIR
 mkdir -p $PUBLISHDIR/runners/
-ssh -i $ARM_KEY $ARM_USER@$ARM_HOST "rm -rf $PUBLISHDIR && mkdir -p $PUBLISHDIR"
-ssh -i $X64_KEY $X64_USER@$X64_HOST "rm -rf $PUBLISHDIR && mkdir -p $PUBLISHDIR"
+ssh -i $BUILD_KEY $BUILD_USER@$BUILD_HOST "rm -rf $PUBLISHDIR && mkdir -p $PUBLISHDIR"
 
 # output will go into the dist folder
 rm -rf ../../dist
@@ -43,30 +42,19 @@ popd
 
 # copy and extract the tarball on the Linux machines
 export REMOTE_TAR=$PUBLISHDIR/tmbasic-remote.tar.gz
-ssh -i $ARM_KEY $ARM_USER@$ARM_HOST "rm -f $REMOTE_TAR"
-scp -i $ARM_KEY $LOCAL_TAR $ARM_USER@$ARM_HOST:$REMOTE_TAR
-ssh -i $ARM_KEY $ARM_USER@$ARM_HOST "rm -rf $PUBLISHDIR/tmbasic && mkdir -p $PUBLISHDIR/tmbasic && cd $PUBLISHDIR/tmbasic/ && tar zxf $REMOTE_TAR"
-
-ssh -i $X64_KEY $X64_USER@$X64_HOST "rm -f $REMOTE_TAR"
-scp -i $X64_KEY $LOCAL_TAR $X64_USER@$X64_HOST:$REMOTE_TAR
-ssh -i $X64_KEY $X64_USER@$X64_HOST "rm -rf $PUBLISHDIR/tmbasic && mkdir -p $PUBLISHDIR/tmbasic && cd $PUBLISHDIR/tmbasic/ && tar zxf $REMOTE_TAR"
+ssh -i $BUILD_KEY $BUILD_USER@$BUILD_HOST "rm -f $REMOTE_TAR"
+scp -i $BUILD_KEY $LOCAL_TAR $BUILD_USER@$BUILD_HOST:$REMOTE_TAR
+ssh -i $BUILD_KEY $BUILD_USER@$BUILD_HOST "rm -rf $PUBLISHDIR/tmbasic && mkdir -p $PUBLISHDIR/tmbasic && cd $PUBLISHDIR/tmbasic/ && tar zxf $REMOTE_TAR"
 
 # build the runner executables
-scp -i $ARM_KEY buildArmRunners.sh $ARM_USER@$ARM_HOST:$PUBLISHDIR/buildArmRunners.sh
-ssh -i $ARM_KEY $ARM_USER@$ARM_HOST "bash $PUBLISHDIR/buildArmRunners.sh"
+scp -i $BUILD_KEY buildRunners.sh $BUILD_USER@$BUILD_HOST:$PUBLISHDIR/buildRunners.sh
+ssh -i $BUILD_KEY $BUILD_USER@$BUILD_HOST "bash $PUBLISHDIR/buildRunners.sh"
 
-scp -i $X64_KEY buildIntelRunners.sh $X64_USER@$X64_HOST:$PUBLISHDIR/buildIntelRunners.sh
-ssh -i $X64_KEY $X64_USER@$X64_HOST "bash $PUBLISHDIR/buildIntelRunners.sh"
-
-# copy the runners from the Linux machines
+# copy the runners from the Linux machine
 pushd $PUBLISHDIR/runners
-scp -i $ARM_KEY $ARM_USER@$ARM_HOST:$PUBLISHDIR/runners_arm.tar runners_arm.tar
-tar xf runners_arm.tar
-rm -f runners_arm.tar
-
-scp -i $X64_KEY $X64_USER@$X64_HOST:$PUBLISHDIR/runners_intel.tar runners_intel.tar
-tar xf runners_intel.tar
-rm -f runners_intel.tar
+scp -i $BUILD_KEY $BUILD_USER@$BUILD_HOST:$PUBLISHDIR/runners.tar runners.tar
+tar xf runners.tar
+rm -f runners.tar
 popd
 
 #
@@ -97,28 +85,24 @@ popd
 # Linux and Windows final builds
 #
 
-# copy the runners to the Linux machines
+# copy the runners to the Linux machine
 pushd $PUBLISHDIR/runners
 tar cf $PUBLISHDIR/runners.tar *.gz
-scp -i $ARM_KEY $PUBLISHDIR/runners.tar $ARM_USER@$ARM_HOST:$PUBLISHDIR/runners.tar
-scp -i $X64_KEY $PUBLISHDIR/runners.tar $X64_USER@$X64_HOST:$PUBLISHDIR/runners.tar
+scp -i $BUILD_KEY $PUBLISHDIR/runners.tar $BUILD_USER@$BUILD_HOST:$PUBLISHDIR/runners.tar
 popd
 
 # build tmbasic
-scp -i $ARM_KEY buildArmFinal.sh $ARM_USER@$ARM_HOST:$PUBLISHDIR/buildArmFinal.sh
-ssh -i $ARM_KEY $ARM_USER@$ARM_HOST "bash $PUBLISHDIR/buildArmFinal.sh"
+scp -i $BUILD_KEY buildFinal.sh $BUILD_USER@$BUILD_HOST:$PUBLISHDIR/buildFinal.sh
+ssh -i $BUILD_KEY $BUILD_USER@$BUILD_HOST "bash $PUBLISHDIR/buildFinal.sh"
 
-scp -i $X64_KEY buildIntelFinal.sh $X64_USER@$X64_HOST:$PUBLISHDIR/buildIntelFinal.sh
-ssh -i $X64_KEY $X64_USER@$X64_HOST "bash $PUBLISHDIR/buildIntelFinal.sh"
-
-# copy the builds back from the Linux machines
+# copy the builds back from the Linux machine
 pushd ../../  # root of repository
-scp -i $ARM_KEY $ARM_USER@$ARM_HOST:$PUBLISHDIR/tmbasic-linux-arm64.tar.gz dist/tmbasic-linux-arm64.tar.gz
-scp -i $ARM_KEY $ARM_USER@$ARM_HOST:$PUBLISHDIR/tmbasic-linux-arm32.tar.gz dist/tmbasic-linux-arm32.tar.gz
-scp -i $X64_KEY $X64_USER@$X64_HOST:$PUBLISHDIR/tmbasic-linux-x64.tar.gz dist/tmbasic-linux-x64.tar.gz
-scp -i $X64_KEY $X64_USER@$X64_HOST:$PUBLISHDIR/tmbasic-linux-x86.tar.gz dist/tmbasic-linux-x86.tar.gz
-scp -i $X64_KEY $X64_USER@$X64_HOST:$PUBLISHDIR/tmbasic-win-x64.zip dist/tmbasic-win-x64.zip
-scp -i $X64_KEY $X64_USER@$X64_HOST:$PUBLISHDIR/tmbasic-win-x86.zip dist/tmbasic-win-x86.zip
+scp -i $BUILD_KEY $BUILD_USER@$BUILD_HOST:$PUBLISHDIR/tmbasic-linux-arm64.tar.gz dist/tmbasic-linux-arm64.tar.gz
+scp -i $BUILD_KEY $BUILD_USER@$BUILD_HOST:$PUBLISHDIR/tmbasic-linux-arm32.tar.gz dist/tmbasic-linux-arm32.tar.gz
+scp -i $BUILD_KEY $BUILD_USER@$BUILD_HOST:$PUBLISHDIR/tmbasic-linux-x64.tar.gz dist/tmbasic-linux-x64.tar.gz
+scp -i $BUILD_KEY $BUILD_USER@$BUILD_HOST:$PUBLISHDIR/tmbasic-linux-x86.tar.gz dist/tmbasic-linux-x86.tar.gz
+scp -i $BUILD_KEY $BUILD_USER@$BUILD_HOST:$PUBLISHDIR/tmbasic-win-x64.zip dist/tmbasic-win-x64.zip
+scp -i $BUILD_KEY $BUILD_USER@$BUILD_HOST:$PUBLISHDIR/tmbasic-win-x86.zip dist/tmbasic-win-x86.zip
 popd
 
 #
@@ -126,8 +110,7 @@ popd
 #
 
 rm -rf $PUBLISHDIR
-ssh -i $ARM_KEY $ARM_USER@$ARM_HOST "rm -rf $PUBLISHDIR"
-ssh -i $X64_KEY $X64_USER@$X64_HOST "rm -rf $PUBLISHDIR"
+ssh -i $BUILD_KEY $BUILD_USER@$BUILD_HOST "rm -rf $PUBLISHDIR"
 
 set +x
 echo
