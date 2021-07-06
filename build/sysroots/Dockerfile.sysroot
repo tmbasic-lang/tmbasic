@@ -5,6 +5,7 @@ RUN apk update && apk upgrade && apk add clang linux-headers g++ musl-dev
 # loaded. That seems fixable but until then, doing it here will work.
 
 # https://github.com/unicode-org/icu/releases
+RUN apk add curl make
 RUN cd /tmp && \
 	curl -L https://github.com/unicode-org/icu/releases/download/release-69-1/icu4c-69_1-src.tgz | tar zx && \
 	curl -L -o icu/source/config.guess 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD' && \
