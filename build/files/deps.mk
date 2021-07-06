@@ -307,8 +307,18 @@ ICU_PROFILE=Linux/gcc
 ICU_CONFIGURE_FLAGS=
 endif
 
-$(ICU_DIR)/install-native: $(ICU_DIR)/download
+ICU_BUILD_NATIVE=0
+ifeq ($(TARGET_OS),linux)
+ifeq ($(LINUX_DISTRO),ubuntu)
+ICU_BUILD_NATIVE=1
+endif
+endif
 ifneq ($(TARGET_OS),linux)
+ICU_BUILD_NATIVE=1
+endif
+
+$(ICU_DIR)/install-native: $(ICU_DIR)/download
+ifeq ($(ICU_BUILD_NATIVE),1)
 	cd $(ICU_DIR)/source && \
 		mkdir -p build-native && \
 		cd build-native && \
@@ -321,7 +331,7 @@ ifeq ($(TARGET_OS),mac)
 	cd $(ICU_DIR)/source && \
 		cp -f config/mh-darwin config/mh-unknown
 endif
-ifneq ($(TARGET_OS),linux)
+ifeq ($(ICU_BUILD_NATIVE),1)
 	cd $(ICU_DIR)/source/build-native && \
 		$(MAKE) && \
 		$(MAKE) install
