@@ -12,6 +12,8 @@ if [ ! -f "files/sysroot-$ARCH.tar.gz" ]; then
     aws s3 cp s3://tmbasic/linux-sysroots/sysroot-i386-20210706081203.tar.gz files/sysroot-$ARCH.tar.gz --request-payer
 fi
 
+files/depsDownload.sh
+
 if [ "$(docker image ls $IMAGE_NAME | wc -l)" == "1" ]; then
     cat files/Dockerfile.build-linux | sed "s/\$IMAGE_NAME/$IMAGE_NAME/g; s/\$HOST_UID/$HOST_UID/g; s/\$HOST_GID/$HOST_GID/g; s/\$DOCKER_ARCH/$DOCKER_ARCH/g; s/\$ARCH/$ARCH/g; s/\$USER/$USER/g; s/\$TRIPLE/$TRIPLE/g" | docker buildx build -t $IMAGE_NAME files -f-
 fi

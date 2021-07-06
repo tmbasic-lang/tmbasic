@@ -1,9 +1,11 @@
 #!/bin/bash
-set -euo pipefail
-
 # arguments: $ARCH
 # $ARCH: x86_64 or arm64v8
 # run from the build directory.
+set -euo pipefail
+
+files/depsDownload.sh
+export DOWNLOAD_DIR=$PWD/downloads
 
 if [ "$ARCH" == "x86_64" ]; then
     export SHORT_ARCH=x64
@@ -27,8 +29,12 @@ export PREFIX="$PWD"
 export PATH=$PREFIX/bin:$PATH
 
 cd tmp
-TARGET_OS=mac TARGET_CC=clang TARGET_AR=ar NATIVE_PREFIX="$PREFIX" TARGET_PREFIX="$PREFIX" \
-    gnumake -j8 -f ../../build/files/deps.mk
+export TARGET_OS=mac
+export TARGET_CC=clang
+export TARGET_AR=ar
+export NATIVE_PREFIX="$PREFIX"
+export TARGET_PREFIX="$PREFIX"
+gnumake -j8 -f ../../build/files/deps.mk
 cd ..
 rm -rf $PREFIX/lib/*.dylib
 

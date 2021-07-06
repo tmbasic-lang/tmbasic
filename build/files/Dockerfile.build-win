@@ -71,15 +71,19 @@ COPY cmake-toolchain-win-$ARCH.cmake /tmp/
 COPY libclipboard-CMakeLists.txt.diff /tmp/
 COPY turbo-CMakeLists.txt.diff /tmp/
 COPY deps.mk /tmp/deps.mk
-RUN mkdir -p /tmp/deps && \
+COPY deps.tar /tmp/
+RUN mkdir -p /tmp/downloads && \
+    tar xf /tmp/deps.tar -C /tmp/downloads && \
+    mkdir -p /tmp/deps && \
     cd /tmp/deps && \
-    NATIVE_PREFIX=/usr \
-        TARGET_PREFIX=/usr/$ARCH-w64-mingw32 \
-        ARCH=$ARCH \
-        TARGET_OS=win \
-        TARGET_CC=$ARCH-w64-mingw32-gcc \
-        TARGET_AR=$ARCH-w64-mingw32-ar \
-        make -j$(nproc) -f /tmp/deps.mk && \
+    export NATIVE_PREFIX=/usr \
+    export TARGET_PREFIX=/usr/$ARCH-w64-mingw32 \
+    export ARCH=$ARCH \
+    export TARGET_OS=win \
+    export TARGET_CC=$ARCH-w64-mingw32-gcc \
+    export TARGET_AR=$ARCH-w64-mingw32-ar \
+    export DOWNLOAD_DIR=/tmp/downloads && \
+    make -j$(nproc) -f /tmp/deps.mk && \
     rm -rf /tmp/deps /tmp/deps.mk
 
 # environment

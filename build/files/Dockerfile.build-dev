@@ -46,16 +46,20 @@ RUN curl -L https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
 COPY libclipboard-CMakeLists.txt.diff /tmp/
 COPY turbo-CMakeLists.txt.diff /tmp/
 COPY deps.mk /tmp/deps.mk
-RUN mkdir -p /usr/local/$(uname -m)-linux-gnu/include && \
+COPY deps.tar /tmp/
+RUN mkdir -p /tmp/downloads && \
+    tar xf /tmp/deps.tar -C /tmp/downloads && \
+    mkdir -p /usr/local/$(uname -m)-linux-gnu/include && \
     mkdir -p /tmp/deps && \
     cd /tmp/deps && \
-    NATIVE_PREFIX=/usr \
-        TARGET_PREFIX=/usr/local/$(uname -m)-linux-gnu \
-        ARCH=$ARCH \
-        LINUX_DISTRO=ubuntu \
-        LINUX_TRIPLE=$(uname -m)-linux-gnu \
-        TARGET_OS=linux \
-        make -j$(nproc) -f /tmp/deps.mk && \
+    export NATIVE_PREFIX=/usr && \
+    export TARGET_PREFIX=/usr/local/$(uname -m)-linux-gnu \
+    export ARCH=$ARCH \
+    export LINUX_DISTRO=ubuntu \
+    export LINUX_TRIPLE=$(uname -m)-linux-gnu \
+    export TARGET_OS=linux \
+    export DOWNLOAD_DIR=/tmp/downloads && \
+    make -j$(nproc) -f /tmp/deps.mk && \
     rm -rf /tmp/deps /tmp/deps.mk
 
 # environment

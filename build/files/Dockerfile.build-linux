@@ -34,7 +34,10 @@ COPY cmake-toolchain-linux-$ARCH.cmake /tmp/
 COPY libclipboard-CMakeLists.txt.diff /tmp/
 COPY turbo-CMakeLists.txt.diff /tmp/
 COPY deps.mk /tmp/
-RUN mkdir -p /usr/local/$TRIPLE/include && \
+COPY deps.tar /tmp/
+RUN mkdir -p /tmp/downloads && \
+    tar xf /tmp/deps.tar -C /tmp/downloads && \
+    mkdir -p /usr/local/$TRIPLE/include && \
     mkdir -p /tmp/deps && \
     cd /tmp/deps && \
     export NATIVE_PREFIX=/usr && \
@@ -43,6 +46,7 @@ RUN mkdir -p /usr/local/$TRIPLE/include && \
     export LINUX_DISTRO=alpine && \
     export LINUX_TRIPLE=$TRIPLE && \
     export TARGET_OS=linux && \
+    export DOWNLOAD_DIR=/tmp/downloads && \
     make -j$(nproc) -f /tmp/deps.mk && \
     rm -rf /tmp/deps /tmp/deps.mk
 

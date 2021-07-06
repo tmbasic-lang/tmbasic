@@ -1,85 +1,25 @@
-# set by caller: $(ARCH) $(TARGET_OS) $(TARGET_PREFIX) $(NATIVE_PREFIX) $(TARGET_COMPILER_PREFIX)
+# set by caller: $(ARCH) $(TARGET_OS) $(TARGET_PREFIX) $(NATIVE_PREFIX) $(TARGET_COMPILER_PREFIX) $(DOWNLOAD_DIR)
 # $NATIVE_PREFIX/bin should be in the $PATH
 
-# https://ftp.gnu.org/gnu/binutils
-BINUTILS_VERSION=2.36.1
-BINUTILS_DIR=$(PWD)/binutils-$(BINUTILS_VERSION)
-
-# https://boostorg.jfrog.io/artifactory/main/release/
-BOOST_VERSION=1.76.0
-BOOST_DIR=$(PWD)/boost_$(shell echo $(BOOST_VERSION) | tr '.' '_')
-
-# https://github.com/Kitware/CMake/releases
-CMAKE_VERSION=3.20.4
-
-# https://github.com/fmtlib/fmt/releases
-FMT_VERSION=7.1.3
-FMT_DIR=$(PWD)/fmt-$(FMT_VERSION)
-
-# https://github.com/google/googletest/releases
-GOOGLETEST_VERSION=1.11.0
-GOOGLETEST_DIR=$(PWD)/googletest-release-$(GOOGLETEST_VERSION)
-
-# https://github.com/unicode-org/icu/releases
-# note: also in Dockerfile.sysroot
-ICU_VERSION=69.1
+BINUTILS_DIR=$(PWD)/binutils
+BOOST_DIR=$(PWD)/boost
+FMT_DIR=$(PWD)/fmt
+GOOGLETEST_DIR=$(PWD)/googletest
 ICU_DIR=$(PWD)/icu
-
-# https://github.com/arximboldi/immer
-IMMER_VERSION=a11df7243cb516a1aeffc83c31366d7259c79e82
-IMMER_DIR=$(PWD)/immer-$(IMMER_VERSION)
-
-# https://github.com/jtanx/libclipboard/releases
-LIBCLIPBOARD_VERSION=1.1
-LIBCLIPBOARD_DIR=$(PWD)/libclipboard-$(LIBCLIPBOARD_VERSION)
-
-# https://xorg.freedesktop.org/archive/individual/lib
-LIBXAU_VERSION=1.0.9
-LIBXAU_DIR=$(PWD)/libXau-$(LIBXAU_VERSION)
-
-# https://xorg.freedesktop.org/archive/individual/lib
-LIBXCB_VERSION=1.14
-LIBXCB_DIR=$(PWD)/libxcb-$(LIBXCB_VERSION)
-
-# https://github.com/nih-at/libzip/releases
-LIBZIP_VERSION=1.8.0
-LIBZIP_DIR=$(PWD)/libzip-$(LIBZIP_VERSION)
-
-# https://github.com/rxi/microtar
-MICROTAR_VERSION=27076e1b9290e9c7842bb7890a54fcf172406c84
-MICROTAR_DIR=$(PWD)/microtar-$(MICROTAR_VERSION)
-
-# https://www.bytereef.org/mpdecimal/
-MPDECIMAL_VERSION=2.5.1
-MPDECIMAL_DIR=$(PWD)/mpdecimal-$(MPDECIMAL_VERSION)
-
-# https://github.com/Neargye/nameof
-NAMEOF_VERSION=d69f91daa513585d37b4bc600fb6af8b6d99a073
-NAMEOF_DIR=$(PWD)/nameof-$(NAMEOF_VERSION)
-
-# https://invisible-mirror.net/ncurses/announce.html
-NCURSES_VERSION=6.2
-NCURSES_DIR=$(PWD)/ncurses-$(NCURSES_VERSION)
-
-# https://github.com/magiblot/turbo
-TURBO_VERSION=a868d2bfedb77a83e9f991154d002ec99e5a180e
-TURBO_DIR=$(PWD)/turbo-$(TURBO_VERSION)
-
-# https://github.com/magiblot/tvision
-TVISION_VERSION=46b1b705144bc0d4c6504b99302a39076147896f
-TVISION_DIR=$(PWD)/tvision-$(TVISION_VERSION)
-
-# https://gitlab.freedesktop.org/xorg/proto/xcbproto
-XCBPROTO_VERSION=496e3ce329c3cc9b32af4054c30fa0f306deb007
-XCBPROTO_DIR=$(PWD)/xcbproto-$(XCBPROTO_VERSION)
-
-# https://xorg.freedesktop.org/archive/individual/proto/
-XORGPROTO_VERSION=2021.4.99.2
-XORGPROTO_DIR=$(PWD)/xorgproto-$(XORGPROTO_VERSION)
-
-# https://zlib.net
-ZLIB_VERSION=1.2.11
-ZLIB_DIR=$(PWD)/zlib-$(ZLIB_VERSION)
+IMMER_DIR=$(PWD)/immer
+LIBCLIPBOARD_DIR=$(PWD)/libclipboard
+LIBXAU_DIR=$(PWD)/libXau
+LIBXCB_DIR=$(PWD)/libxcb
+LIBZIP_DIR=$(PWD)/libzip
+MICROTAR_DIR=$(PWD)/microtar
+MPDECIMAL_DIR=$(PWD)/mpdecimal
+NAMEOF_DIR=$(PWD)/nameof
+NCURSES_DIR=$(PWD)/ncurses
+TURBO_DIR=$(PWD)/turbo
+TVISION_DIR=$(PWD)/tvision
+XCBPROTO_DIR=$(PWD)/xcbproto
+XORGPROTO_DIR=$(PWD)/xorgproto
+ZLIB_DIR=$(PWD)/zlib
 
 ifneq ($(ARCH),i686)
 ifneq ($(ARCH),x86_64)
@@ -197,7 +137,8 @@ all: \
 # binutils ------------------------------------------------------------------------------------------------------------
 
 $(BINUTILS_DIR)/download:
-	curl -L https://ftp.gnu.org/gnu/binutils/binutils-$(BINUTILS_VERSION).tar.gz | tar zx
+	tar zxf $(DOWNLOAD_DIR)/binutils-*.tar.gz
+	mv -f binutils-*/ $(BINUTILS_DIR)/
 	touch $@
 
 $(BINUTILS_DIR)/install: $(BINUTILS_DIR)/download
@@ -215,16 +156,15 @@ endif
 
 $(CMAKE_DIR)/install:
 ifeq ($(TARGET_OS),mac)
-	curl -L https://github.com/Kitware/CMake/releases/download/v$(CMAKE_VERSION)/cmake-$(CMAKE_VERSION)-macos-universal.tar.gz | tar zx
-	ls -l $(CMAKE_DIR)/CMake.app/Contents/bin/*
+	tar zxf $(DOWNLOAD_DIR)/cmake-mac-*.tar.gz
+	mv -f cmake-*/ $(CMAKE_DIR)/
 	cp -rf $(CMAKE_DIR)/CMake.app/Contents/bin/* "$(NATIVE_PREFIX)/bin/"
 	cp -rf $(CMAKE_DIR)/CMake.app/Contents/doc/* "$(NATIVE_PREFIX)/doc/"
 	cp -rf $(CMAKE_DIR)/CMake.app/Contents/man/* "$(NATIVE_PREFIX)/man/"
 	cp -rf $(CMAKE_DIR)/CMake.app/Contents/share/* "$(NATIVE_PREFIX)/share/"
 else
 ifneq ($(LINUX_DISTRO),alpine)
-	curl -L https://github.com/Kitware/CMake/releases/download/v$(CMAKE_VERSION)/cmake-$(CMAKE_VERSION)-linux-$(shell uname -m).tar.gz \
-		| tar zx --strip-components=1 -C $(NATIVE_PREFIX)
+	tar zx --strip-components=1 -f $(DOWNLOAD_DIR)/cmake-linux-glibc-$(shell uname -m)-*.tar.gz -C $(NATIVE_PREFIX)
 endif
 	mkdir -p $(@D)
 endif
@@ -235,7 +175,8 @@ endif
 # ncurses -------------------------------------------------------------------------------------------------------------
 
 $(NCURSES_DIR)/download:
-	curl -L https://invisible-mirror.net/archives/ncurses/ncurses-$(NCURSES_VERSION).tar.gz | tar zx
+	tar zxf $(DOWNLOAD_DIR)/ncurses-*.tar.gz
+	mv -f ncurses-*/ $(NCURSES_DIR)/
 	touch $@
 
 ifeq ($(TARGET_OS),win)
@@ -330,7 +271,8 @@ endif
 # googletest ----------------------------------------------------------------------------------------------------------
 
 $(GOOGLETEST_DIR)/download:
-	curl -L https://github.com/google/googletest/archive/release-$(GOOGLETEST_VERSION).tar.gz | tar zx
+	tar zxf $(DOWNLOAD_DIR)/googletest-*.tar.gz
+	mv -f googletest-*/ $(GOOGLETEST_DIR)/
 	touch $@
 
 $(GOOGLETEST_DIR)/install: $(GOOGLETEST_DIR)/download $(CMAKE_DIR)/install $(BINUTILS_DIR)/install
@@ -352,9 +294,9 @@ $(GOOGLETEST_DIR)/install: $(GOOGLETEST_DIR)/download $(CMAKE_DIR)/install $(BIN
 # icu -----------------------------------------------------------------------------------------------------------------
 
 $(ICU_DIR)/download:
-	curl -L https://github.com/unicode-org/icu/releases/download/release-$(shell echo $(ICU_VERSION) | tr '.' '-')/icu4c-$(shell echo $(ICU_VERSION) | tr '.' '_')-src.tgz  | tar zx
-	curl -L -o $(ICU_DIR)/source/config.guess 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD'
-	curl -L -o $(ICU_DIR)/source/config.sub 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD'
+	tar zxf $(DOWNLOAD_DIR)/icu-*.tar.gz
+	cp -f $(DOWNLOAD_DIR)/config.guess $(ICU_DIR)/source/config.guess
+	cp -f $(DOWNLOAD_DIR)/config.sub $(ICU_DIR)/source/config.sub
 	touch $@
 
 ifeq ($(TARGET_OS),mac)
@@ -406,8 +348,8 @@ endif
 # fmt -----------------------------------------------------------------------------------------------------------------
 
 $(FMT_DIR)/download:
-	curl -L -o fmt.zip https://github.com/fmtlib/fmt/releases/download/$(FMT_VERSION)/fmt-$(FMT_VERSION).zip
-	unzip -q fmt.zip
+	tar zxf $(DOWNLOAD_DIR)/fmt-*.tar.gz
+	mv -f fmt-*/ $(FMT_DIR)/
 	touch $@
 
 $(FMT_DIR)/install: $(FMT_DIR)/download $(CMAKE_DIR)/install $(BINUTILS_DIR)/install
@@ -429,7 +371,8 @@ $(FMT_DIR)/install: $(FMT_DIR)/download $(CMAKE_DIR)/install $(BINUTILS_DIR)/ins
 # libclipboard --------------------------------------------------------------------------------------------------------
 
 $(LIBCLIPBOARD_DIR)/download:
-	curl -L https://github.com/jtanx/libclipboard/archive/refs/tags/v$(LIBCLIPBOARD_VERSION).tar.gz | tar zx
+	tar zxf $(DOWNLOAD_DIR)/libclipboard-*.tar.gz
+	mv -f libclipboard-*/ $(LIBCLIPBOARD_DIR)/
 	touch $@
 
 $(LIBCLIPBOARD_DIR)/install: $(LIBCLIPBOARD_DIR)/download $(CMAKE_DIR)/install $(LIBXAU_DIR)/install \
@@ -458,7 +401,8 @@ endif
 # immer ---------------------------------------------------------------------------------------------------------------
 
 $(IMMER_DIR)/download:
-	curl -L https://github.com/arximboldi/immer/archive/$(IMMER_VERSION).tar.gz | tar zx
+	tar zxf $(DOWNLOAD_DIR)/immer-*.tar.gz
+	mv -f immer-*/ $(IMMER_DIR)/
 	touch $@
 
 $(IMMER_DIR)/install: $(IMMER_DIR)/download $(CMAKE_DIR)/install $(BINUTILS_DIR)/install
@@ -481,7 +425,8 @@ $(IMMER_DIR)/install: $(IMMER_DIR)/download $(CMAKE_DIR)/install $(BINUTILS_DIR)
 # boost ---------------------------------------------------------------------------------------------------------------
 
 $(BOOST_DIR)/download:
-	curl -L https://boostorg.jfrog.io/artifactory/main/release/$(BOOST_VERSION)/source/boost_$(shell echo $(BOOST_VERSION) | tr '.' '_').tar.gz | tar zx
+	tar zxf $(DOWNLOAD_DIR)/boost-*.tar.gz
+	mv -f boost_*/ $(BOOST_DIR)/
 	touch $@
 
 $(BOOST_DIR)/install: $(BOOST_DIR)/download
@@ -499,9 +444,10 @@ endif
 # mpdecimal -----------------------------------------------------------------------------------------------------------
 
 $(MPDECIMAL_DIR)/download:
-	curl -L https://www.bytereef.org/software/mpdecimal/releases/mpdecimal-$(MPDECIMAL_VERSION).tar.gz | tar zx
-	curl -L -o $(MPDECIMAL_DIR)/config.guess 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD'
-	curl -L -o $(MPDECIMAL_DIR)/config.sub 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD'
+	tar zxf $(DOWNLOAD_DIR)/mpdecimal-*.tar.gz
+	mv -f mpdecimal-*/ $(MPDECIMAL_DIR)/
+	cp -f $(DOWNLOAD_DIR)/config.guess $(MPDECIMAL_DIR)/config.guess
+	cp -f $(DOWNLOAD_DIR)/config.sub $(MPDECIMAL_DIR)/config.sub
 	touch $@
 
 $(MPDECIMAL_DIR)/install: $(MPDECIMAL_DIR)/download $(BINUTILS_DIR)/install
@@ -530,7 +476,8 @@ endif
 # tvision -------------------------------------------------------------------------------------------------------------
 
 $(TVISION_DIR)/download:
-	curl -L https://github.com/magiblot/tvision/archive/$(TVISION_VERSION).tar.gz | tar zx
+	tar zxf $(DOWNLOAD_DIR)/tvision-*.tar.gz
+	mv -f tvision-*/ $(TVISION_DIR)/
 	touch $@
 
 ifeq ($(TARGET_OS),mac)
@@ -586,7 +533,8 @@ endif
 # turbo ---------------------------------------------------------------------------------------------------------------
 
 $(TURBO_DIR)/download:
-	curl -L https://github.com/magiblot/turbo/archive/$(TURBO_VERSION).tar.gz | tar zx
+	tar zxf $(DOWNLOAD_DIR)/turbo-*.tar.gz
+	mv -f turbo-*/ $(TURBO_DIR)/
 	touch $@
 
 ifeq ($(TARGET_OS),mac)
@@ -627,7 +575,8 @@ endif
 
 $(XORGPROTO_DIR)/download:
 ifeq ($(TARGET_OS),linux)
-	curl -L https://xorg.freedesktop.org/archive/individual/proto/xorgproto-${XORGPROTO_VERSION}.tar.gz | tar zx
+	tar zxf $(DOWNLOAD_DIR)/xorgproto-*.tar.gz
+	mv -f xorgproto-*/ $(XORGPROTO_DIR)/
 else
 	mkdir -p $(XORGPROTO_DIR)
 endif
@@ -649,7 +598,8 @@ endif
 
 $(LIBXAU_DIR)/download:
 ifeq ($(TARGET_OS),linux)
-	curl -L https://xorg.freedesktop.org/archive/individual/lib/libXau-${LIBXAU_VERSION}.tar.gz | tar zx
+	tar zxf $(DOWNLOAD_DIR)/libXau-*.tar.gz
+	mv -f libXau-*/ $(LIBXAU_DIR)/
 else
 	mkdir -p $(LIBXAU_DIR)
 endif
@@ -671,7 +621,8 @@ endif
 
 $(XCBPROTO_DIR)/download:
 ifeq ($(TARGET_OS),linux)
-	curl -L https://gitlab.freedesktop.org/xorg/proto/xcbproto/-/archive/${XCBPROTO_VERSION}/xcbproto-${XCBPROTO_VERSION}.tar.gz | tar zx
+	tar zxf $(DOWNLOAD_DIR)/xcbproto-*.tar.gz
+	mv -f xcbproto-*/ $(XCBPROTO_DIR)/
 else
 	mkdir -p $(XCBPROTO_DIR)
 endif
@@ -694,7 +645,8 @@ endif
 
 $(LIBXCB_DIR)/download:
 ifeq ($(TARGET_OS),linux)
-	curl -L https://xorg.freedesktop.org/archive/individual/lib/libxcb-${LIBXCB_VERSION}.tar.gz | tar zx
+	tar zxf $(DOWNLOAD_DIR)/libxcb-*.tar.gz
+	mv -f libxcb-*/ $(LIBXCB_DIR)/
 else
 	mkdir -p $(LIBXCB_DIR)
 endif
@@ -715,7 +667,8 @@ endif
 # nameof --------------------------------------------------------------------------------------------------------------
 
 $(NAMEOF_DIR)/download:
-	curl -L https://github.com/Neargye/nameof/archive/$(NAMEOF_VERSION).tar.gz | tar zx
+	tar zxf $(DOWNLOAD_DIR)/nameof-*.tar.gz
+	mv -f nameof-*/ $(NAMEOF_DIR)/
 	touch $@
 
 $(NAMEOF_DIR)/install: $(NAMEOF_DIR)/download
@@ -733,7 +686,8 @@ endif
 # zlib ----------------------------------------------------------------------------------------------------------------
 
 $(ZLIB_DIR)/download:
-	curl -L https://zlib.net/zlib-${ZLIB_VERSION}.tar.gz | tar zx
+	tar zxf $(DOWNLOAD_DIR)/zlib-*.tar.gz
+	mv -f zlib-*/ $(ZLIB_DIR)/
 	touch $@
 
 ifeq ($(TARGET_OS),mac)
@@ -760,7 +714,8 @@ $(ZLIB_DIR)/install: $(ZLIB_DIR)/download $(BINUTILS_DIR)/install
 # microtar ------------------------------------------------------------------------------------------------------------
 
 $(MICROTAR_DIR)/download:
-	curl -L https://github.com/rxi/microtar/archive/${MICROTAR_VERSION}.tar.gz | tar zx
+	tar zxf $(DOWNLOAD_DIR)/microtar-*.tar.gz
+	mv -f microtar-*/ $(MICROTAR_DIR)/
 	touch $@
 
 $(MICROTAR_DIR)/install: $(MICROTAR_DIR)/download $(BINUTILS_DIR)/install
@@ -776,7 +731,8 @@ $(MICROTAR_DIR)/install: $(MICROTAR_DIR)/download $(BINUTILS_DIR)/install
 # libzip --------------------------------------------------------------------------------------------------------------
 
 $(LIBZIP_DIR)/download:
-	curl -L https://github.com/nih-at/libzip/releases/download/v${LIBZIP_VERSION}/libzip-${LIBZIP_VERSION}.tar.gz | tar zx
+	tar zxf $(DOWNLOAD_DIR)/libzip-*.tar.gz
+	mv -f libzip-*/ $(LIBZIP_DIR)/
 	touch $@
 
 $(LIBZIP_DIR)/install: $(LIBZIP_DIR)/download $(CMAKE_DIR)/install $(ZLIB_DIR)/install $(BINUTILS_DIR)/install
