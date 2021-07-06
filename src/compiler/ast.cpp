@@ -1298,6 +1298,51 @@ StatementType WhileStatementNode::getStatementType() const {
     return StatementType::kWhile;
 }
 
+PrintStatementNode::PrintStatementNode(
+    std::vector<std::unique_ptr<ExpressionNode>> expressions,
+    std::optional<std::string> toIdentifier,
+    bool trailingSemicolon,
+    Token token)
+    : StatementNode(std::move(token)),
+      expressions(std::move(expressions)),
+      toIdentifier(std::move(toIdentifier)),
+      trailingSemicolon(trailingSemicolon) {}
+
+void PrintStatementNode::dump(std::ostringstream& s, int n) const {
+    DUMP_TYPE(PrintStatementNode);
+    DUMP_VAR_NODES(expressions);
+    DUMP_VAR_OPTIONAL(toIdentifier);
+    DUMP_VAR(trailingSemicolon);
+}
+
+bool PrintStatementNode::visitExpressions(const VisitExpressionFunc& func) const {
+    for (const auto& x : expressions) {
+        if (!x->visitExpressions(func)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+StatementType PrintStatementNode::getStatementType() const {
+    return StatementType::kPrint;
+}
+
+InputStatementNode::InputStatementNode(std::optional<std::string> fromIdentifier, std::string toIdentifier, Token token)
+    : StatementNode(std::move(token)),
+      fromIdentifier(std::move(fromIdentifier)),
+      toIdentifier(std::move(toIdentifier)) {}
+
+void InputStatementNode::dump(std::ostringstream& s, int n) const {
+    DUMP_TYPE(InputStatementNode);
+    DUMP_VAR_OPTIONAL(fromIdentifier);
+    DUMP_VAR(toIdentifier);
+}
+
+StatementType InputStatementNode::getStatementType() const {
+    return StatementType::kInput;
+}
+
 ParameterNode::ParameterNode(std::string name, boost::local_shared_ptr<TypeNode> type, Token token)
     : Node(std::move(token)), name(std::move(name)), type(std::move(type)) {}
 

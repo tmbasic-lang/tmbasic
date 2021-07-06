@@ -1850,6 +1850,66 @@ class ForStatementProduction : public Production {
     }
 };
 
+class PrintStatementProduction : public Production {
+   public:
+    PrintStatementProduction(const Production* expression)
+        : Production(
+              NAMEOF_TYPE(PrintStatementProduction),
+              {
+                  term(TokenKind::kPrint),
+                  cut(),
+                  optional({
+                      term(TokenKind::kTo),
+                      capture(0, term(TokenKind::kIdentifier)),
+                  }),
+                  capture(1, prod(expression)),
+                  zeroOrMore({
+                      term(TokenKind::kSemicolon),
+                      capture(2, prod(expression)),
+                  }),
+                  optional({
+                      capture(3, term(TokenKind::kSemicolon)),
+                  }),
+              }) {}
+
+    std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
+        std::optional<std::string> toIdentifier{};
+        if (hasCapture(captures->at(0))) {
+            toIdentifier = { captureTokenText(std::move(captures->at(0))) };
+        }
+        auto expressions = captureNodeArray<ExpressionNode>(std::move(captures->at(2)));
+        expressions.insert(expressions.begin(), captureSingleNode<ExpressionNode>(std::move(captures->at(1))));
+        auto trailingSemicolon = hasCapture(captures->at(3));
+        return nodeBox<PrintStatementNode>(
+            std::move(expressions), std::move(toIdentifier), trailingSemicolon, firstToken);
+    }
+};
+
+class InputStatementProduction : public Production {
+   public:
+    InputStatementProduction()
+        : Production(
+              NAMEOF_TYPE(InputStatementProduction),
+              {
+                  term(TokenKind::kInput),
+                  cut(),
+                  optional({
+                      term(TokenKind::kFrom),
+                      capture(0, term(TokenKind::kIdentifier)),
+                  }),
+                  capture(1, term(TokenKind::kIdentifier)),
+              }) {}
+
+    std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
+        std::optional<std::string> fromIdentifier{};
+        if (hasCapture(captures->at(0))) {
+            fromIdentifier = { captureTokenText(std::move(captures->at(0))) };
+        }
+        auto toIdentifier = captureTokenText(std::move(captures->at(1)));
+        return nodeBox<InputStatementNode>(std::move(fromIdentifier), std::move(toIdentifier), firstToken);
+    }
+};
+
 class CommandStatementProduction : public Production {
    public:
     CommandStatementProduction(
@@ -1860,7 +1920,9 @@ class CommandStatementProduction : public Production {
         const Production* continueStatement,
         const Production* exitStatement,
         const Production* throwStatement,
-        const Production* rethrowStatement)
+        const Production* rethrowStatement,
+        const Production* printStatement,
+        const Production* inputStatement)
         : Production(
               NAMEOF_TYPE(CommandStatementProduction),
               {
@@ -1875,6 +1937,8 @@ class CommandStatementProduction : public Production {
                           prod(exitStatement),
                           prod(throwStatement),
                           prod(rethrowStatement),
+                          prod(printStatement),
+                          prod(inputStatement),
                       })),
               }) {}
 
@@ -2132,9 +2196,11 @@ class ProductionCollection {
         auto* forEachStatement = add<ForEachStatementProduction>(expression, body);
         auto* forStep = add<ForStepProduction>();
         auto* forStatement = add<ForStatementProduction>(expression, forStep, body);
+        auto* printStatement = add<PrintStatementProduction>(expression);
+        auto* inputStatement = add<InputStatementProduction>();
         auto* commandStatement = add<CommandStatementProduction>(
             assignStatement, selectStatement, returnStatement, callStatement, continueStatement, exitStatement,
-            throwStatement, rethrowStatement);
+            throwStatement, rethrowStatement, printStatement, inputStatement);
         statement->init(
             commandStatement, forStatement, forEachStatement, whileStatement, doStatement, ifStatement, joinStatement,
             groupStatement, selectCaseStatement, tryStatement, dimStatement, dimCollectionStatement, constStatement);

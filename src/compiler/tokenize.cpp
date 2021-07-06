@@ -245,6 +245,8 @@ TokenKind Scanner::classifyToken(const std::string& text) {
             return TokenKind::kRightBrace;
         case ':':
             return TokenKind::kColon;
+        case ';':
+            return TokenKind::kSemicolon;
         case ',':
             return TokenKind::kComma;
         case '+':
@@ -376,6 +378,8 @@ TokenKind Scanner::classifyToken(const std::string& text) {
                     return TokenKind::kIf;
                 } else if (lc == "in") {
                     return TokenKind::kIn;
+                } else if (lc == "input") {
+                    return TokenKind::kInput;
                 } else if (lc == "into") {
                     return TokenKind::kInto;
                 }
@@ -422,6 +426,11 @@ TokenKind Scanner::classifyToken(const std::string& text) {
                     return TokenKind::kOptional;
                 } else if (lc == "or") {
                     return TokenKind::kOr;
+                }
+                break;
+            case 'p':
+                if (lc == "print") {
+                    return TokenKind::kPrint;
                 }
                 break;
             case 'r':

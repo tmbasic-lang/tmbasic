@@ -319,6 +319,8 @@ enum class StatementType {
     kThrow,
     kTry,
     kWhile,
+    kPrint,
+    kInput,
 };
 
 class StatementNode : public Node {
@@ -706,6 +708,30 @@ class WhileStatementNode : public StatementNode {
     void dump(std::ostringstream& s, int n) const override;
     bool visitBodies(const VisitBodyFunc& func) const override;
     bool visitExpressions(const VisitExpressionFunc& func) const override;
+    StatementType getStatementType() const override;
+};
+
+class PrintStatementNode : public StatementNode {
+   public:
+    std::vector<std::unique_ptr<ExpressionNode>> expressions;
+    std::optional<std::string> toIdentifier;
+    bool trailingSemicolon;
+    PrintStatementNode(
+        std::vector<std::unique_ptr<ExpressionNode>> expressions,
+        std::optional<std::string> toIdentifier,
+        bool trailingSemicolon,
+        Token token);
+    void dump(std::ostringstream& s, int n) const override;
+    bool visitExpressions(const VisitExpressionFunc& func) const override;
+    StatementType getStatementType() const override;
+};
+
+class InputStatementNode : public StatementNode {
+   public:
+    std::optional<std::string> fromIdentifier;
+    std::string toIdentifier;
+    InputStatementNode(std::optional<std::string> fromIdentifier, std::string toIdentifier, Token token);
+    void dump(std::ostringstream& s, int n) const override;
     StatementType getStatementType() const override;
 };
 
