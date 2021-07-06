@@ -513,7 +513,9 @@ class AppPrivate {
             auto* window = new CodeEditorWindow(getNewWindowRect(75, 20), member, []() -> void {
                 // onUpdated
                 auto* programWindow = findProgramWindow();
+
                 if (programWindow != nullptr) {
+                    programWindow->setDirty();
                     programWindow->updateListItems();
                 }
             });
@@ -538,6 +540,7 @@ class AppPrivate {
                 // onUpdated
                 auto* programWindow = findProgramWindow();
                 if (programWindow != nullptr) {
+                    programWindow->setDirty();
                     programWindow->updateListItems();
                 }
             });
@@ -559,6 +562,7 @@ class AppPrivate {
                     // onUpdated
                     auto* programWindow = findProgramWindow();
                     if (programWindow != nullptr) {
+                        programWindow->setDirty();
                         programWindow->updateListItems();
                     }
                 },
@@ -628,6 +632,7 @@ App::App(int /*argc*/, char** /*argv*/)
     ts.enableCmd(kCmdProgramRun);
     ts.enableCmd(kCmdProgramCheckForErrors);
     ts.enableCmd(kCmdProgramPublish);
+    ts.enableCmd(kCmdProgramContentsWindow);
     disableCommands(ts);
 
     _private->app = this;

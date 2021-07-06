@@ -143,6 +143,7 @@ class CodeEditorWindowPrivate {
         if (newSource != pendingText) {
             pendingUpdate = 0;
             pendingText = newSource;
+            onEdited();  // set dirty flag right away
         } else if (pendingUpdate >= 4) {
             // after 1 second of no edits, go ahead and parse the text
             member->setSource(newSource);
@@ -188,6 +189,7 @@ CodeEditorWindow::CodeEditorWindow(
     _private->window = this;
     _private->member = member;
     _private->onEdited = onEdited;
+    _private->pendingText = member->source;
     theming.schema = _codeEditorColors.data();
     setUpEditorPreLoad();
     loadText(member->source);

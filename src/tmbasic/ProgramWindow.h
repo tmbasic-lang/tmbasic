@@ -20,6 +20,7 @@ class ProgramWindow : public TWindow {
     TPalette& getPalette() const override;
     void setState(uint16_t aState, bool enable) override;
     bool isDirty() const;
+    void setDirty();
     bool preClose();
     void addNewSourceMember(std::unique_ptr<compiler::SourceMember> sourceMember);
     void updateListItems();

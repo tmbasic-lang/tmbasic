@@ -175,6 +175,7 @@ ProgramWindow::ProgramWindow(
     ts.enableCmd(kCmdProgramRun);
     ts.enableCmd(kCmdProgramCheckForErrors);
     ts.enableCmd(kCmdProgramPublish);
+    ts.enableCmd(kCmdProgramContentsWindow);
     enableCommands(ts);
 
     ViewPtr<util::ScrollBar> vScrollBar{ TRect{ size.x - 1, 1, size.x, size.y - 1 } };
@@ -379,6 +380,7 @@ void ProgramWindow::close() {
         ts.enableCmd(kCmdProgramRun);
         ts.enableCmd(kCmdProgramCheckForErrors);
         ts.enableCmd(kCmdProgramPublish);
+        ts.enableCmd(kCmdProgramContentsWindow);
         disableCommands(ts);
 
         TWindow::close();
@@ -387,6 +389,12 @@ void ProgramWindow::close() {
 
 bool ProgramWindow::isDirty() const {
     return _private->dirty;
+}
+
+void ProgramWindow::setDirty() {
+    _private->dirty = true;
+    updateTitle(_private);
+    frame->drawView();
 }
 
 void ProgramWindow::addNewSourceMember(std::unique_ptr<SourceMember> sourceMember) {

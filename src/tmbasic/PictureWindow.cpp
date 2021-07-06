@@ -903,6 +903,7 @@ void PictureWindowPrivate::onMoveOk() {
 
 void PictureWindowPrivate::checkpoint() {
     undoStack.push(canvasView->picture);
+    onEdited();
     enableDisableCommands(true);
 }
 
@@ -1545,6 +1546,8 @@ void PictureWindow::onStatusLineCommand(ushort cmd) {
                     delete[] title;
                     title = newStr(getPictureWindowTitle(_private->canvasView->picture.name));
                     frame->drawView();
+                    _private->member->setSource(_private->canvasView->picture.exportToString());
+                    _private->onEdited();
                     edited = true;
                 }
 
