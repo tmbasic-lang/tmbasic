@@ -16,6 +16,7 @@ RUN cd /tmp && \
         ../runConfigureICU "Linux/gcc" --enable-static --disable-shared --disable-tests --disable-samples \
         --with-data-packaging=static && \
     make -j$(nproc) && \
-    make install
+    make install && \
+    rm -rf /tmp/icu
 
 RUN rm -rf /usr/bin/* && rm -rf /usr/local/bin/* && rm -rf /bin/*
