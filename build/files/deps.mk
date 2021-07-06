@@ -366,6 +366,7 @@ ICU_CONFIGURE_FLAGS=
 endif
 
 $(ICU_DIR)/install-native: $(ICU_DIR)/download
+ifneq ($(TARGET_OS),linux)
 	cd $(ICU_DIR)/source && \
 		mkdir -p build-native && \
 		cd build-native && \
@@ -373,13 +374,16 @@ $(ICU_DIR)/install-native: $(ICU_DIR)/download
 			CXXFLAGS="$(CFLAGS) -DU_USING_ICU_NAMESPACE=0 -DU_NO_DEFAULT_INCLUDE_UTF_HEADERS=1 -DU_HIDE_OBSOLETE_UTF_OLD_H=1 -std=c++17" \
 			../runConfigureICU "$(ICU_PROFILE)" --enable-static --disable-shared --disable-tests --disable-samples \
 			--with-data-packaging=static --prefix="$(NATIVE_PREFIX)" $(ICU_CONFIGURE_FLAGS)
+endif
 ifeq ($(TARGET_OS),mac)
 	cd $(ICU_DIR)/source && \
 		cp -f config/mh-darwin config/mh-unknown
 endif
+ifneq ($(TARGET_OS),linux)
 	cd $(ICU_DIR)/source/build-native && \
 		$(MAKE) && \
 		$(MAKE) install
+endif
 	touch $@
 
 $(ICU_DIR)/install: $(ICU_DIR)/install-native $(BINUTILS_DIR)/install
