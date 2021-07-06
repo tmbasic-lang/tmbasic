@@ -721,17 +721,15 @@ StatementType DimMapStatementNode::getStatementType() const {
     return StatementType::kDimMap;
 }
 
-DimStatementNode::DimStatementNode(std::string name, boost::local_shared_ptr<TypeNode> type, Token token)
+DimStatementNode::DimStatementNode(std::string name, boost::local_shared_ptr<TypeNode> type, Token token, bool shared)
     : StatementNode(std::move(token)),
       name(std::move(name)),
       type(std::move(type)),
-      value(std::unique_ptr<ExpressionNode>()) {}
+      value(std::unique_ptr<ExpressionNode>()),
+      shared(shared) {}
 
-DimStatementNode::DimStatementNode(std::string name, std::unique_ptr<ExpressionNode> value, Token token)
-    : StatementNode(std::move(token)),
-      name(std::move(name)),
-
-      value(std::move(value)) {}
+DimStatementNode::DimStatementNode(std::string name, std::unique_ptr<ExpressionNode> value, Token token, bool shared)
+    : StatementNode(std::move(token)), name(std::move(name)), value(std::move(value)), shared(shared) {}
 
 MemberType DimStatementNode::getMemberType() const {
     return MemberType::kDimStatement;

@@ -436,6 +436,8 @@ TokenKind Scanner::classifyToken(const std::string& text) {
             case 's':
                 if (lc == "select") {
                     return TokenKind::kSelect;
+                } else if (lc == "shared") {
+                    return TokenKind::kShared;
                 } else if (lc == "step") {
                     return TokenKind::kStep;
                 } else if (lc == "string") {

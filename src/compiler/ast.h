@@ -423,8 +423,9 @@ class DimStatementNode : public StatementNode {
     boost::local_shared_ptr<TypeNode> type;                     // may be null
     std::unique_ptr<ExpressionNode> value;                      // may be null
     boost::local_shared_ptr<TypeNode> evaluatedType = nullptr;  // set during type checking
-    DimStatementNode(std::string name, boost::local_shared_ptr<TypeNode> type, Token token);
-    DimStatementNode(std::string name, std::unique_ptr<ExpressionNode> value, Token token);
+    bool shared;
+    DimStatementNode(std::string name, boost::local_shared_ptr<TypeNode> type, Token token, bool shared);
+    DimStatementNode(std::string name, std::unique_ptr<ExpressionNode> value, Token token, bool shared);
     MemberType getMemberType() const override;
     void dump(std::ostringstream& s, int n) const override;
     std::optional<std::string> getSymbolDeclaration() const override;

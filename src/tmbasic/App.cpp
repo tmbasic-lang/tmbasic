@@ -367,15 +367,15 @@ class AppPrivate {
         switch (type) {
             case EditorType::kConstant:
                 memberType = SourceMemberType::kGlobal;
-                source = "const untitled = 0\n";
+                source = "const kUntitled = 0\n";
                 selectionStart = 6;
-                selectionEnd = 14;
+                selectionEnd = 15;
                 break;
             case EditorType::kGlobalVariable:
                 memberType = SourceMemberType::kGlobal;
-                source = "dim untitled as Number\n";
-                selectionStart = 4;
-                selectionEnd = 12;
+                source = "dim shared Untitled as Number\n";
+                selectionStart = 11;
+                selectionEnd = 19;
                 break;
             case EditorType::kFunction:
                 memberType = SourceMemberType::kProcedure;

@@ -1400,6 +1400,9 @@ class DimStatementProduction : public Production {
               NAMEOF_TYPE(DimStatementProduction),
               {
                   term(TokenKind::kDim),  // no cut here because it could be "dim list"
+                  optional({
+                      capture(3, term(TokenKind::kShared)),
+                  }),
                   capture(0, term(TokenKind::kIdentifier)),
                   cut(),  // cut here instead
                   oneOf({
@@ -1416,14 +1419,15 @@ class DimStatementProduction : public Production {
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
+        auto shared = hasCapture(captures->at(3));
         if (hasCapture(captures->at(1))) {
             return nodeBox<DimStatementNode>(
                 captureTokenText(std::move(captures->at(0))), captureSingleNode<TypeNode>(std::move(captures->at(1))),
-                firstToken);
+                firstToken, shared);
         }
         return nodeBox<DimStatementNode>(
             captureTokenText(std::move(captures->at(0))), captureSingleNode<ExpressionNode>(std::move(captures->at(2))),
-            firstToken);
+            firstToken, shared);
     }
 };
 

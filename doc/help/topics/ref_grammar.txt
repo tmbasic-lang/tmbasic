@@ -39,7 +39,7 @@ li@DeclarationStatement ::= DimStatement | ConstStatement@
 li@TryStatement ::= "try" "\n" Body CatchBlock? FinallyBlock? "end" "try"@
 li@CatchBlock ::= "catch" "\n" Body@
 li@FinallyBlock ::= "finally" "\n" Body@
-li@DimStatement ::= "dim" identifier ("as" Type | "=" expression) "\n"@
+li@DimStatement ::= "dim" "shared"? identifier ("as" Type | "=" expression) "\n"@
 li@DimCollectionStatement ::= "dim" ("list" | "map") identifier "\n" Body "end" "dim" "\n"@
 li@ConstStatement ::= "const" identifier "=" LiteralValue "\n"@
 li@SelectStatement ::= "select" Expression ("to" Expression)? "\n"@

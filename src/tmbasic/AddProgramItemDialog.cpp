@@ -15,7 +15,7 @@ using util::ViewPtr;
 namespace tmbasic {
 
 static std::vector<std::string> kAddProgramItemStrings{
-    "F1 Subroutine", "F2 Function", "F3 Global variable", "F4 Constant",
+    "F1 Subroutine", "F2 Function", "F3 Shared variable", "F4 Constant",
     "F5 Type",       "F6 Form",     "F7 Custom control",  "F8 Picture",
 };
 
