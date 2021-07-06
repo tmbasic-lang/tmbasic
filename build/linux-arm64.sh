@@ -9,7 +9,7 @@ export ARCH="arm64v8"
 export TRIPLE="aarch64-alpine-linux-musl"
 
 if [ ! -f "files/sysroot-$ARCH.tar.gz" ]; then
-    aws s3 cp s3://tmbasic/linux-sysroots/sysroot-arm64v8-20210627025634.tar.gz files/sysroot-$ARCH.tar.gz --request-payer
+    aws s3 cp s3://tmbasic/linux-sysroots/sysroot-arm64v8-20210706051531.tar.gz files/sysroot-$ARCH.tar.gz --request-payer
 fi
 
 if [ "$(docker image ls $IMAGE_NAME | wc -l)" == "1" ]; then

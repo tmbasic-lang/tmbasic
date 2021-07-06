@@ -44,12 +44,6 @@ RUN curl -L https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
     apt-get update -y && \
     apt-get install -y clang clang-format clang-tidy
 
-# sysroot
-COPY sysroot-$ARCH.tar.gz /tmp/sysroot.tar.gz
-RUN mkdir /target-sysroot && \
-    cd /target-sysroot && \
-    tar zxf /tmp/sysroot.tar.gz
-
 # tmbasic dependencies
 COPY libclipboard-CMakeLists.txt.diff /tmp/
 COPY turbo-CMakeLists.txt.diff /tmp/

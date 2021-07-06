@@ -395,18 +395,6 @@ ifeq ($(TARGET_OS),win)
 		$(MAKE) && \
 		$(MAKE) install
 endif
-ifeq ($(TARGET_OS),linux)
-	cd $(ICU_DIR)/source && \
-		mkdir -p build-linux && \
-		cd build-linux && \
-		CC="$(CC)" CXX="$(CXX)" LD="$(LD)" CFLAGS="$(CFLAGS)" \
-			CXXFLAGS="$(CFLAGS) -DU_USING_ICU_NAMESPACE=0 -DU_NO_DEFAULT_INCLUDE_UTF_HEADERS=1 -DU_HIDE_OBSOLETE_UTF_OLD_H=1 -std=c++17" \
-			../runConfigureICU "Linux" --enable-static --enable-shared --disable-tests --disable-samples \
-			--with-data-packaging=static \
-			--host=$(LINUX_TRIPLE) --with-cross-build=$(ICU_DIR)/source/build-native --prefix="$(TARGET_PREFIX)" && \
-		$(MAKE) && \
-		$(MAKE) install
-endif
 	touch $@
 
 

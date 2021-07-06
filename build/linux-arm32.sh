@@ -9,7 +9,7 @@ export ARCH="arm32v7"
 export TRIPLE="armhf-alpine-linux-musl"
 
 if [ ! -f "files/sysroot-$ARCH.tar.gz" ]; then
-    aws s3 cp s3://tmbasic/linux-sysroots/sysroot-arm32v7-20210627025547.tar.gz files/sysroot-$ARCH.tar.gz --request-payer
+    aws s3 cp s3://tmbasic/linux-sysroots/sysroot-arm32v7-20210706051128.tar.gz files/sysroot-$ARCH.tar.gz --request-payer
 fi
 
 if [ "$(docker image ls $IMAGE_NAME | wc -l)" == "1" ]; then

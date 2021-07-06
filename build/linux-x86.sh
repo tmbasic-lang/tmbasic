@@ -9,7 +9,7 @@ export ARCH="i686"
 export TRIPLE="i586-alpine-linux-musl"
 
 if [ ! -f "files/sysroot-$ARCH.tar.gz" ]; then
-    aws s3 cp s3://tmbasic/linux-sysroots/sysroot-i386-20210627025206.tar.gz files/sysroot-$ARCH.tar.gz --request-payer
+    aws s3 cp s3://tmbasic/linux-sysroots/sysroot-i386-20210706051357.tar.gz files/sysroot-$ARCH.tar.gz --request-payer
 fi
 
 if [ "$(docker image ls $IMAGE_NAME | wc -l)" == "1" ]; then

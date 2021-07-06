@@ -275,10 +275,13 @@ ifeq ($(TARGET_OS),win)
 STATIC_FLAG=-static
 endif
 
-# In our Ubuntu-based dev container we need to provide a search path
+# In our Linux containers we need to provide a search path
 ifeq ($(TARGET_OS),linux)
 ifeq ($(LINUX_DISTRO),ubuntu)
 LDFLAGS += -L/usr/local/$(LINUX_TRIPLE)/lib
+endif
+ifeq ($(LINUX_DISTRO),alpine)
+LDFLAGS += -L/target-sysroot/usr/local/lib
 endif
 endif
 
