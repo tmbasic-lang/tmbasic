@@ -20,52 +20,6 @@ using std::string;
 using std::vector;
 using vm::Interpreter;
 
-static TargetPlatform getCurrentPlatform() {
-    auto platform = string(getenv("TARGET_OS")) + "/" + getenv("ARCH");
-    if (platform == "linux/i686") {
-        return TargetPlatform::kLinuxX86;
-    } else if (platform == "linux/x86_64") {
-        return TargetPlatform::kLinuxX64;
-    } else if (platform == "linux/arm32v7") {
-        return TargetPlatform::kLinuxArm32;
-    } else if (platform == "linux/arm64v8") {
-        return TargetPlatform::kLinuxArm64;
-    } else if (platform == "mac/x86_64") {
-        return TargetPlatform::kMacX64;
-    } else if (platform == "mac/arm64v8") {
-        return TargetPlatform::kMacArm64;
-    } else if (platform == "win/i686") {
-        return TargetPlatform::kWinX86;
-    } else if (platform == "win/x86_64") {
-        return TargetPlatform::kWinX64;
-    } else {
-        throw runtime_error(string("Invalid platform: ") + platform);
-    }
-}
-
-static vector<uint8_t> buildDummyBytecode(size_t length) {
-    auto bytecode = vector<uint8_t>(length);
-    for (size_t i = 0; i < length; i++) {
-        bytecode.at(i) = i & 0xFF;
-    }
-    return bytecode;
-}
-
-static bool contains(const vector<uint8_t>& haystack, const vector<uint8_t>& needle) {
-    auto firstByte = needle.at(0);
-    auto secondByte = needle.at(1);
-    auto verifySize = std::min<size_t>(100, needle.size());
-    auto n = haystack.size() - needle.size();
-    for (size_t i = 0; i < n; i++) {
-        if (haystack[i] == firstByte && haystack[i + 1] == secondByte &&
-            memcmp(&haystack[i], needle.data(), verifySize) == 0) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
 static void run(string filenameWithoutExtension, compiler::CompiledProgram* program) {
     auto pcodeFile = readFile(filenameWithoutExtension + ".bas");
 
@@ -123,30 +77,6 @@ static void run(string filenameWithoutExtension, compiler::CompiledProgram* prog
 static void run(string filenameWithoutExtension) {
     compiler::CompiledProgram compiledProgram{};
     run(filenameWithoutExtension, &compiledProgram);
-}
-
-TEST(CompilerTest, BuildDummyBytecode) {
-    auto bytecode = buildDummyBytecode(1000);
-    ASSERT_EQ(0, bytecode.at(0));
-    ASSERT_EQ(1, bytecode.at(1));
-    ASSERT_EQ(2, bytecode.at(2));
-    ASSERT_EQ(0, bytecode.at(256));
-    ASSERT_EQ(1, bytecode.at(257));
-}
-
-TEST(CompilerTest, Contains) {
-    auto haystack = vector<uint8_t>{ 1, 2, 3, 4, 5, 6 };
-    auto needle1 = vector<uint8_t>{ 3, 4 };
-    auto needle2 = vector<uint8_t>{ 4, 4 };
-
-    ASSERT_TRUE(contains(haystack, needle1));
-    ASSERT_FALSE(contains(haystack, needle2));
-}
-
-TEST(CompilerTest, MakeExeFile) {
-    auto bytecode = buildDummyBytecode(10000);
-    auto exe = makeExeFile(bytecode, getCurrentPlatform());
-    ASSERT_TRUE(contains(exe, bytecode));
 }
 
 TEST(CompilerTest, EmptyMain) {

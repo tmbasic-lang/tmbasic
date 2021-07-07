@@ -42,10 +42,11 @@ pngcrush -brute -reduce -ow screenshot.png
 
 ## Make a release build
 
-1. Start the following two build machines. Prepare them for building using the instructions in the [Building from Source](https://github.com/electroly/tmbasic/blob/master/doc/building-from-source.md) document.
+1. Start the following machines. Prepare them for building using the instructions in the [Building from Source](https://github.com/electroly/tmbasic/blob/master/doc/building-from-source.md) document.
 
-    - Ubuntu Linux
-    - macOS 11.0
+    1. **Linux build machine** &mdash; Linux x64 or ARM64, including Apple M1
+        - Recommended: local VM or AWS `c6g.2xlarge`
+        - May be the same as the x64 or ARM test machine, if desired.
 
 1. Clear any existing dependencies on the build machines so that we perform a fresh build using the latest versions.
 
@@ -69,17 +70,26 @@ pngcrush -brute -reduce -ow screenshot.png
 
 ## Run tests on all platforms
 
-1. Start the following three build machines. Prepare them for building using the instructions in the [Building from Source](https://github.com/electroly/tmbasic/blob/master/doc/building-from-source.md) document.
+1. Start the following machines. Prepare them for building using the instructions in the [Building from Source](https://github.com/electroly/tmbasic/blob/master/doc/building-from-source.md) document.
 
-    - Ubuntu Linux x64
-    - Ubuntu Linux ARM64
-    - macOS 11.0
+    1. **Linux x64 test machine** &mdash; Linux x64
+        - Recommended: local VM or AWS `c5a.large`
+    1. **Linux ARM64 test machine** &mdash; Linux ARM64, *excluding* Apple M1
+        - Recommended: AWS `c6g.medium` with Ubuntu 20.04
+        - Apple M1 is not supported because it cannot run ARM32 code.
+    1. **Linux build machine** &mdash; Linux x64 or ARM64, including Apple M1
+        - Recommended: local VM with 8 CPU cores + 4GB RAM, or AWS `c6g.2xlarge`
+        - May be the same as the x64 or ARM test machine, if desired.
+    1. **Mac build machine** &mdash; macOS 11.0 ARM64
 
 1. Perform the rest of these instructions on the Mac. Make sure that the Linux machines are accessible via `ssh` with public key authentication.
 
-1. Configure your bash session with the `ssh` connection details for the Linux build machines using the following commands.
+1. Configure your bash session with the `ssh` connection details for the Linux machines using the following commands.
 
     ```
+    export BUILD_KEY=/path/to/ssh-key.pem
+    export BUILD_USER=ubuntu
+    export BUILD_HOST=hostname-or-ip
     export X64_KEY=/path/to/ssh-key.pem
     export X64_USER=ubuntu
     export X64_HOST=hostname-or-ip
