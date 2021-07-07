@@ -29,15 +29,7 @@ popd
 # create a tarball of the local source directory
 export LOCAL_TAR=$PUBLISHDIR/tmbasic-local.tar.gz
 pushd ../../  # root of repository
-mv bin .bin
-mv obj .obj
-mv mac-arm64 .mac-arm64
-mv mac-x64 .mac-x64
-tar zcf $LOCAL_TAR *  # wildcard excludes dot files
-mv .bin bin
-mv .obj obj
-mv .mac-arm64 mac-arm64
-mv .mac-x64 mac-x64
+tar zcf $LOCAL_TAR LICENSE Makefile build doc src
 popd
 
 # copy and extract the tarball on the Linux machines
