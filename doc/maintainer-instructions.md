@@ -7,6 +7,7 @@
 
 - [Take screenshots for the website](#take-screenshots-for-the-website)
 - [Update third party dependencies](#update-third-party-dependencies)
+- [Update Linux sysroots](#update-linux-sysroots)
 - [Make a release build](#make-a-release-build)
 - [Run tests on all platforms](#run-tests-on-all-platforms)
 
@@ -37,16 +38,39 @@ pngcrush -brute -reduce -ow screenshot.png
 1. Get the project link from [`doc/third-party-libraries.md`](https://github.com/electroly/tmbasic/blob/master/doc/third-party-libraries.md).
 1. Download the latest version. If this is a GitHub/Gitlab "Download ZIP" link, make sure it points to a specific commit hash.
 1. Upload to S3: `aws s3 cp ___ s3://tmbasic/___/ --acl public-read` (use downloaded filename)
-1. Update the version in `build/files/deps.mk`.
+1. Update the version in `build/files/depsDownload.sh`.
 1. Commit as "Update foobar to version ____" or "Update foobar to commit ____".
+
+## Update Linux sysroots
+
+We keep prebuilt sysroots in the `tmbasic` bucket. These instructions will build new images, capturing updates in the base Alpine files.
+
+1. Start the following machines. Prepare them for building using the instructions in the [Building from Source](https://github.com/electroly/tmbasic/blob/master/doc/building-from-source.md) document. Make sure they have AWSCLI installed and configured with access to write to the `tmbasic` S3 bucket.
+
+    - **Small Linux x64 machine** &mdash; Ubuntu Linux 20.04 &mdash; x64
+        - Specs: 1 vCPU + 1GB RAM + 10GB disk
+        - Recommended: AWS `c5a.large`
+    - **Small Linux ARM64 machine** &mdash; Ubuntu Linux 20.04 &mdash; ARM64, *excluding* Apple M1
+        - Specs: 1 vCPU + 1GB RAM + 10GB disk
+        - Recommended: AWS `c6g.medium`
+        - Apple M1 is not supported because it cannot run ARM32 code.
+
+1. On the ARM64 machine: `rm -rf tmbasic && git clone https://github.com/electroly/tmbasic.git && cd tmbasic/build/sysroots && ./buildArmSysroots.sh`
+
+1. On the x64 machine: `rm -rf tmbasic && git clone https://github.com/electroly/tmbasic.git && cd tmbasic/build/sysroots && ./buildIntelSysroots.sh`
+
+1. Edit the `build/linux-*.sh` files to include the new filenames, and commit/push to git.
 
 ## Make a release build
 
+1. If this is for a production release, then update the Linux sysroots using the instructions above.
+
 1. Start the following machines. Prepare them for building using the instructions in the [Building from Source](https://github.com/electroly/tmbasic/blob/master/doc/building-from-source.md) document.
 
-    1. **Linux build machine** &mdash; Linux x64 or ARM64, including Apple M1
-        - Recommended: local VM or AWS `c6g.2xlarge`
-        - May be the same as the x64 or ARM test machine, if desired.
+    - **Mac** &mdash; macOS 11.0 &mdash; x64 or ARM64
+    - **Big Linux machine** &mdash; Ubuntu Linux 20.04 &mdash; x64 or ARM64, including Apple M1
+        - Specs: 8 vCPU + 4GB RAM + 100GB disk
+        - Recommended: Parallels VM on Apple M1, or AWS `c6g.2xlarge`
 
 1. Clear any existing dependencies on the build machines so that we perform a fresh build using the latest versions.
 
@@ -54,7 +78,7 @@ pngcrush -brute -reduce -ow screenshot.png
 
     Mac: `rm -rf mac-*`
 
-1. Perform the rest of these instructions on the Mac. Make sure that the Linux machine is accessible via `ssh` with public key authentication.
+1. Perform these instructions on the Mac. Make sure that the Linux machines are accessible from the Mac via `ssh` with public key authentication.
 
 1. Configure your bash session with the `ssh` connection details for the Linux build machine using the following commands.
 
@@ -64,7 +88,7 @@ pngcrush -brute -reduce -ow screenshot.png
     export BUILD_HOST=hostname-or-ip
     ```
 
-1. Produce distribution-ready production builds: `pushd build/publish && ./publish.sh && popd`
+1. Produce distribution-ready production builds: `cd build/publish && ./publish.sh`
 
     Output files will appear in the `dist` directory.
 
@@ -72,30 +96,32 @@ pngcrush -brute -reduce -ow screenshot.png
 
 1. Start the following machines. Prepare them for building using the instructions in the [Building from Source](https://github.com/electroly/tmbasic/blob/master/doc/building-from-source.md) document.
 
-    1. **Linux x64 test machine** &mdash; Linux x64
-        - Recommended: local VM or AWS `c5a.large`
-    1. **Linux ARM64 test machine** &mdash; Linux ARM64, *excluding* Apple M1
-        - Recommended: AWS `c6g.medium` with Ubuntu 20.04
+    - **Mac** &mdash; macOS 11.0 &mdash; ARM64
+    - **Big Linux machine** &mdash; Ubuntu Linux 20.04 &mdash; x64 or ARM64, including Apple M1
+        - Specs: 8 vCPU + 4GB RAM + 100GB disk
+        - Recommended: Parallels VM on Apple M1, or AWS `c6g.2xlarge`
+    - **Small Linux x64 machine** &mdash; Ubuntu Linux 20.04 &mdash; x64
+        - Specs: 1 vCPU + 1GB RAM + 10GB disk
+        - Recommended: AWS `c5a.large`
+    - **Small Linux ARM64 machine** &mdash; Ubuntu Linux 20.04 &mdash; ARM64, *excluding* Apple M1
+        - Specs: 1 vCPU + 1GB RAM + 10GB disk
+        - Recommended: AWS `c6g.medium`
         - Apple M1 is not supported because it cannot run ARM32 code.
-    1. **Linux build machine** &mdash; Linux x64 or ARM64, including Apple M1
-        - Recommended: local VM with 8 CPU cores + 4GB RAM, or AWS `c6g.2xlarge`
-        - May be the same as the x64 or ARM test machine, if desired.
-    1. **Mac build machine** &mdash; macOS 11.0 ARM64
 
-1. Perform the rest of these instructions on the Mac. Make sure that the Linux machines are accessible via `ssh` with public key authentication.
+1. Perform these instructions on the Mac. Make sure that the Linux machines are accessible from the Mac via `ssh` with public key authentication.
 
 1. Configure your bash session with the `ssh` connection details for the Linux machines using the following commands.
 
     ```
-    export BUILD_KEY=/path/to/ssh-key.pem
-    export BUILD_USER=ubuntu
-    export BUILD_HOST=hostname-or-ip
     export X64_KEY=/path/to/ssh-key.pem
     export X64_USER=ubuntu
     export X64_HOST=hostname-or-ip
     export ARM_KEY=/path/to/ssh-key.pem
     export ARM_USER=ubuntu
     export ARM_HOST=hostname-or-ip
+    export BUILD_KEY=/path/to/ssh-key.pem
+    export BUILD_USER=ubuntu
+    export BUILD_HOST=hostname-or-ip
     ```
 
-1. Run tests: `pushd build/test && ./test.sh && popd`
+1. Run tests: `cd build/test && ./test.sh`
