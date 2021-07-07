@@ -338,6 +338,7 @@ void CodeEditorWindow::notifyStyleToNeeded(Sci::Position endStyleNeeded) {
                 case compiler::TokenKind::kGroup:
                 case compiler::TokenKind::kIf:
                 case compiler::TokenKind::kIn:
+                case compiler::TokenKind::kInput:
                 case compiler::TokenKind::kInto:
                 case compiler::TokenKind::kJoin:
                 case compiler::TokenKind::kKey:
@@ -352,6 +353,7 @@ void CodeEditorWindow::notifyStyleToNeeded(Sci::Position endStyleNeeded) {
                 case compiler::TokenKind::kOn:
                 case compiler::TokenKind::kOptional:
                 case compiler::TokenKind::kOr:
+                case compiler::TokenKind::kPrint:
                 case compiler::TokenKind::kRecord:
                 case compiler::TokenKind::kRethrow:
                 case compiler::TokenKind::kReturn:
