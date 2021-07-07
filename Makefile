@@ -637,11 +637,29 @@ $(ALL_PLATFORM_RUNNER_COMPRESSED_FILES): %: bin/runner.gz
 	@mkdir -p $(@D)
 	@TARGET_OS=$(TARGET_OS) SHORT_ARCH=$(SHORT_ARCH) RUNNER_FILE=$@ build/scripts/runnerFile.sh
 
-$(ALL_PLATFORM_RUNNER_OBJ_FILES): obj/resources/runners/%.o: obj/resources/runners/% \
-		$(ALL_PLATFORM_RUNNER_COMPRESSED_FILES)
-	@printf "%16s  %s\n" "runnerRes.sh" "$@"
+# runnerRes.sh takes a ton of memory, so run these one at a time instead of in parallel
+obj/resources/runners/all: $(ALL_PLATFORM_RUNNER_COMPRESSED_FILES)
 	@mkdir -p $(@D)
-	@OBJ_FILE=$@ CXX="$(CXX) $(CXXFLAGS)" build/scripts/runnerRes.sh
+	@printf "%16s  %s\n" "runnerRes.sh" "obj/resources/runners/linux_arm64.gz.o"
+	@OBJ_FILE=obj/resources/runners/linux_arm64.gz.o CXX="$(CXX) $(CXXFLAGS)" build/scripts/runnerRes.sh
+	@printf "%16s  %s\n" "runnerRes.sh" "obj/resources/runners/linux_arm32.gz.o"
+	@OBJ_FILE=obj/resources/runners/linux_arm32.gz.o CXX="$(CXX) $(CXXFLAGS)" build/scripts/runnerRes.sh
+	@printf "%16s  %s\n" "runnerRes.sh" "obj/resources/runners/linux_x64.gz.o"
+	@OBJ_FILE=obj/resources/runners/linux_x64.gz.o CXX="$(CXX) $(CXXFLAGS)" build/scripts/runnerRes.sh
+	@printf "%16s  %s\n" "runnerRes.sh" "obj/resources/runners/linux_x86.gz.o"
+	@OBJ_FILE=obj/resources/runners/linux_x86.gz.o CXX="$(CXX) $(CXXFLAGS)" build/scripts/runnerRes.sh
+	@printf "%16s  %s\n" "runnerRes.sh" "obj/resources/runners/mac_x64.gz.o"
+	@OBJ_FILE=obj/resources/runners/mac_x64.gz.o CXX="$(CXX) $(CXXFLAGS)" build/scripts/runnerRes.sh
+	@printf "%16s  %s\n" "runnerRes.sh" "obj/resources/runners/mac_arm64.gz.o"
+	@OBJ_FILE=obj/resources/runners/mac_arm64.gz.o CXX="$(CXX) $(CXXFLAGS)" build/scripts/runnerRes.sh
+	@printf "%16s  %s\n" "runnerRes.sh" "obj/resources/runners/win_x64.gz.o"
+	@OBJ_FILE=obj/resources/runners/win_x64.gz.o CXX="$(CXX) $(CXXFLAGS)" build/scripts/runnerRes.sh
+	@printf "%16s  %s\n" "runnerRes.sh" "obj/resources/runners/win_x86.gz.o"
+	@OBJ_FILE=obj/resources/runners/win_x86.gz.o CXX="$(CXX) $(CXXFLAGS)" build/scripts/runnerRes.sh
+	@touch $@
+
+$(ALL_PLATFORM_RUNNER_OBJ_FILES): obj/resources/runners/%.o: obj/resources/runners/all
+	@mkdir -p $(@D)
 
 
 
@@ -749,7 +767,7 @@ $(RUNNER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(UTIL_H_FILES) $(VM_H_
 obj/resources/pcode/pcode.o: %:
 	@printf "%16s  %s\n" "c++" "$@"
 	@mkdir -p $(@D)
-	@head -c 2097152 /dev/zero | tr '\0' 'T' > obj/resources/pcode/pcode.dat
+	@head -c 1048576 /dev/zero | tr '\0' 'T' > obj/resources/pcode/pcode.dat
 	@xxd -i obj/resources/pcode/pcode.dat | sed s/obj_resources_pcode_pcode_dat/kResourcePcode/g > obj/resources/pcode/pcode.cpp
 	@$(CXX) $(CXXFLAGS) -o $@ -c obj/resources/pcode/pcode.cpp
 
