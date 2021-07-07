@@ -62,6 +62,9 @@ RUN mkdir -p /tmp/downloads && \
     make -j$(nproc) -f /tmp/deps.mk && \
     rm -rf /tmp/deps /tmp/deps.mk
 
+# for the benefit of vscode, symlink /usr/local/target to /usr/local/ARCH-linux-gnu
+RUN ln -s /usr/local/$(uname -m)-linux-gnu /usr/local/target
+
 # environment
 COPY devPrompt.sh /home/user/
 RUN echo "export ARCH=\"$ARCH\"" >> /etc/profile.d/tmbasic.sh && \
