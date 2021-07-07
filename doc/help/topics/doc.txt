@@ -54,6 +54,8 @@ h3[Statements]
 
 ul@
 li@{`if` Statement:ref_if}@
+li@{`input` Statement:ref_input}@
+li@{`print` Statement:ref_print}@
 li@{`while` Statement:ref_while}@
 @
 
