@@ -72,15 +72,13 @@ We keep prebuilt sysroots in the `tmbasic` bucket. These instructions will build
         - Specs: 8 vCPU + 4GB RAM + 100GB disk
         - Recommended: Parallels VM on Apple M1, or AWS `c6g.2xlarge`
 
-1. Clear any existing dependencies on the build machines so that we perform a fresh build using the latest versions.
+1. On Linux: `sudo apt-get install -y zip && docker system prune -a`.
 
-    Linux: `docker system prune -a`
+1. On the Mac: `rm -rf mac-*`.
 
-    Mac: `rm -rf mac-*`
+1. Make sure that the Linux machines are accessible from the Mac via `ssh` with public key authentication.
 
-1. Perform these instructions on the Mac. Make sure that the Linux machines are accessible from the Mac via `ssh` with public key authentication.
-
-1. Configure your bash session with the `ssh` connection details for the Linux build machine using the following commands.
+1. On the Mac, configure your bash session with the `ssh` connection details for the Linux build machine using the following commands.
 
     ```
     export BUILD_KEY=/path/to/ssh-key.pem
@@ -88,7 +86,7 @@ We keep prebuilt sysroots in the `tmbasic` bucket. These instructions will build
     export BUILD_HOST=hostname-or-ip
     ```
 
-1. Produce distribution-ready production builds: `cd build/publish && ./publish.sh`
+1. On the Mac, produce distribution-ready production builds: `cd build/publish && ./publish.sh`
 
     Output files will appear in the `dist` directory.
 
@@ -108,9 +106,9 @@ We keep prebuilt sysroots in the `tmbasic` bucket. These instructions will build
         - Recommended: AWS `c6g.medium`
         - Apple M1 is not supported because it cannot run ARM32 code.
 
-1. Perform these instructions on the Mac. Make sure that the Linux machines are accessible from the Mac via `ssh` with public key authentication.
+1. Make sure that the Linux machines are accessible from the Mac via `ssh` with public key authentication.
 
-1. Configure your bash session with the `ssh` connection details for the Linux machines using the following commands.
+1. On the Mac, configure your bash session with the `ssh` connection details for the Linux machines using the following commands.
 
     ```
     export X64_KEY=/path/to/ssh-key.pem
@@ -124,4 +122,4 @@ We keep prebuilt sysroots in the `tmbasic` bucket. These instructions will build
     export BUILD_HOST=hostname-or-ip
     ```
 
-1. Run tests: `cd build/test && ./test.sh`
+1. On the Mac: `cd build/test && ./test.sh`
