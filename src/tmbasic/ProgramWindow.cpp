@@ -477,7 +477,7 @@ class PublishStatusWindow : public TWindow {
     PublishStatusWindow() : TWindow(TRect{ 0, 0, 0, 0 }, "Please Wait", wnNoNumber), TWindowInit(initFrame) {
         palette = wpGrayWindow;
         options |= ofCentered;
-        flags &= ~(wfClose | wfZoom);
+        flags &= ~(wfClose | wfZoom | wfGrow | wfMove);
         GridLayout(
             1,
             {
@@ -521,6 +521,7 @@ void ProgramWindow::publish() {
             statusWindow.get()->labelTop->drawView();
             statusWindow.get()->labelBottom->setTitle(compiler::getPlatformName(platform));
             statusWindow.get()->labelBottom->drawView();
+            statusWindow.get()->drawView();
             TScreen::flushScreen();
             publishPlatform(platform, programName, pcode, publishDir);
         }
