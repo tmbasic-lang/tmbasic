@@ -271,6 +271,10 @@ class AppPrivate {
                 onProgramPublish();
                 return true;
 
+            case kCmdProgramRun:
+                onProgramRun();
+                return true;
+
             default:
                 return false;
         }
@@ -591,6 +595,15 @@ class AppPrivate {
         }
 
         programWindow->publish();
+    }
+
+    static void onProgramRun() {
+        auto* programWindow = findProgramWindow();
+        if (!programWindow) {
+            return;
+        }
+
+        programWindow->run();
     }
 };
 

@@ -27,6 +27,7 @@ class ProgramWindow : public TWindow {
     void redrawListItems();
     void checkForErrors();
     void publish();
+    void run();
 
    private:
     gsl::owner<class ProgramWindowPrivate*> _private;

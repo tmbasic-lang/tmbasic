@@ -15,6 +15,7 @@
 #include "../util/WindowPtr.h"
 #include "../util/path.h"
 #include "../util/tvutil.h"
+#include "../vm/Interpreter.h"
 #include "../vm/Program.h"
 #include "CodeEditorWindow.h"
 #include "DesignerWindow.h"
@@ -532,6 +533,28 @@ void ProgramWindow::publish() {
         statusWindow.get()->close();
         messageBox(ex.what(), mfError | mfOKButton);
     }
+}
+
+void ProgramWindow::run() {
+    compiler::CompiledProgram program;
+    auto compilerResult = compiler::compileProgram(*_private->sourceProgram, &program);
+    if (!compilerResult.isSuccess) {
+        compilerErrorMessageBox(compilerResult);
+        return;
+    }
+
+    TProgram::application->suspend();
+
+    auto interpreter = std::make_unique<vm::Interpreter>(&program.vmProgram, &std::cin, &std::cout);
+    interpreter->init(0);
+    while (interpreter->run(10000)) {
+    }
+
+    std::cout << "Press Enter to continue." << std::endl;
+    std::cin.get();
+
+    TProgram::application->resume();
+    TProgram::application->redraw();
 }
 
 }  // namespace tmbasic
