@@ -6,6 +6,7 @@
 
 namespace vm {
 
+constexpr uint8_t kEofByte = 255;
 constexpr uint8_t kProcedureByte = 1;
 constexpr uint8_t kValueByte = 2;
 constexpr uint8_t kObjectByte = 3;
@@ -103,6 +104,7 @@ class ProgramReader {
 
 std::vector<uint8_t> Program::serialize() {
     ProgramWriter writer{};
+
     for (const auto& p : procedures) {
         writer.writeInt<uint8_t>(static_cast<uint8_t>(kProcedureByte));
         writer.writeInt<uint32_t>(static_cast<uint32_t>(p->instructions.size()));
@@ -119,6 +121,8 @@ std::vector<uint8_t> Program::serialize() {
         writer.writeObject(*o);
     }
 
+    writer.writeInt<uint8_t>(static_cast<uint8_t>(kEofByte));
+
     return writer.vec;
 }
 
@@ -126,6 +130,9 @@ void Program::deserialize(const std::vector<uint8_t>& pcode) {
     ProgramReader reader{ pcode };
     while (!reader.eof()) {
         switch (reader.readInt<uint8_t>()) {
+            case kEofByte:
+                return;
+
             case kProcedureByte: {
                 auto numBytes = reader.readInt<uint32_t>();
                 auto procedure = std::make_unique<vm::Procedure>();
