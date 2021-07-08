@@ -15,7 +15,7 @@ if [ "$ARCH" == "arm64" ]; then
     export ARCH="arm64v8"
 fi
 
-files/depsDownload.sh
+scripts/depsDownload.sh
 
 cat files/Dockerfile.build-dev | sed "s/\$IMAGE_NAME/$IMAGE_NAME/g; s/\$HOST_UID/$HOST_UID/g; s/\$HOST_GID/$HOST_GID/g; s/\$ARCH/$ARCH/g; s/\$USER/$USER/g; s/\$GIT_NAME/$GIT_NAME/g; s/\$GIT_EMAIL/$GIT_EMAIL/g" | docker buildx build -t $IMAGE_NAME files -f-
 

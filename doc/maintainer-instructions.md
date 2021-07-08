@@ -38,7 +38,7 @@ pngcrush -brute -reduce -ow screenshot.png
 1. Get the project link from [`doc/third-party-libraries.md`](https://github.com/electroly/tmbasic/blob/master/doc/third-party-libraries.md).
 1. Download the latest version. If this is a GitHub/Gitlab "Download ZIP" link, make sure it points to a specific commit hash.
 1. Upload to S3: `aws s3 cp ___ s3://tmbasic/___/ --acl public-read` (use downloaded filename)
-1. Update the version in `build/files/depsDownload.sh`.
+1. Update the version in `build/scripts/depsDownload.sh`.
 1. Commit as "Update foobar to version ____" or "Update foobar to commit ____".
 
 ## Update Linux sysroots
@@ -59,7 +59,7 @@ We keep prebuilt sysroots in the `tmbasic` bucket. These instructions will build
 
 1. On the x64 machine: `rm -rf tmbasic && git clone https://github.com/electroly/tmbasic.git && cd tmbasic/build/sysroots && ./buildIntelSysroots.sh`
 
-1. Edit the `build/linux-*.sh` files to include the new filenames, and commit/push to git.
+1. Edit the `build/scripts/sysrootDownload.sh` file to include the new filenames, and commit/push to git.
 
 ## Make a release build
 

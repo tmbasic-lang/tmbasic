@@ -26,6 +26,14 @@ popd
 # Linux and Windows runners
 #
 
+# make sure we have all the Linux sysroots
+pushd ../  # build directory
+ARCH=arm32v7 scripts/sysrootDownload.sh
+ARCH=arm64v8 scripts/sysrootDownload.sh
+ARCH=x86_64 scripts/sysrootDownload.sh
+ARCH=i686 scripts/sysrootDownload.sh
+popd
+
 # create a tarball of the local source directory
 export LOCAL_TAR=$PUBLISHDIR/tmbasic-local.tar.gz
 pushd ../../  # root of repository

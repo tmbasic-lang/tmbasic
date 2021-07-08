@@ -4,7 +4,7 @@
 # run from the build directory.
 set -euo pipefail
 
-files/depsDownload.sh
+scripts/depsDownload.sh
 export DOWNLOAD_DIR=$PWD/downloads
 
 if [ "$ARCH" == "x86_64" ]; then

@@ -14,6 +14,12 @@ cd ../  # build directory
 ./mac-arm64.sh -c "make clean"
 ./mac-x64.sh -c "make clean"
 
+# make sure we have all the Linux sysroots
+ARCH=arm32v7 scripts/sysrootDownload.sh
+ARCH=arm64v8 scripts/sysrootDownload.sh
+ARCH=x86_64 scripts/sysrootDownload.sh
+ARCH=i686 scripts/sysrootDownload.sh
+
 # copy the tmbasic directory to the Linux machines
 function copyAndExtractTmbasicDir {
     local REMOTE_KEY=$1
