@@ -37,7 +37,7 @@ pngcrush -brute -reduce -ow screenshot.png
 
 1. In `build/`, run `scripts/depsCheck.sh`. Update `build/scripts/depsDownload.sh` and `build/files/mingw.sh`.
 1. In `build/`, run `scripts/depsDownload.sh` to pull the latest version of each dep.
-1. In `build/downloads/`, `rm sysroot-* ; aws s3 sync . s3://tmbasic/deps/ --acl public-read --size-only `
+1. In `build/downloads/`, `rm sysroot-* ; aws s3 sync . s3://tmbasic/deps/ --acl public-read --size-only`
 1. Commit as "Update deps".
 
 ## Update Linux sysroots
