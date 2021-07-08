@@ -35,11 +35,10 @@ pngcrush -brute -reduce -ow screenshot.png
 
 ## Update third party dependencies
 
-1. Get the project link from [`doc/third-party-libraries.md`](https://github.com/electroly/tmbasic/blob/master/doc/third-party-libraries.md).
-1. Download the latest version. If this is a GitHub/Gitlab "Download ZIP" link, make sure it points to a specific commit hash.
-1. Upload to S3: `aws s3 cp ___ s3://tmbasic/___/ --acl public-read` (use downloaded filename)
-1. Update the version in `build/scripts/depsDownload.sh`.
-1. Commit as "Update foobar to version ____" or "Update foobar to commit ____".
+1. In `build/`, run `scripts/depsCheck.sh`. Update `build/scripts/depsDownload.sh` and `build/files/mingw.sh`.
+1. In `build/`, run `scripts/depsDownload.sh` to pull the latest version of each dep.
+1. In `build/downloads/`, `rm sysroot-* ; aws s3 sync . s3://tmbasic/deps/ --acl public-read --size-only `
+1. Commit as "Update deps".
 
 ## Update Linux sysroots
 
