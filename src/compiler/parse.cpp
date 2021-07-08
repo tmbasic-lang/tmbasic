@@ -1870,6 +1870,7 @@ class PrintStatementProduction : public Production {
                   optional({
                       capture(3, term(TokenKind::kSemicolon)),
                   }),
+                  term(TokenKind::kEndOfLine),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
@@ -1898,6 +1899,7 @@ class InputStatementProduction : public Production {
                       capture(0, term(TokenKind::kIdentifier)),
                   }),
                   capture(1, term(TokenKind::kIdentifier)),
+                  term(TokenKind::kEndOfLine),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
