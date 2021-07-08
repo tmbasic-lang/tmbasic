@@ -358,6 +358,7 @@ void CodeEditorWindow::notifyStyleToNeeded(Sci::Position endStyleNeeded) {
                 case compiler::TokenKind::kRethrow:
                 case compiler::TokenKind::kReturn:
                 case compiler::TokenKind::kSelect:
+                case compiler::TokenKind::kShared:
                 case compiler::TokenKind::kStep:
                 case compiler::TokenKind::kSub:
                 case compiler::TokenKind::kString:
