@@ -200,7 +200,8 @@ void TypeNode::dump(std::ostringstream& s, int n) const {
 }
 
 bool TypeNode::isValueType() const {
-    return kind == Kind::kNumber || kind == Kind::kBoolean;
+    return kind == Kind::kNumber || kind == Kind::kBoolean || kind == Kind::kDate || kind == Kind::kDateTime ||
+        kind == Kind::kTimeSpan;
 }
 
 bool TypeNode::canImplicitlyConvertTo(const TypeNode& target) const {

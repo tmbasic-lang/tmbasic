@@ -55,8 +55,6 @@ enum class Kind {
     kList,
     kMap,
     kRecord,
-    kProcedureReference,
-    kGenericPlaceholder,
     kOptional,
 };
 

@@ -16,17 +16,29 @@ class CompiledGlobalVariable {
     boost::local_shared_ptr<TypeNode> type;
 };
 
-class CompiledNamedType {
+class CompiledUserTypeField {
    public:
-    std::string lowercaseName;
-    std::vector<boost::local_shared_ptr<FieldNode>> fields;
+    std::string nameLowercase = "";
+    std::string name = "";
+    bool isValue = false;
+    bool isObject = false;
+    int fieldIndex = -1;
+};
+
+class CompiledUserType {
+   public:
+    std::string nameLowercase;
+    std::string name;
+    std::vector<std::unique_ptr<CompiledUserTypeField>> fields;
+    std::unordered_map<std::string, CompiledUserTypeField*> fieldsByNameLowercase;
 };
 
 class CompiledProgram {
    public:
     vm::Program vmProgram;
     std::vector<std::unique_ptr<CompiledGlobalVariable>> globalVariables;
-    std::vector<std::unique_ptr<CompiledNamedType>> namedTypes;
+    std::vector<std::unique_ptr<CompiledUserType>> userTypes;
+    std::unordered_map<std::string, CompiledUserType*> userTypesByNameLowercase;
 };
 
 }  // namespace compiler

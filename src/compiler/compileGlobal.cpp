@@ -66,7 +66,8 @@ CompilerResult compileGlobal(const SourceMember& sourceMember, CompiledProgram* 
     // see if the compiled global already exists
     for (auto& g : compiledProgram->globalVariables) {
         if (g->lowercaseName == lowercaseIdentifier) {
-            return CompilerResult::error(fmt::format("The global variable name \"{}\" already exists."), {});
+            return CompilerResult::error(
+                fmt::format("The global variable name \"{}\" already exists.", sourceMember.identifier), {});
         }
     }
 
