@@ -420,8 +420,8 @@ bool Interpreter::run(int maxCycles) {
             case Opcode::kRecordGetValue: {
                 auto index = readInt<uint16_t>(instructions, &instructionIndex);
                 auto& record = dynamic_cast<Record&>(**objectAt(objectStack, osi, -1));
-auto val = record.values.at(index);
-popObject(objectStack, &osi);
+                auto val = record.values.at(index);
+                popObject(objectStack, &osi);
                 pushValue(valueStack, &vsi, std::move(val));
                 break;
             }
