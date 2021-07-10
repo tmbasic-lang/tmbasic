@@ -19,45 +19,45 @@ static TInt readInt(const std::vector<uint8_t>* vec, size_t* index) {
     return value;
 }
 
-template <typename TValueArray>
-static void pushValue(TValueArray* valueStack, int* vsi, Value value) {
-    valueStack->at(*vsi) = std::move(value);
+static void pushValue(std::array<Value, kValueStackSize>* valueStack, int* vsi, const Value& value) {
+    valueStack->at(*vsi) = value;
     (*vsi)++;
 }
 
-template <typename TObjectArray>
-static void pushObject(TObjectArray* objectStack, int* osi, boost::local_shared_ptr<Object> obj) {
+static void pushObject(
+    std::array<boost::local_shared_ptr<Object>, kObjectStackSize>* objectStack,
+    int* osi,
+    boost::local_shared_ptr<Object>&& obj) {
     objectStack->at(*osi) = std::move(obj);
     (*osi)++;
 }
 
-template <typename TValueArray>
-static void popValue(TValueArray* valueStack, int* vsi) {
+static void popValue(std::array<Value, kValueStackSize>* valueStack, int* vsi) {
     (*vsi)--;
     valueStack->at(*vsi) = {};
 }
 
-template <typename TObjectArray>
-static void popObject(TObjectArray* objectStack, int* osi) {
+static void popObject(std::array<boost::local_shared_ptr<Object>, kObjectStackSize>* objectStack, int* osi) {
     (*osi)--;
     objectStack->at(*osi) = {};
 }
 
-template <typename TValueArray>
-static Value* valueAt(TValueArray* valueStack, int vsi, int offset) {
+static Value* valueAt(std::array<Value, kValueStackSize>* valueStack, int vsi, int offset) {
     return &valueStack->at(vsi + offset);
 }
 
-template <typename TObjectArray>
-static boost::local_shared_ptr<Object>* objectAt(TObjectArray* objectStack, int osi, int offset) {
+static boost::local_shared_ptr<Object>* objectAt(
+    std::array<boost::local_shared_ptr<Object>, kObjectStackSize>* objectStack,
+    int osi,
+    int offset) {
     return &objectStack->at(osi + offset);
 }
 
 class InterpreterPrivate {
    public:
-    Program* program;
-    std::istream* consoleInputStream;
-    std::ostream* consoleOutputStream;
+    Program* program{};
+    std::istream* consoleInputStream{};
+    std::ostream* consoleOutputStream{};
 
     std::stack<CallFrame> callStack;
     std::array<Value, kValueStackSize> valueStack;
@@ -187,7 +187,7 @@ bool Interpreter::run(int maxCycles) {
                 auto argIndex = readInt<uint8_t>(instructions, &instructionIndex);
                 auto& frame = _private->callStack.top();
                 auto val = valueStack->at(frame.vsiArgsStart + argIndex);
-                pushValue(valueStack, &vsi, std::move(val));
+                pushValue(valueStack, &vsi, val);
                 break;
             }
 
@@ -202,7 +202,7 @@ bool Interpreter::run(int maxCycles) {
             case Opcode::kPushGlobalValue: {
                 auto src = readInt<uint16_t>(instructions, &instructionIndex);
                 auto val = _private->program->globalValues.at(src);
-                pushValue(valueStack, &vsi, std::move(val));
+                pushValue(valueStack, &vsi, val);
                 break;
             }
 
@@ -233,7 +233,7 @@ bool Interpreter::run(int maxCycles) {
                 auto src = readInt<uint16_t>(instructions, &instructionIndex);
                 auto& callFrame = _private->callStack.top();
                 auto val = valueStack->at(callFrame.vsiLocalsStart + src);
-                pushValue(valueStack, &vsi, std::move(val));
+                pushValue(valueStack, &vsi, val);
                 break;
             }
 
@@ -325,7 +325,7 @@ bool Interpreter::run(int maxCycles) {
                     popObject(objectStack, &osi);
                 }
                 if (returnsValue) {
-                    pushValue(valueStack, &vsi, std::move(result.returnedValue));
+                    pushValue(valueStack, &vsi, result.returnedValue);
                 }
                 if (returnsObject) {
                     pushObject(objectStack, &osi, std::move(result.returnedObject));
@@ -346,7 +346,7 @@ bool Interpreter::run(int maxCycles) {
             case Opcode::kReturnValue: {
                 auto val = *valueAt(valueStack, vsi, -1);
                 _private->returnFromProcedure(&vsi, &osi, &procedure, &instructions, &instructionIndex);
-                pushValue(valueStack, &vsi, std::move(val));
+                pushValue(valueStack, &vsi, val);
                 break;
             }
 
@@ -397,7 +397,8 @@ bool Interpreter::run(int maxCycles) {
             }
 
             case Opcode::kPushErrorMessage: {
-                pushObject(objectStack, &osi, _private->errorMessage);
+                auto errorMessageCopy = _private->errorMessage;
+                pushObject(objectStack, &osi, std::move(errorMessageCopy));
                 break;
             }
 
@@ -429,7 +430,7 @@ bool Interpreter::run(int maxCycles) {
                 auto& record = dynamic_cast<Record&>(**objectAt(objectStack, osi, -1));
                 auto val = record.values.at(index);
                 popObject(objectStack, &osi);
-                pushValue(valueStack, &vsi, std::move(val));
+                pushValue(valueStack, &vsi, val);
                 break;
             }
 

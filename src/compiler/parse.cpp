@@ -1852,7 +1852,7 @@ class ForStatementProduction : public Production {
 
 class PrintStatementProduction : public Production {
    public:
-    PrintStatementProduction(const Production* expression)
+    explicit PrintStatementProduction(const Production* expression)
         : Production(
               NAMEOF_TYPE(PrintStatementProduction),
               {

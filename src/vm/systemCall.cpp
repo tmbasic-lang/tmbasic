@@ -208,7 +208,7 @@ static void systemCallObjectListLength(const SystemCallInput& input, SystemCallR
     result->returnedValue.num = objectList.items.size();
 }
 
-static void systemCallObjectOptionalNewMissing(const SystemCallInput& input, SystemCallResult* result) {
+static void systemCallObjectOptionalNewMissing(const SystemCallInput& /*input*/, SystemCallResult* result) {
     result->returnedObject = boost::make_local_shared<ObjectOptional>();
 }
 
@@ -216,7 +216,7 @@ static void systemCallObjectOptionalNewPresent(const SystemCallInput& input, Sys
     result->returnedObject = boost::make_local_shared<ObjectOptional>(input.getObjectPtr(-1));
 }
 
-static void systemCallPrintString(const SystemCallInput& input, SystemCallResult* result) {
+static void systemCallPrintString(const SystemCallInput& input, SystemCallResult* /*result*/) {
     auto str = dynamic_cast<const String&>(input.getObject(-1)).toUtf8();
     *input.consoleOutputStream << str;
 }
@@ -262,7 +262,7 @@ static void systemCallUtcOffset(const SystemCallInput& input, SystemCallResult* 
     result->returnedValue.num = timeZone.getUtcOffset(dateTime.num);
 }
 
-static void systemCallValueOptionalNewMissing(const SystemCallInput& input, SystemCallResult* result) {
+static void systemCallValueOptionalNewMissing(const SystemCallInput& /*input*/, SystemCallResult* result) {
     result->returnedObject = boost::make_local_shared<ValueOptional>();
 }
 

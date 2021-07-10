@@ -457,13 +457,13 @@ static void publishPlatform(
     if (isZip) {
         std::vector<compiler::ZipEntry> entries{
             compiler::ZipEntry{ std::move(exeFilename), std::move(exeData) },
-            compiler::ZipEntry{ std::move(licFilename), std::move(licData) },
+            compiler::ZipEntry{ licFilename, std::move(licData) },
         };
         compiler::zip(archiveFilePath, entries);
     } else {
         std::vector<compiler::TarEntry> entries{
             compiler::TarEntry{ std::move(exeFilename), std::move(exeData), 0777 },
-            compiler::TarEntry{ std::move(licFilename), std::move(licData), 0664 },
+            compiler::TarEntry{ licFilename, std::move(licData), 0664 },
         };
         auto gz = compiler::gzip(compiler::tar(entries));
         std::ofstream f{ archiveFilePath, std::ios::out | std::ios::binary };

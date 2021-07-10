@@ -7,6 +7,7 @@ extern uint kResourcePcode_len;
 
 int main(int /*argc*/, const char* /*argv*/[]) {
     std::vector<uint8_t> pcode{};
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     pcode.insert(pcode.end(), kResourcePcode, kResourcePcode + kResourcePcode_len);
     vm::Program program{};
     program.deserialize(pcode);

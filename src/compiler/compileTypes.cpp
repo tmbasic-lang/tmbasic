@@ -31,7 +31,7 @@ static CompilerResult compileType(const SourceMember& sourceMember, CompiledProg
 
     auto nextValueIndex = 0;
     auto nextObjectIndex = 0;
-    for (auto& field : typeDeclarationNode.fields) {
+    for (const auto& field : typeDeclarationNode.fields) {
         auto compiledField = std::make_unique<CompiledUserTypeField>();
         compiledField->nameLowercase = boost::algorithm::to_lower_copy(field->name);
         compiledField->name = field->name;
