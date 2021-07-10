@@ -1,40 +1,49 @@
-# 100
-LoadConstantA 100
-NumberToString
-StringPrint
-LoadConstantStringX ","
-StringPrint
+# sub Main()
+#   print 100;
+#   print ",";
+#   print 0.01;
+#   print ",";
+#   print -0.000000000000000000000000000001;
+#   print ",";
+#   print -1.000000000000000000000000000001;
+#   print ",";
+# end sub
 
-# 0.01
-LoadConstantA 1
-LoadConstantB 100
-ADivideB
-NumberToString
-StringPrint
-LoadConstantStringX ","
-StringPrint
+# print 100;
+PushImmediateInt64 100
+SystemCallO NumberToString 1 0
+SystemCall PrintString 0 1
 
-# -0.000000000000000000000000000001
-LoadConstantA 1
-LoadConstantB 10000000000
-AMultiplyB
-AMultiplyB
-AMultiplyB
-SetBFromA
-LoadConstantA -1
-ADivideB
-NumberToString
-StringPrint
-LoadConstantStringX ","
-StringPrint
+# print ",";
+PushImmediateUtf8 ","
+SystemCall PrintString 0 1
 
-# -1.000000000000000000000000000001
-LoadConstantB -1
-AAddB
-NumberToString
-StringPrint
-LoadConstantStringX ","
-StringPrint
+# print 0.01;
+PushImmediateDec128 0.01
+SystemCallO NumberToString 1 0
+SystemCall PrintString 0 1
+
+# print ",";
+PushImmediateUtf8 ","
+SystemCall PrintString 0 1
+
+# print -0.000000000000000000000000000001;
+PushImmediateDec128 -0.000000000000000000000000000001
+SystemCallO NumberToString 1 0
+SystemCall PrintString 0 1
+
+# print ",";
+PushImmediateUtf8 ","
+SystemCall PrintString 0 1
+
+# print -1.000000000000000000000000000001;
+PushImmediateDec128 -1.000000000000000000000000000001
+SystemCallO NumberToString 1 0
+SystemCall PrintString 0 1
+
+# print ",";
+PushImmediateUtf8 ","
+SystemCall PrintString 0 1
 
 Exit
 

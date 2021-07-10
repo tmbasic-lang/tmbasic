@@ -1,4 +1,5 @@
 #include "assemble.h"
+#include "util/decimal.h"
 #include "vm/Opcode.h"
 #include "vm/Procedure.h"
 #include "vm/Program.h"
@@ -27,6 +28,7 @@ static Opcode parseOpcode(string s) {
     static const std::unordered_map<string, Opcode> map = {
         { "Exit", Opcode::kExit },
         { "PushImmediateInt64", Opcode::kPushImmediateInt64 },
+        { "PushImmediateDec128", Opcode::kPushImmediateDec128 },
         { "PushImmediateUtf8", Opcode::kPushImmediateUtf8 },
         { "PopValue", Opcode::kPopValue },
         { "PopObject", Opcode::kPopObject },
@@ -44,13 +46,13 @@ static Opcode parseOpcode(string s) {
         { "Jump", Opcode::kJump },
         { "BranchIfTrue", Opcode::kBranchIfTrue },
         { "BranchIfFalse", Opcode::kBranchIfFalse },
-        { "CallSub", Opcode::kCallSub },
-        { "CallFunctionValue", Opcode::kCallFunctionValue },
-        { "CallFunctionObject", Opcode::kCallFunctionObject },
-        { "SystemCallSub", Opcode::kSystemCallSub },
-        { "SystemCallFunctionValue", Opcode::kSystemCallFunctionValue },
-        { "SystemCallFunctionObject", Opcode::kSystemCallFunctionObject },
-        { "SystemCallFunctionValueObject", Opcode::kSystemCallFunctionValueObject },
+        { "Call", Opcode::kCall },
+        { "CallV", Opcode::kCallV },
+        { "CallO", Opcode::kCallO },
+        { "SystemCall", Opcode::kSystemCall },
+        { "SystemCallV", Opcode::kSystemCallV },
+        { "SystemCallO", Opcode::kSystemCallO },
+        { "SystemCallVO", Opcode::kSystemCallVO },
         { "Return", Opcode::kReturn },
         { "ReturnValue", Opcode::kReturnValue },
         { "ReturnObject", Opcode::kReturnObject },
@@ -58,7 +60,7 @@ static Opcode parseOpcode(string s) {
         { "ClearError", Opcode::kClearError },
         { "BubbleError", Opcode::kBubbleError },
         { "ReturnIfError", Opcode::kReturnIfError },
-        { "BranchIfNotError", Opcode::kBranchIfNotError },
+        { "BranchIfError", Opcode::kBranchIfError },
         { "PushErrorMessage", Opcode::kPushErrorMessage },
         { "PushErrorCode", Opcode::kPushErrorCode },
         { "RecordNew", Opcode::kRecordNew },
@@ -104,6 +106,8 @@ static SystemCall parseSystemCall(string s) {
         { "NumberToString", SystemCall::kNumberToString },
         { "ObjectListGet", SystemCall::kObjectListGet },
         { "ObjectListLength", SystemCall::kObjectListLength },
+        { "ObjectOptionalNewMissing", SystemCall::kObjectOptionalNewMissing },
+        { "ObjectOptionalNewPresent", SystemCall::kObjectOptionalNewPresent },
         { "PrintString", SystemCall::kPrintString },
         { "Seconds", SystemCall::kSeconds },
         { "TimeZoneFromName", SystemCall::kTimeZoneFromName },
@@ -114,6 +118,8 @@ static SystemCall parseSystemCall(string s) {
         { "TotalSeconds", SystemCall::kTotalSeconds },
         { "UtcOffset", SystemCall::kUtcOffset },
         { "ValueO", SystemCall::kValueO },
+        { "ValueOptionalNewMissing", SystemCall::kValueOptionalNewMissing },
+        { "ValueOptionalNewPresent", SystemCall::kValueOptionalNewPresent },
         { "ValueV", SystemCall::kValueV },
     };
 
@@ -138,6 +144,18 @@ static void appendInt(vector<uint8_t>* vec, istream* input) {
     int64_t value{};
     *input >> value;
     appendInt<TInt>(vec, static_cast<TInt>(value));
+}
+
+static void appendDec(vector<uint8_t>* vec, istream* input) {
+    string str{};
+    *input >> str;
+    auto dec = util::parseDecimalString(str);
+    auto triple = dec.as_uint128_triple();
+    appendInt<uint8_t>(vec, triple.tag);
+    appendInt<uint8_t>(vec, triple.sign);
+    appendInt<uint64_t>(vec, triple.hi);
+    appendInt<uint64_t>(vec, triple.lo);
+    appendInt<int64_t>(vec, triple.exp);
 }
 
 static void appendLengthTaggedString(vector<uint8_t>* vec, istream* input) {
@@ -218,6 +236,10 @@ std::unique_ptr<vm::Program> assemble(istream* input) {
                 appendInt<uint64_t>(&vec, input);
                 break;
 
+            case Opcode::kPushImmediateDec128:
+                appendDec(&vec, input);
+                break;
+
             case Opcode::kPushImmediateUtf8:
                 appendLengthTaggedString(&vec, input);
                 break;
@@ -248,7 +270,7 @@ std::unique_ptr<vm::Program> assemble(istream* input) {
             case Opcode::kJump:
             case Opcode::kBranchIfTrue:
             case Opcode::kBranchIfFalse:
-            case Opcode::kBranchIfNotError: {
+            case Opcode::kBranchIfError: {
                 string label;
                 *input >> label;
                 labelUsages.push_back({ label, vec.size() });
@@ -256,19 +278,19 @@ std::unique_ptr<vm::Program> assemble(istream* input) {
                 break;
             }
 
-            case Opcode::kCallSub:
-            case Opcode::kCallFunctionValue:
-            case Opcode::kCallFunctionObject: {
+            case Opcode::kCall:
+            case Opcode::kCallV:
+            case Opcode::kCallO: {
                 appendInt<uint32_t>(&vec, input);
                 appendInt<uint8_t>(&vec, input);
                 appendInt<uint8_t>(&vec, input);
                 break;
             }
 
-            case Opcode::kSystemCallSub:
-            case Opcode::kSystemCallFunctionValue:
-            case Opcode::kSystemCallFunctionObject:
-            case Opcode::kSystemCallFunctionValueObject: {
+            case Opcode::kSystemCall:
+            case Opcode::kSystemCallV:
+            case Opcode::kSystemCallO:
+            case Opcode::kSystemCallVO: {
                 string systemCallStr;
                 *input >> systemCallStr;
                 appendInt<uint16_t>(&vec, static_cast<uint16_t>(parseSystemCall(systemCallStr)));

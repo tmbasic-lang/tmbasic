@@ -1,20 +1,37 @@
-ValueOptionalNewMissing
-PushObjects 1
-StoreX 0
-SystemCall HasValueV
-NumberToString
-StringPrint
+# sub Main()
+#   dim x as Optional Number
+#   print HasValue(x) as Number;
+#   print ",";
+#   x = 999
+#   print HasValue(x) as Number;
+# end sub
 
-LoadConstantStringX ","
-StringPrint
+InitLocals 0 1
 
-LoadConstantA 999
-ValueOptionalNewPresent
-PushObjects 1
-StoreX 0
-SystemCall HasValueV
-NumberToString
-StringPrint
+# dim x as Optional Number
+SystemCallO ValueOptionalNewMissing 0 0
+SetLocalObject 0
+
+# print HasValue(x) as Number;
+PushLocalObject 0
+SystemCallV HasValueV 0 1
+SystemCallO NumberToString 1 0
+SystemCall PrintString 0 1
+
+# print ",";
+PushImmediateUtf8 ","
+SystemCall PrintString 0 1
+
+# x = 999
+PushImmediateInt64 999
+SystemCallO ValueOptionalNewPresent 1 0
+SetLocalObject 0
+
+# print HasValue(x) as Number;
+PushLocalObject 0
+SystemCallV HasValueV 0 1
+SystemCallO NumberToString 1 0
+SystemCall PrintString 0 1
 
 Exit
 

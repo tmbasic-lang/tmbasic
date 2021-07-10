@@ -36,6 +36,10 @@ const Object& SystemCallInput::getObject(const int osiOffset) const {
     return *objectStack.at(objectStackIndex + osiOffset);
 }
 
+boost::local_shared_ptr<Object> SystemCallInput::getObjectPtr(const int osiOffset) const {
+    return objectStack.at(objectStackIndex + osiOffset);
+}
+
 static void systemCallAvailableLocales(const SystemCallInput& /*unused*/, SystemCallResult* result) {
     int32_t count = 0;
     const auto* locales = icu::Locale::getAvailableLocales(count);
@@ -204,6 +208,14 @@ static void systemCallObjectListLength(const SystemCallInput& input, SystemCallR
     result->returnedValue.num = objectList.items.size();
 }
 
+static void systemCallObjectOptionalNewMissing(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedObject = boost::make_local_shared<ObjectOptional>();
+}
+
+static void systemCallObjectOptionalNewPresent(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedObject = boost::make_local_shared<ObjectOptional>(input.getObjectPtr(-1));
+}
+
 static void systemCallPrintString(const SystemCallInput& input, SystemCallResult* result) {
     auto str = dynamic_cast<const String&>(input.getObject(-1)).toUtf8();
     *input.consoleOutputStream << str;
@@ -248,6 +260,15 @@ static void systemCallUtcOffset(const SystemCallInput& input, SystemCallResult* 
     const auto& timeZone = dynamic_cast<const TimeZone&>(input.getObject(-1));
     const auto& dateTime = input.getValue(-1);
     result->returnedValue.num = timeZone.getUtcOffset(dateTime.num);
+}
+
+static void systemCallValueOptionalNewMissing(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedObject = boost::make_local_shared<ValueOptional>();
+}
+
+static void systemCallValueOptionalNewPresent(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& value = input.getValue(-1);
+    result->returnedObject = boost::make_local_shared<ValueOptional>(value);
 }
 
 static void systemCallValueV(const SystemCallInput& input, SystemCallResult* result) {
@@ -307,6 +328,8 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kNumberToString, systemCallNumberToString);
     initSystemCall(SystemCall::kObjectListGet, systemCallObjectListGet);
     initSystemCall(SystemCall::kObjectListLength, systemCallObjectListLength);
+    initSystemCall(SystemCall::kObjectOptionalNewMissing, systemCallObjectOptionalNewMissing);
+    initSystemCall(SystemCall::kObjectOptionalNewPresent, systemCallObjectOptionalNewPresent);
     initSystemCall(SystemCall::kPrintString, systemCallPrintString);
     initSystemCall(SystemCall::kSeconds, systemCallSeconds);
     initSystemCall(SystemCall::kTimeZoneFromName, systemCallTimeZoneFromName);
@@ -317,6 +340,8 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kTotalSeconds, systemCallTotalSeconds);
     initSystemCall(SystemCall::kUtcOffset, systemCallUtcOffset);
     initSystemCall(SystemCall::kValueO, systemCallValueO);
+    initSystemCall(SystemCall::kValueOptionalNewMissing, systemCallValueOptionalNewMissing);
+    initSystemCall(SystemCall::kValueOptionalNewPresent, systemCallValueOptionalNewPresent);
     initSystemCall(SystemCall::kValueV, systemCallValueV);
 
     _systemCallsInitialized = true;

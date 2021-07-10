@@ -142,6 +142,17 @@ bool Interpreter::run(int maxCycles) {
                 break;
             }
 
+            case Opcode::kPushImmediateDec128: {
+                mpd_uint128_triple_t triple;
+                triple.tag = static_cast<mpd_triple_class>(readInt<uint8_t>(instructions, &instructionIndex));
+                triple.sign = readInt<uint8_t>(instructions, &instructionIndex);
+                triple.hi = readInt<uint64_t>(instructions, &instructionIndex);
+                triple.lo = readInt<uint64_t>(instructions, &instructionIndex);
+                triple.exp = readInt<int64_t>(instructions, &instructionIndex);
+                pushValue(valueStack, &vsi, Value{ decimal::Decimal{ triple } });
+                break;
+            }
+
             case Opcode::kPushImmediateUtf8: {
                 auto stringLength = readInt<uint32_t>(instructions, &instructionIndex);
                 auto str = boost::make_local_shared<String>(&instructions->at(instructionIndex), stringLength);
@@ -277,14 +288,14 @@ bool Interpreter::run(int maxCycles) {
                 break;
             }
 
-            case Opcode::kCallSub:
-            case Opcode::kCallFunctionValue:
-            case Opcode::kCallFunctionObject: {
+            case Opcode::kCall:
+            case Opcode::kCallV:
+            case Opcode::kCallO: {
                 auto procIndex = readInt<uint32_t>(instructions, &instructionIndex);
                 auto numVals = readInt<uint8_t>(instructions, &instructionIndex);
                 auto numObjs = readInt<uint8_t>(instructions, &instructionIndex);
-                auto returnsValue = opcode == Opcode::kCallFunctionValue;
-                auto returnsObject = opcode == Opcode::kCallFunctionObject;
+                auto returnsValue = opcode == Opcode::kCallV;
+                auto returnsObject = opcode == Opcode::kCallO;
                 auto& callProcedure = *procedures.at(procIndex);
                 _private->callStack.push(
                     { procedure, instructionIndex, numVals, numObjs, vsi, osi, returnsValue, returnsObject });
@@ -294,17 +305,15 @@ bool Interpreter::run(int maxCycles) {
                 break;
             }
 
-            case Opcode::kSystemCallSub:
-            case Opcode::kSystemCallFunctionValue:
-            case Opcode::kSystemCallFunctionObject:
-            case Opcode::kSystemCallFunctionValueObject: {
+            case Opcode::kSystemCall:
+            case Opcode::kSystemCallV:
+            case Opcode::kSystemCallO:
+            case Opcode::kSystemCallVO: {
                 auto syscallIndex = readInt<uint16_t>(instructions, &instructionIndex);
                 auto numVals = readInt<uint8_t>(instructions, &instructionIndex);
                 auto numObjs = readInt<uint8_t>(instructions, &instructionIndex);
-                auto returnsValue =
-                    opcode == Opcode::kSystemCallFunctionValue || opcode == Opcode::kSystemCallFunctionValueObject;
-                auto returnsObject =
-                    opcode == Opcode::kSystemCallFunctionObject || opcode == Opcode::kSystemCallFunctionValueObject;
+                auto returnsValue = opcode == Opcode::kSystemCallV || opcode == Opcode::kSystemCallVO;
+                auto returnsObject = opcode == Opcode::kSystemCallO || opcode == Opcode::kSystemCallVO;
                 SystemCallInput systemCallInput{
                     *valueStack, *objectStack, vsi, osi, _private->consoleInputStream, _private->consoleOutputStream
                 };
@@ -363,14 +372,12 @@ bool Interpreter::run(int maxCycles) {
                 _private->errorMessage = nullptr;
                 _private->errorCode.num = 0;
                 _private->hasError = false;
-                instructionIndex++;
                 break;
             }
 
             case Opcode::kBubbleError: {
                 assert(_private->errorMessage != nullptr);
                 _private->hasError = true;
-                instructionIndex++;
                 break;
             }
 
@@ -381,9 +388,9 @@ bool Interpreter::run(int maxCycles) {
                 break;
             }
 
-            case Opcode::kBranchIfNotError: {
+            case Opcode::kBranchIfError: {
                 auto jumpTarget = readInt<uint32_t>(instructions, &instructionIndex);
-                if (!_private->hasError) {
+                if (_private->hasError) {
                     instructionIndex = jumpTarget;
                 }
                 break;

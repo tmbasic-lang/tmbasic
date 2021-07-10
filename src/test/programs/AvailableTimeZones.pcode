@@ -7,34 +7,34 @@
 InitLocals 0 1
 
 # x = AvailableTimeZones
-SystemCallFunctionObject AvailableTimeZones 0 0
+SystemCallO AvailableTimeZones 0 0
 SetLocalObject 0
 
 # print x(0);
 PushLocalObject 0
 PushImmediateInt64 0
-SystemCallFunctionObject ObjectListGet 1 1
-SystemCallSub PrintString 0 1
+SystemCallO ObjectListGet 1 1
+SystemCall PrintString 0 1
 
 # print ",";
 PushImmediateUtf8 ","
-SystemCallSub PrintString 0 1
+SystemCall PrintString 0 1
 
 # print x(1);
 PushLocalObject 0
 PushImmediateInt64 1
-SystemCallFunctionObject ObjectListGet 1 1
-SystemCallSub PrintString 0 1
+SystemCallO ObjectListGet 1 1
+SystemCall PrintString 0 1
 
 # print ",";
 PushImmediateUtf8 ","
-SystemCallSub PrintString 0 1
+SystemCall PrintString 0 1
 
 # print Len(x)
 PushLocalObject 0
-SystemCallFunctionValue ObjectListLength 0 1
-SystemCallFunctionObject NumberToString 1 0
-SystemCallSub PrintString 0 1
+SystemCallV ObjectListLength 0 1
+SystemCallO NumberToString 1 0
+SystemCall PrintString 0 1
 
 Exit
 

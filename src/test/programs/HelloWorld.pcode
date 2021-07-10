@@ -1,5 +1,9 @@
-LoadConstantStringX "Hello, world!"
-StringPrint
+# sub Main()
+#   print "Hello, world!";
+# end sub
+
+PushImmediateUtf8 "Hello, world!"
+SystemCall PrintString 0 1
 Exit
 
 --output--

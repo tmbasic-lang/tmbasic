@@ -8,37 +8,37 @@
 PushImmediateInt64 1970
 PushImmediateInt64 1
 PushImmediateInt64 1
-SystemCallFunctionValue DateFromParts 3 0
-SystemCallFunctionObject NumberToString 1 0
-SystemCallSub PrintString 0 1
+SystemCallV DateFromParts 3 0
+SystemCallO NumberToString 1 0
+SystemCall PrintString 0 1
 
 # print ",";
 PushImmediateUtf8 ","
-SystemCallSub PrintString 0 1
+SystemCall PrintString 0 1
 
 # print DateFromParts(1971, 1, 1) as Number;
 PushImmediateInt64 1971
 PushImmediateInt64 1
 PushImmediateInt64 1
-SystemCallFunctionValue DateFromParts 3 0
-SystemCallFunctionObject NumberToString 1 0
-SystemCallSub PrintString 0 1
+SystemCallV DateFromParts 3 0
+SystemCallO NumberToString 1 0
+SystemCall PrintString 0 1
 
 # print ",";
 PushImmediateUtf8 ","
-SystemCallSub PrintString 0 1
+SystemCall PrintString 0 1
 
 # print DateFromParts(1969, 1, 1) as Number;
 PushImmediateInt64 1969
 PushImmediateInt64 1
 PushImmediateInt64 1
-SystemCallFunctionValue DateFromParts 3 0
-SystemCallFunctionObject NumberToString 1 0
-SystemCallSub PrintString 0 1
+SystemCallV DateFromParts 3 0
+SystemCallO NumberToString 1 0
+SystemCall PrintString 0 1
 
 # print ",";
 PushImmediateUtf8 ","
-SystemCallSub PrintString 0 1
+SystemCall PrintString 0 1
 
 Exit
 

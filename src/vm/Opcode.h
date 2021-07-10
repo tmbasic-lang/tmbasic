@@ -7,6 +7,7 @@ namespace vm {
 enum class Opcode {
     // data types:
     // i64 - 8b signed integer
+    // u64 - 8b unsigned integer
     // u8 - 1b unsigned integer
     // u16 - 2b unsigned integer
     // u32 - 4b unsigned integer
@@ -25,10 +26,11 @@ enum class Opcode {
     kExit,  // ends the program
 
     // stack manipulation
-    kPushImmediateInt64,  // <i64 operand> pushv operand;
-    kPushImmediateUtf8,   // <u32 length, utf8 string> pusho string
-    kPopValue,            // popv;
-    kPopObject,           // popo;
+    kPushImmediateInt64,   // <i64 operand> pushv operand;
+    kPushImmediateDec128,  // <u8 tag, u8 sign, u64 hi, u64 lo, i64 exp> pushv operand;
+    kPushImmediateUtf8,    // <u32 length, utf8 string> pusho string
+    kPopValue,             // popv;
+    kPopObject,            // popo;
 
     // variables
     kInitLocals,          // <u16 numVals, u16 numObjs>
@@ -49,23 +51,23 @@ enum class Opcode {
     kBranchIfFalse,  // <inst* index> if (!vsp[-1]) goto index in current proc
 
     // procedures. flags: 1=return value | 2=return object
-    kCallSub,                        // <proc* procIndex, u8 numVals, u8 numObjs>
-    kCallFunctionValue,              // <proc* procIndex, u8 numVals, u8 numObjs>
-    kCallFunctionObject,             // <proc* procIndex, u8 numVals, u8 numObjs>
-    kSystemCallSub,                  // <u16 syscallIndex, u8 numVals, u8 numObjs>
-    kSystemCallFunctionValue,        // <u16 syscallIndex, u8 numVals, u8 numObjs>
-    kSystemCallFunctionObject,       // <u16 syscallIndex, u8 numVals, u8 numObjs>
-    kSystemCallFunctionValueObject,  // <u16 syscallIndex, u8 numVals, u8 numObjs>
-    kReturn,                         // restores osp/vsp
-    kReturnValue,                    // restores osp/vsp and pushes the return value vsp[-1]
-    kReturnObject,                   // restores osp/vsp and pushes the return object ospTop
+    kCall,          // <proc* procIndex, u8 numVals, u8 numObjs>
+    kCallV,         // <proc* procIndex, u8 numVals, u8 numObjs>
+    kCallO,         // <proc* procIndex, u8 numVals, u8 numObjs>
+    kSystemCall,    // <u16 syscallIndex, u8 numVals, u8 numObjs>
+    kSystemCallV,   // <u16 syscallIndex, u8 numVals, u8 numObjs>
+    kSystemCallO,   // <u16 syscallIndex, u8 numVals, u8 numObjs>
+    kSystemCallVO,  // <u16 syscallIndex, u8 numVals, u8 numObjs>
+    kReturn,        // restores osp/vsp
+    kReturnValue,   // restores osp/vsp and pushes the return value vsp[-1]
+    kReturnObject,  // restores osp/vsp and pushes the return object ospTop
 
     // error handling
     kSetError,          // set error flag from code vsp[-1] and message ospTop; popv; popo;
     kClearError,        // clear error flag, don't clear message or code
     kBubbleError,       // set error flag
     kReturnIfError,     // if error is set, return
-    kBranchIfNotError,  // <inst* index> if no error, then jump
+    kBranchIfError,     // <inst* index> if error, then jump
     kPushErrorMessage,  // pusho message
     kPushErrorCode,     // pushv code
 

@@ -1,25 +1,40 @@
-Call 1
-BranchIfNotError no_error
-LoadErrorCodeA
-NumberToString
-StringPrint
-LoadErrorMessageX
-StringPrint
+# sub Main()
+#   try
+#       Foo
+#       print "no error"
+#   catch
+#       print ErrorCode(); ErrorMessage();
+#   end try
+# end sub
+# sub Foo()
+#   dim x = 0
+#   throw 123, "this is the error message"
+# end sub
+
+ClearError
+Call 1 0 0
+BranchIfError CATCH
+PushImmediateUtf8 "no error"
+SystemCall PrintString 0 1
 Exit
-label no_error
-LoadConstantStringX "no error"
-StringPrint
+
+label CATCH
+PushErrorCode
+SystemCallO NumberToString 1 0
+SystemCall PrintString 0 1
+
+PushErrorMessage
+SystemCall PrintString 0 1
 Exit
+
 -
-# test that errors can be thrown from arbitrary stack positions
-PushValues 5
-PushObjects 10
-LoadConstantStringX "this is the error message"
-LoadConstantA 123
+InitLocals 1 0
+PushImmediateInt64 123
+PushImmediateUtf8 "this is the error message"
 SetError
-ClearX
-LoadConstantA 0
-ReturnIfError
+# test that we can return from arbitrary stack positions
+PushImmediateInt64 999
+Return
 
 --output--
 123this is the error message
