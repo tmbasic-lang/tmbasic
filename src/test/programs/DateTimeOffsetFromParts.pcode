@@ -1,46 +1,51 @@
-# 2021-03-13 America/New_York -> -05:00
+# sub Main()
+#   ' 2021-03-13 America/New_York -> -05:00
+#   dim tz = TimeZoneFromName("America/New_York")
+#   dim dto = DateTimeOffsetFromParts(2021, 3, 13, 0, 0, 0, 0, tz)
+#   print dto.DateTime as Number; ",";
+#   print dto.Offset; ",";
+# end sub
 
-LoadConstantStringX "America/New_York"
-PushObjects 1
-StoreX 0
-SystemCall TimeZoneFromName
-PopObjects 1
-PushObjects 1
-StoreX 0
+# local obj 0: tz as TimeZone
+# local obj 1: dto as DateTimeOffset
+InitLocals 0 2
 
-PushValues 7
-LoadConstantA 2021
-StoreA 0
-LoadConstantA 3
-StoreA 1
-LoadConstantA 13
-StoreA 2
-LoadConstantA 0
-StoreA 3
-StoreA 4
-StoreA 5
-StoreA 6
-SystemCall DateTimeOffsetFromParts
-PopObjects 1
-PopValues 7
-PushObjects 1
-StoreX 0
+# dim tz = TimeZoneFromName("America/New_York")
+PushImmediateUtf8 "America/New_York"
+SystemCallFunctionObject TimeZoneFromName 0 1
+SetLocalObject 0
 
-LoadX 0
-RecordLoadA 0
-NumberToString
-StringPrint
+# dim dto = DateTimeOffsetFromParts(2021, 3, 13, 0, 0, 0, 0, tz)
+PushImmediateInt64 2021
+PushImmediateInt64 3
+PushImmediateInt64 13
+PushImmediateInt64 0
+PushImmediateInt64 0
+PushImmediateInt64 0
+PushImmediateInt64 0
+PushLocalObject 0
+SystemCallFunctionObject DateTimeOffsetFromParts 7 1
+SetLocalObject 1
 
-LoadConstantStringX ","
-StringPrint
+# print dto.DateTime as Number;
+PushLocalObject 1
+RecordGetValue 0
+SystemCallFunctionObject NumberToString 1 0
+SystemCallSub PrintString 0 1
 
-LoadX 0
-RecordLoadA 1
-NumberToString
-StringPrint
+# print ",";
+PushImmediateUtf8 ","
+SystemCallSub PrintString 0 1
 
-LoadConstantStringX ","
-StringPrint
+# print dto.Offset;
+PushLocalObject 1
+RecordGetValue 1
+SystemCallFunctionObject NumberToString 1 0
+SystemCallSub PrintString 0 1
+
+# print ",";
+PushImmediateUtf8 ","
+SystemCallSub PrintString 0 1
 
 Exit
 

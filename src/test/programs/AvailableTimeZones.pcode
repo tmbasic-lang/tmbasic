@@ -1,27 +1,40 @@
-PushObjects 1
+# sub Main()
+#   dim x = AvailableTimeZones
+#   print x(0); ","; x(1); ","; Len(x);
+# end sub
 
-SystemCall AvailableTimeZones
-StoreX 0
+# local obj 0: x as List of String
+InitLocals 0 1
 
-LoadConstantA 0
-ObjectListGet
-StringPrint
+# x = AvailableTimeZones
+SystemCallFunctionObject AvailableTimeZones 0 0
+SetLocalObject 0
 
-LoadConstantStringX ","
-StringPrint
+# print x(0);
+PushLocalObject 0
+PushImmediateInt64 0
+SystemCallFunctionObject ObjectListGet 1 1
+SystemCallSub PrintString 0 1
 
-LoadX 0
-LoadConstantA 1
-ObjectListGet
-StringPrint
+# print ",";
+PushImmediateUtf8 ","
+SystemCallSub PrintString 0 1
 
-LoadConstantStringX ","
-StringPrint
+# print x(1);
+PushLocalObject 0
+PushImmediateInt64 1
+SystemCallFunctionObject ObjectListGet 1 1
+SystemCallSub PrintString 0 1
 
-LoadX 0
-ObjectListCount
-NumberToString
-StringPrint
+# print ",";
+PushImmediateUtf8 ","
+SystemCallSub PrintString 0 1
+
+# print Len(x)
+PushLocalObject 0
+SystemCallFunctionValue ObjectListLength 0 1
+SystemCallFunctionObject NumberToString 1 0
+SystemCallSub PrintString 0 1
 
 Exit
 

@@ -9,10 +9,10 @@ struct Value {
     Value();
     explicit Value(decimal::Decimal num);
     std::string getString() const;
-    bool getBoolean() const;
-    void setBoolean(bool value);
-    int32_t getInt32() const;
-    int64_t getInt64() const;
+    inline bool getBoolean() const { return num != 0; }
+    inline void setBoolean(bool value) { num = value ? 1 : 0; }
+    inline int32_t getInt32() const { return num.floor().i32(); }
+    inline int64_t getInt64() const { return num.floor().i64(); }
     bool operator==(const Value& rhs) const;
     std::size_t getHash() const;
 };

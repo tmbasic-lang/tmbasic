@@ -4,7 +4,8 @@
 
 namespace vm {
 
-const int kValueStackSize = 10000;
-const int kObjectStackSize = 10000;
+// we store stack indices as 16-bit values in the pcode
+const int kValueStackSize = 65535;
+const int kObjectStackSize = 65535;
 
 }  // namespace vm

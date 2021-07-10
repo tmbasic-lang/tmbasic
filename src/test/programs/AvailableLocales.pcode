@@ -1,19 +1,30 @@
-PushObjects 1
+# sub Main()
+#   dim x = AvailableLocales
+#   print x(0); ","; Len(x);
+# end sub
 
-SystemCall AvailableLocales
-StoreX 0
+# local obj 0: x as List of String
+InitLocals 0 1
 
-LoadConstantA 0
-ObjectListGet
-StringPrint
+# x = AvailableLocales
+SystemCallFunctionObject AvailableLocales 0 0
+SetLocalObject 0
 
-LoadConstantStringX ","
-StringPrint
+# print x(0);
+PushLocalObject 0
+PushImmediateInt64 0
+SystemCallFunctionObject ObjectListGet 1 1
+SystemCallSub PrintString 0 1
 
-LoadX 0
-ObjectListCount
-NumberToString
-StringPrint
+# print ",";
+PushImmediateUtf8 ","
+SystemCallSub PrintString 0 1
+
+# print Len(x)
+PushLocalObject 0
+SystemCallFunctionValue ObjectListLength 0 1
+SystemCallFunctionObject NumberToString 1 0
+SystemCallSub PrintString 0 1
 
 Exit
 

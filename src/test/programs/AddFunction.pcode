@@ -1,18 +1,25 @@
-PushValues 2
-LoadConstantA 100
-StoreA 0
-LoadConstantA 5
-StoreA 1
-Call 1
-PopValues 2
-NumberToString
-StringPrint
+# sub Main()
+#   print Add(100, 5)
+# end sub
+# function Add(lhs as Number, rhs as Number) as Number
+#   return lhs + rhs
+# end function
+
+PushImmediateInt64 100
+# value stack: 100
+PushImmediateInt64 5
+# value stack: 100 5
+CallFunctionValue 1 2 0
+# value stack: 105
+SystemCallFunctionObject NumberToString 1 0
+# object stack: "105"
+SystemCallSub PrintString 0 1
+# stacks: empty
 Exit
 -
-LoadA 0
-LoadB 1
-AAddB
-Return
-
+PushArgumentValue 0
+PushArgumentValue 1
+SystemCallFunctionValue Add 2 0
+ReturnValue
 --output--
 105

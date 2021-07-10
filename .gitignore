@@ -12,3 +12,4 @@ debug.log
 /build/files/deps.tar
 /build/downloads/
 /build/sysroots/sysroot-*
+/.vscode/settings.json

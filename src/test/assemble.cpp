@@ -26,130 +26,46 @@ static Opcode parseOpcode(string s) {
     // grep , src/vm/Opcode.h | sed s/,//g | awk '{ print "{\"" $1 "\",Opcode::" $1 "}," }' | sed 's/"k/"/g'
     static const std::unordered_map<string, Opcode> map = {
         { "Exit", Opcode::kExit },
-        { "LoadConstantA", Opcode::kLoadConstantA },
-        { "LoadConstantB", Opcode::kLoadConstantB },
-        { "LoadConstantStringX", Opcode::kLoadConstantStringX },
-        { "LoadConstantStringY", Opcode::kLoadConstantStringY },
-        { "LoadConstantStringZ", Opcode::kLoadConstantStringZ },
-        { "StoreA", Opcode::kStoreA },
-        { "StoreB", Opcode::kStoreB },
-        { "StoreX", Opcode::kStoreX },
-        { "StoreY", Opcode::kStoreY },
-        { "StoreZ", Opcode::kStoreZ },
-        { "LoadA", Opcode::kLoadA },
-        { "LoadB", Opcode::kLoadB },
-        { "LoadX", Opcode::kLoadX },
-        { "LoadY", Opcode::kLoadY },
-        { "LoadZ", Opcode::kLoadZ },
-        { "PushValues", Opcode::kPushValues },
-        { "PushObjects", Opcode::kPushObjects },
-        { "PopValues", Opcode::kPopValues },
-        { "PopObjects", Opcode::kPopObjects },
-        { "ClearX", Opcode::kClearX },
-        { "ClearY", Opcode::kClearY },
-        { "ClearZ", Opcode::kClearZ },
-        { "SetAFromB", Opcode::kSetAFromB },
-        { "SetBFromA", Opcode::kSetBFromA },
-        { "SetXFromY", Opcode::kSetXFromY },
-        { "SetYFromX", Opcode::kSetYFromX },
-        { "AOrB", Opcode::kAOrB },
-        { "AAndB", Opcode::kAAndB },
-        { "AEqualsB", Opcode::kAEqualsB },
-        { "ANotEqualsB", Opcode::kANotEqualsB },
-        { "ALessThanB", Opcode::kALessThanB },
-        { "ALessThanEqualsB", Opcode::kALessThanEqualsB },
-        { "AGreaterThanB", Opcode::kAGreaterThanB },
-        { "AGreaterThanEqualsB", Opcode::kAGreaterThanEqualsB },
-        { "AAddB", Opcode::kAAddB },
-        { "ASubtractB", Opcode::kASubtractB },
-        { "AMultiplyB", Opcode::kAMultiplyB },
-        { "ADivideB", Opcode::kADivideB },
-        { "AModuloB", Opcode::kAModuloB },
-        { "AEqualsConstant", Opcode::kAEqualsConstant },
-        { "BEqualsConstant", Opcode::kBEqualsConstant },
-        { "StringXEqualsY", Opcode::kStringXEqualsY },
-        { "StringXConcatenateY", Opcode::kStringXConcatenateY },
+        { "PushImmediateInt64", Opcode::kPushImmediateInt64 },
+        { "PushImmediateUtf8", Opcode::kPushImmediateUtf8 },
+        { "PopValue", Opcode::kPopValue },
+        { "PopObject", Opcode::kPopObject },
+        { "InitLocals", Opcode::kInitLocals },
+        { "PushArgumentValue", Opcode::kPushArgumentValue },
+        { "PushArgumentObject", Opcode::kPushArgumentObject },
+        { "PushGlobalValue", Opcode::kPushGlobalValue },
+        { "PushGlobalObject", Opcode::kPushGlobalObject },
+        { "SetGlobalValue", Opcode::kSetGlobalValue },
+        { "SetGlobalObject", Opcode::kSetGlobalObject },
+        { "PushLocalValue", Opcode::kPushLocalValue },
+        { "PushLocalObject", Opcode::kPushLocalObject },
+        { "SetLocalValue", Opcode::kSetLocalValue },
+        { "SetLocalObject", Opcode::kSetLocalObject },
         { "Jump", Opcode::kJump },
-        { "BranchIfA", Opcode::kBranchIfA },
-        { "BranchIfNotA", Opcode::kBranchIfNotA },
-        { "Call", Opcode::kCall },
-        { "SystemCall", Opcode::kSystemCall },
+        { "BranchIfTrue", Opcode::kBranchIfTrue },
+        { "BranchIfFalse", Opcode::kBranchIfFalse },
+        { "CallSub", Opcode::kCallSub },
+        { "CallFunctionValue", Opcode::kCallFunctionValue },
+        { "CallFunctionObject", Opcode::kCallFunctionObject },
+        { "SystemCallSub", Opcode::kSystemCallSub },
+        { "SystemCallFunctionValue", Opcode::kSystemCallFunctionValue },
+        { "SystemCallFunctionObject", Opcode::kSystemCallFunctionObject },
+        { "SystemCallFunctionValueObject", Opcode::kSystemCallFunctionValueObject },
         { "Return", Opcode::kReturn },
+        { "ReturnValue", Opcode::kReturnValue },
+        { "ReturnObject", Opcode::kReturnObject },
         { "SetError", Opcode::kSetError },
         { "ClearError", Opcode::kClearError },
         { "BubbleError", Opcode::kBubbleError },
         { "ReturnIfError", Opcode::kReturnIfError },
-        { "PopBranchIfError", Opcode::kPopBranchIfError },
         { "BranchIfNotError", Opcode::kBranchIfNotError },
-        { "LoadErrorMessageX", Opcode::kLoadErrorMessageX },
-        { "LoadErrorCodeA", Opcode::kLoadErrorCodeA },
-        { "RecordBuilderBegin", Opcode::kRecordBuilderBegin },
-        { "RecordBuilderStoreA", Opcode::kRecordBuilderStoreA },
-        { "RecordBuilderStoreX", Opcode::kRecordBuilderStoreX },
-        { "RecordBuilderEnd", Opcode::kRecordBuilderEnd },
-        { "RecordLoadA", Opcode::kRecordLoadA },
-        { "RecordLoadX", Opcode::kRecordLoadX },
-        { "RecordStoreA", Opcode::kRecordStoreA },
-        { "RecordStoreY", Opcode::kRecordStoreY },
-        { "ValueListBuilderBegin", Opcode::kValueListBuilderBegin },
-        { "ValueListBuilderAddA", Opcode::kValueListBuilderAddA },
-        { "ValueListBuilderEnd", Opcode::kValueListBuilderEnd },
-        { "ValueListGet", Opcode::kValueListGet },
-        { "ValueListSet", Opcode::kValueListSet },
-        { "ValueListCount", Opcode::kValueListCount },
-        { "ValueListInsert", Opcode::kValueListInsert },
-        { "ValueListRemove", Opcode::kValueListRemove },
-        { "ObjectListBuilderBegin", Opcode::kObjectListBuilderBegin },
-        { "ObjectListBuilderAddX", Opcode::kObjectListBuilderAddX },
-        { "ObjectListBuilderEnd", Opcode::kObjectListBuilderEnd },
-        { "ObjectListGet", Opcode::kObjectListGet },
-        { "ObjectListSet", Opcode::kObjectListSet },
-        { "ObjectListCount", Opcode::kObjectListCount },
-        { "ObjectListInsert", Opcode::kObjectListInsert },
-        { "ObjectListRemove", Opcode::kObjectListRemove },
-        { "ValueToValueMapNew", Opcode::kValueToValueMapNew },
-        { "ValueToValueMapTryGet", Opcode::kValueToValueMapTryGet },
-        { "ValueToValueMapCount", Opcode::kValueToValueMapCount },
-        { "ValueToValueMapSet", Opcode::kValueToValueMapSet },
-        { "ValueToValueMapRemove", Opcode::kValueToValueMapRemove },
-        { "ValueToValueMapKeys", Opcode::kValueToValueMapKeys },
-        { "ValueToValueMapValues", Opcode::kValueToValueMapValues },
-        { "ValueToObjectMapNew", Opcode::kValueToObjectMapNew },
-        { "ValueToObjectMapTryGet", Opcode::kValueToObjectMapTryGet },
-        { "ValueToObjectMapCount", Opcode::kValueToObjectMapCount },
-        { "ValueToObjectMapSet", Opcode::kValueToObjectMapSet },
-        { "ValueToObjectMapRemove", Opcode::kValueToObjectMapRemove },
-        { "ValueToObjectMapKeys", Opcode::kValueToObjectMapKeys },
-        { "ValueToObjectMapValues", Opcode::kValueToObjectMapValues },
-        { "ObjectToValueMapNew", Opcode::kObjectToValueMapNew },
-        { "ObjectToValueMapTryGet", Opcode::kObjectToValueMapTryGet },
-        { "ObjectToValueMapCount", Opcode::kObjectToValueMapCount },
-        { "ObjectToValueMapSet", Opcode::kObjectToValueMapSet },
-        { "ObjectToValueMapRemove", Opcode::kObjectToValueMapRemove },
-        { "ObjectToValueMapKeys", Opcode::kObjectToValueMapKeys },
-        { "ObjectToValueMapValues", Opcode::kObjectToValueMapValues },
-        { "ObjectToObjectMapNew", Opcode::kObjectToObjectMapNew },
-        { "ObjectToObjectMapTryGet", Opcode::kObjectToObjectMapTryGet },
-        { "ObjectToObjectMapCount", Opcode::kObjectToObjectMapCount },
-        { "ObjectToObjectMapSet", Opcode::kObjectToObjectMapSet },
-        { "ObjectToObjectMapRemove", Opcode::kObjectToObjectMapRemove },
-        { "ObjectToObjectMapKeys", Opcode::kObjectToObjectMapKeys },
-        { "ObjectToObjectMapValues", Opcode::kObjectToObjectMapValues },
-        { "ValueOptionalNewMissing", Opcode::kValueOptionalNewMissing },
-        { "ValueOptionalNewPresent", Opcode::kValueOptionalNewPresent },
-        { "ObjectOptionalNewMissing", Opcode::kObjectOptionalNewMissing },
-        { "ObjectOptionalNewPresent", Opcode::kObjectOptionalNewPresent },
-        { "ValueGlobalStore", Opcode::kValueGlobalStore },
-        { "ValueGlobalLoad", Opcode::kValueGlobalLoad },
-        { "ObjectGlobalStore", Opcode::kObjectGlobalStore },
-        { "ObjectGlobalLoad", Opcode::kObjectGlobalLoad },
-        { "StringMid", Opcode::kStringMid },
-        { "StringIndexOf", Opcode::kStringIndexOf },
-        { "StringAsc", Opcode::kStringAsc },
-        { "StringPrint", Opcode::kStringPrint },
-        { "StringInputLine", Opcode::kStringInputLine },
-        { "NumberToString", Opcode::kNumberToString },
-        { "StringToNumber", Opcode::kStringToNumber },
+        { "PushErrorMessage", Opcode::kPushErrorMessage },
+        { "PushErrorCode", Opcode::kPushErrorCode },
+        { "RecordNew", Opcode::kRecordNew },
+        { "RecordGetValue", Opcode::kRecordGetValue },
+        { "RecordGetObject", Opcode::kRecordGetObject },
+        { "ValueListNew", Opcode::kValueListNew },
+        { "ObjectListNew", Opcode::kObjectListNew },
     };
 
     auto it = map.find(s);
@@ -168,6 +84,7 @@ static SystemCall parseSystemCall(string s) {
      sed 's/"k/"/g'
     */
     static const std::unordered_map<string, SystemCall> map = {
+        { "Add", SystemCall::kAdd },
         { "AvailableLocales", SystemCall::kAvailableLocales },
         { "AvailableTimeZones", SystemCall::kAvailableTimeZones },
         { "Characters1", SystemCall::kCharacters1 },
@@ -177,12 +94,17 @@ static SystemCall parseSystemCall(string s) {
         { "DateTimeFromParts", SystemCall::kDateTimeFromParts },
         { "DateTimeOffsetFromParts", SystemCall::kDateTimeOffsetFromParts },
         { "Days", SystemCall::kDays },
+        { "FlushConsoleOutput", SystemCall::kFlushConsoleOutput },
         { "HasValueO", SystemCall::kHasValueO },
         { "HasValueV", SystemCall::kHasValueV },
         { "Hours", SystemCall::kHours },
         { "Len", SystemCall::kLen },
         { "Milliseconds", SystemCall::kMilliseconds },
         { "Minutes", SystemCall::kMinutes },
+        { "NumberToString", SystemCall::kNumberToString },
+        { "ObjectListGet", SystemCall::kObjectListGet },
+        { "ObjectListLength", SystemCall::kObjectListLength },
+        { "PrintString", SystemCall::kPrintString },
         { "Seconds", SystemCall::kSeconds },
         { "TimeZoneFromName", SystemCall::kTimeZoneFromName },
         { "TotalDays", SystemCall::kTotalDays },
@@ -204,46 +126,18 @@ static SystemCall parseSystemCall(string s) {
     return {};
 }
 
-static void appendInt64(vector<uint8_t>* vec, istream* input) {
-    int64_t value = 0;
+template <typename TInt>
+static void appendInt(vector<uint8_t>* vec, TInt value) {
+    array<uint8_t, sizeof(TInt)> bytes{};
+    memcpy(bytes.data(), &value, sizeof(TInt));
+    vec->insert(vec->end(), bytes.begin(), bytes.end());
+}
+
+template <typename TInt>
+static void appendInt(vector<uint8_t>* vec, istream* input) {
+    int64_t value{};
     *input >> value;
-    auto bytes = array<uint8_t, 8>();
-    memcpy(bytes.data(), &value, 8);
-    for (auto b : bytes) {
-        vec->push_back(b);
-    }
-}
-
-static void appendUint16(vector<uint8_t>* vec, istream* input) {
-    uint16_t value = 0;
-    *input >> value;
-    auto bytes = array<uint8_t, 2>();
-    memcpy(bytes.data(), &value, 2);
-    for (auto b : bytes) {
-        vec->push_back(b);
-    }
-}
-
-static void appendUint16(vector<uint8_t>* vec, uint16_t value) {
-    auto bytes = array<uint16_t, 2>();
-    memcpy(bytes.data(), &value, 2);
-    for (auto b : bytes) {
-        vec->push_back(b);
-    }
-}
-
-static void appendUint32(vector<uint8_t>* vec, uint32_t value) {
-    auto bytes = array<uint8_t, 4>();
-    memcpy(bytes.data(), &value, 4);
-    for (auto b : bytes) {
-        vec->push_back(b);
-    }
-}
-
-static void appendUint32(vector<uint8_t>* vec, istream* input) {
-    uint32_t value = 0;
-    *input >> value;
-    appendUint32(vec, value);
+    appendInt<TInt>(vec, static_cast<TInt>(value));
 }
 
 static void appendLengthTaggedString(vector<uint8_t>* vec, istream* input) {
@@ -257,7 +151,7 @@ static void appendLengthTaggedString(vector<uint8_t>* vec, istream* input) {
     (void)regex_success;  // avoid unused variable error in release builds
     auto unquoted = match[1].str();
 
-    appendUint32(vec, static_cast<uint32_t>(unquoted.size()));
+    appendInt(vec, static_cast<uint32_t>(unquoted.size()));
     for (auto ch : unquoted) {
         vec->push_back(static_cast<uint8_t>(ch));
     }
@@ -320,69 +214,66 @@ std::unique_ptr<vm::Program> assemble(istream* input) {
         vec.push_back(static_cast<uint8_t>(opcode));
 
         switch (opcode) {
-            case Opcode::kLoadConstantA:
-            case Opcode::kLoadConstantB:
-            case Opcode::kAEqualsConstant:
-            case Opcode::kBEqualsConstant:
-                appendInt64(&vec, input);
+            case Opcode::kPushImmediateInt64:
+                appendInt<uint64_t>(&vec, input);
                 break;
 
-            case Opcode::kLoadConstantStringX:
-            case Opcode::kLoadConstantStringY:
-            case Opcode::kLoadConstantStringZ:
+            case Opcode::kPushImmediateUtf8:
                 appendLengthTaggedString(&vec, input);
                 break;
 
-            case Opcode::kStoreA:
-            case Opcode::kStoreB:
-            case Opcode::kStoreX:
-            case Opcode::kStoreY:
-            case Opcode::kStoreZ:
-            case Opcode::kLoadA:
-            case Opcode::kLoadB:
-            case Opcode::kLoadX:
-            case Opcode::kLoadY:
-            case Opcode::kLoadZ:
-            case Opcode::kPopValues:
-            case Opcode::kPopObjects:
-            case Opcode::kPushValues:
-            case Opcode::kPushObjects:
-            case Opcode::kRecordBuilderStoreA:
-            case Opcode::kRecordBuilderStoreX:
-            case Opcode::kRecordLoadA:
-            case Opcode::kRecordLoadX:
-            case Opcode::kRecordStoreA:
-            case Opcode::kRecordStoreY:
-            case Opcode::kCall:
-                appendUint16(&vec, input);
+            case Opcode::kInitLocals:
+                appendInt<uint16_t>(&vec, input);
+                appendInt<uint16_t>(&vec, input);
+                break;
+
+            case Opcode::kPushArgumentValue:
+            case Opcode::kPushArgumentObject:
+                appendInt<uint8_t>(&vec, input);
+                break;
+
+            case Opcode::kPushGlobalValue:
+            case Opcode::kPushGlobalObject:
+            case Opcode::kSetGlobalValue:
+            case Opcode::kSetGlobalObject:
+            case Opcode::kPushLocalValue:
+            case Opcode::kPushLocalObject:
+            case Opcode::kSetLocalValue:
+            case Opcode::kSetLocalObject:
+            case Opcode::kRecordGetValue:
+            case Opcode::kRecordGetObject:
+                appendInt<uint16_t>(&vec, input);
                 break;
 
             case Opcode::kJump:
-            case Opcode::kBranchIfA:
-            case Opcode::kBranchIfNotA:
+            case Opcode::kBranchIfTrue:
+            case Opcode::kBranchIfFalse:
             case Opcode::kBranchIfNotError: {
                 string label;
                 *input >> label;
                 labelUsages.push_back({ label, vec.size() });
-                appendUint32(&vec, static_cast<uint32_t>(0));
+                appendInt<uint32_t>(&vec, static_cast<uint32_t>(0));
                 break;
             }
 
-            case Opcode::kPopBranchIfError:
-                appendUint32(&vec, input);
-                appendUint32(&vec, input);
-                appendUint32(&vec, input);
+            case Opcode::kCallSub:
+            case Opcode::kCallFunctionValue:
+            case Opcode::kCallFunctionObject: {
+                appendInt<uint32_t>(&vec, input);
+                appendInt<uint8_t>(&vec, input);
+                appendInt<uint8_t>(&vec, input);
                 break;
+            }
 
-            case Opcode::kRecordBuilderBegin:
-                appendUint16(&vec, input);
-                appendUint16(&vec, input);
-                break;
-
-            case Opcode::kSystemCall: {
+            case Opcode::kSystemCallSub:
+            case Opcode::kSystemCallFunctionValue:
+            case Opcode::kSystemCallFunctionObject:
+            case Opcode::kSystemCallFunctionValueObject: {
                 string systemCallStr;
                 *input >> systemCallStr;
-                appendUint16(&vec, static_cast<uint16_t>(parseSystemCall(systemCallStr)));
+                appendInt<uint16_t>(&vec, static_cast<uint16_t>(parseSystemCall(systemCallStr)));
+                appendInt<uint8_t>(&vec, input);
+                appendInt<uint8_t>(&vec, input);
                 break;
             }
 
