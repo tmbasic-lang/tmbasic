@@ -3,10 +3,21 @@ nav@{TMBASIC Documentation:doc}@
 h1[Cheat Sheet for Experienced Programmers]
 
 TMBASIC is a statically- and nominally-typed BASIC language.
-No line numbers, no `GOTO` / `GOSUB`, no `PEEK` / `POKE`, no type suffixes like `$` / `%`.
-Collections and strings are dynamic-sized.
-Errors are handled using exceptions (`throw` and `try` / `catch` / `finally`).
-Uniform function call syntax is supported; that is, `foo(bar, baz)` is the same as `bar.foo(baz)`.
+Roughly speaking, it is a cross between QBASIC and Visual Basic (pre-.NET) that aims for simplicity.
+
+pre@
+┌─ Dropped legacy features ───┐   ┌─ Supported modern features ────────┐
+│  No line numbers            │   │  √ Dynamically-sized collections   │
+│  No GOTO                    │   │  √ Exception-based error handling  │
+│  No PEEK or POKE            │   │  √ Text-based UI library           │
+│  No type suffixes (like $)  │   │  √ Statically-linked executables   │
+└─────────────────────────────┘   └────────────────────────────────────┘
+
+┌─ Omitted modern features ────────────────────────────────────────────┐
+│  No object-oriented programming    No graphics or sound support      │
+│  No multithreading                 No interop with other languages   │
+└──────────────────────────────────────────────────────────────────────┘
+@
 
 TMBASIC has a visual designer for text user interface (TUI) forms and controls, enabling rapid application development.
 Forms and controls may also be constructed dynamically in BASIC code as needed.
@@ -30,7 +41,7 @@ li@t[Record (...)] -- Anonymous record type, containing zero or more named field
 li@Named record types. These are defined using `type` ... `end type` blocks.@
 @
 
-Unlike most BASICs, there are no reference semantics in TMBASIC.
+There are no object or reference semantics in TMBASIC, and thus no real support for object oriented programming (OOP).
 Everything is a value.
 Assigning to a variable always makes a copy, even for records, lists, and maps.
 Procedure parameters are passed by value.
@@ -38,7 +49,32 @@ Internally, TMBASIC uses immutable data structures to make this efficient.
 
 h2[Sample code]
 
-The following sample code implements the Fibonacci series.
+h3[`if` ... `then` ... `else` ... `end if`]
+
+code@
+sub FizzBuzz(n as Number)
+    dim fizz = (n mod 3) = 0
+    dim buzz = (n mod 5) = 0
+    if fizz and buzz then
+        print "FizzBuzz"
+    else if fizz then
+        print "Fizz"
+    else if buzz then
+        print "Buzz"
+    else
+        print n
+    end if
+end function
+
+sub Main()
+    dim n as Number
+    print "Enter a number, or 0 to quit: ";
+    input n
+    if n <> 0 then FizzBuzz n
+end sub
+@
+
+h3[Build a list efficiently with `select`]
 
 code@
 function Fibonacci(count as Number) as List of Number
@@ -46,38 +82,20 @@ function Fibonacci(count as Number) as List of Number
     dim a = 0
     dim b = 1
 
-    ' You can declare lists this way and append items with +.
-    dim seriesVerbose as List of Number
-    seriesVerbose = seriesVerbose + a + b
-
-    ' There is a literal syntax for lists, like JavaScript.
-    dim seriesLessVerbose = [a, b]
-
-    ' But building a list dynamically is easier with "dim list".
-    dim list series
-        ' Use "select" to append when inside "dim list".
-        select a
-        select b
-        for i = 3 to count
-            dim c = a + b
-            select c
-            a = b
-            b = c
-        next
-    end dim
-
-    return series
+    ' Use "select" to build the list to be returned.
+    select a
+    select b
+    for i = 3 to count
+        dim c = a + b
+        select c
+        a = b
+        b = c
+    next
 end function
 
 sub Main()
-    dim count = 50
-    for each n in Fibonacci(count)
-        Print n
-    next
-    ' "count.Fibonacci" is the same as "Fibonacci(count)"
-    for each n in count.Fibonacci
-        ' "n.Print" is the same as "Print n"
-        n.Print
+    for each n in Fibonacci(50)
+        print n
     next
 end sub
 @
