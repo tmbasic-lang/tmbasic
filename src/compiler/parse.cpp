@@ -1968,21 +1968,23 @@ class StatementProduction : public Production {
         const Production* dimCollectionStatement,
         const Production* constStatement) {
         listTerm = list({
-            oneOf({
-                prod(commandStatement),
-                prod(forStatement),
-                prod(forEachStatement),
-                prod(whileStatement),
-                prod(doStatement),
-                prod(ifStatement),
-                prod(joinStatement),
-                prod(groupStatement),
-                prod(selectCaseStatement),
-                prod(tryStatement),
-                prod(dimStatement),
-                prod(dimCollectionStatement),
-                prod(constStatement),
-            }),
+            capture(
+                0,
+                oneOf({
+                    prod(commandStatement),
+                    prod(forStatement),
+                    prod(forEachStatement),
+                    prod(whileStatement),
+                    prod(doStatement),
+                    prod(ifStatement),
+                    prod(joinStatement),
+                    prod(groupStatement),
+                    prod(selectCaseStatement),
+                    prod(tryStatement),
+                    prod(dimStatement),
+                    prod(dimCollectionStatement),
+                    prod(constStatement),
+                })),
         });
     }
 

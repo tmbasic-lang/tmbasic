@@ -99,3 +99,8 @@ TEST(CompilerTest, GlobalValue_String) {
     auto str = dynamic_cast<vm::String*>(o)->toUtf8();
     ASSERT_EQ("test", str);
 }
+
+TEST(CompilerTest, HelloWorld) {
+    compiler::CompiledProgram program{};
+    run("HelloWorld", &program);
+}

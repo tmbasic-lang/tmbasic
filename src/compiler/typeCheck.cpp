@@ -92,9 +92,37 @@ static void typeCheckCallExpression(CallExpressionNode* expressionNode) {
     throw std::runtime_error("not impl");
 }
 
-static void typeCheckConstValueExpression(ConstValueExpressionNode* expressionNode) {
+static void typeCheckConstValueExpressionArray(LiteralArrayExpressionNode* expressionNode) {
     (void)expressionNode;
     throw std::runtime_error("not impl");
+}
+
+static void typeCheckConstValueExpressionRecord(LiteralRecordFieldNode* expressionNode) {
+    (void)expressionNode;
+    throw std::runtime_error("not impl");
+}
+
+static void typeCheckConstValueExpression(ConstValueExpressionNode* expressionNode) {
+    switch (expressionNode->getConstValueExpressionType()) {
+        case ConstValueExpressionType::kArray:
+            typeCheckConstValueExpressionArray(dynamic_cast<LiteralArrayExpressionNode*>(expressionNode));
+            break;
+        case ConstValueExpressionType::kBoolean:
+            expressionNode->evaluatedType = boost::make_local_shared<TypeNode>(Kind::kBoolean, expressionNode->token);
+            break;
+        case ConstValueExpressionType::kNumber:
+            expressionNode->evaluatedType = boost::make_local_shared<TypeNode>(Kind::kNumber, expressionNode->token);
+            break;
+        case ConstValueExpressionType::kRecord:
+            typeCheckConstValueExpressionRecord(dynamic_cast<LiteralRecordFieldNode*>(expressionNode));
+            break;
+        case ConstValueExpressionType::kString:
+            expressionNode->evaluatedType = boost::make_local_shared<TypeNode>(Kind::kString, expressionNode->token);
+            break;
+        default:
+            assert(false);
+            throw std::runtime_error("Unrecognized ConstValueExpressionType.");
+    }
 }
 
 static void typeCheckConvertExpression(ConvertExpressionNode* expressionNode) {

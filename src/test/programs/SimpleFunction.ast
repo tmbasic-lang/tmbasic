@@ -13,3 +13,8 @@ compiler::ProgramNode
      kind=kNumber
    body
     compiler::BodyNode
+     statements
+      compiler::ReturnStatementNode
+       expression
+        compiler::SymbolReferenceExpressionNode
+         name=x

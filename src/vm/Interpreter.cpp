@@ -340,12 +340,18 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kReturn: {
                 _private->returnFromProcedure(&vsi, &osi, &procedure, &instructions, &instructionIndex);
+                if (procedure == nullptr) {
+                    return false;
+                }
                 break;
             }
 
             case Opcode::kReturnValue: {
                 auto val = *valueAt(valueStack, vsi, -1);
                 _private->returnFromProcedure(&vsi, &osi, &procedure, &instructions, &instructionIndex);
+                if (procedure == nullptr) {
+                    return false;
+                }
                 pushValue(valueStack, &vsi, val);
                 break;
             }
@@ -353,6 +359,9 @@ bool Interpreter::run(int maxCycles) {
             case Opcode::kReturnObject: {
                 auto obj = *objectAt(objectStack, osi, -1);
                 _private->returnFromProcedure(&vsi, &osi, &procedure, &instructions, &instructionIndex);
+                if (procedure == nullptr) {
+                    return false;
+                }
                 pushObject(objectStack, &osi, std::move(obj));
                 break;
             }

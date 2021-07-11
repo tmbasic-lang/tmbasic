@@ -56,3 +56,7 @@ TEST(ParserTest, ParseSimpleSub) {
 TEST(ParserTest, ParseSimpleFunction) {
     parseMatch("SimpleFunction");
 }
+
+TEST(ParserTest, Print) {
+    parseMatch("Print");
+}
