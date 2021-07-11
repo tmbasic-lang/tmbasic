@@ -6,6 +6,6 @@
 
 namespace compiler {
 
-void compileProgram(const SourceProgram& sourceProgram, CompiledProgram* compiledProgram);
+void compileGlobals(const SourceProgram& sourceProgram, CompiledProgram* compiledProgram);
 
 }  // namespace compiler

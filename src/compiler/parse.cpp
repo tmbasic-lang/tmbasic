@@ -465,10 +465,10 @@ class RecordTypeProduction : public Production {
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
-        std::vector<boost::local_shared_ptr<FieldNode>> fields;
+        std::vector<boost::local_shared_ptr<ParameterNode>> fields;
         for (auto& parameter : captureNodeArray<ParameterNode>(std::move(captures->at(0)))) {
             fields.push_back(
-                boost::make_local_shared<FieldNode>(parameter->name, std::move(parameter->type), firstToken));
+                boost::make_local_shared<ParameterNode>(parameter->name, std::move(parameter->type), firstToken));
         }
         return nodeBox<TypeNode>(Kind::kRecord, firstToken, std::move(fields));
     }

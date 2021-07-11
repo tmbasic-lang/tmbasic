@@ -58,13 +58,13 @@ enum class Kind {
     kOptional,
 };
 
-class FieldNode : public Node {
+class ParameterNode : public Node {
    public:
     std::string name;
     boost::local_shared_ptr<TypeNode> type;
-    FieldNode(std::string name, boost::local_shared_ptr<TypeNode> type, Token token);
-    FieldNode(const FieldNode& source);
+    ParameterNode(std::string name, boost::local_shared_ptr<TypeNode> type, Token token);
     void dump(std::ostringstream& s, int n) const override;
+    std::optional<std::string> getSymbolDeclaration() const override;
 };
 
 class TypeNode : public Node {
@@ -72,7 +72,7 @@ class TypeNode : public Node {
     Kind kind;
     std::optional<std::string> recordName;              // kind = kRecord (named)
     std::optional<std::string> genericPlaceholderName;  // kind = kGenericPlaceholder
-    std::vector<boost::local_shared_ptr<FieldNode>>
+    std::vector<boost::local_shared_ptr<ParameterNode>>
         fields;  // kind = kRecord (anonymous), will be filled for named types by bindNamedTypes
     // nullable type parameters
     boost::local_shared_ptr<TypeNode> listItemType;       // kind = kList
@@ -88,7 +88,7 @@ class TypeNode : public Node {
         Token token,
         boost::local_shared_ptr<TypeNode> mapKeyType,
         boost::local_shared_ptr<TypeNode> mapValueType);
-    TypeNode(Kind kind, Token token, std::vector<boost::local_shared_ptr<FieldNode>> fields);
+    TypeNode(Kind kind, Token token, std::vector<boost::local_shared_ptr<ParameterNode>> fields);
     TypeNode(const TypeNode& source);
     void dump(std::ostringstream& s, int n) const override;
     bool isValueType() const;
@@ -736,15 +736,6 @@ class InputStatementNode : public StatementNode {
 //
 // members
 //
-
-class ParameterNode : public Node {
-   public:
-    std::string name;
-    boost::local_shared_ptr<TypeNode> type;
-    ParameterNode(std::string name, boost::local_shared_ptr<TypeNode> type, Token token);
-    void dump(std::ostringstream& s, int n) const override;
-    std::optional<std::string> getSymbolDeclaration() const override;
-};
 
 class GlobalVariableNode : public Node {
    public:

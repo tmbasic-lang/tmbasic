@@ -1,8 +1,9 @@
-#include "compiler/compileGlobal.h"
-#include "compiler/bindProcedureSymbols.h"
-#include "compiler/parse.h"
-#include "compiler/tokenize.h"
-#include "compiler/typeCheck.h"
+#include "compileGlobals.h"
+#include "CompilerException.h"
+#include "bindProcedureSymbols.h"
+#include "parse.h"
+#include "tokenize.h"
+#include "typeCheck.h"
 #include "util/cast.h"
 #include "vm/String.h"
 
@@ -59,14 +60,14 @@ static vm::Value getConstValue(const ConstValueExpressionNode& node) {
     }
 }
 
-CompilerResult compileGlobal(const SourceMember& sourceMember, CompiledProgram* compiledProgram) {
+static void compileGlobal(const SourceMember& sourceMember, CompiledProgram* compiledProgram) {
     auto lowercaseIdentifier = boost::algorithm::to_lower_copy(sourceMember.identifier);
     CompiledGlobalVariable* compiledGlobalVariable = nullptr;
 
     // see if the compiled global already exists
     for (auto& g : compiledProgram->globalVariables) {
         if (g->lowercaseName == lowercaseIdentifier) {
-            return CompilerResult::error(
+            throw CompilerException(
                 fmt::format("The global variable name \"{}\" already exists.", sourceMember.identifier), {});
         }
     }
@@ -80,7 +81,7 @@ CompilerResult compileGlobal(const SourceMember& sourceMember, CompiledProgram* 
     auto tokens = tokenize(sourceMember.source + "\n", TokenizeType::kCompile, &sourceMember);
     auto parserResult = parse(&sourceMember, ParserRootProduction::kMember, tokens);
     if (!parserResult.isSuccess) {
-        return CompilerResult::error(parserResult.message, *parserResult.token);
+        throw CompilerException(parserResult.message, *parserResult.token);
     }
 
     // figure out the type of the variable. it must be a literal initializer.
@@ -93,7 +94,7 @@ CompilerResult compileGlobal(const SourceMember& sourceMember, CompiledProgram* 
         assert(dimNode->value || dimNode->type);
         if (dimNode->value) {
             if (dimNode->value->getExpressionType() != ExpressionType::kConstValue) {
-                return CompilerResult::error(
+                throw CompilerException(
                     "Global variable initial values must be a boolean, number, or string literal.",
                     dimNode->value->token);
             }
@@ -103,8 +104,7 @@ CompilerResult compileGlobal(const SourceMember& sourceMember, CompiledProgram* 
             compiledGlobalVariable->type = boost::make_local_shared<TypeNode>(*dimNode->type);
         }
     } else {
-        return CompilerResult::error(
-            "This member must be a global variable (dim) or constant value (const).", tokens[0]);
+        throw CompilerException("This member must be a global variable (dim) or constant value (const).", tokens[0]);
     }
 
     compiledGlobalVariable->isValue = compiledGlobalVariable->type->isValueType();
@@ -123,7 +123,7 @@ CompilerResult compileGlobal(const SourceMember& sourceMember, CompiledProgram* 
     }
     if (valueExpr) {
         if (valueExpr->getExpressionType() != ExpressionType::kConstValue) {
-            return CompilerResult::error(
+            throw CompilerException(
                 "The initial value of a global variable must be a boolean, number, or string literal.",
                 valueExpr->token);
         }
@@ -141,8 +141,14 @@ CompilerResult compileGlobal(const SourceMember& sourceMember, CompiledProgram* 
         compiledGlobalVariable->index = compiledProgram->vmProgram.globalObjects.size();
         compiledProgram->vmProgram.globalObjects.push_back(std::move(initialObject));
     }
+}
 
-    return CompilerResult::success();
+void compileGlobals(const SourceProgram& sourceProgram, CompiledProgram* compiledProgram) {
+    for (const auto& member : sourceProgram.members) {
+        if (member->memberType == SourceMemberType::kGlobal) {
+            compileGlobal(*member, compiledProgram);
+        }
+    }
 }
 
 }  // namespace compiler

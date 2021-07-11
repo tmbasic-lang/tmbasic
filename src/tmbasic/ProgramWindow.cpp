@@ -1,5 +1,6 @@
 #include "ProgramWindow.h"
 #include "../../obj/resources/help/helpfile.h"
+#include "../compiler/CompilerException.h"
 #include "../compiler/TargetPlatform.h"
 #include "../compiler/compileProgram.h"
 #include "../compiler/gzip.h"
@@ -421,21 +422,21 @@ void ProgramWindow::setState(uint16_t aState, bool enable) {
     }
 }
 
-static void compilerErrorMessageBox(const compiler::CompilerResult& compilerResult) {
+static void compilerErrorMessageBox(const compiler::CompilerException& ex) {
     messageBox(
         fmt::format(
-            "Error in \"{}\"\nLn {}, Col {}\n{}", compilerResult.token.sourceMember->identifier,
-            compilerResult.token.lineIndex + 1, compilerResult.token.columnIndex + 1, compilerResult.message),
+            "Error in \"{}\"\nLn {}, Col {}\n{}", ex.token.sourceMember->identifier, ex.token.lineIndex + 1,
+            ex.token.columnIndex + 1, ex.message),
         mfError | mfOKButton);
 }
 
 void ProgramWindow::checkForErrors() {
     compiler::CompiledProgram program;
-    auto compilerResult = compiler::compileProgram(*_private->sourceProgram, &program);
-    if (compilerResult.isSuccess) {
+    try {
+        compiler::compileProgram(*_private->sourceProgram, &program);
         messageBox("No errors!", mfInformation | mfOKButton);
-    } else {
-        compilerErrorMessageBox(compilerResult);
+    } catch (compiler::CompilerException& ex) {
+        compilerErrorMessageBox(ex);
     }
 }
 
@@ -502,10 +503,11 @@ void ProgramWindow::publish() {
     TScreen::flushScreen();
 
     compiler::CompiledProgram program;
-    auto compilerResult = compiler::compileProgram(*_private->sourceProgram, &program);
-    if (!compilerResult.isSuccess) {
+    try {
+        compiler::compileProgram(*_private->sourceProgram, &program);
+    } catch (compiler::CompilerException& ex) {
         statusWindow.get()->close();
-        compilerErrorMessageBox(compilerResult);
+        compilerErrorMessageBox(ex);
         return;
     }
 
@@ -537,9 +539,10 @@ void ProgramWindow::publish() {
 
 void ProgramWindow::run() {
     compiler::CompiledProgram program;
-    auto compilerResult = compiler::compileProgram(*_private->sourceProgram, &program);
-    if (!compilerResult.isSuccess) {
-        compilerErrorMessageBox(compilerResult);
+    try {
+        compiler::compileProgram(*_private->sourceProgram, &program);
+    } catch (compiler::CompilerException& ex) {
+        compilerErrorMessageBox(ex);
         return;
     }
 

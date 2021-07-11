@@ -1,7 +1,8 @@
 #include "../common.h"
 #include "assemble.h"
-#include "compiler/compileProgram.h"
+#include "compiler/CompilerException.h"
 #include "compiler/TargetPlatform.h"
+#include "compiler/compileProgram.h"
 #include "compiler/makeExeFile.h"
 #include "gtest/gtest.h"
 #include "helpers.h"
@@ -55,12 +56,12 @@ static void run(string filenameWithoutExtension, compiler::CompiledProgram* prog
 
     compiler::SourceProgram sourceProgram;
     sourceProgram.loadFromContent(source);
-    auto compilerResult = compiler::compileProgram(sourceProgram, program);
-    if (!compilerResult.isSuccess) {
-        std::cerr << compilerResult.message << std::endl
-                  << NAMEOF_ENUM(compilerResult.token.type) << " \"" << compilerResult.token.text << "\" ("
-                  << compilerResult.token.lineIndex + 1 << ":" << compilerResult.token.columnIndex + 1 << ")"
-                  << std::endl;
+    try {
+        compiler::compileProgram(sourceProgram, program);
+    } catch (compiler::CompilerException& ex) {
+        std::cerr << ex.message << std::endl
+                  << NAMEOF_ENUM(ex.token.type) << " \"" << ex.token.text << "\" (" << ex.token.lineIndex + 1 << ":"
+                  << ex.token.columnIndex + 1 << ")" << std::endl;
     }
     ASSERT_EQ(1, program->vmProgram.procedures.size());
 

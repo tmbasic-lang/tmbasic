@@ -1,20 +1,21 @@
 #include "compileTypes.h"
-#include "compiler/ast.h"
-#include "compiler/parse.h"
-#include "compiler/tokenize.h"
+#include "CompilerException.h"
+#include "ast.h"
+#include "parse.h"
+#include "tokenize.h"
 #include "util/cast.h"
 
 namespace compiler {
 
-static CompilerResult compileType(const SourceMember& sourceMember, CompiledProgram* compiledProgram) {
+static void compileType(int sourceMemberIndex, const SourceMember& sourceMember, CompiledProgram* compiledProgram) {
     auto tokens = tokenize(sourceMember.source + "\n", TokenizeType::kCompile, &sourceMember);
     auto parserResult = parse(&sourceMember, ParserRootProduction::kMember, tokens);
     if (!parserResult.isSuccess) {
-        return CompilerResult::error(parserResult.message, *parserResult.token);
+        throw CompilerException(parserResult.message, *parserResult.token);
     }
 
     if (parserResult.node->getMemberType() != MemberType::kTypeDeclaration) {
-        return CompilerResult::error("This member was expected to be a type declaration.", tokens[0]);
+        throw CompilerException("This member was expected to be a type declaration.", tokens[0]);
     }
 
     const auto& typeDeclarationNode = dynamic_cast<TypeDeclarationNode&>(*parserResult.node);
@@ -22,7 +23,7 @@ static CompilerResult compileType(const SourceMember& sourceMember, CompiledProg
 
     if (compiledProgram->userTypesByNameLowercase.find(lowercaseIdentifier) !=
         compiledProgram->userTypesByNameLowercase.end()) {
-        return CompilerResult::error(fmt::format("A type named \"{}\" already exists.", typeDeclarationNode.name), {});
+        throw CompilerException(fmt::format("A type named \"{}\" already exists.", typeDeclarationNode.name), {});
     }
 
     auto t = std::make_unique<CompiledUserType>();
@@ -31,34 +32,59 @@ static CompilerResult compileType(const SourceMember& sourceMember, CompiledProg
 
     auto nextValueIndex = 0;
     auto nextObjectIndex = 0;
-    for (const auto& field : typeDeclarationNode.fields) {
+    for (auto& field : typeDeclarationNode.fields) {
         auto compiledField = std::make_unique<CompiledUserTypeField>();
         compiledField->nameLowercase = boost::algorithm::to_lower_copy(field->name);
         compiledField->name = field->name;
         compiledField->isValue = field->type->isValueType();
         compiledField->isObject = !compiledField->isValue;
         compiledField->fieldIndex = compiledField->isValue ? nextValueIndex++ : nextObjectIndex++;
+        compiledField->type = std::move(field->type);
         t->fieldsByNameLowercase.insert(std::make_pair(compiledField->nameLowercase, compiledField.get()));
         t->fields.push_back(std::move(compiledField));
     }
 
     compiledProgram->userTypesByNameLowercase.insert(std::make_pair(lowercaseIdentifier, t.get()));
+    compiledProgram->userTypesBySourceMemberIndex.insert(std::make_pair(sourceMemberIndex, t.get()));
     compiledProgram->userTypes.push_back(std::move(t));
-
-    return CompilerResult::success();
 }
 
-CompilerResult compileTypes(const SourceProgram& sourceProgram, CompiledProgram* compiledProgram) {
-    for (const auto& member : sourceProgram.members) {
-        if (member->memberType == SourceMemberType::kType) {
-            auto result = compileType(*member, compiledProgram);
-            if (!result.isSuccess) {
-                return result;
-            }
+static void checkFieldType(const TypeNode& fieldTypeNode, const CompiledProgram& compiledProgram) {
+    if (fieldTypeNode.kind == Kind::kRecord && fieldTypeNode.recordName.has_value()) {
+        auto lowercaseRecordName = boost::algorithm::to_lower_copy(*fieldTypeNode.recordName);
+        if (compiledProgram.userTypesByNameLowercase.find(lowercaseRecordName) ==
+            compiledProgram.userTypesByNameLowercase.end()) {
+            throw CompilerException(
+                fmt::format("The type \"{}\" is not defined.", *fieldTypeNode.recordName), fieldTypeNode.token);
         }
+    } else if (fieldTypeNode.kind == Kind::kList) {
+        checkFieldType(*fieldTypeNode.listItemType, compiledProgram);
+    } else if (fieldTypeNode.kind == Kind::kMap) {
+        checkFieldType(*fieldTypeNode.mapKeyType, compiledProgram);
+        checkFieldType(*fieldTypeNode.mapValueType, compiledProgram);
     }
+}
 
-    return CompilerResult::success();
+static void checkFieldTypes(
+    size_t sourceMemberIndex,
+    const SourceMember& sourceMember,
+    CompiledProgram* compiledProgram) {
+    auto* compiledUserType = compiledProgram->userTypesBySourceMemberIndex.find(sourceMemberIndex)->second;
+    for (auto& field : compiledUserType->fields) {
+        checkFieldType(*field->type, *compiledProgram);
+    }
+}
+
+void compileTypes(const SourceProgram& sourceProgram, CompiledProgram* compiledProgram) {
+    // build a CompiledUserType for each user type, which assigns field indices
+    sourceProgram.forEachMemberIndex(SourceMemberType::kType, [compiledProgram](const auto& sourceMember, auto index) {
+        compileType(index, sourceMember, compiledProgram);
+    });
+
+    // check that fields of record types refer to defined types
+    sourceProgram.forEachMemberIndex(SourceMemberType::kType, [compiledProgram](const auto& sourceMember, auto index) {
+        checkFieldTypes(index, sourceMember, compiledProgram);
+    });
 }
 
 }  // namespace compiler

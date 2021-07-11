@@ -1,8 +1,9 @@
 #include "typeCheck.h"
+#include "CompilerException.h"
 
 namespace compiler {
 
-static CompilerResult typeCheckExpression(ExpressionNode* expressionNode);
+static void typeCheckExpression(ExpressionNode* expressionNode);
 
 static std::string getOperatorText(BinaryOperator op) {
     switch (op) {
@@ -37,7 +38,7 @@ static std::string getOperatorText(BinaryOperator op) {
     }
 }
 
-static CompilerResult typeCheckBinaryExpression(BinaryExpressionNode* expressionNode) {
+static void typeCheckBinaryExpression(BinaryExpressionNode* expressionNode) {
     const auto& lhsType = expressionNode->leftOperand->evaluatedType;
     for (const auto& suffix : expressionNode->binarySuffixes) {
         const auto& rhsType = suffix->rightOperand->evaluatedType;
@@ -47,9 +48,9 @@ static CompilerResult typeCheckBinaryExpression(BinaryExpressionNode* expression
             case BinaryOperator::kAnd:
                 if (lhsType->kind == Kind::kBoolean && rhsType->kind == Kind::kBoolean) {
                     expressionNode->evaluatedType = lhsType;
-                    return CompilerResult::success();
+                    return;
                 } else {
-                    return CompilerResult::error(
+                    throw CompilerException(
                         std::string("The \"") + getOperatorText(suffix->binaryOperator) +
                             "\" operator requires operands of type boolean.",
                         suffix->token);
@@ -63,9 +64,9 @@ static CompilerResult typeCheckBinaryExpression(BinaryExpressionNode* expression
             case BinaryOperator::kGreaterThanEquals:
                 if (lhsType->canImplicitlyConvertTo(*rhsType) || rhsType->canImplicitlyConvertTo(*lhsType)) {
                     expressionNode->evaluatedType = boost::make_local_shared<TypeNode>(Kind::kBoolean, suffix->token);
-                    return CompilerResult::success();
+                    return;
                 } else {
-                    return CompilerResult::error(
+                    throw CompilerException(
                         std::string("The \"") + getOperatorText(suffix->binaryOperator) +
                             "\" operator requires boolean operands.",
                         suffix->token);
@@ -75,7 +76,7 @@ static CompilerResult typeCheckBinaryExpression(BinaryExpressionNode* expression
                 // list + element -> list
                 if (lhsType->kind == Kind::kList && rhsType->canImplicitlyConvertTo(*lhsType->listItemType)) {
                     expressionNode->evaluatedType = lhsType;
-                    return CompilerResult::success();
+                    return;
                 }
 
             default:
@@ -86,75 +87,68 @@ static CompilerResult typeCheckBinaryExpression(BinaryExpressionNode* expression
     throw std::runtime_error("not impl");
 }
 
-static CompilerResult typeCheckCallExpression(CallExpressionNode* expressionNode) {
+static void typeCheckCallExpression(CallExpressionNode* expressionNode) {
     (void)expressionNode;
     throw std::runtime_error("not impl");
 }
 
-static CompilerResult typeCheckConstValueExpression(ConstValueExpressionNode* expressionNode) {
+static void typeCheckConstValueExpression(ConstValueExpressionNode* expressionNode) {
     (void)expressionNode;
     throw std::runtime_error("not impl");
 }
 
-static CompilerResult typeCheckConvertExpression(ConvertExpressionNode* expressionNode) {
+static void typeCheckConvertExpression(ConvertExpressionNode* expressionNode) {
     (void)expressionNode;
     throw std::runtime_error("not impl");
 }
 
-static CompilerResult typeCheckDottedExpression(DottedExpressionNode* expressionNode) {
+static void typeCheckDottedExpression(DottedExpressionNode* expressionNode) {
     (void)expressionNode;
     throw std::runtime_error("not impl");
 }
 
-static CompilerResult typeCheckNotExpression(NotExpressionNode* expressionNode) {
+static void typeCheckNotExpression(NotExpressionNode* expressionNode) {
     (void)expressionNode;
     throw std::runtime_error("not impl");
 }
 
-static CompilerResult typeCheckSymbolReferenceExpression(SymbolReferenceExpressionNode* expressionNode) {
+static void typeCheckSymbolReferenceExpression(SymbolReferenceExpressionNode* expressionNode) {
     (void)expressionNode;
     throw std::runtime_error("not impl");
 }
 
-CompilerResult typeCheckExpression(ExpressionNode* expressionNode) {
+void typeCheckExpression(ExpressionNode* expressionNode) {
     switch (expressionNode->getExpressionType()) {
         case ExpressionType::kBinary:
-            return typeCheckBinaryExpression(dynamic_cast<BinaryExpressionNode*>(expressionNode));
+            typeCheckBinaryExpression(dynamic_cast<BinaryExpressionNode*>(expressionNode));
         case ExpressionType::kCall:
-            return typeCheckCallExpression(dynamic_cast<CallExpressionNode*>(expressionNode));
+            typeCheckCallExpression(dynamic_cast<CallExpressionNode*>(expressionNode));
         case ExpressionType::kConstValue:
-            return typeCheckConstValueExpression(dynamic_cast<ConstValueExpressionNode*>(expressionNode));
+            typeCheckConstValueExpression(dynamic_cast<ConstValueExpressionNode*>(expressionNode));
         case ExpressionType::kConvert:
-            return typeCheckConvertExpression(dynamic_cast<ConvertExpressionNode*>(expressionNode));
+            typeCheckConvertExpression(dynamic_cast<ConvertExpressionNode*>(expressionNode));
         case ExpressionType::kDotted:
-            return typeCheckDottedExpression(dynamic_cast<DottedExpressionNode*>(expressionNode));
+            typeCheckDottedExpression(dynamic_cast<DottedExpressionNode*>(expressionNode));
         case ExpressionType::kNot:
-            return typeCheckNotExpression(dynamic_cast<NotExpressionNode*>(expressionNode));
+            typeCheckNotExpression(dynamic_cast<NotExpressionNode*>(expressionNode));
         case ExpressionType::kSymbolReference:
-            return typeCheckSymbolReferenceExpression(dynamic_cast<SymbolReferenceExpressionNode*>(expressionNode));
+            typeCheckSymbolReferenceExpression(dynamic_cast<SymbolReferenceExpressionNode*>(expressionNode));
         default:
             assert(false);
             throw std::runtime_error("Unrecognized expression type.");
     }
 }
 
-static CompilerResult typeCheckBody(BodyNode* bodyNode) {
-    auto result = CompilerResult::success();
-
+static void typeCheckBody(BodyNode* bodyNode) {
     for (auto& statementNode : bodyNode->statements) {
-        statementNode->visitExpressions([&result](ExpressionNode& expressionNode) -> bool {
-            result = typeCheckExpression(&expressionNode);
-            return result.isSuccess;
+        statementNode->visitExpressions([](ExpressionNode& expressionNode) -> bool {
+            typeCheckExpression(&expressionNode);
+            return true;
         });
-        if (!result.isSuccess) {
-            return result;
-        }
     }
-
-    return result;
 }
 
-CompilerResult typeCheck(ProcedureNode* procedureNode) {
+void typeCheck(ProcedureNode* procedureNode) {
     return typeCheckBody(procedureNode->body.get());
 }
 

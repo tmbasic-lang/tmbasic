@@ -5,7 +5,6 @@
 
 namespace compiler {
 
-class FieldNode;
 class TypeNode;
 
 class CompiledGlobalVariable {
@@ -23,6 +22,7 @@ class CompiledUserTypeField {
     bool isValue = false;
     bool isObject = false;
     int fieldIndex = -1;
+    boost::local_shared_ptr<TypeNode> type;
 };
 
 class CompiledUserType {
@@ -39,6 +39,7 @@ class CompiledProgram {
     std::vector<std::unique_ptr<CompiledGlobalVariable>> globalVariables;
     std::vector<std::unique_ptr<CompiledUserType>> userTypes;
     std::unordered_map<std::string, CompiledUserType*> userTypesByNameLowercase;
+    std::unordered_map<size_t, CompiledUserType*> userTypesBySourceMemberIndex;
 };
 
 }  // namespace compiler

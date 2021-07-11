@@ -124,18 +124,6 @@ ExpressionType ConstValueExpressionNode::getExpressionType() const {
 
 StatementNode::StatementNode(Token token) : Node(std::move(token)) {}
 
-FieldNode::FieldNode(std::string name, boost::local_shared_ptr<TypeNode> type, Token token)
-    : Node(std::move(token)), name(std::move(name)), type(std::move(type)) {}
-
-void FieldNode::dump(std::ostringstream& s, int n) const {
-    DUMP_TYPE(FieldNode);
-    DUMP_VAR(name);
-    DUMP_VAR_NODE(type);
-}
-
-FieldNode::FieldNode(const FieldNode& source)
-    : Node(source.token), name(source.name), type(boost::make_local_shared<TypeNode>(*source.type)) {}
-
 TypeNode::TypeNode(Kind kind, Token token) : Node(std::move(token)), kind(kind) {}
 
 TypeNode::TypeNode(Kind kind, Token token, std::string recordName)
@@ -156,15 +144,15 @@ TypeNode::TypeNode(
     boost::local_shared_ptr<TypeNode> mapValueType)
     : Node(std::move(token)), kind(kind), mapKeyType(std::move(mapKeyType)), mapValueType(std::move(mapValueType)) {}
 
-TypeNode::TypeNode(Kind kind, Token token, std::vector<boost::local_shared_ptr<FieldNode>> fields)
+TypeNode::TypeNode(Kind kind, Token token, std::vector<boost::local_shared_ptr<ParameterNode>> fields)
     : Node(std::move(token)), kind(kind), fields(std::move(fields)) {}
 
-static std::vector<boost::local_shared_ptr<FieldNode>> cloneFields(
-    const std::vector<boost::local_shared_ptr<FieldNode>>& source) {
-    std::vector<boost::local_shared_ptr<FieldNode>> dest;
+static std::vector<boost::local_shared_ptr<ParameterNode>> cloneFields(
+    const std::vector<boost::local_shared_ptr<ParameterNode>>& source) {
+    std::vector<boost::local_shared_ptr<ParameterNode>> dest;
     dest.reserve(source.size());
     for (const auto& n : source) {
-        dest.push_back(boost::make_local_shared<FieldNode>(*n));
+        dest.push_back(boost::make_local_shared<ParameterNode>(*n));
     }
     return dest;
 }
