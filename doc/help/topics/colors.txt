@@ -26,30 +26,15 @@ Additionally, Microsoft's new {Windows Terminal:https://www.microsoft.com/en-us/
 
 On versions of Windows prior to Windows 10, only 16 colors are available.
 
-h2[macOS]
+h2[macOS and Linux]
 
-The built-in Terminal app supports 256 colors.
-If you see only 16 colors, then run the following command before running `tmbasic` to enable 256 color mode:
+On macOS, the built-in Terminal app supports 256 colors. The {iTerm2:https://iterm2.com/} app supports 24-bit "true color."
 
-pre@
-export TERM=xterm-256color
-@
+On Linux, capabilities vary between terminal emulator programs, but up-to-date versions of most major terminals support true color.
 
-The {iTerm2:https://iterm2.com/} app supports 24-bit "true color." It should work automatically, but if not, try running the following two commands before running `tmbasic`:
+If you are not seeing the expected colors, try running one of the following commands before starting `tmbasic`:
 
-pre@
-export TERM=xterm-256color
-export COLORTERM=truecolor
-@
-
-h2[Linux]
-
-Capabilities vary between terminal emulator programs.
-Up-to-date versions of most major terminals support true color.
-Try the following commands:
-
-pre@
-export TERM=xterm-256color
-# if your terminal supports true color, then:
-export COLORTERM=truecolor
+ul@
+li@To enable 256 color mode: `export TERM=xterm-256color`@
+li@To enable true color mode: `export COLORTERM=truecolor`@
 @
