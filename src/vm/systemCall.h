@@ -30,6 +30,8 @@ enum class SystemCall {
     kObjectListLength,          // ObjectListLength(input as ObjectList) as Number
     kObjectOptionalNewMissing,  // ObjectOptionalNewMissing() as ObjectOptional
     kObjectOptionalNewPresent,  // ObjectOptionalNewPresent(input as Object) as ObjectOptional
+    kObjectToObjectMapNew,      // ObjectToObjectMapNew() as ObjectToObjectMap
+    kObjectToValueMapNew,       // ObjectToValueMapNew() as ObjectToValueMap
     kPrintString,               // PrintString(input as String)
     kSeconds,                   // Seconds(count as Number) as TimeSpan
     kTimeZoneFromName,          // TimeZoneFromName(name as String) as TimeZone
@@ -42,6 +44,8 @@ enum class SystemCall {
     kValueO,                    // ValueO(input as Optional Object) as Boolean
     kValueOptionalNewMissing,   // ValueOptionalNewMissing() as ValueOptional
     kValueOptionalNewPresent,   // ValueOptionalNewPresent(input as Value) as ValueOptional
+    kValueToObjectMapNew,       // ValueToObjectMapNew() as ValueToObjectMap
+    kValueToValueMapNew,        // ValueToValueMapNew() as ValueToValueMap
     kValueV,                    // ValueV(input as Optional Value) as Boolean
 };
 

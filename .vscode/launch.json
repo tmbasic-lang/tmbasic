@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/bin/test",
-            "args": ["--gtest_catch_exceptions=0"],
+            "args": ["--gtest_catch_exceptions=0", "--gtest_filter=*"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/bin",
             "environment": [],

@@ -1,6 +1,7 @@
 #include "systemCall.h"
 #include "Error.h"
 #include "List.h"
+#include "Map.h"
 #include "Optional.h"
 #include "String.h"
 #include "TimeZone.h"
@@ -38,6 +39,12 @@ const Object& SystemCallInput::getObject(const int osiOffset) const {
 
 boost::local_shared_ptr<Object> SystemCallInput::getObjectPtr(const int osiOffset) const {
     return objectStack.at(objectStackIndex + osiOffset);
+}
+
+static void systemCallAdd(const SystemCallInput& input, SystemCallResult* result) {
+    auto lhs = input.getValue(-2).num;
+    auto rhs = input.getValue(-1).num;
+    result->returnedValue.num = lhs + rhs;
 }
 
 static void systemCallAvailableLocales(const SystemCallInput& /*unused*/, SystemCallResult* result) {
@@ -216,6 +223,14 @@ static void systemCallObjectOptionalNewPresent(const SystemCallInput& input, Sys
     result->returnedObject = boost::make_local_shared<ObjectOptional>(input.getObjectPtr(-1));
 }
 
+static void systemCallObjectToObjectMapNew(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedObject = boost::make_local_shared<ObjectToObjectMap>();
+}
+
+static void systemCallObjectToValueMapNew(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedObject = boost::make_local_shared<ObjectToValueMap>();
+}
+
 static void systemCallPrintString(const SystemCallInput& input, SystemCallResult* /*result*/) {
     auto str = dynamic_cast<const String&>(input.getObject(-1)).toUtf8();
     *input.consoleOutputStream << str;
@@ -271,6 +286,14 @@ static void systemCallValueOptionalNewPresent(const SystemCallInput& input, Syst
     result->returnedObject = boost::make_local_shared<ValueOptional>(value);
 }
 
+static void systemCallValueToObjectMapNew(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedObject = boost::make_local_shared<ValueToObjectMap>();
+}
+
+static void systemCallValueToValueMapNew(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedObject = boost::make_local_shared<ValueToValueMap>();
+}
+
 static void systemCallValueV(const SystemCallInput& input, SystemCallResult* result) {
     const auto& opt = dynamic_cast<const ValueOptional&>(input.getObject(-1));
     if (!opt.item.has_value()) {
@@ -285,12 +308,6 @@ static void systemCallValueO(const SystemCallInput& input, SystemCallResult* res
         throw Error(ErrorCode::kValueNotPresent, "Optional value is not present.");
     }
     result->returnedObject = *opt.item;
-}
-
-static void systemCallAdd(const SystemCallInput& input, SystemCallResult* result) {
-    auto lhs = input.getValue(-2).num;
-    auto rhs = input.getValue(-1).num;
-    result->returnedValue.num = lhs + rhs;
 }
 
 static void initSystemCall(SystemCall which, SystemCallFunc func) {
@@ -330,6 +347,8 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kObjectListLength, systemCallObjectListLength);
     initSystemCall(SystemCall::kObjectOptionalNewMissing, systemCallObjectOptionalNewMissing);
     initSystemCall(SystemCall::kObjectOptionalNewPresent, systemCallObjectOptionalNewPresent);
+    initSystemCall(SystemCall::kObjectToObjectMapNew, systemCallObjectToObjectMapNew);
+    initSystemCall(SystemCall::kObjectToValueMapNew, systemCallObjectToValueMapNew);
     initSystemCall(SystemCall::kPrintString, systemCallPrintString);
     initSystemCall(SystemCall::kSeconds, systemCallSeconds);
     initSystemCall(SystemCall::kTimeZoneFromName, systemCallTimeZoneFromName);
@@ -342,6 +361,8 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kValueO, systemCallValueO);
     initSystemCall(SystemCall::kValueOptionalNewMissing, systemCallValueOptionalNewMissing);
     initSystemCall(SystemCall::kValueOptionalNewPresent, systemCallValueOptionalNewPresent);
+    initSystemCall(SystemCall::kValueToObjectMapNew, systemCallValueToObjectMapNew);
+    initSystemCall(SystemCall::kValueToValueMapNew, systemCallValueToValueMapNew);
     initSystemCall(SystemCall::kValueV, systemCallValueV);
 
     _systemCallsInitialized = true;

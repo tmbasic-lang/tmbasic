@@ -1,3 +1,6 @@
+// uncomment to dump the generated assembly to std::cerr
+//#define DUMP_ASM
+
 #include "emit.h"
 #include "vm/Opcode.h"
 #include "vm/systemCall.h"
@@ -14,28 +17,50 @@ class ProcedureState {
     vector<uint8_t> bytecode;
 
     template <typename TOutputInt, typename TInputInt>
-    void emitInt(TInputInt value) {
+    void emitInt(TInputInt value, bool log = true) {
         array<uint8_t, sizeof(TOutputInt)> bytes{};
         auto convertedValue = static_cast<TOutputInt>(value);
         memcpy(bytes.data(), &convertedValue, sizeof(TOutputInt));
         bytecode.insert(bytecode.end(), bytes.begin(), bytes.end());
+        (void)log;
+#ifdef DUMP_ASM
+        if (log) {
+            std::cerr << " " << static_cast<int>(value);
+        }
+#endif
     }
 
-    void op(Opcode opcode) { emitInt<uint8_t>(opcode); }
+    void op(Opcode opcode, bool log = true) {
+        bytecode.push_back(static_cast<uint8_t>(opcode));
+        (void)log;
+#ifdef DUMP_ASM
+        if (log) {
+            std::cerr << std::endl << NAMEOF_ENUM(opcode);
+        }
+#endif
+    }
 
     void syscall(Opcode opcode, SystemCall systemCall, uint8_t numVals, uint8_t numObjs) {
-        op(opcode);
-        emitInt<uint16_t>(systemCall);
-        emitInt<uint8_t>(numVals);
-        emitInt<uint8_t>(numObjs);
+        op(opcode, false);
+        emitInt<uint16_t>(systemCall, false);
+        emitInt<uint8_t>(numVals, false);
+        emitInt<uint8_t>(numObjs, false);
+#ifdef DUMP_ASM
+        std::cerr << std::endl
+                  << NAMEOF_ENUM(opcode) << " " << NAMEOF_ENUM(systemCall) << " " << static_cast<int>(numVals) << " "
+                  << static_cast<int>(numObjs);
+#endif
     }
 
     void pushString(const std::string& str) {
-        op(Opcode::kPushImmediateUtf8);
-        emitInt<uint32_t>(str.size());
+        op(Opcode::kPushImmediateUtf8, false);
+        emitInt<uint32_t>(str.size(), false);
         for (auto ch : str) {
-            emitInt<uint8_t>(ch);
+            emitInt<uint8_t>(ch, false);
         }
+#ifdef DUMP_ASM
+        std::cerr << std::endl << NAMEOF_ENUM(Opcode::kPushImmediateUtf8) << " \"" << str << "\"";
+#endif
     }
 };
 
@@ -56,7 +81,13 @@ static void emitLiteralBooleanExpression(const LiteralBooleanExpressionNode& exp
 }
 
 static void emitLiteralNumberExpression(const LiteralNumberExpressionNode& expressionNode, ProcedureState* state) {
-    throw std::runtime_error("not impl");
+    state->op(Opcode::kPushImmediateDec128);
+    auto triple = expressionNode.value.as_uint128_triple();
+    state->emitInt<uint8_t>(triple.tag);
+    state->emitInt<uint8_t>(triple.sign);
+    state->emitInt<uint64_t>(triple.hi);
+    state->emitInt<uint64_t>(triple.lo);
+    state->emitInt<int64_t>(triple.exp);
 }
 
 static void emitLiteralRecordExpression(const LiteralRecordExpressionNode& expressionNode, ProcedureState* state) {
@@ -103,7 +134,17 @@ static void emitNotExpression(const NotExpressionNode& expressionNode, Procedure
 }
 
 static void emitSymbolReferenceExpression(const SymbolReferenceExpressionNode& expressionNode, ProcedureState* state) {
-    throw std::runtime_error("not impl");
+    assert(expressionNode.boundSymbolDeclaration != nullptr);
+    auto* decl = expressionNode.boundSymbolDeclaration;
+    if (decl->localValueIndex.has_value()) {
+        state->op(Opcode::kPushLocalValue);
+        state->emitInt<uint16_t>(*decl->localValueIndex);
+    } else if (decl->localObjectIndex.has_value()) {
+        state->op(Opcode::kPushLocalObject);
+        state->emitInt<uint16_t>(*decl->localObjectIndex);
+    } else {
+        throw std::runtime_error("not impl");
+    }
 }
 
 static void emitExpression(const ExpressionNode& expressionNode, ProcedureState* state) {
@@ -160,7 +201,107 @@ static void emitDimMapStatement(const DimMapStatementNode& statementNode, Proced
 }
 
 static void emitDimStatement(const DimStatementNode& statementNode, ProcedureState* state) {
-    throw std::runtime_error("not impl");
+    const auto& type = *statementNode.evaluatedType;
+
+    // if an initial value is provided, then use that
+    if (statementNode.value != nullptr) {
+        emitExpression(*statementNode.value, state);
+        if (statementNode.localValueIndex.has_value()) {
+            state->op(Opcode::kSetLocalValue);
+            state->emitInt<uint16_t>(*statementNode.localValueIndex);
+        } else if (statementNode.localObjectIndex.has_value()) {
+            state->op(Opcode::kSetLocalObject);
+            state->emitInt<uint16_t>(*statementNode.localObjectIndex);
+        } else {
+            throw std::runtime_error("Internal error. No local variable index found!");
+        }
+        return;
+    }
+
+    // initialize all value types to 0.
+    if (type.isValueType()) {
+        assert(statementNode.localValueIndex >= 0);
+        state->op(Opcode::kPushImmediateInt64);
+        state->emitInt<int64_t>(0);
+        state->op(Opcode::kSetLocalValue);
+        state->emitInt<uint16_t>(*statementNode.localValueIndex);
+        return;
+    }
+
+    // on the other hand, object types must be created with special code per-type.
+    // in the future we should optimize this by creating a single empty object of each type and reusing them.
+    // this would be safe because our data types are all immutable.
+    switch (type.kind) {
+        case Kind::kBoolean:
+        case Kind::kDate:
+        case Kind::kDateTime:
+        case Kind::kNumber:
+        case Kind::kTimeSpan:
+            // handled above already
+            assert(false);
+            break;
+
+        // a DateTimeOffset is a record with two values
+        case Kind::kDateTimeOffset:
+            state->op(Opcode::kPushImmediateInt64);
+            state->emitInt<int64_t>(0);
+            state->op(Opcode::kPushImmediateInt64);
+            state->emitInt<int64_t>(0);
+            state->op(Opcode::kRecordNew);
+            state->emitInt<uint16_t>(2);
+            state->emitInt<uint16_t>(0);
+            break;
+
+        case Kind::kList:
+            state->op(type.listItemType->isValueType() ? Opcode::kValueListNew : Opcode::kObjectListNew);
+            state->emitInt<uint16_t>(0);
+            break;
+
+        case Kind::kMap: {
+            auto keyV = type.mapKeyType->isValueType();
+            auto keyO = !keyV;
+            auto valueV = type.mapValueType->isValueType();
+            auto valueO = !valueV;
+            SystemCall systemCallNumber{};
+            if (keyV && valueV) {
+                systemCallNumber = SystemCall::kValueToValueMapNew;
+            } else if (keyV && valueO) {
+                systemCallNumber = SystemCall::kValueToObjectMapNew;
+            } else if (keyO && valueV) {
+                systemCallNumber = SystemCall::kObjectToValueMapNew;
+            } else if (keyO && valueO) {
+                systemCallNumber = SystemCall::kObjectToObjectMapNew;
+            }
+            state->syscall(Opcode::kSystemCallO, systemCallNumber, 0, 0);
+            break;
+        }
+
+        case Kind::kOptional:
+            state->syscall(
+                Opcode::kSystemCallO,
+                type.optionalValueType->isValueType() ? SystemCall::kValueOptionalNewMissing
+                                                      : SystemCall::kObjectOptionalNewMissing,
+                0, 0);
+            break;
+
+        case Kind::kRecord:
+            throw std::runtime_error("not impl");
+
+        case Kind::kString:
+            state->pushString("");
+            break;
+
+        case Kind::kTimeZone:
+            state->pushString("UTC");
+            state->syscall(Opcode::kSystemCallO, SystemCall::kTimeZoneFromName, 0, 1);
+            break;
+
+        default:
+            throw std::runtime_error("Unknown Kind");
+    }
+
+    state->op(Opcode::kSetLocalObject);
+    state->emitInt<uint16_t>(*statementNode.localValueIndex);
 }
 
 static void emitDoStatement(const DoStatementNode& statementNode, ProcedureState* state) {
@@ -322,10 +463,19 @@ static void emitBody(const BodyNode& bodyNode, ProcedureState* state) {
     }
 }
 
-vector<uint8_t> emit(const ProcedureNode& procedureNode) {
+vector<uint8_t> emit(const ProcedureNode& procedureNode, int numLocalValues, int numLocalObjects) {
+#ifdef DUMP_ASM
+    std::cerr << "--start of emit--";
+#endif
     ProcedureState state;
+    state.op(Opcode::kInitLocals);
+    state.emitInt<uint16_t>(numLocalValues);
+    state.emitInt<uint16_t>(numLocalObjects);
     emitBody(*procedureNode.body, &state);
     state.op(Opcode::kReturn);
+#ifdef DUMP_ASM
+    std::cerr << std::endl << "--end of emit--" << std::endl;
+#endif
     return state.bytecode;
 }
 

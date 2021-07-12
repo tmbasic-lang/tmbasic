@@ -17,13 +17,13 @@ class Scope {
             if (found == scope->_symbolDeclarations.end()) {
                 scope = scope->_parentScope;
             } else {
-                return &found->second;
+                return found->second;
             }
         }
         return nullptr;
     }
 
-    AddSymbolResult addSymbol(const Node& symbolDeclaration) {
+    AddSymbolResult addSymbol(Node& symbolDeclaration) {
         auto optionalName = symbolDeclaration.getSymbolDeclaration();
         if (!optionalName.has_value()) {
             return AddSymbolResult::kNoSymbolDeclaration;
@@ -34,19 +34,19 @@ class Scope {
         if (existingSymbolDeclaration != nullptr) {
             return AddSymbolResult::kDuplicateName;
         }
-        _symbolDeclarations.insert({ { lowercaseName, symbolDeclaration } });
+        _symbolDeclarations.insert(std::make_pair(lowercaseName, &symbolDeclaration));
         return AddSymbolResult::kSuccess;
     }
 
    private:
     const Scope* _parentScope = nullptr;
-    std::unordered_map<std::string, const Node&> _symbolDeclarations;
+    std::unordered_map<std::string, Node*> _symbolDeclarations;
 };
 
 static Scope makeProcedureGlobalScope(ProcedureNode* procedure, const CompiledProgram& program) {
     auto scope = Scope();
     for (const auto& globalVariable : program.globalVariables) {
-        auto node = std::make_unique<GlobalVariableNode>(*globalVariable);
+        auto node = std::make_unique<GlobalVariableNode>(globalVariable->lowercaseName);
         auto result = scope.addSymbol(*node);
         assert(result == AddSymbolResult::kSuccess);
         (void)result;  // avoid unused variable error in release builds

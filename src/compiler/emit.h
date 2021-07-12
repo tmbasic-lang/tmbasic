@@ -6,6 +6,6 @@
 
 namespace compiler {
 
-std::vector<uint8_t> emit(const ProcedureNode& procedureNode);
+std::vector<uint8_t> emit(const ProcedureNode& procedureNode, int numLocalValues, int numLocalObjects);
 
 }  // namespace compiler

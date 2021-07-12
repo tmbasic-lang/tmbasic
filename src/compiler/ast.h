@@ -35,8 +35,13 @@ class Node {
 
     // symbol declaration nodes
     virtual std::optional<std::string> getSymbolDeclaration() const;
+    virtual boost::local_shared_ptr<TypeNode> getSymbolDeclarationType() const;
     virtual Node* getChildSymbolDeclaration() const;  // a sub-node that declares another symbol
     virtual bool isSymbolVisibleToSiblingStatements() const;
+
+    // added during compilation
+    std::optional<int> localValueIndex{};
+    std::optional<int> localObjectIndex{};
 };
 
 //
@@ -65,6 +70,7 @@ class ParameterNode : public Node {
     ParameterNode(std::string name, boost::local_shared_ptr<TypeNode> type, Token token);
     void dump(std::ostringstream& s, int n) const override;
     std::optional<std::string> getSymbolDeclaration() const override;
+    boost::local_shared_ptr<TypeNode> getSymbolDeclarationType() const override;
 };
 
 class TypeNode : public Node {
@@ -378,6 +384,7 @@ class ConstStatementNode : public StatementNode {
     MemberType getMemberType() const override;
     void dump(std::ostringstream& s, int n) const override;
     std::optional<std::string> getSymbolDeclaration() const override;
+    boost::local_shared_ptr<TypeNode> getSymbolDeclarationType() const override;
     StatementType getStatementType() const override;
 };
 
@@ -429,6 +436,8 @@ class DimStatementNode : public StatementNode {
     MemberType getMemberType() const override;
     void dump(std::ostringstream& s, int n) const override;
     std::optional<std::string> getSymbolDeclaration() const override;
+    boost::local_shared_ptr<TypeNode> getSymbolDeclarationType() const override;
+    bool isSymbolVisibleToSiblingStatements() const override;
     bool visitExpressions(const VisitExpressionFunc& func) const override;
     TypeNode* getChildTypeNode() const override;
     StatementType getStatementType() const override;
@@ -497,6 +506,7 @@ class ForEachStatementNode : public StatementNode {
         Token token);
     void dump(std::ostringstream& s, int n) const override;
     std::optional<std::string> getSymbolDeclaration() const override;
+    boost::local_shared_ptr<TypeNode> getSymbolDeclarationType() const override;
     bool visitBodies(const VisitBodyFunc& func) const override;
     bool visitExpressions(const VisitExpressionFunc& func) const override;
     StatementType getStatementType() const override;
@@ -528,17 +538,23 @@ class ForStatementNode : public StatementNode {
         Token token);
     void dump(std::ostringstream& s, int n) const override;
     std::optional<std::string> getSymbolDeclaration() const override;
+    boost::local_shared_ptr<TypeNode> getSymbolDeclarationType() const override;
     bool visitBodies(const VisitBodyFunc& func) const override;
     bool visitExpressions(const VisitExpressionFunc& func) const override;
     StatementType getStatementType() const override;
+
+   private:
+    mutable boost::local_shared_ptr<TypeNode> _type = nullptr;  // set by getSymbolDeclarationType(); always Number
 };
 
 class GroupKeyNameNode : public Node {
    public:
     std::string name;
+    boost::local_shared_ptr<TypeNode> evaluatedType = nullptr;  // set during type checking
     GroupKeyNameNode(std::string name, Token token);
     void dump(std::ostringstream& s, int n) const override;
     std::optional<std::string> getSymbolDeclaration() const override;
+    boost::local_shared_ptr<TypeNode> getSymbolDeclarationType() const override;
 };
 
 class GroupStatementNode : public StatementNode {
@@ -557,6 +573,7 @@ class GroupStatementNode : public StatementNode {
         Token token);
     void dump(std::ostringstream& s, int n) const override;
     std::optional<std::string> getSymbolDeclaration() const override;
+    boost::local_shared_ptr<TypeNode> getSymbolDeclarationType() const override;
     bool visitBodies(const VisitBodyFunc& func) const override;
     bool visitExpressions(const VisitExpressionFunc& func) const override;
     StatementType getStatementType() const override;
@@ -604,6 +621,7 @@ class JoinStatementNode : public StatementNode {
         Token token);
     void dump(std::ostringstream& s, int n) const override;
     std::optional<std::string> getSymbolDeclaration() const override;
+    boost::local_shared_ptr<TypeNode> getSymbolDeclarationType() const override;
     bool visitBodies(const VisitBodyFunc& func) const override;
     bool visitExpressions(const VisitExpressionFunc& func) const override;
     StatementType getStatementType() const override;
@@ -739,10 +757,12 @@ class InputStatementNode : public StatementNode {
 
 class GlobalVariableNode : public Node {
    public:
-    const CompiledGlobalVariable& compiledGlobalVariable;
-    explicit GlobalVariableNode(const CompiledGlobalVariable& compiledGlobalVariable);
+    std::string name;
+    boost::local_shared_ptr<TypeNode> evaluatedType;  // set by type checker
+    GlobalVariableNode(std::string name);
     void dump(std::ostringstream& s, int n) const override;
     std::optional<std::string> getSymbolDeclaration() const override;
+    boost::local_shared_ptr<TypeNode> getSymbolDeclarationType() const override;
 };
 
 class ProcedureNode : public Node {
@@ -765,7 +785,6 @@ class ProcedureNode : public Node {
         Token token);
     MemberType getMemberType() const override;
     void dump(std::ostringstream& s, int n) const override;
-    std::optional<std::string> getSymbolDeclaration() const override;
 };
 
 class TypeDeclarationNode : public Node {
@@ -775,7 +794,6 @@ class TypeDeclarationNode : public Node {
     TypeDeclarationNode(std::string name, std::vector<std::unique_ptr<ParameterNode>> fields, Token token);
     MemberType getMemberType() const override;
     void dump(std::ostringstream& s, int n) const override;
-    std::optional<std::string> getSymbolDeclaration() const override;
 };
 
 class ProgramNode : public Node {

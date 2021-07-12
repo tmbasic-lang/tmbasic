@@ -273,10 +273,10 @@ static std::unique_ptr<Box> parseBinaryExpressionSuffix(CaptureArray* captures, 
 
 static std::unique_ptr<Box> parseBinaryExpression(CaptureArray* captures) {
     if (hasCapture(captures->at(1))) {
-        auto token = captureTokenNoMove(captures->at(1).get());
+        auto suffixes = captureNodeArray<BinaryExpressionSuffixNode>(std::move(captures->at(1)));
+        auto token = suffixes.at(0)->token;
         return nodeBox<BinaryExpressionNode>(
-            captureSingleNode<ExpressionNode>(std::move(captures->at(0))),
-            captureNodeArray<BinaryExpressionSuffixNode>(std::move(captures->at(1))), token);
+            captureSingleNode<ExpressionNode>(std::move(captures->at(0))), std::move(suffixes), token);
     }
     return std::move(captures->at(0));
 }

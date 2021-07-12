@@ -78,6 +78,7 @@ static void typeCheckBinaryExpression(BinaryExpressionNode* expressionNode) {
                     expressionNode->evaluatedType = lhsType;
                     return;
                 }
+                break;
 
             default:
                 throw std::runtime_error("not impl");
@@ -141,29 +142,64 @@ static void typeCheckNotExpression(NotExpressionNode* expressionNode) {
 }
 
 static void typeCheckSymbolReferenceExpression(SymbolReferenceExpressionNode* expressionNode) {
-    (void)expressionNode;
-    throw std::runtime_error("not impl");
+    auto* decl = expressionNode->boundSymbolDeclaration;
+    if (decl == nullptr) {
+        throw CompilerException(
+            std::string("Internal error. The symbol reference \"") + expressionNode->name +
+                "\" is not bound to a symbol declaration.",
+            expressionNode->token);
+    }
+    if (!decl->getSymbolDeclaration().has_value()) {
+        std::ostringstream s;
+        decl->dump(s, 0);
+        throw CompilerException(  // NAMEOF_TYPE_RTTI
+            fmt::format(
+                "Internal error. The symbol reference \"{}\" is bound to a node that does not claim to declare a "
+                "symbol. That node is: {}",
+                expressionNode->name, s.str()),
+            expressionNode->token);
+    }
+    auto type = decl->getSymbolDeclarationType();
+    assert(type != nullptr);
+    expressionNode->evaluatedType = std::move(type);
 }
 
 void typeCheckExpression(ExpressionNode* expressionNode) {
     switch (expressionNode->getExpressionType()) {
         case ExpressionType::kBinary:
             typeCheckBinaryExpression(dynamic_cast<BinaryExpressionNode*>(expressionNode));
+            break;
         case ExpressionType::kCall:
             typeCheckCallExpression(dynamic_cast<CallExpressionNode*>(expressionNode));
+            break;
         case ExpressionType::kConstValue:
             typeCheckConstValueExpression(dynamic_cast<ConstValueExpressionNode*>(expressionNode));
+            break;
         case ExpressionType::kConvert:
             typeCheckConvertExpression(dynamic_cast<ConvertExpressionNode*>(expressionNode));
+            break;
         case ExpressionType::kDotted:
             typeCheckDottedExpression(dynamic_cast<DottedExpressionNode*>(expressionNode));
+            break;
         case ExpressionType::kNot:
             typeCheckNotExpression(dynamic_cast<NotExpressionNode*>(expressionNode));
+            break;
         case ExpressionType::kSymbolReference:
             typeCheckSymbolReferenceExpression(dynamic_cast<SymbolReferenceExpressionNode*>(expressionNode));
+            break;
         default:
             assert(false);
             throw std::runtime_error("Unrecognized expression type.");
+    }
+}
+
+static void typeCheckDimStatement(DimStatementNode* statementNode) {
+    if (statementNode->type == nullptr) {
+        assert(statementNode->value != nullptr);
+        assert(statementNode->value->evaluatedType != nullptr);
+        statementNode->evaluatedType = statementNode->value->evaluatedType;
+    } else {
+        statementNode->evaluatedType = statementNode->type;
     }
 }
 
@@ -173,6 +209,16 @@ static void typeCheckBody(BodyNode* bodyNode) {
             typeCheckExpression(&expressionNode);
             return true;
         });
+
+        switch (statementNode->getStatementType()) {
+            case StatementType::kDim:
+                typeCheckDimStatement(dynamic_cast<DimStatementNode*>(statementNode.get()));
+                break;
+
+            default:
+                // do nothing
+                break;
+        }
     }
 }
 
