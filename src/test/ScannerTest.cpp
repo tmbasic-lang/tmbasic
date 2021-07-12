@@ -9,8 +9,8 @@ using compiler::TokenizeType;
 using compiler::TokenKind;
 
 static void scanMatch(std::string filenameWithoutExtension) {
-    auto tok = readFile(filenameWithoutExtension + ".tok");
-    auto bas = readFile(filenameWithoutExtension + ".bas");
+    auto tok = readFile(std::string("ScannerTest/") + filenameWithoutExtension + ".tok");
+    auto bas = readFile(std::string("ScannerTest/") + filenameWithoutExtension + ".bas");
     auto tokens = tokenize(bas, TokenizeType::kFormat, nullptr);
     std::ostringstream s;
     for (auto token : tokens) {

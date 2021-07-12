@@ -22,7 +22,7 @@ using std::vector;
 using vm::Interpreter;
 
 static void run(string filenameWithoutExtension, compiler::CompiledProgram* program) {
-    auto pcodeFile = readFile(filenameWithoutExtension + ".bas");
+    auto pcodeFile = readFile(string("CompilerTest/") + filenameWithoutExtension + ".bas");
 
     string inputSentinel = "--input--\n";
     auto inputStart = pcodeFile.find(inputSentinel);
@@ -63,7 +63,6 @@ static void run(string filenameWithoutExtension, compiler::CompiledProgram* prog
                   << NAMEOF_ENUM(ex.token.type) << " \"" << ex.token.text << "\" (" << ex.token.lineIndex + 1 << ":"
                   << ex.token.columnIndex + 1 << ")" << std::endl;
     }
-    ASSERT_EQ(1, program->vmProgram.procedures.size());
 
     istringstream consoleInputStream(input);
     ostringstream consoleOutputStream;
@@ -80,17 +79,13 @@ static void run(string filenameWithoutExtension) {
     run(filenameWithoutExtension, &compiledProgram);
 }
 
-TEST(CompilerTest, EmptyMain) {
-    run("EmptyMain");
-}
-
-TEST(CompilerTest, GlobalValue_Number) {
+TEST(CompilerTest, GlobalValue_Number_CheckValue) {
     compiler::CompiledProgram program{};
     run("GlobalValue_Number", &program);
     ASSERT_EQ(0, program.vmProgram.globalValues.at(0).getInt32());
 }
 
-TEST(CompilerTest, GlobalValue_String) {
+TEST(CompilerTest, GlobalValue_String_CheckValue) {
     compiler::CompiledProgram program{};
     run("GlobalValue_String", &program);
     auto* o = program.vmProgram.globalObjects.at(0).get();
@@ -100,7 +95,18 @@ TEST(CompilerTest, GlobalValue_String) {
     ASSERT_EQ("test", str);
 }
 
-TEST(CompilerTest, HelloWorld) {
-    compiler::CompiledProgram program{};
-    run("HelloWorld", &program);
-}
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define COMPILER_TEST(x) \
+    TEST(CompilerTest, x) { run(#x); }
+
+// Regenerate with:
+/*
+ls src/test/programs/CompilerTest | grep "\.bas$" | xargs -n 1 basename | sed "s/\.bas//g" | \
+awk '{ print "COMPILER_TEST(" $1 ")" }'
+*/
+
+COMPILER_TEST(EmptyMain)
+COMPILER_TEST(GlobalValue_Number)
+COMPILER_TEST(GlobalValue_String)
+COMPILER_TEST(HelloWorld)
+COMPILER_TEST(Print)

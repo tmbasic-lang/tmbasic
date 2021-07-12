@@ -1,3 +1,4 @@
+#procedure
 sub Main()
     print "hello world"
 end sub

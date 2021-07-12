@@ -16,7 +16,7 @@ using vm::Procedure;
 using vm::Program;
 
 static void run(string filenameWithoutExtension) {
-    auto pcodeFile = readFile(filenameWithoutExtension + ".pcode");
+    auto pcodeFile = readFile(string("InterpreterTest/") + filenameWithoutExtension + ".pcode");
 
     string inputSentinel = "--input--\n";
     auto inputStart = pcodeFile.find(inputSentinel);
@@ -66,7 +66,7 @@ static void run(string filenameWithoutExtension) {
 
 // Regenerate with:
 /*
-ls src/test/programs/ | grep "\.pcode$" | xargs -n 1 basename | sed "s/\.pcode//g" | \
+ls src/test/programs/InterpreterTest | grep "\.pcode$" | xargs -n 1 basename | sed "s/\.pcode//g" | \
 awk '{ print "INTERPRETER_TEST(" $1 ")" }'
 */
 

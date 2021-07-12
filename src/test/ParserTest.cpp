@@ -23,8 +23,8 @@ static std::string dump(const Node& node) {
 }
 
 static void parseMatch(std::string filenameWithoutExtension) {
-    auto ast = readFile(filenameWithoutExtension + ".ast");
-    auto bas = readFile(filenameWithoutExtension + ".bas");
+    auto ast = readFile(std::string("ParserTest/") + filenameWithoutExtension + ".ast");
+    auto bas = readFile(std::string("ParserTest/") + filenameWithoutExtension + ".bas");
     auto tokens = tokenize(bas, TokenizeType::kFormat, nullptr);
     auto result = parse(nullptr, ParserRootProduction::kProgram, tokens);
     if (!result.isSuccess) {
@@ -45,15 +45,15 @@ TEST(ParserTest, SingleProgramNodeDump) {
     ASSERT_EQ("compiler::ProgramNode\n", dump(n));
 }
 
-TEST(ParserTest, ParseEmpty) {
+TEST(ParserTest, Empty) {
     parseMatch("Empty");
 }
 
-TEST(ParserTest, ParseSimpleSub) {
+TEST(ParserTest, SimpleSub) {
     parseMatch("SimpleSub");
 }
 
-TEST(ParserTest, ParseSimpleFunction) {
+TEST(ParserTest, SimpleFunction) {
     parseMatch("SimpleFunction");
 }
 
