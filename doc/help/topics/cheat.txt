@@ -3,25 +3,26 @@ nav@{TMBASIC Documentation:doc}@
 h1[Cheat Sheet for Experienced Programmers]
 
 TMBASIC is a statically- and nominally-typed BASIC language.
-Roughly speaking, it is a cross between QBASIC and Visual Basic (pre-.NET) that aims for simplicity.
+Roughly speaking, it is a cross between QBASIC and Visual Basic (pre-.NET).
 
 pre@
-┌─ Dropped legacy features ───┐   ┌─ Supported modern features ────────┐
-│  No line numbers            │   │  √ Dynamically-sized collections   │
-│  No GOTO                    │   │  √ Exception-based error handling  │
-│  No PEEK or POKE            │   │  √ Text-based UI library           │
-│  No type suffixes (like $)  │   │  √ Statically-linked executables   │
-└─────────────────────────────┘   └────────────────────────────────────┘
-
-┌─ Omitted modern features ────────────────────────────────────────────┐
-│  No object-oriented programming    No graphics or sound support      │
-│  No multithreading                 No interop with other languages   │
+┌─ Supported features ─────────────────────────────────────────────────┐
+│  √ Statically typed (vs. dynamic)        √ if, for, for each, while  │
+│  √ Nominal type system (vs. structural)  √ print, input              │
+│  √ Exception-based error handling        √ Text-based UI library     │
 └──────────────────────────────────────────────────────────────────────┘
+
+┌─ Unsupported QBASIC features ─┐   ┌─ Unsupported VB features ────────┐
+│  No line numbers              │   │  No object oriented programming  │
+│  No "goto"                    │   │  No multithreading               │
+│  No "peek" or "poke"          │   │  No graphics or sound support    │
+│  No type suffixes, like $     │   │  No interop with C/C++           │
+└───────────────────────────────┘   └──────────────────────────────────┘
 @
 
 TMBASIC has a visual designer for text user interface (TUI) forms and controls, enabling rapid application development.
 Forms and controls may also be constructed dynamically in BASIC code as needed.
-Simpler apps may eschew a full TUI and use simple `print` / `input` calls if desired.
+Simpler apps may use simple `print` / `input` calls instead of a full TUI.
 
 h2[Data types]
 
