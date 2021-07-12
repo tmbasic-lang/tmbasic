@@ -178,10 +178,12 @@ class AppPrivate {
 
             case cmSave:
                 message(TApplication::deskTop, evBroadcast, kCmdProgramSave, nullptr);
+                findProgramWindow()->save();
                 return true;
 
             case cmSaveAs:
-                message(TApplication::deskTop, evBroadcast, kCmdProgramSaveAs, nullptr);
+                message(TApplication::deskTop, evBroadcast, kCmdProgramSave, nullptr);
+                findProgramWindow()->saveAs();
                 return true;
 
             case kCmdProgramAddSubroutine:
@@ -272,6 +274,7 @@ class AppPrivate {
                 return true;
 
             case kCmdProgramRun:
+                message(TApplication::deskTop, evBroadcast, kCmdProgramSave, nullptr);
                 onProgramRun();
                 return true;
 
@@ -518,7 +521,6 @@ class AppPrivate {
             auto* window = new CodeEditorWindow(getNewWindowRect(75, 20), member, []() -> void {
                 // onUpdated
                 auto* programWindow = findProgramWindow();
-
                 if (programWindow != nullptr) {
                     programWindow->setDirty();
                     programWindow->updateListItems();

@@ -28,6 +28,8 @@ class ProgramWindow : public TWindow {
     void checkForErrors();
     void publish();
     void run();
+    void save();
+    void saveAs();
 
    private:
     gsl::owner<class ProgramWindowPrivate*> _private;

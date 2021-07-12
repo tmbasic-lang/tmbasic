@@ -313,17 +313,17 @@ static void onDeleteItem(ProgramWindowPrivate* p) {
     p->window->updateListItems();
 }
 
+void ProgramWindow::save() {
+    onSave(_private);
+}
+
+void ProgramWindow::saveAs() {
+    onSaveAs(_private);
+}
+
 void ProgramWindow::handleEvent(TEvent& event) {
     if (event.what == evBroadcast) {
         switch (event.message.command) {
-            case kCmdProgramSave:
-                onSave(_private);
-                break;
-
-            case kCmdProgramSaveAs:
-                onSaveAs(_private);
-                break;
-
             case kCmdAppExit:
                 if (!preClose()) {
                     *static_cast<bool*>(event.message.infoPtr) = true;

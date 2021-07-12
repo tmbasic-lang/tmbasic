@@ -146,8 +146,7 @@ class CodeEditorWindowPrivate {
             onEdited();  // set dirty flag right away
         } else if (pendingUpdate >= 4) {
             // after 1 second of no edits, go ahead and parse the text
-            member->setSource(newSource);
-            onEdited();
+            updateSourceMember();
             updateTitle();
             window->frame->drawView();
             pendingUpdate = -1;
@@ -178,6 +177,16 @@ class CodeEditorWindowPrivate {
               << ")";
             insertTextAtCursor(s.str());
         }
+    }
+
+    void updateSourceMember() {
+        auto newSource = getEditorText();
+        if (newSource != member->source) {
+            member->setSource(std::move(newSource));
+            onEdited();
+        }
+        member->selectionStart = window->editor.WndProc(SCI_GETSELECTIONSTART, 0U, 0U);
+        member->selectionEnd = window->editor.WndProc(SCI_GETSELECTIONEND, 0U, 0U);
     }
 };
 
@@ -227,6 +236,10 @@ void CodeEditorWindow::setState(uint16_t aState, bool enable) {
 void CodeEditorWindow::handleEvent(TEvent& event) {
     if (event.what == evBroadcast) {
         switch (event.message.command) {
+            case kCmdProgramSave:
+                _private->updateSourceMember();
+                break;
+
             case kCmdCloseProgramRelatedWindows:
                 close();
                 break;
@@ -266,13 +279,7 @@ uint16_t CodeEditorWindow::getHelpCtx() {
 }
 
 void CodeEditorWindow::close() {
-    auto newSource = _private->getEditorText();
-    if (newSource != _private->member->source) {
-        _private->member->setSource(newSource);
-        _private->onEdited();
-    }
-    _private->member->selectionStart = editor.WndProc(SCI_GETSELECTIONSTART, 0U, 0U);
-    _private->member->selectionEnd = editor.WndProc(SCI_GETSELECTIONEND, 0U, 0U);
+    _private->updateSourceMember();
     TWindow::close();
 }
 
