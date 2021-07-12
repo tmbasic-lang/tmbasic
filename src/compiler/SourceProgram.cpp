@@ -173,7 +173,8 @@ void SourceProgram::save(const std::string& filePath) const {
     }
 }
 
-void SourceProgram::forEachMember(SourceMemberType type, std::function<void(const SourceMember&)> callback) const {
+void SourceProgram::forEachMember(SourceMemberType type, const std::function<void(const SourceMember&)>& callback)
+    const {
     for (const auto& member : members) {
         if (member->memberType == type) {
             callback(*member);
@@ -181,8 +182,9 @@ void SourceProgram::forEachMember(SourceMemberType type, std::function<void(cons
     }
 }
 
-void SourceProgram::forEachMemberIndex(SourceMemberType type, std::function<void(const SourceMember&, size_t)> callback)
-    const {
+void SourceProgram::forEachMemberIndex(
+    SourceMemberType type,
+    const std::function<void(const SourceMember&, size_t)>& callback) const {
     for (size_t i = 0; i < members.size(); i++) {
         auto& member = *members.at(i);
         if (member.memberType == type) {

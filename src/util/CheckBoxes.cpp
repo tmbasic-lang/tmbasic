@@ -1,6 +1,4 @@
 #include "CheckBoxes.h"
-
-#include <utility>
 #include "tvutil.h"
 
 namespace util {

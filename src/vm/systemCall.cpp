@@ -223,11 +223,11 @@ static void systemCallObjectOptionalNewPresent(const SystemCallInput& input, Sys
     result->returnedObject = boost::make_local_shared<ObjectOptional>(input.getObjectPtr(-1));
 }
 
-static void systemCallObjectToObjectMapNew(const SystemCallInput& input, SystemCallResult* result) {
+static void systemCallObjectToObjectMapNew(const SystemCallInput& /*input*/, SystemCallResult* result) {
     result->returnedObject = boost::make_local_shared<ObjectToObjectMap>();
 }
 
-static void systemCallObjectToValueMapNew(const SystemCallInput& input, SystemCallResult* result) {
+static void systemCallObjectToValueMapNew(const SystemCallInput& /*input*/, SystemCallResult* result) {
     result->returnedObject = boost::make_local_shared<ObjectToValueMap>();
 }
 
@@ -286,11 +286,11 @@ static void systemCallValueOptionalNewPresent(const SystemCallInput& input, Syst
     result->returnedObject = boost::make_local_shared<ValueOptional>(value);
 }
 
-static void systemCallValueToObjectMapNew(const SystemCallInput& input, SystemCallResult* result) {
+static void systemCallValueToObjectMapNew(const SystemCallInput& /*input*/, SystemCallResult* result) {
     result->returnedObject = boost::make_local_shared<ValueToObjectMap>();
 }
 
-static void systemCallValueToValueMapNew(const SystemCallInput& input, SystemCallResult* result) {
+static void systemCallValueToValueMapNew(const SystemCallInput& /*input*/, SystemCallResult* result) {
     result->returnedObject = boost::make_local_shared<ValueToValueMap>();
 }
 

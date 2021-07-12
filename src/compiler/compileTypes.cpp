@@ -32,7 +32,7 @@ static void compileType(int sourceMemberIndex, const SourceMember& sourceMember,
 
     auto nextValueIndex = 0;
     auto nextObjectIndex = 0;
-    for (auto& field : typeDeclarationNode.fields) {
+    for (const auto& field : typeDeclarationNode.fields) {
         auto compiledField = std::make_unique<CompiledUserTypeField>();
         compiledField->nameLowercase = boost::algorithm::to_lower_copy(field->name);
         compiledField->name = field->name;
@@ -65,10 +65,7 @@ static void checkFieldType(const TypeNode& fieldTypeNode, const CompiledProgram&
     }
 }
 
-static void checkFieldTypes(
-    size_t sourceMemberIndex,
-    const SourceMember& sourceMember,
-    CompiledProgram* compiledProgram) {
+static void checkFieldTypes(size_t sourceMemberIndex, CompiledProgram* compiledProgram) {
     auto* compiledUserType = compiledProgram->userTypesBySourceMemberIndex.find(sourceMemberIndex)->second;
     for (auto& field : compiledUserType->fields) {
         checkFieldType(*field->type, *compiledProgram);
@@ -82,9 +79,9 @@ void compileTypes(const SourceProgram& sourceProgram, CompiledProgram* compiledP
     });
 
     // check that fields of record types refer to defined types
-    sourceProgram.forEachMemberIndex(SourceMemberType::kType, [compiledProgram](const auto& sourceMember, auto index) {
-        checkFieldTypes(index, sourceMember, compiledProgram);
-    });
+    sourceProgram.forEachMemberIndex(
+        SourceMemberType::kType,
+        [compiledProgram](const auto& /*sourceMember*/, auto index) { checkFieldTypes(index, compiledProgram); });
 }
 
 }  // namespace compiler

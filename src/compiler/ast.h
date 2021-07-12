@@ -18,8 +18,8 @@ class BodyNode;
 class ExpressionNode;
 class TypeNode;
 
-typedef std::function<bool(BodyNode&)> VisitBodyFunc;
-typedef std::function<bool(ExpressionNode&)> VisitExpressionFunc;
+typedef std::function<bool(BodyNode*)> VisitBodyFunc;
+typedef std::function<bool(ExpressionNode*)> VisitExpressionFunc;
 
 class Node {
    public:

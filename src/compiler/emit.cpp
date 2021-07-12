@@ -64,19 +64,23 @@ class ProcedureState {
     }
 };
 
-static void emitBinaryExpression(const BinaryExpressionNode& expressionNode, ProcedureState* state) {
+static void emitBinaryExpression(const BinaryExpressionNode& /*expressionNode*/, ProcedureState* /*state*/) {
     throw std::runtime_error("not impl");
 }
 
-static void emitCallExpression(const CallExpressionNode& expressionNode, ProcedureState* state) {
+static void emitCallExpression(const CallExpressionNode& /*expressionNode*/, ProcedureState* /*state*/) {
     throw std::runtime_error("not impl");
 }
 
-static void emitLiteralArrayExpression(const LiteralArrayExpressionNode& expressionNode, ProcedureState* state) {
+static void emitLiteralArrayExpression(
+    const LiteralArrayExpressionNode& /*expressionNode*/,
+    ProcedureState* /*state*/) {
     throw std::runtime_error("not impl");
 }
 
-static void emitLiteralBooleanExpression(const LiteralBooleanExpressionNode& expressionNode, ProcedureState* state) {
+static void emitLiteralBooleanExpression(
+    const LiteralBooleanExpressionNode& /*expressionNode*/,
+    ProcedureState* /*state*/) {
     throw std::runtime_error("not impl");
 }
 
@@ -90,7 +94,9 @@ static void emitLiteralNumberExpression(const LiteralNumberExpressionNode& expre
     state->emitInt<int64_t>(triple.exp);
 }
 
-static void emitLiteralRecordExpression(const LiteralRecordExpressionNode& expressionNode, ProcedureState* state) {
+static void emitLiteralRecordExpression(
+    const LiteralRecordExpressionNode& /*expressionNode*/,
+    ProcedureState* /*state*/) {
     throw std::runtime_error("not impl");
 }
 
@@ -121,21 +127,21 @@ static void emitConstValueExpressionNode(const ConstValueExpressionNode& express
     }
 }
 
-static void emitConvertExpression(const ConvertExpressionNode& expressionNode, ProcedureState* state) {
+static void emitConvertExpression(const ConvertExpressionNode& /*expressionNode*/, ProcedureState* /*state*/) {
     throw std::runtime_error("not impl");
 }
 
-static void emitDottedExpression(const DottedExpressionNode& expressionNode, ProcedureState* state) {
+static void emitDottedExpression(const DottedExpressionNode& /*expressionNode*/, ProcedureState* /*state*/) {
     throw std::runtime_error("not impl");
 }
 
-static void emitNotExpression(const NotExpressionNode& expressionNode, ProcedureState* state) {
+static void emitNotExpression(const NotExpressionNode& /*expressionNode*/, ProcedureState* /*state*/) {
     throw std::runtime_error("not impl");
 }
 
 static void emitSymbolReferenceExpression(const SymbolReferenceExpressionNode& expressionNode, ProcedureState* state) {
-    assert(expressionNode.boundSymbolDeclaration != nullptr);
-    auto* decl = expressionNode.boundSymbolDeclaration;
+    const auto* decl = expressionNode.boundSymbolDeclaration;
+    assert(decl != nullptr);
     if (decl->localValueIndex.has_value()) {
         state->op(Opcode::kPushLocalValue);
         state->emitInt<uint16_t>(*decl->localValueIndex);
@@ -176,27 +182,27 @@ static void emitExpression(const ExpressionNode& expressionNode, ProcedureState*
     }
 }
 
-static void emitAssignStatement(const AssignStatementNode& statementNode, ProcedureState* state) {
+static void emitAssignStatement(const AssignStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
     throw std::runtime_error("not impl");
 }
 
-static void emitCallStatement(const CallStatementNode& statementNode, ProcedureState* state) {
+static void emitCallStatement(const CallStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
     throw std::runtime_error("not impl");
 }
 
-static void emitConstStatement(const ConstStatementNode& statementNode, ProcedureState* state) {
+static void emitConstStatement(const ConstStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
     throw std::runtime_error("not impl");
 }
 
-static void emitContinueStatement(const ContinueStatementNode& statementNode, ProcedureState* state) {
+static void emitContinueStatement(const ContinueStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
     throw std::runtime_error("not impl");
 }
 
-static void emitDimListStatement(const DimListStatementNode& statementNode, ProcedureState* state) {
+static void emitDimListStatement(const DimListStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
     throw std::runtime_error("not impl");
 }
 
-static void emitDimMapStatement(const DimMapStatementNode& statementNode, ProcedureState* state) {
+static void emitDimMapStatement(const DimMapStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
     throw std::runtime_error("not impl");
 }
 
@@ -304,64 +310,64 @@ static void emitDimStatement(const DimStatementNode& statementNode, ProcedureSta
     state->emitInt<uint16_t>(*statementNode.localValueIndex);
 }
 
-static void emitDoStatement(const DoStatementNode& statementNode, ProcedureState* state) {
+static void emitDoStatement(const DoStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
     throw std::runtime_error("not impl");
 }
 
-static void emitExitStatement(const ExitStatementNode& statementNode, ProcedureState* state) {
+static void emitExitStatement(const ExitStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
     throw std::runtime_error("not impl");
 }
 
-static void emitForEachStatement(const ForEachStatementNode& statementNode, ProcedureState* state) {
+static void emitForEachStatement(const ForEachStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
     throw std::runtime_error("not impl");
 }
 
-static void emitForStatement(const ForStatementNode& statementNode, ProcedureState* state) {
+static void emitForStatement(const ForStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
     throw std::runtime_error("not impl");
 }
 
-static void emitGroupStatement(const GroupStatementNode& statementNode, ProcedureState* state) {
+static void emitGroupStatement(const GroupStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
     throw std::runtime_error("not impl");
 }
 
-static void emitIfStatement(const IfStatementNode& statementNode, ProcedureState* state) {
+static void emitIfStatement(const IfStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
     throw std::runtime_error("not impl");
 }
 
-static void emitJoinStatement(const JoinStatementNode& statementNode, ProcedureState* state) {
+static void emitJoinStatement(const JoinStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
     throw std::runtime_error("not impl");
 }
 
-static void emitRethrowStatement(const RethrowStatementNode& statementNode, ProcedureState* state) {
+static void emitRethrowStatement(const RethrowStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
     throw std::runtime_error("not impl");
 }
 
-static void emitReturnStatement(const ReturnStatementNode& statementNode, ProcedureState* state) {
+static void emitReturnStatement(const ReturnStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
     throw std::runtime_error("not impl");
 }
 
-static void emitSelectCaseStatement(const SelectCaseStatementNode& statementNode, ProcedureState* state) {
+static void emitSelectCaseStatement(const SelectCaseStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
     throw std::runtime_error("not impl");
 }
 
-static void emitSelectStatement(const SelectStatementNode& statementNode, ProcedureState* state) {
+static void emitSelectStatement(const SelectStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
     throw std::runtime_error("not impl");
 }
 
-static void emitThrowStatement(const ThrowStatementNode& statementNode, ProcedureState* state) {
+static void emitThrowStatement(const ThrowStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
     throw std::runtime_error("not impl");
 }
 
-static void emitTryStatement(const TryStatementNode& statementNode, ProcedureState* state) {
+static void emitTryStatement(const TryStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
     throw std::runtime_error("not impl");
 }
 
-static void emitWhileStatement(const WhileStatementNode& statementNode, ProcedureState* state) {
+static void emitWhileStatement(const WhileStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
     throw std::runtime_error("not impl");
 }
 
 static void emitPrintStatement(const PrintStatementNode& statementNode, ProcedureState* state) {
-    for (auto& expressionNode : statementNode.expressions) {
+    for (const auto& expressionNode : statementNode.expressions) {
         emitExpression(*expressionNode, state);
         state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
     }
@@ -374,7 +380,7 @@ static void emitPrintStatement(const PrintStatementNode& statementNode, Procedur
     state->syscall(Opcode::kSystemCall, SystemCall::kFlushConsoleOutput, 0, 0);
 }
 
-static void emitInputStatement(const InputStatementNode& statementNode, ProcedureState* state) {
+static void emitInputStatement(const InputStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
     throw std::runtime_error("not impl");
 }
 

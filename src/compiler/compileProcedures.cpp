@@ -49,8 +49,8 @@ static void assignLocalVariableIndicesInBody(BodyNode* body, VariableIndexingSta
         }
 
         // does it have sub-statements?
-        statement->visitBodies([state](BodyNode& body) -> bool {
-            assignLocalVariableIndicesInBody(&body, state);
+        statement->visitBodies([state](BodyNode* body) -> bool {
+            assignLocalVariableIndicesInBody(body, state);
             return true;
         });
     }
@@ -75,7 +75,8 @@ static void compileProcedure(const SourceMember& sourceMember, CompiledProgram* 
     auto procedureNode = dynamic_cast_move<ProcedureNode>(std::move(parserResult.node));
     bindProcedureSymbols(procedureNode.get(), *compiledProgram);
     typeCheck(procedureNode.get());
-    int numLocalValues = 0, numLocalObjects = 0;
+    int numLocalValues = 0;
+    int numLocalObjects = 0;
     assignLocalVariableIndices(procedureNode.get(), &numLocalValues, &numLocalObjects);
     auto pcode = emit(*procedureNode, numLocalValues, numLocalObjects);
     auto vmProcedure = std::make_unique<vm::Procedure>();

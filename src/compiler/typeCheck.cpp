@@ -142,7 +142,7 @@ static void typeCheckNotExpression(NotExpressionNode* expressionNode) {
 }
 
 static void typeCheckSymbolReferenceExpression(SymbolReferenceExpressionNode* expressionNode) {
-    auto* decl = expressionNode->boundSymbolDeclaration;
+    const auto* decl = expressionNode->boundSymbolDeclaration;
     if (decl == nullptr) {
         throw CompilerException(
             std::string("Internal error. The symbol reference \"") + expressionNode->name +
@@ -205,8 +205,8 @@ static void typeCheckDimStatement(DimStatementNode* statementNode) {
 
 static void typeCheckBody(BodyNode* bodyNode) {
     for (auto& statementNode : bodyNode->statements) {
-        statementNode->visitExpressions([](ExpressionNode& expressionNode) -> bool {
-            typeCheckExpression(&expressionNode);
+        statementNode->visitExpressions([](ExpressionNode* expressionNode) -> bool {
+            typeCheckExpression(expressionNode);
             return true;
         });
 

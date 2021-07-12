@@ -23,8 +23,8 @@ class Scope {
         return nullptr;
     }
 
-    AddSymbolResult addSymbol(Node& symbolDeclaration) {
-        auto optionalName = symbolDeclaration.getSymbolDeclaration();
+    AddSymbolResult addSymbol(Node* symbolDeclaration) {
+        auto optionalName = symbolDeclaration->getSymbolDeclaration();
         if (!optionalName.has_value()) {
             return AddSymbolResult::kNoSymbolDeclaration;
         }
@@ -34,7 +34,7 @@ class Scope {
         if (existingSymbolDeclaration != nullptr) {
             return AddSymbolResult::kDuplicateName;
         }
-        _symbolDeclarations.insert(std::make_pair(lowercaseName, &symbolDeclaration));
+        _symbolDeclarations.insert(std::make_pair(lowercaseName, symbolDeclaration));
         return AddSymbolResult::kSuccess;
     }
 
@@ -47,7 +47,7 @@ static Scope makeProcedureGlobalScope(ProcedureNode* procedure, const CompiledPr
     auto scope = Scope();
     for (const auto& globalVariable : program.globalVariables) {
         auto node = std::make_unique<GlobalVariableNode>(globalVariable->lowercaseName);
-        auto result = scope.addSymbol(*node);
+        auto result = scope.addSymbol(node.get());
         assert(result == AddSymbolResult::kSuccess);
         (void)result;  // avoid unused variable error in release builds
         procedure->globalVariables.push_back(std::move(node));
@@ -57,7 +57,7 @@ static Scope makeProcedureGlobalScope(ProcedureNode* procedure, const CompiledPr
 
 static void bindSymbol(Node* node, Scope* parentScope, Scope* childScope) {
     auto* symbolScope = node->isSymbolVisibleToSiblingStatements() ? parentScope : childScope;
-    auto result = symbolScope->addSymbol(*node);
+    auto result = symbolScope->addSymbol(node);
     assert(result != AddSymbolResult::kNoSymbolDeclaration);
     if (result == AddSymbolResult::kDuplicateName) {
         std::ostringstream s;
@@ -103,14 +103,14 @@ static void bindStatementSymbols(StatementNode* node, Scope* scope) {
     }
 
     // does it have sub-expressions?
-    node->visitExpressions([&subScope](ExpressionNode& expr) -> bool {
-        bindExpressionSymbols(&expr, &subScope);
+    node->visitExpressions([&subScope](ExpressionNode* expr) -> bool {
+        bindExpressionSymbols(expr, &subScope);
         return true;
     });
 
     // does it have sub-statements?
-    node->visitBodies([&subScope](BodyNode& body) -> bool {
-        bindBodySymbols(&body, &subScope);
+    node->visitBodies([&subScope](BodyNode* body) -> bool {
+        bindBodySymbols(body, &subScope);
         return true;
     });
 }
@@ -126,7 +126,7 @@ void bindProcedureSymbols(ProcedureNode* procedure, const CompiledProgram& progr
     auto procedureScope = Scope(&globalScope);
 
     for (const auto& parameter : procedure->parameters) {
-        auto result = procedureScope.addSymbol(*parameter);
+        auto result = procedureScope.addSymbol(parameter.get());
         assert(result != AddSymbolResult::kNoSymbolDeclaration);
         if (result == AddSymbolResult::kDuplicateName) {
             std::ostringstream s;

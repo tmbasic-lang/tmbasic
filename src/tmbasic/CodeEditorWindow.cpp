@@ -179,7 +179,7 @@ class CodeEditorWindowPrivate {
         }
     }
 
-    void updateSourceMember() {
+    void updateSourceMember() const {
         auto newSource = getEditorText();
         if (newSource != member->source) {
             member->setSource(std::move(newSource));

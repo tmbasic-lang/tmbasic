@@ -32,8 +32,9 @@ class SourceProgram {
     void loadFromContent(const std::string& content);
     void load(const std::string& filePath);
     void save(const std::string& filePath) const;
-    void forEachMember(SourceMemberType type, std::function<void(const SourceMember&)> callback) const;
-    void forEachMemberIndex(SourceMemberType type, std::function<void(const SourceMember&, size_t)> callback) const;
+    void forEachMember(SourceMemberType type, const std::function<void(const SourceMember&)>& callback) const;
+    void forEachMemberIndex(SourceMemberType type, const std::function<void(const SourceMember&, size_t)>& callback)
+        const;
 };
 
 }  // namespace compiler

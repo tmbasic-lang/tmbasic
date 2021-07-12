@@ -111,7 +111,10 @@
 // clang-tidy gets upset about assert()
 #undef assert
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
-#define assert(expr) (void(expr))
+#define assert(expr)                     \
+    if (!(expr)) {                       \
+        throw std::runtime_error(#expr); \
+    }
 #endif
 
 // clang-tidy likes to see gsl::owner to express ownership of raw pointers, but we don't care about any other part of
