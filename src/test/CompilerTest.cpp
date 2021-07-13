@@ -67,7 +67,7 @@ static void run(string filenameWithoutExtension, compiler::CompiledProgram* prog
     istringstream consoleInputStream(input);
     ostringstream consoleOutputStream;
     auto interpreter = make_unique<Interpreter>(&program->vmProgram, &consoleInputStream, &consoleOutputStream);
-    interpreter->init(0);
+    interpreter->init(program->vmProgram.startupProcedureIndex);
     while (interpreter->run(10000)) {
     }
     auto actualOutput = consoleOutputStream.str();
@@ -109,6 +109,7 @@ COMPILER_TEST(EmptyMain)
 COMPILER_TEST(GlobalValue_Number)
 COMPILER_TEST(GlobalValue_String)
 COMPILER_TEST(HelloWorld)
+COMPILER_TEST(MainNotFirstInProgram)
 COMPILER_TEST(Print)
 COMPILER_TEST(PrintNumber)
 COMPILER_TEST(VariableString)

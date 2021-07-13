@@ -36,10 +36,18 @@ class CompiledUserType {
 class CompiledProgram {
    public:
     vm::Program vmProgram;
+
+    // globals
     std::vector<std::unique_ptr<CompiledGlobalVariable>> globalVariables;
+
+    // user types
     std::vector<std::unique_ptr<CompiledUserType>> userTypes;
     std::unordered_map<std::string, CompiledUserType*> userTypesByNameLowercase;
     std::unordered_map<size_t, CompiledUserType*> userTypesBySourceMemberIndex;
+
+    // procedures
+    std::unordered_map<size_t, size_t> sourceMemberIndexToProcedureIndex;
+    std::unordered_map<size_t, size_t> procedureIndexToSourceMemberIndex;
 };
 
 }  // namespace compiler

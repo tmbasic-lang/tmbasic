@@ -549,7 +549,7 @@ void ProgramWindow::run() {
     TProgram::application->suspend();
 
     auto interpreter = std::make_unique<vm::Interpreter>(&program.vmProgram, &std::cin, &std::cout);
-    interpreter->init(0);
+    interpreter->init(program.vmProgram.startupProcedureIndex);
     while (interpreter->run(10000)) {
     }
 

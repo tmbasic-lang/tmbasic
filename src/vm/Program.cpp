@@ -104,6 +104,7 @@ class ProgramReader {
 
 std::vector<uint8_t> Program::serialize() {
     ProgramWriter writer{};
+    writer.writeInt<uint32_t>(static_cast<uint32_t>(startupProcedureIndex));
 
     for (const auto& p : procedures) {
         writer.writeInt<uint8_t>(static_cast<uint8_t>(kProcedureByte));
@@ -128,6 +129,8 @@ std::vector<uint8_t> Program::serialize() {
 
 void Program::deserialize(const std::vector<uint8_t>& pcode) {
     ProgramReader reader{ pcode };
+    startupProcedureIndex = reader.readInt<uint32_t>();
+
     while (!reader.eof()) {
         switch (reader.readInt<uint8_t>()) {
             case kEofByte:

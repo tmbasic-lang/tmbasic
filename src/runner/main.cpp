@@ -12,7 +12,7 @@ int main(int /*argc*/, const char* /*argv*/[]) {
     vm::Program program{};
     program.deserialize(pcode);
     vm::Interpreter interpreter{ &program, &std::cin, &std::cout };
-    interpreter.init(0);
+    interpreter.init(program.startupProcedureIndex);
     while (interpreter.run(10000)) {
     }
     return 0;

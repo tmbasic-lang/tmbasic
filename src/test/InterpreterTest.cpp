@@ -53,7 +53,7 @@ static void run(string filenameWithoutExtension) {
     istringstream consoleInputStream(input);
     ostringstream consoleOutputStream;
     Interpreter interpreter{ program.get(), &consoleInputStream, &consoleOutputStream };
-    interpreter.init(0);
+    interpreter.init(program->startupProcedureIndex);
     while (interpreter.run(10000)) {
     }
     auto actualOutput = consoleOutputStream.str();

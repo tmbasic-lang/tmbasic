@@ -9,6 +9,7 @@ namespace vm {
 
 class Program {
    public:
+    size_t startupProcedureIndex = 0;
     std::vector<std::unique_ptr<Procedure>> procedures;
     std::vector<Value> globalValues;
     std::vector<boost::local_shared_ptr<Object>> globalObjects;
