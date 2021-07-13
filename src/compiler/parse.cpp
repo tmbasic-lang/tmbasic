@@ -1,4 +1,5 @@
-// compile with -DDUMP_PARSE to dump AST parse tree to std::cerr
+// uncomment to dump AST parse tree to std::cerr
+// #define DUMP_PARSE
 
 #include "compiler/parse.h"
 #include "util/decimal.h"

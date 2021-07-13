@@ -128,6 +128,7 @@ void Scanner::processChar(char ch, char peek) {
             case '*':
             case '/':
             case '=':
+            case ';':
                 endCurrentToken();
                 append(ch);
                 endCurrentToken();
