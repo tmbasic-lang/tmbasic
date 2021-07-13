@@ -29,7 +29,7 @@ class Scope {
             return AddSymbolResult::kNoSymbolDeclaration;
         }
 
-        auto lowercaseName = boost::algorithm::to_lower_copy(*optionalName);
+        auto lowercaseName = boost::to_lower_copy(*optionalName);
         const auto* existingSymbolDeclaration = lookup(lowercaseName);
         if (existingSymbolDeclaration != nullptr) {
             return AddSymbolResult::kDuplicateName;
@@ -70,7 +70,7 @@ static void bindSymbol(Node* node, Scope* parentScope, Scope* childScope) {
 static void bindExpressionSymbols(ExpressionNode* node, Scope* scope) {
     if (node->isSymbolReference()) {
         auto* symbolRef = dynamic_cast<SymbolReferenceExpressionNode*>(node);
-        auto lowercaseName = boost::algorithm::to_lower_copy(symbolRef->name);
+        auto lowercaseName = boost::to_lower_copy(symbolRef->name);
         const auto* symbolDeclaration = scope->lookup(lowercaseName);
         if (symbolDeclaration != nullptr) {
             symbolRef->boundSymbolDeclaration = symbolDeclaration;

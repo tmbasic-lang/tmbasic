@@ -19,7 +19,7 @@ static void compileType(int sourceMemberIndex, const SourceMember& sourceMember,
     }
 
     const auto& typeDeclarationNode = dynamic_cast<TypeDeclarationNode&>(*parserResult.node);
-    auto lowercaseIdentifier = boost::algorithm::to_lower_copy(typeDeclarationNode.name);
+    auto lowercaseIdentifier = boost::to_lower_copy(typeDeclarationNode.name);
 
     if (compiledProgram->userTypesByNameLowercase.find(lowercaseIdentifier) !=
         compiledProgram->userTypesByNameLowercase.end()) {
@@ -34,7 +34,7 @@ static void compileType(int sourceMemberIndex, const SourceMember& sourceMember,
     auto nextObjectIndex = 0;
     for (const auto& field : typeDeclarationNode.fields) {
         auto compiledField = std::make_unique<CompiledUserTypeField>();
-        compiledField->nameLowercase = boost::algorithm::to_lower_copy(field->name);
+        compiledField->nameLowercase = boost::to_lower_copy(field->name);
         compiledField->name = field->name;
         compiledField->isValue = field->type->isValueType();
         compiledField->isObject = !compiledField->isValue;
@@ -51,7 +51,7 @@ static void compileType(int sourceMemberIndex, const SourceMember& sourceMember,
 
 static void checkFieldType(const TypeNode& fieldTypeNode, const CompiledProgram& compiledProgram) {
     if (fieldTypeNode.kind == Kind::kRecord && fieldTypeNode.recordName.has_value()) {
-        auto lowercaseRecordName = boost::algorithm::to_lower_copy(*fieldTypeNode.recordName);
+        auto lowercaseRecordName = boost::to_lower_copy(*fieldTypeNode.recordName);
         if (compiledProgram.userTypesByNameLowercase.find(lowercaseRecordName) ==
             compiledProgram.userTypesByNameLowercase.end()) {
             throw CompilerException(

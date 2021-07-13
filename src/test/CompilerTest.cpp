@@ -105,6 +105,7 @@ ls src/test/programs/CompilerTest | grep "\.bas$" | xargs -n 1 basename | sed "s
 awk '{ print "COMPILER_TEST(" $1 ")" }'
 */
 
+COMPILER_TEST(CallSub)
 COMPILER_TEST(EmptyMain)
 COMPILER_TEST(GlobalValue_Number)
 COMPILER_TEST(GlobalValue_String)

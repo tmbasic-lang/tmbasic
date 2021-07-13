@@ -203,7 +203,44 @@ static void typeCheckDimStatement(DimStatementNode* statementNode) {
     }
 }
 
-static void typeCheckBody(BodyNode* bodyNode) {
+static bool doCallArgumentTypesMatchProcedureParameters(
+    const std::vector<std::unique_ptr<ExpressionNode>>& arguments,
+    const CompiledProcedure& compiledProcedure) {
+    auto parameterCount = compiledProcedure.procedureNode->parameters.size();
+    auto argumentCount = arguments.size();
+    if (parameterCount != argumentCount) {
+        return false;
+    }
+
+    for (size_t i = 0; i < parameterCount; i++) {
+        auto& parameterType = compiledProcedure.procedureNode->parameters.at(i)->type;
+        auto& argumentType = arguments.at(i)->evaluatedType;
+        if (!argumentType->canImplicitlyConvertTo(*parameterType)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+static void typeCheckCallStatement(
+    CallStatementNode* statementNode,
+    const SourceProgram& sourceProgram,
+    CompiledProgram* compiledProgram) {
+    auto lowercaseProcedureName = boost::to_lower_copy(statementNode->name);
+    for (auto& compiledProcedure : compiledProgram->procedures) {
+        if (compiledProcedure->nameLowercase == lowercaseProcedureName &&
+            doCallArgumentTypesMatchProcedureParameters(statementNode->arguments, *compiledProcedure)) {
+            statementNode->procedureIndex = compiledProcedure->procedureIndex;
+            return;
+        }
+    }
+
+    throw CompilerException(
+        fmt::format("Call to undefined procedure \"{}\".", statementNode->name), statementNode->token);
+}
+
+static void typeCheckBody(BodyNode* bodyNode, const SourceProgram& sourceProgram, CompiledProgram* compiledProgram) {
     for (auto& statementNode : bodyNode->statements) {
         statementNode->visitExpressions([](ExpressionNode* expressionNode) -> bool {
             typeCheckExpression(expressionNode);
@@ -215,6 +252,11 @@ static void typeCheckBody(BodyNode* bodyNode) {
                 typeCheckDimStatement(dynamic_cast<DimStatementNode*>(statementNode.get()));
                 break;
 
+            case StatementType::kCall:
+                typeCheckCallStatement(
+                    dynamic_cast<CallStatementNode*>(statementNode.get()), sourceProgram, compiledProgram);
+                break;
+
             default:
                 // do nothing
                 break;
@@ -222,8 +264,8 @@ static void typeCheckBody(BodyNode* bodyNode) {
     }
 }
 
-void typeCheck(ProcedureNode* procedureNode) {
-    return typeCheckBody(procedureNode->body.get());
+void typeCheck(ProcedureNode* procedureNode, const SourceProgram& sourceProgram, CompiledProgram* compiledProgram) {
+    return typeCheckBody(procedureNode->body.get(), sourceProgram, compiledProgram);
 }
 
 };  // namespace compiler

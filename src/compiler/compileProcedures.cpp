@@ -64,25 +64,16 @@ static void assignLocalVariableIndices(ProcedureNode* procedure, int* numLocalVa
 }
 
 static void compileProcedure(
-    size_t sourceMemberIndex,
+    const SourceProgram& sourceProgram,
+    CompiledProcedure* compiledProcedure,
     const SourceMember& sourceMember,
-    CompiledProgram* compiledProgram,
-    bool* isMain) {
-    auto tokens = tokenize(sourceMember.source, TokenizeType::kCompile, &sourceMember);
-    auto parserResult = parse(&sourceMember, ParserRootProduction::kMember, tokens);
-    if (!parserResult.isSuccess) {
-        throw CompilerException(parserResult.message, *parserResult.token);
-    }
-    if (parserResult.node->getMemberType() != MemberType::kProcedure) {
-        throw CompilerException("This member must be a subroutine or function.", tokens[0]);
-    }
-    auto procedureNode = dynamic_cast_move<ProcedureNode>(std::move(parserResult.node));
-    *isMain = boost::algorithm::to_lower_copy(procedureNode->name) == "main";
-    bindProcedureSymbols(procedureNode.get(), *compiledProgram);
-    typeCheck(procedureNode.get());
+    CompiledProgram* compiledProgram) {
+    auto* procedureNode = compiledProcedure->procedureNode.get();
+    bindProcedureSymbols(procedureNode, *compiledProgram);
+    typeCheck(procedureNode, sourceProgram, compiledProgram);
     int numLocalValues = 0;
     int numLocalObjects = 0;
-    assignLocalVariableIndices(procedureNode.get(), &numLocalValues, &numLocalObjects);
+    assignLocalVariableIndices(procedureNode, &numLocalValues, &numLocalObjects);
     auto pcode = emit(*procedureNode, numLocalValues, numLocalObjects);
     auto vmProcedure = std::make_unique<vm::Procedure>();
     vmProcedure->instructions = std::move(pcode);
@@ -96,32 +87,49 @@ void assignProcedureIndices(const SourceProgram& sourceProgram, CompiledProgram*
         SourceMemberType::kProcedure,
         [compiledProgram, &nextProcedureIndex](const SourceMember& sourceMember, size_t index) {
             auto procedureIndex = nextProcedureIndex++;
-            compiledProgram->sourceMemberIndexToProcedureIndex.emplace(index, procedureIndex);
-            compiledProgram->procedureIndexToSourceMemberIndex.emplace(procedureIndex, index);
+            auto compiledProcedure = std::make_unique<CompiledProcedure>();
+            compiledProcedure->sourceMemberIndex = index;
+            compiledProcedure->procedureIndex = procedureIndex;
+            compiledProgram->procedures.push_back(std::move(compiledProcedure));
         });
 }
 
 void compileProcedures(const SourceProgram& sourceProgram, CompiledProgram* compiledProgram) {
     assignProcedureIndices(sourceProgram, compiledProgram);
 
-    std::optional<size_t> mainSourceMemberIndex;
+    // tokenize and parse each procedure so we have the names
+    std::optional<size_t> mainProcedureIndex;
+    for (auto& compiledProcedure : compiledProgram->procedures) {
+        auto& sourceMember = *sourceProgram.members.at(compiledProcedure->sourceMemberIndex);
+        auto tokens = tokenize(sourceMember.source, TokenizeType::kCompile, &sourceMember);
+        auto parserResult = parse(&sourceMember, ParserRootProduction::kMember, tokens);
+        if (!parserResult.isSuccess) {
+            throw CompilerException(parserResult.message, *parserResult.token);
+        }
+        if (parserResult.node->getMemberType() != MemberType::kProcedure) {
+            throw CompilerException("This member must be a subroutine or function.", tokens[0]);
+        }
+        auto procedureNode = dynamic_cast_move<ProcedureNode>(std::move(parserResult.node));
+        if (boost::to_lower_copy(procedureNode->name) == "main") {
+            mainProcedureIndex = compiledProcedure->procedureIndex;
+        }
+        compiledProcedure->name = procedureNode->name;
+        compiledProcedure->nameLowercase = boost::to_lower_copy(procedureNode->name);
+        compiledProcedure->procedureNode = std::move(procedureNode);
+    }
 
-    sourceProgram.forEachMemberIndex(
-        SourceMemberType::kProcedure,
-        [compiledProgram, &mainSourceMemberIndex](const SourceMember& sourceMember, size_t index) {
-            bool isMain = false;
-            compileProcedure(index, sourceMember, compiledProgram, &isMain);
-            if (isMain) {
-                mainSourceMemberIndex = index;
-            }
-        });
-
-    if (!mainSourceMemberIndex.has_value()) {
+    // we need a Main sub
+    if (!mainProcedureIndex.has_value()) {
         throw CompilerException("There is no \"Main\" subroutine in this program.", {});
     }
 
-    compiledProgram->vmProgram.startupProcedureIndex =
-        compiledProgram->sourceMemberIndexToProcedureIndex.find(*mainSourceMemberIndex)->second;
+    // compile each procedure
+    for (auto& compiledProcedure : compiledProgram->procedures) {
+        auto& sourceMember = *sourceProgram.members.at(compiledProcedure->sourceMemberIndex);
+        compileProcedure(sourceProgram, compiledProcedure.get(), sourceMember, compiledProgram);
+    }
+
+    compiledProgram->vmProgram.startupProcedureIndex = *mainProcedureIndex;
 }
 
 }  // namespace compiler

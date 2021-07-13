@@ -305,7 +305,7 @@ TokenKind Scanner::classifyToken(const std::string& text) {
     }
 
     if (std::regex_match(text, _identifierRegex)) {
-        auto lc = boost::algorithm::to_lower_copy(text);
+        auto lc = boost::to_lower_copy(text);
         switch (lc[0]) {
             case 'a':
                 if (lc == "and") {

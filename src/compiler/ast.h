@@ -369,6 +369,7 @@ class CallStatementNode : public StatementNode {
    public:
     std::string name;
     std::vector<std::unique_ptr<ExpressionNode>> arguments;
+    std::optional<int> procedureIndex{};  // added by type checker
     CallStatementNode(std::string name, std::vector<std::unique_ptr<ExpressionNode>> arguments, Token token);
     void dump(std::ostringstream& s, int n) const override;
     bool visitExpressions(const VisitExpressionFunc& func) const override;

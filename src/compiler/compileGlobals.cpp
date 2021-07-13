@@ -61,7 +61,7 @@ static vm::Value getConstValue(const ConstValueExpressionNode& node) {
 }
 
 static void compileGlobal(const SourceMember& sourceMember, CompiledProgram* compiledProgram) {
-    auto lowercaseIdentifier = boost::algorithm::to_lower_copy(sourceMember.identifier);
+    auto lowercaseIdentifier = boost::to_lower_copy(sourceMember.identifier);
     CompiledGlobalVariable* compiledGlobalVariable = nullptr;
 
     // see if the compiled global already exists

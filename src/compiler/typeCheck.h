@@ -5,6 +5,6 @@
 
 namespace compiler {
 
-void typeCheck(ProcedureNode* procedureNode);
+void typeCheck(ProcedureNode* procedureNode, const SourceProgram& sourceProgram, CompiledProgram* compiledProgram);
 
 };  // namespace compiler

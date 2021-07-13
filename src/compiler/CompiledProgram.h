@@ -6,6 +6,7 @@
 namespace compiler {
 
 class TypeNode;
+class ProcedureNode;
 
 class CompiledGlobalVariable {
    public:
@@ -33,21 +34,25 @@ class CompiledUserType {
     std::unordered_map<std::string, CompiledUserTypeField*> fieldsByNameLowercase;
 };
 
+class CompiledProcedure {
+   public:
+    std::string nameLowercase;
+    std::string name;
+    size_t sourceMemberIndex;
+    size_t procedureIndex;
+    std::unique_ptr<ProcedureNode> procedureNode;
+};
+
 class CompiledProgram {
    public:
     vm::Program vmProgram;
-
-    // globals
     std::vector<std::unique_ptr<CompiledGlobalVariable>> globalVariables;
+    std::vector<std::unique_ptr<CompiledProcedure>> procedures;
 
     // user types
     std::vector<std::unique_ptr<CompiledUserType>> userTypes;
     std::unordered_map<std::string, CompiledUserType*> userTypesByNameLowercase;
     std::unordered_map<size_t, CompiledUserType*> userTypesBySourceMemberIndex;
-
-    // procedures
-    std::unordered_map<size_t, size_t> sourceMemberIndexToProcedureIndex;
-    std::unordered_map<size_t, size_t> procedureIndexToSourceMemberIndex;
 };
 
 }  // namespace compiler

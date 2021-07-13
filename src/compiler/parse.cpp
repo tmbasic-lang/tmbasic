@@ -580,7 +580,7 @@ class LiteralValueProduction : public Production {
         auto token = captureToken(std::move(captures->at(0)));
         switch (token.type) {
             case TokenKind::kBooleanLiteral: {
-                auto lowercase = boost::algorithm::to_lower_copy(token.text);
+                auto lowercase = boost::to_lower_copy(token.text);
                 if (lowercase == "true") {
                     return nodeBox<LiteralBooleanExpressionNode>(true, firstToken);
                 }

@@ -187,8 +187,18 @@ static void emitAssignStatement(const AssignStatementNode& /*statementNode*/, Pr
     throw std::runtime_error("not impl");
 }
 
-static void emitCallStatement(const CallStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
-    throw std::runtime_error("not impl");
+static void emitCallStatement(const CallStatementNode& statementNode, ProcedureState* state) {
+    assert(statementNode.procedureIndex.has_value());
+    state->op(Opcode::kCall);
+    state->emitInt<uint32_t>(*statementNode.procedureIndex);
+    auto numValueArgs = 0;
+    auto numObjectArgs = 0;
+    for (const auto& arg : statementNode.arguments) {
+        assert(arg->evaluatedType != nullptr);
+        arg->evaluatedType->isValueType() ? numValueArgs++ : numObjectArgs++;
+    }
+    state->emitInt<uint8_t>(numValueArgs);
+    state->emitInt<uint8_t>(numObjectArgs);
 }
 
 static void emitConstStatement(const ConstStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
