@@ -2,6 +2,7 @@
 //#define DUMP_ASM
 
 #include "emit.h"
+#include "CompilerException.h"
 #include "vm/Opcode.h"
 #include "vm/systemCall.h"
 
@@ -369,7 +370,35 @@ static void emitWhileStatement(const WhileStatementNode& /*statementNode*/, Proc
 static void emitPrintStatement(const PrintStatementNode& statementNode, ProcedureState* state) {
     for (const auto& expressionNode : statementNode.expressions) {
         emitExpression(*expressionNode, state);
-        state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
+        switch (expressionNode->evaluatedType->kind) {
+            case Kind::kNumber:
+                state->syscall(Opcode::kSystemCallO, SystemCall::kNumberToString, 1, 0);
+                state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
+                break;
+            case Kind::kDate:
+                throw std::runtime_error("not impl");
+            case Kind::kDateTime:
+                throw std::runtime_error("not impl");
+            case Kind::kDateTimeOffset:
+                throw std::runtime_error("not impl");
+            case Kind::kTimeSpan:
+                throw std::runtime_error("not impl");
+            case Kind::kTimeZone:
+                throw std::runtime_error("not impl");
+            case Kind::kString:
+                state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
+                break;
+            case Kind::kList:
+                throw std::runtime_error("not impl");
+            case Kind::kMap:
+                throw std::runtime_error("not impl");
+            case Kind::kRecord:
+                throw std::runtime_error("not impl");
+            case Kind::kOptional:
+                throw std::runtime_error("not impl");
+            default:
+                throw CompilerException("Unknown Kind", expressionNode->token);
+        }
     }
 
     if (!statementNode.trailingSemicolon) {
