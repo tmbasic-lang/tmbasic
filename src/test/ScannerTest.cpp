@@ -147,10 +147,10 @@ TEST(ScannerTest, ForLoop) {
     ASSERT_EQ(i, tokens.size());
 }
 
-TEST(ScannerTest, ScanSimpleSub) {
-    scanMatch("SimpleSub");
+TEST(ScannerTest, simple_sub) {
+    scanMatch("simple_sub");
 }
 
-TEST(ScannerTest, ScanStringWithoutTrailingSpace) {
-    scanMatch("StringWithoutTrailingSpace");
+TEST(ScannerTest, string_without_trailing_space) {
+    scanMatch("string_without_trailing_space");
 }

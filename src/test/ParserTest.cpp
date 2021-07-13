@@ -45,18 +45,18 @@ TEST(ParserTest, SingleProgramNodeDump) {
     ASSERT_EQ("compiler::ProgramNode\n", dump(n));
 }
 
-TEST(ParserTest, Empty) {
-    parseMatch("Empty");
+TEST(ParserTest, empty) {
+    parseMatch("empty");
 }
 
-TEST(ParserTest, SimpleSub) {
-    parseMatch("SimpleSub");
+TEST(ParserTest, simple_sub) {
+    parseMatch("simple_sub");
 }
 
-TEST(ParserTest, SimpleFunction) {
-    parseMatch("SimpleFunction");
+TEST(ParserTest, simple_function) {
+    parseMatch("simple_function");
 }
 
-TEST(ParserTest, Print) {
-    parseMatch("Print");
+TEST(ParserTest, print) {
+    parseMatch("print");
 }

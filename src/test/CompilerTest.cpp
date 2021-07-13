@@ -81,13 +81,13 @@ static void run(string filenameWithoutExtension) {
 
 TEST(CompilerTest, GlobalValue_Number_CheckValue) {
     compiler::CompiledProgram program{};
-    run("GlobalValue_Number", &program);
+    run("global_value_number", &program);
     ASSERT_EQ(0, program.vmProgram.globalValues.at(0).getInt32());
 }
 
 TEST(CompilerTest, GlobalValue_String_CheckValue) {
     compiler::CompiledProgram program{};
-    run("GlobalValue_String", &program);
+    run("global_value_string", &program);
     auto* o = program.vmProgram.globalObjects.at(0).get();
     ASSERT_NE(nullptr, o);
     ASSERT_EQ(vm::ObjectType::kString, o->getObjectType());
@@ -105,13 +105,13 @@ ls src/test/programs/CompilerTest | grep "\.bas$" | xargs -n 1 basename | sed "s
 awk '{ print "COMPILER_TEST(" $1 ")" }'
 */
 
-COMPILER_TEST(CallFunctionWithOneArg)
-COMPILER_TEST(CallSub)
-COMPILER_TEST(EmptyMain)
-COMPILER_TEST(GlobalValue_Number)
-COMPILER_TEST(GlobalValue_String)
-COMPILER_TEST(HelloWorld)
-COMPILER_TEST(MainNotFirstInProgram)
-COMPILER_TEST(Print)
-COMPILER_TEST(PrintNumber)
-COMPILER_TEST(VariableString)
+COMPILER_TEST(call_function_one_arg)
+COMPILER_TEST(call_sub)
+COMPILER_TEST(empty_main)
+COMPILER_TEST(global_value_number)
+COMPILER_TEST(global_value_string)
+COMPILER_TEST(hello_world)
+COMPILER_TEST(main_not_first_in_program)
+COMPILER_TEST(print)
+COMPILER_TEST(print_number)
+COMPILER_TEST(variable_string)
