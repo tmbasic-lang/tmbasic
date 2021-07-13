@@ -1,6 +1,5 @@
 #include "compileGlobals.h"
 #include "CompilerException.h"
-#include "bindProcedureSymbols.h"
 #include "parse.h"
 #include "tokenize.h"
 #include "typeCheck.h"

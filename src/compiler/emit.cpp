@@ -1,5 +1,5 @@
 // uncomment to dump the generated assembly to std::cerr
-//#define DUMP_ASM
+// #define DUMP_ASM
 
 #include "emit.h"
 #include "CompilerException.h"
@@ -157,6 +157,8 @@ static void emitNotExpression(const NotExpressionNode& /*expressionNode*/, Proce
 static void emitSymbolReferenceExpression(const SymbolReferenceExpressionNode& expressionNode, ProcedureState* state) {
     const auto* decl = expressionNode.boundSymbolDeclaration;
     assert(decl != nullptr);
+
+    // local variable
     if (decl->localValueIndex.has_value()) {
         state->op(Opcode::kPushLocalValue);
         state->emitInt<uint16_t>(*decl->localValueIndex);
@@ -168,15 +170,30 @@ static void emitSymbolReferenceExpression(const SymbolReferenceExpressionNode& e
         return;
     }
 
+    // procedure argument
     const auto* parameterNode = dynamic_cast<const ParameterNode*>(decl);
-    if (parameterNode->argumentValueIndex.has_value()) {
-        state->op(Opcode::kPushArgumentValue);
-        state->emitInt<uint8_t>(*parameterNode->argumentValueIndex);
-        return;
+    if (parameterNode != nullptr) {
+        if (parameterNode->argumentValueIndex.has_value()) {
+            state->op(Opcode::kPushArgumentValue);
+            state->emitInt<uint8_t>(*parameterNode->argumentValueIndex);
+            return;
+        }
+        if (parameterNode->argumentObjectIndex.has_value()) {
+            state->op(Opcode::kPushArgumentObject);
+            state->emitInt<uint8_t>(*parameterNode->argumentObjectIndex);
+            return;
+        }
     }
-    if (parameterNode->argumentObjectIndex.has_value()) {
-        state->op(Opcode::kPushArgumentObject);
-        state->emitInt<uint8_t>(*parameterNode->argumentObjectIndex);
+
+    // function call with zero arguments
+    const auto* procedureNode = dynamic_cast<const ProcedureNode*>(decl);
+    if (procedureNode != nullptr) {
+        assert(procedureNode->returnType != nullptr);
+        auto returnsValue = procedureNode->returnType->isValueType();
+        state->op(returnsValue ? Opcode::kCallV : Opcode::kCallO);
+        state->emitInt<uint32_t>(*expressionNode.procedureIndex);
+        state->emitInt<uint8_t>(0);
+        state->emitInt<uint8_t>(0);
         return;
     }
 

@@ -106,6 +106,7 @@ awk '{ print "COMPILER_TEST(" $1 ")" }'
 */
 
 COMPILER_TEST(call_function_one_arg)
+COMPILER_TEST(call_function_zero_arg)
 COMPILER_TEST(call_sub)
 COMPILER_TEST(empty_main)
 COMPILER_TEST(global_value_number)

@@ -1,6 +1,6 @@
 #include "compileProcedures.h"
 #include "CompilerException.h"
-#include "bindProcedureSymbols.h"
+#include "SymbolScope.h"
 #include "emit.h"
 #include "parse.h"
 #include "tokenize.h"
@@ -78,11 +78,12 @@ static void assignArgumentIndices(ProcedureNode* procedure) {
 
 static void compileProcedure(
     const SourceProgram& sourceProgram,
+    CompiledProgram* compiledProgram,
     CompiledProcedure* compiledProcedure,
     const SourceMember& sourceMember,
-    CompiledProgram* compiledProgram) {
+    SymbolScope* globalSymbolScope) {
     auto* procedureNode = compiledProcedure->procedureNode.get();
-    bindProcedureSymbols(procedureNode, *compiledProgram);
+    globalSymbolScope->bindProcedureSymbols(procedureNode, *compiledProgram);
     typeCheck(procedureNode, sourceProgram, compiledProgram);
     int numLocalValues = 0;
     int numLocalObjects = 0;
@@ -109,6 +110,8 @@ void assignProcedureIndices(const SourceProgram& sourceProgram, CompiledProgram*
 }
 
 void compileProcedures(const SourceProgram& sourceProgram, CompiledProgram* compiledProgram) {
+    SymbolScope globalSymbolScope{ *compiledProgram };
+
     assignProcedureIndices(sourceProgram, compiledProgram);
 
     // tokenize and parse each procedure so we have the names
@@ -137,10 +140,15 @@ void compileProcedures(const SourceProgram& sourceProgram, CompiledProgram* comp
         throw CompilerException("There is no \"Main\" subroutine in this program.", {});
     }
 
+    // add symbols to the global scope for procedures
+    for (auto& compiledProcedure : compiledProgram->procedures) {
+        globalSymbolScope.addSymbol(compiledProcedure->procedureNode.get());
+    }
+
     // compile each procedure
     for (auto& compiledProcedure : compiledProgram->procedures) {
         auto& sourceMember = *sourceProgram.members.at(compiledProcedure->sourceMemberIndex);
-        compileProcedure(sourceProgram, compiledProcedure.get(), sourceMember, compiledProgram);
+        compileProcedure(sourceProgram, compiledProgram, compiledProcedure.get(), sourceMember, &globalSymbolScope);
     }
 
     compiledProgram->vmProgram.startupProcedureIndex = *mainProcedureIndex;

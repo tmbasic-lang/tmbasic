@@ -1458,6 +1458,10 @@ MemberType ProcedureNode::getMemberType() const {
     return MemberType::kProcedure;
 }
 
+std::optional<std::string> ProcedureNode::getSymbolDeclaration() const {
+    return name;
+}
+
 void ProgramNode::dump(std::ostringstream& s, int n) const {
     DUMP_TYPE(ProgramNode);
     DUMP_VAR_NODES(members);

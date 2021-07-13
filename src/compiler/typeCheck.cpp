@@ -195,7 +195,7 @@ static void typeCheckNotExpression(NotExpressionNode* expressionNode) {
     throw std::runtime_error("not impl");
 }
 
-static void typeCheckSymbolReferenceExpression(SymbolReferenceExpressionNode* expressionNode) {
+static void typeCheckSymbolReferenceExpression(SymbolReferenceExpressionNode* expressionNode, TypeCheckState* state) {
     const auto* decl = expressionNode->boundSymbolDeclaration;
     if (decl == nullptr) {
         throw CompilerException(
@@ -213,6 +213,27 @@ static void typeCheckSymbolReferenceExpression(SymbolReferenceExpressionNode* ex
                 expressionNode->name, s.str()),
             expressionNode->token);
     }
+
+    // this could be a call to a function with no parameters
+    const auto* procedureNode = dynamic_cast<const ProcedureNode*>(decl);
+    if (procedureNode != nullptr) {
+        auto lowercaseProcedureName = boost::to_lower_copy(expressionNode->name);
+        for (auto& compiledProcedure : state->compiledProgram->procedures) {
+            if (compiledProcedure->nameLowercase == lowercaseProcedureName &&
+                compiledProcedure->procedureNode->parameters.size() == 0) {
+                expressionNode->procedureIndex = compiledProcedure->procedureIndex;
+                if (compiledProcedure->procedureNode->returnType == nullptr) {
+                    throw CompilerException(
+                        fmt::format("\"{}\" is a subroutine but is being called as a function.", expressionNode->name),
+                        expressionNode->token);
+                }
+                expressionNode->evaluatedType = compiledProcedure->procedureNode->returnType;
+                return;
+            }
+        }
+    }
+
+    // nope, it must be a regular variable declaration
     auto type = decl->getSymbolDeclarationType();
     assert(type != nullptr);
     expressionNode->evaluatedType = std::move(type);
@@ -239,7 +260,7 @@ void typeCheckExpression(ExpressionNode* expressionNode, TypeCheckState* state) 
             typeCheckNotExpression(dynamic_cast<NotExpressionNode*>(expressionNode));
             break;
         case ExpressionType::kSymbolReference:
-            typeCheckSymbolReferenceExpression(dynamic_cast<SymbolReferenceExpressionNode*>(expressionNode));
+            typeCheckSymbolReferenceExpression(dynamic_cast<SymbolReferenceExpressionNode*>(expressionNode), state);
             break;
         default:
             assert(false);

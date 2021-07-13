@@ -297,7 +297,11 @@ class NotExpressionNode : public ExpressionNode {
 class SymbolReferenceExpressionNode : public ExpressionNode {
    public:
     std::string name;
-    const Node* boundSymbolDeclaration = nullptr;  //  set during symbol binding
+
+    // added during compilation
+    const Node* boundSymbolDeclaration = nullptr;  // set during symbol binding
+    std::optional<size_t> procedureIndex{};        // set during type checking
+
     SymbolReferenceExpressionNode(std::string name, Token token);
     void dump(std::ostringstream& s, int n) const override;
     bool isSymbolReference() const override;
@@ -778,7 +782,6 @@ class ProcedureNode : public Node {
     std::vector<std::unique_ptr<ParameterNode>> parameters;
     boost::local_shared_ptr<TypeNode> returnType;  // null for subroutines
     std::unique_ptr<BodyNode> body;
-    std::vector<std::unique_ptr<GlobalVariableNode>> globalVariables;  // inserted after parsing
     ProcedureNode(
         std::string name,
         std::vector<std::unique_ptr<ParameterNode>> parameters,
@@ -792,6 +795,7 @@ class ProcedureNode : public Node {
         Token token);
     MemberType getMemberType() const override;
     void dump(std::ostringstream& s, int n) const override;
+    std::optional<std::string> getSymbolDeclaration() const override;
 };
 
 class TypeDeclarationNode : public Node {
