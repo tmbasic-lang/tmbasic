@@ -105,17 +105,21 @@ bool Node::visitBodies(const VisitBodyFunc& /*func*/) const {
     return true;
 }
 
-// implementations of visitExpressions should NOT call func() for themselves.
-// instead, just call visitChildExpression() for its children.
-bool Node::visitExpressions(const VisitExpressionFunc& /*func*/) const {
+// visit all expression nodes, deep in the tree
+bool Node::visitExpressions(bool rootsOnly, const VisitExpressionFunc& /*func*/) const {
+    // implementations should call visitChildExpression() for their children.
+    // DO NOT just call func() directly!
     return true;
 }
 
-static bool visitChildExpression(ExpressionNode* childExpression, const VisitExpressionFunc& func) {
+static bool visitChildExpression(bool rootsOnly, ExpressionNode* childExpression, const VisitExpressionFunc& func) {
     if (!func(childExpression)) {
         return false;
     }
-    return childExpression->visitExpressions(func);
+    if (rootsOnly) {
+        return true;
+    }
+    return childExpression->visitExpressions(rootsOnly, func);
 }
 
 bool Node::isSymbolReference() const {
@@ -313,8 +317,8 @@ void BinaryExpressionSuffixNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODE(rightOperand);
 }
 
-bool BinaryExpressionSuffixNode::visitExpressions(const VisitExpressionFunc& func) const {
-    return visitChildExpression(rightOperand.get(), func);
+bool BinaryExpressionSuffixNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
+    return visitChildExpression(rootsOnly, rightOperand.get(), func);
 }
 
 BinaryExpressionNode::BinaryExpressionNode(
@@ -331,12 +335,12 @@ void BinaryExpressionNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODES(binarySuffixes);
 }
 
-bool BinaryExpressionNode::visitExpressions(const VisitExpressionFunc& func) const {
-    if (!visitChildExpression(leftOperand.get(), func)) {
+bool BinaryExpressionNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
+    if (!visitChildExpression(rootsOnly, leftOperand.get(), func)) {
         return false;
     }
     for (const auto& x : binarySuffixes) {
-        if (!x->visitExpressions(func)) {
+        if (!x->visitExpressions(rootsOnly, func)) {
             return false;
         }
     }
@@ -359,9 +363,9 @@ void CallExpressionNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODES(arguments);
 }
 
-bool CallExpressionNode::visitExpressions(const VisitExpressionFunc& func) const {
+bool CallExpressionNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
     for (const auto& x : arguments) {
-        if (!visitChildExpression(x.get(), func)) {
+        if (!visitChildExpression(rootsOnly, x.get(), func)) {
             return false;
         }
     }
@@ -384,8 +388,8 @@ void ConvertExpressionNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODE(type);
 }
 
-bool ConvertExpressionNode::visitExpressions(const VisitExpressionFunc& func) const {
-    return visitChildExpression(value.get(), func);
+bool ConvertExpressionNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
+    return visitChildExpression(rootsOnly, value.get(), func);
 }
 
 TypeNode* ConvertExpressionNode::getChildTypeNode() const {
@@ -410,9 +414,9 @@ void DottedExpressionSuffixNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODES(callArguments);
 }
 
-bool DottedExpressionSuffixNode::visitExpressions(const VisitExpressionFunc& func) const {
+bool DottedExpressionSuffixNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
     for (const auto& x : callArguments) {
-        if (!visitChildExpression(x.get(), func)) {
+        if (!visitChildExpression(rootsOnly, x.get(), func)) {
             return false;
         }
     }
@@ -431,12 +435,12 @@ void DottedExpressionNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODES(dottedSuffixes);
 }
 
-bool DottedExpressionNode::visitExpressions(const VisitExpressionFunc& func) const {
-    if (!visitChildExpression(base.get(), func)) {
+bool DottedExpressionNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
+    if (!visitChildExpression(rootsOnly, base.get(), func)) {
         return false;
     }
     for (const auto& x : dottedSuffixes) {
-        if (!x->visitExpressions(func)) {
+        if (!x->visitExpressions(rootsOnly, func)) {
             return false;
         }
     }
@@ -457,9 +461,9 @@ void LiteralArrayExpressionNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODES(elements);
 }
 
-bool LiteralArrayExpressionNode::visitExpressions(const VisitExpressionFunc& func) const {
+bool LiteralArrayExpressionNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
     for (const auto& x : elements) {
-        if (!visitChildExpression(x.get(), func)) {
+        if (!visitChildExpression(rootsOnly, x.get(), func)) {
             return false;
         }
     }
@@ -503,8 +507,8 @@ void LiteralRecordFieldNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODE(value);
 }
 
-bool LiteralRecordFieldNode::visitExpressions(const VisitExpressionFunc& func) const {
-    return visitChildExpression(value.get(), func);
+bool LiteralRecordFieldNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
+    return visitChildExpression(rootsOnly, value.get(), func);
 }
 
 LiteralRecordExpressionNode::LiteralRecordExpressionNode(
@@ -517,9 +521,9 @@ void LiteralRecordExpressionNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODES(fields);
 }
 
-bool LiteralRecordExpressionNode::visitExpressions(const VisitExpressionFunc& func) const {
+bool LiteralRecordExpressionNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
     for (const auto& x : fields) {
-        if (!x->visitExpressions(func)) {
+        if (!x->visitExpressions(rootsOnly, func)) {
             return false;
         }
     }
@@ -550,8 +554,8 @@ void NotExpressionNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODE(operand);
 }
 
-bool NotExpressionNode::visitExpressions(const VisitExpressionFunc& func) const {
-    return visitChildExpression(operand.get(), func);
+bool NotExpressionNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
+    return visitChildExpression(rootsOnly, operand.get(), func);
 }
 
 ExpressionType NotExpressionNode::getExpressionType() const {
@@ -586,13 +590,6 @@ void AssignLocationSuffixNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODE(arrayIndex);
 }
 
-bool AssignLocationSuffixNode::visitExpressions(const VisitExpressionFunc& func) const {
-    if (arrayIndex) {
-        return visitChildExpression(arrayIndex.get(), func);
-    }
-    return true;
-}
-
 AssignStatementNode::AssignStatementNode(
     std::string name,
     std::vector<std::unique_ptr<AssignLocationSuffixNode>> suffixes,
@@ -607,13 +604,13 @@ void AssignStatementNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODE(value);
 }
 
-bool AssignStatementNode::visitExpressions(const VisitExpressionFunc& func) const {
+bool AssignStatementNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
     for (const auto& x : suffixes) {
-        if (!x->visitExpressions(func)) {
+        if (visitChildExpression(rootsOnly, x->arrayIndex.get(), func)) {
             return false;
         }
     }
-    return visitChildExpression(value.get(), func);
+    return visitChildExpression(rootsOnly, value.get(), func);
 }
 
 StatementType AssignStatementNode::getStatementType() const {
@@ -640,9 +637,9 @@ void CallStatementNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODES(arguments);
 }
 
-bool CallStatementNode::visitExpressions(const VisitExpressionFunc& func) const {
+bool CallStatementNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
     for (const auto& x : arguments) {
-        if (!visitChildExpression(x.get(), func)) {
+        if (!visitChildExpression(rootsOnly, x.get(), func)) {
             return false;
         }
     }
@@ -749,9 +746,9 @@ std::optional<std::string> DimStatementNode::getSymbolDeclaration() const {
     return name;
 }
 
-bool DimStatementNode::visitExpressions(const VisitExpressionFunc& func) const {
+bool DimStatementNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
     if (value) {
-        if (!visitChildExpression(value.get(), func)) {
+        if (!visitChildExpression(rootsOnly, value.get(), func)) {
             return false;
         }
     }
@@ -786,8 +783,8 @@ void DoConditionNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_ENUM(conditionType);
 }
 
-bool DoConditionNode::visitExpressions(const VisitExpressionFunc& func) const {
-    return visitChildExpression(condition.get(), func);
+bool DoConditionNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
+    return visitChildExpression(rootsOnly, condition.get(), func);
 }
 
 DoStatementNode::DoStatementNode(
@@ -811,8 +808,8 @@ bool DoStatementNode::visitBodies(const VisitBodyFunc& func) const {
     return func(body.get());
 }
 
-bool DoStatementNode::visitExpressions(const VisitExpressionFunc& func) const {
-    return condition->visitExpressions(func);
+bool DoStatementNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
+    return visitChildExpression(rootsOnly, condition->condition.get(), func);
 }
 
 StatementType DoStatementNode::getStatementType() const {
@@ -855,8 +852,8 @@ bool ForEachStatementNode::visitBodies(const VisitBodyFunc& func) const {
     return func(body.get());
 }
 
-bool ForEachStatementNode::visitExpressions(const VisitExpressionFunc& func) const {
-    return visitChildExpression(haystack.get(), func);
+bool ForEachStatementNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
+    return visitChildExpression(rootsOnly, haystack.get(), func);
 }
 
 StatementType ForEachStatementNode::getStatementType() const {
@@ -881,7 +878,7 @@ void ForStepNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODE(stepConstant);
 }
 
-bool ForStepNode::visitExpressions(const VisitExpressionFunc& func) const {
+bool ForStepNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
     if (stepConstant) {
         if (!func(stepConstant.get())) {
             return false;
@@ -921,15 +918,15 @@ bool ForStatementNode::visitBodies(const VisitBodyFunc& func) const {
     return func(body.get());
 }
 
-bool ForStatementNode::visitExpressions(const VisitExpressionFunc& func) const {
-    if (!visitChildExpression(fromValue.get(), func)) {
+bool ForStatementNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
+    if (!visitChildExpression(rootsOnly, fromValue.get(), func)) {
         return false;
     }
-    if (!visitChildExpression(toValue.get(), func)) {
+    if (!visitChildExpression(rootsOnly, toValue.get(), func)) {
         return false;
     }
     if (step) {
-        if (!step->visitExpressions(func)) {
+        if (!step->visitExpressions(rootsOnly, func)) {
             return false;
         }
     }
@@ -993,11 +990,11 @@ bool GroupStatementNode::visitBodies(const VisitBodyFunc& func) const {
     return func(body.get());
 }
 
-bool GroupStatementNode::visitExpressions(const VisitExpressionFunc& func) const {
-    if (!visitChildExpression(itemExpression.get(), func)) {
+bool GroupStatementNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
+    if (!visitChildExpression(rootsOnly, itemExpression.get(), func)) {
         return false;
     }
-    if (!visitChildExpression(groupingExpression.get(), func)) {
+    if (!visitChildExpression(rootsOnly, groupingExpression.get(), func)) {
         return false;
     }
     return true;
@@ -1024,7 +1021,7 @@ bool ElseIfNode::visitBodies(const VisitBodyFunc& func) const {
     return func(body.get());
 }
 
-bool ElseIfNode::visitExpressions(const VisitExpressionFunc& func) const {
+bool ElseIfNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
     return func(condition.get());
 }
 
@@ -1060,12 +1057,12 @@ bool IfStatementNode::visitBodies(const VisitBodyFunc& func) const {
     return true;
 }
 
-bool IfStatementNode::visitExpressions(const VisitExpressionFunc& func) const {
-    if (!visitChildExpression(condition.get(), func)) {
+bool IfStatementNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
+    if (!visitChildExpression(rootsOnly, condition.get(), func)) {
         return false;
     }
     for (const auto& x : elseIfs) {
-        if (!x->visitExpressions(func)) {
+        if (!x->visitExpressions(rootsOnly, func)) {
             return false;
         }
     }
@@ -1104,11 +1101,11 @@ bool JoinStatementNode::visitBodies(const VisitBodyFunc& func) const {
     return func(body.get());
 }
 
-bool JoinStatementNode::visitExpressions(const VisitExpressionFunc& func) const {
-    if (!visitChildExpression(haystack.get(), func)) {
+bool JoinStatementNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
+    if (!visitChildExpression(rootsOnly, haystack.get(), func)) {
         return false;
     }
-    if (!visitChildExpression(joinExpression.get(), func)) {
+    if (!visitChildExpression(rootsOnly, joinExpression.get(), func)) {
         return false;
     }
     return true;
@@ -1140,9 +1137,9 @@ void ReturnStatementNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODE(expression);
 }
 
-bool ReturnStatementNode::visitExpressions(const VisitExpressionFunc& func) const {
+bool ReturnStatementNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
     if (expression) {
-        if (!visitChildExpression(expression.get(), func)) {
+        if (!visitChildExpression(rootsOnly, expression.get(), func)) {
             return false;
         }
     }
@@ -1165,7 +1162,7 @@ void CaseValueNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODE(toExpression);
 }
 
-bool CaseValueNode::visitExpressions(const VisitExpressionFunc& func) const {
+bool CaseValueNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
     if (!func(expression.get())) {
         return false;
     }
@@ -1190,9 +1187,9 @@ bool CaseNode::visitBodies(const VisitBodyFunc& func) const {
     return func(body.get());
 }
 
-bool CaseNode::visitExpressions(const VisitExpressionFunc& func) const {
+bool CaseNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
     for (const auto& x : values) {
-        if (!x->visitExpressions(func)) {
+        if (!x->visitExpressions(rootsOnly, func)) {
             return false;
         }
     }
@@ -1220,8 +1217,8 @@ bool SelectCaseStatementNode::visitBodies(const VisitBodyFunc& func) const {
     return true;
 }
 
-bool SelectCaseStatementNode::visitExpressions(const VisitExpressionFunc& func) const {
-    return visitChildExpression(expression.get(), func);
+bool SelectCaseStatementNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
+    return visitChildExpression(rootsOnly, expression.get(), func);
 }
 
 StatementType SelectCaseStatementNode::getStatementType() const {
@@ -1240,12 +1237,12 @@ void SelectStatementNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODE(toExpression);
 }
 
-bool SelectStatementNode::visitExpressions(const VisitExpressionFunc& func) const {
-    if (!visitChildExpression(expression.get(), func)) {
+bool SelectStatementNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
+    if (!visitChildExpression(rootsOnly, expression.get(), func)) {
         return false;
     }
     if (toExpression) {
-        if (!visitChildExpression(toExpression.get(), func)) {
+        if (!visitChildExpression(rootsOnly, toExpression.get(), func)) {
             return false;
         }
     }
@@ -1264,8 +1261,8 @@ void ThrowStatementNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODE(expression);
 }
 
-bool ThrowStatementNode::visitExpressions(const VisitExpressionFunc& func) const {
-    return visitChildExpression(expression.get(), func);
+bool ThrowStatementNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
+    return visitChildExpression(rootsOnly, expression.get(), func);
 }
 
 StatementType ThrowStatementNode::getStatementType() const {
@@ -1326,8 +1323,8 @@ bool WhileStatementNode::visitBodies(const VisitBodyFunc& func) const {
     return func(body.get());
 }
 
-bool WhileStatementNode::visitExpressions(const VisitExpressionFunc& func) const {
-    return visitChildExpression(condition.get(), func);
+bool WhileStatementNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
+    return visitChildExpression(rootsOnly, condition.get(), func);
 }
 
 StatementType WhileStatementNode::getStatementType() const {
@@ -1351,9 +1348,9 @@ void PrintStatementNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR(trailingSemicolon);
 }
 
-bool PrintStatementNode::visitExpressions(const VisitExpressionFunc& func) const {
+bool PrintStatementNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
     for (const auto& x : expressions) {
-        if (!visitChildExpression(x.get(), func)) {
+        if (!visitChildExpression(rootsOnly, x.get(), func)) {
             return false;
         }
     }

@@ -3,7 +3,37 @@
 
 namespace compiler {
 
-static void typeCheckExpression(ExpressionNode* expressionNode);
+class TypeCheckState {
+   public:
+    const SourceProgram& sourceProgram;
+    CompiledProgram* compiledProgram;
+    TypeCheckState(const SourceProgram& sourceProgram, CompiledProgram* compiledProgram)
+        : sourceProgram(sourceProgram), compiledProgram(compiledProgram) {}
+};
+
+static bool doCallArgumentTypesMatchProcedureParameters(
+    const std::vector<std::unique_ptr<ExpressionNode>>& arguments,
+    const CompiledProcedure& compiledProcedure) {
+    auto parameterCount = compiledProcedure.procedureNode->parameters.size();
+    auto argumentCount = arguments.size();
+    if (parameterCount != argumentCount) {
+        return false;
+    }
+
+    for (size_t i = 0; i < parameterCount; i++) {
+        auto& parameterType = compiledProcedure.procedureNode->parameters.at(i)->type;
+        assert(parameterType != nullptr);
+        auto& argumentType = arguments.at(i)->evaluatedType;
+        assert(argumentType != nullptr);
+        if (!argumentType->canImplicitlyConvertTo(*parameterType)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+static void typeCheckExpression(ExpressionNode* expressionNode, TypeCheckState* state);
 
 static std::string getOperatorText(BinaryOperator op) {
     switch (op) {
@@ -38,7 +68,12 @@ static std::string getOperatorText(BinaryOperator op) {
     }
 }
 
-static void typeCheckBinaryExpression(BinaryExpressionNode* expressionNode) {
+static void typeCheckBinaryExpression(BinaryExpressionNode* expressionNode, TypeCheckState* state) {
+    typeCheckExpression(expressionNode->leftOperand.get(), state);
+    for (auto& suffix : expressionNode->binarySuffixes) {
+        typeCheckExpression(suffix->rightOperand.get(), state);
+    }
+
     const auto& lhsType = expressionNode->leftOperand->evaluatedType;
     for (const auto& suffix : expressionNode->binarySuffixes) {
         const auto& rhsType = suffix->rightOperand->evaluatedType;
@@ -88,9 +123,28 @@ static void typeCheckBinaryExpression(BinaryExpressionNode* expressionNode) {
     throw std::runtime_error("not impl");
 }
 
-static void typeCheckCallExpression(CallExpressionNode* expressionNode) {
-    (void)expressionNode;
-    throw std::runtime_error("not impl");
+static void typeCheckCallExpression(CallExpressionNode* expressionNode, TypeCheckState* state) {
+    for (auto& argument : expressionNode->arguments) {
+        typeCheckExpression(argument.get(), state);
+    }
+
+    auto lowercaseProcedureName = boost::to_lower_copy(expressionNode->name);
+    for (auto& compiledProcedure : state->compiledProgram->procedures) {
+        if (compiledProcedure->nameLowercase == lowercaseProcedureName &&
+            doCallArgumentTypesMatchProcedureParameters(expressionNode->arguments, *compiledProcedure)) {
+            expressionNode->procedureIndex = compiledProcedure->procedureIndex;
+            if (compiledProcedure->procedureNode->returnType == nullptr) {
+                throw CompilerException(
+                    fmt::format("\"{}\" is a subroutine but is being called as a function.", expressionNode->name),
+                    expressionNode->token);
+            }
+            expressionNode->evaluatedType = compiledProcedure->procedureNode->returnType;
+            return;
+        }
+    }
+
+    throw CompilerException(
+        fmt::format("Call to undefined function \"{}\".", expressionNode->name), expressionNode->token);
 }
 
 static void typeCheckConstValueExpressionArray(LiteralArrayExpressionNode* expressionNode) {
@@ -164,13 +218,13 @@ static void typeCheckSymbolReferenceExpression(SymbolReferenceExpressionNode* ex
     expressionNode->evaluatedType = std::move(type);
 }
 
-void typeCheckExpression(ExpressionNode* expressionNode) {
+void typeCheckExpression(ExpressionNode* expressionNode, TypeCheckState* state) {
     switch (expressionNode->getExpressionType()) {
         case ExpressionType::kBinary:
-            typeCheckBinaryExpression(dynamic_cast<BinaryExpressionNode*>(expressionNode));
+            typeCheckBinaryExpression(dynamic_cast<BinaryExpressionNode*>(expressionNode), state);
             break;
         case ExpressionType::kCall:
-            typeCheckCallExpression(dynamic_cast<CallExpressionNode*>(expressionNode));
+            typeCheckCallExpression(dynamic_cast<CallExpressionNode*>(expressionNode), state);
             break;
         case ExpressionType::kConstValue:
             typeCheckConstValueExpression(dynamic_cast<ConstValueExpressionNode*>(expressionNode));
@@ -203,32 +257,9 @@ static void typeCheckDimStatement(DimStatementNode* statementNode) {
     }
 }
 
-static bool doCallArgumentTypesMatchProcedureParameters(
-    const std::vector<std::unique_ptr<ExpressionNode>>& arguments,
-    const CompiledProcedure& compiledProcedure) {
-    auto parameterCount = compiledProcedure.procedureNode->parameters.size();
-    auto argumentCount = arguments.size();
-    if (parameterCount != argumentCount) {
-        return false;
-    }
-
-    for (size_t i = 0; i < parameterCount; i++) {
-        auto& parameterType = compiledProcedure.procedureNode->parameters.at(i)->type;
-        auto& argumentType = arguments.at(i)->evaluatedType;
-        if (!argumentType->canImplicitlyConvertTo(*parameterType)) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-static void typeCheckCallStatement(
-    CallStatementNode* statementNode,
-    const SourceProgram& sourceProgram,
-    CompiledProgram* compiledProgram) {
+static void typeCheckCallStatement(CallStatementNode* statementNode, TypeCheckState* state) {
     auto lowercaseProcedureName = boost::to_lower_copy(statementNode->name);
-    for (auto& compiledProcedure : compiledProgram->procedures) {
+    for (auto& compiledProcedure : state->compiledProgram->procedures) {
         if (compiledProcedure->nameLowercase == lowercaseProcedureName &&
             doCallArgumentTypesMatchProcedureParameters(statementNode->arguments, *compiledProcedure)) {
             statementNode->procedureIndex = compiledProcedure->procedureIndex;
@@ -240,10 +271,10 @@ static void typeCheckCallStatement(
         fmt::format("Call to undefined procedure \"{}\".", statementNode->name), statementNode->token);
 }
 
-static void typeCheckBody(BodyNode* bodyNode, const SourceProgram& sourceProgram, CompiledProgram* compiledProgram) {
+static void typeCheckBody(BodyNode* bodyNode, TypeCheckState* state) {
     for (auto& statementNode : bodyNode->statements) {
-        statementNode->visitExpressions([](ExpressionNode* expressionNode) -> bool {
-            typeCheckExpression(expressionNode);
+        statementNode->visitExpressions(true, [state](ExpressionNode* expressionNode) -> bool {
+            typeCheckExpression(expressionNode, state);
             return true;
         });
 
@@ -253,8 +284,7 @@ static void typeCheckBody(BodyNode* bodyNode, const SourceProgram& sourceProgram
                 break;
 
             case StatementType::kCall:
-                typeCheckCallStatement(
-                    dynamic_cast<CallStatementNode*>(statementNode.get()), sourceProgram, compiledProgram);
+                typeCheckCallStatement(dynamic_cast<CallStatementNode*>(statementNode.get()), state);
                 break;
 
             default:
@@ -265,7 +295,8 @@ static void typeCheckBody(BodyNode* bodyNode, const SourceProgram& sourceProgram
 }
 
 void typeCheck(ProcedureNode* procedureNode, const SourceProgram& sourceProgram, CompiledProgram* compiledProgram) {
-    return typeCheckBody(procedureNode->body.get(), sourceProgram, compiledProgram);
+    TypeCheckState state{ sourceProgram, compiledProgram };
+    return typeCheckBody(procedureNode->body.get(), &state);
 }
 
 };  // namespace compiler

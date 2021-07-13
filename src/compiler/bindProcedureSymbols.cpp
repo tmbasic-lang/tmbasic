@@ -103,7 +103,7 @@ static void bindStatementSymbols(StatementNode* node, Scope* scope) {
     }
 
     // does it have sub-expressions?
-    node->visitExpressions([&subScope](ExpressionNode* expr) -> bool {
+    node->visitExpressions(false, [&subScope](ExpressionNode* expr) -> bool {
         bindExpressionSymbols(expr, &subScope);
         return true;
     });

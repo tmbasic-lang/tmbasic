@@ -65,12 +65,26 @@ class ProcedureState {
     }
 };
 
+static void emitExpression(const ExpressionNode& expressionNode, ProcedureState* state);
+
 static void emitBinaryExpression(const BinaryExpressionNode& /*expressionNode*/, ProcedureState* /*state*/) {
     throw std::runtime_error("not impl");
 }
 
-static void emitCallExpression(const CallExpressionNode& /*expressionNode*/, ProcedureState* /*state*/) {
-    throw std::runtime_error("not impl");
+static void emitCallExpression(const CallExpressionNode& expressionNode, ProcedureState* state) {
+    assert(expressionNode.evaluatedType != nullptr);
+    auto returnsValue = expressionNode.evaluatedType->isValueType();
+    auto numValueArgs = 0;
+    auto numObjectArgs = 0;
+    for (const auto& arg : expressionNode.arguments) {
+        assert(arg->evaluatedType != nullptr);
+        arg->evaluatedType->isValueType() ? numValueArgs++ : numObjectArgs++;
+        emitExpression(*arg, state);
+    }
+    state->op(returnsValue ? Opcode::kCallV : Opcode::kCallO);
+    state->emitInt<uint32_t>(*expressionNode.procedureIndex);
+    state->emitInt<uint8_t>(numValueArgs);
+    state->emitInt<uint8_t>(numObjectArgs);
 }
 
 static void emitLiteralArrayExpression(
@@ -146,15 +160,30 @@ static void emitSymbolReferenceExpression(const SymbolReferenceExpressionNode& e
     if (decl->localValueIndex.has_value()) {
         state->op(Opcode::kPushLocalValue);
         state->emitInt<uint16_t>(*decl->localValueIndex);
-    } else if (decl->localObjectIndex.has_value()) {
+        return;
+    }
+    if (decl->localObjectIndex.has_value()) {
         state->op(Opcode::kPushLocalObject);
         state->emitInt<uint16_t>(*decl->localObjectIndex);
-    } else {
-        throw std::runtime_error("not impl");
+        return;
     }
+
+    const auto* parameterNode = dynamic_cast<const ParameterNode*>(decl);
+    if (parameterNode->argumentValueIndex.has_value()) {
+        state->op(Opcode::kPushArgumentValue);
+        state->emitInt<uint8_t>(*parameterNode->argumentValueIndex);
+        return;
+    }
+    if (parameterNode->argumentObjectIndex.has_value()) {
+        state->op(Opcode::kPushArgumentObject);
+        state->emitInt<uint8_t>(*parameterNode->argumentObjectIndex);
+        return;
+    }
+
+    throw std::runtime_error("not impl");
 }
 
-static void emitExpression(const ExpressionNode& expressionNode, ProcedureState* state) {
+/*static*/ void emitExpression(const ExpressionNode& expressionNode, ProcedureState* state) {
     switch (expressionNode.getExpressionType()) {
         case ExpressionType::kBinary:
             emitBinaryExpression(dynamic_cast<const BinaryExpressionNode&>(expressionNode), state);
@@ -189,14 +218,15 @@ static void emitAssignStatement(const AssignStatementNode& /*statementNode*/, Pr
 
 static void emitCallStatement(const CallStatementNode& statementNode, ProcedureState* state) {
     assert(statementNode.procedureIndex.has_value());
-    state->op(Opcode::kCall);
-    state->emitInt<uint32_t>(*statementNode.procedureIndex);
     auto numValueArgs = 0;
     auto numObjectArgs = 0;
     for (const auto& arg : statementNode.arguments) {
         assert(arg->evaluatedType != nullptr);
         arg->evaluatedType->isValueType() ? numValueArgs++ : numObjectArgs++;
+        emitExpression(*arg, state);
     }
+    state->op(Opcode::kCall);
+    state->emitInt<uint32_t>(*statementNode.procedureIndex);
     state->emitInt<uint8_t>(numValueArgs);
     state->emitInt<uint8_t>(numObjectArgs);
 }
@@ -353,8 +383,11 @@ static void emitRethrowStatement(const RethrowStatementNode& /*statementNode*/, 
     throw std::runtime_error("not impl");
 }
 
-static void emitReturnStatement(const ReturnStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
-    throw std::runtime_error("not impl");
+static void emitReturnStatement(const ReturnStatementNode& statementNode, ProcedureState* state) {
+    assert(statementNode.expression->evaluatedType != nullptr);
+    emitExpression(*statementNode.expression, state);
+    auto isValue = statementNode.expression->evaluatedType->isValueType();
+    state->op(isValue ? Opcode::kReturnValue : Opcode::kReturnObject);
 }
 
 static void emitSelectCaseStatement(const SelectCaseStatementNode& /*statementNode*/, ProcedureState* /*state*/) {

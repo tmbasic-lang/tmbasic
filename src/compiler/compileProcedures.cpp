@@ -63,6 +63,19 @@ static void assignLocalVariableIndices(ProcedureNode* procedure, int* numLocalVa
     *numLocalObjects = state.nextLocalObjectIndex;
 }
 
+static void assignArgumentIndices(ProcedureNode* procedure) {
+    auto nextValueIndex = 0;
+    auto nextObjectIndex = 0;
+    for (auto& parameter : procedure->parameters) {
+        assert(parameter->type != nullptr);
+        if (parameter->type->isValueType()) {
+            parameter->argumentValueIndex = nextValueIndex++;
+        } else {
+            parameter->argumentObjectIndex = nextObjectIndex++;
+        }
+    }
+}
+
 static void compileProcedure(
     const SourceProgram& sourceProgram,
     CompiledProcedure* compiledProcedure,
@@ -74,6 +87,7 @@ static void compileProcedure(
     int numLocalValues = 0;
     int numLocalObjects = 0;
     assignLocalVariableIndices(procedureNode, &numLocalValues, &numLocalObjects);
+    assignArgumentIndices(procedureNode);
     auto pcode = emit(*procedureNode, numLocalValues, numLocalObjects);
     auto vmProcedure = std::make_unique<vm::Procedure>();
     vmProcedure->instructions = std::move(pcode);
