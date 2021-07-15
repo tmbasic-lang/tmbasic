@@ -3,6 +3,7 @@
 #include "../common.h"
 #include "compiler/CompiledProgram.h"
 #include "compiler/Token.h"
+#include "vm/systemCall.h"
 
 namespace compiler {
 
@@ -25,10 +26,6 @@ class Node {
    public:
     Token token;
 
-    // added during compilation
-    std::optional<int> localValueIndex{};
-    std::optional<int> localObjectIndex{};
-
     explicit Node(Token token);
     virtual ~Node();
     virtual void dump(std::ostringstream& s, int n) const;
@@ -43,6 +40,17 @@ class Node {
     virtual boost::local_shared_ptr<TypeNode> getSymbolDeclarationType() const;
     virtual Node* getChildSymbolDeclaration() const;  // a sub-node that declares another symbol
     virtual bool isSymbolVisibleToSiblingStatements() const;
+
+    // procedure nodes and call nodes
+    std::optional<size_t> procedureIndex{};
+    std::optional<vm::SystemCall> systemCall{};
+
+    // symbol reference and procedure call nodes
+    boost::local_shared_ptr<TypeNode> evaluatedType = nullptr;  // set during type checking
+
+    // local variable symbol reference nodes
+    std::optional<int> localValueIndex{};
+    std::optional<int> localObjectIndex{};
 };
 
 //
@@ -124,7 +132,6 @@ enum class ExpressionType {
 
 class ExpressionNode : public Node {
    public:
-    boost::local_shared_ptr<TypeNode> evaluatedType = nullptr;  // set during type checking
     explicit ExpressionNode(Token token);
     virtual ExpressionType getExpressionType() const = 0;
 };
@@ -174,7 +181,6 @@ class CallExpressionNode : public ExpressionNode {
    public:
     std::string name;
     std::vector<std::unique_ptr<ExpressionNode>> arguments;
-    std::optional<int> procedureIndex{};  // added by type checker
     CallExpressionNode(std::string name, std::vector<std::unique_ptr<ExpressionNode>> arguments, Token token);
     void dump(std::ostringstream& s, int n) const override;
     bool visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const override;
@@ -298,9 +304,8 @@ class SymbolReferenceExpressionNode : public ExpressionNode {
    public:
     std::string name;
 
-    // added during compilation
+    // added during compile
     const Node* boundSymbolDeclaration = nullptr;  // set during symbol binding
-    std::optional<size_t> procedureIndex{};        // set during type checking
 
     SymbolReferenceExpressionNode(std::string name, Token token);
     void dump(std::ostringstream& s, int n) const override;
@@ -379,7 +384,6 @@ class CallStatementNode : public StatementNode {
    public:
     std::string name;
     std::vector<std::unique_ptr<ExpressionNode>> arguments;
-    std::optional<int> procedureIndex{};  // added by type checker
     CallStatementNode(std::string name, std::vector<std::unique_ptr<ExpressionNode>> arguments, Token token);
     void dump(std::ostringstream& s, int n) const override;
     bool visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const override;
@@ -390,7 +394,6 @@ class ConstStatementNode : public StatementNode {
    public:
     std::string name;
     std::unique_ptr<ConstValueExpressionNode> value;
-    boost::local_shared_ptr<TypeNode> evaluatedType = nullptr;  // set during type checking
     ConstStatementNode(std::string name, std::unique_ptr<ConstValueExpressionNode> value, Token token);
     MemberType getMemberType() const override;
     void dump(std::ostringstream& s, int n) const override;
@@ -417,7 +420,6 @@ class DimListStatementNode : public StatementNode {
    public:
     std::string name;
     std::unique_ptr<BodyNode> body;
-    boost::local_shared_ptr<TypeNode> evaluatedType = nullptr;  // set during type checking
     DimListStatementNode(std::string name, std::unique_ptr<BodyNode> body, Token token);
     void dump(std::ostringstream& s, int n) const override;
     bool visitBodies(const VisitBodyFunc& func) const override;
@@ -428,7 +430,6 @@ class DimMapStatementNode : public StatementNode {
    public:
     std::string name;
     std::unique_ptr<BodyNode> body;
-    boost::local_shared_ptr<TypeNode> evaluatedType = nullptr;  // set during type checking
     DimMapStatementNode(std::string name, std::unique_ptr<BodyNode> body, Token token);
     void dump(std::ostringstream& s, int n) const override;
     bool visitBodies(const VisitBodyFunc& func) const override;
@@ -438,9 +439,8 @@ class DimMapStatementNode : public StatementNode {
 class DimStatementNode : public StatementNode {
    public:
     std::string name;
-    boost::local_shared_ptr<TypeNode> type;                     // may be null
-    std::unique_ptr<ExpressionNode> value;                      // may be null
-    boost::local_shared_ptr<TypeNode> evaluatedType = nullptr;  // set during type checking
+    boost::local_shared_ptr<TypeNode> type;  // may be null
+    std::unique_ptr<ExpressionNode> value;   // may be null
     bool shared;
     DimStatementNode(std::string name, boost::local_shared_ptr<TypeNode> type, Token token, bool shared);
     DimStatementNode(std::string name, std::unique_ptr<ExpressionNode> value, Token token, bool shared);
@@ -561,7 +561,6 @@ class ForStatementNode : public StatementNode {
 class GroupKeyNameNode : public Node {
    public:
     std::string name;
-    boost::local_shared_ptr<TypeNode> evaluatedType = nullptr;  // set during type checking
     GroupKeyNameNode(std::string name, Token token);
     void dump(std::ostringstream& s, int n) const override;
     std::optional<std::string> getSymbolDeclaration() const override;
@@ -769,7 +768,6 @@ class InputStatementNode : public StatementNode {
 class GlobalVariableNode : public Node {
    public:
     std::string name;
-    boost::local_shared_ptr<TypeNode> evaluatedType;  // set by type checker
     GlobalVariableNode(std::string name);
     void dump(std::ostringstream& s, int n) const override;
     std::optional<std::string> getSymbolDeclaration() const override;
@@ -781,7 +779,7 @@ class ProcedureNode : public Node {
     std::string name;
     std::vector<std::unique_ptr<ParameterNode>> parameters;
     boost::local_shared_ptr<TypeNode> returnType;  // null for subroutines
-    std::unique_ptr<BodyNode> body;
+    std::unique_ptr<BodyNode> body;                // null for system procedures
     ProcedureNode(
         std::string name,
         std::vector<std::unique_ptr<ParameterNode>> parameters,
@@ -793,6 +791,7 @@ class ProcedureNode : public Node {
         std::vector<std::unique_ptr<ParameterNode>> parameters,
         std::unique_ptr<BodyNode> body,
         Token token);
+    ProcedureNode(std::string name, std::vector<std::unique_ptr<ParameterNode>> parameters, vm::SystemCall systemCall);
     MemberType getMemberType() const override;
     void dump(std::ostringstream& s, int n) const override;
     std::optional<std::string> getSymbolDeclaration() const override;

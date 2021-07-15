@@ -1,27 +1,96 @@
 #include "typeCheck.h"
 #include "CompilerException.h"
+#include "vm/systemCall.h"
 
 namespace compiler {
+
+class BuiltInProcedureList {
+   private:
+    std::vector<std::unique_ptr<ProcedureNode>> _empty{};
+    std::unordered_map<std::string, std::unique_ptr<std::vector<std::unique_ptr<ProcedureNode>>>> _map{};
+
+    std::vector<std::unique_ptr<ProcedureNode>>* findOrCreateVector(const std::string& lowercaseName) {
+        auto it = _map.find(lowercaseName);
+        if (it != _map.end()) {
+            return it->second.get();
+        }
+
+        auto procedureNode = std::make_unique<std::vector<std::unique_ptr<ProcedureNode>>>();
+        auto procedureNodePtr = procedureNode.get();
+        _map.insert(std::pair(lowercaseName, std::move(procedureNode)));
+        return procedureNodePtr;
+    }
+
+    ProcedureNode* addSub(
+        std::string name,
+        std::initializer_list<std::string> parameterNames,
+        std::initializer_list<boost::local_shared_ptr<TypeNode>> parameterTypes,
+        vm::SystemCall systemCall) {
+        auto lowercaseName = boost::to_lower_copy(name);
+        assert(parameterNames.size() == parameterTypes.size());
+        std::vector<std::unique_ptr<ParameterNode>> parameterNodes{};
+        auto* parameterNameIter = parameterNames.begin();
+        auto* parameterTypesIter = parameterTypes.begin();
+        for (size_t i = 0; i < parameterNames.size(); i++) {
+            parameterNodes.push_back(std::make_unique<ParameterNode>(
+                std::move(*parameterNameIter++), std::move(*parameterTypesIter++), Token{}));
+        }
+        auto procedure = std::make_unique<ProcedureNode>(std::move(name), std::move(parameterNodes), nullptr, Token{});
+        procedure->systemCall = systemCall;
+        auto* procedurePtr = procedure.get();
+        auto* vec = findOrCreateVector(lowercaseName);
+        vec->push_back(std::move(procedure));
+        return procedurePtr;
+    }
+
+    ProcedureNode* addFunction(
+        std::string name,
+        std::initializer_list<std::string> parameterNames,
+        std::initializer_list<boost::local_shared_ptr<TypeNode>> parameterTypes,
+        boost::local_shared_ptr<TypeNode> returnType,
+        vm::SystemCall systemCall) {
+        auto* node = addSub(name, parameterNames, parameterTypes, systemCall);
+        node->returnType = std::move(returnType);
+        return node;
+    }
+
+   public:
+    BuiltInProcedureList() {
+        auto number = boost::make_local_shared<TypeNode>(Kind::kNumber, Token{});
+        auto string = boost::make_local_shared<TypeNode>(Kind::kString, Token{});
+
+        addFunction("Chr", { "input" }, { number }, string, vm::SystemCall::kChr);
+    }
+
+    const std::vector<std::unique_ptr<ProcedureNode>>& get(const std::string& name) {
+        auto lowercaseName = boost::to_lower_copy(name);
+        auto result = _map.find(lowercaseName);
+        return result == _map.end() ? _empty : *result->second;
+    }
+};
 
 class TypeCheckState {
    public:
     const SourceProgram& sourceProgram;
     CompiledProgram* compiledProgram;
+    BuiltInProcedureList builtInProcedures{};
     TypeCheckState(const SourceProgram& sourceProgram, CompiledProgram* compiledProgram)
         : sourceProgram(sourceProgram), compiledProgram(compiledProgram) {}
 };
 
+static void typeCheckExpression(ExpressionNode* expressionNode, TypeCheckState* state);
+
 static bool doCallArgumentTypesMatchProcedureParameters(
     const std::vector<std::unique_ptr<ExpressionNode>>& arguments,
-    const CompiledProcedure& compiledProcedure) {
-    auto parameterCount = compiledProcedure.procedureNode->parameters.size();
+    const std::vector<std::unique_ptr<ParameterNode>>& parameters) {
+    auto parameterCount = parameters.size();
     auto argumentCount = arguments.size();
     if (parameterCount != argumentCount) {
         return false;
     }
 
     for (size_t i = 0; i < parameterCount; i++) {
-        auto& parameterType = compiledProcedure.procedureNode->parameters.at(i)->type;
+        auto& parameterType = parameters.at(i)->type;
         assert(parameterType != nullptr);
         auto& argumentType = arguments.at(i)->evaluatedType;
         assert(argumentType != nullptr);
@@ -33,7 +102,48 @@ static bool doCallArgumentTypesMatchProcedureParameters(
     return true;
 }
 
-static void typeCheckExpression(ExpressionNode* expressionNode, TypeCheckState* state);
+static void typeCheckCall(
+    Node* callNode,
+    const std::string& name,
+    const std::vector<std::unique_ptr<ExpressionNode>>& arguments,
+    TypeCheckState* state,
+    bool mustBeFunction) {
+    for (auto& argument : arguments) {
+        typeCheckExpression(argument.get(), state);
+    }
+
+    auto lowercaseProcedureName = boost::to_lower_copy(name);
+    for (auto& compiledProcedure : state->compiledProgram->procedures) {
+        if (compiledProcedure->nameLowercase == lowercaseProcedureName &&
+            doCallArgumentTypesMatchProcedureParameters(arguments, compiledProcedure->procedureNode->parameters)) {
+            if (mustBeFunction && compiledProcedure->procedureNode->returnType == nullptr) {
+                throw CompilerException(
+                    fmt::format("\"{}\" is a subroutine but is being called as a function.", name), callNode->token);
+            }
+            callNode->procedureIndex = compiledProcedure->procedureIndex;
+            if (compiledProcedure->procedureNode->returnType != nullptr) {
+                callNode->evaluatedType = compiledProcedure->procedureNode->returnType;
+            }
+            return;
+        }
+    }
+
+    for (auto& builtInProcedure : state->builtInProcedures.get(name)) {
+        if (doCallArgumentTypesMatchProcedureParameters(arguments, builtInProcedure->parameters)) {
+            if (mustBeFunction && builtInProcedure->returnType == nullptr) {
+                throw CompilerException(
+                    fmt::format("\"{}\" is a subroutine but is being called as a function.", name), callNode->token);
+            }
+            callNode->systemCall = builtInProcedure->systemCall;
+            if (builtInProcedure->returnType != nullptr) {
+                callNode->evaluatedType = builtInProcedure->returnType;
+            }
+            return;
+        }
+    }
+
+    throw CompilerException(fmt::format("Call to undefined procedure \"{}\".", name), callNode->token);
+}
 
 static std::string getOperatorText(BinaryOperator op) {
     switch (op) {
@@ -124,27 +234,7 @@ static void typeCheckBinaryExpression(BinaryExpressionNode* expressionNode, Type
 }
 
 static void typeCheckCallExpression(CallExpressionNode* expressionNode, TypeCheckState* state) {
-    for (auto& argument : expressionNode->arguments) {
-        typeCheckExpression(argument.get(), state);
-    }
-
-    auto lowercaseProcedureName = boost::to_lower_copy(expressionNode->name);
-    for (auto& compiledProcedure : state->compiledProgram->procedures) {
-        if (compiledProcedure->nameLowercase == lowercaseProcedureName &&
-            doCallArgumentTypesMatchProcedureParameters(expressionNode->arguments, *compiledProcedure)) {
-            expressionNode->procedureIndex = compiledProcedure->procedureIndex;
-            if (compiledProcedure->procedureNode->returnType == nullptr) {
-                throw CompilerException(
-                    fmt::format("\"{}\" is a subroutine but is being called as a function.", expressionNode->name),
-                    expressionNode->token);
-            }
-            expressionNode->evaluatedType = compiledProcedure->procedureNode->returnType;
-            return;
-        }
-    }
-
-    throw CompilerException(
-        fmt::format("Call to undefined function \"{}\".", expressionNode->name), expressionNode->token);
+    typeCheckCall(expressionNode, expressionNode->name, expressionNode->arguments, state, true);
 }
 
 static void typeCheckConstValueExpressionArray(LiteralArrayExpressionNode* expressionNode) {
@@ -206,7 +296,7 @@ static void typeCheckSymbolReferenceExpression(SymbolReferenceExpressionNode* ex
     if (!decl->getSymbolDeclaration().has_value()) {
         std::ostringstream s;
         decl->dump(s, 0);
-        throw CompilerException(  // NAMEOF_TYPE_RTTI
+        throw CompilerException(
             fmt::format(
                 "Internal error. The symbol reference \"{}\" is bound to a node that does not claim to declare a "
                 "symbol. That node is: {}",
@@ -217,20 +307,9 @@ static void typeCheckSymbolReferenceExpression(SymbolReferenceExpressionNode* ex
     // this could be a call to a function with no parameters
     const auto* procedureNode = dynamic_cast<const ProcedureNode*>(decl);
     if (procedureNode != nullptr) {
-        auto lowercaseProcedureName = boost::to_lower_copy(expressionNode->name);
-        for (auto& compiledProcedure : state->compiledProgram->procedures) {
-            if (compiledProcedure->nameLowercase == lowercaseProcedureName &&
-                compiledProcedure->procedureNode->parameters.size() == 0) {
-                expressionNode->procedureIndex = compiledProcedure->procedureIndex;
-                if (compiledProcedure->procedureNode->returnType == nullptr) {
-                    throw CompilerException(
-                        fmt::format("\"{}\" is a subroutine but is being called as a function.", expressionNode->name),
-                        expressionNode->token);
-                }
-                expressionNode->evaluatedType = compiledProcedure->procedureNode->returnType;
-                return;
-            }
-        }
+        std::vector<std::unique_ptr<ExpressionNode>> arguments{};
+        typeCheckCall(expressionNode, expressionNode->name, arguments, state, true);
+        return;
     }
 
     // nope, it must be a regular variable declaration
@@ -279,17 +358,7 @@ static void typeCheckDimStatement(DimStatementNode* statementNode) {
 }
 
 static void typeCheckCallStatement(CallStatementNode* statementNode, TypeCheckState* state) {
-    auto lowercaseProcedureName = boost::to_lower_copy(statementNode->name);
-    for (auto& compiledProcedure : state->compiledProgram->procedures) {
-        if (compiledProcedure->nameLowercase == lowercaseProcedureName &&
-            doCallArgumentTypesMatchProcedureParameters(statementNode->arguments, *compiledProcedure)) {
-            statementNode->procedureIndex = compiledProcedure->procedureIndex;
-            return;
-        }
-    }
-
-    throw CompilerException(
-        fmt::format("Call to undefined procedure \"{}\".", statementNode->name), statementNode->token);
+    typeCheckCall(statementNode, statementNode->name, statementNode->arguments, state, false);
 }
 
 static void typeCheckBody(BodyNode* bodyNode, TypeCheckState* state) {

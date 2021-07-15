@@ -140,7 +140,7 @@ void compileProcedures(const SourceProgram& sourceProgram, CompiledProgram* comp
         throw CompilerException("There is no \"Main\" subroutine in this program.", {});
     }
 
-    // add symbols to the global scope for procedures
+    // add symbols to the global scope for user procedures
     for (auto& compiledProcedure : compiledProgram->procedures) {
         globalSymbolScope.addSymbol(compiledProcedure->procedureNode.get());
     }

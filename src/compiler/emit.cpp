@@ -81,10 +81,18 @@ static void emitCallExpression(const CallExpressionNode& expressionNode, Procedu
         arg->evaluatedType->isValueType() ? numValueArgs++ : numObjectArgs++;
         emitExpression(*arg, state);
     }
-    state->op(returnsValue ? Opcode::kCallV : Opcode::kCallO);
-    state->emitInt<uint32_t>(*expressionNode.procedureIndex);
-    state->emitInt<uint8_t>(numValueArgs);
-    state->emitInt<uint8_t>(numObjectArgs);
+    if (expressionNode.procedureIndex.has_value()) {
+        state->op(returnsValue ? Opcode::kCallV : Opcode::kCallO);
+        state->emitInt<uint32_t>(*expressionNode.procedureIndex);
+        state->emitInt<uint8_t>(numValueArgs);
+        state->emitInt<uint8_t>(numObjectArgs);
+    } else if (expressionNode.systemCall.has_value()) {
+        state->syscall(
+            returnsValue ? Opcode::kSystemCallV : Opcode::kSystemCallO, *expressionNode.systemCall, numValueArgs,
+            numObjectArgs);
+    } else {
+        throw std::runtime_error("not impl");
+    }
 }
 
 static void emitLiteralArrayExpression(
