@@ -11,9 +11,9 @@ A time span representing i[count] seconds.
 .example
 .example-code
 dim x = Seconds(1)
-x.Print
+print x
 x = x + Seconds(0.5)
-x.Print
+print x
 .example-output
 00:00:01
 00:00:01.5

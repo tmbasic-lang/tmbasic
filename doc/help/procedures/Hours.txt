@@ -11,9 +11,9 @@ A time span representing i[count] hours.
 .example
 .example-code
 dim x = Hours(1)
-x.Print
+print x
 x = x + Hours(0.5)
-x.Print
+print x
 .example-output
 01:00:00
 01:30:00

@@ -15,7 +15,7 @@ A new t[Date].
 .example
 .example-code
 dim x = DateFromParts(2021, 3, 12)
-x.Print
+print x
 .example-output
 2021-03-12
 .

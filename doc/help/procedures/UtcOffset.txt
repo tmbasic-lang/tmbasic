@@ -4,18 +4,18 @@
 .description
 Calculates the difference between UTC and another time zone for a particular local time.
 .overload
-.parameter timeZone: TimeZone
-The local time zone.
 .parameter dateTime: DateTime
 The local time for which to calculate the UTC offset.
+.parameter timeZone: TimeZone
+The local time zone.
 .return TimeSpan
 A time span representing the time zone's offset from UTC.
 .example
 .example-code
 dim tz = TimeZoneFromName("America/New_York")
 dim dt = DateTimeFromParts(2021, 3, 13, 0, 0, 0, 0)
-dim offset = tz.UtcOffset(dt)
-offset.TotalHours.Print
+dim offset = UtcOffset(dt, tz)
+print TotalHours(offset)
 .example-output
 -5
 .

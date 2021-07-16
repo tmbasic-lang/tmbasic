@@ -11,9 +11,9 @@ A time span representing i[count] milliseconds.
 .example
 .example-code
 dim x = Milliseconds(1)
-x.Print
+print x
 x = x + Milliseconds(0.5)
-x.Print
+print x
 .example-output
 00:00:00.001
 00:00:00.0015

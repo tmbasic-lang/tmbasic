@@ -30,6 +30,6 @@ code@
 dim x = 50
 dim y = x < 100  ' y is true
 if x > 10 then
-    "Greater!".Print  ' this will print
+    print "Greater!"  ' this will print
 end if
 @

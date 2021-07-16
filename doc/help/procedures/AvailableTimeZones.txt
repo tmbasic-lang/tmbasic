@@ -11,7 +11,7 @@ List of time zone names.
 .example
 .example-code
 dim x = AvailableTimeZones
-x(0).Print
+print x(0)
 .example-output
 ACT
 .

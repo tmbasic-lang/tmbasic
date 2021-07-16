@@ -11,7 +11,7 @@ The corresponding character.
 .example
 .example-code
 dim x = Chr(65)  ' code point for "LATIN CAPITAL LETTER A"
-x.Print
+print x
 .example-output
 A
 .

@@ -23,7 +23,7 @@ A new t[DateTime].
 .example
 .example-code
 dim x = DateTimeFromParts(2021, 3, 12, 4, 30, 0, 0)
-x.Print
+print x
 .example-output
 2021-03-12 04:30:00.000
 .

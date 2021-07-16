@@ -11,9 +11,9 @@ A time span representing i[count] minutes.
 .example
 .example-code
 dim x = Minutes(1)
-x.Print
+print x
 x = x + Minutes(0.5)
-x.Print
+print x
 .example-output
 00:01:00
 00:01:30

@@ -12,15 +12,15 @@ If i[this] contains a value (of type i[T]), then p[HasValue] returns `true`. Oth
 This example shows how p[HasValue] responds to changes in an t[Optional] t[Number] variable.
 .example-code
 dim x as Optional Number
-if not x.HasValue then Print "x.HasValue is initially false"
+if not HasValue(x) then print "HasValue is initially false"
 
 let x = 123
-if x.HasValue then Print "x.HasValue is now true"
+if HasValue(x) then print "HasValue is now true"
 
 let x = none
-if not x.HasValue then Print "x.HasValue is false again"
+if not HasValue(x) then Print "HasValue is false again"
 .example-output
-x.HasValue is initially false
-x.HasValue is now true
-x.HasValue is false again
+HasValue is initially false
+HasValue is now true
+HasValue is false again
 .

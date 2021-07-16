@@ -11,7 +11,7 @@ A possibly fractional number of milliseconds.
 .example
 .example-code
 dim x = Seconds(10)
-x.TotalMilliseconds.Print
+print TotalMilliseconds(x)
 .example-output
 10000
 .

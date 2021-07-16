@@ -13,7 +13,7 @@ List of locale names.
 .example
 .example-code
 dim x = AvailableLocales
-x(0).Print
+print x(0)
 .example-output
 af
 .

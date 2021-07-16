@@ -14,8 +14,8 @@ A time span representing the time zone's offset from UTC.
 .example-code
 dim tz = TimeZoneFromName("America/New_York")
 dim dt = DateTimeFromParts(2021, 3, 13, 0, 0, 0, 0)
-dim offset = tz.UtcOffset(dt)
-offset.TotalHours.Print
+dim offset = UtcOffset(dt, tz)
+print TotalHours(offset)
 .example-output
 -5
 .

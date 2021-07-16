@@ -12,10 +12,10 @@ The value contained in i[this].
 This example program shows how to use p[HasValue] and p[Value] together.
 .example-code
 sub PrintIfPresent(x as Optional String)
-    if x.HasValue then
-        Print x.Value
+    if HasValue(x) then
+        print Value(x)
     else
-        Print "no value"
+        print "no value"
     end if
 end sub
 

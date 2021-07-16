@@ -11,7 +11,7 @@ A possibly fractional number of hours.
 .example
 .example-code
 dim x = Minutes(90)
-x.TotalHours.Print
+print TotalHours(x)
 .example-output
 1.5
 .

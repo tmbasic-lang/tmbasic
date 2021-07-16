@@ -11,7 +11,7 @@ The number of code units in i[this].
 .example
 .example-code
 dim x = "hello"
-x.Len.Print
+print Len(x)
 .example-output
 5
 .

@@ -11,7 +11,7 @@ A possibly fractional number of days.
 .example
 .example-code
 dim x = Hours(36)
-x.TotalDays.Print
+print TotalDays(x)
 .example-output
 1.5
 .

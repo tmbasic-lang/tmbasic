@@ -11,9 +11,9 @@ A time span representing i[count] days.
 .example
 .example-code
 dim x = Days(1)
-x.Print
+print x
 x = x + Days(0.5)
-x.Print
+print x
 .example-output
 1.00:00:00
 1.12:00:00

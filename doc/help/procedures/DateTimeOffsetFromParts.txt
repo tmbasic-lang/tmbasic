@@ -26,8 +26,8 @@ A new t[DateTimeOffset].
 .example-code
 dim zone = TimeZoneFromName("America/Chicago")
 dim x = DateTimeOffsetFromParts(2021, 3, 12, 4, 30, 0, 0, zone)
-x.DateTime.Print
-x.Offset.TotalHours.Print
+print x.DateTime
+print TotalHours(x.Offset)
 .example-output
 2021-03-12 04:30:00.000
 -6

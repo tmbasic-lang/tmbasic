@@ -26,9 +26,9 @@ A list of the characters (grapheme clusters) in i[this].
 .example
 .example-code
 dim s = "n" + "e" + Chr(769)
-dim x = s.Characters
-Print x(0).Len  ' one code unit: "n"
-Print x(1).Len  ' two code unit: "e" + Chr(769)
+dim x = Characters(s)
+print Len(x(0))  ' x(0) is one code unit: "n"
+print Len(x(1))  ' x(1) is two code units: "e" + Chr(769)
 .example-output
 1
 2
@@ -44,9 +44,9 @@ A list of the characters (grapheme clusters) in i[this].
 .example
 .example-code
 dim s = "n" + "e" + Chr(769)
-dim x = s.Characters("fr_FR")
-Print x(0).Len  ' one code unit: "n"
-Print x(1).Len  ' two code unit: "e" + Chr(769)
+dim x = Characters(s, "fr_FR")
+print Len(x(0))  ' one code unit: "n"
+print Len(x(1))  ' two code unit: "e" + Chr(769)
 .example-output
 1
 2
