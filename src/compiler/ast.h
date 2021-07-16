@@ -181,6 +181,11 @@ class CallExpressionNode : public ExpressionNode {
    public:
     std::string name;
     std::vector<std::unique_ptr<ExpressionNode>> arguments;
+
+    // a list index expression is indistinguishable from a call expression.
+    // if this is indeed an array index expression, then this is bound to the list.
+    const Node* boundSymbolDeclaration = nullptr;
+
     CallExpressionNode(std::string name, std::vector<std::unique_ptr<ExpressionNode>> arguments, Token token);
     void dump(std::ostringstream& s, int n) const override;
     bool visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const override;

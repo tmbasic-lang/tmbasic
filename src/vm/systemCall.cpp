@@ -205,7 +205,7 @@ static void systemCallNumberToString(const SystemCallInput& input, SystemCallRes
 }
 
 static void systemCallObjectListGet(const SystemCallInput& input, SystemCallResult* result) {
-    const auto& objectList = dynamic_cast<const ObjectList&>(input.getObject(-2));
+    const auto& objectList = dynamic_cast<const ObjectList&>(input.getObject(-1));
     const auto& index = input.getValue(-1).getInt64();
     result->returnedObject = objectList.items.at(index);
 }
@@ -302,6 +302,12 @@ static void systemCallValueV(const SystemCallInput& input, SystemCallResult* res
     result->returnedValue = *opt.item;
 }
 
+static void systemCallValueListGet(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& valueList = dynamic_cast<const ValueList&>(input.getObject(-1));
+    const auto& index = input.getValue(-1).getInt64();
+    result->returnedValue = valueList.items.at(index);
+}
+
 static void systemCallValueO(const SystemCallInput& input, SystemCallResult* result) {
     const auto& opt = dynamic_cast<const ObjectOptional&>(input.getObject(-1));
     if (!opt.item.has_value()) {
@@ -359,6 +365,7 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kTotalSeconds, systemCallTotalSeconds);
     initSystemCall(SystemCall::kUtcOffset, systemCallUtcOffset);
     initSystemCall(SystemCall::kValueO, systemCallValueO);
+    initSystemCall(SystemCall::kValueListGet, systemCallValueListGet);
     initSystemCall(SystemCall::kValueOptionalNewMissing, systemCallValueOptionalNewMissing);
     initSystemCall(SystemCall::kValueOptionalNewPresent, systemCallValueOptionalNewPresent);
     initSystemCall(SystemCall::kValueToObjectMapNew, systemCallValueToObjectMapNew);

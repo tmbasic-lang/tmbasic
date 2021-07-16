@@ -170,12 +170,49 @@ static void typeCheckBinaryExpression(BinaryExpressionNode* expressionNode, Type
 }
 
 static void typeCheckCallExpression(CallExpressionNode* expressionNode, TypeCheckState* state) {
+    if (expressionNode->boundSymbolDeclaration != nullptr) {
+        auto& decl = *expressionNode->boundSymbolDeclaration;
+        if (dynamic_cast<const ProcedureNode*>(&decl) == nullptr) {
+            // this is a variable being used as a function: a map or list
+            auto& declType = *decl.getSymbolDeclarationType();
+            if (declType.kind == Kind::kMap) {
+                // index type must match map key type
+                throw std::runtime_error("not impl");
+            } else if (declType.kind == Kind::kList) {
+                // index type must be Number
+                if (expressionNode->arguments.size() == 1) {
+                    typeCheckExpression(expressionNode->arguments.at(0).get(), state);
+                    if (expressionNode->arguments.at(0)->evaluatedType->kind == Kind::kNumber) {
+                        expressionNode->evaluatedType = declType.listItemType;
+                        return;
+                    }
+                }
+                throw CompilerException("The list index must be a single number.", expressionNode->token);
+            } else {
+                throw CompilerException(
+                    "Only lists and maps can be indexed with \"(...)\" like this.", expressionNode->token);
+            }
+        }
+    }
+
     typeCheckCall(expressionNode, expressionNode->name, expressionNode->arguments, state, true);
 }
 
-static void typeCheckConstValueExpressionArray(LiteralArrayExpressionNode* expressionNode) {
-    (void)expressionNode;
-    throw std::runtime_error("not impl");
+static void typeCheckConstValueExpressionArray(LiteralArrayExpressionNode* expressionNode, TypeCheckState* state) {
+    if (expressionNode->elements.empty()) {
+        throw CompilerException("Literal lists must have at least one element.", expressionNode->token);
+    }
+    for (auto& element : expressionNode->elements) {
+        typeCheckExpression(element.get(), state);
+    }
+    auto& type = expressionNode->elements.at(0)->evaluatedType;
+    for (auto& element : expressionNode->elements) {
+        if (!type->isIdentical(*element->evaluatedType)) {
+            throw CompilerException("All elements of a literal list must have the same type.", element->token);
+        }
+    }
+    auto arrayType = boost::make_local_shared<TypeNode>(Kind::kList, expressionNode->token, type);
+    expressionNode->evaluatedType = arrayType;
 }
 
 static void typeCheckConstValueExpressionRecord(LiteralRecordFieldNode* expressionNode) {
@@ -183,10 +220,10 @@ static void typeCheckConstValueExpressionRecord(LiteralRecordFieldNode* expressi
     throw std::runtime_error("not impl");
 }
 
-static void typeCheckConstValueExpression(ConstValueExpressionNode* expressionNode) {
+static void typeCheckConstValueExpression(ConstValueExpressionNode* expressionNode, TypeCheckState* state) {
     switch (expressionNode->getConstValueExpressionType()) {
         case ConstValueExpressionType::kArray:
-            typeCheckConstValueExpressionArray(dynamic_cast<LiteralArrayExpressionNode*>(expressionNode));
+            typeCheckConstValueExpressionArray(dynamic_cast<LiteralArrayExpressionNode*>(expressionNode), state);
             break;
         case ConstValueExpressionType::kBoolean:
             expressionNode->evaluatedType = boost::make_local_shared<TypeNode>(Kind::kBoolean, expressionNode->token);
@@ -263,7 +300,7 @@ void typeCheckExpression(ExpressionNode* expressionNode, TypeCheckState* state) 
             typeCheckCallExpression(dynamic_cast<CallExpressionNode*>(expressionNode), state);
             break;
         case ExpressionType::kConstValue:
-            typeCheckConstValueExpression(dynamic_cast<ConstValueExpressionNode*>(expressionNode));
+            typeCheckConstValueExpression(dynamic_cast<ConstValueExpressionNode*>(expressionNode), state);
             break;
         case ExpressionType::kConvert:
             typeCheckConvertExpression(dynamic_cast<ConvertExpressionNode*>(expressionNode));

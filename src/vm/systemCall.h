@@ -41,6 +41,7 @@ enum class SystemCall {
     kTotalMinutes,              // TotalMinutes(span as TimeSpan) as Number
     kTotalSeconds,              // TotalSeconds(span as TimeSpan) as Number
     kUtcOffset,                 // UtcOffset(timeZone as TimeZone, dateTime as DateTime) as TimeSpan
+    kValueListGet,              // ValueListGet(input as ValueList, index as Number) as Value
     kValueO,                    // ValueO(input as Optional Object) as Boolean
     kValueOptionalNewMissing,   // ValueOptionalNewMissing() as ValueOptional
     kValueOptionalNewPresent,   // ValueOptionalNewPresent(input as Value) as ValueOptional

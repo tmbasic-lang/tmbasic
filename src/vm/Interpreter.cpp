@@ -453,22 +453,26 @@ bool Interpreter::run(int maxCycles) {
             }
 
             case Opcode::kValueListNew: {
-                auto numVals = readInt<uint16_t>(instructions, &instructionIndex);
+                int numVals = readInt<uint16_t>(instructions, &instructionIndex);
                 ValueListBuilder valueListBuilder{};
-                for (int i = static_cast<int>(numVals) - 1; i >= 0; i--) {
-                    auto val = *valueAt(valueStack, vsi, -1 - i);
-                    valueListBuilder.items.push_back(std::move(val));
+                for (int i = numVals - 1; i >= 0; i--) {
+                    valueListBuilder.items.push_back(std::move(*valueAt(valueStack, vsi, -1 - i)));
+                }
+                for (int i = 0; i < numVals; i++) {
+                    popValue(valueStack, &vsi);
                 }
                 pushObject(objectStack, &osi, boost::make_local_shared<ValueList>(&valueListBuilder));
                 break;
             }
 
             case Opcode::kObjectListNew: {
-                auto numObjs = readInt<uint16_t>(instructions, &instructionIndex);
+                int numObjs = readInt<uint16_t>(instructions, &instructionIndex);
                 ObjectListBuilder objectListBuilder{};
-                for (int i = static_cast<int>(numObjs) - 1; i >= 0; i--) {
-                    auto obj = *objectAt(objectStack, osi, -1 - i);
-                    objectListBuilder.items.push_back(std::move(obj));
+                for (int i = numObjs - 1; i >= 0; i--) {
+                    objectListBuilder.items.push_back(std::move(*objectAt(objectStack, osi, -1 - i)));
+                }
+                for (int i = 0; i < numObjs; i++) {
+                    popObject(objectStack, &osi);
                 }
                 pushObject(objectStack, &osi, boost::make_local_shared<ObjectList>(&objectListBuilder));
                 break;

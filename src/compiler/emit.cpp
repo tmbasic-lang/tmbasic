@@ -71,6 +71,48 @@ static void emitBinaryExpression(const BinaryExpressionNode& /*expressionNode*/,
     throw std::runtime_error("not impl");
 }
 
+static void emitSymbolReference(const Node& declarationNode, ProcedureState* state) {
+    // local variable
+    if (declarationNode.localValueIndex.has_value()) {
+        state->op(Opcode::kPushLocalValue);
+        state->emitInt<uint16_t>(*declarationNode.localValueIndex);
+        return;
+    }
+    if (declarationNode.localObjectIndex.has_value()) {
+        state->op(Opcode::kPushLocalObject);
+        state->emitInt<uint16_t>(*declarationNode.localObjectIndex);
+        return;
+    }
+
+    // procedure argument
+    const auto* parameterNode = dynamic_cast<const ParameterNode*>(&declarationNode);
+    if (parameterNode != nullptr) {
+        if (parameterNode->argumentValueIndex.has_value()) {
+            state->op(Opcode::kPushArgumentValue);
+            state->emitInt<uint8_t>(*parameterNode->argumentValueIndex);
+            return;
+        }
+        if (parameterNode->argumentObjectIndex.has_value()) {
+            state->op(Opcode::kPushArgumentObject);
+            state->emitInt<uint8_t>(*parameterNode->argumentObjectIndex);
+            return;
+        }
+    }
+
+    // function call with zero arguments
+    const auto* procedureNode = dynamic_cast<const ProcedureNode*>(&declarationNode);
+    if (procedureNode != nullptr) {
+        assert(procedureNode->returnType != nullptr);
+        auto returnsValue = procedureNode->returnType->isValueType();
+        state->op(returnsValue ? Opcode::kCallV : Opcode::kCallO);
+        assert(declarationNode.procedureIndex.has_value());
+        state->emitInt<uint32_t>(*declarationNode.procedureIndex);
+        state->emitInt<uint8_t>(0);
+        state->emitInt<uint8_t>(0);
+        return;
+    }
+}
+
 static void emitCallExpression(const CallExpressionNode& expressionNode, ProcedureState* state) {
     assert(expressionNode.evaluatedType != nullptr);
     auto returnsValue = expressionNode.evaluatedType->isValueType();
@@ -81,7 +123,26 @@ static void emitCallExpression(const CallExpressionNode& expressionNode, Procedu
         arg->evaluatedType->isValueType() ? numValueArgs++ : numObjectArgs++;
         emitExpression(*arg, state);
     }
-    if (expressionNode.procedureIndex.has_value()) {
+    if (expressionNode.boundSymbolDeclaration != nullptr &&
+        dynamic_cast<const ProcedureNode*>(expressionNode.boundSymbolDeclaration) == nullptr) {
+        // this is a list or map index
+        assert(expressionNode.boundSymbolDeclaration->evaluatedType != nullptr);
+        emitSymbolReference(*expressionNode.boundSymbolDeclaration, state);
+        auto* declType = expressionNode.boundSymbolDeclaration->getSymbolDeclarationType().get();
+        assert(declType);
+        if (declType->kind == Kind::kList) {
+            auto& itemType = *declType->listItemType;
+            if (itemType.isValueType()) {
+                state->syscall(Opcode::kSystemCallV, SystemCall::kValueListGet, 1, 1);
+            } else {
+                state->syscall(Opcode::kSystemCallO, SystemCall::kObjectListGet, 1, 1);
+            }
+        } else if (declType->kind == Kind::kMap) {
+            throw std::runtime_error("not impl");
+        } else {
+            throw CompilerException("Internal error. Unexpected type.", expressionNode.boundSymbolDeclaration->token);
+        }
+    } else if (expressionNode.procedureIndex.has_value()) {
         state->op(returnsValue ? Opcode::kCallV : Opcode::kCallO);
         state->emitInt<uint32_t>(*expressionNode.procedureIndex);
         state->emitInt<uint8_t>(numValueArgs);
@@ -95,10 +156,16 @@ static void emitCallExpression(const CallExpressionNode& expressionNode, Procedu
     }
 }
 
-static void emitLiteralArrayExpression(
-    const LiteralArrayExpressionNode& /*expressionNode*/,
-    ProcedureState* /*state*/) {
-    throw std::runtime_error("not impl");
+static void emitLiteralArrayExpression(const LiteralArrayExpressionNode& expressionNode, ProcedureState* state) {
+    assert(expressionNode.elements.size() > 0);
+    assert(expressionNode.elements.at(0)->evaluatedType != nullptr);
+    auto& elementType = *expressionNode.elements.at(0)->evaluatedType;
+    auto isValueList = elementType.isValueType();
+    for (const auto& element : expressionNode.elements) {
+        emitExpression(*element, state);
+    }
+    state->op(isValueList ? Opcode::kValueListNew : Opcode::kObjectListNew);
+    state->emitInt<uint16_t>(expressionNode.elements.size());
 }
 
 static void emitLiteralBooleanExpression(
@@ -165,47 +232,7 @@ static void emitNotExpression(const NotExpressionNode& /*expressionNode*/, Proce
 static void emitSymbolReferenceExpression(const SymbolReferenceExpressionNode& expressionNode, ProcedureState* state) {
     const auto* decl = expressionNode.boundSymbolDeclaration;
     assert(decl != nullptr);
-
-    // local variable
-    if (decl->localValueIndex.has_value()) {
-        state->op(Opcode::kPushLocalValue);
-        state->emitInt<uint16_t>(*decl->localValueIndex);
-        return;
-    }
-    if (decl->localObjectIndex.has_value()) {
-        state->op(Opcode::kPushLocalObject);
-        state->emitInt<uint16_t>(*decl->localObjectIndex);
-        return;
-    }
-
-    // procedure argument
-    const auto* parameterNode = dynamic_cast<const ParameterNode*>(decl);
-    if (parameterNode != nullptr) {
-        if (parameterNode->argumentValueIndex.has_value()) {
-            state->op(Opcode::kPushArgumentValue);
-            state->emitInt<uint8_t>(*parameterNode->argumentValueIndex);
-            return;
-        }
-        if (parameterNode->argumentObjectIndex.has_value()) {
-            state->op(Opcode::kPushArgumentObject);
-            state->emitInt<uint8_t>(*parameterNode->argumentObjectIndex);
-            return;
-        }
-    }
-
-    // function call with zero arguments
-    const auto* procedureNode = dynamic_cast<const ProcedureNode*>(decl);
-    if (procedureNode != nullptr) {
-        assert(procedureNode->returnType != nullptr);
-        auto returnsValue = procedureNode->returnType->isValueType();
-        state->op(returnsValue ? Opcode::kCallV : Opcode::kCallO);
-        state->emitInt<uint32_t>(*expressionNode.procedureIndex);
-        state->emitInt<uint8_t>(0);
-        state->emitInt<uint8_t>(0);
-        return;
-    }
-
-    throw std::runtime_error("not impl");
+    emitSymbolReference(*decl, state);
 }
 
 /*static*/ void emitExpression(const ExpressionNode& expressionNode, ProcedureState* state) {
@@ -273,6 +300,7 @@ static void emitDimMapStatement(const DimMapStatementNode& /*statementNode*/, Pr
 }
 
 static void emitDimStatement(const DimStatementNode& statementNode, ProcedureState* state) {
+    assert(statementNode.evaluatedType != nullptr);
     const auto& type = *statementNode.evaluatedType;
 
     // if an initial value is provided, then use that

@@ -130,6 +130,7 @@ void compileProcedures(const SourceProgram& sourceProgram, CompiledProgram* comp
         if (boost::to_lower_copy(procedureNode->name) == "main") {
             mainProcedureIndex = compiledProcedure->procedureIndex;
         }
+        procedureNode->procedureIndex = compiledProcedure->procedureIndex;
         compiledProcedure->name = procedureNode->name;
         compiledProcedure->nameLowercase = boost::to_lower_copy(procedureNode->name);
         compiledProcedure->procedureNode = std::move(procedureNode);
