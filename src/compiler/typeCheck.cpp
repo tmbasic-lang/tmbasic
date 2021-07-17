@@ -199,6 +199,7 @@ static void typeCheckCallExpression(CallExpressionNode* expressionNode, TypeChec
 }
 
 static void typeCheckConstValueExpressionArray(LiteralArrayExpressionNode* expressionNode, TypeCheckState* state) {
+    assert(expressionNode != nullptr);
     if (expressionNode->elements.empty()) {
         throw CompilerException("Literal lists must have at least one element.", expressionNode->token);
     }
