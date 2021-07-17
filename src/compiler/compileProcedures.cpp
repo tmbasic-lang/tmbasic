@@ -80,7 +80,6 @@ static void compileProcedure(
     const SourceProgram& sourceProgram,
     CompiledProgram* compiledProgram,
     CompiledProcedure* compiledProcedure,
-    const SourceMember& sourceMember,
     SymbolScope* globalSymbolScope) {
     auto* procedureNode = compiledProcedure->procedureNode.get();
     globalSymbolScope->bindProcedureSymbols(procedureNode, *compiledProgram);
@@ -100,7 +99,7 @@ void assignProcedureIndices(const SourceProgram& sourceProgram, CompiledProgram*
 
     sourceProgram.forEachMemberIndex(
         SourceMemberType::kProcedure,
-        [compiledProgram, &nextProcedureIndex](const SourceMember& sourceMember, size_t index) {
+        [compiledProgram, &nextProcedureIndex](const SourceMember& /*sourceMember*/, size_t index) {
             auto procedureIndex = nextProcedureIndex++;
             auto compiledProcedure = std::make_unique<CompiledProcedure>();
             compiledProcedure->sourceMemberIndex = index;
@@ -148,8 +147,7 @@ void compileProcedures(const SourceProgram& sourceProgram, CompiledProgram* comp
 
     // compile each procedure
     for (auto& compiledProcedure : compiledProgram->procedures) {
-        auto& sourceMember = *sourceProgram.members.at(compiledProcedure->sourceMemberIndex);
-        compileProcedure(sourceProgram, compiledProgram, compiledProcedure.get(), sourceMember, &globalSymbolScope);
+        compileProcedure(sourceProgram, compiledProgram, compiledProcedure.get(), &globalSymbolScope);
     }
 
     compiledProgram->vmProgram.startupProcedureIndex = *mainProcedureIndex;

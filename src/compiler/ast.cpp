@@ -106,7 +106,7 @@ bool Node::visitBodies(const VisitBodyFunc& /*func*/) const {
 }
 
 // visit all expression nodes, deep in the tree
-bool Node::visitExpressions(bool rootsOnly, const VisitExpressionFunc& /*func*/) const {
+bool Node::visitExpressions(bool /*rootsOnly*/, const VisitExpressionFunc& /*func*/) const {
     // implementations should call visitChildExpression() for their children.
     // DO NOT just call func() directly!
     return true;
@@ -878,7 +878,7 @@ void ForStepNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODE(stepConstant);
 }
 
-bool ForStepNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
+bool ForStepNode::visitExpressions(bool /*rootsOnly*/, const VisitExpressionFunc& func) const {
     if (stepConstant) {
         if (!func(stepConstant.get())) {
             return false;
@@ -1021,7 +1021,7 @@ bool ElseIfNode::visitBodies(const VisitBodyFunc& func) const {
     return func(body.get());
 }
 
-bool ElseIfNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
+bool ElseIfNode::visitExpressions(bool /*rootsOnly*/, const VisitExpressionFunc& func) const {
     return func(condition.get());
 }
 
@@ -1162,7 +1162,7 @@ void CaseValueNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODE(toExpression);
 }
 
-bool CaseValueNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
+bool CaseValueNode::visitExpressions(bool /*rootsOnly*/, const VisitExpressionFunc& func) const {
     if (!func(expression.get())) {
         return false;
     }

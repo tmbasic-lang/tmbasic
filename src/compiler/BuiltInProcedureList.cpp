@@ -10,7 +10,7 @@ std::vector<std::unique_ptr<ProcedureNode>>* BuiltInProcedureList::findOrCreateV
     }
 
     auto procedureNode = std::make_unique<std::vector<std::unique_ptr<ProcedureNode>>>();
-    auto procedureNodePtr = procedureNode.get();
+    auto* procedureNodePtr = procedureNode.get();
     _map.insert(std::pair(lowercaseName, std::move(procedureNode)));
     return procedureNodePtr;
 }
@@ -23,11 +23,12 @@ ProcedureNode* BuiltInProcedureList::addSub(
     auto lowercaseName = boost::to_lower_copy(name);
     assert(parameterNames.size() == parameterTypes.size());
     std::vector<std::unique_ptr<ParameterNode>> parameterNodes{};
-    auto* parameterNameIter = parameterNames.begin();
-    auto* parameterTypesIter = parameterTypes.begin();
+    const auto* parameterNameIter = parameterNames.begin();
+    const auto* parameterTypesIter = parameterTypes.begin();
     for (size_t i = 0; i < parameterNames.size(); i++) {
         parameterNodes.push_back(std::make_unique<ParameterNode>(
-            std::move(*parameterNameIter++), std::move(*parameterTypesIter++), Token{}));
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+            *parameterNameIter++, *parameterTypesIter++, Token{}));
     }
     auto procedure = std::make_unique<ProcedureNode>(std::move(name), std::move(parameterNodes), nullptr, Token{});
     procedure->systemCall = systemCall;
@@ -43,7 +44,7 @@ ProcedureNode* BuiltInProcedureList::addFunction(
     std::initializer_list<boost::local_shared_ptr<TypeNode>> parameterTypes,
     boost::local_shared_ptr<TypeNode> returnType,
     vm::SystemCall systemCall) {
-    auto* node = addSub(name, parameterNames, parameterTypes, systemCall);
+    auto* node = addSub(std::move(name), parameterNames, parameterTypes, systemCall);
     node->returnType = std::move(returnType);
     return node;
 }

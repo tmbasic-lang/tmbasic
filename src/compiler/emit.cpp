@@ -158,7 +158,7 @@ static void emitCallExpression(const CallExpressionNode& expressionNode, Procedu
 }
 
 static void emitLiteralArrayExpression(const LiteralArrayExpressionNode& expressionNode, ProcedureState* state) {
-    assert(expressionNode.elements.size() > 0);
+    assert(!expressionNode.elements.empty());
     assert(expressionNode.elements.at(0)->evaluatedType != nullptr);
     auto& elementType = *expressionNode.elements.at(0)->evaluatedType;
     auto isValueList = elementType.isValueType();

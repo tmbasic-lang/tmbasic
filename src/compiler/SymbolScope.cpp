@@ -3,7 +3,7 @@
 
 namespace compiler {
 
-SymbolScope::SymbolScope() {}
+SymbolScope::SymbolScope() = default;
 
 SymbolScope::SymbolScope(const CompiledProgram& program) {
     for (const auto& globalVariable : program.globalVariables) {
@@ -119,7 +119,7 @@ void bindBodySymbols(BodyNode* node, SymbolScope* scope) {
     }
 }
 
-void SymbolScope::bindProcedureSymbols(ProcedureNode* procedure, const CompiledProgram& program) {
+void SymbolScope::bindProcedureSymbols(ProcedureNode* procedure, const CompiledProgram& /*program*/) {
     SymbolScope procedureScope{ this };
 
     for (const auto& parameter : procedure->parameters) {

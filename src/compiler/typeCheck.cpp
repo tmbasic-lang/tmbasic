@@ -44,7 +44,7 @@ static void typeCheckCall(
     const std::vector<std::unique_ptr<ExpressionNode>>& arguments,
     TypeCheckState* state,
     bool mustBeFunction) {
-    for (auto& argument : arguments) {
+    for (const auto& argument : arguments) {
         typeCheckExpression(argument.get(), state);
     }
 
@@ -64,7 +64,7 @@ static void typeCheckCall(
         }
     }
 
-    for (auto& builtInProcedure : state->builtInProcedures.get(name)) {
+    for (const auto& builtInProcedure : state->builtInProcedures.get(name)) {
         if (doCallArgumentTypesMatchProcedureParameters(arguments, builtInProcedure->parameters)) {
             if (mustBeFunction && builtInProcedure->returnType == nullptr) {
                 throw CompilerException(
@@ -171,14 +171,15 @@ static void typeCheckBinaryExpression(BinaryExpressionNode* expressionNode, Type
 
 static void typeCheckCallExpression(CallExpressionNode* expressionNode, TypeCheckState* state) {
     if (expressionNode->boundSymbolDeclaration != nullptr) {
-        auto& decl = *expressionNode->boundSymbolDeclaration;
+        const auto& decl = *expressionNode->boundSymbolDeclaration;
         if (dynamic_cast<const ProcedureNode*>(&decl) == nullptr) {
             // this is a variable being used as a function: a map or list
             auto& declType = *decl.getSymbolDeclarationType();
             if (declType.kind == Kind::kMap) {
                 // index type must match map key type
                 throw std::runtime_error("not impl");
-            } else if (declType.kind == Kind::kList) {
+            }
+            if (declType.kind == Kind::kList) {
                 // index type must be Number
                 if (expressionNode->arguments.size() == 1) {
                     typeCheckExpression(expressionNode->arguments.at(0).get(), state);
@@ -188,10 +189,9 @@ static void typeCheckCallExpression(CallExpressionNode* expressionNode, TypeChec
                     }
                 }
                 throw CompilerException("The list index must be a single number.", expressionNode->token);
-            } else {
-                throw CompilerException(
-                    "Only lists and maps can be indexed with \"(...)\" like this.", expressionNode->token);
             }
+            throw CompilerException(
+                "Only lists and maps can be indexed with \"(...)\" like this.", expressionNode->token);
         }
     }
 
