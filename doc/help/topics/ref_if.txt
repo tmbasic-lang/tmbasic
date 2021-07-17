@@ -1,3 +1,23 @@
 nav@{TMBASIC Documentation:doc}@
 
 h1[`if` Statement]
+
+h2[Syntax]
+
+pre@
+(Single-line form)
+"if" ─► Expression ─► "then" ─► CommandStatement ─► EOL
+
+(Multi-line form)
+"if" ─► Expression ─► "then" ─► EOL ──┐
+    ┌─────────────────────────────────┘
+    ▼
+Statements
+    │◄─────────────────────────────────────────────────────────────┐
+    ├───► "else if" ─► Expression ─► "then" ─► EOL ─► Statements ──┘
+    │
+    ├───► "else" ─► EOL ─► Statements ──┐
+    │◄──────────────────────────────────┘
+    ▼
+"end if" ─► EOL
+@

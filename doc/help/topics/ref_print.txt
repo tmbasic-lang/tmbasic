@@ -2,18 +2,30 @@ nav@{TMBASIC Documentation:doc}@
 
 h1[`print` Statement]
 
+h2[Syntax]
+
+pre@
+         ┌───── ";" ◄────┐                  
+         ▼               │                  
+"print" ───► Expression ─┴─┬───────────► EOL
+                           │         ▲      
+                           └─► ";" ──┘      
+@
+
+h2[Usage]
+
 The `print` statement is the simplest way to display something on the screen.
 Each `print` statement produces a line of text on the screen.
 The following example displays two lines of text: `First line!` and `Second line!`.
 After printing the two lines, the cursor is positioned on the third line, ready for the next line of printed output.
 
 pre@
-┌─ Code ───────────────────────────────────┐   ╔═ Console ════════════════╗
-│sub Main()                                │   ║First line!               ║
-│    print "First line!"                   │   ║Second line!              ║
-│    print "Second line!"                  │   ║█                         ║
-│end sub                                   │   ║                          ║
-└──────────────────────────────────────────┘   ╚══════════════════════════╝
+┌─ Code ───────────────────────────────────┐   ╔═ Console ═══════════════╗
+│sub Main()                                │   ║First line!              ║
+│    print "First line!"                   │   ║Second line!             ║
+│    print "Second line!"                  │   ║█                        ║
+│end sub                                   │   ║                         ║
+└──────────────────────────────────────────┘   ╚═════════════════════════╝
 @
 
 To display multiple things on the same line, place a semicolon at the end of the statement.
@@ -44,21 +56,21 @@ print "Hello, "; name; "! You are "; age; " years old!"
 When used together with the {`input` statement:ref_input}, a program can have an interactive conversation with the user.
 
 pre@
-┌─ Code ───────────────────────────────────┐   ╔═ Console ════════════════╗
-│sub Main()                                │   ║Pythagorean Theorem       ║
-│    print "Pythagorean Theorem"           │   ║Enter the side lengths.   ║
-│    print "Enter the side lengths."       │   ║Leg A: 3                  ║
-│                                          │   ║Leg B: 4                  ║
-│    print "Leg A: ";                      │   ║Hypotenuse is 5           ║
-│    dim a as Number                       │   ║█                         ║
-│    input a                               │   ║                          ║
-│                                          │   ║                          ║
-│    print "Leg B: ";                      │   ║                          ║
-│    dim b as Number                       │   ║                          ║
-│    input b                               │   ║                          ║
-│                                          │   ║                          ║
-│    dim c = Sqrt(Pow(a, 2) + Pow(b, 2))   │   ║                          ║
-│    print "Hypotenuse is "; c             │   ║                          ║
-│end sub                                   │   ║                          ║
-└──────────────────────────────────────────┘   ╚══════════════════════════╝
+┌─ Code ───────────────────────────────────┐   ╔═ Console ═══════════════╗
+│sub Main()                                │   ║Pythagorean Theorem      ║
+│    print "Pythagorean Theorem"           │   ║Enter the side lengths.  ║
+│    print "Enter the side lengths."       │   ║Leg A: 3                 ║
+│                                          │   ║Leg B: 4                 ║
+│    print "Leg A: ";                      │   ║Hypotenuse is 5          ║
+│    dim a as Number                       │   ║█                        ║
+│    input a                               │   ║                         ║
+│                                          │   ║                         ║
+│    print "Leg B: ";                      │   ║                         ║
+│    dim b as Number                       │   ║                         ║
+│    input b                               │   ║                         ║
+│                                          │   ║                         ║
+│    dim c = Sqrt(Pow(a, 2) + Pow(b, 2))   │   ║                         ║
+│    print "Hypotenuse is "; c             │   ║                         ║
+│end sub                                   │   ║                         ║
+└──────────────────────────────────────────┘   ╚═════════════════════════╝
 @

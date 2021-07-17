@@ -18,8 +18,8 @@ h2[Statements]
 ul@
 li@Statement ::= CommandStatement | ForStatement | ForEachStatement | WhileStatement | DoStatement | IfStatement | JoinStatement | GroupStatement | SelectCaseStatement | TryStatement | DimStatement | DimCollectionStatement | ConstStatement@
 li@CommandStatement ::= AssignStatement | SelectStatement | ReturnStatement | CallStatement | ContinueStatement | ExitStatement | ThrowStatement | RethrowStatement | PrintStatement | InputStatement@
-li@AssignStatement ::= identifier AssignLocationSuffix* "=" expression "\n"@
-li@AssignLocationSuffix ::= "." identifier | "(" expression ")"@
+li@AssignStatement ::= identifier AssignLocationSuffix* "=" Expression "\n"@
+li@AssignLocationSuffix ::= "." identifier | "(" Expression ")"@
 li@ForStatement ::= "for" identifier "=" Expression "to" Expression ForStep? "\n" Body "next" "\n"@
 li@ForStep ::= "step" (number | identifier)@
 li@ForEachStatement ::= "for" "each" identifier "in" Expression "\n" Body "next" "\n"@
@@ -39,7 +39,7 @@ li@DeclarationStatement ::= DimStatement | ConstStatement@
 li@TryStatement ::= "try" "\n" Body CatchBlock? FinallyBlock? "end" "try"@
 li@CatchBlock ::= "catch" "\n" Body@
 li@FinallyBlock ::= "finally" "\n" Body@
-li@DimStatement ::= "dim" "shared"? identifier ("as" Type | "=" expression) "\n"@
+li@DimStatement ::= "dim" "shared"? identifier ("as" Type | "=" Expression) "\n"@
 li@DimCollectionStatement ::= "dim" ("list" | "map") identifier "\n" Body "end" "dim" "\n"@
 li@ConstStatement ::= "const" identifier "=" LiteralValue "\n"@
 li@SelectStatement ::= "select" Expression ("to" Expression)? "\n"@
@@ -49,8 +49,8 @@ li@ContinueStatement ::= "continue" ("do" | "for" | "while") "\n"@
 li@ExitStatement ::= "exit" ("do" | "for" | "select" | "try" | "while") "\n"@
 li@ThrowStatement ::= "throw" Expression "\n"@
 li@RethrowStatement ::= "rethrow" "\n"@
-li@PrintStatement ::= "print" ("to" identifier)? Expression (";" Expression)* ";"?
-li@InputStatement ::= "input" ("from" identifier)? identifier
+li@PrintStatement ::= "print" Expression (";" Expression)* ";"? "\n"@
+li@InputStatement ::= "input" identifier "\n"@
 @
 
 h2[Expressions]

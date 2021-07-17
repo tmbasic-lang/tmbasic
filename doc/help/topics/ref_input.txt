@@ -1,3 +1,51 @@
 nav@{TMBASIC Documentation:doc}@
 
 h1[`input` Statement]
+
+h2[Syntax]
+
+pre@
+"input" ───► identifier ───► EOL
+@
+
+h2[Usage]
+
+The `input` statement reads a line of text from the user's keyboard.
+It waits for the user to type something and then press Enter.
+Then it stores their entered value into the specified variable.
+
+The example below uses the {`print` statement:ref_print} to prompt the user to enter their name.
+After the user types a name and presses Enter, that name is stored in the `name` variable.
+Then, `print` is used again to greet the user by name.
+
+code@
+sub Main()
+    print "Name? ";
+    dim name as String
+    input name
+    print "Hi "; name; "!"
+end sub
+@
+
+pre@
+╔═ Console ═════════╗   ╔═ Console ═════════╗   ╔═ Console ═════════╗
+║Name? █            ║   ║Name? Alice█       ║   ║Name? Alice        ║
+║                   ║──►║                   ║──►║Hi Alice!          ║
+║                   ║   ║                   ║   ║█                  ║
+╚═══════════════════╝   ╚═══════════════════╝   ╚═══════════════════╝
+The computer displays    The user types the      The user hits Enter.
+  the prompt "Name?"        name "Alice"        The computer responds.
+@
+
+h2[Data type conversion]
+
+The `input` statement will automatically convert to data types besides t[String].
+
+code@
+sub Main()
+    print "Age? ";
+    dim age as Number
+    input age
+    print "You are "; age; " years old."
+end sub
+@
