@@ -199,6 +199,24 @@ bool Interpreter::run(int maxCycles) {
                 break;
             }
 
+            case Opcode::kSetArgumentValue: {
+                auto argIndex = readInt<uint8_t>(instructions, &instructionIndex);
+                auto value = *valueAt(valueStack, vsi, -1);
+                popValue(valueStack, &vsi);
+                auto& frame = _private->callStack.top();
+                valueStack->at(frame.vsiArgsStart + argIndex) = value;
+                break;
+            }
+
+            case Opcode::kSetArgumentObject: {
+                auto argIndex = readInt<uint8_t>(instructions, &instructionIndex);
+                auto obj = *objectAt(objectStack, osi, -1);
+                popObject(objectStack, &osi);
+                auto& frame = _private->callStack.top();
+                objectStack->at(frame.osiArgsStart + argIndex) = std::move(obj);
+                break;
+            }
+
             case Opcode::kPushGlobalValue: {
                 auto src = readInt<uint16_t>(instructions, &instructionIndex);
                 auto val = _private->program->globalValues.at(src);

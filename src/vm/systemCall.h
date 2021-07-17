@@ -22,6 +22,7 @@ enum class SystemCall {
     kHasValueO,                 // HasValue(input as Optional Object) as Boolean
     kHasValueV,                 // HasValue(input as Optional Value) as Boolean
     kHours,                     // Hours(count as Number) as TimeSpan
+    kInputString,               // InputString() as String
     kLen,                       // Len(input as String) as Number
     kMilliseconds,              // Milliseconds(count as Number) as TimeSpan
     kMinutes,                   // Minutes(count as Number) as TimeSpan

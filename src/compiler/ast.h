@@ -745,13 +745,8 @@ class WhileStatementNode : public StatementNode {
 class PrintStatementNode : public StatementNode {
    public:
     std::vector<std::unique_ptr<ExpressionNode>> expressions;
-    std::optional<std::string> toIdentifier;
     bool trailingSemicolon;
-    PrintStatementNode(
-        std::vector<std::unique_ptr<ExpressionNode>> expressions,
-        std::optional<std::string> toIdentifier,
-        bool trailingSemicolon,
-        Token token);
+    PrintStatementNode(std::vector<std::unique_ptr<ExpressionNode>> expressions, bool trailingSemicolon, Token token);
     void dump(std::ostringstream& s, int n) const override;
     bool visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const override;
     StatementType getStatementType() const override;
@@ -759,10 +754,10 @@ class PrintStatementNode : public StatementNode {
 
 class InputStatementNode : public StatementNode {
    public:
-    std::optional<std::string> fromIdentifier;
-    std::string toIdentifier;
-    InputStatementNode(std::optional<std::string> fromIdentifier, std::string toIdentifier, Token token);
+    std::unique_ptr<ExpressionNode> target;
+    InputStatementNode(std::unique_ptr<ExpressionNode> target, Token token);
     void dump(std::ostringstream& s, int n) const override;
+    bool visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const override;
     StatementType getStatementType() const override;
 };
 

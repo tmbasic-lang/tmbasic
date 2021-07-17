@@ -71,15 +71,15 @@ static void emitBinaryExpression(const BinaryExpressionNode& /*expressionNode*/,
     throw std::runtime_error("not impl");
 }
 
-static void emitSymbolReference(const Node& declarationNode, ProcedureState* state) {
+static void emitSymbolReference(const Node& declarationNode, ProcedureState* state, bool set = false) {
     // local variable
     if (declarationNode.localValueIndex.has_value()) {
-        state->op(Opcode::kPushLocalValue);
+        state->op(set ? Opcode::kSetLocalValue : Opcode::kPushLocalValue);
         state->emitInt<uint16_t>(*declarationNode.localValueIndex);
         return;
     }
     if (declarationNode.localObjectIndex.has_value()) {
-        state->op(Opcode::kPushLocalObject);
+        state->op(set ? Opcode::kSetLocalObject : Opcode::kPushLocalObject);
         state->emitInt<uint16_t>(*declarationNode.localObjectIndex);
         return;
     }
@@ -88,12 +88,12 @@ static void emitSymbolReference(const Node& declarationNode, ProcedureState* sta
     const auto* parameterNode = dynamic_cast<const ParameterNode*>(&declarationNode);
     if (parameterNode != nullptr) {
         if (parameterNode->argumentValueIndex.has_value()) {
-            state->op(Opcode::kPushArgumentValue);
+            state->op(set ? Opcode::kSetArgumentValue : Opcode::kPushArgumentValue);
             state->emitInt<uint8_t>(*parameterNode->argumentValueIndex);
             return;
         }
         if (parameterNode->argumentObjectIndex.has_value()) {
-            state->op(Opcode::kPushArgumentObject);
+            state->op(set ? Opcode::kSetArgumentObject : Opcode::kPushArgumentObject);
             state->emitInt<uint8_t>(*parameterNode->argumentObjectIndex);
             return;
         }
@@ -102,6 +102,7 @@ static void emitSymbolReference(const Node& declarationNode, ProcedureState* sta
     // function call with zero arguments
     const auto* procedureNode = dynamic_cast<const ProcedureNode*>(&declarationNode);
     if (procedureNode != nullptr) {
+        assert(!set);
         assert(procedureNode->returnType != nullptr);
         auto returnsValue = procedureNode->returnType->isValueType();
         state->op(returnsValue ? Opcode::kCallV : Opcode::kCallO);
@@ -505,8 +506,17 @@ static void emitPrintStatement(const PrintStatementNode& statementNode, Procedur
     state->syscall(Opcode::kSystemCall, SystemCall::kFlushConsoleOutput, 0, 0);
 }
 
-static void emitInputStatement(const InputStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
-    throw std::runtime_error("not impl");
+static void emitInputStatement(const InputStatementNode& statementNode, ProcedureState* state) {
+    assert(statementNode.target->evaluatedType != nullptr);
+    auto* targetSymbolReference = dynamic_cast<SymbolReferenceExpressionNode*>(statementNode.target.get());
+    if (targetSymbolReference == nullptr) {
+        throw CompilerException(
+            "The target of an \"input\" statement must be the name of a variable, not a more complicated expression.",
+            statementNode.target->token);
+    }
+    state->syscall(Opcode::kSystemCallO, SystemCall::kInputString, 0, 0);
+    assert(targetSymbolReference->boundSymbolDeclaration != nullptr);
+    emitSymbolReference(*targetSymbolReference->boundSymbolDeclaration, state, true);
 }
 
 static void emitStatement(const StatementNode& statementNode, ProcedureState* state) {

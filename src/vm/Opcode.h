@@ -36,6 +36,8 @@ enum class Opcode {
     kInitLocals,          // <u16 numVals, u16 numObjs>
     kPushArgumentValue,   // <u8 index> pushv index;
     kPushArgumentObject,  // <u8 index> pusho index;
+    kSetArgumentValue,    // <u8 index>
+    kSetArgumentObject,   // <u8 index>
     kPushGlobalValue,     // <globalVal* src> pushv *src
     kPushGlobalObject,    // <globalObj* src> pusho *src
     kSetGlobalValue,      // <globalVal* dst> *dst = vsp[-1]; popv;

@@ -1859,57 +1859,38 @@ class PrintStatementProduction : public Production {
               {
                   term(TokenKind::kPrint),
                   cut(),
-                  optional({
-                      term(TokenKind::kTo),
-                      capture(0, term(TokenKind::kIdentifier)),
-                  }),
                   capture(1, prod(expression)),
                   zeroOrMore({
                       term(TokenKind::kSemicolon),
-                      capture(2, prod(expression)),
+                      capture(1, prod(expression)),
                   }),
                   optional({
-                      capture(3, term(TokenKind::kSemicolon)),
+                      capture(2, term(TokenKind::kSemicolon)),
                   }),
                   term(TokenKind::kEndOfLine),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
-        std::optional<std::string> toIdentifier{};
-        if (hasCapture(captures->at(0))) {
-            toIdentifier = { captureTokenText(std::move(captures->at(0))) };
-        }
-        auto expressions = captureNodeArray<ExpressionNode>(std::move(captures->at(2)));
-        expressions.insert(expressions.begin(), captureSingleNode<ExpressionNode>(std::move(captures->at(1))));
-        auto trailingSemicolon = hasCapture(captures->at(3));
-        return nodeBox<PrintStatementNode>(
-            std::move(expressions), std::move(toIdentifier), trailingSemicolon, firstToken);
+        auto expressions = captureNodeArray<ExpressionNode>(std::move(captures->at(1)));
+        auto trailingSemicolon = hasCapture(captures->at(2));
+        return nodeBox<PrintStatementNode>(std::move(expressions), trailingSemicolon, firstToken);
     }
 };
 
 class InputStatementProduction : public Production {
    public:
-    InputStatementProduction()
+    InputStatementProduction(const Production* expression)
         : Production(
               NAMEOF_TYPE(InputStatementProduction),
               {
                   term(TokenKind::kInput),
                   cut(),
-                  optional({
-                      term(TokenKind::kFrom),
-                      capture(0, term(TokenKind::kIdentifier)),
-                  }),
-                  capture(1, term(TokenKind::kIdentifier)),
+                  capture(1, prod(expression)),
                   term(TokenKind::kEndOfLine),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
-        std::optional<std::string> fromIdentifier{};
-        if (hasCapture(captures->at(0))) {
-            fromIdentifier = { captureTokenText(std::move(captures->at(0))) };
-        }
-        auto toIdentifier = captureTokenText(std::move(captures->at(1)));
-        return nodeBox<InputStatementNode>(std::move(fromIdentifier), std::move(toIdentifier), firstToken);
+        return nodeBox<InputStatementNode>(captureSingleNode<ExpressionNode>(std::move(captures->at(1))), firstToken);
     }
 };
 
@@ -2202,7 +2183,7 @@ class ProductionCollection {
         auto* forStep = add<ForStepProduction>();
         auto* forStatement = add<ForStatementProduction>(expression, forStep, body);
         auto* printStatement = add<PrintStatementProduction>(expression);
-        auto* inputStatement = add<InputStatementProduction>();
+        auto* inputStatement = add<InputStatementProduction>(expression);
         auto* commandStatement = add<CommandStatementProduction>(
             assignStatement, selectStatement, returnStatement, callStatement, continueStatement, exitStatement,
             throwStatement, rethrowStatement, printStatement, inputStatement);

@@ -185,6 +185,13 @@ static void systemCallHours(const SystemCallInput& input, SystemCallResult* resu
     result->returnedValue.num = input.getValue(-1).num * U_MILLIS_PER_HOUR;
 }
 
+static void systemCallInputString(const SystemCallInput& input, SystemCallResult* result) {
+    std::string line;
+    std::getline(*input.consoleInputStream, line);
+
+    result->returnedObject = boost::make_local_shared<String>(line);
+}
+
 static void systemCallLen(const SystemCallInput& input, SystemCallResult* result) {
     const auto& str = dynamic_cast<const String&>(input.getObject(-1)).value;
     result->returnedValue.num = str.length();
@@ -345,6 +352,7 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kHasValueO, systemCallHasValueO);
     initSystemCall(SystemCall::kHasValueV, systemCallHasValueV);
     initSystemCall(SystemCall::kHours, systemCallHours);
+    initSystemCall(SystemCall::kInputString, systemCallInputString);
     initSystemCall(SystemCall::kLen, systemCallLen);
     initSystemCall(SystemCall::kMilliseconds, systemCallMilliseconds);
     initSystemCall(SystemCall::kMinutes, systemCallMinutes);
