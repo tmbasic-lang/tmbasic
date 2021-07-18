@@ -21,3 +21,75 @@ Statements
     ▼
 "end if" ─► EOL
 @
+
+h2[Usage]
+
+An `if` statement is used to make decisions.
+It is used in conjunction with t[Boolean] values which represent the result of a decision as `true` or `false`.
+The "if ... then ..." structure works just how it sounds.
+If a given condition is true, then the given statements are executed.
+Otherwise the statements are skipped.
+
+Consider the following example.
+
+code@
+sub Main()
+    dim x as Number
+    input x
+    if x < 0 then
+        print "Negative number"
+    else if x > 0 then
+        print "Positive number"
+    else
+        print "Zero"
+    end if
+end sub
+@
+
+After the user types a number and presses Enter, only one of the three `print` statements will execute.
+It may help to view the path of execution using a flow chart.
+
+pre@
+           ↓                                            
+          ▄▀▄                                           
+        ▄▀   ▀▄  true      ▄▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█▀
+       █  x<0  █───────► ▄▀ print "Negative number" ▄▀  
+        ▀▄   ▄▀        ▄█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▀    
+          ▀▄▀                                           
+           ↓ false                                      
+          ▄▀▄                                           
+        ▄▀   ▀▄  true      ▄▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█▀
+       █  x>0  █───────► ▄▀ print "Positive number" ▄▀  
+        ▀▄   ▄▀        ▄█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▀    
+          ▀▄▀                                           
+           ↓ false                                      
+    ▄▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█▀                                 
+  ▄▀ print "Zero"  ▄▀                                   
+▄█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▀                                     
+@
+
+h2[Single-line form]
+
+There is a short form that fits on a single line.
+
+code@
+if x = 0 then print "Zero"
+@
+
+This convenience form supports only a single statement.
+
+h2[Multi-line form]
+
+The full form is composed of three sections: the `if` block, the optional `else if` blocks, and the optional `else` block.
+
+code@
+if <condition> then
+    <statements>
+else if <condition> then
+    <statements>
+else if <condition> then
+    <statements>
+else
+    <statements>
+end if
+@

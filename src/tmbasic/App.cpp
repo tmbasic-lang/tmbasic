@@ -783,6 +783,9 @@ void App::openHelpTopic(uint16_t topic) {
         }
         auto rect = _private->getNewWindowRect(width, height);
         helpWindow->locate(rect);
+        if (TScreen::screenWidth < 95) {
+            helpWindow->zoom();
+        }
     } catch (std::runtime_error& ex) {
         messageBox(std::string("There was an error opening help: ") + ex.what(), mfError | mfOKButton);
         return;
