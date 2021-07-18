@@ -236,7 +236,7 @@ void CodeEditorWindow::setState(uint16_t aState, bool enable) {
 void CodeEditorWindow::handleEvent(TEvent& event) {
     if (event.what == evBroadcast) {
         switch (event.message.command) {
-            case kCmdProgramSave:
+            case kCmdUpdateSourceMembers:
                 _private->updateSourceMember();
                 break;
 

@@ -59,7 +59,7 @@ enum : uint16_t {
     kCmdDesignerWindowProperties,
 
     // broadcast in response to cmSave/cmSaveAs to tell windows to update their SourceMember records
-    kCmdProgramSave,
+    kCmdUpdateSourceMembers,
 
     // broadcast when the app is exiting. bool* infoPtr = whether to cancel
     kCmdAppExit,

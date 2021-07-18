@@ -177,12 +177,12 @@ class AppPrivate {
                 return true;
 
             case cmSave:
-                message(TApplication::deskTop, evBroadcast, kCmdProgramSave, nullptr);
+                message(TApplication::deskTop, evBroadcast, kCmdUpdateSourceMembers, nullptr);
                 findProgramWindow()->save();
                 return true;
 
             case cmSaveAs:
-                message(TApplication::deskTop, evBroadcast, kCmdProgramSave, nullptr);
+                message(TApplication::deskTop, evBroadcast, kCmdUpdateSourceMembers, nullptr);
                 findProgramWindow()->saveAs();
                 return true;
 
@@ -266,15 +266,17 @@ class AppPrivate {
             }
 
             case kCmdProgramCheckForErrors:
+                message(TApplication::deskTop, evBroadcast, kCmdUpdateSourceMembers, nullptr);
                 onProgramCheckForErrors();
                 return true;
 
             case kCmdProgramPublish:
+                message(TApplication::deskTop, evBroadcast, kCmdUpdateSourceMembers, nullptr);
                 onProgramPublish();
                 return true;
 
             case kCmdProgramRun:
-                message(TApplication::deskTop, evBroadcast, kCmdProgramSave, nullptr);
+                message(TApplication::deskTop, evBroadcast, kCmdUpdateSourceMembers, nullptr);
                 onProgramRun();
                 return true;
 
