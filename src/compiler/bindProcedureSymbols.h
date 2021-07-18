@@ -17,8 +17,6 @@ class SymbolScope {
     explicit SymbolScope(const CompiledProgram& program);
     explicit SymbolScope(const SymbolScope* parentScope);
 
-    void bindProcedureSymbols(ProcedureNode* procedure, const CompiledProgram& program);
-
     const Node* lookup(const std::string& lowercaseName);
     AddSymbolResult addSymbol(Node* symbolDeclaration);
 
@@ -27,5 +25,7 @@ class SymbolScope {
     const SymbolScope* _parentScope = nullptr;
     std::unordered_map<std::string, Node*> _symbolDeclarations;
 };
+
+void bindProcedureSymbols(SymbolScope* scope, ProcedureNode* procedure);
 
 }  // namespace compiler

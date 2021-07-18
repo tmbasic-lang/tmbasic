@@ -1,6 +1,6 @@
 #include "compileProcedures.h"
 #include "CompilerException.h"
-#include "SymbolScope.h"
+#include "bindProcedureSymbols.h"
 #include "emit.h"
 #include "parse.h"
 #include "tokenize.h"
@@ -82,7 +82,7 @@ static void compileProcedure(
     CompiledProcedure* compiledProcedure,
     SymbolScope* globalSymbolScope) {
     auto* procedureNode = compiledProcedure->procedureNode.get();
-    globalSymbolScope->bindProcedureSymbols(procedureNode, *compiledProgram);
+    bindProcedureSymbols(globalSymbolScope, procedureNode);
     typeCheck(procedureNode, sourceProgram, compiledProgram);
     int numLocalValues = 0;
     int numLocalObjects = 0;

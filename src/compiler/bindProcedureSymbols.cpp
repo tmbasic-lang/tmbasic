@@ -1,4 +1,4 @@
-#include "SymbolScope.h"
+#include "bindProcedureSymbols.h"
 #include "CompilerException.h"
 
 namespace compiler {
@@ -113,14 +113,14 @@ static void bindStatementSymbols(StatementNode* node, SymbolScope* scope) {
     });
 }
 
-void bindBodySymbols(BodyNode* node, SymbolScope* scope) {
+static void bindBodySymbols(BodyNode* node, SymbolScope* scope) {
     for (auto& statement : node->statements) {
         bindStatementSymbols(statement.get(), scope);
     }
 }
 
-void SymbolScope::bindProcedureSymbols(ProcedureNode* procedure, const CompiledProgram& /*program*/) {
-    SymbolScope procedureScope{ this };
+void bindProcedureSymbols(SymbolScope* scope, ProcedureNode* procedure) {
+    SymbolScope procedureScope{ scope };
 
     for (const auto& parameter : procedure->parameters) {
         auto result = procedureScope.addSymbol(parameter.get());
