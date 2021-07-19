@@ -13,9 +13,22 @@ using vm::SystemCall;
 
 namespace compiler {
 
+class JumpFixup {
+   public:
+    size_t bytecodeOffset{};
+    int labelId{};
+};
+
+typedef JumpFixup Label;
+
 class ProcedureState {
    public:
     vector<uint8_t> bytecode;
+    vector<JumpFixup> jumpFixups;  // fixups for jumps to labels that have not been emitted yet
+    vector<Label> labels;          // labels that have already been emitted
+    int nextLabelId = 1;
+
+    int labelId() { return nextLabelId++; }
 
     template <typename TOutputInt, typename TInputInt>
     void emitInt(TInputInt value, bool log = true) {
@@ -63,9 +76,37 @@ class ProcedureState {
         std::cerr << std::endl << NAMEOF_ENUM(Opcode::kPushImmediateUtf8) << " \"" << str << "\"";
 #endif
     }
+
+    void emitJumpTarget(int labelId) {
+        for (auto& label : labels) {
+            if (label.labelId == labelId) {
+                emitInt<uint32_t>(label.bytecodeOffset, false);
+                return;
+            }
+        }
+        jumpFixups.push_back(JumpFixup{ bytecode.size(), labelId });
+        emitInt<uint32_t>(0);
+    }
+
+    void label(int labelId) {
+        for (const auto& fixup : jumpFixups) {
+            if (fixup.labelId == labelId) {
+                auto target = static_cast<uint32_t>(bytecode.size());
+                memcpy(&bytecode.at(fixup.bytecodeOffset), &target, sizeof(uint32_t));
+            }
+        }
+        jumpFixups.erase(
+            std::remove_if(
+                jumpFixups.begin(), jumpFixups.end(),
+                [labelId](const JumpFixup& fixup) { return fixup.labelId == labelId; }),
+            jumpFixups.end());
+        labels.push_back(Label{ bytecode.size(), labelId });
+    }
 };
 
 static void emitExpression(const ExpressionNode& expressionNode, ProcedureState* state);
+static void emitBody(const BodyNode& bodyNode, ProcedureState* state);
+static void emitStatement(const StatementNode& statementNode, ProcedureState* state);
 
 static void emitBinaryExpression(const BinaryExpressionNode& /*expressionNode*/, ProcedureState* /*state*/) {
     throw std::runtime_error("not impl");
@@ -425,8 +466,30 @@ static void emitGroupStatement(const GroupStatementNode& /*statementNode*/, Proc
     throw std::runtime_error("not impl");
 }
 
-static void emitIfStatement(const IfStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
-    throw std::runtime_error("not impl");
+static void emitIfStatement(const IfStatementNode& statementNode, ProcedureState* state) {
+    emitExpression(*statementNode.condition, state);
+    auto elseIfsLabel = state->labelId();
+    auto endIfLabel = state->labelId();
+    state->op(Opcode::kBranchIfFalse);
+    state->emitJumpTarget(elseIfsLabel);
+    emitBody(*statementNode.body, state);
+    state->op(Opcode::kJump);
+    state->emitJumpTarget(endIfLabel);
+    state->label(elseIfsLabel);
+    for (const auto& elseIf : statementNode.elseIfs) {
+        auto endElseIfLabel = state->labelId();
+        emitExpression(*elseIf->condition, state);
+        state->op(Opcode::kBranchIfFalse);
+        state->emitJumpTarget(endElseIfLabel);
+        emitBody(*elseIf->body, state);
+        state->op(Opcode::kJump);
+        state->emitJumpTarget(endIfLabel);
+        state->label(endElseIfLabel);
+    }
+    if (statementNode.elseBody != nullptr) {
+        emitBody(*statementNode.elseBody, state);
+    }
+    state->label(endIfLabel);
 }
 
 static void emitJoinStatement(const JoinStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
@@ -519,7 +582,7 @@ static void emitInputStatement(const InputStatementNode& statementNode, Procedur
     emitSymbolReference(*targetSymbolReference->boundSymbolDeclaration, state, true);
 }
 
-static void emitStatement(const StatementNode& statementNode, ProcedureState* state) {
+/*static*/ void emitStatement(const StatementNode& statementNode, ProcedureState* state) {
     switch (statementNode.getStatementType()) {
         case StatementType::kAssign:
             emitAssignStatement(dynamic_cast<const AssignStatementNode&>(statementNode), state);
@@ -596,9 +659,7 @@ static void emitStatement(const StatementNode& statementNode, ProcedureState* st
     }
 }
 
-static void emitBody(const BodyNode& bodyNode, ProcedureState* state) {
-    auto debug_count = bodyNode.statements.size();
-    (void)debug_count;
+/*static*/ void emitBody(const BodyNode& bodyNode, ProcedureState* state) {
     for (const auto& statement : bodyNode.statements) {
         emitStatement(*statement, state);
     }

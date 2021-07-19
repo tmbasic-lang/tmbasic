@@ -331,6 +331,19 @@ static void typeCheckDimStatement(DimStatementNode* statementNode) {
     }
 }
 
+static void typeCheckIfStatement(IfStatementNode* statementNode, TypeCheckState* state) {
+    if (statementNode->condition->evaluatedType->kind != Kind::kBoolean) {
+        throw CompilerException(
+            "The condition of an \"if\" statement must be a Boolean.", statementNode->condition->token);
+    }
+    for (auto& elseIf : statementNode->elseIfs) {
+        if (elseIf->condition->evaluatedType->kind != Kind::kBoolean) {
+            throw CompilerException(
+                "The condition of an \"else if\" statement must be a Boolean.", elseIf->condition->token);
+        }
+    }
+}
+
 static void typeCheckCallStatement(CallStatementNode* statementNode, TypeCheckState* state) {
     typeCheckCall(statementNode, statementNode->name, statementNode->arguments, state, false);
 }
@@ -349,6 +362,10 @@ static void typeCheckBody(BodyNode* bodyNode, TypeCheckState* state) {
 
             case StatementType::kCall:
                 typeCheckCallStatement(dynamic_cast<CallStatementNode*>(statementNode.get()), state);
+                break;
+
+            case StatementType::kIf:
+                typeCheckIfStatement(dynamic_cast<IfStatementNode*>(statementNode.get()), state);
                 break;
 
             default:
