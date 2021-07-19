@@ -1021,8 +1021,8 @@ bool ElseIfNode::visitBodies(const VisitBodyFunc& func) const {
     return func(body.get());
 }
 
-bool ElseIfNode::visitExpressions(bool /*rootsOnly*/, const VisitExpressionFunc& func) const {
-    return func(condition.get());
+bool ElseIfNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
+    return visitChildExpression(rootsOnly, condition.get(), func);
 }
 
 IfStatementNode::IfStatementNode(
@@ -1047,6 +1047,9 @@ void IfStatementNode::dump(std::ostringstream& s, int n) const {
 
 bool IfStatementNode::visitBodies(const VisitBodyFunc& func) const {
     if (!func(body.get())) {
+        return false;
+    }
+    if (elseBody != nullptr && !func(elseBody.get())) {
         return false;
     }
     for (const auto& x : elseIfs) {

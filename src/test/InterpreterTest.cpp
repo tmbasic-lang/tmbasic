@@ -70,7 +70,6 @@ ls src/test/programs/InterpreterTest | grep "\.pcode$" | xargs -n 1 basename | s
 awk '{ print "INTERPRETER_TEST(" $1 ")" }'
 */
 
-INTERPRETER_TEST(add_function)
 INTERPRETER_TEST(errors)
 INTERPRETER_TEST(hello_world)
 INTERPRETER_TEST(just_exit)

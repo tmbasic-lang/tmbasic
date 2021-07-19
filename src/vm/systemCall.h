@@ -8,7 +8,6 @@
 namespace vm {
 
 enum class SystemCall {
-    kAdd,                       // Add(lhs as Number, rhs as Number) as Number
     kAvailableLocales,          // AvailableLocales() as List of String
     kAvailableTimeZones,        // AvailableTimeZones() as List of TimeZone
     kCharacters1,               // Characters(input as String) as List of String
@@ -26,6 +25,17 @@ enum class SystemCall {
     kLen,                       // Len(input as String) as Number
     kMilliseconds,              // Milliseconds(count as Number) as TimeSpan
     kMinutes,                   // Minutes(count as Number) as TimeSpan
+    kNumberAdd,                 // NumberAdd(lhs as Number, rhs as Number) as Number
+    kNumberDivide,              // NumberDivide(lhs as Number, rhs as Number) as Number
+    kNumberEquals,              // NumberEquals(lhs as Number, rhs as Number) as Boolean
+    kNumberGreaterThan,         // NumberGreaterThan(lhs as Number, rhs as Number) as Boolean
+    kNumberGreaterThanEquals,   // NumberGreaterThanEquals(lhs as Number, rhs as Number) as Boolean
+    kNumberLessThan,            // NumberLessThan(lhs as Number, rhs as Number) as Boolean
+    kNumberLessThanEquals,      // NumberLessThanEquals(lhs as Number, rhs as Number) as Boolean
+    kNumberModulus,             // NumberModulus(lhs as Number, rhs as Number) as Number
+    kNumberMultiply,            // NumberMultiply(lhs as Number, rhs as Number) as Number
+    kNumberNotEquals,           // NumberNotEquals(lhs as Number, rhs as Number) as Boolean
+    kNumberSubtract,            // NumberSubtract(lhs as Number, rhs as Number) as Number
     kNumberToString,            // NumberToString(input as Number) as String
     kObjectListGet,             // ObjectListGet(input as ObjectList, index as Number) as Object
     kObjectListLength,          // ObjectListLength(input as ObjectList) as Number

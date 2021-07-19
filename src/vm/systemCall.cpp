@@ -41,12 +41,6 @@ boost::local_shared_ptr<Object> SystemCallInput::getObjectPtr(const int osiOffse
     return objectStack.at(objectStackIndex + osiOffset);
 }
 
-static void systemCallAdd(const SystemCallInput& input, SystemCallResult* result) {
-    auto lhs = input.getValue(-2).num;
-    auto rhs = input.getValue(-1).num;
-    result->returnedValue.num = lhs + rhs;
-}
-
 static void systemCallAvailableLocales(const SystemCallInput& /*unused*/, SystemCallResult* result) {
     int32_t count = 0;
     const auto* locales = icu::Locale::getAvailableLocales(count);
@@ -338,7 +332,6 @@ void initSystemCalls() {
         return;
     }
 
-    initSystemCall(SystemCall::kAdd, systemCallAdd);
     initSystemCall(SystemCall::kAvailableLocales, systemCallAvailableLocales);
     initSystemCall(SystemCall::kAvailableTimeZones, systemCallAvailableTimeZones);
     initSystemCall(SystemCall::kCharacters1, systemCallCharacters1);
@@ -356,6 +349,51 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kLen, systemCallLen);
     initSystemCall(SystemCall::kMilliseconds, systemCallMilliseconds);
     initSystemCall(SystemCall::kMinutes, systemCallMinutes);
+
+    initSystemCall(SystemCall::kNumberAdd, [](const auto& input, auto* result) {
+        result->returnedValue.num = input.getValue(-2).num + input.getValue(-1).num;
+    });
+
+    initSystemCall(SystemCall::kNumberDivide, [](const auto& input, auto* result) {
+        result->returnedValue.num = input.getValue(-2).num / input.getValue(-1).num;
+    });
+
+    initSystemCall(SystemCall::kNumberEquals, [](const auto& input, auto* result) {
+        result->returnedValue.num = input.getValue(-2).num == input.getValue(-1).num ? 1 : 0;
+    });
+
+    initSystemCall(SystemCall::kNumberGreaterThan, [](const auto& input, auto* result) {
+        result->returnedValue.num = input.getValue(-2).num > input.getValue(-1).num ? 1 : 0;
+    });
+
+    initSystemCall(SystemCall::kNumberGreaterThanEquals, [](const auto& input, auto* result) {
+        result->returnedValue.num = input.getValue(-2).num >= input.getValue(-1).num ? 1 : 0;
+    });
+
+    initSystemCall(SystemCall::kNumberLessThan, [](const auto& input, auto* result) {
+        result->returnedValue.num = input.getValue(-2).num < input.getValue(-1).num ? 1 : 0;
+    });
+
+    initSystemCall(SystemCall::kNumberLessThanEquals, [](const auto& input, auto* result) {
+        result->returnedValue.num = input.getValue(-2).num <= input.getValue(-1).num ? 1 : 0;
+    });
+
+    initSystemCall(SystemCall::kNumberModulus, [](const auto& input, auto* result) {
+        result->returnedValue.num = input.getValue(-2).num % input.getValue(-1).num;
+    });
+
+    initSystemCall(SystemCall::kNumberMultiply, [](const auto& input, auto* result) {
+        result->returnedValue.num = input.getValue(-2).num * input.getValue(-1).num;
+    });
+
+    initSystemCall(SystemCall::kNumberNotEquals, [](const auto& input, auto* result) {
+        result->returnedValue.num = input.getValue(-2).num != input.getValue(-1).num ? 1 : 0;
+    });
+
+    initSystemCall(SystemCall::kNumberSubtract, [](const auto& input, auto* result) {
+        result->returnedValue.num = input.getValue(-2).num - input.getValue(-1).num;
+    });
+
     initSystemCall(SystemCall::kNumberToString, systemCallNumberToString);
     initSystemCall(SystemCall::kObjectListGet, systemCallObjectListGet);
     initSystemCall(SystemCall::kObjectListLength, systemCallObjectListLength);

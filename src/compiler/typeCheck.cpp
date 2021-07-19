@@ -10,6 +10,8 @@ class TypeCheckState {
     const SourceProgram& sourceProgram;
     CompiledProgram* compiledProgram;
     BuiltInProcedureList builtInProcedures{};
+    boost::local_shared_ptr<TypeNode> typeBoolean{ boost::make_local_shared<TypeNode>(Kind::kBoolean, Token{}) };
+    boost::local_shared_ptr<TypeNode> typeNumber{ boost::make_local_shared<TypeNode>(Kind::kNumber, Token{}) };
     TypeCheckState(const SourceProgram& sourceProgram, CompiledProgram* compiledProgram)
         : sourceProgram(sourceProgram), compiledProgram(compiledProgram) {}
 };
@@ -120,7 +122,7 @@ static void typeCheckBinaryExpression(BinaryExpressionNode* expressionNode, Type
         typeCheckExpression(suffix->rightOperand.get(), state);
     }
 
-    const auto& lhsType = expressionNode->leftOperand->evaluatedType;
+    auto lhsType = expressionNode->leftOperand->evaluatedType;
     for (const auto& suffix : expressionNode->binarySuffixes) {
         const auto& rhsType = suffix->rightOperand->evaluatedType;
 
@@ -128,45 +130,53 @@ static void typeCheckBinaryExpression(BinaryExpressionNode* expressionNode, Type
             case BinaryOperator::kOr:
             case BinaryOperator::kAnd:
                 if (lhsType->kind == Kind::kBoolean && rhsType->kind == Kind::kBoolean) {
-                    expressionNode->evaluatedType = lhsType;
-                    return;
+                    suffix->evaluatedType = lhsType;
                 } else {
                     throw CompilerException(
-                        std::string("The \"") + getOperatorText(suffix->binaryOperator) +
-                            "\" operator requires operands of type boolean.",
+                        fmt::format(
+                            "The \"{}\" operator requires Boolean operands.", getOperatorText(suffix->binaryOperator)),
                         suffix->token);
                 }
+                lhsType = state->typeBoolean;
+                break;
 
             case BinaryOperator::kEquals:
             case BinaryOperator::kNotEquals:
             case BinaryOperator::kLessThan:
             case BinaryOperator::kLessThanEquals:
             case BinaryOperator::kGreaterThan:
-            case BinaryOperator::kGreaterThanEquals:
-                if (lhsType->canImplicitlyConvertTo(*rhsType) || rhsType->canImplicitlyConvertTo(*lhsType)) {
-                    expressionNode->evaluatedType = boost::make_local_shared<TypeNode>(Kind::kBoolean, suffix->token);
-                    return;
+            case BinaryOperator::kGreaterThanEquals: {
+                auto identicalTypes = lhsType->isIdentical(*rhsType);
+                auto lhsCanConvertToRhs = lhsType->canImplicitlyConvertTo(*rhsType);
+                auto rhsCanConvertToLhs = rhsType->canImplicitlyConvertTo(*lhsType);
+                if (identicalTypes || lhsCanConvertToRhs || rhsCanConvertToLhs) {
+                    suffix->evaluatedType = boost::make_local_shared<TypeNode>(Kind::kBoolean, suffix->token);
+                    if (!identicalTypes) {
+                        if (lhsCanConvertToRhs) {
+                            suffix->leftOperandConvertedType = rhsType;
+                        } else if (rhsCanConvertToLhs) {
+                            suffix->rightOperandConvertedType = lhsType;
+                        } else {
+                            assert(false);
+                        }
+                    }
                 } else {
                     throw CompilerException(
-                        std::string("The \"") + getOperatorText(suffix->binaryOperator) +
-                            "\" operator requires boolean operands.",
+                        fmt::format(
+                            "The \"{}\" operator requires the operands to have equivalent types.",
+                            getOperatorText(suffix->binaryOperator)),
                         suffix->token);
                 }
-
-            case BinaryOperator::kAdd:
-                // list + element -> list
-                if (lhsType->kind == Kind::kList && rhsType->canImplicitlyConvertTo(*lhsType->listItemType)) {
-                    expressionNode->evaluatedType = lhsType;
-                    return;
-                }
+                lhsType = state->typeBoolean;
                 break;
+            }
 
             default:
                 throw std::runtime_error("not impl");
         }
     }
 
-    throw std::runtime_error("not impl");
+    expressionNode->evaluatedType = lhsType;
 }
 
 static void typeCheckCallExpression(CallExpressionNode* expressionNode, TypeCheckState* state) {
@@ -316,9 +326,10 @@ void typeCheckExpression(ExpressionNode* expressionNode, TypeCheckState* state) 
             typeCheckSymbolReferenceExpression(dynamic_cast<SymbolReferenceExpressionNode*>(expressionNode), state);
             break;
         default:
-            assert(false);
             throw std::runtime_error("Unrecognized expression type.");
     }
+    // make sure we actually did it
+    assert(expressionNode->evaluatedType != nullptr);
 }
 
 static void typeCheckDimStatement(DimStatementNode* statementNode) {
@@ -332,11 +343,13 @@ static void typeCheckDimStatement(DimStatementNode* statementNode) {
 }
 
 static void typeCheckIfStatement(IfStatementNode* statementNode, TypeCheckState* state) {
+    assert(statementNode->condition->evaluatedType != nullptr);
     if (statementNode->condition->evaluatedType->kind != Kind::kBoolean) {
         throw CompilerException(
             "The condition of an \"if\" statement must be a Boolean.", statementNode->condition->token);
     }
     for (auto& elseIf : statementNode->elseIfs) {
+        assert(elseIf->condition->evaluatedType != nullptr);
         if (elseIf->condition->evaluatedType->kind != Kind::kBoolean) {
             throw CompilerException(
                 "The condition of an \"else if\" statement must be a Boolean.", elseIf->condition->token);
@@ -372,6 +385,11 @@ static void typeCheckBody(BodyNode* bodyNode, TypeCheckState* state) {
                 // do nothing
                 break;
         }
+
+        statementNode->visitBodies([state](BodyNode* innerBodyNode) -> bool {
+            typeCheckBody(innerBodyNode, state);
+            return true;
+        });
     }
 }
 

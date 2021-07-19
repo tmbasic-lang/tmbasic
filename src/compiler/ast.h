@@ -156,6 +156,11 @@ class BinaryExpressionSuffixNode : public Node {
    public:
     BinaryOperator binaryOperator;
     std::unique_ptr<ExpressionNode> rightOperand;
+
+    // added by type checker
+    boost::local_shared_ptr<TypeNode> leftOperandConvertedType{};   // or null for no conversion
+    boost::local_shared_ptr<TypeNode> rightOperandConvertedType{};  // or null for no conversion
+
     BinaryExpressionSuffixNode(
         BinaryOperator binaryOperator,
         std::unique_ptr<ExpressionNode> rightOperand,

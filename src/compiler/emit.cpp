@@ -108,8 +108,67 @@ static void emitExpression(const ExpressionNode& expressionNode, ProcedureState*
 static void emitBody(const BodyNode& bodyNode, ProcedureState* state);
 static void emitStatement(const StatementNode& statementNode, ProcedureState* state);
 
-static void emitBinaryExpression(const BinaryExpressionNode& /*expressionNode*/, ProcedureState* /*state*/) {
-    throw std::runtime_error("not impl");
+static void emitBinaryExpression(const BinaryExpressionNode& expressionNode, ProcedureState* state) {
+    assert(expressionNode.leftOperand->evaluatedType);
+    auto lhsType = expressionNode.leftOperand->evaluatedType;
+    emitExpression(*expressionNode.leftOperand, state);
+    for (auto& binarySuffix : expressionNode.binarySuffixes) {
+        if (binarySuffix->leftOperandConvertedType != nullptr) {
+            throw std::runtime_error("not impl");
+            lhsType = binarySuffix->leftOperandConvertedType;
+        }
+        auto rhsType = binarySuffix->rightOperand->evaluatedType;
+        emitExpression(*binarySuffix->rightOperand, state);
+        if (binarySuffix->rightOperandConvertedType != nullptr) {
+            throw std::runtime_error("not impl");
+            rhsType = binarySuffix->rightOperandConvertedType;
+        }
+        auto suffixResultType = binarySuffix->evaluatedType;
+        if (lhsType->kind == Kind::kNumber && rhsType->kind == Kind::kNumber) {
+            SystemCall systemCall{};
+            switch (binarySuffix->binaryOperator) {
+                case BinaryOperator::kEquals:
+                    systemCall = SystemCall::kNumberEquals;
+                    break;
+                case BinaryOperator::kNotEquals:
+                    systemCall = SystemCall::kNumberNotEquals;
+                    break;
+                case BinaryOperator::kLessThan:
+                    systemCall = SystemCall::kNumberLessThan;
+                    break;
+                case BinaryOperator::kLessThanEquals:
+                    systemCall = SystemCall::kNumberLessThanEquals;
+                    break;
+                case BinaryOperator::kGreaterThan:
+                    systemCall = SystemCall::kNumberGreaterThan;
+                    break;
+                case BinaryOperator::kGreaterThanEquals:
+                    systemCall = SystemCall::kNumberGreaterThanEquals;
+                    break;
+                case BinaryOperator::kAdd:
+                    systemCall = SystemCall::kNumberAdd;
+                    break;
+                case BinaryOperator::kSubtract:
+                    systemCall = SystemCall::kNumberSubtract;
+                    break;
+                case BinaryOperator::kMultiply:
+                    systemCall = SystemCall::kNumberMultiply;
+                    break;
+                case BinaryOperator::kDivide:
+                    systemCall = SystemCall::kNumberDivide;
+                    break;
+                case BinaryOperator::kModulus:
+                    systemCall = SystemCall::kNumberModulus;
+                    break;
+                default:
+                    throw std::runtime_error("not impl");
+            }
+            state->syscall(Opcode::kSystemCallV, systemCall, 2, 0);
+        } else {
+            throw std::runtime_error("not impl");
+        }
+        lhsType = suffixResultType;
+    }
 }
 
 static void emitSymbolReference(const Node& declarationNode, ProcedureState* state, bool set = false) {
@@ -529,6 +588,7 @@ static void emitWhileStatement(const WhileStatementNode& /*statementNode*/, Proc
 
 static void emitPrintStatement(const PrintStatementNode& statementNode, ProcedureState* state) {
     for (const auto& expressionNode : statementNode.expressions) {
+        assert(expressionNode->evaluatedType != nullptr);
         emitExpression(*expressionNode, state);
         switch (expressionNode->evaluatedType->kind) {
             case Kind::kNumber:
