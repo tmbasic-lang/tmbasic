@@ -3,7 +3,7 @@ set -euxo pipefail
 
 # don't update these versions by hand. instead, run scripts/depsCheck.sh
 PKG_CONFIG_VERSION=0.29.2
-BINUTILS_VERSION=2.36.1
+BINUTILS_VERSION=2.37
 MINGW_VERSION=9.0.0
 GCC_VERSION=11.1.0
 
