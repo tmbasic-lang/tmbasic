@@ -157,14 +157,6 @@ static void systemCallDateTimeOffsetFromParts(const SystemCallInput& input, Syst
     result->returnedObject = newDateTimeOffset(dateTime, offset);
 }
 
-static void systemCallDays(const SystemCallInput& input, SystemCallResult* result) {
-    result->returnedValue.num = input.getValue(-1).num * U_MILLIS_PER_DAY;
-}
-
-static void systemCallFlushConsoleOutput(const SystemCallInput& input, SystemCallResult* /*result*/) {
-    input.consoleOutputStream->flush();
-}
-
 static void systemCallHasValueV(const SystemCallInput& input, SystemCallResult* result) {
     const auto& opt = dynamic_cast<const ValueOptional&>(input.getObject(-1));
     result->returnedValue.setBoolean(opt.item.has_value());
@@ -182,22 +174,12 @@ static void systemCallHours(const SystemCallInput& input, SystemCallResult* resu
 static void systemCallInputString(const SystemCallInput& input, SystemCallResult* result) {
     std::string line;
     std::getline(*input.consoleInputStream, line);
-
     result->returnedObject = boost::make_local_shared<String>(line);
 }
 
 static void systemCallLen(const SystemCallInput& input, SystemCallResult* result) {
     const auto& str = dynamic_cast<const String&>(input.getObject(-1)).value;
     result->returnedValue.num = str.length();
-}
-
-static void systemCallMilliseconds(const SystemCallInput& input, SystemCallResult* result) {
-    // already in milliseconds!
-    result->returnedValue = input.getValue(-1);
-}
-
-static void systemCallMinutes(const SystemCallInput& input, SystemCallResult* result) {
-    result->returnedValue.num = input.getValue(-1).num * U_MILLIS_PER_MINUTE;
 }
 
 static void systemCallNumberToString(const SystemCallInput& input, SystemCallResult* result) {
@@ -216,31 +198,6 @@ static void systemCallObjectListLength(const SystemCallInput& input, SystemCallR
     result->returnedValue.num = objectList.items.size();
 }
 
-static void systemCallObjectOptionalNewMissing(const SystemCallInput& /*input*/, SystemCallResult* result) {
-    result->returnedObject = boost::make_local_shared<ObjectOptional>();
-}
-
-static void systemCallObjectOptionalNewPresent(const SystemCallInput& input, SystemCallResult* result) {
-    result->returnedObject = boost::make_local_shared<ObjectOptional>(input.getObjectPtr(-1));
-}
-
-static void systemCallObjectToObjectMapNew(const SystemCallInput& /*input*/, SystemCallResult* result) {
-    result->returnedObject = boost::make_local_shared<ObjectToObjectMap>();
-}
-
-static void systemCallObjectToValueMapNew(const SystemCallInput& /*input*/, SystemCallResult* result) {
-    result->returnedObject = boost::make_local_shared<ObjectToValueMap>();
-}
-
-static void systemCallPrintString(const SystemCallInput& input, SystemCallResult* /*result*/) {
-    auto str = dynamic_cast<const String&>(input.getObject(-1)).toUtf8();
-    *input.consoleOutputStream << str;
-}
-
-static void systemCallSeconds(const SystemCallInput& input, SystemCallResult* result) {
-    result->returnedValue.num = input.getValue(-1).num * U_MILLIS_PER_SECOND;
-}
-
 static void systemCallTimeZoneFromName(const SystemCallInput& input, SystemCallResult* result) {
     const auto& name = dynamic_cast<const String&>(input.getObject(-1));
     auto icuTimeZone = std::unique_ptr<icu::TimeZone>(icu::TimeZone::createTimeZone(name.value));
@@ -251,48 +208,10 @@ static void systemCallTimeZoneFromName(const SystemCallInput& input, SystemCallR
     result->returnedObject = boost::make_local_shared<TimeZone>(std::move(icuTimeZone));
 }
 
-static void systemCallTotalDays(const SystemCallInput& input, SystemCallResult* result) {
-    result->returnedValue.num = input.getValue(-1).num / U_MILLIS_PER_DAY;
-}
-
-static void systemCallTotalHours(const SystemCallInput& input, SystemCallResult* result) {
-    result->returnedValue.num = input.getValue(-1).num / U_MILLIS_PER_HOUR;
-}
-
-static void systemCallTotalMilliseconds(const SystemCallInput& input, SystemCallResult* result) {
-    // already in milliseconds!
-    result->returnedValue = input.getValue(-1);
-}
-
-static void systemCallTotalMinutes(const SystemCallInput& input, SystemCallResult* result) {
-    result->returnedValue.num = input.getValue(-1).num / U_MILLIS_PER_MINUTE;
-}
-
-static void systemCallTotalSeconds(const SystemCallInput& input, SystemCallResult* result) {
-    result->returnedValue.num = input.getValue(-1).num / U_MILLIS_PER_SECOND;
-}
-
 static void systemCallUtcOffset(const SystemCallInput& input, SystemCallResult* result) {
     const auto& timeZone = dynamic_cast<const TimeZone&>(input.getObject(-1));
     const auto& dateTime = input.getValue(-1);
     result->returnedValue.num = timeZone.getUtcOffset(dateTime.num);
-}
-
-static void systemCallValueOptionalNewMissing(const SystemCallInput& /*input*/, SystemCallResult* result) {
-    result->returnedObject = boost::make_local_shared<ValueOptional>();
-}
-
-static void systemCallValueOptionalNewPresent(const SystemCallInput& input, SystemCallResult* result) {
-    const auto& value = input.getValue(-1);
-    result->returnedObject = boost::make_local_shared<ValueOptional>(value);
-}
-
-static void systemCallValueToObjectMapNew(const SystemCallInput& /*input*/, SystemCallResult* result) {
-    result->returnedObject = boost::make_local_shared<ValueToObjectMap>();
-}
-
-static void systemCallValueToValueMapNew(const SystemCallInput& /*input*/, SystemCallResult* result) {
-    result->returnedObject = boost::make_local_shared<ValueToValueMap>();
 }
 
 static void systemCallValueV(const SystemCallInput& input, SystemCallResult* result) {
@@ -340,82 +259,107 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kDateFromParts, systemCallDateFromParts);
     initSystemCall(SystemCall::kDateTimeFromParts, systemCallDateTimeFromParts);
     initSystemCall(SystemCall::kDateTimeOffsetFromParts, systemCallDateTimeOffsetFromParts);
-    initSystemCall(SystemCall::kDays, systemCallDays);
-    initSystemCall(SystemCall::kFlushConsoleOutput, systemCallFlushConsoleOutput);
+    initSystemCall(SystemCall::kDays, [](const auto& input, auto* result) {
+        result->returnedValue.num = input.getValue(-1).num * U_MILLIS_PER_DAY;
+    });
+    initSystemCall(
+        SystemCall::kFlushConsoleOutput, [](const auto& input, auto* result) { input.consoleOutputStream->flush(); });
     initSystemCall(SystemCall::kHasValueO, systemCallHasValueO);
     initSystemCall(SystemCall::kHasValueV, systemCallHasValueV);
     initSystemCall(SystemCall::kHours, systemCallHours);
     initSystemCall(SystemCall::kInputString, systemCallInputString);
     initSystemCall(SystemCall::kLen, systemCallLen);
-    initSystemCall(SystemCall::kMilliseconds, systemCallMilliseconds);
-    initSystemCall(SystemCall::kMinutes, systemCallMinutes);
-
+    initSystemCall(SystemCall::kMilliseconds, [](const auto& input, auto* result) {
+        result->returnedValue = input.getValue(-1);  // already in milliseconds!
+    });
+    initSystemCall(SystemCall::kMinutes, [](const auto& input, auto* result) {
+        result->returnedValue.num = input.getValue(-1).num * U_MILLIS_PER_MINUTE;
+    });
     initSystemCall(SystemCall::kNumberAdd, [](const auto& input, auto* result) {
         result->returnedValue.num = input.getValue(-2).num + input.getValue(-1).num;
     });
-
     initSystemCall(SystemCall::kNumberDivide, [](const auto& input, auto* result) {
         result->returnedValue.num = input.getValue(-2).num / input.getValue(-1).num;
     });
-
     initSystemCall(SystemCall::kNumberEquals, [](const auto& input, auto* result) {
         result->returnedValue.num = input.getValue(-2).num == input.getValue(-1).num ? 1 : 0;
     });
-
     initSystemCall(SystemCall::kNumberGreaterThan, [](const auto& input, auto* result) {
         result->returnedValue.num = input.getValue(-2).num > input.getValue(-1).num ? 1 : 0;
     });
-
     initSystemCall(SystemCall::kNumberGreaterThanEquals, [](const auto& input, auto* result) {
         result->returnedValue.num = input.getValue(-2).num >= input.getValue(-1).num ? 1 : 0;
     });
-
     initSystemCall(SystemCall::kNumberLessThan, [](const auto& input, auto* result) {
         result->returnedValue.num = input.getValue(-2).num < input.getValue(-1).num ? 1 : 0;
     });
-
     initSystemCall(SystemCall::kNumberLessThanEquals, [](const auto& input, auto* result) {
         result->returnedValue.num = input.getValue(-2).num <= input.getValue(-1).num ? 1 : 0;
     });
-
     initSystemCall(SystemCall::kNumberModulus, [](const auto& input, auto* result) {
         result->returnedValue.num = input.getValue(-2).num % input.getValue(-1).num;
     });
-
     initSystemCall(SystemCall::kNumberMultiply, [](const auto& input, auto* result) {
         result->returnedValue.num = input.getValue(-2).num * input.getValue(-1).num;
     });
-
     initSystemCall(SystemCall::kNumberNotEquals, [](const auto& input, auto* result) {
         result->returnedValue.num = input.getValue(-2).num != input.getValue(-1).num ? 1 : 0;
     });
-
     initSystemCall(SystemCall::kNumberSubtract, [](const auto& input, auto* result) {
         result->returnedValue.num = input.getValue(-2).num - input.getValue(-1).num;
     });
-
     initSystemCall(SystemCall::kNumberToString, systemCallNumberToString);
     initSystemCall(SystemCall::kObjectListGet, systemCallObjectListGet);
     initSystemCall(SystemCall::kObjectListLength, systemCallObjectListLength);
-    initSystemCall(SystemCall::kObjectOptionalNewMissing, systemCallObjectOptionalNewMissing);
-    initSystemCall(SystemCall::kObjectOptionalNewPresent, systemCallObjectOptionalNewPresent);
-    initSystemCall(SystemCall::kObjectToObjectMapNew, systemCallObjectToObjectMapNew);
-    initSystemCall(SystemCall::kObjectToValueMapNew, systemCallObjectToValueMapNew);
-    initSystemCall(SystemCall::kPrintString, systemCallPrintString);
-    initSystemCall(SystemCall::kSeconds, systemCallSeconds);
+    initSystemCall(SystemCall::kObjectOptionalNewMissing, [](const auto& /*input*/, auto* result) {
+        result->returnedObject = boost::make_local_shared<ObjectOptional>();
+    });
+    initSystemCall(SystemCall::kObjectOptionalNewPresent, [](const auto& input, auto* result) {
+        result->returnedObject = boost::make_local_shared<ObjectOptional>(input.getObjectPtr(-1));
+    });
+    initSystemCall(SystemCall::kObjectToObjectMapNew, [](const auto& /*input*/, auto* result) {
+        result->returnedObject = boost::make_local_shared<ObjectToObjectMap>();
+    });
+    initSystemCall(SystemCall::kObjectToValueMapNew, [](const auto& /*input*/, auto* result) {
+        result->returnedObject = boost::make_local_shared<ObjectToValueMap>();
+    });
+    initSystemCall(SystemCall::kPrintString, [](const auto& input, auto* result) {
+        *input.consoleOutputStream << dynamic_cast<const String&>(input.getObject(-1)).toUtf8();
+    });
+    initSystemCall(SystemCall::kSeconds, [](const auto& input, auto* result) {
+        result->returnedValue.num = input.getValue(-1).num * U_MILLIS_PER_SECOND;
+    });
     initSystemCall(SystemCall::kTimeZoneFromName, systemCallTimeZoneFromName);
-    initSystemCall(SystemCall::kTotalDays, systemCallTotalDays);
-    initSystemCall(SystemCall::kTotalHours, systemCallTotalHours);
-    initSystemCall(SystemCall::kTotalMilliseconds, systemCallTotalMilliseconds);
-    initSystemCall(SystemCall::kTotalMinutes, systemCallTotalMinutes);
-    initSystemCall(SystemCall::kTotalSeconds, systemCallTotalSeconds);
+    initSystemCall(SystemCall::kTotalDays, [](const auto& input, auto* result) {
+        result->returnedValue.num = input.getValue(-1).num / U_MILLIS_PER_DAY;
+    });
+    initSystemCall(SystemCall::kTotalHours, [](const auto& input, auto* result) {
+        result->returnedValue.num = input.getValue(-1).num / U_MILLIS_PER_HOUR;
+    });
+    initSystemCall(SystemCall::kTotalMilliseconds, [](const auto& input, auto* result) {
+        result->returnedValue = input.getValue(-1);  // already in milliseconds!
+    });
+    initSystemCall(SystemCall::kTotalMinutes, [](const auto& input, auto* result) {
+        result->returnedValue.num = input.getValue(-1).num / U_MILLIS_PER_MINUTE;
+    });
+    initSystemCall(SystemCall::kTotalSeconds, [](const auto& input, auto* result) {
+        result->returnedValue.num = input.getValue(-1).num / U_MILLIS_PER_SECOND;
+    });
     initSystemCall(SystemCall::kUtcOffset, systemCallUtcOffset);
     initSystemCall(SystemCall::kValueO, systemCallValueO);
     initSystemCall(SystemCall::kValueListGet, systemCallValueListGet);
-    initSystemCall(SystemCall::kValueOptionalNewMissing, systemCallValueOptionalNewMissing);
-    initSystemCall(SystemCall::kValueOptionalNewPresent, systemCallValueOptionalNewPresent);
-    initSystemCall(SystemCall::kValueToObjectMapNew, systemCallValueToObjectMapNew);
-    initSystemCall(SystemCall::kValueToValueMapNew, systemCallValueToValueMapNew);
+    initSystemCall(SystemCall::kValueOptionalNewMissing, [](const auto& input, auto* result) {
+        result->returnedObject = boost::make_local_shared<ValueOptional>();
+    });
+    initSystemCall(SystemCall::kValueOptionalNewPresent, [](const auto& input, auto* result) {
+        result->returnedObject = boost::make_local_shared<ValueOptional>(input.getValue(-1));
+    });
+    initSystemCall(SystemCall::kValueToObjectMapNew, [](const auto& /*input*/, auto* result) {
+        result->returnedObject = boost::make_local_shared<ValueToObjectMap>();
+    });
+    initSystemCall(SystemCall::kValueToValueMapNew, [](const auto& /*input*/, auto* result) {
+        result->returnedObject = boost::make_local_shared<ValueToValueMap>();
+    });
     initSystemCall(SystemCall::kValueV, systemCallValueV);
 
     _systemCallsInitialized = true;
