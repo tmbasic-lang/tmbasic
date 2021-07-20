@@ -455,10 +455,12 @@ bin/ghpages/index.html: README.md \
 	@printf "%16s  %s\n" "pandoc" "$@"
 	@mkdir -p $(@D)
 	@cat doc/help/html/page-template-1.html > $@
-	@echo -n "TMBASIC" >> $@
+	@echo -n "TMBASIC Programming Language" >> $@
 	@cat doc/help/html/page-template-2.html >> $@
 	@pandoc --from=markdown --to=html $< >> $@
 	@cat doc/help/html/page-template-3.html >> $@
+	@cat $@ | sed 's!https://tmbasic.com/!/!g' > $@-temp
+	@mv -f $@-temp $@
 
 $(FAVICON_OUT_FILES): bin/ghpages/%: doc/art/favicon/%
 	@printf "%16s  %s\n" "cp" "$@"

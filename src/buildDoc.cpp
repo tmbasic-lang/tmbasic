@@ -294,7 +294,7 @@ static void writeHtmlPage(const string& topic, const string& text, const string&
     }
     auto title = match[1].str();
     auto html = htmlPageTemplate;
-    html = replace(html, "[TITLE]", processTitle(title) + " - TMBASIC Documentation");
+    html = replace(html, "[TITLE]", processTitle(title) + " - TMBASIC");
     html = replace(html, "[BODY]", processHtml(text));
     writeFile(string("../obj/doc-html/") + topic + ".html", html);
 }

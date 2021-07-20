@@ -17,15 +17,18 @@ div.bar { font-size: 9pt; margin-top: 20px; }
 div.bar > span { background: #f8f8f8; padding: 5px 10px 5px 10px; font-weight: 500; }
 div.code div { text-indent: -2cm; padding-left: 2cm; }
 div.code { padding: 3mm; margin-bottom: 5mm; background: #f8f8f8; margin-top: 8px; white-space: pre; }
+div.indent { margin-left: 1cm; }
 div.paragraphBreak { height: 16px; }
 div#root { margin-left: 1cm; margin-right: 1cm; }
+div#compatibilityTable { line-height: 100%; }
+div#compatibilityTable > table > tbody > tr > td { vertical-align: middle; padding: 2mm; padding-right: 4mm; }
 h1 { font-size: 40px; color: #333333; }
 h1 > span.tt { letter-spacing: -2px; word-break: break-word; }
 h1#tmbasic { display: none; }
 h1, h2, h3, h4, h5 { font-weight: 400; letter-spacing: -0.38px; line-height: 100%; }
 h2 { font-size: 28px; color: #ba3925; margin-top: 50px; }
 h3 { color: #ba3925; font-size: 20px; }
-img.screenshot { margin-top: 2mm; height: 275px; width: 434px; float: right; margin-left: 1cm; margin-right: 1mm; background: #bbbbbb; }
+img.screenshot { margin-top: 2mm; height: 275px; width: 434px; float: right; margin-left: 1cm; margin-right: 1mm; background: #bbbbbb; image-rendering: -webkit-optimize-contrast; }
 nav { background: #353535; position: absolute; top: 0; left: 0; width: 100%; padding-top: 2mm; padding-bottom: 2mm; }
 nav > div { max-width: 900px; margin: 0 auto; }
 nav > div > div { margin-left: 1cm; margin-right: 1cm; }
@@ -64,6 +67,7 @@ ul { padding-left: 5mm; }
 @media only screen and (max-width: 350px) {
   img.screenshot { height: 103.125px; width: 162.75px; /* 37.5% */ }
   nav { zoom: 0.80; }
+  div.indent { margin-left: 0; }
 }
 </style>
 </head>

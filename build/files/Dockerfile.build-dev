@@ -20,7 +20,8 @@ RUN apt-get update -y && \
         xxd \
         autoconf \
         automake \
-        dos2unix
+        dos2unix \
+        pngcrush
 
 # unprivileged user
 RUN mkdir -p /code && \

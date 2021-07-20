@@ -24,7 +24,7 @@ SVG screenshots would have been nice, but they get garbled in some browsers (Chr
 - Window > Appearance
     - Cursor appearance: Underline
     - Font: Consolas 14pt
-    - Font quality: Non-Antialiased
+    - Font quality: Antialiased
 - Window > Colours > ANSI Cyan: 58, 150, 221
 
 Crop to the console area including the one pixel black outline. Post-process with:
