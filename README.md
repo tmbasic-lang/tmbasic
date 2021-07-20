@@ -15,29 +15,53 @@ The BASIC language is beginner-friendly, and experienced programmers will find i
 
 ### Command line interfaces (CLIs)
 
-<div class="indent">The simplest type of program. Read input from the keyboard or from [shell arguments](https://en.wikipedia.org/wiki/Command-line_interface#Arguments). Print lines of text as output. Examples include developer tools like [git](https://en.wikipedia.org/wiki/Git) and [interactive fiction](https://en.wikipedia.org/wiki/Interactive_fiction) games like [Zork](https://en.wikipedia.org/wiki/Zork).</div>
+<div class="indent">
+  
+The simplest type of program. Read input from the keyboard or from [shell arguments](https://en.wikipedia.org/wiki/Command-line_interface#Arguments). Print lines of text as output. Examples include developer tools like [git](https://en.wikipedia.org/wiki/Git) and [interactive fiction](https://en.wikipedia.org/wiki/Interactive_fiction) games like [Zork](https://en.wikipedia.org/wiki/Zork).
+
+</div>
 
 ### Text-based user interfaces (TUIs)
 
-<div class="indent">Rich mouse-driven programs featuring windows, buttons, pull-down menus, and other modern user interface concepts. [Midnight Commander](https://en.wikipedia.org/wiki/Midnight_Commander) and TMBASIC itself are TUI programs.</div>
+<div class="indent">
+  
+Rich mouse-driven programs featuring windows, buttons, pull-down menus, and other modern user interface concepts. [Midnight Commander](https://en.wikipedia.org/wiki/Midnight_Commander) and TMBASIC itself are TUI programs.
+
+</div>
 
 ### Text-mode games
 
-<div class="indent">Start with a blank screen and draw your own program elements from scratch. Use box-drawing characters and other Unicode symbols to create primitive graphics. [NetHack](https://en.wikipedia.org/wiki/NetHack) and [ZZT](https://en.wikipedia.org/wiki/ZZT) are examples of text-mode games.</div>
+<div class="indent">
+  
+Start with a blank screen and draw your own program elements from scratch. Use box-drawing characters and other Unicode symbols to create primitive graphics. [NetHack](https://en.wikipedia.org/wiki/NetHack) and [ZZT](https://en.wikipedia.org/wiki/ZZT) are examples of text-mode games.
+
+</div>
 
 ## It's easy!
 
 ### Easy to get started
 
-<div class="indent">The BASIC language will feel familiar to anyone with programming experience. New programmers will find it easy to learn. Everything you need to develop and distribute sophisticated apps is included in TMBASIC.</div>
+<div class="indent">
+  
+The BASIC language will feel familiar to anyone with programming experience. New programmers will find it easy to learn. Everything you need to develop and distribute sophisticated apps is included in TMBASIC.
+
+</div>
 
 ### Easy to write
 
-<div class="indent">Developing a high-quality modern GUI requires professional-level expertise. Text-based apps have few options for visual effects, and even a novice can produce quality results.</div>
+<div class="indent">
+  
+Developing a high-quality modern GUI requires professional-level expertise. Text-based apps have few options for visual effects, and even a novice can produce quality results.
+
+</div>
 
 ### Easy to share
 
-<div class="indent">TMBASIC apps are standalone executables that require no external library files. They can be copied and opened without installation. TMBASIC can [cross-compile](https://en.wikipedia.org/wiki/Cross_compiler) native executables targeting Windows, macOS, and Linux.</div>
+<div class="indent">
+  
+TMBASIC apps are standalone executables that require no external library files. They can be copied and opened without installation. TMBASIC can [cross-compile](https://en.wikipedia.org/wiki/Cross_compiler) native executables targeting Windows, macOS, and Linux.
+
+</div>
 
 ## Compatibility
 
