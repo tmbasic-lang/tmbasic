@@ -490,8 +490,14 @@ static void emitSymbolReferenceExpression(const SymbolReferenceExpressionNode& e
     }
 }
 
-static void emitAssignStatement(const AssignStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
-    throw std::runtime_error("not impl");
+static void emitAssignStatement(const AssignStatementNode& statementNode, ProcedureState* state) {
+    if (!statementNode.suffixes.empty()) {
+        throw std::runtime_error("not impl");
+    }
+
+    emitExpression(*statementNode.value, state);
+    assert(statementNode.symbolReference->boundSymbolDeclaration != nullptr);
+    emitSymbolReference(*statementNode.symbolReference->boundSymbolDeclaration, state, true);
 }
 
 static void emitCallStatement(const CallStatementNode& statementNode, ProcedureState* state) {
@@ -755,8 +761,24 @@ static void emitTryStatement(const TryStatementNode& /*statementNode*/, Procedur
     throw std::runtime_error("not impl");
 }
 
-static void emitWhileStatement(const WhileStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
-    throw std::runtime_error("not impl");
+static void emitWhileStatement(const WhileStatementNode& statementNode, ProcedureState* state) {
+    // loop begins here
+    auto topLabel = state->labelId();
+    auto endLabel = state->labelId();
+    state->label(topLabel);
+
+    // evaluate the condition, if it's false then jump to endLabel
+    emitExpression(*statementNode.condition, state);
+    state->branchIfFalse(endLabel);
+
+    // loop body
+    emitBody(*statementNode.body, state);
+
+    // jump to topLabel
+    state->jump(topLabel);
+
+    // we will jump here when the loop is done
+    state->label(endLabel);
 }
 
 static void emitPrintStatement(const PrintStatementNode& statementNode, ProcedureState* state) {

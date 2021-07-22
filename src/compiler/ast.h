@@ -377,11 +377,11 @@ class AssignLocationSuffixNode : public Node {
 
 class AssignStatementNode : public StatementNode {
    public:
-    std::string name;
+    std::unique_ptr<SymbolReferenceExpressionNode> symbolReference;
     std::vector<std::unique_ptr<AssignLocationSuffixNode>> suffixes;
     std::unique_ptr<ExpressionNode> value;
     AssignStatementNode(
-        std::string name,
+        std::unique_ptr<SymbolReferenceExpressionNode> symbolReference,
         std::vector<std::unique_ptr<AssignLocationSuffixNode>> suffixes,
         std::unique_ptr<ExpressionNode> value,
         Token token);

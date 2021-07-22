@@ -1388,7 +1388,7 @@ class AssignStatementProduction : public Production {
 
     std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
         return nodeBox<AssignStatementNode>(
-            captureTokenText(std::move(captures->at(0))),
+            std::make_unique<SymbolReferenceExpressionNode>(captureTokenText(std::move(captures->at(0))), firstToken),
             captureNodeArray<AssignLocationSuffixNode>(std::move(captures->at(1))),
             captureSingleNode<ExpressionNode>(std::move(captures->at(2))), firstToken);
     }

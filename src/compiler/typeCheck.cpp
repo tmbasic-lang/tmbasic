@@ -171,6 +171,32 @@ static void typeCheckBinaryExpression(BinaryExpressionNode* expressionNode, Type
                 break;
             }
 
+            case BinaryOperator::kAdd:
+            case BinaryOperator::kSubtract:
+            case BinaryOperator::kMultiply:
+            case BinaryOperator::kDivide:
+            case BinaryOperator::kModulus: {
+                // lhs must be Number
+                if (lhsType->kind != Kind::kNumber) {
+                    throw CompilerException(
+                        fmt::format(
+                            "The \"{}\" operator requires the left operand to be a Number.",
+                            getOperatorText(suffix->binaryOperator)),
+                        suffix->token);
+                }
+                // rhs must be Number
+                if (rhsType->kind != Kind::kNumber) {
+                    throw CompilerException(
+                        fmt::format(
+                            "The \"{}\" operator requires the right operand to be a Number.",
+                            getOperatorText(suffix->binaryOperator)),
+                        suffix->token);
+                }
+                // if so, the result is also a Number
+                suffix->evaluatedType = state->typeNumber;
+                break;
+            }
+
             default:
                 throw std::runtime_error("not impl");
         }
@@ -384,6 +410,15 @@ static void typeCheckForStatement(ForStatementNode* statementNode, TypeCheckStat
     }
 }
 
+static void typeCheckWhileStatement(WhileStatementNode* statementNode, TypeCheckState* state) {
+    // condition must be a Boolean
+    assert(statementNode->condition->evaluatedType != nullptr);
+    if (statementNode->condition->evaluatedType->kind != Kind::kBoolean) {
+        throw CompilerException(
+            "The condition of a \"while\" statement must be a Boolean.", statementNode->condition->token);
+    }
+}
+
 static void typeCheckBody(BodyNode* bodyNode, TypeCheckState* state) {
     for (auto& statementNode : bodyNode->statements) {
         statementNode->visitExpressions(true, [state](ExpressionNode* expressionNode) -> bool {
@@ -406,6 +441,10 @@ static void typeCheckBody(BodyNode* bodyNode, TypeCheckState* state) {
 
             case StatementType::kFor:
                 typeCheckForStatement(dynamic_cast<ForStatementNode*>(statementNode.get()), state);
+                break;
+
+            case StatementType::kWhile:
+                typeCheckWhileStatement(dynamic_cast<WhileStatementNode*>(statementNode.get()), state);
                 break;
 
             default:
