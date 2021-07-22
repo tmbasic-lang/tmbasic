@@ -319,7 +319,6 @@ void CodeEditorWindow::notifyStyleToNeeded(Sci::Position endStyleNeeded) {
         for (auto& kind : kinds) {
             auto style = 0;
             switch (kind) {
-                case compiler::TokenKind::kBooleanLiteral:
                 case compiler::TokenKind::kAnd:
                 case compiler::TokenKind::kAs:
                 case compiler::TokenKind::kBoolean:

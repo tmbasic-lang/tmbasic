@@ -570,7 +570,8 @@ class LiteralValueProduction : public Production {
                   capture(
                       0,
                       oneOf({
-                          term(TokenKind::kBooleanLiteral),
+                          term(TokenKind::kTrue),
+                          term(TokenKind::kFalse),
                           term(TokenKind::kNumberLiteral),
                           term(TokenKind::kStringLiteral),
                       })),
@@ -579,17 +580,11 @@ class LiteralValueProduction : public Production {
     std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
         auto token = captureToken(std::move(captures->at(0)));
         switch (token.type) {
-            case TokenKind::kBooleanLiteral: {
-                auto lowercase = boost::to_lower_copy(token.text);
-                if (lowercase == "true") {
-                    return nodeBox<LiteralBooleanExpressionNode>(true, firstToken);
-                }
-                if (lowercase == "false") {
-                    return nodeBox<LiteralBooleanExpressionNode>(false, firstToken);
-                }
-                assert(false);
-                return {};
-            }
+            case TokenKind::kTrue:
+                return nodeBox<LiteralBooleanExpressionNode>(true, firstToken);
+
+            case TokenKind::kFalse:
+                return nodeBox<LiteralBooleanExpressionNode>(false, firstToken);
 
             case TokenKind::kNumberLiteral:
                 return nodeBox<LiteralNumberExpressionNode>(parseDecimalString(token.text), firstToken);

@@ -12,7 +12,6 @@ enum class TokenKind {
     kComment,
 
     // literals
-    kBooleanLiteral,
     kNumberLiteral,
     kStringLiteral,
 

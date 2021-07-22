@@ -337,6 +337,8 @@ static void emitSymbolReference(const Node& declarationNode, ProcedureState* sta
             0, 0);
         return;
     }
+
+    throw std::runtime_error("not impl");
 }
 
 static void emitCallExpression(const CallExpressionNode& expressionNode, ProcedureState* state) {
@@ -400,10 +402,8 @@ static void emitLiteralArrayExpression(const LiteralArrayExpressionNode& express
     }
 }
 
-static void emitLiteralBooleanExpression(
-    const LiteralBooleanExpressionNode& /*expressionNode*/,
-    ProcedureState* /*state*/) {
-    throw std::runtime_error("not impl");
+static void emitLiteralBooleanExpression(const LiteralBooleanExpressionNode& expressionNode, ProcedureState* state) {
+    state->pushImmediateInt64(expressionNode.value ? 1 : 0);
 }
 
 static void emitLiteralNumberExpression(const LiteralNumberExpressionNode& expressionNode, ProcedureState* state) {
@@ -786,6 +786,18 @@ static void emitPrintStatement(const PrintStatementNode& statementNode, Procedur
         assert(expressionNode->evaluatedType != nullptr);
         emitExpression(*expressionNode, state);
         switch (expressionNode->evaluatedType->kind) {
+            case Kind::kBoolean: {
+                auto printFalseLabel = state->labelId();
+                auto endPrintLabel = state->labelId();
+                state->branchIfFalse(printFalseLabel);
+                state->pushImmediateUtf8("true");
+                state->jump(endPrintLabel);
+                state->label(printFalseLabel);
+                state->pushImmediateUtf8("false");
+                state->label(endPrintLabel);
+                state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
+                break;
+            }
             case Kind::kNumber:
                 state->syscall(Opcode::kSystemCallO, SystemCall::kNumberToString, 1, 0);
                 state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);

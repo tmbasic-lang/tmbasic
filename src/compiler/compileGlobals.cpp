@@ -11,7 +11,8 @@ namespace compiler {
 static boost::local_shared_ptr<TypeNode> getTypeForLiteralToken(const Token& token) {
     Kind kind = {};
     switch (token.type) {
-        case TokenKind::kBooleanLiteral:
+        case TokenKind::kTrue:
+        case TokenKind::kFalse:
             kind = Kind::kBoolean;
             break;
         case TokenKind::kNumberLiteral:
