@@ -125,6 +125,20 @@ static void systemCallChr(const SystemCallInput& input, SystemCallResult* result
     result->returnedObject = boost::make_local_shared<String>(ch > 0 ? icu::UnicodeString(ch) : icu::UnicodeString());
 }
 
+static void systemCallCounterIsPastLimit(const SystemCallInput& input, SystemCallResult* result) {
+    // used with 'for' loops
+    const auto& counter = input.getValue(-3).num;
+    const auto& limit = input.getValue(-2).num;
+    const auto& step = input.getValue(-1).num;
+    bool condition{};
+    if (step >= 0) {
+        condition = counter > limit;
+    } else {
+        condition = counter < limit;
+    }
+    result->returnedValue.setBoolean(condition);
+}
+
 static void systemCallDateFromParts(const SystemCallInput& input, SystemCallResult* result) {
     auto year = input.getValue(-3).getInt32();
     auto month = input.getValue(-2).getInt32();
@@ -256,6 +270,7 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kCharacters1, systemCallCharacters1);
     initSystemCall(SystemCall::kCharacters2, systemCallCharacters2);
     initSystemCall(SystemCall::kChr, systemCallChr);
+    initSystemCall(SystemCall::kCounterIsPastLimit, systemCallCounterIsPastLimit);
     initSystemCall(SystemCall::kDateFromParts, systemCallDateFromParts);
     initSystemCall(SystemCall::kDateTimeFromParts, systemCallDateTimeFromParts);
     initSystemCall(SystemCall::kDateTimeOffsetFromParts, systemCallDateTimeOffsetFromParts);

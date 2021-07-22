@@ -34,6 +34,21 @@ static void assignLocalVariableIndexToSymbolDeclaration(Node* symbolDeclarationN
     }
 }
 
+static void assignLocalVariableIndicesForStatementTemporaries(
+    StatementNode* statementNode,
+    int numValues,
+    int numObjects,
+    VariableIndexingState* state) {
+    if (numValues > 0) {
+        statementNode->tempLocalValueIndex = state->nextLocalValueIndex;
+        state->nextLocalValueIndex += numValues;
+    }
+    if (numObjects > 0) {
+        statementNode->tempLocalObjectIndex = state->nextLocalObjectIndex;
+        state->nextLocalObjectIndex += numObjects;
+    }
+}
+
 static void assignLocalVariableIndicesInBody(BodyNode* body, VariableIndexingState* state) {
     for (auto& statement : body->statements) {
         // does this statement declare a symbol?
@@ -47,6 +62,11 @@ static void assignLocalVariableIndicesInBody(BodyNode* body, VariableIndexingSta
         if (childSymbolDeclarationNode != nullptr) {
             assignLocalVariableIndexToSymbolDeclaration(childSymbolDeclarationNode, state);
         }
+
+        // does it need temporary variables?
+        auto numTempValues = statement->getTempLocalValueCount();
+        auto numTempObjects = statement->getTempLocalObjectCount();
+        assignLocalVariableIndicesForStatementTemporaries(statement.get(), numTempValues, numTempObjects, state);
 
         // does it have sub-statements?
         statement->visitBodies([state](BodyNode* body) -> bool {

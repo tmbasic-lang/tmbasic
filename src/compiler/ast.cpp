@@ -46,15 +46,6 @@ static void dumpVarOptional(std::ostringstream& s, const std::optional<T>& f, in
 #define DUMP_VAR_DECIMAL(f) \
     { s << indent(n + 1) << NAMEOF(f) << '=' << decimalToString(f) << '\n'; }  // NOLINT
 
-static void dumpVarOptionalDecimal(std::ostringstream& s, const std::optional<decimal::Decimal>& f, int n) {
-    if (f.has_value()) {
-        s << indent(n + 1) << NAMEOF(f) << '=' << decimalToString(*f) << '\n';  // NOLINT
-    }
-}
-
-// NOLINTNEXTLINE
-#define DUMP_VAR_OPTIONAL_DECIMAL(f) dumpVarOptionalDecimal(s, f, n)
-
 // NOLINTNEXTLINE
 #define DUMP_VAR_ENUM(f) \
     { s << indent(n + 1) << NAMEOF(f) << '=' << NAMEOF_ENUM(f) << '\n'; }  // NOLINT
@@ -139,6 +130,14 @@ ExpressionType ConstValueExpressionNode::getExpressionType() const {
 }
 
 StatementNode::StatementNode(Token token) : Node(std::move(token)) {}
+
+int StatementNode::getTempLocalValueCount() const {
+    return 0;
+}
+
+int StatementNode::getTempLocalObjectCount() const {
+    return 0;
+}
 
 TypeNode::TypeNode(Kind kind, Token token) : Node(std::move(token)), kind(kind) {}
 
@@ -866,32 +865,11 @@ boost::local_shared_ptr<TypeNode> ForEachStatementNode::getSymbolDeclarationType
     return listType->listItemType;
 }
 
-ForStepNode::ForStepNode(decimal::Decimal stepImmediate, Token token)
-    : Node(std::move(token)), stepImmediate(stepImmediate) {}
-
-ForStepNode::ForStepNode(std::unique_ptr<SymbolReferenceExpressionNode> stepConstant, Token token)
-    : Node(std::move(token)), stepConstant(std::move(stepConstant)) {}
-
-void ForStepNode::dump(std::ostringstream& s, int n) const {
-    DUMP_TYPE(ForStepNode);
-    DUMP_VAR_OPTIONAL_DECIMAL(stepImmediate);
-    DUMP_VAR_NODE(stepConstant);
-}
-
-bool ForStepNode::visitExpressions(bool /*rootsOnly*/, const VisitExpressionFunc& func) const {
-    if (stepConstant) {
-        if (!func(stepConstant.get())) {
-            return false;
-        }
-    }
-    return true;
-}
-
 ForStatementNode::ForStatementNode(
     std::string loopVariableName,
     std::unique_ptr<ExpressionNode> fromValue,
     std::unique_ptr<ExpressionNode> toValue,
-    std::unique_ptr<ForStepNode> step,
+    std::unique_ptr<ExpressionNode> step,
     std::unique_ptr<BodyNode> body,
     Token token)
     : StatementNode(std::move(token)),
@@ -925,8 +903,8 @@ bool ForStatementNode::visitExpressions(bool rootsOnly, const VisitExpressionFun
     if (!visitChildExpression(rootsOnly, toValue.get(), func)) {
         return false;
     }
-    if (step) {
-        if (!step->visitExpressions(rootsOnly, func)) {
+    if (step != nullptr) {
+        if (!visitChildExpression(rootsOnly, step.get(), func)) {
             return false;
         }
     }
@@ -942,6 +920,12 @@ boost::local_shared_ptr<TypeNode> ForStatementNode::getSymbolDeclarationType() c
         _type = boost::make_local_shared<TypeNode>(Kind::kNumber, token);
     }
     return _type;
+}
+
+int ForStatementNode::getTempLocalValueCount() const {
+    // one for the max value
+    // one for the step value
+    return 2;
 }
 
 GroupKeyNameNode::GroupKeyNameNode(std::string name, Token token) : Node(std::move(token)), name(std::move(name)) {}

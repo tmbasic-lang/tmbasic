@@ -13,6 +13,7 @@ enum class SystemCall {
     kCharacters1,               // Characters(input as String) as List of String
     kCharacters2,               // Characters(input as String, locale as String) as List of String
     kChr,                       // Chr(input as Number) as String
+    kCounterIsPastLimit,        // CounterIsPastLimit(counter as Number, limit as Number, step as Number) as Boolean
     kDateFromParts,             // DateFromParts(year as Number, month as Number, day as Number) as Date
     kDateTimeFromParts,         // DateFromParts(year as Number, ...) as DateTime
     kDateTimeOffsetFromParts,   // DateOffsetFromParts(year as Number, ..., timeZone as TimeZone) as DateTimeOffset

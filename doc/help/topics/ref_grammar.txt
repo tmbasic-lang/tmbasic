@@ -21,7 +21,7 @@ li@CommandStatement ::= AssignStatement | SelectStatement | ReturnStatement | Ca
 li@AssignStatement ::= identifier AssignLocationSuffix* "=" Expression "\n"@
 li@AssignLocationSuffix ::= "." identifier | "(" Expression ")"@
 li@ForStatement ::= "for" identifier "=" Expression "to" Expression ForStep? "\n" Body "next" "\n"@
-li@ForStep ::= "step" (number | identifier)@
+li@ForStep ::= "step" Expression@
 li@ForEachStatement ::= "for" "each" identifier "in" Expression "\n" Body "next" "\n"@
 li@WhileStatement ::= "while" Expression "\n" Body "wend" "\n"@
 li@IfStatement ::= "if" Expression "then" ("\n" Body ElseIf* Else? "end" "if" | CommandStatement) "\n"@

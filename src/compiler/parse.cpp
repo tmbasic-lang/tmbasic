@@ -1792,31 +1792,17 @@ class ForEachStatementProduction : public Production {
 
 class ForStepProduction : public Production {
    public:
-    ForStepProduction()
+    ForStepProduction(const Production* expression)
         : Production(
               NAMEOF_TYPE(ForStepProduction),
               {
                   term(TokenKind::kStep),
                   cut(),
-                  capture(
-                      0,
-                      oneOf({
-                          term(TokenKind::kNumberLiteral),
-                          term(TokenKind::kIdentifier),
-                      })),
+                  capture(0, prod(expression)),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
-        auto t = captureToken(std::move(captures->at(0)));
-        switch (t.type) {
-            case TokenKind::kNumberLiteral:
-                return nodeBox<ForStepNode>(parseDecimalString(t.text), firstToken);
-            case TokenKind::kIdentifier:
-                return nodeBox<ForStepNode>(std::make_unique<SymbolReferenceExpressionNode>(t.text, t), firstToken);
-            default:
-                assert(false);
-                return {};
-        }
+        return std::move(captures->at(0));
     }
 };
 
@@ -1846,7 +1832,7 @@ class ForStatementProduction : public Production {
         return nodeBox<ForStatementNode>(
             captureTokenText(std::move(captures->at(0))), captureSingleNode<ExpressionNode>(std::move(captures->at(1))),
             captureSingleNode<ExpressionNode>(std::move(captures->at(2))),
-            captureSingleNodeOrNull<ForStepNode>(std::move(captures->at(3))),
+            captureSingleNodeOrNull<ExpressionNode>(std::move(captures->at(3))),
             captureSingleNode<BodyNode>(std::move(captures->at(4))), firstToken);
     }
 };
@@ -2180,7 +2166,7 @@ class ProductionCollection {
         auto* ifStatement = add<IfStatementProduction>(expression, body, elseIf);
         auto* whileStatement = add<WhileStatementProduction>(expression, body);
         auto* forEachStatement = add<ForEachStatementProduction>(expression, body);
-        auto* forStep = add<ForStepProduction>();
+        auto* forStep = add<ForStepProduction>(expression);
         auto* forStatement = add<ForStatementProduction>(expression, forStep, body);
         auto* printStatement = add<PrintStatementProduction>(expression);
         auto* inputStatement = add<InputStatementProduction>(expression);

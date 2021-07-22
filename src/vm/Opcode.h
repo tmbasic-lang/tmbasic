@@ -52,7 +52,7 @@ enum class Opcode {
     kBranchIfTrue,   // <inst* index> if (vsp[-1]) goto index in current proc
     kBranchIfFalse,  // <inst* index> if (!vsp[-1]) goto index in current proc
 
-    // procedures. flags: 1=return value | 2=return object
+    // procedures
     kCall,          // <proc* procIndex, u8 numVals, u8 numObjs>
     kCallV,         // <proc* procIndex, u8 numVals, u8 numObjs>
     kCallO,         // <proc* procIndex, u8 numVals, u8 numObjs>

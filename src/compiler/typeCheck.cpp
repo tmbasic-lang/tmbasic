@@ -361,6 +361,29 @@ static void typeCheckCallStatement(CallStatementNode* statementNode, TypeCheckSt
     typeCheckCall(statementNode, statementNode->name, statementNode->arguments, state, false);
 }
 
+static void typeCheckForStatement(ForStatementNode* statementNode, TypeCheckState* state) {
+    // fromValue must be a number
+    assert(statementNode->fromValue->evaluatedType != nullptr);
+    if (statementNode->fromValue->evaluatedType->kind != Kind::kNumber) {
+        throw CompilerException(
+            "The \"from\" value of a \"for\" statement must be a number.", statementNode->fromValue->token);
+    }
+    // toValue must be a number
+    assert(statementNode->toValue->evaluatedType != nullptr);
+    if (statementNode->toValue->evaluatedType->kind != Kind::kNumber) {
+        throw CompilerException(
+            "The \"to\" value of a \"for\" statement must be a number.", statementNode->toValue->token);
+    }
+    // if it is provided, then step must be a number
+    if (statementNode->step != nullptr) {
+        assert(statementNode->step->evaluatedType != nullptr);
+        if (statementNode->step->evaluatedType->kind != Kind::kNumber) {
+            throw CompilerException(
+                "The \"step\" value of a \"for\" statement must be a number.", statementNode->step->token);
+        }
+    }
+}
+
 static void typeCheckBody(BodyNode* bodyNode, TypeCheckState* state) {
     for (auto& statementNode : bodyNode->statements) {
         statementNode->visitExpressions(true, [state](ExpressionNode* expressionNode) -> bool {
@@ -379,6 +402,10 @@ static void typeCheckBody(BodyNode* bodyNode, TypeCheckState* state) {
 
             case StatementType::kIf:
                 typeCheckIfStatement(dynamic_cast<IfStatementNode*>(statementNode.get()), state);
+                break;
+
+            case StatementType::kFor:
+                typeCheckForStatement(dynamic_cast<ForStatementNode*>(statementNode.get()), state);
                 break;
 
             default:

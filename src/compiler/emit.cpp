@@ -3,6 +3,7 @@
 
 #include "emit.h"
 #include "CompilerException.h"
+#include "util/decimal.h"
 #include "vm/Opcode.h"
 #include "vm/systemCall.h"
 
@@ -30,6 +31,158 @@ class ProcedureState {
 
     int labelId() { return nextLabelId++; }
 
+    void pushImmediateUtf8(const std::string& str) {
+        op(Opcode::kPushImmediateUtf8, false);
+        emitInt<uint32_t>(str.size(), false);
+        for (auto ch : str) {
+            emitInt<uint8_t>(ch, false);
+        }
+#ifdef DUMP_ASM
+        std::cerr << std::endl << NAMEOF_ENUM(Opcode::kPushImmediateUtf8) << " \"" << str << "\"";
+#endif
+    }
+
+    void label(int labelId) {
+        for (const auto& fixup : jumpFixups) {
+            if (fixup.labelId == labelId) {
+                auto target = static_cast<uint32_t>(bytecode.size());
+                memcpy(&bytecode.at(fixup.bytecodeOffset), &target, sizeof(uint32_t));
+            }
+        }
+        jumpFixups.erase(
+            std::remove_if(
+                jumpFixups.begin(), jumpFixups.end(),
+                [labelId](const JumpFixup& fixup) { return fixup.labelId == labelId; }),
+            jumpFixups.end());
+        labels.push_back(Label{ bytecode.size(), labelId });
+    }
+
+    void pushImmediateInt64(int64_t value) {
+        op(Opcode::kPushImmediateInt64);
+        emitInt<int64_t>(value);
+    }
+
+    void pushImmediateDec128(const decimal::Decimal& value) {
+        op(Opcode::kPushImmediateDec128);
+        auto triple = value.as_uint128_triple();
+        emitInt<uint8_t>(triple.tag, false);
+        emitInt<uint8_t>(triple.sign, false);
+        emitInt<uint64_t>(triple.hi, false);
+        emitInt<uint64_t>(triple.lo, false);
+        emitInt<int64_t>(triple.exp, false);
+#ifdef DUMP_ASM
+        std::cerr << " " << util::decimalToString(value);
+#endif
+    }
+
+    void initLocals(uint16_t numVals, uint16_t numObjs) {
+        op(Opcode::kInitLocals);
+        emitInt<uint16_t>(numVals);
+        emitInt<uint16_t>(numObjs);
+    }
+
+    void pushLocalValue(uint16_t index) {
+        op(Opcode::kPushLocalValue);
+        emitInt<uint16_t>(index);
+    }
+
+    void setLocalValue(uint16_t index) {
+        op(Opcode::kSetLocalValue);
+        emitInt<uint16_t>(index);
+    }
+
+    void pushLocalObject(uint16_t index) {
+        op(Opcode::kPushLocalObject);
+        emitInt<uint16_t>(index);
+    }
+
+    void setLocalObject(uint16_t index) {
+        op(Opcode::kSetLocalObject);
+        emitInt<uint16_t>(index);
+    }
+
+    void pushArgumentValue(uint8_t index) {
+        op(Opcode::kPushArgumentValue);
+        emitInt<uint8_t>(index);
+    }
+
+    void setArgumentValue(uint8_t index) {
+        op(Opcode::kSetArgumentValue);
+        emitInt<uint8_t>(index);
+    }
+
+    void pushArgumentObject(uint8_t index) {
+        op(Opcode::kPushArgumentObject);
+        emitInt<uint8_t>(index);
+    }
+
+    void setArgumentObject(uint8_t index) {
+        op(Opcode::kSetArgumentObject);
+        emitInt<uint8_t>(index);
+    }
+
+    void jump(int labelId) {
+        op(Opcode::kJump);
+        emitJumpTarget(labelId);
+    }
+
+    void branchIfTrue(int labelId) {
+        op(Opcode::kBranchIfTrue);
+        emitJumpTarget(labelId);
+    }
+
+    void branchIfFalse(int labelId) {
+        op(Opcode::kBranchIfFalse);
+        emitJumpTarget(labelId);
+    }
+
+    void call(Opcode opcode, uint32_t procedureIndex, uint8_t numVals, uint8_t numObjs) {
+        op(opcode, false);
+        emitInt<uint32_t>(procedureIndex, false);
+        emitInt<uint8_t>(numVals, false);
+        emitInt<uint8_t>(numObjs, false);
+#ifdef DUMP_ASM
+        std::cerr << std::endl
+                  << NAMEOF_ENUM(opcode) << " " << procedureIndex << " " << static_cast<int>(numVals) << " "
+                  << static_cast<int>(numObjs);
+#endif
+    }
+
+    void syscall(Opcode opcode, SystemCall systemCall, uint8_t numVals, uint8_t numObjs) {
+        op(opcode, false);
+        emitInt<uint16_t>(systemCall, false);
+        emitInt<uint8_t>(numVals, false);
+        emitInt<uint8_t>(numObjs, false);
+#ifdef DUMP_ASM
+        std::cerr << std::endl
+                  << NAMEOF_ENUM(opcode) << " " << NAMEOF_ENUM(systemCall) << " " << static_cast<int>(numVals) << " "
+                  << static_cast<int>(numObjs);
+#endif
+    }
+
+    void returnVoid() { op(Opcode::kReturn); }
+
+    void returnValue() { op(Opcode::kReturnValue); }
+
+    void returnObject() { op(Opcode::kReturnObject); }
+
+    void recordNew(uint16_t numVals, uint16_t numObjs) {
+        op(Opcode::kRecordNew);
+        emitInt<uint16_t>(numVals);
+        emitInt<uint16_t>(numObjs);
+    }
+
+    void valueListNew(uint16_t numVals) {
+        op(Opcode::kValueListNew);
+        emitInt<uint16_t>(numVals);
+    }
+
+    void objectListNew(uint16_t numObjs) {
+        op(Opcode::kObjectListNew);
+        emitInt<uint16_t>(numObjs);
+    }
+
+   private:
     template <typename TOutputInt, typename TInputInt>
     void emitInt(TInputInt value, bool log = true) {
         array<uint8_t, sizeof(TOutputInt)> bytes{};
@@ -54,29 +207,6 @@ class ProcedureState {
 #endif
     }
 
-    void syscall(Opcode opcode, SystemCall systemCall, uint8_t numVals, uint8_t numObjs) {
-        op(opcode, false);
-        emitInt<uint16_t>(systemCall, false);
-        emitInt<uint8_t>(numVals, false);
-        emitInt<uint8_t>(numObjs, false);
-#ifdef DUMP_ASM
-        std::cerr << std::endl
-                  << NAMEOF_ENUM(opcode) << " " << NAMEOF_ENUM(systemCall) << " " << static_cast<int>(numVals) << " "
-                  << static_cast<int>(numObjs);
-#endif
-    }
-
-    void pushString(const std::string& str) {
-        op(Opcode::kPushImmediateUtf8, false);
-        emitInt<uint32_t>(str.size(), false);
-        for (auto ch : str) {
-            emitInt<uint8_t>(ch, false);
-        }
-#ifdef DUMP_ASM
-        std::cerr << std::endl << NAMEOF_ENUM(Opcode::kPushImmediateUtf8) << " \"" << str << "\"";
-#endif
-    }
-
     void emitJumpTarget(int labelId) {
         for (auto& label : labels) {
             if (label.labelId == labelId) {
@@ -86,21 +216,6 @@ class ProcedureState {
         }
         jumpFixups.push_back(JumpFixup{ bytecode.size(), labelId });
         emitInt<uint32_t>(0);
-    }
-
-    void label(int labelId) {
-        for (const auto& fixup : jumpFixups) {
-            if (fixup.labelId == labelId) {
-                auto target = static_cast<uint32_t>(bytecode.size());
-                memcpy(&bytecode.at(fixup.bytecodeOffset), &target, sizeof(uint32_t));
-            }
-        }
-        jumpFixups.erase(
-            std::remove_if(
-                jumpFixups.begin(), jumpFixups.end(),
-                [labelId](const JumpFixup& fixup) { return fixup.labelId == labelId; }),
-            jumpFixups.end());
-        labels.push_back(Label{ bytecode.size(), labelId });
     }
 };
 
@@ -174,13 +289,19 @@ static void emitBinaryExpression(const BinaryExpressionNode& expressionNode, Pro
 static void emitSymbolReference(const Node& declarationNode, ProcedureState* state, bool set = false) {
     // local variable
     if (declarationNode.localValueIndex.has_value()) {
-        state->op(set ? Opcode::kSetLocalValue : Opcode::kPushLocalValue);
-        state->emitInt<uint16_t>(*declarationNode.localValueIndex);
+        if (set) {
+            state->setLocalValue(*declarationNode.localValueIndex);
+        } else {
+            state->pushLocalValue(*declarationNode.localValueIndex);
+        }
         return;
     }
     if (declarationNode.localObjectIndex.has_value()) {
-        state->op(set ? Opcode::kSetLocalObject : Opcode::kPushLocalObject);
-        state->emitInt<uint16_t>(*declarationNode.localObjectIndex);
+        if (set) {
+            state->setLocalObject(*declarationNode.localObjectIndex);
+        } else {
+            state->pushLocalObject(*declarationNode.localObjectIndex);
+        }
         return;
     }
 
@@ -188,13 +309,19 @@ static void emitSymbolReference(const Node& declarationNode, ProcedureState* sta
     const auto* parameterNode = dynamic_cast<const ParameterNode*>(&declarationNode);
     if (parameterNode != nullptr) {
         if (parameterNode->argumentValueIndex.has_value()) {
-            state->op(set ? Opcode::kSetArgumentValue : Opcode::kPushArgumentValue);
-            state->emitInt<uint8_t>(*parameterNode->argumentValueIndex);
+            if (set) {
+                state->setArgumentValue(*parameterNode->argumentValueIndex);
+            } else {
+                state->pushArgumentValue(*parameterNode->argumentValueIndex);
+            }
             return;
         }
         if (parameterNode->argumentObjectIndex.has_value()) {
-            state->op(set ? Opcode::kSetArgumentObject : Opcode::kPushArgumentObject);
-            state->emitInt<uint8_t>(*parameterNode->argumentObjectIndex);
+            if (set) {
+                state->setArgumentObject(*parameterNode->argumentObjectIndex);
+            } else {
+                state->pushArgumentObject(*parameterNode->argumentObjectIndex);
+            }
             return;
         }
     }
@@ -204,12 +331,10 @@ static void emitSymbolReference(const Node& declarationNode, ProcedureState* sta
     if (procedureNode != nullptr) {
         assert(!set);
         assert(procedureNode->returnType != nullptr);
-        auto returnsValue = procedureNode->returnType->isValueType();
-        state->op(returnsValue ? Opcode::kCallV : Opcode::kCallO);
         assert(declarationNode.procedureIndex.has_value());
-        state->emitInt<uint32_t>(*declarationNode.procedureIndex);
-        state->emitInt<uint8_t>(0);
-        state->emitInt<uint8_t>(0);
+        state->call(
+            procedureNode->returnType->isValueType() ? Opcode::kCallV : Opcode::kCallO, *declarationNode.procedureIndex,
+            0, 0);
         return;
     }
 }
@@ -244,10 +369,9 @@ static void emitCallExpression(const CallExpressionNode& expressionNode, Procedu
             throw CompilerException("Internal error. Unexpected type.", expressionNode.boundSymbolDeclaration->token);
         }
     } else if (expressionNode.procedureIndex.has_value()) {
-        state->op(returnsValue ? Opcode::kCallV : Opcode::kCallO);
-        state->emitInt<uint32_t>(*expressionNode.procedureIndex);
-        state->emitInt<uint8_t>(numValueArgs);
-        state->emitInt<uint8_t>(numObjectArgs);
+        state->call(
+            returnsValue ? Opcode::kCallV : Opcode::kCallO, *expressionNode.procedureIndex, numValueArgs,
+            numObjectArgs);
     } else if (expressionNode.systemCall.has_value()) {
         state->syscall(
             returnsValue ? Opcode::kSystemCallV : Opcode::kSystemCallO, *expressionNode.systemCall, numValueArgs,
@@ -265,8 +389,15 @@ static void emitLiteralArrayExpression(const LiteralArrayExpressionNode& express
     for (const auto& element : expressionNode.elements) {
         emitExpression(*element, state);
     }
-    state->op(isValueList ? Opcode::kValueListNew : Opcode::kObjectListNew);
-    state->emitInt<uint16_t>(expressionNode.elements.size());
+    auto count = expressionNode.elements.size();
+    if (count > std::numeric_limits<uint16_t>::max()) {
+        throw CompilerException("Too many elements in this literal list.", expressionNode.token);
+    }
+    if (isValueList) {
+        state->valueListNew(static_cast<uint16_t>(count));
+    } else {
+        state->objectListNew(static_cast<uint16_t>(count));
+    }
 }
 
 static void emitLiteralBooleanExpression(
@@ -276,13 +407,7 @@ static void emitLiteralBooleanExpression(
 }
 
 static void emitLiteralNumberExpression(const LiteralNumberExpressionNode& expressionNode, ProcedureState* state) {
-    state->op(Opcode::kPushImmediateDec128);
-    auto triple = expressionNode.value.as_uint128_triple();
-    state->emitInt<uint8_t>(triple.tag);
-    state->emitInt<uint8_t>(triple.sign);
-    state->emitInt<uint64_t>(triple.hi);
-    state->emitInt<uint64_t>(triple.lo);
-    state->emitInt<int64_t>(triple.exp);
+    state->pushImmediateDec128(expressionNode.value);
 }
 
 static void emitLiteralRecordExpression(
@@ -292,7 +417,7 @@ static void emitLiteralRecordExpression(
 }
 
 static void emitLiteralStringExpression(const LiteralStringExpressionNode& expressionNode, ProcedureState* state) {
-    state->pushString(expressionNode.value);
+    state->pushImmediateUtf8(expressionNode.value);
 }
 
 static void emitConstValueExpressionNode(const ConstValueExpressionNode& expressionNode, ProcedureState* state) {
@@ -373,15 +498,18 @@ static void emitCallStatement(const CallStatementNode& statementNode, ProcedureS
     assert(statementNode.procedureIndex.has_value());
     auto numValueArgs = 0;
     auto numObjectArgs = 0;
+    int maxArgs = std::numeric_limits<uint8_t>::max();
     for (const auto& arg : statementNode.arguments) {
         assert(arg->evaluatedType != nullptr);
         arg->evaluatedType->isValueType() ? numValueArgs++ : numObjectArgs++;
         emitExpression(*arg, state);
+        if (numValueArgs > maxArgs || numObjectArgs > maxArgs) {
+            throw CompilerException("Too many arguments in call.", statementNode.token);
+        }
     }
-    state->op(Opcode::kCall);
-    state->emitInt<uint32_t>(*statementNode.procedureIndex);
-    state->emitInt<uint8_t>(numValueArgs);
-    state->emitInt<uint8_t>(numObjectArgs);
+    state->call(
+        Opcode::kCall, *statementNode.procedureIndex, static_cast<uint8_t>(numValueArgs),
+        static_cast<uint8_t>(numObjectArgs));
 }
 
 static void emitConstStatement(const ConstStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
@@ -408,11 +536,9 @@ static void emitDimStatement(const DimStatementNode& statementNode, ProcedureSta
     if (statementNode.value != nullptr) {
         emitExpression(*statementNode.value, state);
         if (statementNode.localValueIndex.has_value()) {
-            state->op(Opcode::kSetLocalValue);
-            state->emitInt<uint16_t>(*statementNode.localValueIndex);
+            state->setLocalValue(*statementNode.localValueIndex);
         } else if (statementNode.localObjectIndex.has_value()) {
-            state->op(Opcode::kSetLocalObject);
-            state->emitInt<uint16_t>(*statementNode.localObjectIndex);
+            state->setLocalObject(*statementNode.localObjectIndex);
         } else {
             throw std::runtime_error("Internal error. No local variable index found!");
         }
@@ -422,10 +548,8 @@ static void emitDimStatement(const DimStatementNode& statementNode, ProcedureSta
     // initialize all value types to 0.
     if (type.isValueType()) {
         assert(statementNode.localValueIndex >= 0);
-        state->op(Opcode::kPushImmediateInt64);
-        state->emitInt<int64_t>(0);
-        state->op(Opcode::kSetLocalValue);
-        state->emitInt<uint16_t>(*statementNode.localValueIndex);
+        state->pushImmediateInt64(0);
+        state->setLocalValue(*statementNode.localValueIndex);
         return;
     }
 
@@ -444,18 +568,17 @@ static void emitDimStatement(const DimStatementNode& statementNode, ProcedureSta
 
         // a DateTimeOffset is a record with two values
         case Kind::kDateTimeOffset:
-            state->op(Opcode::kPushImmediateInt64);
-            state->emitInt<int64_t>(0);
-            state->op(Opcode::kPushImmediateInt64);
-            state->emitInt<int64_t>(0);
-            state->op(Opcode::kRecordNew);
-            state->emitInt<uint16_t>(2);
-            state->emitInt<uint16_t>(0);
+            state->pushImmediateInt64(0);
+            state->pushImmediateInt64(0);
+            state->recordNew(2, 0);
             break;
 
         case Kind::kList:
-            state->op(type.listItemType->isValueType() ? Opcode::kValueListNew : Opcode::kObjectListNew);
-            state->emitInt<uint16_t>(0);
+            if (type.listItemType->isValueType()) {
+                state->valueListNew(0);
+            } else {
+                state->objectListNew(0);
+            }
             break;
 
         case Kind::kMap: {
@@ -489,11 +612,11 @@ static void emitDimStatement(const DimStatementNode& statementNode, ProcedureSta
             throw std::runtime_error("not impl");
 
         case Kind::kString:
-            state->pushString("");
+            state->pushImmediateUtf8("");
             break;
 
         case Kind::kTimeZone:
-            state->pushString("UTC");
+            state->pushImmediateUtf8("UTC");
             state->syscall(Opcode::kSystemCallO, SystemCall::kTimeZoneFromName, 0, 1);
             break;
 
@@ -501,8 +624,7 @@ static void emitDimStatement(const DimStatementNode& statementNode, ProcedureSta
             throw std::runtime_error("Unknown Kind");
     }
 
-    state->op(Opcode::kSetLocalObject);
-    state->emitInt<uint16_t>(*statementNode.localValueIndex);
+    state->setLocalObject(*statementNode.localValueIndex);
 }
 
 static void emitDoStatement(const DoStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
@@ -517,8 +639,59 @@ static void emitForEachStatement(const ForEachStatementNode& /*statementNode*/, 
     throw std::runtime_error("not impl");
 }
 
-static void emitForStatement(const ForStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
-    throw std::runtime_error("not impl");
+static void emitForStatement(const ForStatementNode& statementNode, ProcedureState* state) {
+    // we need two local temp variables
+    assert(statementNode.getTempLocalValueCount() == 2);
+    assert(statementNode.tempLocalValueIndex.has_value());
+    auto toLocalValueIndex = *statementNode.tempLocalValueIndex;
+    auto stepLocalValueIndex = toLocalValueIndex + 1;
+
+    // plus the loop counter variable which is user-visible
+    assert(statementNode.localValueIndex.has_value());
+    auto counterLocalValueIndex = *statementNode.localValueIndex;
+
+    // evaluate the fromValue and store in the counter variable
+    emitExpression(*statementNode.fromValue, state);
+    state->setLocalValue(counterLocalValueIndex);
+
+    // evaluate the toValue and store in a temp variable
+    emitExpression(*statementNode.toValue, state);
+    state->setLocalValue(toLocalValueIndex);
+
+    // evaluate the step value and store in a temp variable
+    if (statementNode.step == nullptr) {
+        state->pushImmediateInt64(1);
+    } else {
+        emitExpression(*statementNode.step, state);
+    }
+    state->setLocalValue(stepLocalValueIndex);
+
+    // loop begins here
+    auto topLabel = state->labelId();
+    auto endLabel = state->labelId();
+    state->label(topLabel);
+
+    // if the loop variable is beyond toValue, then jump to endLabel
+    state->pushLocalValue(counterLocalValueIndex);
+    state->pushLocalValue(toLocalValueIndex);
+    state->pushLocalValue(stepLocalValueIndex);
+    state->syscall(Opcode::kSystemCallV, SystemCall::kCounterIsPastLimit, 3, 0);
+    state->branchIfTrue(endLabel);
+
+    // loop body
+    emitBody(*statementNode.body, state);
+
+    // increment the counter by the step
+    state->pushLocalValue(counterLocalValueIndex);
+    state->pushLocalValue(stepLocalValueIndex);
+    state->syscall(Opcode::kSystemCallV, SystemCall::kNumberAdd, 2, 0);
+    state->setLocalValue(counterLocalValueIndex);
+
+    // jump to topLabel
+    state->jump(topLabel);
+
+    // we will jump here when the loop is done
+    state->label(endLabel);
 }
 
 static void emitGroupStatement(const GroupStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
@@ -529,20 +702,16 @@ static void emitIfStatement(const IfStatementNode& statementNode, ProcedureState
     emitExpression(*statementNode.condition, state);
     auto elseIfsLabel = state->labelId();
     auto endIfLabel = state->labelId();
-    state->op(Opcode::kBranchIfFalse);
-    state->emitJumpTarget(elseIfsLabel);
+    state->branchIfFalse(elseIfsLabel);
     emitBody(*statementNode.body, state);
-    state->op(Opcode::kJump);
-    state->emitJumpTarget(endIfLabel);
+    state->jump(endIfLabel);
     state->label(elseIfsLabel);
     for (const auto& elseIf : statementNode.elseIfs) {
         auto endElseIfLabel = state->labelId();
         emitExpression(*elseIf->condition, state);
-        state->op(Opcode::kBranchIfFalse);
-        state->emitJumpTarget(endElseIfLabel);
+        state->branchIfFalse(endElseIfLabel);
         emitBody(*elseIf->body, state);
-        state->op(Opcode::kJump);
-        state->emitJumpTarget(endIfLabel);
+        state->jump(endIfLabel);
         state->label(endElseIfLabel);
     }
     if (statementNode.elseBody != nullptr) {
@@ -563,7 +732,11 @@ static void emitReturnStatement(const ReturnStatementNode& statementNode, Proced
     assert(statementNode.expression->evaluatedType != nullptr);
     emitExpression(*statementNode.expression, state);
     auto isValue = statementNode.expression->evaluatedType->isValueType();
-    state->op(isValue ? Opcode::kReturnValue : Opcode::kReturnObject);
+    if (isValue) {
+        state->returnValue();
+    } else {
+        state->returnObject();
+    }
 }
 
 static void emitSelectCaseStatement(const SelectCaseStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
@@ -622,7 +795,7 @@ static void emitPrintStatement(const PrintStatementNode& statementNode, Procedur
     }
 
     if (!statementNode.trailingSemicolon) {
-        state->pushString("\n");
+        state->pushImmediateUtf8("\n");
         state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
     }
 
@@ -730,11 +903,13 @@ vector<uint8_t> emit(const ProcedureNode& procedureNode, int numLocalValues, int
     std::cerr << "--start of emit--";
 #endif
     ProcedureState state;
-    state.op(Opcode::kInitLocals);
-    state.emitInt<uint16_t>(numLocalValues);
-    state.emitInt<uint16_t>(numLocalObjects);
+    int maxLocals = std::numeric_limits<uint16_t>::max();
+    if (numLocalValues > maxLocals || numLocalObjects > maxLocals) {
+        throw CompilerException("Too many local variables.", procedureNode.token);
+    }
+    state.initLocals(static_cast<uint16_t>(numLocalValues), static_cast<uint16_t>(numLocalObjects));
     emitBody(*procedureNode.body, &state);
-    state.op(Opcode::kReturn);
+    state.returnVoid();
 #ifdef DUMP_ASM
     std::cerr << std::endl << "--end of emit--" << std::endl;
 #endif

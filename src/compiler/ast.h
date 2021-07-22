@@ -49,8 +49,8 @@ class Node {
     boost::local_shared_ptr<TypeNode> evaluatedType = nullptr;  // set during type checking
 
     // local variable symbol reference nodes
-    std::optional<int> localValueIndex{};
-    std::optional<int> localObjectIndex{};
+    std::optional<uint16_t> localValueIndex{};
+    std::optional<uint16_t> localObjectIndex{};
 };
 
 //
@@ -356,7 +356,14 @@ enum class StatementType {
 class StatementNode : public Node {
    public:
     explicit StatementNode(Token token);
+
+    // added during compilation
+    std::optional<size_t> tempLocalValueIndex{};
+    std::optional<size_t> tempLocalObjectIndex{};
+
     virtual StatementType getStatementType() const = 0;
+    virtual int getTempLocalValueCount() const;
+    virtual int getTempLocalObjectCount() const;
 };
 
 class AssignLocationSuffixNode : public Node {
@@ -533,28 +540,18 @@ class ForEachStatementNode : public StatementNode {
     StatementType getStatementType() const override;
 };
 
-class ForStepNode : public Node {
-   public:
-    std::optional<decimal::Decimal> stepImmediate;
-    std::unique_ptr<SymbolReferenceExpressionNode> stepConstant;  // may be null
-    ForStepNode(decimal::Decimal stepImmediate, Token token);
-    ForStepNode(std::unique_ptr<SymbolReferenceExpressionNode> stepConstant, Token token);
-    void dump(std::ostringstream& s, int n) const override;
-    bool visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const override;
-};
-
 class ForStatementNode : public StatementNode {
    public:
     std::string loopVariableName;
     std::unique_ptr<ExpressionNode> fromValue;
     std::unique_ptr<ExpressionNode> toValue;
-    std::unique_ptr<ForStepNode> step;  // may be null
+    std::unique_ptr<ExpressionNode> step;  // may be null
     std::unique_ptr<BodyNode> body;
     ForStatementNode(
         std::string loopVariableName,
         std::unique_ptr<ExpressionNode> fromValue,
         std::unique_ptr<ExpressionNode> toValue,
-        std::unique_ptr<ForStepNode> step,
+        std::unique_ptr<ExpressionNode> step,
         std::unique_ptr<BodyNode> body,
         Token token);
     void dump(std::ostringstream& s, int n) const override;
@@ -563,6 +560,7 @@ class ForStatementNode : public StatementNode {
     bool visitBodies(const VisitBodyFunc& func) const override;
     bool visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const override;
     StatementType getStatementType() const override;
+    int getTempLocalValueCount() const override;
 
    private:
     mutable boost::local_shared_ptr<TypeNode> _type = nullptr;  // set by getSymbolDeclarationType(); always Number
