@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../common.h"
+#include "../util/decimal.h"
 
 namespace vm {
 
@@ -13,6 +14,7 @@ struct Value {
     inline void setBoolean(bool value) { num = value ? 1 : 0; }
     inline int32_t getInt32() const { return num.floor().i32(); }
     inline int64_t getInt64() const { return num.floor().i64(); }
+    inline double getDouble() const { return util::decimalToDouble(num); }
     bool operator==(const Value& rhs) const;
     std::size_t getHash() const;
 };

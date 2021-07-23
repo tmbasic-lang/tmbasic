@@ -171,6 +171,20 @@ static void systemCallDateTimeOffsetFromParts(const SystemCallInput& input, Syst
     result->returnedObject = newDateTimeOffset(dateTime, offset);
 }
 
+static void systemCallDateToString(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& date = input.getValue(-1);
+    result->returnedObject = dateToString(date);
+}
+
+static void systemCallDateTimeToString(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& dateTime = input.getValue(-1);
+    result->returnedObject = dateTimeToString(dateTime);
+}
+
+static void systemCallDateTimeOffsetToString(const SystemCallInput& input, SystemCallResult* result) {
+    throw std::runtime_error("not impl");
+}
+
 static void systemCallHasValueV(const SystemCallInput& input, SystemCallResult* result) {
     const auto& opt = dynamic_cast<const ValueOptional&>(input.getObject(-1));
     result->returnedValue.setBoolean(opt.item.has_value());
@@ -274,6 +288,9 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kDateFromParts, systemCallDateFromParts);
     initSystemCall(SystemCall::kDateTimeFromParts, systemCallDateTimeFromParts);
     initSystemCall(SystemCall::kDateTimeOffsetFromParts, systemCallDateTimeOffsetFromParts);
+    initSystemCall(SystemCall::kDateToString, systemCallDateToString);
+    initSystemCall(SystemCall::kDateTimeToString, systemCallDateTimeToString);
+    initSystemCall(SystemCall::kDateTimeOffsetToString, systemCallDateTimeOffsetToString);
     initSystemCall(SystemCall::kDays, [](const auto& input, auto* result) {
         result->returnedValue.num = input.getValue(-1).num * U_MILLIS_PER_DAY;
     });

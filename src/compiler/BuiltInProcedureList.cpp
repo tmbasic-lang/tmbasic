@@ -52,9 +52,16 @@ ProcedureNode* BuiltInProcedureList::addFunction(
 BuiltInProcedureList::BuiltInProcedureList() {
     auto number = boost::make_local_shared<TypeNode>(Kind::kNumber, Token{});
     auto string = boost::make_local_shared<TypeNode>(Kind::kString, Token{});
+    auto date = boost::make_local_shared<TypeNode>(Kind::kDate, Token{});
+    auto dateTime = boost::make_local_shared<TypeNode>(Kind::kDateTime, Token{});
     auto listOfString = boost::make_local_shared<TypeNode>(Kind::kList, Token{}, string);
 
     addFunction("Chr", { "input" }, { number }, string, vm::SystemCall::kChr);
+    addFunction(
+        "DateFromParts", { "year", "month", "day" }, { number, number, number }, date, vm::SystemCall::kDateFromParts);
+    addFunction(
+        "DateTimeFromParts", { "year", "month", "day", "hour", "minute", "second", "millisecond" },
+        { number, number, number, number, number, number, number }, dateTime, vm::SystemCall::kDateTimeFromParts);
 }
 
 const std::vector<std::unique_ptr<ProcedureNode>>& BuiltInProcedureList::get(const std::string& name) {

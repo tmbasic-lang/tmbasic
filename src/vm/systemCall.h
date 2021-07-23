@@ -17,6 +17,9 @@ enum class SystemCall {
     kDateFromParts,             // DateFromParts(year as Number, month as Number, day as Number) as Date
     kDateTimeFromParts,         // DateFromParts(year as Number, ...) as DateTime
     kDateTimeOffsetFromParts,   // DateOffsetFromParts(year as Number, ..., timeZone as TimeZone) as DateTimeOffset
+    kDateToString,              // DateToString(date as Date) as String
+    kDateTimeToString,          // DateTimeToString(dateTime as DateTime) as String
+    kDateTimeOffsetToString,    // DateTimeOffsetToString(dateTimeOffset as DateTimeOffset) as String
     kDays,                      // Days(count as Number) as TimeSpan
     kFlushConsoleOutput,        // FlushConsoleOutput()
     kHasValueO,                 // HasValue(input as Optional Object) as Boolean
