@@ -50,6 +50,7 @@ enum class SystemCall {
     kPrintString,               // PrintString(input as String)
     kSeconds,                   // Seconds(count as Number) as TimeSpan
     kTimeZoneFromName,          // TimeZoneFromName(name as String) as TimeZone
+    kTimeZoneToString,          // TimeZoneToString(timeZone as TimeZone) as String
     kTotalDays,                 // TotalDays(span as TimeSpan) as Number
     kTotalHours,                // TotalHours(span as TimeSpan) as Number
     kTotalMilliseconds,         // TotalMilliseconds(span as TimeSpan) as Number

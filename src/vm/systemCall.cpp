@@ -362,6 +362,12 @@ void initSystemCalls() {
         result->returnedValue.num = input.getValue(-1).num * U_MILLIS_PER_SECOND;
     });
     initSystemCall(SystemCall::kTimeZoneFromName, systemCallTimeZoneFromName);
+    initSystemCall(SystemCall::kTimeZoneToString, [](const auto& input, auto* result) {
+        const auto& timeZone = dynamic_cast<const TimeZone&>(input.getObject(-1));
+        icu::UnicodeString name{};
+        timeZone.zone->getDisplayName(name);
+        result->returnedObject = boost::make_local_shared<String>(std::move(name));
+    });
     initSystemCall(SystemCall::kTotalDays, [](const auto& input, auto* result) {
         result->returnedValue.num = input.getValue(-1).num / U_MILLIS_PER_DAY;
     });
