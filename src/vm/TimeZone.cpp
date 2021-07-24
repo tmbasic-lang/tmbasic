@@ -22,7 +22,7 @@ bool TimeZone::equals(const Object& other) const {
 }
 
 decimal::Decimal TimeZone::getUtcOffset(const decimal::Decimal& dateTime) const {
-    UDate udate = util::decimalToDouble(dateTime);
+    UDate udate = dateTime.floor().i64();
     int32_t rawOffset = 0;
     int32_t dstOffset = 0;
     auto icuError = U_ZERO_ERROR;

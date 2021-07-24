@@ -12,5 +12,6 @@ Value newDateTime(int year, int month, int day, int hour, int minute, int second
 boost::local_shared_ptr<Record> newDateTimeOffset(const Value& dateTime, const Value& timeSpan);
 boost::local_shared_ptr<String> dateToString(const Value& date);
 boost::local_shared_ptr<String> dateTimeToString(const Value& date);
+boost::local_shared_ptr<String> dateTimeOffsetToString(const Record& date);
 
 }  // namespace vm

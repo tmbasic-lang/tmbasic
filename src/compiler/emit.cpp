@@ -811,7 +811,9 @@ static void emitPrintStatement(const PrintStatementNode& statementNode, Procedur
                 state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
                 break;
             case Kind::kDateTimeOffset:
-                throw std::runtime_error("not impl");
+                state->syscall(Opcode::kSystemCallO, SystemCall::kDateTimeOffsetToString, 0, 1);
+                state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
+                break;
             case Kind::kTimeSpan:
                 throw std::runtime_error("not impl");
             case Kind::kTimeZone:

@@ -167,7 +167,7 @@ static void systemCallDateTimeOffsetFromParts(const SystemCallInput& input, Syst
     auto millisecond = input.getValue(-1).getInt32();
     const auto& timeZone = dynamic_cast<const TimeZone&>(input.getObject(-1));
     auto dateTime = newDateTime(year, month, day, hour, minute, second, millisecond);
-    auto offset = Value(timeZone.getUtcOffset(dateTime.num));
+    Value offset{ timeZone.getUtcOffset(dateTime.num) };
     result->returnedObject = newDateTimeOffset(dateTime, offset);
 }
 
@@ -182,7 +182,8 @@ static void systemCallDateTimeToString(const SystemCallInput& input, SystemCallR
 }
 
 static void systemCallDateTimeOffsetToString(const SystemCallInput& input, SystemCallResult* result) {
-    throw std::runtime_error("not impl");
+    const auto& date = dynamic_cast<const Record&>(input.getObject(-1));
+    result->returnedObject = dateTimeOffsetToString(date);
 }
 
 static void systemCallHasValueV(const SystemCallInput& input, SystemCallResult* result) {
