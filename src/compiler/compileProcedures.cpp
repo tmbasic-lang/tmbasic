@@ -1,4 +1,5 @@
 #include "compileProcedures.h"
+#include "BuiltInProcedureList.h"
 #include "CompilerException.h"
 #include "bindProcedureSymbols.h"
 #include "emit.h"
@@ -100,10 +101,11 @@ static void compileProcedure(
     const SourceProgram& sourceProgram,
     CompiledProgram* compiledProgram,
     CompiledProcedure* compiledProcedure,
-    SymbolScope* globalSymbolScope) {
+    SymbolScope* globalSymbolScope,
+    const BuiltInProcedureList& builtInProcedures) {
     auto* procedureNode = compiledProcedure->procedureNode.get();
     bindProcedureSymbols(globalSymbolScope, procedureNode);
-    typeCheck(procedureNode, sourceProgram, compiledProgram);
+    typeCheck(procedureNode, sourceProgram, compiledProgram, builtInProcedures);
     int numLocalValues = 0;
     int numLocalObjects = 0;
     assignLocalVariableIndices(procedureNode, &numLocalValues, &numLocalObjects);
@@ -129,6 +131,7 @@ void assignProcedureIndices(const SourceProgram& sourceProgram, CompiledProgram*
 }
 
 void compileProcedures(const SourceProgram& sourceProgram, CompiledProgram* compiledProgram) {
+    BuiltInProcedureList builtInProcedures{};
     SymbolScope globalSymbolScope{ *compiledProgram };
 
     assignProcedureIndices(sourceProgram, compiledProgram);
@@ -165,9 +168,17 @@ void compileProcedures(const SourceProgram& sourceProgram, CompiledProgram* comp
         globalSymbolScope.addSymbol(compiledProcedure->procedureNode.get());
     }
 
+    // add symbols to the global scope for system calls
+    for (auto& builtInProcedureGroup : builtInProcedures.map) {
+        for (auto& builtInProcedure : *builtInProcedureGroup.second) {
+            globalSymbolScope.addSymbol(builtInProcedure.get());
+        }
+    }
+
     // compile each procedure
     for (auto& compiledProcedure : compiledProgram->procedures) {
-        compileProcedure(sourceProgram, compiledProgram, compiledProcedure.get(), &globalSymbolScope);
+        compileProcedure(
+            sourceProgram, compiledProgram, compiledProcedure.get(), &globalSymbolScope, builtInProcedures);
     }
 
     compiledProgram->vmProgram.startupProcedureIndex = *mainProcedureIndex;

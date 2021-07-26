@@ -9,11 +9,14 @@ class TypeCheckState {
    public:
     const SourceProgram& sourceProgram;
     CompiledProgram* compiledProgram;
-    BuiltInProcedureList builtInProcedures{};
+    const BuiltInProcedureList& builtInProcedures{};
     boost::local_shared_ptr<TypeNode> typeBoolean{ boost::make_local_shared<TypeNode>(Kind::kBoolean, Token{}) };
     boost::local_shared_ptr<TypeNode> typeNumber{ boost::make_local_shared<TypeNode>(Kind::kNumber, Token{}) };
-    TypeCheckState(const SourceProgram& sourceProgram, CompiledProgram* compiledProgram)
-        : sourceProgram(sourceProgram), compiledProgram(compiledProgram) {}
+    TypeCheckState(
+        const SourceProgram& sourceProgram,
+        CompiledProgram* compiledProgram,
+        const BuiltInProcedureList& builtInProcedures)
+        : sourceProgram(sourceProgram), compiledProgram(compiledProgram), builtInProcedures(builtInProcedures) {}
 };
 
 static void typeCheckExpression(ExpressionNode* expressionNode, TypeCheckState* state);
@@ -459,8 +462,12 @@ static void typeCheckBody(BodyNode* bodyNode, TypeCheckState* state) {
     }
 }
 
-void typeCheck(ProcedureNode* procedureNode, const SourceProgram& sourceProgram, CompiledProgram* compiledProgram) {
-    TypeCheckState state{ sourceProgram, compiledProgram };
+void typeCheck(
+    ProcedureNode* procedureNode,
+    const SourceProgram& sourceProgram,
+    CompiledProgram* compiledProgram,
+    const BuiltInProcedureList& builtInProcedures) {
+    TypeCheckState state{ sourceProgram, compiledProgram, builtInProcedures };
     return typeCheckBody(procedureNode->body.get(), &state);
 }
 

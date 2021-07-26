@@ -105,6 +105,7 @@ ls src/test/programs/CompilerTest | grep "\.bas$" | xargs -n 1 basename | sed "s
 awk '{ print "COMPILER_TEST(" $1 ")" }'
 */
 
+COMPILER_TEST(AvailableTimeZones)
 COMPILER_TEST(Chr)
 COMPILER_TEST(DateFromParts)
 COMPILER_TEST(DateTimeFromParts)

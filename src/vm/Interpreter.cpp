@@ -259,6 +259,7 @@ bool Interpreter::run(int maxCycles) {
                 auto src = readInt<uint16_t>(instructions, &instructionIndex);
                 auto& callFrame = _private->callStack.top();
                 auto obj = objectStack->at(callFrame.osiLocalsStart + src);
+                assert(obj != nullptr);
                 pushObject(objectStack, &osi, std::move(obj));
                 break;
             }
@@ -346,6 +347,7 @@ bool Interpreter::run(int maxCycles) {
                     pushValue(valueStack, &vsi, result.returnedValue);
                 }
                 if (returnsObject) {
+                    assert(result.returnedObject != nullptr);
                     pushObject(objectStack, &osi, std::move(result.returnedObject));
                 }
                 if (result.hasError) {

@@ -34,7 +34,9 @@ const Value& SystemCallInput::getValue(const int vsiOffset) const {
 }
 
 const Object& SystemCallInput::getObject(const int osiOffset) const {
-    return *objectStack.at(objectStackIndex + osiOffset);
+    auto& ptr = objectStack.at(objectStackIndex + osiOffset);
+    assert(ptr != nullptr);
+    return *ptr;
 }
 
 boost::local_shared_ptr<Object> SystemCallInput::getObjectPtr(const int osiOffset) const {
@@ -220,6 +222,7 @@ static void systemCallObjectListGet(const SystemCallInput& input, SystemCallResu
     const auto& objectList = dynamic_cast<const ObjectList&>(input.getObject(-1));
     const auto& index = input.getValue(-1).getInt64();
     result->returnedObject = objectList.items.at(index);
+    assert(result->returnedObject != nullptr);
 }
 
 static void systemCallObjectListLength(const SystemCallInput& input, SystemCallResult* result) {

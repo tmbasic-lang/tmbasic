@@ -1,10 +1,15 @@
 #pragma once
 
 #include "../common.h"
-#include "compiler/ast.h"
+#include "ast.h"
+#include "BuiltInProcedureList.h"
 
 namespace compiler {
 
-void typeCheck(ProcedureNode* procedureNode, const SourceProgram& sourceProgram, CompiledProgram* compiledProgram);
+void typeCheck(
+    ProcedureNode* procedureNode,
+    const SourceProgram& sourceProgram,
+    CompiledProgram* compiledProgram,
+    const BuiltInProcedureList& builtInProcedures);
 
 };  // namespace compiler

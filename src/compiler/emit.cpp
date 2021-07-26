@@ -331,10 +331,13 @@ static void emitSymbolReference(const Node& declarationNode, ProcedureState* sta
     if (procedureNode != nullptr) {
         assert(!set);
         assert(procedureNode->returnType != nullptr);
-        assert(declarationNode.procedureIndex.has_value());
-        state->call(
-            procedureNode->returnType->isValueType() ? Opcode::kCallV : Opcode::kCallO, *declarationNode.procedureIndex,
-            0, 0);
+        auto returnsValue = procedureNode->returnType->isValueType();
+        if (declarationNode.procedureIndex.has_value()) {
+            state->call(returnsValue ? Opcode::kCallV : Opcode::kCallO, *declarationNode.procedureIndex, 0, 0);
+        } else if (declarationNode.systemCall.has_value()) {
+            state->syscall(
+                returnsValue ? Opcode::kSystemCallV : Opcode::kSystemCallO, *declarationNode.systemCall, 0, 0);
+        }
         return;
     }
 

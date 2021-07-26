@@ -4,14 +4,14 @@ namespace compiler {
 
 std::vector<std::unique_ptr<ProcedureNode>>* BuiltInProcedureList::findOrCreateVector(
     const std::string& lowercaseName) {
-    auto it = _map.find(lowercaseName);
-    if (it != _map.end()) {
+    auto it = map.find(lowercaseName);
+    if (it != map.end()) {
         return it->second.get();
     }
 
     auto procedureNode = std::make_unique<std::vector<std::unique_ptr<ProcedureNode>>>();
     auto* procedureNodePtr = procedureNode.get();
-    _map.insert(std::pair(lowercaseName, std::move(procedureNode)));
+    map.insert(std::pair(lowercaseName, std::move(procedureNode)));
     return procedureNodePtr;
 }
 
@@ -61,6 +61,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     auto listGeneric = boost::make_local_shared<TypeNode>(Kind::kList, Token{});
 
     addFunction("Chr", { "input" }, { number }, string, vm::SystemCall::kChr);
+    addFunction("AvailableTimeZones", {}, {}, listOfString, vm::SystemCall::kAvailableTimeZones);
     addFunction(
         "DateFromParts", { "year", "month", "day" }, { number, number, number }, date, vm::SystemCall::kDateFromParts);
     addFunction(
@@ -85,10 +86,10 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("TotalSeconds", { "timeSpan" }, { timeSpan }, number, vm::SystemCall::kTotalSeconds);
 }
 
-const std::vector<std::unique_ptr<ProcedureNode>>& BuiltInProcedureList::get(const std::string& name) {
+const std::vector<std::unique_ptr<ProcedureNode>>& BuiltInProcedureList::get(const std::string& name) const {
     auto lowercaseName = boost::to_lower_copy(name);
-    auto result = _map.find(lowercaseName);
-    return result == _map.end() ? _empty : *result->second;
+    auto result = map.find(lowercaseName);
+    return result == map.end() ? _empty : *result->second;
 }
 
 }  // namespace compiler

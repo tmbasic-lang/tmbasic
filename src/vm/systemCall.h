@@ -9,7 +9,7 @@ namespace vm {
 
 enum class SystemCall {
     kAvailableLocales,          // AvailableLocales() as List of String
-    kAvailableTimeZones,        // AvailableTimeZones() as List of TimeZone
+    kAvailableTimeZones,        // AvailableTimeZones() as List of String
     kCharacters1,               // Characters(input as String) as List of String
     kCharacters2,               // Characters(input as String, locale as String) as List of String
     kChr,                       // Chr(input as Number) as String

@@ -6,9 +6,14 @@
 namespace compiler {
 
 class BuiltInProcedureList {
+   public:
+    BuiltInProcedureList();
+    const std::vector<std::unique_ptr<ProcedureNode>>& get(const std::string& name) const;
+
+    std::unordered_map<std::string, std::unique_ptr<std::vector<std::unique_ptr<ProcedureNode>>>> map{};
+
    private:
     std::vector<std::unique_ptr<ProcedureNode>> _empty{};
-    std::unordered_map<std::string, std::unique_ptr<std::vector<std::unique_ptr<ProcedureNode>>>> _map{};
 
     std::vector<std::unique_ptr<ProcedureNode>>* findOrCreateVector(const std::string& lowercaseName);
 
@@ -24,10 +29,6 @@ class BuiltInProcedureList {
         std::initializer_list<boost::local_shared_ptr<TypeNode>> parameterTypes,
         boost::local_shared_ptr<TypeNode> returnType,
         vm::SystemCall systemCall);
-
-   public:
-    BuiltInProcedureList();
-    const std::vector<std::unique_ptr<ProcedureNode>>& get(const std::string& name);
 };
 
 }  // namespace compiler
