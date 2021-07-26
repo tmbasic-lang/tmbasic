@@ -16,8 +16,13 @@ class ListBuilder {
 using ObjectListBuilder = ListBuilder<boost::local_shared_ptr<Object>>;
 using ValueListBuilder = ListBuilder<Value>;
 
+class ListBase : public Object {
+   public:
+    virtual size_t size() const = 0;
+};
+
 template <typename TElement, ObjectType K>
-class List : public Object {
+class List : public ListBase {
    public:
     const immer::vector<TElement> items = {};
 
@@ -56,6 +61,8 @@ class List : public Object {
         }
         return true;
     }
+
+    size_t size() const override { return items.size(); }
 
    private:
     static immer::vector<TElement> removeAt(const immer::vector<TElement>& source, size_t removeIndex) {

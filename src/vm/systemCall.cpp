@@ -301,7 +301,9 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kHasValueV, systemCallHasValueV);
     initSystemCall(SystemCall::kHours, systemCallHours);
     initSystemCall(SystemCall::kInputString, systemCallInputString);
-    initSystemCall(SystemCall::kLen, systemCallLen);
+    initSystemCall(SystemCall::kListLen, [](const auto& input, auto* result) {
+        result->returnedValue.num = dynamic_cast<const ListBase&>(input.getObject(-1)).size();
+    });
     initSystemCall(SystemCall::kMilliseconds, [](const auto& input, auto* result) {
         result->returnedValue = input.getValue(-1);  // already in milliseconds!
     });
@@ -362,6 +364,7 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kSeconds, [](const auto& input, auto* result) {
         result->returnedValue.num = input.getValue(-1).num * U_MILLIS_PER_SECOND;
     });
+    initSystemCall(SystemCall::kStringLen, systemCallLen);
     initSystemCall(SystemCall::kTimeZoneFromName, systemCallTimeZoneFromName);
     initSystemCall(SystemCall::kTimeZoneToString, [](const auto& input, auto* result) {
         const auto& timeZone = dynamic_cast<const TimeZone&>(input.getObject(-1));

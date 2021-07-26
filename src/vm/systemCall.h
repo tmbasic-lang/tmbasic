@@ -17,16 +17,16 @@ enum class SystemCall {
     kDateFromParts,             // DateFromParts(year as Number, month as Number, day as Number) as Date
     kDateTimeFromParts,         // DateFromParts(year as Number, ...) as DateTime
     kDateTimeOffsetFromParts,   // DateOffsetFromParts(year as Number, ..., timeZone as TimeZone) as DateTimeOffset
-    kDateToString,              // DateToString(date as Date) as String
-    kDateTimeToString,          // DateTimeToString(dateTime as DateTime) as String
     kDateTimeOffsetToString,    // DateTimeOffsetToString(dateTimeOffset as DateTimeOffset) as String
+    kDateTimeToString,          // DateTimeToString(dateTime as DateTime) as String
+    kDateToString,              // DateToString(date as Date) as String
     kDays,                      // Days(count as Number) as TimeSpan
     kFlushConsoleOutput,        // FlushConsoleOutput()
     kHasValueO,                 // HasValue(input as Optional Object) as Boolean
     kHasValueV,                 // HasValue(input as Optional Value) as Boolean
     kHours,                     // Hours(count as Number) as TimeSpan
     kInputString,               // InputString() as String
-    kLen,                       // Len(input as String) as Number
+    kListLen,                   // ListLen(input as List) as Number
     kMilliseconds,              // Milliseconds(count as Number) as TimeSpan
     kMinutes,                   // Minutes(count as Number) as TimeSpan
     kNumberAdd,                 // NumberAdd(lhs as Number, rhs as Number) as Number
@@ -49,6 +49,7 @@ enum class SystemCall {
     kObjectToValueMapNew,       // ObjectToValueMapNew() as ObjectToValueMap
     kPrintString,               // PrintString(input as String)
     kSeconds,                   // Seconds(count as Number) as TimeSpan
+    kStringLen,                 // Len(input as String) as Number
     kTimeZoneFromName,          // TimeZoneFromName(name as String) as TimeZone
     kTimeZoneToString,          // TimeZoneToString(timeZone as TimeZone) as String
     kTotalDays,                 // TotalDays(span as TimeSpan) as Number

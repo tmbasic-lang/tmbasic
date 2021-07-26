@@ -228,6 +228,10 @@ bool TypeNode::canImplicitlyConvertTo(const TypeNode& target) const {
             return true;
 
         case Kind::kList:
+            if (target.listItemType == nullptr) {
+                // target is a generic list, any source list item type is acceptable
+                return true;
+            }
             return listItemType->canImplicitlyConvertTo(*target.listItemType);
 
         case Kind::kMap:
