@@ -53,11 +53,11 @@ enum class SystemCall {
     kTimeSpanToString,          // TimeSpanToString(timeSpan as TimeSpan) as String
     kTimeZoneFromName,          // TimeZoneFromName(name as String) as TimeZone
     kTimeZoneToString,          // TimeZoneToString(timeZone as TimeZone) as String
-    kTotalDays,                 // TotalDays(span as TimeSpan) as Number
-    kTotalHours,                // TotalHours(span as TimeSpan) as Number
-    kTotalMilliseconds,         // TotalMilliseconds(span as TimeSpan) as Number
-    kTotalMinutes,              // TotalMinutes(span as TimeSpan) as Number
-    kTotalSeconds,              // TotalSeconds(span as TimeSpan) as Number
+    kTotalDays,                 // TotalDays(timeSpan as TimeSpan) as Number
+    kTotalHours,                // TotalHours(timeSpan as TimeSpan) as Number
+    kTotalMilliseconds,         // TotalMilliseconds(timeSpan as TimeSpan) as Number
+    kTotalMinutes,              // TotalMinutes(timeSpan as TimeSpan) as Number
+    kTotalSeconds,              // TotalSeconds(timeSpan as TimeSpan) as Number
     kUtcOffset,                 // UtcOffset(timeZone as TimeZone, dateTime as DateTime) as TimeSpan
     kValueListGet,              // ValueListGet(input as ValueList, index as Number) as Value
     kValueO,                    // ValueO(input as Optional Object) as Boolean

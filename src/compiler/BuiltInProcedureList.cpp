@@ -78,6 +78,11 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("Minutes", { "count" }, { number }, timeSpan, vm::SystemCall::kMinutes);
     addFunction("Seconds", { "count" }, { number }, timeSpan, vm::SystemCall::kSeconds);
     addFunction("TimeZoneFromName", { "name" }, { string }, timeZone, vm::SystemCall::kTimeZoneFromName);
+    addFunction("TotalDays", { "timeSpan" }, { timeSpan }, number, vm::SystemCall::kTotalDays);
+    addFunction("TotalHours", { "timeSpan" }, { timeSpan }, number, vm::SystemCall::kTotalHours);
+    addFunction("TotalMilliseconds", { "timeSpan" }, { timeSpan }, number, vm::SystemCall::kTotalMilliseconds);
+    addFunction("TotalMinutes", { "timeSpan" }, { timeSpan }, number, vm::SystemCall::kTotalMinutes);
+    addFunction("TotalSeconds", { "timeSpan" }, { timeSpan }, number, vm::SystemCall::kTotalSeconds);
 }
 
 const std::vector<std::unique_ptr<ProcedureNode>>& BuiltInProcedureList::get(const std::string& name) {
