@@ -127,4 +127,16 @@ boost::local_shared_ptr<String> dateTimeOffsetToString(const Record& date) {
     return boost::make_local_shared<String>(ss.str());
 }
 
+boost::local_shared_ptr<String> timeSpanToString(const Value& timeSpan) {
+    auto totalMsec = timeSpan.getInt64();
+    auto hours = totalMsec / U_MILLIS_PER_HOUR;
+    auto minutes = (totalMsec - hours * U_MILLIS_PER_HOUR) / U_MILLIS_PER_MINUTE;
+    auto seconds = (totalMsec - hours * U_MILLIS_PER_HOUR - minutes * U_MILLIS_PER_MINUTE) / U_MILLIS_PER_SECOND;
+    auto msec = totalMsec - hours * U_MILLIS_PER_HOUR - minutes * U_MILLIS_PER_MINUTE - seconds * U_MILLIS_PER_SECOND;
+    std::stringstream ss;
+    ss << std::setw(2) << std::setfill('0') << hours << ":" << std::setw(2) << std::setfill('0') << minutes << ":"
+       << std::setw(2) << std::setfill('0') << seconds << "." << std::setw(3) << std::setfill('0') << msec;
+    return boost::make_local_shared<String>(ss.str());
+}
+
 }  // namespace vm

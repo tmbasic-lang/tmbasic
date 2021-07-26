@@ -55,6 +55,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     auto date = boost::make_local_shared<TypeNode>(Kind::kDate, Token{});
     auto dateTime = boost::make_local_shared<TypeNode>(Kind::kDateTime, Token{});
     auto dateTimeOffset = boost::make_local_shared<TypeNode>(Kind::kDateTimeOffset, Token{});
+    auto timeSpan = boost::make_local_shared<TypeNode>(Kind::kTimeSpan, Token{});
     auto timeZone = boost::make_local_shared<TypeNode>(Kind::kTimeZone, Token{});
     auto listOfString = boost::make_local_shared<TypeNode>(Kind::kList, Token{}, string);
     auto listGeneric = boost::make_local_shared<TypeNode>(Kind::kList, Token{});
@@ -69,6 +70,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
         "DateTimeOffsetFromParts", { "year", "month", "day", "hour", "minute", "second", "millisecond", "timeZone" },
         { number, number, number, number, number, number, number, timeZone }, dateTimeOffset,
         vm::SystemCall::kDateTimeOffsetFromParts);
+    addFunction("Days", { "count" }, { number }, timeSpan, vm::SystemCall::kDays);
     addFunction("Len", { "input" }, { listGeneric }, number, vm::SystemCall::kListLen);
     addFunction("Len", { "input" }, { string }, number, vm::SystemCall::kStringLen);
     addFunction("TimeZoneFromName", { "name" }, { string }, timeZone, vm::SystemCall::kTimeZoneFromName);

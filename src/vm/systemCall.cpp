@@ -365,6 +365,9 @@ void initSystemCalls() {
         result->returnedValue.num = input.getValue(-1).num * U_MILLIS_PER_SECOND;
     });
     initSystemCall(SystemCall::kStringLen, systemCallLen);
+    initSystemCall(SystemCall::kTimeSpanToString, [](const auto& input, auto* result) {
+        result->returnedObject = timeSpanToString(input.getValue(-1));
+    });
     initSystemCall(SystemCall::kTimeZoneFromName, systemCallTimeZoneFromName);
     initSystemCall(SystemCall::kTimeZoneToString, [](const auto& input, auto* result) {
         const auto& timeZone = dynamic_cast<const TimeZone&>(input.getObject(-1));
