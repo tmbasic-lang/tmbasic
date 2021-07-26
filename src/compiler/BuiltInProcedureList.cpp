@@ -70,6 +70,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
         { number, number, number, number, number, number, number, timeZone }, dateTimeOffset,
         vm::SystemCall::kDateTimeOffsetFromParts);
     addFunction("Len", { "input" }, { listGeneric }, number, vm::SystemCall::kListLen);
+    addFunction("Len", { "input" }, { string }, number, vm::SystemCall::kStringLen);
     addFunction("TimeZoneFromName", { "name" }, { string }, timeZone, vm::SystemCall::kTimeZoneFromName);
 }
 
