@@ -10,11 +10,8 @@ The number of milliseconds in the time span.
 A time span representing i[count] milliseconds.
 .example
 .example-code
-dim x = Milliseconds(1)
-print x
-x = x + Milliseconds(0.5)
+dim x = Milliseconds(1.5)
 print x
 .example-output
 00:00:00.001
-00:00:00.0015
 .
