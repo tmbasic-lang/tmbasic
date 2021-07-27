@@ -227,7 +227,7 @@ static void emitBinaryExpression(const BinaryExpressionNode& expressionNode, Pro
     assert(expressionNode.leftOperand->evaluatedType);
     auto lhsType = expressionNode.leftOperand->evaluatedType;
     emitExpression(*expressionNode.leftOperand, state);
-    for (auto& binarySuffix : expressionNode.binarySuffixes) {
+    for (const auto& binarySuffix : expressionNode.binarySuffixes) {
         if (binarySuffix->leftOperandConvertedType != nullptr) {
             throw std::runtime_error("not impl");
             lhsType = binarySuffix->leftOperandConvertedType;

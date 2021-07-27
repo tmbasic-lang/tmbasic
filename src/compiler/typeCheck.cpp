@@ -371,7 +371,7 @@ static void typeCheckDimStatement(DimStatementNode* statementNode) {
     }
 }
 
-static void typeCheckIfStatement(IfStatementNode* statementNode, TypeCheckState* state) {
+static void typeCheckIfStatement(IfStatementNode* statementNode) {
     assert(statementNode->condition->evaluatedType != nullptr);
     if (statementNode->condition->evaluatedType->kind != Kind::kBoolean) {
         throw CompilerException(
@@ -390,7 +390,7 @@ static void typeCheckCallStatement(CallStatementNode* statementNode, TypeCheckSt
     typeCheckCall(statementNode, statementNode->name, statementNode->arguments, state, false);
 }
 
-static void typeCheckForStatement(ForStatementNode* statementNode, TypeCheckState* state) {
+static void typeCheckForStatement(ForStatementNode* statementNode) {
     // fromValue must be a number
     assert(statementNode->fromValue->evaluatedType != nullptr);
     if (statementNode->fromValue->evaluatedType->kind != Kind::kNumber) {
@@ -413,7 +413,7 @@ static void typeCheckForStatement(ForStatementNode* statementNode, TypeCheckStat
     }
 }
 
-static void typeCheckWhileStatement(WhileStatementNode* statementNode, TypeCheckState* state) {
+static void typeCheckWhileStatement(WhileStatementNode* statementNode) {
     // condition must be a Boolean
     assert(statementNode->condition->evaluatedType != nullptr);
     if (statementNode->condition->evaluatedType->kind != Kind::kBoolean) {
@@ -439,15 +439,15 @@ static void typeCheckBody(BodyNode* bodyNode, TypeCheckState* state) {
                 break;
 
             case StatementType::kIf:
-                typeCheckIfStatement(dynamic_cast<IfStatementNode*>(statementNode.get()), state);
+                typeCheckIfStatement(dynamic_cast<IfStatementNode*>(statementNode.get()));
                 break;
 
             case StatementType::kFor:
-                typeCheckForStatement(dynamic_cast<ForStatementNode*>(statementNode.get()), state);
+                typeCheckForStatement(dynamic_cast<ForStatementNode*>(statementNode.get()));
                 break;
 
             case StatementType::kWhile:
-                typeCheckWhileStatement(dynamic_cast<WhileStatementNode*>(statementNode.get()), state);
+                typeCheckWhileStatement(dynamic_cast<WhileStatementNode*>(statementNode.get()));
                 break;
 
             default:

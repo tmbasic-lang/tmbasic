@@ -1787,7 +1787,7 @@ class ForEachStatementProduction : public Production {
 
 class ForStepProduction : public Production {
    public:
-    ForStepProduction(const Production* expression)
+    explicit ForStepProduction(const Production* expression)
         : Production(
               NAMEOF_TYPE(ForStepProduction),
               {
@@ -1796,7 +1796,7 @@ class ForStepProduction : public Production {
                   capture(0, prod(expression)),
               }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
+    std::unique_ptr<Box> parse(CaptureArray* captures, const Token& /*firstToken*/) const override {
         return std::move(captures->at(0));
     }
 };

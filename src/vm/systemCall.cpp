@@ -34,7 +34,7 @@ const Value& SystemCallInput::getValue(const int vsiOffset) const {
 }
 
 const Object& SystemCallInput::getObject(const int osiOffset) const {
-    auto& ptr = objectStack.at(objectStackIndex + osiOffset);
+    const auto& ptr = objectStack.at(objectStackIndex + osiOffset);
     assert(ptr != nullptr);
     return *ptr;
 }
@@ -298,8 +298,9 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kDays, [](const auto& input, auto* result) {
         result->returnedValue.num = input.getValue(-1).num * U_MILLIS_PER_DAY;
     });
-    initSystemCall(
-        SystemCall::kFlushConsoleOutput, [](const auto& input, auto* result) { input.consoleOutputStream->flush(); });
+    initSystemCall(SystemCall::kFlushConsoleOutput, [](const auto& input, auto* /*result*/) {
+        input.consoleOutputStream->flush();
+    });
     initSystemCall(SystemCall::kHasValueO, systemCallHasValueO);
     initSystemCall(SystemCall::kHasValueV, systemCallHasValueV);
     initSystemCall(SystemCall::kHours, systemCallHours);
@@ -361,7 +362,7 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kObjectToValueMapNew, [](const auto& /*input*/, auto* result) {
         result->returnedObject = boost::make_local_shared<ObjectToValueMap>();
     });
-    initSystemCall(SystemCall::kPrintString, [](const auto& input, auto* result) {
+    initSystemCall(SystemCall::kPrintString, [](const auto& input, auto* /*result*/) {
         *input.consoleOutputStream << dynamic_cast<const String&>(input.getObject(-1)).toUtf8();
     });
     initSystemCall(SystemCall::kSeconds, [](const auto& input, auto* result) {
@@ -396,7 +397,7 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kUtcOffset, systemCallUtcOffset);
     initSystemCall(SystemCall::kValueO, systemCallValueO);
     initSystemCall(SystemCall::kValueListGet, systemCallValueListGet);
-    initSystemCall(SystemCall::kValueOptionalNewMissing, [](const auto& input, auto* result) {
+    initSystemCall(SystemCall::kValueOptionalNewMissing, [](const auto& /*input*/, auto* result) {
         result->returnedObject = boost::make_local_shared<ValueOptional>();
     });
     initSystemCall(SystemCall::kValueOptionalNewPresent, [](const auto& input, auto* result) {
