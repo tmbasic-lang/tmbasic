@@ -8,21 +8,6 @@ using compiler::tokenize;
 using compiler::TokenizeType;
 using compiler::TokenKind;
 
-static void scanMatch(std::string filenameWithoutExtension) {
-    auto tok = readFile(std::string("ScannerTest/") + filenameWithoutExtension + ".tok");
-    auto bas = readFile(std::string("ScannerTest/") + filenameWithoutExtension + ".bas");
-    auto tokens = tokenize(bas, TokenizeType::kFormat, nullptr);
-    std::ostringstream s;
-    for (auto token : tokens) {
-        s << NAMEOF_ENUM(token.type) << "(" << token.lineIndex << "," << token.columnIndex << ")"
-          << "\n";
-    }
-    if (tok != s.str()) {
-        std::cout << "Actual:" << std::endl << s.str() << std::endl;
-    }
-    ASSERT_EQ(tok, s.str());
-}
-
 TEST(ScannerTest, IntegerLiteral) {
     auto tokens = tokenize("123", TokenizeType::kFormat, nullptr);
     ASSERT_EQ(TokenKind::kNumberLiteral, tokens[0].type);
@@ -145,12 +130,4 @@ TEST(ScannerTest, ForLoop) {
     ASSERT_EQ(TokenKind::kNext, tokens[i++].type);
 
     ASSERT_EQ(i, tokens.size());
-}
-
-TEST(ScannerTest, simple_sub) {
-    scanMatch("simple_sub");
-}
-
-TEST(ScannerTest, string_without_trailing_space) {
-    scanMatch("string_without_trailing_space");
 }

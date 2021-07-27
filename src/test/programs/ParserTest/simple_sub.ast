@@ -1,6 +1,0 @@
-compiler::ProgramNode
- members
-  compiler::ProcedureNode
-   name=noop
-   body
-    compiler::BodyNode

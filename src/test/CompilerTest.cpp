@@ -3,7 +3,6 @@
 #include "compiler/CompilerException.h"
 #include "compiler/TargetPlatform.h"
 #include "compiler/compileProgram.h"
-#include "compiler/makeExeFile.h"
 #include "gtest/gtest.h"
 #include "helpers.h"
 #include "vm/Interpreter.h"
@@ -11,7 +10,6 @@
 #include "vm/Program.h"
 #include "vm/String.h"
 
-using compiler::makeExeFile;
 using compiler::TargetPlatform;
 using std::istringstream;
 using std::make_unique;
@@ -22,7 +20,7 @@ using std::vector;
 using vm::Interpreter;
 
 static void run(string filenameWithoutExtension, compiler::CompiledProgram* program) {
-    auto pcodeFile = readFile(string("CompilerTest/") + filenameWithoutExtension + ".bas");
+    auto pcodeFile = readFile(filenameWithoutExtension + ".bas");
 
     string inputSentinel = "--input--\n";
     auto inputStart = pcodeFile.find(inputSentinel);
@@ -99,12 +97,8 @@ TEST(CompilerTest, GlobalValue_String_CheckValue) {
 #define COMPILER_TEST(x) \
     TEST(CompilerTest, x) { run(#x); }
 
-// Regenerate with:
-/*
-ls src/test/programs/CompilerTest | grep "\.bas$" | xargs -n 1 basename | sed "s/\.bas//g" | \
-awk '{ print "COMPILER_TEST(" $1 ")" }'
-*/
-
+// Regenerate with: build/scripts/updateCompilerTest.sh
+//--- auto-generated code below ---
 COMPILER_TEST(AvailableTimeZones)
 COMPILER_TEST(Chr)
 COMPILER_TEST(DateFromParts)
