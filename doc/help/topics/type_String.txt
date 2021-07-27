@@ -22,6 +22,8 @@ Either one or two 16-bit code units form a Unicode {"code point.":https://en.wik
 Unicode assigns a code point number to every character, accent, and symbol.
 In plain English text, a single letter or digit is one Unicode code point and is encoded in a single 16-bit code unit.
 
+h2[Chr()]
+
 The p[Chr] procedure will produce the character corresponding to a given code point number.
 code@
 dim x = Chr(65)  ' code point for "LATIN CAPITAL LETTER A"
@@ -37,9 +39,21 @@ dim y = Chr(769)  ' code point for "COMBINING ACUTE ACCENT"
 dim z = x + y     ' z is "é"
 @
 
+h2[Len()]
+
 The p[Len] procedure returns the number of 16-bit code units in a string.
 Keep in mind the caveats above about letters and symbols that are represented using multiple code points.
 code@
 dim x = "hello"
 dim y = Len(x)  ' y is 5
+@
+
+h2[Concatenation]
+
+Two strings can be combined (or "concatenated") using the `+` operator.
+
+code@
+dim x = "aaa"
+dim y = "bbb"
+print x + y  ' prints: aaabbb
 @

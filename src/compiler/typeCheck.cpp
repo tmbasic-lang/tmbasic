@@ -175,10 +175,23 @@ static void typeCheckBinaryExpression(BinaryExpressionNode* expressionNode, Type
             }
 
             case BinaryOperator::kAdd:
+                if (lhsType->kind == Kind::kNumber && rhsType->kind == Kind::kNumber) {
+                    suffix->evaluatedType = lhsType;
+                } else if (lhsType->kind == Kind::kString && rhsType->kind == Kind::kString) {
+                    suffix->evaluatedType = lhsType;
+                } else {
+                    throw CompilerException(
+                        fmt::format(
+                            "The \"{}\" operator requires Number or String operands.",
+                            getOperatorText(suffix->binaryOperator)),
+                        suffix->token);
+                }
+                break;
+
             case BinaryOperator::kSubtract:
             case BinaryOperator::kMultiply:
             case BinaryOperator::kDivide:
-            case BinaryOperator::kModulus: {
+            case BinaryOperator::kModulus:
                 // lhs must be Number
                 if (lhsType->kind != Kind::kNumber) {
                     throw CompilerException(
@@ -198,7 +211,6 @@ static void typeCheckBinaryExpression(BinaryExpressionNode* expressionNode, Type
                 // if so, the result is also a Number
                 suffix->evaluatedType = state->typeNumber;
                 break;
-            }
 
             default:
                 throw std::runtime_error("not impl");

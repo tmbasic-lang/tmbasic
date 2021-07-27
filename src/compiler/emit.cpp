@@ -279,6 +279,16 @@ static void emitBinaryExpression(const BinaryExpressionNode& expressionNode, Pro
                     throw std::runtime_error("not impl");
             }
             state->syscall(Opcode::kSystemCallV, systemCall, 2, 0);
+        } else if (lhsType->kind == Kind::kString && rhsType->kind == Kind::kString) {
+            SystemCall systemCall{};
+            switch (binarySuffix->binaryOperator) {
+                case BinaryOperator::kAdd:
+                    systemCall = SystemCall::kStringConcat;
+                    break;
+                default:
+                    throw std::runtime_error("not impl");
+            }
+            state->syscall(Opcode::kSystemCallO, systemCall, 0, 2);
         } else {
             throw std::runtime_error("not impl");
         }

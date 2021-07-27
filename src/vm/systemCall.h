@@ -49,6 +49,7 @@ enum class SystemCall {
     kObjectToValueMapNew,       // ObjectToValueMapNew() as ObjectToValueMap
     kPrintString,               // PrintString(input as String)
     kSeconds,                   // Seconds(count as Number) as TimeSpan
+    kStringConcat,              // StringConcat(lhs as String, rhs as String) as String
     kStringLen,                 // Len(input as String) as Number
     kTimeSpanToString,          // TimeSpanToString(timeSpan as TimeSpan) as String
     kTimeZoneFromName,          // TimeZoneFromName(name as String) as TimeZone
@@ -83,9 +84,19 @@ class SystemCallInput {
         int objectStackIndex,
         std::istream* consoleInputStream,
         std::ostream* consoleOutputStream);
-    const Value& getValue(const int vsiOffset) const;
-    const Object& getObject(const int osiOffset) const;
-    boost::local_shared_ptr<Object> getObjectPtr(const int osiOffset) const;
+    inline const Value& getValue(const int vsiOffset) const {
+        assert(vsiOffset < 0);
+        return valueStack.at(valueStackIndex + vsiOffset);
+    }
+    inline const Object& getObject(const int osiOffset) const {
+        assert(osiOffset < 0);
+        const auto& ptr = objectStack.at(objectStackIndex + osiOffset);
+        assert(ptr != nullptr);
+        return *ptr;
+    }
+    inline boost::local_shared_ptr<Object> getObjectPtr(const int osiOffset) const {
+        return objectStack.at(objectStackIndex + osiOffset);
+    }
 };
 
 class SystemCallResult {

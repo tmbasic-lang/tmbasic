@@ -29,20 +29,6 @@ SystemCallInput::SystemCallInput(
       consoleInputStream(consoleInputStream),
       consoleOutputStream(consoleOutputStream) {}
 
-const Value& SystemCallInput::getValue(const int vsiOffset) const {
-    return valueStack.at(valueStackIndex + vsiOffset);
-}
-
-const Object& SystemCallInput::getObject(const int osiOffset) const {
-    const auto& ptr = objectStack.at(objectStackIndex + osiOffset);
-    assert(ptr != nullptr);
-    return *ptr;
-}
-
-boost::local_shared_ptr<Object> SystemCallInput::getObjectPtr(const int osiOffset) const {
-    return objectStack.at(objectStackIndex + osiOffset);
-}
-
 static void systemCallAvailableLocales(const SystemCallInput& /*unused*/, SystemCallResult* result) {
     int32_t count = 0;
     const auto* locales = icu::Locale::getAvailableLocales(count);
@@ -367,6 +353,11 @@ void initSystemCalls() {
     });
     initSystemCall(SystemCall::kSeconds, [](const auto& input, auto* result) {
         result->returnedValue.num = input.getValue(-1).num * U_MILLIS_PER_SECOND;
+    });
+    initSystemCall(SystemCall::kStringConcat, [](const auto& input, auto* result) {
+        auto& lhs = dynamic_cast<const String&>(input.getObject(-2));
+        auto& rhs = dynamic_cast<const String&>(input.getObject(-1));
+        result->returnedObject = boost::make_local_shared<String>(lhs.toUtf8() + rhs.toUtf8());
     });
     initSystemCall(SystemCall::kStringLen, systemCallLen);
     initSystemCall(SystemCall::kTimeSpanToString, [](const auto& input, auto* result) {
