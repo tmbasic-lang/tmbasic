@@ -5,7 +5,14 @@ using decimal::Decimal;
 namespace util {
 
 size_t getDecimalHash(const Decimal& x) {
-    return std::hash<int64_t>{}(x.floor().i64());
+    auto triple = x.as_uint128_triple();
+    size_t hash = 17;
+    hash = 37 * hash + triple.hi;
+    hash = 37 * hash + triple.lo;
+    hash = 37 * hash + triple.exp;
+    hash = 37 * hash + triple.sign;
+    hash = 37 * hash + triple.tag;
+    return hash;
 }
 
 Decimal parseDecimalString(const std::string& str) {
@@ -14,7 +21,7 @@ Decimal parseDecimalString(const std::string& str) {
 
 std::string decimalToString(const Decimal& x) {
     if (x.isinfinite()) {
-        return x < Decimal(0) ? "-Inf" : "Inf";
+        return x < 0 ? "-Inf" : "Inf";
     }
     if (x.isnan()) {
         return "NaN";
@@ -38,8 +45,7 @@ std::string decimalToString(const Decimal& x) {
 
 Decimal doubleToDecimal(double x) {
     if (std::isnan(x)) {
-        mpd_uint128_triple_t nanTriple;
-        memset(&nanTriple, 0, sizeof(nanTriple));
+        mpd_uint128_triple_t nanTriple{};
         nanTriple.tag = MPD_TRIPLE_QNAN;
         return Decimal(nanTriple);
     }
@@ -48,8 +54,7 @@ Decimal doubleToDecimal(double x) {
     decomposed.d = x;
 
     if (std::isinf(x)) {
-        mpd_uint128_triple_t infTriple;
-        memset(&infTriple, 0, sizeof(infTriple));
+        mpd_uint128_triple_t infTriple{};
         infTriple.tag = MPD_TRIPLE_INF;
         infTriple.sign = decomposed.ieee.negative;
         return Decimal(infTriple);
