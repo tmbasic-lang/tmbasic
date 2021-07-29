@@ -722,13 +722,8 @@ class ThrowStatementNode : public StatementNode {
 class TryStatementNode : public StatementNode {
    public:
     std::unique_ptr<BodyNode> tryBody;
-    std::unique_ptr<BodyNode> catchBody;    // may be null
-    std::unique_ptr<BodyNode> finallyBody;  // may be null
-    TryStatementNode(
-        std::unique_ptr<BodyNode> tryBody,
-        std::unique_ptr<BodyNode> catchBody,
-        std::unique_ptr<BodyNode> finallyBody,
-        Token token);
+    std::unique_ptr<BodyNode> catchBody;
+    TryStatementNode(std::unique_ptr<BodyNode> tryBody, std::unique_ptr<BodyNode> catchBody, Token token);
     void dump(std::ostringstream& s, int n) const override;
     bool visitBodies(const VisitBodyFunc& func) const override;
     StatementType getStatementType() const override;

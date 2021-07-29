@@ -36,9 +36,7 @@ li@Case ::= "case" (CaseValueList | "else") "\n" Body@
 li@CaseValueList ::= CaseValue ("," CaseValue)*@
 li@CaseValue ::= Expression ("to" Expression)?@
 li@DeclarationStatement ::= DimStatement | ConstStatement@
-li@TryStatement ::= "try" "\n" Body CatchBlock? FinallyBlock? "end" "try"@
-li@CatchBlock ::= "catch" "\n" Body@
-li@FinallyBlock ::= "finally" "\n" Body@
+li@TryStatement ::= "try" "\n" Body "catch" "\n" Body "end" "try"@
 li@DimStatement ::= "dim" "shared"? identifier ("as" Type | "=" Expression) "\n"@
 li@DimCollectionStatement ::= "dim" ("list" | "map") identifier "\n" Body "end" "dim" "\n"@
 li@ConstStatement ::= "const" identifier "=" LiteralValue "\n"@

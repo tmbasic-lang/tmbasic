@@ -1120,12 +1120,7 @@ class TryStatementProduction : public Production {
                   cut(),
                   term(TokenKind::kEndOfLine),
                   capture(0, prod(body)),
-                  optional({
-                      capture(1, prod(catchBlock)),
-                  }),
-                  optional({
-                      capture(2, prod(finallyBlock)),
-                  }),
+                  capture(1, prod(catchBlock)),
                   term(TokenKind::kEnd),
                   term(TokenKind::kTry),
                   term(TokenKind::kEndOfLine),
@@ -1134,8 +1129,7 @@ class TryStatementProduction : public Production {
     std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
         return nodeBox<TryStatementNode>(
             captureSingleNode<BodyNode>(std::move(captures->at(0))),
-            captureSingleNodeOrNull<BodyNode>(std::move(captures->at(1))),
-            captureSingleNodeOrNull<BodyNode>(std::move(captures->at(2))), firstToken);
+            captureSingleNode<BodyNode>(std::move(captures->at(1))), firstToken);
     }
 };
 

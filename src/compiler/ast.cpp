@@ -1278,21 +1278,13 @@ StatementType ThrowStatementNode::getStatementType() const {
     return StatementType::kThrow;
 }
 
-TryStatementNode::TryStatementNode(
-    std::unique_ptr<BodyNode> tryBody,
-    std::unique_ptr<BodyNode> catchBody,
-    std::unique_ptr<BodyNode> finallyBody,
-    Token token)
-    : StatementNode(std::move(token)),
-      tryBody(std::move(tryBody)),
-      catchBody(std::move(catchBody)),
-      finallyBody(std::move(finallyBody)) {}
+TryStatementNode::TryStatementNode(std::unique_ptr<BodyNode> tryBody, std::unique_ptr<BodyNode> catchBody, Token token)
+    : StatementNode(std::move(token)), tryBody(std::move(tryBody)), catchBody(std::move(catchBody)) {}
 
 void TryStatementNode::dump(std::ostringstream& s, int n) const {
     DUMP_TYPE(TryStatementNode);
     DUMP_VAR_NODE(tryBody);
     DUMP_VAR_NODE(catchBody);
-    DUMP_VAR_NODE(finallyBody);
 }
 
 bool TryStatementNode::visitBodies(const VisitBodyFunc& func) const {
@@ -1301,11 +1293,6 @@ bool TryStatementNode::visitBodies(const VisitBodyFunc& func) const {
     }
     if (catchBody) {
         if (!func(catchBody.get())) {
-            return false;
-        }
-    }
-    if (finallyBody) {
-        if (!func(finallyBody.get())) {
             return false;
         }
     }

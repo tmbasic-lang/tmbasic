@@ -819,9 +819,6 @@ static void emitTryStatement(const TryStatementNode& statementNode, ProcedureSta
         state->clearError();
         emitBody(*statementNode.catchBody, state);
     }
-    if (statementNode.finallyBody != nullptr) {
-        throw std::runtime_error("not impl");
-    }
     state->returnIfError();
     state->label(endTryLabel);
 }
