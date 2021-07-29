@@ -74,6 +74,8 @@ BuiltInProcedureList::BuiltInProcedureList() {
         { number, number, number, number, number, number, number, timeZone }, dateTimeOffset,
         vm::SystemCall::kDateTimeOffsetFromParts);
     addFunction("Days", { "count" }, { number }, timeSpan, vm::SystemCall::kDays);
+    addFunction("ErrorCode", {}, {}, number, vm::SystemCall::kErrorCode);
+    addFunction("ErrorMessage", {}, {}, string, vm::SystemCall::kErrorMessage);
     addFunction("Hours", { "count" }, { number }, timeSpan, vm::SystemCall::kHours);
     addFunction("Len", { "input" }, { listGeneric }, number, vm::SystemCall::kListLen);
     addFunction("Len", { "input" }, { string }, number, vm::SystemCall::kStringLen);

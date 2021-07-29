@@ -1076,23 +1076,6 @@ class ExpressionProduction : public Production {
     }
 };
 
-class FinallyBlockProduction : public Production {
-   public:
-    explicit FinallyBlockProduction(const Production* body)
-        : Production(
-              NAMEOF_TYPE(FinallyBlockProduction),
-              {
-                  term(TokenKind::kFinally),
-                  cut(),
-                  term(TokenKind::kEndOfLine),
-                  capture(0, prod(body)),
-              }) {}
-
-    std::unique_ptr<Box> parse(CaptureArray* captures, const Token& /*firstToken*/) const override {
-        return std::move(captures->at(0));
-    }
-};
-
 class CatchBlockProduction : public Production {
    public:
     explicit CatchBlockProduction(const Production* body)
@@ -1112,7 +1095,7 @@ class CatchBlockProduction : public Production {
 
 class TryStatementProduction : public Production {
    public:
-    TryStatementProduction(const Production* body, const Production* catchBlock, const Production* finallyBlock)
+    TryStatementProduction(const Production* body, const Production* catchBlock)
         : Production(
               NAMEOF_TYPE(TryStatementProduction),
               {
@@ -1170,10 +1153,9 @@ class ThrowStatementProduction : public Production {
             return nodeBox<ThrowStatementNode>(
                 captureSingleNode<ExpressionNode>(std::move(captures->at(1))),
                 captureSingleNode<ExpressionNode>(std::move(captures->at(0))), firstToken);
-        } else {
-            return nodeBox<ThrowStatementNode>(
-                captureSingleNode<ExpressionNode>(std::move(captures->at(0))), nullptr, firstToken);
         }
+        return nodeBox<ThrowStatementNode>(
+            captureSingleNode<ExpressionNode>(std::move(captures->at(0))), nullptr, firstToken);
     }
 };
 
@@ -2142,9 +2124,8 @@ class ProductionCollection {
         auto* orExpressionSuffix = add<OrExpressionSuffixProduction>(andExpression);
         auto* orExpression = add<OrExpressionProduction>(andExpression, orExpressionSuffix);
         expression->init(orExpression);
-        auto* finallyBlock = add<FinallyBlockProduction>(body);
         auto* catchBlock = add<CatchBlockProduction>(body);
-        auto* tryStatement = add<TryStatementProduction>(body, catchBlock, finallyBlock);
+        auto* tryStatement = add<TryStatementProduction>(body, catchBlock);
         auto* rethrowStatement = add<RethrowStatementProduction>();
         auto* throwStatement = add<ThrowStatementProduction>(expression);
         auto* exitStatement = add<ExitStatementProduction>();

@@ -65,13 +65,11 @@ enum class Opcode {
     kReturnObject,  // restores osp/vsp and pushes the return object ospTop
 
     // error handling
-    kSetError,          // set error flag from code vsp[-1] and message ospTop; popv; popo;
-    kClearError,        // clear error flag, don't clear message or code
-    kBubbleError,       // set error flag
-    kReturnIfError,     // if error is set, return
-    kBranchIfError,     // <inst* index> if error, then jump
-    kPushErrorMessage,  // pusho message
-    kPushErrorCode,     // pushv code
+    kSetError,       // set error flag from code vsp[-1] and message ospTop; popv; popo;
+    kClearError,     // clear error flag, don't clear message or code
+    kBubbleError,    // set error flag
+    kReturnIfError,  // if error is set, return
+    kBranchIfError,  // <inst* index> if error, then jump
 
     // objects
     kRecordNew,        // <u16 numVals, u16 numObjs> pushes record with values taken from stack

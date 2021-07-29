@@ -21,13 +21,17 @@ SystemCallInput::SystemCallInput(
     int valueStackIndex,
     int objectStackIndex,
     std::istream* consoleInputStream,
-    std::ostream* consoleOutputStream)
+    std::ostream* consoleOutputStream,
+    const Value& errorCode,
+    const std::string& errorMessage)
     : valueStack(valueStack),
       objectStack(objectStack),
       valueStackIndex(valueStackIndex),
       objectStackIndex(objectStackIndex),
       consoleInputStream(consoleInputStream),
-      consoleOutputStream(consoleOutputStream) {}
+      consoleOutputStream(consoleOutputStream),
+      errorCode(errorCode),
+      errorMessage(errorMessage) {}
 
 static void systemCallAvailableLocales(const SystemCallInput& /*unused*/, SystemCallResult* result) {
     int32_t count = 0;
@@ -284,6 +288,11 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kDays, [](const auto& input, auto* result) {
         result->returnedValue.num = input.getValue(-1).num * U_MILLIS_PER_DAY;
     });
+    initSystemCall(
+        SystemCall::kErrorCode, [](const auto& input, auto* result) { result->returnedValue = input.errorCode; });
+    initSystemCall(SystemCall::kErrorMessage, [](const auto& input, auto* result) {
+        result->returnedObject = boost::make_local_shared<String>(input.errorMessage);
+    });
     initSystemCall(SystemCall::kFlushConsoleOutput, [](const auto& input, auto* /*result*/) {
         input.consoleOutputStream->flush();
     });
@@ -355,8 +364,8 @@ void initSystemCalls() {
         result->returnedValue.num = input.getValue(-1).num * U_MILLIS_PER_SECOND;
     });
     initSystemCall(SystemCall::kStringConcat, [](const auto& input, auto* result) {
-        auto& lhs = dynamic_cast<const String&>(input.getObject(-2));
-        auto& rhs = dynamic_cast<const String&>(input.getObject(-1));
+        const auto& lhs = dynamic_cast<const String&>(input.getObject(-2));
+        const auto& rhs = dynamic_cast<const String&>(input.getObject(-1));
         result->returnedObject = boost::make_local_shared<String>(lhs.toUtf8() + rhs.toUtf8());
     });
     initSystemCall(SystemCall::kStringLen, systemCallLen);

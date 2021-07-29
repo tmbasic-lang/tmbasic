@@ -21,6 +21,8 @@ enum class SystemCall {
     kDateTimeToString,          // DateTimeToString(dateTime as DateTime) as String
     kDateToString,              // DateToString(date as Date) as String
     kDays,                      // Days(count as Number) as TimeSpan
+    kErrorCode,                 // ErrorCode() as Number
+    kErrorMessage,              // ErrorMessage() as String
     kFlushConsoleOutput,        // FlushConsoleOutput()
     kHasValueO,                 // HasValue(input as Optional Object) as Boolean
     kHasValueV,                 // HasValue(input as Optional Value) as Boolean
@@ -77,13 +79,17 @@ class SystemCallInput {
     int objectStackIndex;
     std::istream* consoleInputStream;
     std::ostream* consoleOutputStream;
+    const Value& errorCode;
+    const std::string& errorMessage;
     SystemCallInput(
         const std::array<Value, kValueStackSize>& valueStack,
         const std::array<boost::local_shared_ptr<Object>, kObjectStackSize>& objectStack,
         int valueStackIndex,
         int objectStackIndex,
         std::istream* consoleInputStream,
-        std::ostream* consoleOutputStream);
+        std::ostream* consoleOutputStream,
+        const Value& errorCode,
+        const std::string& errorMessage);
     inline const Value& getValue(const int vsiOffset) const {
         assert(vsiOffset < 0);
         return valueStack.at(valueStackIndex + vsiOffset);

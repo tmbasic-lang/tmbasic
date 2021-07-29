@@ -356,9 +356,14 @@ bool Interpreter::run(int maxCycles) {
                 auto numObjs = readInt<uint8_t>(instructions, &instructionIndex);
                 auto returnsValue = opcode == Opcode::kSystemCallV || opcode == Opcode::kSystemCallVO;
                 auto returnsObject = opcode == Opcode::kSystemCallO || opcode == Opcode::kSystemCallVO;
-                SystemCallInput systemCallInput{
-                    *valueStack, *objectStack, vsi, osi, _private->consoleInputStream, _private->consoleOutputStream
-                };
+                SystemCallInput systemCallInput{ *valueStack,
+                                                 *objectStack,
+                                                 vsi,
+                                                 osi,
+                                                 _private->consoleInputStream,
+                                                 _private->consoleOutputStream,
+                                                 _private->errorCode,
+                                                 _private->errorMessage };
                 auto result = systemCall(static_cast<SystemCall>(syscallIndex), systemCallInput);
                 for (auto i = 0; i < numVals; i++) {
                     popValue(valueStack, &vsi);
@@ -446,16 +451,6 @@ bool Interpreter::run(int maxCycles) {
                 if (_private->hasError) {
                     instructionIndex = jumpTarget;
                 }
-                break;
-            }
-
-            case Opcode::kPushErrorMessage: {
-                pushObject(objectStack, &osi, boost::make_local_shared<String>(_private->errorMessage));
-                break;
-            }
-
-            case Opcode::kPushErrorCode: {
-                pushValue(valueStack, &vsi, _private->errorCode);
                 break;
             }
 

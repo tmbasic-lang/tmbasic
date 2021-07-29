@@ -183,8 +183,6 @@ class ProcedureState {
     void clearError() { op(Opcode::kClearError); }
     void bubbleError() { op(Opcode::kBubbleError); }
     void returnIfError() { op(Opcode::kReturnIfError); }
-    void pushErrorMessage() { op(Opcode::kPushErrorMessage); }
-    void pushErrorCode() { op(Opcode::kPushErrorCode); }
 
     void branchIfError(int labelId) {
         op(Opcode::kBranchIfError);
