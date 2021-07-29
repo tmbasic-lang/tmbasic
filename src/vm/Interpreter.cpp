@@ -1,3 +1,6 @@
+// uncomment to log execution to std::cerr
+// #define LOG_EXECUTION
+
 #include "Interpreter.h"
 #include "List.h"
 #include "Map.h"
@@ -142,7 +145,13 @@ bool Interpreter::run(int maxCycles) {
     auto* objectStack = &_private->objectStack;
 
     for (int cycle = 0; cycle < maxCycles; cycle++) {
+        assert(instructions != nullptr);
         auto opcode = static_cast<Opcode>(instructions->at(instructionIndex));
+
+#ifdef LOG_EXECUTION
+        std::cerr << "cycle " << cycle << ": " << NAMEOF_ENUM(opcode) << std::endl;
+#endif
+
         instructionIndex++;
         switch (opcode) {
             case Opcode::kExit: {
@@ -333,6 +342,7 @@ bool Interpreter::run(int maxCycles) {
                     { procedure, instructionIndex, numVals, numObjs, vsi, osi, returnsValue, returnsObject });
                 procedure = &callProcedure;
                 instructions = &callProcedure.instructions;
+                assert(instructions != nullptr);
                 instructionIndex = 0;
                 break;
             }
@@ -411,8 +421,6 @@ bool Interpreter::run(int maxCycles) {
             }
 
             case Opcode::kClearError: {
-                _private->errorMessage = nullptr;
-                _private->errorCode.num = 0;
                 _private->hasError = false;
                 break;
             }
@@ -426,6 +434,9 @@ bool Interpreter::run(int maxCycles) {
             case Opcode::kReturnIfError: {
                 if (_private->hasError) {
                     _private->returnFromProcedure(&vsi, &osi, &procedure, &instructions, &instructionIndex);
+                    if (procedure == nullptr) {
+                        return false;
+                    }
                 }
                 break;
             }

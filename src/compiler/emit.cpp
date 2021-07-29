@@ -8,6 +8,7 @@
 #include "vm/systemCall.h"
 
 using std::array;
+using std::stack;
 using std::vector;
 using vm::Opcode;
 using vm::SystemCall;
@@ -28,6 +29,7 @@ class ProcedureState {
     vector<JumpFixup> jumpFixups;  // fixups for jumps to labels that have not been emitted yet
     vector<Label> labels;          // labels that have already been emitted
     int nextLabelId = 1;
+    stack<int> catchLabelIds;
 
     int labelId() { return nextLabelId++; }
 
@@ -141,6 +143,13 @@ class ProcedureState {
         emitInt<uint32_t>(procedureIndex, false);
         emitInt<uint8_t>(numVals, false);
         emitInt<uint8_t>(numObjs, false);
+
+        if (catchLabelIds.empty()) {
+            returnIfError();
+        } else {
+            branchIfError(catchLabelIds.top());
+        }
+
 #ifdef DUMP_ASM
         std::cerr << std::endl
                   << NAMEOF_ENUM(opcode) << " " << procedureIndex << " " << static_cast<int>(numVals) << " "
@@ -153,6 +162,13 @@ class ProcedureState {
         emitInt<uint16_t>(systemCall, false);
         emitInt<uint8_t>(numVals, false);
         emitInt<uint8_t>(numObjs, false);
+
+        if (catchLabelIds.empty()) {
+            returnIfError();
+        } else {
+            branchIfError(catchLabelIds.top());
+        }
+
 #ifdef DUMP_ASM
         std::cerr << std::endl
                   << NAMEOF_ENUM(opcode) << " " << NAMEOF_ENUM(systemCall) << " " << static_cast<int>(numVals) << " "
@@ -783,13 +799,31 @@ static void emitThrowStatement(const ThrowStatementNode& statementNode, Procedur
     }
     emitExpression(*statementNode.message, state);
     state->setError();
-    
-    //TODO: handle jumping to a catch block
-    state->returnVoid();
+
+    if (state->catchLabelIds.empty()) {
+        state->returnVoid();
+    } else {
+        state->jump(state->catchLabelIds.top());
+    }
 }
 
-static void emitTryStatement(const TryStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
-    throw std::runtime_error("not impl");
+static void emitTryStatement(const TryStatementNode& statementNode, ProcedureState* state) {
+    auto catchLabel = state->labelId();
+    auto endTryLabel = state->labelId();
+    state->catchLabelIds.push(catchLabel);
+    emitBody(*statementNode.tryBody, state);
+    state->catchLabelIds.pop();
+    state->jump(endTryLabel);
+    state->label(catchLabel);
+    if (statementNode.catchBody != nullptr) {
+        state->clearError();
+        emitBody(*statementNode.catchBody, state);
+    }
+    if (statementNode.finallyBody != nullptr) {
+        throw std::runtime_error("not impl");
+    }
+    state->returnIfError();
+    state->label(endTryLabel);
 }
 
 static void emitWhileStatement(const WhileStatementNode& statementNode, ProcedureState* state) {

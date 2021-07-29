@@ -1126,6 +1126,9 @@ class TryStatementProduction : public Production {
                   optional({
                       capture(2, prod(finallyBlock)),
                   }),
+                  term(TokenKind::kEnd),
+                  term(TokenKind::kTry),
+                  term(TokenKind::kEndOfLine),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
