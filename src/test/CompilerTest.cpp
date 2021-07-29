@@ -1,5 +1,4 @@
 #include "../common.h"
-#include "assemble.h"
 #include "compiler/CompilerException.h"
 #include "compiler/TargetPlatform.h"
 #include "compiler/compileProgram.h"
