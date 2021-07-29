@@ -3,6 +3,7 @@
 #include "../common.h"
 #include "ast.h"
 #include "BuiltInProcedureList.h"
+#include "CompiledProgram.h"
 
 namespace compiler {
 

@@ -1161,11 +1161,22 @@ class ThrowStatementProduction : public Production {
                   term(TokenKind::kThrow),
                   cut(),
                   capture(0, prod(expression)),
+                  optional({
+                      term(TokenKind::kComma),
+                      capture(1, prod(expression)),
+                  }),
                   term(TokenKind::kEndOfLine),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
-        return nodeBox<ThrowStatementNode>(captureSingleNode<ExpressionNode>(std::move(captures->at(0))), firstToken);
+        if (hasCapture(captures->at(1))) {
+            return nodeBox<ThrowStatementNode>(
+                captureSingleNode<ExpressionNode>(std::move(captures->at(1))),
+                captureSingleNode<ExpressionNode>(std::move(captures->at(0))), firstToken);
+        } else {
+            return nodeBox<ThrowStatementNode>(
+                captureSingleNode<ExpressionNode>(std::move(captures->at(0))), nullptr, firstToken);
+        }
     }
 };
 

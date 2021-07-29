@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../common.h"
-#include "compiler/CompiledProgram.h"
 #include "compiler/Token.h"
 #include "vm/systemCall.h"
 
@@ -712,8 +711,9 @@ class SelectStatementNode : public StatementNode {
 
 class ThrowStatementNode : public StatementNode {
    public:
-    std::unique_ptr<ExpressionNode> expression;
-    ThrowStatementNode(std::unique_ptr<ExpressionNode> expression, Token token);
+    std::unique_ptr<ExpressionNode> message;
+    std::unique_ptr<ExpressionNode> code;  // may be null
+    ThrowStatementNode(std::unique_ptr<ExpressionNode> message, std::unique_ptr<ExpressionNode> code, Token token);
     void dump(std::ostringstream& s, int n) const override;
     bool visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const override;
     StatementType getStatementType() const override;

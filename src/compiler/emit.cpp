@@ -161,10 +161,19 @@ class ProcedureState {
     }
 
     void returnVoid() { op(Opcode::kReturn); }
-
     void returnValue() { op(Opcode::kReturnValue); }
-
     void returnObject() { op(Opcode::kReturnObject); }
+    void setError() { op(Opcode::kSetError); }
+    void clearError() { op(Opcode::kClearError); }
+    void bubbleError() { op(Opcode::kBubbleError); }
+    void returnIfError() { op(Opcode::kReturnIfError); }
+    void pushErrorMessage() { op(Opcode::kPushErrorMessage); }
+    void pushErrorCode() { op(Opcode::kPushErrorCode); }
+
+    void branchIfError(int labelId) {
+        op(Opcode::kBranchIfError);
+        emitJumpTarget(labelId);
+    }
 
     void recordNew(uint16_t numVals, uint16_t numObjs) {
         op(Opcode::kRecordNew);
@@ -766,8 +775,17 @@ static void emitSelectStatement(const SelectStatementNode& /*statementNode*/, Pr
     throw std::runtime_error("not impl");
 }
 
-static void emitThrowStatement(const ThrowStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
-    throw std::runtime_error("not impl");
+static void emitThrowStatement(const ThrowStatementNode& statementNode, ProcedureState* state) {
+    if (statementNode.code != nullptr) {
+        emitExpression(*statementNode.code, state);
+    } else {
+        state->pushImmediateInt64(0);
+    }
+    emitExpression(*statementNode.message, state);
+    state->setError();
+    
+    //TODO: handle jumping to a catch block
+    state->returnVoid();
 }
 
 static void emitTryStatement(const TryStatementNode& /*statementNode*/, ProcedureState* /*state*/) {

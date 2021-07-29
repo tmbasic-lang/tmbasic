@@ -68,6 +68,14 @@ static void run(string filenameWithoutExtension, compiler::CompiledProgram* prog
     interpreter->init(program->vmProgram.startupProcedureIndex);
     while (interpreter->run(10000)) {
     }
+
+    auto error = interpreter->getError();
+    if (error.has_value()) {
+        consoleOutputStream << "Error" << std::endl
+                            << error->code.getString() << std::endl
+                            << error->message << std::endl;
+    }
+
     auto actualOutput = consoleOutputStream.str();
     ASSERT_EQ(expectedOutput, actualOutput);
 }
@@ -132,5 +140,7 @@ COMPILER_TEST(number_comparison)
 COMPILER_TEST(print)
 COMPILER_TEST(print_number)
 COMPILER_TEST(string_concat)
+COMPILER_TEST(throw_uncaught)
+COMPILER_TEST(throw_uncaught_without_code)
 COMPILER_TEST(variable_string)
 COMPILER_TEST(while_loop)

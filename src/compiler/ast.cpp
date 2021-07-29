@@ -1250,16 +1250,28 @@ StatementType SelectStatementNode::getStatementType() const {
     return StatementType::kSelect;
 }
 
-ThrowStatementNode::ThrowStatementNode(std::unique_ptr<ExpressionNode> expression, Token token)
-    : StatementNode(std::move(token)), expression(std::move(expression)) {}
+ThrowStatementNode::ThrowStatementNode(
+    std::unique_ptr<ExpressionNode> message,
+    std::unique_ptr<ExpressionNode> code,
+    Token token)
+    : StatementNode(std::move(token)), message(std::move(message)), code(std::move(code)) {}
 
 void ThrowStatementNode::dump(std::ostringstream& s, int n) const {
     DUMP_TYPE(ThrowStatementNode);
-    DUMP_VAR_NODE(expression);
+    if (code != nullptr) {
+        DUMP_VAR_NODE(code);
+    }
+    DUMP_VAR_NODE(message);
 }
 
 bool ThrowStatementNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
-    return visitChildExpression(rootsOnly, expression.get(), func);
+    if (code != nullptr && !visitChildExpression(rootsOnly, code.get(), func)) {
+        return false;
+    }
+    if (!visitChildExpression(rootsOnly, message.get(), func)) {
+        return false;
+    }
+    return true;
 }
 
 StatementType ThrowStatementNode::getStatementType() const {

@@ -7,7 +7,13 @@
 #include "String.h"
 #include "date.h"
 #include "systemCall.h"
+#include "util/cast.h"
 #include "util/decimal.h"
+#include "vm/CallFrame.h"
+#include "vm/List.h"
+#include "vm/Object.h"
+#include "vm/RecordBuilder.h"
+#include "vm/constants.h"
 
 namespace vm {
 
@@ -63,7 +69,7 @@ class InterpreterPrivate {
     std::array<Value, kValueStackSize> valueStack;
     std::array<boost::local_shared_ptr<Object>, kObjectStackSize> objectStack;
     bool hasError = false;
-    boost::local_shared_ptr<Object> errorMessage;
+    std::string errorMessage;
     Value errorCode;
 
     // these are a snapshot that is only updated when run() returns
@@ -116,6 +122,13 @@ void Interpreter::init(int procedureIndex) {
     _private->callStack.push({ nullptr, 0, 0, 0, 0, 0, false, false });
 
     decimal::context = decimal::IEEEContext(decimal::DECIMAL128);
+}
+
+std::optional<InterpreterError> Interpreter::getError() const {
+    if (_private->hasError) {
+        return InterpreterError{ _private->errorCode, _private->errorMessage };
+    }
+    return std::nullopt;
 }
 
 bool Interpreter::run(int maxCycles) {
@@ -352,7 +365,7 @@ bool Interpreter::run(int maxCycles) {
                 }
                 if (result.hasError) {
                     _private->hasError = result.hasError;
-                    _private->errorMessage = boost::make_local_shared<String>(result.errorMessage);
+                    _private->errorMessage = result.errorMessage;
                     _private->errorCode.num = result.errorCode;
                 }
                 break;
@@ -387,11 +400,11 @@ bool Interpreter::run(int maxCycles) {
             }
 
             case Opcode::kSetError: {
-                auto& message = *objectAt(objectStack, osi, -1);
+                const auto& message = **objectAt(objectStack, osi, -1);
                 auto code = *valueAt(valueStack, vsi, -1);
                 _private->hasError = true;
                 _private->errorCode = code;
-                _private->errorMessage = std::move(message);
+                _private->errorMessage = dynamic_cast<const String&>(message).toUtf8();
                 popValue(valueStack, &vsi);
                 popObject(objectStack, &osi);
                 break;
@@ -426,8 +439,7 @@ bool Interpreter::run(int maxCycles) {
             }
 
             case Opcode::kPushErrorMessage: {
-                auto errorMessageCopy = _private->errorMessage;
-                pushObject(objectStack, &osi, std::move(errorMessageCopy));
+                pushObject(objectStack, &osi, boost::make_local_shared<String>(_private->errorMessage));
                 break;
             }
 

@@ -434,6 +434,23 @@ static void typeCheckWhileStatement(WhileStatementNode* statementNode) {
     }
 }
 
+static void typeCheckThrowStatement(ThrowStatementNode* statementNode) {
+    // message must be a String
+    assert(statementNode->message->evaluatedType != nullptr);
+    if (statementNode->message->evaluatedType->kind != Kind::kString) {
+        throw CompilerException(
+            "The error message of a \"throw\" statement must be a String.", statementNode->message->token);
+    }
+    // if code is non-null, then it must be a Number
+    if (statementNode->code != nullptr) {
+        assert(statementNode->code->evaluatedType != nullptr);
+        if (statementNode->code->evaluatedType->kind != Kind::kNumber) {
+            throw CompilerException(
+                "The error code of a \"throw\" statement must be a Number.", statementNode->code->token);
+        }
+    }
+}
+
 static void typeCheckBody(BodyNode* bodyNode, TypeCheckState* state) {
     for (auto& statementNode : bodyNode->statements) {
         statementNode->visitExpressions(true, [state](ExpressionNode* expressionNode) -> bool {
@@ -460,6 +477,10 @@ static void typeCheckBody(BodyNode* bodyNode, TypeCheckState* state) {
 
             case StatementType::kWhile:
                 typeCheckWhileStatement(dynamic_cast<WhileStatementNode*>(statementNode.get()));
+                break;
+
+            case StatementType::kThrow:
+                typeCheckThrowStatement(dynamic_cast<ThrowStatementNode*>(statementNode.get()));
                 break;
 
             default:
