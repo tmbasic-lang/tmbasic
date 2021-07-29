@@ -99,7 +99,9 @@ TEST(CompilerTest, GlobalValue_String_CheckValue) {
 
 // Regenerate with: build/scripts/updateCompilerTest.sh
 //--- auto-generated code below ---
+COMPILER_TEST(AvailableLocales)
 COMPILER_TEST(AvailableTimeZones)
+COMPILER_TEST(Characters_1)
 COMPILER_TEST(Chr)
 COMPILER_TEST(DateFromParts)
 COMPILER_TEST(DateTimeFromParts)

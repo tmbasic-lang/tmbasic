@@ -60,7 +60,9 @@ BuiltInProcedureList::BuiltInProcedureList() {
     auto listOfString = boost::make_local_shared<TypeNode>(Kind::kList, Token{}, string);
     auto listGeneric = boost::make_local_shared<TypeNode>(Kind::kList, Token{});
 
+    addFunction("Characters", { "this" }, { string }, listOfString, vm::SystemCall::kCharacters1);
     addFunction("Chr", { "input" }, { number }, string, vm::SystemCall::kChr);
+    addFunction("AvailableLocales", {}, {}, listOfString, vm::SystemCall::kAvailableLocales);
     addFunction("AvailableTimeZones", {}, {}, listOfString, vm::SystemCall::kAvailableTimeZones);
     addFunction(
         "DateFromParts", { "year", "month", "day" }, { number, number, number }, date, vm::SystemCall::kDateFromParts);
