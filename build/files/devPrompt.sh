@@ -1,7 +1,10 @@
 #!/bin/bash
 while true
 do
-    echo -ne "(m)ake (r)un (1)6color (2)56color (f)ormat (t)est tid(y) (g)hpages (c)lean? "
+    echo -e "\e[1;30mcompile:\e[0m \e[1;33mm\e[0make \e[1;33mg\e[0mhpages \e[1;33mc\e[0mlean"
+    echo -e "\e[1;30mrun:\e[0m     \e[1;33mr\e[0mun \e[1;33m1\e[0m6color \e[1;33m2\e[0m56color \e[1;33mt\e[0mest"
+    echo -e "\e[1;30medit:\e[0m    \e[1;33mf\e[0mormat \e[1;33mu\e[0mpdateCompilerTest"
+    echo -n "───────> "
     read -n1 x
     echo
     if [ "$x" == "m" ]
@@ -11,9 +14,9 @@ do
     elif [ "$x" == "r" ] 
     then
         TERM=xterm-256color COLORTERM=truecolor make run
-    elif [ "$x" == "y" ]
+    elif [ "$x" == "u" ]
     then
-        make tidy-commit
+        build/scripts/updateCompilerTest.sh
     elif [ "$x" == "1" ]
     then
         TERM=xterm COLORTERM= make run

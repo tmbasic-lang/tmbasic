@@ -379,7 +379,6 @@ ifeq ($(LINUX_DISTRO),ubuntu)
 	@echo "make format        Reformat code"
 	@echo "make lint          Check code with cpplint"
 	@echo "make tidy          Check code with clang-tidy"
-	@echo "make tidy-commit   Check 'git status' files with clang-tidy"
 	@echo "make ghpages       Build tmbasic-gh-pages"
 endif
 	@echo ""
@@ -416,9 +415,6 @@ lint:
 
 .PHONY: tidy
 tidy: $(TIDY_TARGETS)
-
-.PHONY: tidy-commit
-tidy-commit: $(shell 2>/dev/null git status | grep "\.cpp" | grep -v "/test/" | grep -v "deleted:" | sed 's/modified://g' | sed 's/new file://g' | sed 's:src:obj/tidy:g; s/cpp$$/tidy/g')
 
 .PHONY: ghpages
 ghpages: obj/resources/help/help.txt bin/ghpages/index.html
