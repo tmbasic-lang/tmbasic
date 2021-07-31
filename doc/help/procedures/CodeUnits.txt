@@ -1,0 +1,25 @@
+.procedure CodeUnits
+.category Strings
+.blurb Converts a string to a list of 16-bit Unicode code units.
+.description
+Converts a string to a list of 16-bit Unicode code units.
+To convert the list back into a string, use the p[StringFromCodeUnits] function.
+
+Correct usage of this function requires deep Unicode knowledge.
+Consider using the p[Characters] function instead.
+.overload
+.parameter input: String
+The input string.
+.return String
+A list of the 16-bit Unicode code units in i[input].
+.example
+.example-code
+dim x = CodeUnits("ABC")
+print x(0)
+print x(1)
+print x(2)
+.example-output
+65
+66
+67
+.

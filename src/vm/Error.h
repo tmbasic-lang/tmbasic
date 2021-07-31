@@ -4,6 +4,7 @@
 
 namespace vm {
 
+// note: update BuiltInConstantList.cpp to match this list
 enum class ErrorCode {
     kInvalidLocaleName = 1000,
     kValueNotPresent = 1001,

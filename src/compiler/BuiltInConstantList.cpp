@@ -9,6 +9,16 @@ BuiltInConstantList::BuiltInConstantList()
       _stringType(boost::make_local_shared<TypeNode>(Kind::kString, Token{})) {
     addNumber("PI", util::parseDecimalString("3.141592653589793238462643383279502"));
     addNumber("EULER", util::parseDecimalString("2.718281828459045235360287471352662"));
+
+    // this matches vm::ErrorCode in vm/Error.h
+    addError("ERR_INVALID_LOCALE_NAME", vm::ErrorCode::kInvalidLocaleName);
+    addError("ERR_VALUE_NOT_PRESENT", vm::ErrorCode::kValueNotPresent);
+    addError("ERR_INVALID_DATETIME", vm::ErrorCode::kInvalidDateTime);
+    addError("ERR_INVALID_TIMEZONE", vm::ErrorCode::kInvalidTimeZone);
+}
+
+void BuiltInConstantList::addError(std::string name, vm::ErrorCode code) {
+    addNumber(name, static_cast<int64_t>(code));
 }
 
 void BuiltInConstantList::addNumber(std::string name, decimal::Decimal number) {

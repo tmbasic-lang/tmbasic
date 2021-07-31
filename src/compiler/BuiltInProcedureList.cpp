@@ -11,6 +11,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     auto timeSpan = boost::make_local_shared<TypeNode>(Kind::kTimeSpan, Token{});
     auto timeZone = boost::make_local_shared<TypeNode>(Kind::kTimeZone, Token{});
     auto listOfString = boost::make_local_shared<TypeNode>(Kind::kList, Token{}, string);
+    auto listOfNumber = boost::make_local_shared<TypeNode>(Kind::kList, Token{}, number);
     auto listGeneric = boost::make_local_shared<TypeNode>(Kind::kList, Token{});
 
     addFunction("Abs", { "x" }, { number }, number, vm::SystemCall::kAbs);
@@ -23,6 +24,11 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("Ceil", { "x" }, { number }, number, vm::SystemCall::kCeil);
     addFunction("Characters", { "this" }, { string }, listOfString, vm::SystemCall::kCharacters1);
     addFunction("Chr", { "input" }, { number }, string, vm::SystemCall::kChr);
+    addFunction("CodeUnit", { "input" }, { string }, number, vm::SystemCall::kCodeUnit1);
+    addFunction("CodeUnit", { "input", "index" }, { string, number }, number, vm::SystemCall::kCodeUnit2);
+    addFunction("CodeUnits", { "input" }, { string }, listOfNumber, vm::SystemCall::kCodeUnits);
+    addFunction("Concat", { "strings" }, { listOfString }, string, vm::SystemCall::kConcat1);
+    addFunction("Concat", { "strings", "separator" }, { listOfString, string }, string, vm::SystemCall::kConcat2);
     addFunction("Cos", { "x" }, { number }, number, vm::SystemCall::kCos);
     addFunction(
         "DateFromParts", { "year", "month", "day" }, { number, number, number }, date, vm::SystemCall::kDateFromParts);
@@ -49,6 +55,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("Seconds", { "count" }, { number }, timeSpan, vm::SystemCall::kSeconds);
     addFunction("Sin", { "x" }, { number }, number, vm::SystemCall::kSin);
     addFunction("Sqr", { "x" }, { number }, number, vm::SystemCall::kSqr);
+    addFunction("StringFromCodeUnits", { "codeUnits" }, { listOfNumber }, string, vm::SystemCall::kStringFromCodeUnits);
     addFunction("Tan", { "x" }, { number }, number, vm::SystemCall::kTan);
     addFunction("TimeZoneFromName", { "name" }, { string }, timeZone, vm::SystemCall::kTimeZoneFromName);
     addFunction("TotalDays", { "timeSpan" }, { timeSpan }, number, vm::SystemCall::kTotalDays);

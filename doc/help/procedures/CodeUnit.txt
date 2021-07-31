@@ -1,0 +1,42 @@
+.procedure CodeUnit
+.category Strings
+.blurb Gets one 16-bit Unicode code unit from a string.
+.description
+Returns the 16-bit Unicode code unit at the specified index, or the first code unit if no index is specified.
+To convert a whole string to code units, use the p[CodeUnits] function.
+
+Correct usage of this function requires deep Unicode knowledge.
+Consider using the p[Characters] function instead.
+.overload
+.parameter input: String
+The input string.
+.return String
+The first 16-bit Unicode code unit in i[input].
+If i[input] is a zero-length string, then 0 is returned.
+.example
+.example-code
+dim x = Chr(65)  ' code point for "LATIN CAPITAL LETTER A"
+print x
+print CodeUnit(x)
+.example-output
+A
+65
+.overload
+.parameter input: String
+The input string.
+.parameter index: Number
+The 0-based index into i[input].
+This should be between 0 and `Len(input) - 1`.
+.return String
+The first 16-bit Unicode code unit in i[input].
+If i[index] is out of range, then 0 is returned.
+.example
+.example-code
+dim str = "ABCD"
+dim unit = CodeUnit(str, 1)
+print Chr(unit)
+print unit
+.example-output
+B
+66
+.

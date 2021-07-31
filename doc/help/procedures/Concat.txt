@@ -1,0 +1,30 @@
+.procedure Concat
+.category Strings
+.blurb Combines multiple strings into one, with an optional separator between them.
+.description
+Combines (or "concatenates") multiple strings into one, with an optional separator between them.
+.overload
+.parameter strings: List of String
+The strings to concatenate together.
+.return String
+A string created by combining the input i[strings].
+.example
+.example-code
+dim x = ["Hello ", "world", "!"]
+print Concat(x)
+.example-output
+Hello world!
+.overload
+.parameter strings: List of String
+The strings to concatenate together.
+.parameter separator: String
+The string to insert between each pair of input i[strings].
+.return String
+A string created by combining the input i[strings] and inserting i[separator] between each pair of strings.
+.example
+.example-code
+dim x = ["A", "B", "C"]
+print Concat(x, ",")
+.example-output
+A,B,C
+.

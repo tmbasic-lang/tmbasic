@@ -2,6 +2,7 @@
 
 #include "../common.h"
 #include "ast.h"
+#include "../vm/Error.h"
 #include "../vm/Object.h"
 #include "../vm/Value.h"
 
@@ -14,6 +15,7 @@ class BuiltInConstantList {
     BuiltInConstantList();
 
    private:
+    void addError(std::string name, vm::ErrorCode code);
     void addNumber(std::string name, decimal::Decimal number);
     void addString(std::string name, std::string string);
 
