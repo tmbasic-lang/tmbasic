@@ -9,7 +9,7 @@ class TypeCheckState {
    public:
     const SourceProgram& sourceProgram;
     CompiledProgram* compiledProgram;
-    const BuiltInProcedureList& builtInProcedures{};
+    const BuiltInProcedureList& builtInProcedures;
     boost::local_shared_ptr<TypeNode> typeBoolean{ boost::make_local_shared<TypeNode>(Kind::kBoolean, Token{}) };
     boost::local_shared_ptr<TypeNode> typeNumber{ boost::make_local_shared<TypeNode>(Kind::kNumber, Token{}) };
     TypeCheckState(

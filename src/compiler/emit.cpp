@@ -377,6 +377,36 @@ static void emitSymbolReference(const Node& declarationNode, ProcedureState* sta
         return;
     }
 
+    // constant
+    const auto* constStatementNode = dynamic_cast<const ConstStatementNode*>(&declarationNode);
+    if (constStatementNode != nullptr) {
+        assert(!set);
+        switch (constStatementNode->evaluatedType->kind) {
+            case Kind::kNumber: {
+                auto& literalNumberExpr = dynamic_cast<const LiteralNumberExpressionNode&>(*constStatementNode->value);
+                state->pushImmediateDec128(literalNumberExpr.value);
+                break;
+            }
+
+            case Kind::kString: {
+                auto& literalStringExpr = dynamic_cast<const LiteralStringExpressionNode&>(*constStatementNode->value);
+                state->pushImmediateUtf8(literalStringExpr.value);
+                break;
+            }
+
+            case Kind::kBoolean: {
+                auto& literalBooleanExpr =
+                    dynamic_cast<const LiteralBooleanExpressionNode&>(*constStatementNode->value);
+                state->pushImmediateInt64(literalBooleanExpr.value ? 1 : 0);
+                break;
+            }
+
+            default:
+                throw std::runtime_error("not impl");
+        }
+        return;
+    }
+
     throw std::runtime_error("not impl");
 }
 

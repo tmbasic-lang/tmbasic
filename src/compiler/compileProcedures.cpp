@@ -1,4 +1,5 @@
 #include "compileProcedures.h"
+#include "BuiltInConstantList.h"
 #include "BuiltInProcedureList.h"
 #include "CompilerException.h"
 #include "bindProcedureSymbols.h"
@@ -131,13 +132,19 @@ void assignProcedureIndices(const SourceProgram& sourceProgram, CompiledProgram*
 }
 
 void compileProcedures(const SourceProgram& sourceProgram, CompiledProgram* compiledProgram) {
+    BuiltInConstantList builtInConstants{};
     BuiltInProcedureList builtInProcedures{};
     SymbolScope globalSymbolScope{ *compiledProgram };
+
+    // add symbols to the global scope for built-in constants
+    for (auto& builtInConstant : builtInConstants.constants) {
+        globalSymbolScope.addSymbol(builtInConstant.second.get());
+    }
 
     assignProcedureIndices(sourceProgram, compiledProgram);
 
     // tokenize and parse each procedure so we have the names
-    std::optional<size_t> mainProcedureIndex;
+    std::optional<size_t> mainProcedureIndex{};
     for (auto& compiledProcedure : compiledProgram->procedures) {
         auto& sourceMember = *sourceProgram.members.at(compiledProcedure->sourceMemberIndex);
         auto tokens = tokenize(sourceMember.source, TokenizeType::kCompile, &sourceMember);
