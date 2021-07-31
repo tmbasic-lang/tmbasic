@@ -56,7 +56,8 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("Seconds", { "count" }, { number }, timeSpan, vm::SystemCall::kSeconds);
     addFunction("Sin", { "x" }, { number }, number, vm::SystemCall::kSin);
     addFunction("Sqr", { "x" }, { number }, number, vm::SystemCall::kSqr);
-    addFunction("StringFromCodePoints", {"codePoints"},{listOfNumber},string,vm::SystemCall::kStringFromCodePoints);
+    addFunction(
+        "StringFromCodePoints", { "codePoints" }, { listOfNumber }, string, vm::SystemCall::kStringFromCodePoints);
     addFunction("StringFromCodeUnits", { "codeUnits" }, { listOfNumber }, string, vm::SystemCall::kStringFromCodeUnits);
     addFunction("Tan", { "x" }, { number }, number, vm::SystemCall::kTan);
     addFunction("TimeZoneFromName", { "name" }, { string }, timeZone, vm::SystemCall::kTimeZoneFromName);

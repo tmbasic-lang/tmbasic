@@ -480,7 +480,7 @@ void initSystemCalls() {
         result->returnedValue.num = input.getValue(-1).num.sqrt();
     });
     initSystemCall(SystemCall::kStringFromCodePoints, [](const auto& input, auto* result) {
-        auto& valueList = dynamic_cast<const ValueList&>(input.getObject(-1));
+        const auto& valueList = dynamic_cast<const ValueList&>(input.getObject(-1));
         auto numCodePoints = valueList.size();
         std::vector<int32_t> codePoints{};
         codePoints.reserve(numCodePoints);

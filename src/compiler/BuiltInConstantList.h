@@ -16,8 +16,8 @@ class BuiltInConstantList {
 
    private:
     void addError(std::string name, vm::ErrorCode code);
-    void addNumber(std::string name, decimal::Decimal number);
-    void addString(std::string name, std::string string);
+    void addNumber(const std::string& name, const decimal::Decimal& number);
+    void addString(const std::string& name, std::string string);
 
     boost::local_shared_ptr<TypeNode> _numberType;
     boost::local_shared_ptr<TypeNode> _stringType;

@@ -383,19 +383,21 @@ static void emitSymbolReference(const Node& declarationNode, ProcedureState* sta
         assert(!set);
         switch (constStatementNode->evaluatedType->kind) {
             case Kind::kNumber: {
-                auto& literalNumberExpr = dynamic_cast<const LiteralNumberExpressionNode&>(*constStatementNode->value);
+                const auto& literalNumberExpr =
+                    dynamic_cast<const LiteralNumberExpressionNode&>(*constStatementNode->value);
                 state->pushImmediateDec128(literalNumberExpr.value);
                 break;
             }
 
             case Kind::kString: {
-                auto& literalStringExpr = dynamic_cast<const LiteralStringExpressionNode&>(*constStatementNode->value);
+                const auto& literalStringExpr =
+                    dynamic_cast<const LiteralStringExpressionNode&>(*constStatementNode->value);
                 state->pushImmediateUtf8(literalStringExpr.value);
                 break;
             }
 
             case Kind::kBoolean: {
-                auto& literalBooleanExpr =
+                const auto& literalBooleanExpr =
                     dynamic_cast<const LiteralBooleanExpressionNode&>(*constStatementNode->value);
                 state->pushImmediateInt64(literalBooleanExpr.value ? 1 : 0);
                 break;

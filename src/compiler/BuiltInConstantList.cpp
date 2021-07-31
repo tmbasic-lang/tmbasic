@@ -19,17 +19,17 @@ BuiltInConstantList::BuiltInConstantList()
 }
 
 void BuiltInConstantList::addError(std::string name, vm::ErrorCode code) {
-    addNumber(name, static_cast<int64_t>(code));
+    addNumber(std::move(name), static_cast<int64_t>(code));
 }
 
-void BuiltInConstantList::addNumber(std::string name, decimal::Decimal number) {
+void BuiltInConstantList::addNumber(const std::string& name, const decimal::Decimal& number) {
     auto node = std::make_unique<ConstStatementNode>(
         name, std::make_unique<LiteralNumberExpressionNode>(number, Token{}), Token{});
     node->evaluatedType = _numberType;
     constants.insert(std::pair(name, std::move(node)));
 }
 
-void BuiltInConstantList::addString(std::string name, std::string string) {
+void BuiltInConstantList::addString(const std::string& name, std::string string) {
     auto node = std::make_unique<ConstStatementNode>(
         name, std::make_unique<LiteralStringExpressionNode>(std::move(string), Token{}), Token{});
     node->evaluatedType = _stringType;
