@@ -5,7 +5,7 @@
 Converts a string to a list of 16-bit Unicode code units.
 To convert the list back into a string, use the p[StringFromCodeUnits] function.
 
-Correct usage of this function requires deep Unicode knowledge.
+Warning: Correct usage of this function requires deep Unicode knowledge.
 Consider using the p[Characters] function instead.
 .overload
 .parameter input: String

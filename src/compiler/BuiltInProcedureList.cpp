@@ -24,6 +24,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("Ceil", { "x" }, { number }, number, vm::SystemCall::kCeil);
     addFunction("Characters", { "this" }, { string }, listOfString, vm::SystemCall::kCharacters1);
     addFunction("Chr", { "input" }, { number }, string, vm::SystemCall::kChr);
+    addFunction("CodePoints", { "input" }, { string }, listOfNumber, vm::SystemCall::kCodePoints);
     addFunction("CodeUnit", { "input" }, { string }, number, vm::SystemCall::kCodeUnit1);
     addFunction("CodeUnit", { "input", "index" }, { string, number }, number, vm::SystemCall::kCodeUnit2);
     addFunction("CodeUnits", { "input" }, { string }, listOfNumber, vm::SystemCall::kCodeUnits);
@@ -55,6 +56,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("Seconds", { "count" }, { number }, timeSpan, vm::SystemCall::kSeconds);
     addFunction("Sin", { "x" }, { number }, number, vm::SystemCall::kSin);
     addFunction("Sqr", { "x" }, { number }, number, vm::SystemCall::kSqr);
+    addFunction("StringFromCodePoints", {"codePoints"},{listOfNumber},string,vm::SystemCall::kStringFromCodePoints);
     addFunction("StringFromCodeUnits", { "codeUnits" }, { listOfNumber }, string, vm::SystemCall::kStringFromCodeUnits);
     addFunction("Tan", { "x" }, { number }, number, vm::SystemCall::kTan);
     addFunction("TimeZoneFromName", { "name" }, { string }, timeZone, vm::SystemCall::kTimeZoneFromName);

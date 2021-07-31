@@ -1,0 +1,20 @@
+.procedure StringFromCodePoints
+.category Strings
+.blurb Creates a string from a list of 32-bit Unicode code points.
+.description
+Creates a string from a list of 32-bit Unicode code points.
+To convert the string back into a list of code points, use the p[CodePoints] function.
+
+Warning: Correct usage of this function requires deep Unicode knowledge.
+Consider using the p[Characters] and p[Concat] functions instead.
+.overload
+.parameter codePoints: List of Number
+List of 32-bit Unicode code points.
+.return String
+String created from i[codePoints].
+.example
+.example-code
+print StringFromCodePoints([65, 128142])
+.example-output
+A💎
+.

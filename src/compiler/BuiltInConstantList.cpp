@@ -15,6 +15,7 @@ BuiltInConstantList::BuiltInConstantList()
     addError("ERR_VALUE_NOT_PRESENT", vm::ErrorCode::kValueNotPresent);
     addError("ERR_INVALID_DATETIME", vm::ErrorCode::kInvalidDateTime);
     addError("ERR_INVALID_TIMEZONE", vm::ErrorCode::kInvalidTimeZone);
+    addError("ERR_INTERNAL_ICU_ERROR", vm::ErrorCode::kInternalIcuError);
 }
 
 void BuiltInConstantList::addError(std::string name, vm::ErrorCode code) {

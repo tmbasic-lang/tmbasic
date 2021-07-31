@@ -320,6 +320,23 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kCharacters1, systemCallCharacters1);
     initSystemCall(SystemCall::kCharacters2, systemCallCharacters2);
     initSystemCall(SystemCall::kChr, systemCallChr);
+    initSystemCall(SystemCall::kCodePoints, [](const auto& input, auto* result) {
+        const auto& str = dynamic_cast<const String&>(input.getObject(-1));
+        auto numCodePoints = str.value.countChar32();
+        std::vector<int32_t> codePoints(numCodePoints);
+        UErrorCode status = U_ZERO_ERROR;
+        str.value.toUTF32(codePoints.data(), numCodePoints, status);
+        if (U_FAILURE(status)) {
+            throw Error(
+                ErrorCode::kInternalIcuError,
+                fmt::format("Failed to convert the string to code points. ICU error: {}", u_errorName(status)));
+        }
+        ValueListBuilder vlb{};
+        for (const auto& codePoint : codePoints) {
+            vlb.items.push_back(Value{ codePoint });
+        }
+        result->returnedObject = boost::make_local_shared<ValueList>(&vlb);
+    });
     initSystemCall(SystemCall::kCodeUnit1, [](const auto& input, auto* result) {
         const auto& str = dynamic_cast<const String&>(input.getObject(-1));
         auto codeUnit = str.value.charAt(0);
@@ -461,6 +478,17 @@ void initSystemCalls() {
     });
     initSystemCall(SystemCall::kSqr, [](const auto& input, auto* result) {
         result->returnedValue.num = input.getValue(-1).num.sqrt();
+    });
+    initSystemCall(SystemCall::kStringFromCodePoints, [](const auto& input, auto* result) {
+        auto& valueList = dynamic_cast<const ValueList&>(input.getObject(-1));
+        auto numCodePoints = valueList.size();
+        std::vector<int32_t> codePoints{};
+        codePoints.reserve(numCodePoints);
+        for (size_t i = 0; i < numCodePoints; ++i) {
+            codePoints.push_back(valueList.items.at(i).getInt32());
+        }
+        result->returnedObject =
+            boost::make_local_shared<String>(icu::UnicodeString::fromUTF32(codePoints.data(), codePoints.size()));
     });
     initSystemCall(SystemCall::kStringFromCodeUnits, [](const auto& input, auto* result) {
         const auto& valueList = dynamic_cast<const ValueList&>(input.getObject(-1));

@@ -19,6 +19,7 @@ enum class SystemCall {
     kCharacters1,               // Characters(input as String) as List of String
     kCharacters2,               // Characters(input as String, locale as String) as List of String
     kChr,                       // Chr(input as Number) as String
+    kCodePoints,                // CodePoints(input as String) as List of Number
     kCodeUnit1,                 // CodeUnit1(input as String) as Number
     kCodeUnit2,                 // CodeUnit2(input as String, index as Number) as Number
     kCodeUnits,                 // CodeUnits(input as String) as List of Number
@@ -72,6 +73,7 @@ enum class SystemCall {
     kSin,                       // Sin(x as Number) as Number
     kSqr,                       // Sqr(x as Number) as Number
     kStringConcat,              // StringConcat(lhs as String, rhs as String) as String
+    kStringFromCodePoints,      // StringFromCodePoints(codePoints as List of Number) as String
     kStringFromCodeUnits,       // StringFromCodeUnits(codeUnits as List of Number) as String
     kStringLen,                 // Len(input as String) as Number
     kTan,                       // Tan(x as Number) as Number

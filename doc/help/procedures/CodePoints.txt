@@ -1,0 +1,24 @@
+.procedure CodePoints
+.category Strings
+.blurb Converts a string to a list of 32-bit Unicode code points.
+.description
+Converts a string to a list of 32-bit Unicode code points.
+To convert the list back into a string, use the p[StringFromCodePoints] function.
+
+Warning: Correct usage of this function requires deep Unicode knowledge.
+Consider using the p[Characters] function instead.
+.overload
+.parameter input: String
+The input string.
+.return String
+A list of the 32-bit Unicode code points in i[input].
+.example
+.example-code
+' GEM STONE (U+1F48E)
+dim x = CodePoints("💎")
+print Len(x)
+print x(0)
+.example-output
+1
+128142
+.
