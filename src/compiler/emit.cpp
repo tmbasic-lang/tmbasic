@@ -298,6 +298,9 @@ static void emitBinaryExpression(const BinaryExpressionNode& expressionNode, Pro
                 case BinaryOperator::kModulus:
                     systemCall = SystemCall::kNumberModulus;
                     break;
+                case BinaryOperator::kPower:
+                    systemCall = SystemCall::kPow;
+                    break;
                 default:
                     throw std::runtime_error("not impl");
             }

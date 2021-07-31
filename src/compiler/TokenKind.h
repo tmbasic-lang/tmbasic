@@ -36,6 +36,7 @@ enum class TokenKind {
     kLessThanEqualsSign,
     kGreaterThanSign,
     kGreaterThanEqualsSign,
+    kCaret,
 
     // keywords
     kAnd,

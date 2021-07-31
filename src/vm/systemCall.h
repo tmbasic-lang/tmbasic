@@ -49,6 +49,7 @@ enum class SystemCall {
     kObjectOptionalNewPresent,  // ObjectOptionalNewPresent(input as Object) as ObjectOptional
     kObjectToObjectMapNew,      // ObjectToObjectMapNew() as ObjectToObjectMap
     kObjectToValueMapNew,       // ObjectToValueMapNew() as ObjectToValueMap
+    kPow,                       // Pow(base as Number, exponent as Number) as Number
     kPrintString,               // PrintString(input as String)
     kSeconds,                   // Seconds(count as Number) as TimeSpan
     kStringConcat,              // StringConcat(lhs as String, rhs as String) as String

@@ -357,6 +357,9 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kObjectToValueMapNew, [](const auto& /*input*/, auto* result) {
         result->returnedObject = boost::make_local_shared<ObjectToValueMap>();
     });
+    initSystemCall(SystemCall::kPow, [](const auto& input, auto* result) {
+        result->returnedValue.setDouble(std::pow(input.getValue(-2).getDouble(), input.getValue(-1).getDouble()));
+    });
     initSystemCall(SystemCall::kPrintString, [](const auto& input, auto* /*result*/) {
         *input.consoleOutputStream << dynamic_cast<const String&>(input.getObject(-1)).toUtf8();
     });

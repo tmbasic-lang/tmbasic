@@ -65,8 +65,10 @@ li@InequalityExpression ::= AddExpression InequalityExpressionSuffix*@
 li@InequalityExpressionSuffix ::= ("<" | "<=" | ">" | ">=") AddExpression@
 li@AddExpression ::= MultiplyExpression AddExpressionSuffix*@
 li@AddExpressionSuffix ::= ("+" | "-") MultiplyExpression@
-li@MultiplyExpression ::= UnaryExpression MultiplyExpressionSuffix*@
-li@MultiplyExpressionSuffix ::= ("*" | "/" | "mod") UnaryExpression@
+li@MultiplyExpression ::= ExponentExpression MultiplyExpressionSuffix*@
+li@MultiplyExpressionSuffix ::= ("*" | "/" | "mod") ExponentExpression@
+li@ExponentExpression ::= UnaryExpression ExponentExpressionSuffix*@
+li@ExponentExpressionSuffix ::= ("^") UnaryExpression@
 li@UnaryExpression ::= "not"? ConvertExpression@
 li@ConvertExpression ::= DottedExpression ("as" Type)?@
 li@DottedExpression ::= ExpressionTerm DottedExpressionSuffix*@

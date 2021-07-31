@@ -260,6 +260,8 @@ static BinaryOperator TokenKindToBinaryOperator(TokenKind TokenKind) {
             return BinaryOperator::kAnd;
         case TokenKind::kOr:
             return BinaryOperator::kOr;
+        case TokenKind::kCaret:
+            return BinaryOperator::kPower;
         default:
             assert(false);
             return {};
@@ -846,9 +848,41 @@ class UnaryExpressionProduction : public Production {
     }
 };
 
+class ExponentExpressionSuffixProduction : public Production {
+   public:
+    explicit ExponentExpressionSuffixProduction(const Production* unaryExpression)
+        : Production(
+              NAMEOF_TYPE(ExponentExpressionSuffixProduction),
+              {
+                  capture(0, term(TokenKind::kCaret)),
+                  capture(1, prod(unaryExpression)),
+              }) {}
+
+    std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
+        return parseBinaryExpressionSuffix(captures, firstToken);
+    }
+};
+
+class ExponentExpressionProduction : public Production {
+   public:
+    ExponentExpressionProduction(const Production* unaryExpression, const Production* exponentExpressionSuffix)
+        : Production(
+              NAMEOF_TYPE(ExponentExpressionProduction),
+              {
+                  capture(0, prod(unaryExpression)),
+                  zeroOrMore({
+                      capture(1, prod(exponentExpressionSuffix)),
+                  }),
+              }) {}
+
+    std::unique_ptr<Box> parse(CaptureArray* captures, const Token& /*firstToken*/) const override {
+        return parseBinaryExpression(captures);
+    }
+};
+
 class MultiplyExpressionSuffixProduction : public Production {
    public:
-    explicit MultiplyExpressionSuffixProduction(const Production* unaryExpression)
+    explicit MultiplyExpressionSuffixProduction(const Production* exponentExpression)
         : Production(
               NAMEOF_TYPE(MultiplyExpressionSuffixProduction),
               {
@@ -859,7 +893,7 @@ class MultiplyExpressionSuffixProduction : public Production {
                           term(TokenKind::kDivisionSign),
                           term(TokenKind::kMod),
                       })),
-                  capture(1, prod(unaryExpression)),
+                  capture(1, prod(exponentExpression)),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
@@ -869,11 +903,11 @@ class MultiplyExpressionSuffixProduction : public Production {
 
 class MultiplyExpressionProduction : public Production {
    public:
-    MultiplyExpressionProduction(const Production* unaryExpression, const Production* multiplyExpressionSuffix)
+    MultiplyExpressionProduction(const Production* exponentExpression, const Production* multiplyExpressionSuffix)
         : Production(
               NAMEOF_TYPE(MultiplyExpressionProduction),
               {
-                  capture(0, prod(unaryExpression)),
+                  capture(0, prod(exponentExpression)),
                   zeroOrMore({
                       capture(1, prod(multiplyExpressionSuffix)),
                   }),
@@ -2111,8 +2145,10 @@ class ProductionCollection {
         auto* dottedExpression = add<DottedExpressionProduction>(expressionTerm, dottedExpressionSuffix);
         auto* convertExpression = add<ConvertExpressionProduction>(dottedExpression, type);
         auto* unaryExpression = add<UnaryExpressionProduction>(convertExpression);
-        auto* multiplyExpressionSuffix = add<MultiplyExpressionSuffixProduction>(unaryExpression);
-        auto* multiplyExpression = add<MultiplyExpressionProduction>(unaryExpression, multiplyExpressionSuffix);
+        auto* exponentExpressionSuffix = add<ExponentExpressionSuffixProduction>(unaryExpression);
+        auto* exponentExpression = add<ExponentExpressionProduction>(unaryExpression, exponentExpressionSuffix);
+        auto* multiplyExpressionSuffix = add<MultiplyExpressionSuffixProduction>(exponentExpression);
+        auto* multiplyExpression = add<MultiplyExpressionProduction>(exponentExpression, multiplyExpressionSuffix);
         auto* addExpressionSuffix = add<AddExpressionSuffixProduction>(multiplyExpression);
         auto* addExpression = add<AddExpressionProduction>(multiplyExpression, addExpressionSuffix);
         auto* inequalityExpressionSuffix = add<InequalityExpressionSuffixProduction>(addExpression);

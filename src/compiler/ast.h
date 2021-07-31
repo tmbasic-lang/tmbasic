@@ -149,6 +149,7 @@ enum class BinaryOperator {
     kMultiply,
     kDivide,
     kModulus,
+    kPower,
 };
 
 class BinaryExpressionSuffixNode : public Node {

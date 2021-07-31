@@ -114,6 +114,8 @@ static std::string getOperatorText(BinaryOperator op) {
             return "/";
         case BinaryOperator::kModulus:
             return "mod";
+        case BinaryOperator::kPower:
+            return "^";
         default:
             throw std::runtime_error("not impl");
     }
@@ -192,6 +194,7 @@ static void typeCheckBinaryExpression(BinaryExpressionNode* expressionNode, Type
             case BinaryOperator::kMultiply:
             case BinaryOperator::kDivide:
             case BinaryOperator::kModulus:
+            case BinaryOperator::kPower:
                 // lhs must be Number
                 if (lhsType->kind != Kind::kNumber) {
                     throw CompilerException(

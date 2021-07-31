@@ -129,6 +129,7 @@ void Scanner::processChar(char ch, char peek) {
             case '/':
             case '=':
             case ';':
+            case '^':
                 endCurrentToken();
                 append(ch);
                 endCurrentToken();
@@ -258,6 +259,8 @@ TokenKind Scanner::classifyToken(const std::string& text) {
             return TokenKind::kDivisionSign;
         case '=':
             return TokenKind::kEqualsSign;
+        case '^':
+            return TokenKind::kCaret;
         case '\'':
             return TokenKind::kComment;
 
