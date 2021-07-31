@@ -560,7 +560,7 @@ static void buildProcedureIndex(
     ostringstream o;
     o << "nav@{TMBASIC Documentation:doc}@\n\nh1[All Procedures]\n\n";
 
-    o << "h2[By Name]\n\nul@";
+    o << "ul@";
     for (const auto& x : procedures) {
         o << "li@b[{`" << x->name << "`:procedure_" << x->name << "}] <EM_DASH> " << x->blurb << "@\n";
     }
@@ -583,22 +583,6 @@ static void buildProcedureIndex(
         typeNames.push_back(s);
     }
     sort(typeNames.begin(), typeNames.end());
-
-    o << "h2[By Parameter Type]\n\n";
-    for (auto& t : typeNames) {
-        o << "h3[" << t << "]\n\nul@";
-        for (const auto& p : procedures) {
-            auto includeThisProcedure = false;
-            for (auto& o : p->overloads) {
-                includeThisProcedure |=
-                    (o->parameters.empty() && t == "(None)") || (!o->parameters.empty() && t == o->parameters[0]->type);
-            }
-            if (includeThisProcedure) {
-                o << "li@b[{`" << p->name << "`:procedure_" << p->name << "}] <EM_DASH> " << p->blurb << "@\n";
-            }
-        }
-        o << "@\n\n";
-    }
 
     const auto* filePath = "../obj/doc-temp/procedure.txt";
     writeFile(filePath, o.str());
