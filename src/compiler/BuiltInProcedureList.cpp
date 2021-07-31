@@ -13,10 +13,17 @@ BuiltInProcedureList::BuiltInProcedureList() {
     auto listOfString = boost::make_local_shared<TypeNode>(Kind::kList, Token{}, string);
     auto listGeneric = boost::make_local_shared<TypeNode>(Kind::kList, Token{});
 
-    addFunction("Characters", { "this" }, { string }, listOfString, vm::SystemCall::kCharacters1);
-    addFunction("Chr", { "input" }, { number }, string, vm::SystemCall::kChr);
+    addFunction("Abs", { "x" }, { number }, number, vm::SystemCall::kAbs);
+    addFunction("Acos", { "x" }, { number }, number, vm::SystemCall::kAcos);
+    addFunction("Asin", { "x" }, { number }, number, vm::SystemCall::kAsin);
+    addFunction("Atan", { "x" }, { number }, number, vm::SystemCall::kAtan);
+    addFunction("Atan2", { "y", "x" }, { number, number }, number, vm::SystemCall::kAtan2);
     addFunction("AvailableLocales", {}, {}, listOfString, vm::SystemCall::kAvailableLocales);
     addFunction("AvailableTimeZones", {}, {}, listOfString, vm::SystemCall::kAvailableTimeZones);
+    addFunction("Ceil", { "x" }, { number }, number, vm::SystemCall::kCeil);
+    addFunction("Characters", { "this" }, { string }, listOfString, vm::SystemCall::kCharacters1);
+    addFunction("Chr", { "input" }, { number }, string, vm::SystemCall::kChr);
+    addFunction("Cos", { "x" }, { number }, number, vm::SystemCall::kCos);
     addFunction(
         "DateFromParts", { "year", "month", "day" }, { number, number, number }, date, vm::SystemCall::kDateFromParts);
     addFunction(
@@ -29,18 +36,27 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("Days", { "count" }, { number }, timeSpan, vm::SystemCall::kDays);
     addFunction("ErrorCode", {}, {}, number, vm::SystemCall::kErrorCode);
     addFunction("ErrorMessage", {}, {}, string, vm::SystemCall::kErrorMessage);
+    addFunction("Exp", { "x" }, { number }, number, vm::SystemCall::kExp);
+    addFunction("Floor", { "x" }, { number }, number, vm::SystemCall::kFloor);
     addFunction("Hours", { "count" }, { number }, timeSpan, vm::SystemCall::kHours);
     addFunction("Len", { "input" }, { listGeneric }, number, vm::SystemCall::kListLen);
     addFunction("Len", { "input" }, { string }, number, vm::SystemCall::kStringLen);
+    addFunction("Log", { "x" }, { number }, number, vm::SystemCall::kLog);
+    addFunction("Log10", { "x" }, { number }, number, vm::SystemCall::kLog10);
     addFunction("Milliseconds", { "count" }, { number }, timeSpan, vm::SystemCall::kMilliseconds);
     addFunction("Minutes", { "count" }, { number }, timeSpan, vm::SystemCall::kMinutes);
+    addFunction("Round", { "x" }, { number }, number, vm::SystemCall::kRound);
     addFunction("Seconds", { "count" }, { number }, timeSpan, vm::SystemCall::kSeconds);
+    addFunction("Sin", { "x" }, { number }, number, vm::SystemCall::kSin);
+    addFunction("Sqr", { "x" }, { number }, number, vm::SystemCall::kSqr);
+    addFunction("Tan", { "x" }, { number }, number, vm::SystemCall::kTan);
     addFunction("TimeZoneFromName", { "name" }, { string }, timeZone, vm::SystemCall::kTimeZoneFromName);
     addFunction("TotalDays", { "timeSpan" }, { timeSpan }, number, vm::SystemCall::kTotalDays);
     addFunction("TotalHours", { "timeSpan" }, { timeSpan }, number, vm::SystemCall::kTotalHours);
     addFunction("TotalMilliseconds", { "timeSpan" }, { timeSpan }, number, vm::SystemCall::kTotalMilliseconds);
     addFunction("TotalMinutes", { "timeSpan" }, { timeSpan }, number, vm::SystemCall::kTotalMinutes);
     addFunction("TotalSeconds", { "timeSpan" }, { timeSpan }, number, vm::SystemCall::kTotalSeconds);
+    addFunction("Trunc", { "x" }, { number }, number, vm::SystemCall::kTrunc);
 }
 
 const std::vector<std::unique_ptr<ProcedureNode>>& BuiltInProcedureList::get(const std::string& name) const {

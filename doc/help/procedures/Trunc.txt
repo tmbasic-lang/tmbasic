@@ -1,0 +1,38 @@
+.procedure Trunc
+.category Algebra and Trigonometry
+.blurb Returns the integer part of the given number.
+.description
+Removes the fractional part and returns the integer part of the given number i[x].
+.overload
+.parameter x: Number
+Input number.
+.return Number
+Integer value.
+.example
+.example-code
+print Trunc(5.4)
+print Trunc(5.5)
+print Trunc(5.6)
+print Trunc(6.4)
+print Trunc(6.5)
+print Trunc(6.6)
+print Trunc(-5.4)
+print Trunc(-5.5)
+print Trunc(-5.6)
+print Trunc(-6.4)
+print Trunc(-6.5)
+print Trunc(-6.6)
+.example-output
+5
+5
+5
+6
+6
+6
+-5
+-5
+-5
+-6
+-6
+-6
+.

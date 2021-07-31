@@ -8,6 +8,7 @@ BuiltInConstantList::BuiltInConstantList()
     : _numberType(boost::make_local_shared<TypeNode>(Kind::kNumber, Token{})),
       _stringType(boost::make_local_shared<TypeNode>(Kind::kString, Token{})) {
     addNumber("PI", util::parseDecimalString("3.141592653589793238462643383279502"));
+    addNumber("EULER", util::parseDecimalString("2.718281828459045235360287471352662"));
 }
 
 void BuiltInConstantList::addNumber(std::string name, decimal::Decimal number) {

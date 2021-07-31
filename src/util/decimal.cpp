@@ -113,4 +113,14 @@ double decimalToDouble(const Decimal& x) {
     return std::numeric_limits<double>::quiet_NaN();
 }
 
+decimal::Decimal round(const decimal::Decimal& x) {
+    decimal::Decimal xDec{ x };
+    auto* xMpd = xDec.get();
+    decimal::context.round(MPD_ROUND_HALF_EVEN);
+    decimal::Decimal roundedDec{};
+    auto* roundedMpd = roundedDec.get();
+    mpd_round_to_int(roundedMpd, xMpd, decimal::context.get());
+    return roundedDec;
+}
+
 }  // namespace util

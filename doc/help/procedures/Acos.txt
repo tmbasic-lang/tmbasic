@@ -1,0 +1,20 @@
+.procedure Acos
+.category Algebra and Trigonometry
+.blurb Calculates the arc cosine of a number.
+.description
+Returns the arc cosine of the number, in radians.
+
+Warning: The input number is internally converted to a less precise {64-bit binary floating-point:https://en.wikipedia.org/wiki/Double-precision_floating-point_format} format.
+The result is computed in this format and then converted back to TMBASIC's {128-bit decimal floating-point:https://en.wikipedia.org/wiki/Decimal128_floating-point_format} format.
+These conversions may cause a loss of precision.
+.overload
+.parameter x: Number
+Input number
+.return Number
+Arc cosine of i[x].
+.example
+.example-code
+print Trunc(Acos(0.25) * 1000)
+.example-output
+1318
+.

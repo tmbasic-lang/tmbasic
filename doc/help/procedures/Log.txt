@@ -1,0 +1,19 @@
+.procedure Log
+.category Algebra and Trigonometry
+.blurb Calculates the natural (base-e) logarithm of a number.
+.description
+Returns the natural (base-e) logarithm of a number.
+Use the p[Log10] function for base-10 logarithms.
+
+The built-in constant `EULER` contains the value of the mathematical constant i[e].
+.overload
+.parameter x: Number
+Input number.
+.return Number
+Base-e logarithm of i[x].
+.example
+.example-code
+print Log(EULER)
+.example-output
+1
+.

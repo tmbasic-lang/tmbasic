@@ -1,0 +1,39 @@
+.procedure Round
+.category Algebra and Trigonometry
+.blurb Finds the closest integer to a given number.
+.description
+Rounds i[x] to the nearest integer.
+If i[x] is halfway between two integers, then it is rounded to the nearest even number.
+.overload
+.parameter x: Number
+Input number.
+.return Number
+i[x] rounded to the nearest integer.
+.example
+.example-code
+print Round(5.4)
+print Round(5.5)
+print Round(5.6)
+print Round(6.4)
+print Round(6.5)
+print Round(6.6)
+print Round(-5.4)
+print Round(-5.5)
+print Round(-5.6)
+print Round(-6.4)
+print Round(-6.5)
+print Round(-6.6)
+.example-output
+5
+6
+6
+6
+6
+7
+-5
+-6
+-6
+-6
+-6
+-7
+.

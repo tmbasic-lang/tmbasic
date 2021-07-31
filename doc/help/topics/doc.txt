@@ -28,6 +28,7 @@ h3[Procedures]
 
 ul@
 li@{All Procedures:procedure}@
+li@{Algebra and Trigonometry:procedures_algebra_and_trigonometry}@
 li@{Dates and Times:procedures_dates_and_times}@
 li@{Optionals:procedures_optionals}@
 li@{Strings:procedures_strings}@

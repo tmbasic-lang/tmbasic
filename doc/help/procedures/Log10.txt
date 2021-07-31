@@ -1,0 +1,17 @@
+.procedure Log10
+.category Algebra and Trigonometry
+.blurb Calculates the base-10 logarithm of a number.
+.description
+Returns the base-10 logarithm of a number.
+Use the p[Log] function for natural (base-e) logarithms.
+.overload
+.parameter x: Number
+Input number.
+.return Number
+Base-10 logarithm of i[x].
+.example
+.example-code
+print Log10(1000)
+.example-output
+3
+.

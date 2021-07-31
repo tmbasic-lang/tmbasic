@@ -273,11 +273,32 @@ void initSystemCalls() {
         return;
     }
 
+    initSystemCall(SystemCall::kAbs, [](const auto& input, auto* result) {
+        result->returnedValue.num = input.getValue(-1).num.abs();
+    });
+    initSystemCall(SystemCall::kAcos, [](const auto& input, auto* result) {
+        result->returnedValue.setDouble(std::acos(input.getValue(-1).getDouble()));
+    });
+    initSystemCall(SystemCall::kAsin, [](const auto& input, auto* result) {
+        result->returnedValue.setDouble(std::asin(input.getValue(-1).getDouble()));
+    });
+    initSystemCall(SystemCall::kAtan, [](const auto& input, auto* result) {
+        result->returnedValue.setDouble(std::atan(input.getValue(-1).getDouble()));
+    });
+    initSystemCall(SystemCall::kAtan2, [](const auto& input, auto* result) {
+        result->returnedValue.setDouble(std::atan2(input.getValue(-2).getDouble(), input.getValue(-1).getDouble()));
+    });
     initSystemCall(SystemCall::kAvailableLocales, systemCallAvailableLocales);
     initSystemCall(SystemCall::kAvailableTimeZones, systemCallAvailableTimeZones);
+    initSystemCall(SystemCall::kCeil, [](const auto& input, auto* result) {
+        result->returnedValue.num = input.getValue(-1).num.ceil();
+    });
     initSystemCall(SystemCall::kCharacters1, systemCallCharacters1);
     initSystemCall(SystemCall::kCharacters2, systemCallCharacters2);
     initSystemCall(SystemCall::kChr, systemCallChr);
+    initSystemCall(SystemCall::kCos, [](const auto& input, auto* result) {
+        result->returnedValue.setDouble(std::cos(input.getValue(-1).getDouble()));
+    });
     initSystemCall(SystemCall::kCounterIsPastLimit, systemCallCounterIsPastLimit);
     initSystemCall(SystemCall::kDateFromParts, systemCallDateFromParts);
     initSystemCall(SystemCall::kDateTimeFromParts, systemCallDateTimeFromParts);
@@ -293,6 +314,12 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kErrorMessage, [](const auto& input, auto* result) {
         result->returnedObject = boost::make_local_shared<String>(input.errorMessage);
     });
+    initSystemCall(SystemCall::kExp, [](const auto& input, auto* result) {
+        result->returnedValue.num = input.getValue(-1).num.exp();
+    });
+    initSystemCall(SystemCall::kFloor, [](const auto& input, auto* result) {
+        result->returnedValue.num = input.getValue(-1).num.floor();
+    });
     initSystemCall(SystemCall::kFlushConsoleOutput, [](const auto& input, auto* /*result*/) {
         input.consoleOutputStream->flush();
     });
@@ -302,6 +329,12 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kInputString, systemCallInputString);
     initSystemCall(SystemCall::kListLen, [](const auto& input, auto* result) {
         result->returnedValue.num = dynamic_cast<const ListBase&>(input.getObject(-1)).size();
+    });
+    initSystemCall(SystemCall::kLog, [](const auto& input, auto* result) {
+        result->returnedValue.num = input.getValue(-1).num.ln();
+    });
+    initSystemCall(SystemCall::kLog10, [](const auto& input, auto* result) {
+        result->returnedValue.num = input.getValue(-1).num.log10();
     });
     initSystemCall(SystemCall::kMilliseconds, [](const auto& input, auto* result) {
         result->returnedValue = input.getValue(-1);  // already in milliseconds!
@@ -358,7 +391,10 @@ void initSystemCalls() {
         result->returnedObject = boost::make_local_shared<ObjectToValueMap>();
     });
     initSystemCall(SystemCall::kPow, [](const auto& input, auto* result) {
-        result->returnedValue.setDouble(std::pow(input.getValue(-2).getDouble(), input.getValue(-1).getDouble()));
+        result->returnedValue.num = input.getValue(-2).num.pow(input.getValue(-1).num);
+    });
+    initSystemCall(SystemCall::kRound, [](const auto& input, auto* result) {
+        result->returnedValue.num = util::round(input.getValue(-1).num);
     });
     initSystemCall(SystemCall::kPrintString, [](const auto& input, auto* /*result*/) {
         *input.consoleOutputStream << dynamic_cast<const String&>(input.getObject(-1)).toUtf8();
@@ -366,12 +402,21 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kSeconds, [](const auto& input, auto* result) {
         result->returnedValue.num = input.getValue(-1).num * U_MILLIS_PER_SECOND;
     });
+    initSystemCall(SystemCall::kSin, [](const auto& input, auto* result) {
+        result->returnedValue.setDouble(std::sin(input.getValue(-1).getDouble()));
+    });
+    initSystemCall(SystemCall::kSqr, [](const auto& input, auto* result) {
+        result->returnedValue.num = input.getValue(-1).num.sqrt();
+    });
     initSystemCall(SystemCall::kStringConcat, [](const auto& input, auto* result) {
         const auto& lhs = dynamic_cast<const String&>(input.getObject(-2));
         const auto& rhs = dynamic_cast<const String&>(input.getObject(-1));
         result->returnedObject = boost::make_local_shared<String>(lhs.toUtf8() + rhs.toUtf8());
     });
     initSystemCall(SystemCall::kStringLen, systemCallLen);
+    initSystemCall(SystemCall::kTan, [](const auto& input, auto* result) {
+        result->returnedValue.setDouble(std::tan(input.getValue(-1).getDouble()));
+    });
     initSystemCall(SystemCall::kTimeSpanToString, [](const auto& input, auto* result) {
         result->returnedObject = timeSpanToString(input.getValue(-1));
     });
@@ -396,6 +441,9 @@ void initSystemCalls() {
     });
     initSystemCall(SystemCall::kTotalSeconds, [](const auto& input, auto* result) {
         result->returnedValue.num = input.getValue(-1).num / U_MILLIS_PER_SECOND;
+    });
+    initSystemCall(SystemCall::kTrunc, [](const auto& input, auto* result) {
+        result->returnedValue.num = input.getValue(-1).num.trunc();
     });
     initSystemCall(SystemCall::kUtcOffset, systemCallUtcOffset);
     initSystemCall(SystemCall::kValueO, systemCallValueO);

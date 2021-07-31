@@ -1,0 +1,19 @@
+.procedure Exp
+.category Algebra and Trigonometry
+.blurb Calculates `e^x`.
+.description
+Returns `e^x`.
+Use the p[Log] function for natural base-e logarithms.
+
+The built-in constant `EULER` contains the value of the mathematical constant i[e].
+.overload
+.parameter x: Number
+Input number.
+.return Number
+Base-e logarithm of i[x].
+.example
+.example-code
+print Floor(Exp(5))
+.example-output
+148
+.

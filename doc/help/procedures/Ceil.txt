@@ -1,0 +1,18 @@
+.procedure Ceil
+.category Algebra and Trigonometry
+.blurb Finds the closest integer ≥ i[x].
+.description
+Returns the smallest integer that is greater than or equal to i[x].
+.overload
+.parameter x: Number
+Input number.
+.return Number
+Integer value.
+.example
+.example-code
+print Ceil(5.5)
+print Ceil(-6.5)
+.example-output
+6
+-6
+.

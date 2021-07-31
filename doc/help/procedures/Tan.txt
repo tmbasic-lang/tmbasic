@@ -1,0 +1,21 @@
+.procedure Tan
+.category Algebra and Trigonometry
+.blurb Calculates the tangent of an angle in radians.
+.description
+Returns the tangent of the given angle i[x], which is specified in radians.
+To specify an angle in degrees, multiply the angle by `PI/180` to get the equivalent in radians.
+
+Warning: The input number is internally converted to a less precise {64-bit binary floating-point:https://en.wikipedia.org/wiki/Double-precision_floating-point_format} format.
+The result is computed in this format and then converted back to TMBASIC's {128-bit decimal floating-point:https://en.wikipedia.org/wiki/Decimal128_floating-point_format} format.
+These conversions may cause a loss of precision.
+.overload
+.parameter x: Number
+Input angle, in radians.
+.return Number
+Tangent of i[x].
+.example
+.example-code
+print Tan(0)
+.example-output
+0
+.

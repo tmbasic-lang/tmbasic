@@ -1,0 +1,21 @@
+.procedure Abs
+.category Algebra and Trigonometry
+.blurb Converts negative numbers to positive numbers.
+.description
+Returns the absolute value of the number.
+
+If the input number i[x] is positive, then it is returned unchanged.
+If the input number i[x] is negative, then it is multiplied by -1 to produce a positive number.
+.overload
+.parameter x: Number
+Positive or negative number.
+.return Number
+Positive number.
+.example
+.example-code
+print Abs(5)
+print Abs(-5)
+.example-output
+5
+5
+.

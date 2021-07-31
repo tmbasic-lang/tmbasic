@@ -1,0 +1,18 @@
+.procedure Sqr
+.category Algebra and Trigonometry
+.blurb Calculates the square root of a number.
+.description
+Returns the square root of the given number i[x].
+.overload
+.parameter x: Number
+Input number.
+.return Number
+Square root.
+.example
+.example-code
+print Sqr(9)
+print Sqr(-1)
+.example-output
+3
+NaN
+.

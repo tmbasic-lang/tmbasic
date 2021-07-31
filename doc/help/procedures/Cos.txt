@@ -1,0 +1,23 @@
+.procedure Cos
+.category Algebra and Trigonometry
+.blurb Calculates the cosine of an angle in radians.
+.description
+Returns the cosine of the given angle i[x], which is specified in radians.
+To specify an angle in degrees, multiply the angle by `PI/180` to get the equivalent in radians.
+
+Warning: The input number is internally converted to a less precise {64-bit binary floating-point:https://en.wikipedia.org/wiki/Double-precision_floating-point_format} format.
+The result is computed in this format and then converted back to TMBASIC's {128-bit decimal floating-point:https://en.wikipedia.org/wiki/Decimal128_floating-point_format} format.
+These conversions may cause a loss of precision.
+.overload
+.parameter x: Number
+Input angle, in radians.
+.return Number
+Cosine of i[x].
+.example
+.example-code
+print Cos(0)
+print Cos(PI)
+.example-output
+1
+-1
+.

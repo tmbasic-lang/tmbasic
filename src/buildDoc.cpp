@@ -460,12 +460,12 @@ static string formatProcedureText(const Procedure& procedure) {
             if (i > 0) {
                 o << ", ";
             }
-            if ((i % 3) == 0) {
+            if (overload->parameters.size() > 1 && (i % 3) == 0) {
                 o << "\n    ";
             }
             o << parameter->name << " as " << parameter->type;
         }
-        if (!overload->parameters.empty()) {
+        if (overload->parameters.size() > 1 && !overload->parameters.empty()) {
             o << "\n";
         }
         if (isFunction) {

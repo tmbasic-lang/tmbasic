@@ -8,11 +8,18 @@
 namespace vm {
 
 enum class SystemCall {
+    kAbs,                       // Abs(x as Number) as Number
+    kAcos,                      // acos(x as Number) as Number
+    kAsin,                      // asin(x as Number) as Number
+    kAtan,                      // atan(x as Number) as Number
+    kAtan2,                     // atan2(y as Number, x as Number) as Number
     kAvailableLocales,          // AvailableLocales() as List of String
     kAvailableTimeZones,        // AvailableTimeZones() as List of String
+    kCeil,                      // Ceil(x as Number) as Number
     kCharacters1,               // Characters(input as String) as List of String
     kCharacters2,               // Characters(input as String, locale as String) as List of String
     kChr,                       // Chr(input as Number) as String
+    kCos,                       // Cos(x as Number) as Number
     kCounterIsPastLimit,        // CounterIsPastLimit(counter as Number, limit as Number, step as Number) as Boolean
     kDateFromParts,             // DateFromParts(year as Number, month as Number, day as Number) as Date
     kDateTimeFromParts,         // DateFromParts(year as Number, ...) as DateTime
@@ -23,12 +30,16 @@ enum class SystemCall {
     kDays,                      // Days(count as Number) as TimeSpan
     kErrorCode,                 // ErrorCode() as Number
     kErrorMessage,              // ErrorMessage() as String
+    kExp,                       // exp(x as Number) as Number
+    kFloor,                     // Floor(x as Number) as Number
     kFlushConsoleOutput,        // FlushConsoleOutput()
     kHasValueO,                 // HasValue(input as Optional Object) as Boolean
     kHasValueV,                 // HasValue(input as Optional Value) as Boolean
     kHours,                     // Hours(count as Number) as TimeSpan
     kInputString,               // InputString() as String
     kListLen,                   // ListLen(input as List) as Number
+    kLog,                       // Log(x as Number) as Number
+    kLog10,                     // Log10(x as Number) as Number
     kMilliseconds,              // Milliseconds(count as Number) as TimeSpan
     kMinutes,                   // Minutes(count as Number) as TimeSpan
     kNumberAdd,                 // NumberAdd(lhs as Number, rhs as Number) as Number
@@ -51,9 +62,13 @@ enum class SystemCall {
     kObjectToValueMapNew,       // ObjectToValueMapNew() as ObjectToValueMap
     kPow,                       // Pow(base as Number, exponent as Number) as Number
     kPrintString,               // PrintString(input as String)
+    kRound,                     // Round(x as Number) as Number
     kSeconds,                   // Seconds(count as Number) as TimeSpan
+    kSin,                       // Sin(x as Number) as Number
+    kSqr,                       // Sqr(x as Number) as Number
     kStringConcat,              // StringConcat(lhs as String, rhs as String) as String
     kStringLen,                 // Len(input as String) as Number
+    kTan,                       // Tan(x as Number) as Number
     kTimeSpanToString,          // TimeSpanToString(timeSpan as TimeSpan) as String
     kTimeZoneFromName,          // TimeZoneFromName(name as String) as TimeZone
     kTimeZoneToString,          // TimeZoneToString(timeZone as TimeZone) as String
@@ -62,6 +77,7 @@ enum class SystemCall {
     kTotalMilliseconds,         // TotalMilliseconds(timeSpan as TimeSpan) as Number
     kTotalMinutes,              // TotalMinutes(timeSpan as TimeSpan) as Number
     kTotalSeconds,              // TotalSeconds(timeSpan as TimeSpan) as Number
+    kTrunc,                     // Trunc(x as Number) as Number
     kUtcOffset,                 // UtcOffset(timeZone as TimeZone, dateTime as DateTime) as TimeSpan
     kValueListGet,              // ValueListGet(input as ValueList, index as Number) as Value
     kValueO,                    // ValueO(input as Optional Object) as Boolean

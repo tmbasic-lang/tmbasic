@@ -1,0 +1,20 @@
+.procedure Asin
+.category Algebra and Trigonometry
+.blurb Calculates the arc sine of a number.
+.description
+Returns the arc sine of the number, in radians.
+
+Warning: The input number is internally converted to a less precise {64-bit binary floating-point:https://en.wikipedia.org/wiki/Double-precision_floating-point_format} format.
+The result is computed in this format and then converted back to TMBASIC's {128-bit decimal floating-point:https://en.wikipedia.org/wiki/Decimal128_floating-point_format} format.
+These conversions may cause a loss of precision.
+.overload
+.parameter x: Number
+Input number
+.return Number
+Arc sine of i[x].
+.example
+.example-code
+print Asin(0.25)
+.example-output
+0.252680255142078646901637739574653
+.

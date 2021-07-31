@@ -1,0 +1,18 @@
+.procedure Floor
+.category Algebra and Trigonometry
+.blurb Finds the closest integer ≤ i[x].
+.description
+Returns the largest integer that is less than or equal to i[x].
+.overload
+.parameter x: Number
+Input number.
+.return Number
+Integer value.
+.example
+.example-code
+print Floor(5.5)
+print Floor(-6.5)
+.example-output
+5
+-7
+.
