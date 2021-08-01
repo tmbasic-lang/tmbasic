@@ -1,0 +1,21 @@
+.procedure ErrorMessage
+.category Error Handling
+.blurb Gets a user-readable description of the last error to be thrown.
+.description
+Gets a user-readable description of the last error to be thrown.
+Use this function in a `catch` block to get a message suitable for display to the user.
+.overload
+.return String
+The message of the last error to be thrown.
+.example
+.example-code
+try
+    throw 5, "hello"
+catch
+    print ErrorCode
+    print ErrorMessage
+end try
+.example-output
+5
+hello
+.

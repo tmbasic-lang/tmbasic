@@ -1,0 +1,33 @@
+nav@{TMBASIC Documentation:doc}@
+
+h1[Built-In Constants]
+
+TMBASIC provides a set of constants for your convenience.
+You can use these constants in your programs by name rather than writing the numeric values.
+
+h2[Mathematical Constants]
+
+code@
+const PI = 3.141592653589793238462643383279502
+const EULER = 2.718281828459045235360287471352662
+@
+
+h2[Error Codes]
+
+Many built-in procedures may throw an error if they fail.
+When catching errors, use the p[ErrorCode] function to get the error code.
+TMBASIC provides constants for the error codes used by built-in procedures.
+
+ul@
+li@`ERR_ACCESS_DENIED`@
+li@`ERR_DISK_FULL`@
+li@`ERR_FILE_NOT_FOUND`@
+li@`ERR_INTERNAL_ICU_ERROR`@
+li@`ERR_INVALID_DATETIME`@
+li@`ERR_INVALID_LOCALE_NAME`@
+li@`ERR_INVALID_TIMEZONE`@
+li@`ERR_IO_FAILURE`@
+li@`ERR_PATH_IS_DIRECTORY`@
+li@`ERR_PATH_TOO_LONG`@
+li@`ERR_VALUE_NOT_PRESENT`@
+@
