@@ -55,6 +55,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("Log10", { "x" }, { number }, number, vm::SystemCall::kLog10);
     addFunction("Milliseconds", { "count" }, { number }, timeSpan, vm::SystemCall::kMilliseconds);
     addFunction("Minutes", { "count" }, { number }, timeSpan, vm::SystemCall::kMinutes);
+    addFunction("ReadFileBytes", { "filePath" }, { string }, listOfNumber, vm::SystemCall::kReadFileBytes);
     addFunction("ReadFileLines", { "filePath" }, { string }, listOfString, vm::SystemCall::kReadFileLines);
     addFunction("ReadFileText", { "filePath" }, { string }, string, vm::SystemCall::kReadFileText);
     addFunction("Round", { "x" }, { number }, number, vm::SystemCall::kRound);
@@ -72,6 +73,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("TotalMinutes", { "timeSpan" }, { timeSpan }, number, vm::SystemCall::kTotalMinutes);
     addFunction("TotalSeconds", { "timeSpan" }, { timeSpan }, number, vm::SystemCall::kTotalSeconds);
     addFunction("Trunc", { "x" }, { number }, number, vm::SystemCall::kTrunc);
+    addSub("WriteFileBytes", { "filePath", "bytes" }, { string, listOfNumber }, vm::SystemCall::kWriteFileBytes);
     addSub("WriteFileLines", { "filePath", "lines" }, { string, listOfString }, vm::SystemCall::kWriteFileLines);
     addSub("WriteFileText", { "filePath", "text" }, { string, string }, vm::SystemCall::kWriteFileText);
 }

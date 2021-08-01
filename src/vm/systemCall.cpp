@@ -507,6 +507,27 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kPrintString, [](const auto& input, auto* /*result*/) {
         *input.consoleOutputStream << dynamic_cast<const String&>(input.getObject(-1)).toUtf8();
     });
+    initSystemCall(SystemCall::kReadFileBytes, [](const auto& input, auto* result) {
+        auto filePath = dynamic_cast<const String&>(input.getObject(-1)).toUtf8();
+        std::ifstream stream{ filePath };
+        stream.seekg(0, std::ios::end);
+        if (stream.fail()) {
+            throwFileError(errno, filePath);
+        }
+
+        std::vector<char> bytes(stream.tellg());
+        stream.seekg(0, std::ios::beg);
+        stream.read(bytes.data(), bytes.size());
+        if (stream.fail()) {
+            throwFileError(errno, filePath);
+        }
+
+        ValueListBuilder vlb{};
+        for (auto& byte : bytes) {
+            vlb.items.push_back(Value{ byte });
+        }
+        result->returnedObject = boost::make_local_shared<ValueList>(&vlb);
+    });
     initSystemCall(SystemCall::kReadFileLines, [](const auto& input, auto* result) {
         auto filePath = dynamic_cast<const String&>(input.getObject(-1)).toUtf8();
         std::ifstream stream{ filePath };
@@ -628,6 +649,20 @@ void initSystemCalls() {
         result->returnedObject = boost::make_local_shared<ValueToValueMap>();
     });
     initSystemCall(SystemCall::kValueV, systemCallValueV);
+    initSystemCall(SystemCall::kWriteFileBytes, [](const auto& input, auto* result) {
+        const auto& filePath = dynamic_cast<const String&>(input.getObject(-2)).toUtf8();
+        const auto& bytesValueList = dynamic_cast<const ValueList&>(input.getObject(-1));
+        std::vector<char> bytes;
+        bytes.reserve(bytesValueList.items.size());
+        for (const auto& value : bytesValueList.items) {
+            bytes.push_back(static_cast<char>(value.getInt32()));
+        }
+        std::ofstream stream{ filePath };
+        if (stream.fail()) {
+            throwFileError(errno, filePath);
+        }
+        stream.write(bytes.data(), bytes.size());
+    });
     initSystemCall(SystemCall::kWriteFileLines, [](const auto& input, auto* result) {
         const auto& filePath = dynamic_cast<const String&>(input.getObject(-2)).toUtf8();
         const auto& lines = dynamic_cast<const ObjectList&>(input.getObject(-1));

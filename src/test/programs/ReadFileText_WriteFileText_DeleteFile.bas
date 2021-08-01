@@ -8,6 +8,7 @@ sub Main()
     DeleteFile "tmbasic-test"
     WriteFileText "tmbasic-test", "Hello, World!"
     print ReadFileText("tmbasic-test")
+    DeleteFile "tmbasic-test"
 
     ' ReadFileText should throw an error if the file doesn't exist
     try

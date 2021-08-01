@@ -10,6 +10,8 @@ sub Main()
     if text = "C" + NEW_LINE + "D" + NEW_LINE then
         print "good"
     end if
+
+    DeleteFile path
 end sub
 --output--
 2

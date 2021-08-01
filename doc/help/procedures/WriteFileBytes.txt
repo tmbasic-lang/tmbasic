@@ -1,0 +1,26 @@
+.procedure WriteFileBytes
+.category File I/O
+.blurb Creates or overwrites a text file with a list of bytes.
+.description
+Creates or overwrites a text file with a list of bytes.
+Each byte in the file is a number from 0-255 in the list.
+Use p[ReadFileBytes] to read the contents of a text file back into a list of bytes.
+.overload
+.parameter filePath: String
+Path and filename.
+.parameter bytes: List of Number
+The bytes to write to the file.
+.errors
+ERR_ACCESS_DENIED
+ERR_DISK_FULL
+ERR_FILE_NOT_FOUND
+ERR_IO_FAILURE
+ERR_PATH_IS_DIRECTORY
+ERR_PATH_TOO_LONG
+.example
+.example-code
+WriteFileBytes "myfile.dat", [65, 66, 67]
+print ReadFileText("myfile.dat")
+.example-output
+ABC
+.

@@ -70,6 +70,7 @@ enum class SystemCall {
     kObjectToValueMapNew,       // ObjectToValueMapNew() as ObjectToValueMap
     kPow,                       // Pow(base as Number, exponent as Number) as Number
     kPrintString,               // PrintString(input as String)
+    kReadFileBytes,             // ReadFileBytes(filePath as String) as List of Number
     kReadFileLines,             // ReadFileLines(filePath as String) as List of String
     kReadFileText,              // ReadFileText(filePath as String) as String
     kRound,                     // Round(x as Number) as Number
@@ -99,6 +100,7 @@ enum class SystemCall {
     kValueToObjectMapNew,       // ValueToObjectMapNew() as ValueToObjectMap
     kValueToValueMapNew,        // ValueToValueMapNew() as ValueToValueMap
     kValueV,                    // ValueV(input as Optional Value) as Boolean
+    kWriteFileBytes,            // WriteFileBytes(filePath as String, bytes as List of Number)
     kWriteFileLines,            // WriteFileLines(filePath as String, lines as List of String)
     kWriteFileText,             // WriteFileText(filePath as String, text as String)
 };

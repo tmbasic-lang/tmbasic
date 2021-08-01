@@ -3,21 +3,26 @@ nav@{TMBASIC Documentation:doc}@
 h1[Built-In Constants]
 
 TMBASIC provides a set of constants for your convenience.
-You can use these constants in your programs by name rather than writing the numeric values.
+You can use these constants in your programs by name rather than writing the literal number or string values.
 
 h2[Mathematical Constants]
 
 code@
 const PI = 3.141592653589793238462643383279502
 const EULER = 2.718281828459045235360287471352662
-const NEW_LINE = ... ' OS-dependent string
+@
+
+h2[Strings]
+
+code@
+const NEW_LINE = ...  ' OS-dependent string
 @
 
 h2[Error Codes]
 
-Many built-in procedures may throw an error if they fail.
-When catching errors, use the p[ErrorCode] function to get the error code.
-TMBASIC provides constants for the error codes used by built-in procedures.
+Many built-in procedures throw errors when they fail.
+When catching errors, use the p[ErrorCode] function to get the numeric error code.
+TMBASIC provides the following constants for the error codes used by built-in procedures.
 
 ul@
 li@`ERR_ACCESS_DENIED`@
