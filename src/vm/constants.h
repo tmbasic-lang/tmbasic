@@ -8,4 +8,10 @@ namespace vm {
 const int kValueStackSize = 65535;
 const int kObjectStackSize = 65535;
 
+#ifdef _WIN32
+const std::string kNewLine = "\r\n";
+#else
+const std::string kNewLine = "\n";
+#endif
+
 }  // namespace vm

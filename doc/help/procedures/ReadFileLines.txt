@@ -1,0 +1,30 @@
+.procedure ReadFileLines
+.category File I/O
+.blurb Reads the contents of a file as a list of strings.
+.description
+Reads the contents of a file as a list of strings.
+Each line in the file is one string in the list.
+Use p[WriteFileLines] to write a list of strings to a file.
+.overload
+.parameter filePath: String
+Path and filename.
+.return List of String
+The contents of the file, one string per line.
+.errors
+ERR_ACCESS_DENIED
+ERR_FILE_NOT_FOUND
+ERR_IO_FAILURE
+ERR_PATH_IS_DIRECTORY
+ERR_PATH_TOO_LONG
+.example
+.example-code
+WriteFileText "myfile.txt", "A" + NEW_LINE + "B" + NEW_LINE
+dim lines = ReadFileLines("myfile.txt")
+print Len(lines)
+print lines(0)
+print lines(1)
+.example-output
+2
+A
+B
+.

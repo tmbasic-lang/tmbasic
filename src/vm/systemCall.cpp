@@ -5,6 +5,7 @@
 #include "Optional.h"
 #include "String.h"
 #include "TimeZone.h"
+#include "constants.h"
 #include "date.h"
 #include "util/decimal.h"
 
@@ -502,6 +503,25 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kPrintString, [](const auto& input, auto* /*result*/) {
         *input.consoleOutputStream << dynamic_cast<const String&>(input.getObject(-1)).toUtf8();
     });
+    initSystemCall(SystemCall::kReadFileLines, [](const auto& input, auto* result) {
+        auto filePath = dynamic_cast<const String&>(input.getObject(-1)).toUtf8();
+        std::ifstream stream{ filePath };
+        if (stream.fail()) {
+            throwFileError(errno, filePath);
+        }
+        ObjectListBuilder builder{};
+        std::string line;
+        while (std::getline(stream, line)) {
+            if (stream.fail()) {
+                throwFileError(errno, filePath);
+            }
+            builder.items.push_back(boost::make_local_shared<String>(line));
+        }
+        if (stream.fail() && !stream.eof()) {
+            throwFileError(errno, filePath);
+        }
+        result->returnedObject = boost::make_local_shared<ObjectList>(&builder);
+    });
     initSystemCall(SystemCall::kReadFileText, [](const auto& input, auto* result) {
         auto filePath = dynamic_cast<const String&>(input.getObject(-1)).toUtf8();
         std::ifstream stream{ filePath };
@@ -510,6 +530,9 @@ void initSystemCalls() {
         }
         std::ostringstream ss;
         ss << stream.rdbuf();
+        if (stream.fail() && !stream.eof()) {
+            throwFileError(errno, filePath);
+        }
         result->returnedObject = boost::make_local_shared<String>(ss.str());
     });
     initSystemCall(SystemCall::kSeconds, [](const auto& input, auto* result) {
@@ -547,6 +570,11 @@ void initSystemCalls() {
         const auto& lhs = dynamic_cast<const String&>(input.getObject(-2));
         const auto& rhs = dynamic_cast<const String&>(input.getObject(-1));
         result->returnedObject = boost::make_local_shared<String>(lhs.toUtf8() + rhs.toUtf8());
+    });
+    initSystemCall(SystemCall::kStringEquals, [](const auto& input, auto* result) {
+        const auto& lhs = dynamic_cast<const String&>(input.getObject(-2));
+        const auto& rhs = dynamic_cast<const String&>(input.getObject(-1));
+        result->returnedValue.setBoolean(lhs.equals(rhs));
     });
     initSystemCall(SystemCall::kStringLen, systemCallLen);
     initSystemCall(SystemCall::kTan, [](const auto& input, auto* result) {
@@ -596,6 +624,20 @@ void initSystemCalls() {
         result->returnedObject = boost::make_local_shared<ValueToValueMap>();
     });
     initSystemCall(SystemCall::kValueV, systemCallValueV);
+    initSystemCall(SystemCall::kWriteFileLines, [](const auto& input, auto* result) {
+        const auto& filePath = dynamic_cast<const String&>(input.getObject(-2)).toUtf8();
+        const auto& lines = dynamic_cast<const ObjectList&>(input.getObject(-1));
+        std::ofstream stream{ filePath };
+        if (stream.fail()) {
+            throwFileError(errno, filePath);
+        }
+        for (const auto& line : lines.items) {
+            stream << dynamic_cast<const String&>(*line).toUtf8() << kNewLine;
+            if (stream.fail()) {
+                throwFileError(errno, filePath);
+            }
+        }
+    });
     initSystemCall(SystemCall::kWriteFileText, [](const auto& input, auto* result) {
         const auto& filePath = dynamic_cast<const String&>(input.getObject(-2)).toUtf8();
         const auto& text = dynamic_cast<const String&>(input.getObject(-1));
@@ -604,6 +646,9 @@ void initSystemCalls() {
             throwFileError(errno, filePath);
         }
         stream << text.toUtf8();
+        if (stream.fail()) {
+            throwFileError(errno, filePath);
+        }
     });
 
     _systemCallsInitialized = true;

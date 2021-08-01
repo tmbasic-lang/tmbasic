@@ -1,0 +1,28 @@
+.procedure WriteFileLines
+.category File I/O
+.blurb Creates or overwrites a text file with a list of line strings.
+.description
+Creates or overwrites a text file with a list of line strings.
+Use p[ReadFileLines] to read the contents of a text file back into a list of strings.
+.overload
+.parameter filePath: String
+Path and filename.
+.parameter lines: List of String
+The lines to write to the file.
+Each line will be ended with `NEW_LINE`.
+.errors
+ERR_ACCESS_DENIED
+ERR_DISK_FULL
+ERR_FILE_NOT_FOUND
+ERR_IO_FAILURE
+ERR_PATH_IS_DIRECTORY
+ERR_PATH_TOO_LONG
+.example
+.example-code
+WriteFileLines "myfile.txt", ["A", "B", "C"]
+print ReadFileText("myfile.txt")
+.example-output
+A
+B
+C
+.
