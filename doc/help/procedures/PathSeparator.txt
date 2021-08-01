@@ -1,0 +1,26 @@
+.procedure PathSeparator
+.category File I/O
+.blurb Returns the path separator character.
+.description
+Returns the path separator character, which depends on the user's operating system.
+To combine path components with the path separator, consider using p[CombinePath] instead.
+
+On Linux, this is `/`.
+An example Linux path is `/home/user/file.txt`.
+
+On macOS, this is `/`.
+An example macOS path is `/Users/user/Documents/file.txt`.
+
+On Windows, this is `\`.
+An example Windows path is `C:\Users\user\Documents\file.txt`.
+.overload
+.return String
+Path separator character.
+.example
+.example-code
+' the output will depend on your operating system
+dim x = "A" + PathSeparator + "B"
+print x
+.example-output
+A/B
+.

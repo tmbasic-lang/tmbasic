@@ -464,7 +464,7 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kMinutes, [](const auto& input, auto* result) {
         result->returnedValue.num = input.getValue(-1).num * U_MILLIS_PER_MINUTE;
     });
-    initSystemCall(SystemCall::kNewLine, [](const auto& input, auto* result) {
+    initSystemCall(SystemCall::kNewLine, [](const auto& /*input*/, auto* result) {
 #ifdef _WIN32
         result->returnedObject = boost::make_local_shared<String>("\r\n", 2);
 #else
@@ -518,6 +518,13 @@ void initSystemCalls() {
     });
     initSystemCall(SystemCall::kObjectToValueMapNew, [](const auto& /*input*/, auto* result) {
         result->returnedObject = boost::make_local_shared<ObjectToValueMap>();
+    });
+    initSystemCall(SystemCall::kPathSeparator, [](const auto& /*input*/, auto* result) {
+#ifdef _WIN32
+        result->returnedObject = boost::make_local_shared<String>("\\", 1);
+#else
+        result->returnedObject = boost::make_local_shared<String>("/", 1);
+#endif
     });
     initSystemCall(SystemCall::kPow, [](const auto& input, auto* result) {
         result->returnedValue.num = input.getValue(-2).num.pow(input.getValue(-1).num);

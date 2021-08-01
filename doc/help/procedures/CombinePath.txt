@@ -1,0 +1,19 @@
+.procedure CombinePath
+.category File I/O
+.blurb Makes a filesystem path by combining multiple path components with slashes.
+.description
+Makes a filesystem path by combining multiple path components with slashes.
+This function uses the slash character returned by p[PathSeparator], which is specific to the user's operating system.
+Trailing slashes in path components are ignored.
+.overload
+.parameter parts: List of String
+A series of directory names and optionally a filename at the end.
+.return String
+Combined filesystem path.
+.example
+.example-code
+' the output will depend on your operating system
+print CombinePath("C:", "Users\", "user", "Documents", "MyFile.txt")
+.example-output
+C:\Users\user\Documents\MyFile.txt
+.

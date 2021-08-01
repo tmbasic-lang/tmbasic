@@ -29,6 +29,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("CodeUnit", { "input" }, { string }, number, vm::SystemCall::kCodeUnit1);
     addFunction("CodeUnit", { "input", "index" }, { string, number }, number, vm::SystemCall::kCodeUnit2);
     addFunction("CodeUnits", { "input" }, { string }, listOfNumber, vm::SystemCall::kCodeUnits);
+    addFunction("CombinePath", { "parts" }, { listOfString }, string, vm::SystemCall::kCombinePath);
     addFunction("Concat", { "strings" }, { listOfString }, string, vm::SystemCall::kConcat1);
     addFunction("Concat", { "strings", "separator" }, { listOfString, string }, string, vm::SystemCall::kConcat2);
     addFunction("Cos", { "x" }, { number }, number, vm::SystemCall::kCos);
@@ -55,7 +56,8 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("Log10", { "x" }, { number }, number, vm::SystemCall::kLog10);
     addFunction("Milliseconds", { "count" }, { number }, timeSpan, vm::SystemCall::kMilliseconds);
     addFunction("Minutes", { "count" }, { number }, timeSpan, vm::SystemCall::kMinutes);
-    addFunction("NewLine",{},{},string,vm::SystemCall::kNewLine);
+    addFunction("NewLine", {}, {}, string, vm::SystemCall::kNewLine);
+    addFunction("PathSeparator", {}, {}, string, vm::SystemCall::kPathSeparator);
     addFunction("ReadFileBytes", { "filePath" }, { string }, listOfNumber, vm::SystemCall::kReadFileBytes);
     addFunction("ReadFileLines", { "filePath" }, { string }, listOfString, vm::SystemCall::kReadFileLines);
     addFunction("ReadFileText", { "filePath" }, { string }, string, vm::SystemCall::kReadFileText);

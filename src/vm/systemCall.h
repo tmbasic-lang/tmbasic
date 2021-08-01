@@ -23,7 +23,7 @@ enum class SystemCall {
     kCodeUnit1,                 // CodeUnit1(input as String) as Number
     kCodeUnit2,                 // CodeUnit2(input as String, index as Number) as Number
     kCodeUnits,                 // CodeUnits(input as String) as List of Number
-    kCombinePath, // CombinePath(parts as List of String) as String
+    kCombinePath,               // CombinePath(parts as List of String) as String
     kConcat1,                   // Concat1(input as List of String) as String
     kConcat2,                   // Concat2(input as List of String, separator as String) as String
     kCos,                       // Cos(x as Number) as Number
@@ -51,7 +51,7 @@ enum class SystemCall {
     kLog10,                     // Log10(x as Number) as Number
     kMilliseconds,              // Milliseconds(count as Number) as TimeSpan
     kMinutes,                   // Minutes(count as Number) as TimeSpan
-    kNewLine, // NewLine() as String
+    kNewLine,                   // NewLine() as String
     kNumberAdd,                 // NumberAdd(lhs as Number, rhs as Number) as Number
     kNumberDivide,              // NumberDivide(lhs as Number, rhs as Number) as Number
     kNumberEquals,              // NumberEquals(lhs as Number, rhs as Number) as Boolean
@@ -70,6 +70,7 @@ enum class SystemCall {
     kObjectOptionalNewPresent,  // ObjectOptionalNewPresent(input as Object) as ObjectOptional
     kObjectToObjectMapNew,      // ObjectToObjectMapNew() as ObjectToObjectMap
     kObjectToValueMapNew,       // ObjectToValueMapNew() as ObjectToValueMap
+    kPathSeparator,             // PathSeparator() as String
     kPow,                       // Pow(base as Number, exponent as Number) as Number
     kPrintString,               // PrintString(input as String)
     kReadFileBytes,             // ReadFileBytes(filePath as String) as List of Number
