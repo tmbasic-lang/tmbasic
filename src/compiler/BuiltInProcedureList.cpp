@@ -3,6 +3,7 @@
 namespace compiler {
 
 BuiltInProcedureList::BuiltInProcedureList() {
+    auto boolean = boost::make_local_shared<TypeNode>(Kind::kBoolean, Token{});
     auto number = boost::make_local_shared<TypeNode>(Kind::kNumber, Token{});
     auto string = boost::make_local_shared<TypeNode>(Kind::kString, Token{});
     auto date = boost::make_local_shared<TypeNode>(Kind::kDate, Token{});
@@ -45,6 +46,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("ErrorCode", {}, {}, number, vm::SystemCall::kErrorCode);
     addFunction("ErrorMessage", {}, {}, string, vm::SystemCall::kErrorMessage);
     addFunction("Exp", { "x" }, { number }, number, vm::SystemCall::kExp);
+    addFunction("FileExists", { "filePath" }, { string }, boolean, vm::SystemCall::kFileExists);
     addFunction("Floor", { "x" }, { number }, number, vm::SystemCall::kFloor);
     addFunction("Hours", { "count" }, { number }, timeSpan, vm::SystemCall::kHours);
     addFunction("Len", { "input" }, { listGeneric }, number, vm::SystemCall::kListLen);

@@ -421,6 +421,10 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kExp, [](const auto& input, auto* result) {
         result->returnedValue.num = input.getValue(-1).num.exp();
     });
+    initSystemCall(SystemCall::kFileExists, [](const auto& input, auto* result) {
+        auto path = dynamic_cast<const String&>(input.getObject(-1)).toUtf8();
+        result->returnedValue.setBoolean(access(path.c_str(), F_OK) == 0);
+    });
     initSystemCall(SystemCall::kFloor, [](const auto& input, auto* result) {
         result->returnedValue.num = input.getValue(-1).num.floor();
     });

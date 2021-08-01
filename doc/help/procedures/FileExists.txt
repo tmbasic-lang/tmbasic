@@ -1,0 +1,33 @@
+.procedure FileExists
+.category File I/O
+.blurb Checks whether a file exists or not.
+.description
+Returns whether a file exists at the given path and filename.
+
+The user may not have permission to view files in the given path.
+In that case, `false` is returned even though the file may exist.
+
+Warning: This function is easy to misuse.
+Keep in mind that other programs are running at the same time as your TMBASIC program.
+Another program may create/delete the file in between the call to p[FileExists] and the subsequent read or write of the file.
+In computer programming this is called a {time-of-check to time-of-use (TOCTOU) bug:https://en.wikipedia.org/wiki/Time-of-check_to_time-of-use}.
+
+It is better to try performing the file operation without checking for file existence. Then, catch any `ERR_FILE_NOT_FOUND` errors.
+.overload
+.parameter filePath: String
+Path and filename.
+.return Boolean
+`true` if the file exists.
+`false` if the file does not exist, or if the user cannot access the path.
+.example
+.example-code
+print FileExists("myfile.txt")
+WriteFileText "myfile.txt", "Hello"
+print FileExists("myfile.txt")
+DeleteFile "myfile.txt"
+print FileExists("myfile.txt")
+.example-output
+false
+true
+false
+.

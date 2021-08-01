@@ -38,6 +38,7 @@ enum class SystemCall {
     kErrorCode,                 // ErrorCode() as Number
     kErrorMessage,              // ErrorMessage() as String
     kExp,                       // exp(x as Number) as Number
+    kFileExists,                // FileExists(filePath as String) as Boolean
     kFloor,                     // Floor(x as Number) as Number
     kFlushConsoleOutput,        // FlushConsoleOutput()
     kHasValueO,                 // HasValue(input as Optional Object) as Boolean
