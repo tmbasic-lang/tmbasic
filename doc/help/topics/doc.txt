@@ -27,7 +27,7 @@ li@{License:license}@
 h3[Procedures]
 
 ul@
-li@{All Procedures:procedure}@
+li@{All Procedures:procedures}@
 li@{Algebra and Trigonometry:procedures_algebra_and_trigonometry}@
 li@{Dates and Times:procedures_dates_and_times}@
 li@{File I/O:procedures_file_io}@
@@ -38,18 +38,18 @@ li@{Strings:procedures_strings}@
 h3[Types]
 
 ul@
-li@{`Boolean` Type:type_Boolean}@
-li@{`Date` Type:type_Date}@
-li@{`DateTime` Type:type_DateTime}@
-li@{`DateTimeOffset` Type:type_DateTimeOffset}@
-li@{`List` Type:type_List}@
-li@{`Map` Type:type_Map}@
-li@{`Number` Type:type_Number}@
-li@{`Optional` Type:type_Optional}@
-li@{`Record` Type:type_Record}@
-li@{`String` Type:type_String}@
-li@{`TimeSpan` Type:type_TimeSpan}@
-li@{`TimeZone` Type:type_TimeZone}@
+li@{`Boolean` Type:type_boolean}@
+li@{`Date` Type:type_date}@
+li@{`DateTime` Type:type_datetime}@
+li@{`DateTimeOffset` Type:type_datetimeoffset}@
+li@{`List` Type:type_list}@
+li@{`Map` Type:type_map}@
+li@{`Number` Type:type_number}@
+li@{`Optional` Type:type_optional}@
+li@{`Record` Type:type_record}@
+li@{`String` Type:type_string}@
+li@{`TimeSpan` Type:type_timespan}@
+li@{`TimeZone` Type:type_timezone}@
 @
 
 h3[Statements]

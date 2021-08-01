@@ -17,6 +17,7 @@
 #include <vector>
 
 #include <boost/algorithm/string/trim.hpp>
+#include <boost/algorithm/string/case_conv.hpp>
 #include <nameof.hpp>
 
 using boost::trim_copy;
@@ -211,8 +212,12 @@ static string processTitle(string str) {
 }
 
 static string processText(string str) {
-    str = replaceRegex(str, R"(t\[(([^\] ]+)[^\]]*)\])", "{$1:type_$2}");
-    str = replaceRegex(str, R"(p\[([^\]]+)\])", "{$1:procedure_$1}");
+    str = replaceRegex(str, R"(t\[(([^\] ]+)[^\]]*)\])", [](auto& match) -> string {
+        return string("{") + match[1].str() + ":type_" + boost::to_lower_copy(match[2].str()) + "}";
+    });
+    str = replaceRegex(str, R"(p\[([^\]]+)\])", [](auto& match) -> string {
+        return string("{") + match[1].str() + ":procedure_" + boost::to_lower_copy(match[1].str()) + "}";
+    });
     str = replaceRegex(str, R"(i\[([^\]]+)\])", "$1");
     str = replaceRegex(str, R"(b\[([^\]]+)\])", "$1");
     str = replaceRegex(str, R"(h1\[([^\]]+)\])", "$1");
@@ -242,8 +247,13 @@ static string processHtml(string str) {
     str = replace(str, "<EM_DASH>", kHtmlEmDash);
     str = htmlEncode(str);
     str = replace(str, kHtmlTriangleRight, string("<wbr>") + kHtmlTriangleRight);
-    str = replaceRegex(str, R"(t\[(([^\] ]+)[^\]]*)\])", "<a href=\"type_$2.html\">$1</a>");
-    str = replaceRegex(str, R"(p\[([^\]]+)\])", "<a href=\"procedure_$1.html\">$1</a>");
+    str = replaceRegex(str, R"(t\[(([^\] ]+)[^\]]*)\])", [](auto& match) -> string {
+        return string("<a href=\"type_") + boost::to_lower_copy(match[2].str()) + ".html\">" + match[1].str() + "</a>";
+    });
+    str = replaceRegex(str, R"(p\[([^\]]+)\])", [](auto& match) -> string {
+        return string("<a href=\"procedure_") + boost::to_lower_copy(match[1].str()) + ".html\">" + match[1].str() +
+            "</a>";
+    });
     str = replaceRegex(str, R"(i\[([^\]]+)\])", "<i>$1</i>");
     str = replaceRegex(str, R"(b\[([^\]]+)\])", "<b>$1</b>");
     str = replaceRegex(str, "\n*h1\\[([^\\]]+)\\]\n*", "<h1>$1</h1>");
@@ -534,7 +544,7 @@ static unique_ptr<Procedure> buildProcedure(
     ostringstream* outputTxt,
     const string& htmlPageTemplate) {
     auto procedure = parseProcedure(readFile(utf8Filename));
-    auto topicName = string("procedure_") + procedure->name;
+    auto topicName = string("procedure_") + boost::to_lower_copy(procedure->name);
     *outputTxt << ".topic " << topicName << "\n" << processText(formatProcedureText(*procedure)) << "\n";
     writeHtmlPage(topicName, formatProcedureText(*procedure), htmlPageTemplate);
     return procedure;
@@ -561,7 +571,8 @@ static void buildProcedureCategoryPages(
 
         for (const auto& x : procedures) {
             if (x->category == category) {
-                o << "li@b[{`" << x->name << "`:procedure_" << x->name << "}] <EM_DASH> " << x->blurb << "@\n";
+                o << "li@b[{`" << x->name << "`:procedure_" << boost::to_lower_copy(x->name) << "}] <EM_DASH> "
+                  << x->blurb << "@\n";
             }
         }
 
@@ -584,7 +595,8 @@ static void buildProcedureIndex(
 
     o << "ul@";
     for (const auto& x : procedures) {
-        o << "li@b[{`" << x->name << "`:procedure_" << x->name << "}] <EM_DASH> " << x->blurb << "@\n";
+        o << "li@b[{`" << x->name << "`:procedure_" << boost::to_lower_copy(x->name) << "}] <EM_DASH> " << x->blurb
+          << "@\n";
     }
     o << "@\n\n";
 
@@ -606,9 +618,9 @@ static void buildProcedureIndex(
     }
     sort(typeNames.begin(), typeNames.end());
 
-    const auto* filePath = "../obj/doc-temp/procedure.txt";
+    const auto* filePath = "../obj/doc-temp/procedures.txt";
     writeFile(filePath, o.str());
-    buildTopic(filePath, "procedure", outputTxt, htmlPageTemplate);
+    buildTopic(filePath, "procedures", outputTxt, htmlPageTemplate);
 }
 
 static string insertDiagram(string input, const string& dir, const string& filename) {
