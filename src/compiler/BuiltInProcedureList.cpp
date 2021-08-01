@@ -41,6 +41,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
         { number, number, number, number, number, number, number, timeZone }, dateTimeOffset,
         vm::SystemCall::kDateTimeOffsetFromParts);
     addFunction("Days", { "count" }, { number }, timeSpan, vm::SystemCall::kDays);
+    addSub("DeleteFile", { "filePath" }, { string }, vm::SystemCall::kDeleteFile);
     addFunction("ErrorCode", {}, {}, number, vm::SystemCall::kErrorCode);
     addFunction("ErrorMessage", {}, {}, string, vm::SystemCall::kErrorMessage);
     addFunction("Exp", { "x" }, { number }, number, vm::SystemCall::kExp);
@@ -52,6 +53,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("Log10", { "x" }, { number }, number, vm::SystemCall::kLog10);
     addFunction("Milliseconds", { "count" }, { number }, timeSpan, vm::SystemCall::kMilliseconds);
     addFunction("Minutes", { "count" }, { number }, timeSpan, vm::SystemCall::kMinutes);
+    addFunction("ReadFileText", { "filePath" }, { string }, string, vm::SystemCall::kReadFileText);
     addFunction("Round", { "x" }, { number }, number, vm::SystemCall::kRound);
     addFunction("Seconds", { "count" }, { number }, timeSpan, vm::SystemCall::kSeconds);
     addFunction("Sin", { "x" }, { number }, number, vm::SystemCall::kSin);
@@ -67,6 +69,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("TotalMinutes", { "timeSpan" }, { timeSpan }, number, vm::SystemCall::kTotalMinutes);
     addFunction("TotalSeconds", { "timeSpan" }, { timeSpan }, number, vm::SystemCall::kTotalSeconds);
     addFunction("Trunc", { "x" }, { number }, number, vm::SystemCall::kTrunc);
+    addSub("WriteFileText", { "filePath", "text" }, { string, string }, vm::SystemCall::kWriteFileText);
 }
 
 const std::vector<std::unique_ptr<ProcedureNode>>& BuiltInProcedureList::get(const std::string& name) const {

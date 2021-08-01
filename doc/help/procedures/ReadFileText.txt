@@ -1,0 +1,24 @@
+.procedure ReadFileText
+.category File I/O
+.blurb Reads the contents of a file as a string.
+.description
+Reads the contents of a file as a string.
+Use p[WriteFileText] to write a string to a file.
+.overload
+.parameter filePath: String
+Path and filename.
+.return String
+The contents of the file.
+.errors
+ERR_ACCESS_DENIED
+ERR_FILE_NOT_FOUND
+ERR_IO_FAILURE
+ERR_PATH_IS_DIRECTORY
+ERR_PATH_TOO_LONG
+.example
+.example-code
+WriteFileText "myfile.txt", "Hello!"
+print ReadFileText("myfile.txt")
+.example-output
+Hello!
+.

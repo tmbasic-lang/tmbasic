@@ -10,12 +10,20 @@ BuiltInConstantList::BuiltInConstantList()
     addNumber("PI", util::parseDecimalString("3.141592653589793238462643383279502"));
     addNumber("EULER", util::parseDecimalString("2.718281828459045235360287471352662"));
 
-    // this matches vm::ErrorCode in vm/Error.h
-    addError("ERR_INVALID_LOCALE_NAME", vm::ErrorCode::kInvalidLocaleName);
+    // this is updated automatically by build/scripts/updateErrors.sh
+    // start_errors
     addError("ERR_VALUE_NOT_PRESENT", vm::ErrorCode::kValueNotPresent);
+    addError("ERR_IO_FAILURE", vm::ErrorCode::kIoFailure);
+    addError("ERR_FILE_NOT_FOUND", vm::ErrorCode::kFileNotFound);
+    addError("ERR_ACCESS_DENIED", vm::ErrorCode::kAccessDenied);
+    addError("ERR_PATH_TOO_LONG", vm::ErrorCode::kPathTooLong);
+    addError("ERR_DISK_FULL", vm::ErrorCode::kDiskFull);
+    addError("ERR_PATH_IS_DIRECTORY", vm::ErrorCode::kPathIsDirectory);
+    addError("ERR_INTERNAL_ICU_ERROR", vm::ErrorCode::kInternalIcuError);
     addError("ERR_INVALID_DATETIME", vm::ErrorCode::kInvalidDateTime);
     addError("ERR_INVALID_TIMEZONE", vm::ErrorCode::kInvalidTimeZone);
-    addError("ERR_INTERNAL_ICU_ERROR", vm::ErrorCode::kInternalIcuError);
+    addError("ERR_INVALID_LOCALE_NAME", vm::ErrorCode::kInvalidLocaleName);
+    // end_errors
 }
 
 void BuiltInConstantList::addError(std::string name, vm::ErrorCode code) {

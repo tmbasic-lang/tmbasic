@@ -73,6 +73,7 @@ struct Overload {
     vector<unique_ptr<Parameter>> parameters;
     vector<unique_ptr<Example>> examples;
     unique_ptr<ReturnType> returns;  // nullable
+    vector<string> errorCodes;
 };
 
 struct Procedure {
@@ -212,7 +213,7 @@ static string processTitle(string str) {
 static string processText(string str) {
     str = replaceRegex(str, R"(t\[(([^\] ]+)[^\]]*)\])", "{$1:type_$2}");
     str = replaceRegex(str, R"(p\[([^\]]+)\])", "{$1:procedure_$1}");
-    str = replaceRegex(str, R"(i\[([^\]]+)\])", "'$1'");
+    str = replaceRegex(str, R"(i\[([^\]]+)\])", "$1");
     str = replaceRegex(str, R"(b\[([^\]]+)\])", "$1");
     str = replaceRegex(str, R"(h1\[([^\]]+)\])", "$1");
     str = replaceRegex(str, R"(h2\[([^\]]+)\])", string(kCharDiamond) + " $1");
@@ -221,7 +222,7 @@ static string processText(string str) {
     str = replaceRegex(str, "code@([^@]+)@", [](auto& match) -> string { return indent(match[1].str()); });
     str = replaceRegex(str, "pre@([^@]+)@", [](auto& match) -> string { return indent(match[1].str()); });
     str = replaceRegex(str, "nav@([^@]+)@", "$1");
-    str = replaceRegex(str, "`([^`]+)`", "\"$1\"");
+    str = replaceRegex(str, "`([^`]+)`", "$1");
     str = replaceRegex(str, "li@([^@]+)@\n*", string(kCharBullet) + " $1\n\n");
     str = replaceRegex(str, "ul@\n*([^@]+)\n*@\n*", "$1");
     str = replaceRegex(str, "([^{])\\{([^:{]+):(http[^}]+)\\}", "$1$2");
@@ -386,6 +387,15 @@ static unique_ptr<Procedure> parseProcedure(const string& input) {
                 returns->type = rest;
                 returns->description = readProcedureBlock(lines, &i);
                 overload->returns = move(returns);
+            } else if (section == ".errors") {
+                auto block = readProcedureBlock(lines, &i);
+                vector<string> errorCodes{};
+                std::istringstream ss{ block };
+                std::string line;
+                while (std::getline(ss, line)) {
+                    errorCodes.push_back(line);
+                }
+                overload->errorCodes = move(errorCodes);
             } else if (section == ".example") {
                 auto newExample = make_unique<Example>();
                 example = newExample.get();
@@ -420,6 +430,8 @@ static string getProcedureCategoryTopic(const string& category) {
     for (auto ch : category) {
         if (ch == ' ') {
             topic << '_';
+        } else if (ch == '/') {
+            // eat it
         } else {
             topic << static_cast<char>(tolower(ch));
         }
@@ -481,7 +493,7 @@ static string formatProcedureText(const Procedure& procedure) {
                 o << "li@i[" << parameter->name << "] as t[" << parameter->type << "] <EM_DASH> "
                   << parameter->description << "@";
             }
-            o << "@";
+            o << "@\n";
         }
 
         if (isFunction) {
@@ -492,13 +504,23 @@ static string formatProcedureText(const Procedure& procedure) {
             o << overload->returns->description << "\n\n";
         }
 
+        if (!overload->errorCodes.empty()) {
+            o << "h3[Possible error codes]\n\nul@";
+            for (auto& errorCode : overload->errorCodes) {
+                o << "li@`" << errorCode << "`@\n";
+            }
+            o << "@\n";
+        }
+
         for (auto& example : overload->examples) {
             o << "h3[Example]\n\n";
             if (!trim_copy(example->description).empty()) {
                 o << example->description << "\n\n";
             }
             o << "bar[Code]\ncode@" << example->code << "@\n\n";
-            o << "bar[Output]\ncode@" << example->output << "@\n\n";
+            if (!example->output.empty()) {
+                o << "bar[Output]\ncode@" << example->output << "@\n\n";
+            }
         }
 
         o << "\n\n";

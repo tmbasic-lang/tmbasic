@@ -572,7 +572,6 @@ static void emitAssignStatement(const AssignStatementNode& statementNode, Proced
 }
 
 static void emitCallStatement(const CallStatementNode& statementNode, ProcedureState* state) {
-    assert(statementNode.procedureIndex.has_value());
     auto numValueArgs = 0;
     auto numObjectArgs = 0;
     int maxArgs = std::numeric_limits<uint8_t>::max();
@@ -584,9 +583,14 @@ static void emitCallStatement(const CallStatementNode& statementNode, ProcedureS
             throw CompilerException("Too many arguments in call.", statementNode.token);
         }
     }
-    state->call(
-        Opcode::kCall, *statementNode.procedureIndex, static_cast<uint8_t>(numValueArgs),
-        static_cast<uint8_t>(numObjectArgs));
+    if (statementNode.systemCall.has_value()) {
+        state->syscall(Opcode::kSystemCall, *statementNode.systemCall, numValueArgs, numObjectArgs);
+    } else {
+        assert(statementNode.procedureIndex.has_value());
+        state->call(
+            Opcode::kCall, *statementNode.procedureIndex, static_cast<uint8_t>(numValueArgs),
+            static_cast<uint8_t>(numObjectArgs));
+    }
 }
 
 static void emitConstStatement(const ConstStatementNode& /*statementNode*/, ProcedureState* /*state*/) {

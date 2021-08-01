@@ -371,17 +371,18 @@ bool Interpreter::run(int maxCycles) {
                 for (auto i = 0; i < numObjs; i++) {
                     popObject(objectStack, &osi);
                 }
-                if (returnsValue) {
-                    pushValue(valueStack, &vsi, result.returnedValue);
-                }
-                if (returnsObject) {
-                    assert(result.returnedObject != nullptr);
-                    pushObject(objectStack, &osi, std::move(result.returnedObject));
-                }
                 if (result.hasError) {
                     _private->hasError = result.hasError;
                     _private->errorMessage = result.errorMessage;
                     _private->errorCode.num = result.errorCode;
+                } else {
+                    if (returnsValue) {
+                        pushValue(valueStack, &vsi, result.returnedValue);
+                    }
+                    if (returnsObject) {
+                        assert(result.returnedObject != nullptr);
+                        pushObject(objectStack, &osi, std::move(result.returnedObject));
+                    }
                 }
                 break;
             }

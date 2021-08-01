@@ -1,0 +1,20 @@
+.procedure DeleteFile
+.category File I/O
+.blurb Deletes a file.
+.description
+Deletes a file.
+If the file does not exist, this procedure returns successfully.
+.overload
+.parameter filePath: String
+Path and filename.
+.errors
+ERR_ACCESS_DENIED
+ERR_IO_FAILURE
+ERR_PATH_IS_DIRECTORY
+ERR_PATH_TOO_LONG
+.example
+.example-code
+WriteFileText "myfile.txt", "Hello!"
+DeleteFile "myfile.txt"  ' deletes the file
+DeleteFile "myfile.txt"  ' does nothing; file is already deleted
+.

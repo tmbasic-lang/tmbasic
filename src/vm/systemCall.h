@@ -34,6 +34,7 @@ enum class SystemCall {
     kDateTimeToString,          // DateTimeToString(dateTime as DateTime) as String
     kDateToString,              // DateToString(date as Date) as String
     kDays,                      // Days(count as Number) as TimeSpan
+    kDeleteFile,                // DeleteFile(filePath as String) as Boolean
     kErrorCode,                 // ErrorCode() as Number
     kErrorMessage,              // ErrorMessage() as String
     kExp,                       // exp(x as Number) as Number
@@ -68,6 +69,7 @@ enum class SystemCall {
     kObjectToValueMapNew,       // ObjectToValueMapNew() as ObjectToValueMap
     kPow,                       // Pow(base as Number, exponent as Number) as Number
     kPrintString,               // PrintString(input as String)
+    kReadFileText,              // ReadFileText(filePath as String) as String
     kRound,                     // Round(x as Number) as Number
     kSeconds,                   // Seconds(count as Number) as TimeSpan
     kSin,                       // Sin(x as Number) as Number
@@ -94,6 +96,7 @@ enum class SystemCall {
     kValueToObjectMapNew,       // ValueToObjectMapNew() as ValueToObjectMap
     kValueToValueMapNew,        // ValueToValueMapNew() as ValueToValueMap
     kValueV,                    // ValueV(input as Optional Value) as Boolean
+    kWriteFileText,             // WriteFileText(filePath as String, text as String)
 };
 
 class SystemCallInput {

@@ -1,0 +1,25 @@
+.procedure WriteFileText
+.category File I/O
+.blurb Creates or overwrites a text file with the contents of a string.
+.description
+Creates or overwrites a text file with the contents of a string.
+Use p[ReadFileText] to read the contents of a text file back into a string.
+.overload
+.parameter filePath: String
+Path and filename.
+.parameter text: String
+The string to write to the file.
+.errors
+ERR_ACCESS_DENIED
+ERR_DISK_FULL
+ERR_FILE_NOT_FOUND
+ERR_IO_FAILURE
+ERR_PATH_IS_DIRECTORY
+ERR_PATH_TOO_LONG
+.example
+.example-code
+WriteFileText "myfile.txt", "Hello!"
+print ReadFileText("myfile.txt")
+.example-output
+Hello!
+.

@@ -282,6 +282,26 @@ static boost::local_shared_ptr<String> stringConcat(const ObjectList& objectList
     return boost::make_local_shared<String>(std::move(str));
 }
 
+static void throwFileError(int posixError, const std::string& filePath) {
+    switch (posixError) {
+        case ENOENT:
+            throw Error(ErrorCode::kFileNotFound, fmt::format("The file \"{}\" does not exist.", filePath));
+        case EACCES:
+            throw Error(ErrorCode::kAccessDenied, fmt::format("Access to the file \"{}\" was denied.", filePath));
+        case ENAMETOOLONG:
+            throw Error(ErrorCode::kPathTooLong, fmt::format("The path \"{}\" is too long.", filePath));
+        case ENOSPC:
+            throw Error(
+                ErrorCode::kDiskFull, fmt::format("The disk containing the file \"{}\" is out of space.", filePath));
+        case EISDIR:
+            throw Error(ErrorCode::kPathIsDirectory, fmt::format("The path \"{}\" is a directory.", filePath));
+        default:
+            throw Error(
+                ErrorCode::kIoFailure,
+                fmt::format("Failed to access the file \"{}\". {}", filePath, strerror(posixError)));
+    }
+}
+
 static void initSystemCall(SystemCall which, SystemCallFunc func) {
     auto index = static_cast<size_t>(which);
 
@@ -380,6 +400,18 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kDays, [](const auto& input, auto* result) {
         result->returnedValue.num = input.getValue(-1).num * U_MILLIS_PER_DAY;
     });
+    initSystemCall(SystemCall::kDeleteFile, [](const auto& input, auto* result) {
+        const auto& path = dynamic_cast<const String&>(input.getObject(-1));
+        auto pathStr = path.toUtf8();
+        if (unlink(pathStr.c_str()) != 0) {
+            auto err = errno;
+            if (err == ENOENT) {
+                // not an error
+                return;
+            }
+            throwFileError(err, pathStr);
+        }
+    });
     initSystemCall(
         SystemCall::kErrorCode, [](const auto& input, auto* result) { result->returnedValue = input.errorCode; });
     initSystemCall(SystemCall::kErrorMessage, [](const auto& input, auto* result) {
@@ -470,6 +502,16 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kPrintString, [](const auto& input, auto* /*result*/) {
         *input.consoleOutputStream << dynamic_cast<const String&>(input.getObject(-1)).toUtf8();
     });
+    initSystemCall(SystemCall::kReadFileText, [](const auto& input, auto* result) {
+        auto filePath = dynamic_cast<const String&>(input.getObject(-1)).toUtf8();
+        std::ifstream stream{ filePath };
+        if (stream.fail()) {
+            throwFileError(errno, filePath);
+        }
+        std::ostringstream ss;
+        ss << stream.rdbuf();
+        result->returnedObject = boost::make_local_shared<String>(ss.str());
+    });
     initSystemCall(SystemCall::kSeconds, [](const auto& input, auto* result) {
         result->returnedValue.num = input.getValue(-1).num * U_MILLIS_PER_SECOND;
     });
@@ -554,6 +596,15 @@ void initSystemCalls() {
         result->returnedObject = boost::make_local_shared<ValueToValueMap>();
     });
     initSystemCall(SystemCall::kValueV, systemCallValueV);
+    initSystemCall(SystemCall::kWriteFileText, [](const auto& input, auto* result) {
+        const auto& filePath = dynamic_cast<const String&>(input.getObject(-2)).toUtf8();
+        const auto& text = dynamic_cast<const String&>(input.getObject(-1));
+        std::ofstream stream{ filePath };
+        if (stream.fail()) {
+            throwFileError(errno, filePath);
+        }
+        stream << text.toUtf8();
+    });
 
     _systemCallsInitialized = true;
 }
