@@ -1,0 +1,24 @@
+.procedure PathDirectoryName
+.category File I/O
+.blurb Gets the parent directory that contains the given directory or file.
+.description
+Gets the path of the parent directory that contains the given directory or file.
+Use p[PathFileName] to return the filename part of the path.
+
+This is done by removing the last path component from the string.
+No disk access is performed and the path does not need to actually exist.
+.overload
+.parameter path: String
+Path to a directory or file.
+.return String
+Parent directory path.
+.example
+.example-code
+' this result depends on your operating system
+dim path = "C:\Users\user\Documents\myfile.txt"
+print PathDirectoryName(path)
+print PathFileName(path)
+.example-output
+C:\Users\user\Documents
+myfile.txt
+.

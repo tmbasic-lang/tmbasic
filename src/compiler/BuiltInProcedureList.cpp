@@ -57,6 +57,11 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("Milliseconds", { "count" }, { number }, timeSpan, vm::SystemCall::kMilliseconds);
     addFunction("Minutes", { "count" }, { number }, timeSpan, vm::SystemCall::kMinutes);
     addFunction("NewLine", {}, {}, string, vm::SystemCall::kNewLine);
+    addFunction("PathDirectoryName", { "path" }, { string }, string, vm::SystemCall::kPathDirectoryName);
+    addFunction("PathExtension", { "path" }, { string }, string, vm::SystemCall::kPathExtension);
+    addFunction("PathFileName", { "path" }, { string }, string, vm::SystemCall::kPathFileName);
+    addFunction(
+        "PathFileNameWithoutExtension", { "path" }, { string }, string, vm::SystemCall::kPathFileNameWithoutExtension);
     addFunction("PathSeparator", {}, {}, string, vm::SystemCall::kPathSeparator);
     addFunction("ReadFileBytes", { "filePath" }, { string }, listOfNumber, vm::SystemCall::kReadFileBytes);
     addFunction("ReadFileLines", { "filePath" }, { string }, listOfString, vm::SystemCall::kReadFileLines);

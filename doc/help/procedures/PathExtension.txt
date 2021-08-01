@@ -1,0 +1,28 @@
+.procedure PathExtension
+.category File I/O
+.blurb Gets the file extension (like `.txt`) from a path.
+.description
+Gets the file extension (like `.txt`) from a path.
+This is the part of the filename starting at the final dot.
+Use p[PathFileNameWithoutExtension] to return the rest of the filename before the final dot.
+
+If there are multiple dots in the filename, only the last one is considered.
+For instance, `PathExtension("test.tar.gz")` returns `".gz"`.
+
+This is done by manipulating the path string.
+No disk access is performed and the path does not need to actually exist.
+.overload
+.parameter path: String
+Path to a directory or file.
+.return String
+Extension, including the dot.
+If the filename does not contain a dot, then an empty string is returned.
+.example
+.example-code
+' this result depends on your operating system
+print "("; PathExtension("C:\Users\user\Documents\myfile.txt"); ")"
+print "("; PathExtension("filename_without_extension"); ")"
+.example-output
+(.txt)
+()
+.

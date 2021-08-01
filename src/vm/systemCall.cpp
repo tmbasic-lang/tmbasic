@@ -519,6 +519,22 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kObjectToValueMapNew, [](const auto& /*input*/, auto* result) {
         result->returnedObject = boost::make_local_shared<ObjectToValueMap>();
     });
+    initSystemCall(SystemCall::kPathDirectoryName, [](const auto& input, auto* result) {
+        auto path = dynamic_cast<const String&>(input.getObject(-1)).toUtf8();
+        result->returnedObject = boost::make_local_shared<String>(util::getDirectoryName(path));
+    });
+    initSystemCall(SystemCall::kPathExtension, [](const auto& input, auto* result) {
+        auto path = dynamic_cast<const String&>(input.getObject(-1)).toUtf8();
+        result->returnedObject = boost::make_local_shared<String>(util::getExtension(path));
+    });
+    initSystemCall(SystemCall::kPathFileName, [](const auto& input, auto* result) {
+        auto path = dynamic_cast<const String&>(input.getObject(-1)).toUtf8();
+        result->returnedObject = boost::make_local_shared<String>(util::getFileName(path));
+    });
+    initSystemCall(SystemCall::kPathFileNameWithoutExtension, [](const auto& input, auto* result) {
+        auto path = dynamic_cast<const String&>(input.getObject(-1)).toUtf8();
+        result->returnedObject = boost::make_local_shared<String>(util::getFileNameWithoutExtension(path));
+    });
     initSystemCall(SystemCall::kPathSeparator, [](const auto& /*input*/, auto* result) {
 #ifdef _WIN32
         result->returnedObject = boost::make_local_shared<String>("\\", 1);

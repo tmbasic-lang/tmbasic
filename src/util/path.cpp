@@ -53,4 +53,22 @@ std::string pathCombine(const std::string& dir, const std::string& name) {
 #endif
 }
 
+std::string getFileNameWithoutExtension(const std::string& filePath) {
+    auto filename = getFileName(filePath);
+    auto dotIndex = filename.rfind('.');
+    if (dotIndex == std::string::npos) {
+        return filename;
+    }
+    return filename.substr(0, dotIndex);
+}
+
+std::string getExtension(const std::string& filePath) {
+    auto filename = getFileName(filePath);
+    auto dotIndex = filename.rfind('.');
+    if (dotIndex == std::string::npos) {
+        return "";
+    }
+    return filename.substr(dotIndex);
+}
+
 }  // namespace util

@@ -1,0 +1,24 @@
+.procedure PathFileName
+.category File I/O
+.blurb Gets the filename part of a path.
+.description
+Gets the filename part of a path, dropping the directory part.
+Use p[PathDirectoryName] to return the directory part of the path.
+
+This is done by extracting the last path component from the string.
+No disk access is performed and the path does not need to actually exist.
+.overload
+.parameter path: String
+Path to a directory or file.
+.return String
+Last path component.
+.example
+.example-code
+' this result depends on your operating system
+dim path = "C:\Users\user\Documents\myfile.txt"
+print PathDirectoryName(path)
+print PathFileName(path)
+.example-output
+C:\Users\user\Documents
+myfile.txt
+.

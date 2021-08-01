@@ -1,0 +1,27 @@
+.procedure PathFileNameWithoutExtension
+.category File I/O
+.blurb Gets the part of the filename before the final dot.
+.description
+Gets the part of the filename before the final dot.
+Use p[PathExtension] to return the rest of the filename starting with the final dot.
+
+If there are multiple dots in the filename, all but the last one are included in this function's result.
+For instance, `PathFileNameWithoutExtension("test.tar.gz")` returns `"test.tar"`.
+
+This is done by manipulating the path string.
+No disk access is performed and the path does not need to actually exist.
+.overload
+.parameter path: String
+Path to a directory or file.
+.return String
+Part of the filename before the final dot.
+If the filename does not contain a dot, then the whole filename is returned.
+.example
+.example-code
+' this result depends on your operating system
+print PathFileNameWithoutExtension("C:\Users\user\Documents\myfile.txt")
+print PathFileNameWithoutExtension("filename_without_extension")
+.example-output
+myfile
+filename_without_extension
+.
