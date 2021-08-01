@@ -18,7 +18,7 @@ ERR_PATH_IS_DIRECTORY
 ERR_PATH_TOO_LONG
 .example
 .example-code
-WriteFileText "myfile.txt", "A" + NEW_LINE + "B" + NEW_LINE
+WriteFileText "myfile.txt", "A" + NewLine + "B" + NewLine
 dim lines = ReadFileLines("myfile.txt")
 print Len(lines)
 print lines(0)

@@ -10,7 +10,6 @@ BuiltInConstantList::BuiltInConstantList()
       _stringType(boost::make_local_shared<TypeNode>(Kind::kString, Token{})) {
     addNumber("PI", util::parseDecimalString("3.141592653589793238462643383279502"));
     addNumber("EULER", util::parseDecimalString("2.718281828459045235360287471352662"));
-    addString("NEW_LINE", vm::kNewLine);
 
     // this is updated automatically by build/scripts/updateErrors.sh
     // start_errors

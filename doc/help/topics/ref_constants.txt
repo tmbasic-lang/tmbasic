@@ -12,12 +12,6 @@ const PI = 3.141592653589793238462643383279502
 const EULER = 2.718281828459045235360287471352662
 @
 
-h2[Strings]
-
-code@
-const NEW_LINE = ...  ' OS-dependent string
-@
-
 h2[Error Codes]
 
 Many built-in procedures throw errors when they fail.

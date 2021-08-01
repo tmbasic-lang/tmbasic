@@ -1,0 +1,18 @@
+.procedure NewLine
+.category Strings
+.blurb Returns the end-of-line character sequence.
+.description
+Returns the end-of-line character sequence, which depends on the user's operating system.
+On Linux and macOS, this is a carriage return, or `Chr(13)`.
+On Windows, this is a carriage return and line feed, or `Chr(13) + Chr(10)`.
+.overload
+.return String
+End-of-line string.
+.example
+.example-code
+dim x = "A" + NewLine + "B"
+print x
+.example-output
+A
+B
+.

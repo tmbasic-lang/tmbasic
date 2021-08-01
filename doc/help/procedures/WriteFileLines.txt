@@ -9,7 +9,7 @@ Use p[ReadFileLines] to read the contents of a text file back into a list of str
 Path and filename.
 .parameter lines: List of String
 The lines to write to the file.
-Each line will be ended with `NEW_LINE`.
+Each line will be ended with p[NewLine].
 .errors
 ERR_ACCESS_DENIED
 ERR_DISK_FULL

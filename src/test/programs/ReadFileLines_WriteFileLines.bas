@@ -1,13 +1,13 @@
 #procedure
 sub Main()
     dim path = "./tmbasic-temp"
-    WriteFileText path, "A" + NEW_LINE + "B" + NEW_LINE
+    WriteFileText path, "A" + NewLine + "B" + NewLine
     dim lines = ReadFileLines(path)
     print Len(lines)
 
     WriteFileLines path, ["C", "D"]
     dim text = ReadFileText(path)
-    if text = "C" + NEW_LINE + "D" + NEW_LINE then
+    if text = "C" + NewLine + "D" + NewLine then
         print "good"
     end if
 

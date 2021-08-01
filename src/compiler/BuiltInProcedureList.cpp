@@ -55,6 +55,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("Log10", { "x" }, { number }, number, vm::SystemCall::kLog10);
     addFunction("Milliseconds", { "count" }, { number }, timeSpan, vm::SystemCall::kMilliseconds);
     addFunction("Minutes", { "count" }, { number }, timeSpan, vm::SystemCall::kMinutes);
+    addFunction("NewLine",{},{},string,vm::SystemCall::kNewLine);
     addFunction("ReadFileBytes", { "filePath" }, { string }, listOfNumber, vm::SystemCall::kReadFileBytes);
     addFunction("ReadFileLines", { "filePath" }, { string }, listOfString, vm::SystemCall::kReadFileLines);
     addFunction("ReadFileText", { "filePath" }, { string }, string, vm::SystemCall::kReadFileText);

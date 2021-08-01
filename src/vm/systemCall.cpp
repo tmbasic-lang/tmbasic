@@ -8,6 +8,7 @@
 #include "constants.h"
 #include "date.h"
 #include "util/decimal.h"
+#include "util/path.h"
 
 namespace vm {
 
@@ -378,6 +379,19 @@ void initSystemCalls() {
         }
         result->returnedObject = boost::make_local_shared<ValueList>(&b);
     });
+    initSystemCall(SystemCall::kCombinePath, [](const auto& input, auto* result) {
+        const auto& list = dynamic_cast<const ObjectList&>(input.getObject(-1));
+        if (list.items.empty()) {
+            result->returnedObject = boost::make_local_shared<String>("", 0);
+            return;
+        }
+        auto path = dynamic_cast<const String&>(*list.items.at(0)).toUtf8();
+        for (size_t i = 1; i < list.items.size(); i++) {
+            auto component = dynamic_cast<const String&>(*list.items.at(i)).toUtf8();
+            path = util::pathCombine(path, component);
+        }
+        result->returnedObject = boost::make_local_shared<String>(path);
+    });
     initSystemCall(SystemCall::kConcat1, [](const auto& input, auto* result) {
         const auto& objectList = dynamic_cast<const ObjectList&>(input.getObject(-1));
         String empty{ "", 0 };
@@ -449,6 +463,13 @@ void initSystemCalls() {
     });
     initSystemCall(SystemCall::kMinutes, [](const auto& input, auto* result) {
         result->returnedValue.num = input.getValue(-1).num * U_MILLIS_PER_MINUTE;
+    });
+    initSystemCall(SystemCall::kNewLine, [](const auto& input, auto* result) {
+#ifdef _WIN32
+        result->returnedObject = boost::make_local_shared<String>("\r\n", 2);
+#else
+        result->returnedObject = boost::make_local_shared<String>("\n", 1);
+#endif
     });
     initSystemCall(SystemCall::kNumberAdd, [](const auto& input, auto* result) {
         result->returnedValue.num = input.getValue(-2).num + input.getValue(-1).num;
