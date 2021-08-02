@@ -27,11 +27,10 @@ sub Main()
     end if
 
     print "Acos, Asin, Atan, Atan2"
-    print Acos(0.25)
     print Trunc(Acos(0.25) * 1000)
-    print Asin(0.25)
-    print Atan(0.25)
-    print Atan2(1, 0.25)
+    print Trunc(Asin(0.25) * 1000)
+    print Trunc(Atan(0.25) * 1000)
+    print Trunc(Atan2(1, 0.25) * 1000)
 
     print "Log, Log10, Exp"
     print Round(Log(EULER) * 1000)
@@ -92,11 +91,10 @@ Tan
 0
 close enough to 0
 Acos, Asin, Atan, Atan2
-1.318116071652817966608495225955266
 1318
-0.252680255142078646901637739574653
-0.2449786631268641434733268624768242
-1.325817663668032553303532949939836
+252
+244
+1325
 Log, Log10, Exp
 1000
 3

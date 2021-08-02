@@ -1,6 +1,6 @@
 #procedure
 sub Main()
-    dim path = "dir-test/"
+    dim path = "dir-test" + PathSeparator
     try
         DeleteDirectory path, true
     catch
@@ -36,7 +36,9 @@ sub Main()
     end try
 
     ' DeleteDirectory(String, true) with non-empty dir -> works
+    print "3.5 cleaning up"
     DeleteDirectory path, true
+    print "3.5 cleanup done"
 
     ' confirm that the directory is gone now
     try
@@ -64,6 +66,8 @@ end sub
 1 output from dir-test/test.txt
 2 ERR_DIRECTORY_NOT_EMPTY
 3 ERR_DIRECTORY_NOT_EMPTY
+3.5 cleaning up
+3.5 cleanup done
 4 ERR_FILE_NOT_FOUND
 5 2
 6 3

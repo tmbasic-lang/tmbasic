@@ -27,7 +27,9 @@ std::string getDirectoryName(const std::string& filePath) {
     delete str;
     return directoryName;
 #else
-    return std::filesystem::path{ filePath }.parent_path().string();
+    auto str = std::filesystem::path{ filePath }.parent_path().string();
+    assert(str.size() <= filePath.size());
+    return str;
 #endif
 }
 
@@ -40,17 +42,24 @@ void createDirectory(const std::string& path) {
 }
 
 std::string pathCombine(const std::string& dir, const std::string& name) {
-#ifdef __APPLE__
-    auto endsInSlash = name.size() > 0 && name.at(name.size() - 1) == '/';
-    if (endsInSlash) {
-        return dir + name;
-    } else {
-        return dir + "/" + name;
-    }
+#ifdef _WIN32
+    constexpr char sep = '\\';
 #else
-    auto path = std::filesystem::path{ dir } / name;
-    return path.string();
+    constexpr char sep = '/';
 #endif
+    size_t dirLength = dir.size();
+    while (dirLength > 0 && dir.at(dirLength - 1) == sep) {
+        dirLength--;
+    }
+
+    size_t nameLength = name.size();
+    while (nameLength > 0 && name.at(nameLength - 1) == sep) {
+        nameLength--;
+    }
+
+    std::ostringstream ss;
+    ss << dir.substr(0, dirLength) << sep << name.substr(0, nameLength);
+    return ss.str();
 }
 
 std::string getFileNameWithoutExtension(const std::string& filePath) {

@@ -46,8 +46,14 @@ class FindFileHandle {
 // wantDirsOrFiles: true = want directories, false = want files
 static std::vector<std::string> listFilesOrDirectories(const std::string& path, bool wantDirsOrFiles) {
 #ifdef _WIN32
+    size_t trimmedPathLength = path.size();
+    while (trimmedPathLength > 0 && path.at(trimmedPathLength - 1) == '\\') {
+        trimmedPathLength--;
+    }
+    auto trimmedPath = path.substr(0, trimmedPathLength) + "\\*";
+
     WIN32_FIND_DATAW findFileData{};
-    auto wpath = util::winUtf8ToUtf16(path);
+    auto wpath = util::winUtf8ToUtf16(trimmedPath);
 
     FindFileHandle hFind{ FindFirstFileW(wpath.c_str(), &findFileData) };
     if (hFind.get() == INVALID_HANDLE_VALUE) {
@@ -60,8 +66,15 @@ static std::vector<std::string> listFilesOrDirectories(const std::string& path, 
 
     std::vector<std::string> result;
     do {
-        if (wantDirsOrFiles == (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
-            result.push_back(util::pathCombine(path, util::winUtf16ToUtf8(findFileData.cFileName)));
+        auto isSingleDot = wcscmp(findFileData.cFileName, L".") == 0;
+        auto isDoubleDot = wcscmp(findFileData.cFileName, L"..") == 0;
+        if (!isSingleDot && !isDoubleDot) {
+            std::wstring filenameUtf16{findFileData.cFileName};
+            auto filenameUtf8 = util::winUtf16ToUtf8(filenameUtf16);
+            auto isDir = (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+            if (wantDirsOrFiles == isDir) {
+                result.push_back(util::pathCombine(path, filenameUtf8));
+            }
         }
     } while (FindNextFileW(hFind.get(), &findFileData) != 0);
 
@@ -118,19 +131,16 @@ std::vector<std::string> listDirectories(const std::string& path) {
 }
 
 void createDirectory(const std::string& path) {
-#ifdef _WIN32
-    try {
-        std::filesystem::create_directories(path);
-    } catch (const std::runtime_error& e) {
-        throw Error(ErrorCode::kIoFailure, fmt::format("Failed to create directory \"{}\": {}", path, e.what()));
-    }
-#else
     auto parentDir = util::getDirectoryName(path);
-    if (!parentDir.empty()) {
+    if (!parentDir.empty() && parentDir != path) {
         createDirectory(parentDir);
     }
 
+#ifdef _WIN32
+    if (mkdir(path.c_str()) != 0) {
+#else
     if (mkdir(path.c_str(), 0755) != 0) {
+#endif
         auto err = errno;
         if (err == EEXIST) {
             // not an error
@@ -138,45 +148,25 @@ void createDirectory(const std::string& path) {
         }
         throw Error::fromDirectoryErrno(err, path);
     }
-#endif
 }
 
 void deleteDirectory(const std::string& path, bool recursive) {
-#ifdef _WIN32
-    try {
-        if (recursive) {
-            std::filesystem::remove_all(path);
-        } else {
-            auto wpath = util::winUtf8ToUtf16(path);
-            auto result = RemoveDirectoryW(wpath.c_str());
-            if (result == 0) {
-                auto lastError = GetLastError();
-                throw Error::fromDirectoryWinError(lastError, path);
-            }
-        }
-    } catch (const std::runtime_error& e) {
-        throw Error(ErrorCode::kIoFailure, fmt::format("Failed to delete directory \"{}\": {}", path, e.what()));
-    }
-#else
     if (recursive) {
-        auto filePaths = listFiles(path);
-        for (const auto& filePath : filePaths) {
+        for (const auto& filePath : listFiles(path)) {
             if (unlink(filePath.c_str()) != 0) {
                 auto err = errno;
                 throw Error::fromFileErrno(err, filePath);
             }
         }
 
-        auto dirPaths = listDirectories(path);
-        for (const auto& filePath : dirPaths) {
-            deleteDirectory(filePath, true);
+        for (const auto& subdirPath : listDirectories(path)) {
+            deleteDirectory(subdirPath, true);
         }
     }
     if (rmdir(path.c_str()) != 0) {
         auto err = errno;
         throw Error::fromDirectoryErrno(err, path);
     }
-#endif
 }
 
 }  // namespace vm

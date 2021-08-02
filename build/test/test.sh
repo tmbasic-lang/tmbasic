@@ -4,9 +4,9 @@ export TESTDIR=/tmp/tmbasic-test
 
 # we will use $TESTDIR on all three machines as a working area
 rm -rf $TESTDIR && mkdir -p $TESTDIR
-ssh -i $BUILD_KEY $BUILD_USER@$BUILD_HOST "rm -rf $TESTDIR && mkdir -p $TESTDIR"
-ssh -i $ARM_KEY $ARM_USER@$ARM_HOST "rm -rf $TESTDIR && mkdir -p $TESTDIR"
-ssh -i $X64_KEY $X64_USER@$X64_HOST "rm -rf $TESTDIR && mkdir -p $TESTDIR"
+ssh -i $BUILD_KEY $BUILD_USER@$BUILD_HOST "sudo rm -rf $TESTDIR && mkdir -p $TESTDIR"
+ssh -i $ARM_KEY $ARM_USER@$ARM_HOST "sudo rm -rf $TESTDIR && mkdir -p $TESTDIR"
+ssh -i $X64_KEY $X64_USER@$X64_HOST "sudo rm -rf $TESTDIR && mkdir -p $TESTDIR"
 
 cd ../  # build directory
 
@@ -48,8 +48,7 @@ copyAndExtractTmbasicDir $ARM_KEY $ARM_USER $ARM_HOST "src"
 # build Dockerfile.wine on x64 machine
 ssh -i $X64_KEY $X64_USER@$X64_HOST "rm -rf $TESTDIR/wine && mkdir -p $TESTDIR/wine"
 scp -i $X64_KEY test/Dockerfile.wine $X64_USER@$X64_HOST:$TESTDIR/wine/Dockerfile.wine
-ssh -i $X64_KEY $X64_USER@$X64_HOST "cd $TESTDIR/wine/ ; \
-    [ \"\$(docker image ls tmbasic-wine | wc -l)\" == \"1\" ] && docker build -t tmbasic-wine -f Dockerfile.wine ."
+ssh -i $X64_KEY $X64_USER@$X64_HOST "cd $TESTDIR/wine/ ; docker build -t tmbasic-wine -f Dockerfile.wine ."
 
 # windows tests
 function runWindowsTest {

@@ -15,7 +15,7 @@ sub Main()
         print ReadFileText("this_file_does_not_exist")
     catch
         if ErrorCode = ERR_FILE_NOT_FOUND then
-            print "1 ERR_FILE_NOT_FOUND"
+            print "1 ok"
         else
             print "1 "; ErrorCode; " "; ErrorMessage
         end if
@@ -26,73 +26,42 @@ sub Main()
         print ReadFileText("/this_directory_does_not_exist/this_file_does_not_exist")
     catch
         if ErrorCode = ERR_FILE_NOT_FOUND then
-            print "2 ERR_FILE_NOT_FOUND"
+            print "2 ok"
         else
             print "2 "; ErrorCode; " "; ErrorMessage
         end if
     end try
-
-    ' ReadFileText should throw an error if the filename is too long
-    try
-        print ReadFileText("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-    catch
-        if ErrorCode = ERR_PATH_TOO_LONG then
-            print "3 ERR_PATH_TOO_LONG"
-        else
-            print "3 "; ErrorCode; " "; ErrorMessage
-        end if
-    end try    
 
     ' WriteFileText should throw an error if the directory doesn't exist
     try
         WriteFileText "/missing/dir/tmbasic-test", "asdf"
     catch
         if ErrorCode = ERR_FILE_NOT_FOUND then
-            print "4 ERR_FILE_NOT_FOUND"
+            print "3 ok"
         else
-            print "4 "; ErrorCode; " "; ErrorMessage
-        end if
-    end try
-
-    ' WriteFileText should throw an error if the filename is too long
-    try
-        WriteFileText "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "asdf"
-    catch
-        if ErrorCode = ERR_PATH_TOO_LONG then
-            print "5 ERR_PATH_TOO_LONG"
-        else
-            print "5 "; ErrorCode; " "; ErrorMessage
+            print "3 "; ErrorCode; " "; ErrorMessage
         end if
     end try
 
     ' WriteFileText should throw an error if the filename is actually a directory
+    CreateDirectory "testdir"
     try
-        WriteFileText ".", "asdf"
+        WriteFileText "testdir", "asdf"
     catch
         if ErrorCode = ERR_PATH_IS_DIRECTORY then
-            print "6 ERR_PATH_IS_DIRECTORY"
+            print "4 ok"
+        else if ErrorCode = ERR_ACCESS_DENIED then
+            ' on Windows we get access denied
+            print "4 ok"
         else
-            print "6 "; ErrorCode; " "; ErrorMessage
+            print "4 "; ErrorCode; " "; ErrorMessage
         end if
     end try
-
-    ' DeleteFile should throw an error if the filename is too long
-    try
-        DeleteFile "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-    catch
-        if ErrorCode = ERR_PATH_TOO_LONG then
-            print "7 ERR_PATH_TOO_LONG"
-        else
-            print "7 "; ErrorCode; " "; ErrorMessage
-        end if
-    end try       
+    DeleteDirectory "testdir"
 end sub
 --output--
 Hello, World!
-1 ERR_FILE_NOT_FOUND
-2 ERR_FILE_NOT_FOUND
-3 ERR_PATH_TOO_LONG
-4 ERR_FILE_NOT_FOUND
-5 ERR_PATH_TOO_LONG
-6 ERR_PATH_IS_DIRECTORY
-7 ERR_PATH_TOO_LONG
+1 ok
+2 ok
+3 ok
+4 ok
