@@ -1,4 +1,4 @@
-.procedure CombinePath
+.procedure PathCombine
 .category File I/O
 .blurb Makes a filesystem path by combining multiple path components with slashes.
 .description
@@ -13,7 +13,7 @@ Combined filesystem path.
 .example
 .example-code
 ' the output will depend on your operating system
-print CombinePath("C:", "Users\", "user", "Documents", "MyFile.txt")
+print PathCombine("C:", "Users\", "user", "Documents", "MyFile.txt")
 .example-output
 C:\Users\user\Documents\MyFile.txt
 .

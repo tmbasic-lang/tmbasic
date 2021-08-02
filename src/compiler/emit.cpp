@@ -57,6 +57,9 @@ class ProcedureState {
                 [labelId](const JumpFixup& fixup) { return fixup.labelId == labelId; }),
             jumpFixups.end());
         labels.push_back(Label{ bytecode.size(), labelId });
+#ifdef DUMP_ASM
+        std::cerr << std::endl << "label " << labelId;
+#endif
     }
 
     void pushImmediateInt64(int64_t value) {
@@ -163,17 +166,17 @@ class ProcedureState {
         emitInt<uint8_t>(numVals, false);
         emitInt<uint8_t>(numObjs, false);
 
-        if (catchLabelIds.empty()) {
-            returnIfError();
-        } else {
-            branchIfError(catchLabelIds.top());
-        }
-
 #ifdef DUMP_ASM
         std::cerr << std::endl
                   << NAMEOF_ENUM(opcode) << " " << NAMEOF_ENUM(systemCall) << " " << static_cast<int>(numVals) << " "
                   << static_cast<int>(numObjs);
 #endif
+
+        if (catchLabelIds.empty()) {
+            returnIfError();
+        } else {
+            branchIfError(catchLabelIds.top());
+        }
     }
 
     void returnVoid() { op(Opcode::kReturn); }
@@ -238,7 +241,10 @@ class ProcedureState {
             }
         }
         jumpFixups.push_back(JumpFixup{ bytecode.size(), labelId });
-        emitInt<uint32_t>(0);
+        emitInt<uint32_t>(0, false);
+#ifdef DUMP_ASM
+        std::cerr << " " << labelId;
+#endif
     }
 };
 
@@ -856,8 +862,9 @@ static void emitTryStatement(const TryStatementNode& statementNode, ProcedureSta
     if (statementNode.catchBody != nullptr) {
         state->clearError();
         emitBody(*statementNode.catchBody, state);
+    } else {
+        state->returnIfError();
     }
-    state->returnIfError();
     state->label(endTryLabel);
 }
 

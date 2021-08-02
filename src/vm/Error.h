@@ -10,12 +10,14 @@ enum class ErrorCode {
     kValueNotPresent = 1,  // ERR_VALUE_NOT_PRESENT
 
     // I/O
-    kIoFailure = 100,        // ERR_IO_FAILURE
-    kFileNotFound = 101,     // ERR_FILE_NOT_FOUND
-    kAccessDenied = 102,     // ERR_ACCESS_DENIED
-    kPathTooLong = 103,      // ERR_PATH_TOO_LONG
-    kDiskFull = 104,         // ERR_DISK_FULL
-    kPathIsDirectory = 105,  // ERR_PATH_IS_DIRECTORY
+    kIoFailure = 100,           // ERR_IO_FAILURE
+    kFileNotFound = 101,        // ERR_FILE_NOT_FOUND
+    kAccessDenied = 102,        // ERR_ACCESS_DENIED
+    kPathTooLong = 103,         // ERR_PATH_TOO_LONG
+    kDiskFull = 104,            // ERR_DISK_FULL
+    kPathIsDirectory = 105,     // ERR_PATH_IS_DIRECTORY
+    kPathIsNotDirectory = 106,  // ERR_PATH_IS_NOT_DIRECTORY
+    kDirectoryNotEmpty = 107,   // ERR_DIRECTORY_NOT_EMPTY
 
     // ICU
     kInternalIcuError = 200,   // ERR_INTERNAL_ICU_ERROR
@@ -27,7 +29,10 @@ enum class ErrorCode {
 class Error : public std::runtime_error {
    public:
     ErrorCode code;
-    inline Error(ErrorCode code, std::string message) : code(code), std::runtime_error(std::move(message)) {}
+    Error(ErrorCode code, std::string message);
+    static Error fromDirectoryErrno(int posixError, const std::string& path);
+    static Error fromFileErrno(int posixError, const std::string& filePath);
+    static Error fromDirectoryWinError(uint32_t winError, const std::string& path);
 };
 
 }  // namespace vm

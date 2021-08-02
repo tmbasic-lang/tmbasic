@@ -7,6 +7,7 @@
 #include "TimeZone.h"
 #include "constants.h"
 #include "date.h"
+#include "filesystem.h"
 #include "util/decimal.h"
 #include "util/path.h"
 
@@ -284,26 +285,6 @@ static boost::local_shared_ptr<String> stringConcat(const ObjectList& objectList
     return boost::make_local_shared<String>(std::move(str));
 }
 
-static void throwFileError(int posixError, const std::string& filePath) {
-    switch (posixError) {
-        case ENOENT:
-            throw Error(ErrorCode::kFileNotFound, fmt::format("The file \"{}\" does not exist.", filePath));
-        case EACCES:
-            throw Error(ErrorCode::kAccessDenied, fmt::format("Access to the file \"{}\" was denied.", filePath));
-        case ENAMETOOLONG:
-            throw Error(ErrorCode::kPathTooLong, fmt::format("The path \"{}\" is too long.", filePath));
-        case ENOSPC:
-            throw Error(
-                ErrorCode::kDiskFull, fmt::format("The disk containing the file \"{}\" is out of space.", filePath));
-        case EISDIR:
-            throw Error(ErrorCode::kPathIsDirectory, fmt::format("The path \"{}\" is a directory.", filePath));
-        default:
-            throw Error(
-                ErrorCode::kIoFailure,
-                fmt::format("Failed to access the file \"{}\". {}", filePath, strerror(posixError)));
-    }
-}
-
 static void initSystemCall(SystemCall which, SystemCallFunc func) {
     auto index = static_cast<size_t>(which);
 
@@ -379,19 +360,6 @@ void initSystemCalls() {
         }
         result->returnedObject = boost::make_local_shared<ValueList>(&b);
     });
-    initSystemCall(SystemCall::kCombinePath, [](const auto& input, auto* result) {
-        const auto& list = dynamic_cast<const ObjectList&>(input.getObject(-1));
-        if (list.items.empty()) {
-            result->returnedObject = boost::make_local_shared<String>("", 0);
-            return;
-        }
-        auto path = dynamic_cast<const String&>(*list.items.at(0)).toUtf8();
-        for (size_t i = 1; i < list.items.size(); i++) {
-            auto component = dynamic_cast<const String&>(*list.items.at(i)).toUtf8();
-            path = util::pathCombine(path, component);
-        }
-        result->returnedObject = boost::make_local_shared<String>(path);
-    });
     initSystemCall(SystemCall::kConcat1, [](const auto& input, auto* result) {
         const auto& objectList = dynamic_cast<const ObjectList&>(input.getObject(-1));
         String empty{ "", 0 };
@@ -406,6 +374,10 @@ void initSystemCalls() {
         result->returnedValue.setDouble(std::cos(input.getValue(-1).getDouble()));
     });
     initSystemCall(SystemCall::kCounterIsPastLimit, systemCallCounterIsPastLimit);
+    initSystemCall(SystemCall::kCreateDirectory, [](const auto& input, auto* result) {
+        const auto& path = dynamic_cast<const String&>(input.getObject(-1)).toUtf8();
+        vm::createDirectory(path);
+    });
     initSystemCall(SystemCall::kDateFromParts, systemCallDateFromParts);
     initSystemCall(SystemCall::kDateTimeFromParts, systemCallDateTimeFromParts);
     initSystemCall(SystemCall::kDateTimeOffsetFromParts, systemCallDateTimeOffsetFromParts);
@@ -414,6 +386,15 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kDateTimeOffsetToString, systemCallDateTimeOffsetToString);
     initSystemCall(SystemCall::kDays, [](const auto& input, auto* result) {
         result->returnedValue.num = input.getValue(-1).num * U_MILLIS_PER_DAY;
+    });
+    initSystemCall(SystemCall::kDeleteDirectory1, [](const auto& input, auto* result) {
+        const auto& path = dynamic_cast<const String&>(input.getObject(-1)).toUtf8();
+        vm::deleteDirectory(path, false);
+    });
+    initSystemCall(SystemCall::kDeleteDirectory2, [](const auto& input, auto* result) {
+        const auto& path = dynamic_cast<const String&>(input.getObject(-1)).toUtf8();
+        auto recursive = input.getValue(-1).getBoolean();
+        vm::deleteDirectory(path, recursive);
     });
     initSystemCall(SystemCall::kDeleteFile, [](const auto& input, auto* result) {
         const auto& path = dynamic_cast<const String&>(input.getObject(-1));
@@ -424,7 +405,7 @@ void initSystemCalls() {
                 // not an error
                 return;
             }
-            throwFileError(err, pathStr);
+            throw Error::fromFileErrno(err, pathStr);
         }
     });
     initSystemCall(
@@ -519,6 +500,19 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kObjectToValueMapNew, [](const auto& /*input*/, auto* result) {
         result->returnedObject = boost::make_local_shared<ObjectToValueMap>();
     });
+    initSystemCall(SystemCall::kPathCombine, [](const auto& input, auto* result) {
+        const auto& list = dynamic_cast<const ObjectList&>(input.getObject(-1));
+        if (list.items.empty()) {
+            result->returnedObject = boost::make_local_shared<String>("", 0);
+            return;
+        }
+        auto path = dynamic_cast<const String&>(*list.items.at(0)).toUtf8();
+        for (size_t i = 1; i < list.items.size(); i++) {
+            auto component = dynamic_cast<const String&>(*list.items.at(i)).toUtf8();
+            path = util::pathCombine(path, component);
+        }
+        result->returnedObject = boost::make_local_shared<String>(path);
+    });
     initSystemCall(SystemCall::kPathDirectoryName, [](const auto& input, auto* result) {
         auto path = dynamic_cast<const String&>(input.getObject(-1)).toUtf8();
         result->returnedObject = boost::make_local_shared<String>(util::getDirectoryName(path));
@@ -534,6 +528,24 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kPathFileNameWithoutExtension, [](const auto& input, auto* result) {
         auto path = dynamic_cast<const String&>(input.getObject(-1)).toUtf8();
         result->returnedObject = boost::make_local_shared<String>(util::getFileNameWithoutExtension(path));
+    });
+    initSystemCall(SystemCall::kListDirectories, [](const auto& input, auto* result) {
+        auto path = dynamic_cast<const String&>(input.getObject(-1)).toUtf8();
+        auto vec = listDirectories(path);
+        ObjectListBuilder builder;
+        for (const auto& s : vec) {
+            builder.items.push_back(boost::make_local_shared<String>(s));
+        }
+        result->returnedObject = boost::make_local_shared<ObjectList>(&builder);
+    });
+    initSystemCall(SystemCall::kListFiles, [](const auto& input, auto* result) {
+        auto path = dynamic_cast<const String&>(input.getObject(-1)).toUtf8();
+        auto vec = listFiles(path);
+        ObjectListBuilder builder;
+        for (const auto& s : vec) {
+            builder.items.push_back(boost::make_local_shared<String>(s));
+        }
+        result->returnedObject = boost::make_local_shared<ObjectList>(&builder);
     });
     initSystemCall(SystemCall::kPathSeparator, [](const auto& /*input*/, auto* result) {
 #ifdef _WIN32
@@ -556,14 +568,14 @@ void initSystemCalls() {
         std::ifstream stream{ filePath };
         stream.seekg(0, std::ios::end);
         if (stream.fail()) {
-            throwFileError(errno, filePath);
+            throw Error::fromFileErrno(errno, filePath);
         }
 
         std::vector<char> bytes(stream.tellg());
         stream.seekg(0, std::ios::beg);
         stream.read(bytes.data(), bytes.size());
         if (stream.fail()) {
-            throwFileError(errno, filePath);
+            throw Error::fromFileErrno(errno, filePath);
         }
 
         ValueListBuilder vlb{};
@@ -576,18 +588,18 @@ void initSystemCalls() {
         auto filePath = dynamic_cast<const String&>(input.getObject(-1)).toUtf8();
         std::ifstream stream{ filePath };
         if (stream.fail()) {
-            throwFileError(errno, filePath);
+            throw Error::fromFileErrno(errno, filePath);
         }
         ObjectListBuilder builder{};
         std::string line;
         while (std::getline(stream, line)) {
             if (stream.fail()) {
-                throwFileError(errno, filePath);
+                throw Error::fromFileErrno(errno, filePath);
             }
             builder.items.push_back(boost::make_local_shared<String>(line));
         }
         if (stream.fail() && !stream.eof()) {
-            throwFileError(errno, filePath);
+            throw Error::fromFileErrno(errno, filePath);
         }
         result->returnedObject = boost::make_local_shared<ObjectList>(&builder);
     });
@@ -595,12 +607,12 @@ void initSystemCalls() {
         auto filePath = dynamic_cast<const String&>(input.getObject(-1)).toUtf8();
         std::ifstream stream{ filePath };
         if (stream.fail()) {
-            throwFileError(errno, filePath);
+            throw Error::fromFileErrno(errno, filePath);
         }
         std::ostringstream ss;
         ss << stream.rdbuf();
         if (stream.fail() && !stream.eof()) {
-            throwFileError(errno, filePath);
+            throw Error::fromFileErrno(errno, filePath);
         }
         result->returnedObject = boost::make_local_shared<String>(ss.str());
     });
@@ -703,7 +715,7 @@ void initSystemCalls() {
         }
         std::ofstream stream{ filePath };
         if (stream.fail()) {
-            throwFileError(errno, filePath);
+            throw Error::fromFileErrno(errno, filePath);
         }
         stream.write(bytes.data(), bytes.size());
     });
@@ -712,12 +724,12 @@ void initSystemCalls() {
         const auto& lines = dynamic_cast<const ObjectList&>(input.getObject(-1));
         std::ofstream stream{ filePath };
         if (stream.fail()) {
-            throwFileError(errno, filePath);
+            throw Error::fromFileErrno(errno, filePath);
         }
         for (const auto& line : lines.items) {
             stream << dynamic_cast<const String&>(*line).toUtf8() << kNewLine;
             if (stream.fail()) {
-                throwFileError(errno, filePath);
+                throw Error::fromFileErrno(errno, filePath);
             }
         }
     });
@@ -726,11 +738,11 @@ void initSystemCalls() {
         const auto& text = dynamic_cast<const String&>(input.getObject(-1));
         std::ofstream stream{ filePath };
         if (stream.fail()) {
-            throwFileError(errno, filePath);
+            throw Error::fromFileErrno(errno, filePath);
         }
         stream << text.toUtf8();
         if (stream.fail()) {
-            throwFileError(errno, filePath);
+            throw Error::fromFileErrno(errno, filePath);
         }
     });
 

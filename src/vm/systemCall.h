@@ -23,11 +23,11 @@ enum class SystemCall {
     kCodeUnit1,                     // CodeUnit1(input as String) as Number
     kCodeUnit2,                     // CodeUnit2(input as String, index as Number) as Number
     kCodeUnits,                     // CodeUnits(input as String) as List of Number
-    kCombinePath,                   // CombinePath(parts as List of String) as String
     kConcat1,                       // Concat1(input as List of String) as String
     kConcat2,                       // Concat2(input as List of String, separator as String) as String
     kCos,                           // Cos(x as Number) as Number
     kCounterIsPastLimit,            // CounterIsPastLimit(counter as N, limit as N, step as N) as Boolean
+    kCreateDirectory,               // CreateDirectory(path as String) as Boolean
     kDateFromParts,                 // DateFromParts(year as Number, month as Number, day as Number) as Date
     kDateTimeFromParts,             // DateFromParts(year as Number, ...) as DateTime
     kDateTimeOffsetFromParts,       // DateOffsetFromParts(year as N ... timeZone as TimeZone) as DateTimeOffset
@@ -35,7 +35,9 @@ enum class SystemCall {
     kDateTimeToString,              // DateTimeToString(dateTime as DateTime) as String
     kDateToString,                  // DateToString(date as Date) as String
     kDays,                          // Days(count as Number) as TimeSpan
-    kDeleteFile,                    // DeleteFile(filePath as String) as Boolean
+    kDeleteDirectory1,              // DeleteDirectory(path as String)
+    kDeleteDirectory2,              // DeleteDirectory(path as String, recursive as Boolean)
+    kDeleteFile,                    // DeleteFile(filePath as String)
     kErrorCode,                     // ErrorCode() as Number
     kErrorMessage,                  // ErrorMessage() as String
     kExp,                           // exp(x as Number) as Number
@@ -46,6 +48,8 @@ enum class SystemCall {
     kHasValueV,                     // HasValue(input as Optional Value) as Boolean
     kHours,                         // Hours(count as Number) as TimeSpan
     kInputString,                   // InputString() as String
+    kListDirectories,               // ListDirectories(path as String) as List of String
+    kListFiles,                     // ListFiles(path as String) as List of String
     kListLen,                       // ListLen(input as List) as Number
     kLog,                           // Log(x as Number) as Number
     kLog10,                         // Log10(x as Number) as Number
@@ -70,6 +74,7 @@ enum class SystemCall {
     kObjectOptionalNewPresent,      // ObjectOptionalNewPresent(input as Object) as ObjectOptional
     kObjectToObjectMapNew,          // ObjectToObjectMapNew() as ObjectToObjectMap
     kObjectToValueMapNew,           // ObjectToValueMapNew() as ObjectToValueMap
+    kPathCombine,                   // PathCombine(parts as List of String) as String
     kPathDirectoryName,             // PathDirectoryName(path as String) as String
     kPathExtension,                 // PathExtension(path as String) as String
     kPathFileName,                  // PathFileName(path as String) as String

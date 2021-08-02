@@ -352,6 +352,9 @@ bool Interpreter::run(int maxCycles) {
             case Opcode::kSystemCallO:
             case Opcode::kSystemCallVO: {
                 auto syscallIndex = readInt<uint16_t>(instructions, &instructionIndex);
+#ifdef LOG_EXECUTION
+                std::cerr << "System call is " << NAMEOF_ENUM(static_cast<SystemCall>(syscallIndex)) << std::endl;
+#endif
                 auto numVals = readInt<uint8_t>(instructions, &instructionIndex);
                 auto numObjs = readInt<uint8_t>(instructions, &instructionIndex);
                 auto returnsValue = opcode == Opcode::kSystemCallV || opcode == Opcode::kSystemCallVO;

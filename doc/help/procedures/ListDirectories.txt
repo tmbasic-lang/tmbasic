@@ -1,0 +1,30 @@
+.procedure ListDirectories
+.category File I/O
+.blurb Lists all the subdirectories in a given directory.
+.description
+Lists all the subdirectories in a given directory.
+Use p[ListFiles] to list all of the files.
+.overload
+.parameter path: String
+Directory path.
+.return List of String
+List of subdirectory paths.
+.errors
+ERR_ACCESS_DENIED
+ERR_FILE_NOT_FOUND
+ERR_IO_FAILURE
+ERR_PATH_TOO_LONG
+.example
+.example-code
+CreateDirectory PathCombine(["testdir", "subdir1"])
+CreateDirectory PathCombine(["testdir", "subdir2"])
+WriteFileText PathCombine(["testdir", "file1"]), "111"
+WriteFileText PathCombine(["testdir", "file2"]), "222"
+WriteFileText PathCombine(["testdir", "file3"]), "333"
+print "Num dirs: "; Len(ListDirectories("testdir"))
+print "Num files: "; Len(ListFiles("testdir"))
+DeleteDirectory "testdir", true
+.example-output
+Num dirs: 2
+Num files: 3
+.

@@ -20,6 +20,7 @@ TMBASIC provides the following constants for the error codes used by built-in pr
 
 ul@
 li@`ERR_ACCESS_DENIED`@
+li@`ERR_DIRECTORY_NOT_EMPTY`@
 li@`ERR_DISK_FULL`@
 li@`ERR_FILE_NOT_FOUND`@
 li@`ERR_INTERNAL_ICU_ERROR`@
@@ -28,6 +29,7 @@ li@`ERR_INVALID_LOCALE_NAME`@
 li@`ERR_INVALID_TIMEZONE`@
 li@`ERR_IO_FAILURE`@
 li@`ERR_PATH_IS_DIRECTORY`@
+li@`ERR_PATH_IS_NOT_DIRECTORY`@
 li@`ERR_PATH_TOO_LONG`@
 li@`ERR_VALUE_NOT_PRESENT`@
 @

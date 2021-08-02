@@ -29,10 +29,10 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("CodeUnit", { "input" }, { string }, number, vm::SystemCall::kCodeUnit1);
     addFunction("CodeUnit", { "input", "index" }, { string, number }, number, vm::SystemCall::kCodeUnit2);
     addFunction("CodeUnits", { "input" }, { string }, listOfNumber, vm::SystemCall::kCodeUnits);
-    addFunction("CombinePath", { "parts" }, { listOfString }, string, vm::SystemCall::kCombinePath);
     addFunction("Concat", { "strings" }, { listOfString }, string, vm::SystemCall::kConcat1);
     addFunction("Concat", { "strings", "separator" }, { listOfString, string }, string, vm::SystemCall::kConcat2);
     addFunction("Cos", { "x" }, { number }, number, vm::SystemCall::kCos);
+    addSub("CreateDirectory", { "path" }, { string }, vm::SystemCall::kCreateDirectory);
     addFunction(
         "DateFromParts", { "year", "month", "day" }, { number, number, number }, date, vm::SystemCall::kDateFromParts);
     addFunction(
@@ -43,6 +43,8 @@ BuiltInProcedureList::BuiltInProcedureList() {
         { number, number, number, number, number, number, number, timeZone }, dateTimeOffset,
         vm::SystemCall::kDateTimeOffsetFromParts);
     addFunction("Days", { "count" }, { number }, timeSpan, vm::SystemCall::kDays);
+    addSub("DeleteDirectory", { "path" }, { string }, vm::SystemCall::kDeleteDirectory1);
+    addSub("DeleteDirectory", { "path", "recursive" }, { string, boolean }, vm::SystemCall::kDeleteDirectory2);
     addSub("DeleteFile", { "filePath" }, { string }, vm::SystemCall::kDeleteFile);
     addFunction("ErrorCode", {}, {}, number, vm::SystemCall::kErrorCode);
     addFunction("ErrorMessage", {}, {}, string, vm::SystemCall::kErrorMessage);
@@ -52,11 +54,14 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("Hours", { "count" }, { number }, timeSpan, vm::SystemCall::kHours);
     addFunction("Len", { "input" }, { listGeneric }, number, vm::SystemCall::kListLen);
     addFunction("Len", { "input" }, { string }, number, vm::SystemCall::kStringLen);
+    addFunction("ListDirectories", { "path" }, { string }, listOfString, vm::SystemCall::kListDirectories);
+    addFunction("ListFiles", { "path" }, { string }, listOfString, vm::SystemCall::kListFiles);
     addFunction("Log", { "x" }, { number }, number, vm::SystemCall::kLog);
     addFunction("Log10", { "x" }, { number }, number, vm::SystemCall::kLog10);
     addFunction("Milliseconds", { "count" }, { number }, timeSpan, vm::SystemCall::kMilliseconds);
     addFunction("Minutes", { "count" }, { number }, timeSpan, vm::SystemCall::kMinutes);
     addFunction("NewLine", {}, {}, string, vm::SystemCall::kNewLine);
+    addFunction("PathCombine", { "parts" }, { listOfString }, string, vm::SystemCall::kPathCombine);
     addFunction("PathDirectoryName", { "path" }, { string }, string, vm::SystemCall::kPathDirectoryName);
     addFunction("PathExtension", { "path" }, { string }, string, vm::SystemCall::kPathExtension);
     addFunction("PathFileName", { "path" }, { string }, string, vm::SystemCall::kPathFileName);

@@ -20,6 +20,8 @@ BuiltInConstantList::BuiltInConstantList()
     addError("ERR_PATH_TOO_LONG", vm::ErrorCode::kPathTooLong);
     addError("ERR_DISK_FULL", vm::ErrorCode::kDiskFull);
     addError("ERR_PATH_IS_DIRECTORY", vm::ErrorCode::kPathIsDirectory);
+    addError("ERR_PATH_IS_NOT_DIRECTORY", vm::ErrorCode::kPathIsNotDirectory);
+    addError("ERR_DIRECTORY_NOT_EMPTY", vm::ErrorCode::kDirectoryNotEmpty);
     addError("ERR_INTERNAL_ICU_ERROR", vm::ErrorCode::kInternalIcuError);
     addError("ERR_INVALID_DATETIME", vm::ErrorCode::kInvalidDateTime);
     addError("ERR_INVALID_TIMEZONE", vm::ErrorCode::kInvalidTimeZone);

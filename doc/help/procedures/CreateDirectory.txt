@@ -1,0 +1,23 @@
+.procedure CreateDirectory
+.category File I/O
+.blurb Creates a directory, and any parent directories in the path as needed.
+.description
+Creates a directory, and any parent directories in the path as needed.
+.overload
+.parameter path: String
+Directory path.
+.errors
+ERR_ACCESS_DENIED
+ERR_DISK_FULL
+ERR_IO_FAILURE
+ERR_PATH_TOO_LONG
+.example
+.example-code
+' create a new subdirectory in the current directory
+CreateDirectory "testdir"
+' create a file in that directory
+dim filePath = PathCombine(["testdir", "test.txt"])
+WriteFileText filePath, "hello world!"
+' delete the directory and the file inside it
+DeleteDirectory "testdir", true
+.

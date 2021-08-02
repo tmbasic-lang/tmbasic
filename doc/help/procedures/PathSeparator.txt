@@ -3,7 +3,7 @@
 .blurb Returns the path separator character.
 .description
 Returns the path separator character, which depends on the user's operating system.
-To combine path components with the path separator, consider using p[CombinePath] instead.
+To combine path components with the path separator, consider using p[PathCombine] instead.
 
 On Linux, this is `/`.
 An example Linux path is `/home/user/file.txt`.

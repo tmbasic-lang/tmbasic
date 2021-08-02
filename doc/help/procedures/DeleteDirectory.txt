@@ -1,0 +1,51 @@
+.procedure DeleteDirectory
+.category File I/O
+.blurb Deletes a directory, and optionally any subdirectories or files inside it.
+.description
+Deletes a directory, and optionally any subdirectories or files inside it.
+
+By default, the directory must be empty, or the error code `ERR_DIRECTORY_NOT_EMPTY` is thrown.
+But if the i[recursive] parameter is provided as `true`, then any contents of the directory will be deleted.
+
+In rare circumstances, it is possible for `ERR_DIRECTORY_NOT_EMPTY` to be thrown even when i[recursive] is set to `true`.
+This can happen if other programs on the computer create files in the directory while TMBASIC is trying to delete it.
+.overload
+.parameter path: String
+Directory path.
+.errors
+ERR_ACCESS_DENIED
+ERR_DIRECTORY_NOT_EMPTY
+ERR_DISK_FULL
+ERR_IO_FAILURE
+ERR_PATH_TOO_LONG
+.example
+.example-code
+' create a new subdirectory in the current directory
+CreateDirectory "testdir"
+' create a file in that directory
+dim filePath = PathCombine(["testdir", "test.txt"])
+WriteFileText filePath, "hello world!"
+' this throws an error because the directory is not empty
+DeleteDirectory "testdir"
+.overload
+.parameter path: String
+Directory path.
+.parameter recursive: Boolean
+If `true`, any subdirectories and files inside the directory will be deleted.
+If `false`, then the directory must already be empty, otherwise the error code `ERR_DIRECTORY_NOT_EMPTY` is thrown.
+.errors
+ERR_ACCESS_DENIED
+ERR_DIRECTORY_NOT_EMPTY
+ERR_DISK_FULL
+ERR_IO_FAILURE
+ERR_PATH_TOO_LONG
+.example
+.example-code
+' create a new subdirectory in the current directory
+CreateDirectory "testdir"
+' create a file in that directory
+dim filePath = PathCombine(["testdir", "test.txt"])
+WriteFileText filePath, "hello world!"
+' delete the directory and the file inside it
+DeleteDirectory "testdir", true
+.
