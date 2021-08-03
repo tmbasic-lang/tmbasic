@@ -13,3 +13,4 @@ debug.log
 /build/downloads/
 /build/sysroots/sysroot-*
 /.vscode/settings.json
+/test_filter
