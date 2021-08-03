@@ -1,72 +1,53 @@
 h1[TMBASIC Documentation]
 
-h2[Beginner's Guide to TMBASIC]
+h2[Programming Reference]
 
 ul@
-li@What is Programming?@
-li@Using the TMBASIC Programming Environment@
-li@Inputs, Outputs, and Variables@
-li@Doing Math in TMBASIC@
-li@Making Decisions with "If" Statements@
-li@Subroutines and Functions@
-li@Lists and Loops@
+li@Statements:
+{`if`:ref_if} •
+{`input`:ref_input} •
+{`print`:ref_print} •
+{`while`:ref_while}@
+
+li@Operators:
+{Algebraic:ref_algebraic} •
+{Comparison:ref_comparison} •
+{Logical:ref_logical}@
+
+li@Procedures:
+{All Procedures:procedures} •
+{Algebra and Trigonometry:procedures_algebra_and_trigonometry} •
+{Dates and Times:procedures_dates_and_times} •
+{Error Handling:procedures_error_handling} •
+{File I/O:procedures_file_io} •
+{Optionals:procedures_optionals} •
+{Strings:procedures_strings}@
+
+li@Types:
+{`Boolean`:type_boolean} •
+{`Date`:type_date} •
+{`DateTime`:type_datetime} •
+{`DateTimeOffset`:type_datetimeoffset} •
+{`List`:type_list} •
+{`Map`:type_map} •
+{`Number`:type_number} •
+{`Optional`:type_optional} •
+{`Record`:type_record} •
+{`String`:type_string} •
+{`TimeSpan`:type_timespan} •
+{`TimeZone`:type_timezone}@
+
+li@{Constants:ref_constants}@
+
+li@{Language Grammar:ref_grammar}@
 @
 
-h2[BASIC Reference]
 
-h3[General]
+h2[Appendices]
 
 ul@
-li@{Built-In Constants:ref_constants}@
 li@{Cheat Sheet for Experienced Programmers:cheat}@
 li@{Color Support:colors}@
-li@{IDE Dialog Boxes:ide}@
-li@{Language Grammar:ref_grammar}@
 li@{License:license}@
 @
 
-h3[Procedures]
-
-ul@
-li@{All Procedures:procedures}@
-li@{Algebra and Trigonometry:procedures_algebra_and_trigonometry}@
-li@{Dates and Times:procedures_dates_and_times}@
-li@{Error Handling:procedures_error_handling}@
-li@{File I/O:procedures_file_io}@
-li@{Optionals:procedures_optionals}@
-li@{Strings:procedures_strings}@
-@
-
-h3[Types]
-
-ul@
-li@{`Boolean` Type:type_boolean}@
-li@{`Date` Type:type_date}@
-li@{`DateTime` Type:type_datetime}@
-li@{`DateTimeOffset` Type:type_datetimeoffset}@
-li@{`List` Type:type_list}@
-li@{`Map` Type:type_map}@
-li@{`Number` Type:type_number}@
-li@{`Optional` Type:type_optional}@
-li@{`Record` Type:type_record}@
-li@{`String` Type:type_string}@
-li@{`TimeSpan` Type:type_timespan}@
-li@{`TimeZone` Type:type_timezone}@
-@
-
-h3[Statements]
-
-ul@
-li@{`if` Statement:ref_if}@
-li@{`input` Statement:ref_input}@
-li@{`print` Statement:ref_print}@
-li@{`while` Statement:ref_while}@
-@
-
-h3[Operators]
-
-ul@
-li@{Algebraic Operators:ref_algebraic}@
-li@{Comparison Operators:ref_comparison}@
-li@{Logical Operators:ref_logical}@
-@

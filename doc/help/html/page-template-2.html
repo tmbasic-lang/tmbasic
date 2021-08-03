@@ -29,12 +29,12 @@ h1, h2, h3, h4, h5 { font-weight: 400; letter-spacing: -0.38px; line-height: 100
 h2 { font-size: 28px; color: #ba3925; margin-top: 50px; }
 h3 { color: #ba3925; font-size: 20px; }
 img.screenshot { margin-top: 2mm; height: 275px; width: 434px; float: right; margin-left: 1cm; margin-right: 1mm; background: #bbbbbb; image-rendering: -webkit-optimize-contrast; }
-nav { background: #353535; position: absolute; top: 0; left: 0; width: 100%; padding-top: 2mm; padding-bottom: 2mm; }
+nav { background: #353535; position: absolute; top: 0; left: 0; width: 100%; padding-top: 2mm; padding-bottom: 2mm; line-height: normal; font-size: 18px; }
 nav > div { max-width: 900px; margin: 0 auto; }
 nav > div > div { margin-left: 1cm; margin-right: 1cm; }
-nav > div > div > a { margin-left: 3mm; padding: 1mm; vertical-align: middle; color: #afafaf; vertical-align: middle;}
+nav > div > div > a { margin-left: 5mm; color: #afafaf; }
 nav > div > div > a:hover { color: #FFFFFF; border-radius: 0.5mm; text-decoration: none; }
-nav > div > div > a:first-child { margin-left: 0; padding-left: 0; font-size: 24px; vertical-align: top; color: #f7f7f7; }
+nav > div > div > a:first-child { margin-left: 0; padding-left: 0; color: #f7f7f7; }
 pre, code, div.code, span.tt { font-family: Consolas, monospace; letter-spacing: -0.5px; color: #19177c; }
 pre, div.code { line-height: 100%; overflow-x: auto; overflow-y: hidden; margin-top: 0; }
 pre.diagram { display: inline-block; color: #333333; line-height: 100%; overflow-x: auto; overflow-y: hidden; width: 100%; }
@@ -43,6 +43,7 @@ span.indent { white-space: pre; }
 span.operator { color: #666666; }
 span.string { color: #ba2121; }
 span.tt { line-height: 0; }
+span#docLabelShort { display: none; }
 strong, th { font-weight: 600; }
 table { border-collapse: collapse; }
 td, th { border: 1px solid #d5d5d5; padding: 1mm; padding-left: 3mm; padding-right: 4mm; vertical-align: top; }
@@ -63,16 +64,21 @@ ul { padding-left: 5mm; }
   div.backlinks { left: 5mm; }
   h1, h2 { margin-left: 0; }
   img.screenshot { float: none; margin-left: 0; margin-top: 0; height: 206.25px; width: 325.5px; /* 75% */ }
+  span#docLabelShort { display: inline; }
+  span#docLabelLong { display: none; }
 }
 @media only screen and (max-width: 350px) {
   img.screenshot { height: 103.125px; width: 162.75px; /* 37.5% */ }
   nav { zoom: 0.80; }
   div.indent { margin-left: 0; }
+  span#docLabelShort { display: inline; }
+  span#docLabelLong { display: none; }
+  nav > div > div > a:first-child { font-size: 25px; }
 }
 </style>
 </head>
 <body>
 <nav>
-<div><div><a href="/" style="font-weight: 600;">TMBASIC</a><a href="doc.html">Documentation</a><a href="https://github.com/electroly/tmbasic">GitHub</a></div></div>
+<div><div><a href="/" style="font-weight: 600;">TMBASIC</a><a href="doc.html"><span id="docLabelLong">Documentation</span><span id="docLabelShort">Docs</span></a><a href="https://github.com/electroly/tmbasic">GitHub</a></div></div>
 </nav>
 <div id="root">

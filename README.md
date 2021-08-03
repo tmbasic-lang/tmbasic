@@ -3,7 +3,7 @@
 <!-- See DEVELOPERS.md for instructions on generating this screenshot. -->
 <a href="https://tmbasic.com/screenshot.png"><img src="https://tmbasic.com/screenshot.png" alt="Screenshot" class="screenshot" width="500"></a>
 
-<strong>TMBASIC</strong> is a [programming language](https://en.wikipedia.org/wiki/Programming_language) for writing [console programs](https://en.wikipedia.org/wiki/Console_application), from simple command line tools to sophisticated mouse-driven user interfaces.
+<strong>TMBASIC is a [programming language](https://en.wikipedia.org/wiki/Programming_language) for writing [console programs](https://en.wikipedia.org/wiki/Console_application)</strong>, from simple command line tools to sophisticated mouse-driven user interfaces.
 The BASIC language is beginner-friendly, and experienced programmers will find it familiar and easy to use.
 
 <strong>TMBASIC is under development. Stay tuned!</strong>
