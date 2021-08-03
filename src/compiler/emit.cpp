@@ -816,8 +816,13 @@ static void emitJoinStatement(const JoinStatementNode& /*statementNode*/, Proced
     throw std::runtime_error("not impl");
 }
 
-static void emitRethrowStatement(const RethrowStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
-    throw std::runtime_error("not impl");
+static void emitRethrowStatement(const RethrowStatementNode& statementNode, ProcedureState* state) {
+    state->bubbleError();
+    if (state->catchLabelIds.empty()) {
+        state->returnVoid();
+    } else {
+        state->jump(state->catchLabelIds.top());
+    }
 }
 
 static void emitReturnStatement(const ReturnStatementNode& statementNode, ProcedureState* state) {
