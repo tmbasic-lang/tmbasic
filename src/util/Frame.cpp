@@ -4,7 +4,7 @@ namespace util {
 
 Frame::Frame(const TRect& bounds) : TFrame(bounds) {}
 
-TColorAttr Frame::mapColor(uchar index) {
+TColorAttr Frame::mapColor(uchar index) noexcept {
     switch (index) {
         case 1:
             if (colorPassiveFrame.has_value()) {

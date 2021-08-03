@@ -12,7 +12,7 @@ class ListViewer : public TListViewer {
     std::optional<TColorAttr> colorSelected;
     std::optional<TColorAttr> colorDivider;
     ListViewer(const TRect& bounds, ushort aNumCols, TScrollBar* aHScrollBar, TScrollBar* aVScrollBar);
-    TColorAttr mapColor(uchar index) override;
+    TColorAttr mapColor(uchar index) noexcept override;
     void useDarkGrayPalette();
     void useCyanPalette();
 };

@@ -99,8 +99,8 @@
 
 #include <fmt/format.h>
 
-#include <editwindow.h>
-#include <editframe.h>
+#include <turbo/turbo.h>
+#include <turbo/scintilla/include/SciLexer.h>
 
 #ifdef _WIN32
 #include <windows.h>

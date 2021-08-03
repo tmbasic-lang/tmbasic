@@ -16,7 +16,7 @@ class Button : public TButton {
     std::optional<TColorAttr> colorShadow;
     Button(const TRect& bounds, TStringView aTitle, ushort aCommand, ushort aFlags);
     Button(TStringView aTitle, ushort aCommand, ushort aFlags);
-    TColorAttr mapColor(uchar index) override;
+    TColorAttr mapColor(uchar index) noexcept override;
     void useDefaultColorScheme();
     void useWhiteColorScheme();
     void setTitle(const std::string& text);

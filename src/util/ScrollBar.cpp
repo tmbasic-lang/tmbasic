@@ -4,7 +4,7 @@ namespace util {
 
 ScrollBar::ScrollBar(const TRect& bounds) : TScrollBar(bounds) {}
 
-TColorAttr ScrollBar::mapColor(uchar index) {
+TColorAttr ScrollBar::mapColor(uchar index) noexcept {
     switch (index) {
         case 1:
             if (colorPage.has_value()) {

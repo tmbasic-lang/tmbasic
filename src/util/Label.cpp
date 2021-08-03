@@ -14,7 +14,7 @@ void Label::setTitle(const std::string& title) {
     text = newStr(title);
 }
 
-TColorAttr Label::mapColor(uchar index) {
+TColorAttr Label::mapColor(uchar index) noexcept {
     switch (index) {
         case 1:
             if (colorActive.has_value()) {

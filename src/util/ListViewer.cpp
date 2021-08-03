@@ -5,7 +5,7 @@ namespace util {
 ListViewer::ListViewer(const TRect& bounds, ushort aNumCols, TScrollBar* aHScrollBar, TScrollBar* aVScrollBar)
     : TListViewer(bounds, aNumCols, aHScrollBar, aVScrollBar) {}
 
-TColorAttr ListViewer::mapColor(uchar index) {
+TColorAttr ListViewer::mapColor(uchar index) noexcept {
     switch (index) {
         case 1:
             if (colorActive.has_value()) {
