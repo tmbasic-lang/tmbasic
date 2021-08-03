@@ -405,7 +405,6 @@ void CodeEditorWindow::handleStyleToNeeded(Sci_Position endStyleNeeded) {
                 case compiler::TokenKind::kTrue:
                 case compiler::TokenKind::kTry:
                 case compiler::TokenKind::kType:
-                case compiler::TokenKind::kUntil:
                 case compiler::TokenKind::kWend:
                 case compiler::TokenKind::kWhere:
                 case compiler::TokenKind::kWhile:
