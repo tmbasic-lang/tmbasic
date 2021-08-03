@@ -46,7 +46,6 @@ RUN curl -L https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
 
 # tmbasic dependencies
 COPY libclipboard-CMakeLists.txt.diff /tmp/
-COPY turbo-CMakeLists.txt.diff /tmp/
 COPY deps.mk /tmp/deps.mk
 COPY deps.tar /tmp/
 RUN mkdir -p /tmp/downloads && \
