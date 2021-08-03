@@ -512,16 +512,16 @@ class AppPrivate {
         }
     }
 
-    static void loadText(turbo::TScintilla &scintilla, std::string_view text) {
+    static void loadText(turbo::TScintilla& scintilla, std::string_view text) {
         // Allocate 1000 extra bytes, as in SciTE.
         turbo::call(scintilla, SCI_ALLOCATE, text.size() + 1000, 0U);
         turbo::call(scintilla, SCI_APPENDTEXT, text.size(), reinterpret_cast<sptr_t>(text.data()));
     }
 
     turbo::Editor& createEditor(compiler::SourceMember* member) {
-        auto &scintilla = turbo::createScintilla(&clipboard);
+        auto& scintilla = turbo::createScintilla(&clipboard);
         loadText(scintilla, member->source);
-        return *new turbo::Editor(scintilla); // NOLINT
+        return *new turbo::Editor(scintilla);  // NOLINT
     }
 
     void showEditorWindow(compiler::SourceMember* member) {

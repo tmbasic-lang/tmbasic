@@ -21,76 +21,76 @@ const TColorRGB kEditorCommentForeground{ 0x00FFFF };
 const TColorRGB kEditorIdentifierForeground{ 0xFFFFFF };
 
 static const turbo::ColorScheme _codeEditorColors{
-    TColorAttr{ kEditorNormalForeground, kEditorBackground },     // sNormal
-    TColorAttr{ kEditorBackground, kEditorNormalForeground },     // sSelection
-    TColorAttr{ kEditorNormalForeground, kEditorBackground },     // sWhitespace
-    TColorAttr{ kEditorNormalForeground, kEditorBackground },     // sCtrlChar
-    TColorAttr{ kEditorNormalForeground, kEditorBackground },     // sLineNums
-    TColorAttr{ kEditorKeywordForeground, kEditorBackground },    // sKeyword1
-    TColorAttr{ kEditorIdentifierForeground, kEditorBackground }, // sKeyword2
-    TColorAttr{ kEditorNormalForeground, kEditorBackground },     // sMisc
-    TColorAttr{ kEditorNormalForeground, kEditorBackground },     // sPreprocessor
-    TColorAttr{ kEditorNormalForeground, kEditorBackground },     // sOperator
-    TColorAttr{ kEditorCommentForeground, kEditorBackground },    // sComment
-    TColorAttr{ kEditorStringForeground, kEditorBackground },     // sStringLiteral
-    TColorAttr{ kEditorNormalForeground, kEditorBackground },     // sCharLiteral
-    TColorAttr{ kEditorNormalForeground, kEditorBackground },     // sNumberLiteral
-    TColorAttr{ kEditorNormalForeground, kEditorBackground },     // sEscapeSequence
-    TColorAttr{ kEditorNormalForeground, kEditorBackground },     // sError
-    TColorAttr{ kEditorKeywordForeground, {}, slBold },           // sBraceMatch
+    TColorAttr{ kEditorNormalForeground, kEditorBackground },      // sNormal
+    TColorAttr{ kEditorBackground, kEditorNormalForeground },      // sSelection
+    TColorAttr{ kEditorNormalForeground, kEditorBackground },      // sWhitespace
+    TColorAttr{ kEditorNormalForeground, kEditorBackground },      // sCtrlChar
+    TColorAttr{ kEditorNormalForeground, kEditorBackground },      // sLineNums
+    TColorAttr{ kEditorKeywordForeground, kEditorBackground },     // sKeyword1
+    TColorAttr{ kEditorIdentifierForeground, kEditorBackground },  // sKeyword2
+    TColorAttr{ kEditorNormalForeground, kEditorBackground },      // sMisc
+    TColorAttr{ kEditorNormalForeground, kEditorBackground },      // sPreprocessor
+    TColorAttr{ kEditorNormalForeground, kEditorBackground },      // sOperator
+    TColorAttr{ kEditorCommentForeground, kEditorBackground },     // sComment
+    TColorAttr{ kEditorStringForeground, kEditorBackground },      // sStringLiteral
+    TColorAttr{ kEditorNormalForeground, kEditorBackground },      // sCharLiteral
+    TColorAttr{ kEditorNormalForeground, kEditorBackground },      // sNumberLiteral
+    TColorAttr{ kEditorNormalForeground, kEditorBackground },      // sEscapeSequence
+    TColorAttr{ kEditorNormalForeground, kEditorBackground },      // sError
+    TColorAttr{ kEditorKeywordForeground, {}, slBold },            // sBraceMatch
 };
 
 static const turbo::WindowColorScheme _codeEditorWindowColors{
     _codeEditorColors,
     {
-        TColorAttr{ TColorBIOS{ 0x7 }, kEditorBackground }, // wndFramePassive
-        TColorAttr{ TColorBIOS{ 0xF }, kEditorBackground }, // wndFrameActive
-        TColorAttr{ TColorBIOS{ 0xA }, kEditorBackground }, // wndFrameIcon
-        TColorAttr{ TColorBIOS{ 0x1 }, TColorBIOS{ 0x3 } }, // wndScrollBarPageArea
-        TColorAttr{ TColorBIOS{ 0x1 }, TColorBIOS{ 0x3 } }, // wndScrollBarControls
-        TColorAttr{ TColorBIOS{ 0xF }, kEditorBackground }, // wndStaticText
-        TColorAttr{ TColorBIOS{ 0x8 }, kEditorBackground }, // wndLabelNormal
-        TColorAttr{ TColorBIOS{ 0xF }, kEditorBackground }, // wndLabelSelected
-        TColorAttr{ TColorBIOS{ 0x6 }, kEditorBackground }, // wndLabelShortcut
-        TColorAttr{ TColorBIOS{ 0x0 }, TColorBIOS{ 0x2 } }, // wndButtonNormal
-        TColorAttr{ TColorBIOS{ 0xB }, TColorBIOS{ 0x2 } }, // wndButtonDefault
-        TColorAttr{ TColorBIOS{ 0xF }, TColorBIOS{ 0x2 } }, // wndButtonSelected
-        TColorAttr{ TColorBIOS{ 0x8 }, TColorBIOS{ 0x7 } }, // wndButtonDisabled
-        TColorAttr{ TColorBIOS{ 0xE }, TColorBIOS{ 0x2 } }, // wndButtonShortcut
-        TColorAttr{ TColorBIOS{ 0x8 }, TColorBIOS{ 0x1 } }, // wndButtonShadow
+        TColorAttr{ TColorBIOS{ 0x7 }, kEditorBackground },  // wndFramePassive
+        TColorAttr{ TColorBIOS{ 0xF }, kEditorBackground },  // wndFrameActive
+        TColorAttr{ TColorBIOS{ 0xA }, kEditorBackground },  // wndFrameIcon
+        TColorAttr{ TColorBIOS{ 0x1 }, TColorBIOS{ 0x3 } },  // wndScrollBarPageArea
+        TColorAttr{ TColorBIOS{ 0x1 }, TColorBIOS{ 0x3 } },  // wndScrollBarControls
+        TColorAttr{ TColorBIOS{ 0xF }, kEditorBackground },  // wndStaticText
+        TColorAttr{ TColorBIOS{ 0x8 }, kEditorBackground },  // wndLabelNormal
+        TColorAttr{ TColorBIOS{ 0xF }, kEditorBackground },  // wndLabelSelected
+        TColorAttr{ TColorBIOS{ 0x6 }, kEditorBackground },  // wndLabelShortcut
+        TColorAttr{ TColorBIOS{ 0x0 }, TColorBIOS{ 0x2 } },  // wndButtonNormal
+        TColorAttr{ TColorBIOS{ 0xB }, TColorBIOS{ 0x2 } },  // wndButtonDefault
+        TColorAttr{ TColorBIOS{ 0xF }, TColorBIOS{ 0x2 } },  // wndButtonSelected
+        TColorAttr{ TColorBIOS{ 0x8 }, TColorBIOS{ 0x7 } },  // wndButtonDisabled
+        TColorAttr{ TColorBIOS{ 0xE }, TColorBIOS{ 0x2 } },  // wndButtonShortcut
+        TColorAttr{ TColorBIOS{ 0x8 }, TColorBIOS{ 0x1 } },  // wndButtonShadow
         // These can be left empty since we don't use them yet.
-        {},                                                 // wndClusterNormal
-        {},                                                 // wndClusterSelected
-        {},                                                 // wndClusterShortcut
-        {},                                                 // wndInputLineNormal
-        {},                                                 // wndInputLineSelected
-        {},                                                 // wndInputLineArrows
-        {},                                                 // wndHistoryArrow
-        {},                                                 // wndHistorySides
-        {},                                                 // wndHistWinScrollBarPageArea
-        {},                                                 // wndHistWinScrollBarControls
-        {},                                                 // wndListViewerNormal
-        {},                                                 // wndListViewerFocused
-        {},                                                 // wndListViewerSelected
-        {},                                                 // wndListViewerDivider
-        {},                                                 // wndInfoPane
-        {},                                                 // wndClusterDisabled
+        {},  // wndClusterNormal
+        {},  // wndClusterSelected
+        {},  // wndClusterShortcut
+        {},  // wndInputLineNormal
+        {},  // wndInputLineSelected
+        {},  // wndInputLineArrows
+        {},  // wndHistoryArrow
+        {},  // wndHistorySides
+        {},  // wndHistWinScrollBarPageArea
+        {},  // wndHistWinScrollBarControls
+        {},  // wndListViewerNormal
+        {},  // wndListViewerFocused
+        {},  // wndListViewerSelected
+        {},  // wndListViewerDivider
+        {},  // wndInfoPane
+        {},  // wndClusterDisabled
     },
 };
 
 static const turbo::LexerInfo::StyleMapping _codeStyles[] = {
-    {1, turbo::sKeyword1},      // keyword
-    {2, turbo::sStringLiteral}, // string
-    {3, turbo::sComment},       // comment
-    {4, turbo::sKeyword2},      // identifier
+    { 1, turbo::sKeyword1 },       // keyword
+    { 2, turbo::sStringLiteral },  // string
+    { 3, turbo::sComment },        // comment
+    { 4, turbo::sKeyword2 },       // identifier
 };
 
-static const turbo::LexerInfo _codeEditorLexerInfo {
+static const turbo::LexerInfo _codeEditorLexerInfo{
     SCLEX_CONTAINER,
-    _codeStyles, // styles
-    {}, // keywords
-    {}, // properties
-    "[](){}", // braces
+    _codeStyles,  // styles
+    {},           // keywords
+    {},           // properties
+    "[](){}",     // braces
 };
 
 class CodeEditorFrame : public turbo::BasicEditorFrame {
@@ -222,7 +222,7 @@ class CodeEditorWindowPrivate {
 
 CodeEditorWindow::CodeEditorWindow(
     const TRect& r,
-    turbo::Editor &aEditor,
+    turbo::Editor& aEditor,
     compiler::SourceMember* member,
     const std::function<void()>& onEdited)
     : TWindowInit(initCodeEditorFrame), BasicEditorWindow(r, aEditor), _private(new CodeEditorWindowPrivate()) {
@@ -325,7 +325,7 @@ static std::vector<compiler::TokenKind> tokenizeLine(std::string_view str) {
     return vec;
 }
 
-void CodeEditorWindow::handleNotification(const SCNotification &scn, turbo::Editor &aEditor) {
+void CodeEditorWindow::handleNotification(const SCNotification& scn, turbo::Editor& aEditor) {
     BasicEditorWindow::handleNotification(scn, aEditor);
     if (scn.nmhdr.code == SCN_STYLENEEDED)
         handleStyleToNeeded(scn.position);
