@@ -308,9 +308,14 @@ static void typeCheckDottedExpression(DottedExpressionNode* expressionNode) {
     throw std::runtime_error("not impl");
 }
 
-static void typeCheckNotExpression(NotExpressionNode* expressionNode) {
-    (void)expressionNode;
-    throw std::runtime_error("not impl");
+static void typeCheckNotExpression(NotExpressionNode* expressionNode, TypeCheckState* state) {
+    typeCheckExpression(expressionNode->operand.get(), state);
+    assert(expressionNode->operand->evaluatedType != nullptr);
+    auto& operandType = expressionNode->operand->evaluatedType;
+    if (operandType->kind != Kind::kBoolean) {
+        throw CompilerException("The \"not\" operator requires a Boolean operand.", expressionNode->operand->token);
+    }
+    expressionNode->evaluatedType = operandType;
 }
 
 static void typeCheckSymbolReferenceExpression(SymbolReferenceExpressionNode* expressionNode, TypeCheckState* state) {
@@ -364,7 +369,7 @@ void typeCheckExpression(ExpressionNode* expressionNode, TypeCheckState* state) 
             typeCheckDottedExpression(dynamic_cast<DottedExpressionNode*>(expressionNode));
             break;
         case ExpressionType::kNot:
-            typeCheckNotExpression(dynamic_cast<NotExpressionNode*>(expressionNode));
+            typeCheckNotExpression(dynamic_cast<NotExpressionNode*>(expressionNode), state);
             break;
         case ExpressionType::kSymbolReference:
             typeCheckSymbolReferenceExpression(dynamic_cast<SymbolReferenceExpressionNode*>(expressionNode), state);

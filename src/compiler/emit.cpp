@@ -529,8 +529,9 @@ static void emitDottedExpression(const DottedExpressionNode& /*expressionNode*/,
     throw std::runtime_error("not impl");
 }
 
-static void emitNotExpression(const NotExpressionNode& /*expressionNode*/, ProcedureState* /*state*/) {
-    throw std::runtime_error("not impl");
+static void emitNotExpression(const NotExpressionNode& expressionNode, ProcedureState* state) {
+    emitExpression(*expressionNode.operand, state);
+    state->syscall(Opcode::kSystemCallV, SystemCall::kBooleanNot, 1, 0);
 }
 
 static void emitSymbolReferenceExpression(const SymbolReferenceExpressionNode& expressionNode, ProcedureState* state) {

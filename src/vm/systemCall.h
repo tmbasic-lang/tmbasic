@@ -15,6 +15,7 @@ enum class SystemCall {
     kAtan2,                         // atan2(y as Number, x as Number) as Number
     kAvailableLocales,              // AvailableLocales() as List of String
     kAvailableTimeZones,            // AvailableTimeZones() as List of String
+    kBooleanNot,                    // BooleanNot(x as Boolean) as Boolean
     kCeil,                          // Ceil(x as Number) as Number
     kCharacters1,                   // Characters(input as String) as List of String
     kCharacters2,                   // Characters(input as String, locale as String) as List of String

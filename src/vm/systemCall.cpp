@@ -317,6 +317,9 @@ void initSystemCalls() {
     });
     initSystemCall(SystemCall::kAvailableLocales, systemCallAvailableLocales);
     initSystemCall(SystemCall::kAvailableTimeZones, systemCallAvailableTimeZones);
+    initSystemCall(SystemCall::kBooleanNot, [](const auto& input, auto* result) {
+        result->returnedValue.setBoolean(!input.getValue(-1).getBoolean());
+    });
     initSystemCall(SystemCall::kCeil, [](const auto& input, auto* result) {
         result->returnedValue.num = input.getValue(-1).num.ceil();
     });
