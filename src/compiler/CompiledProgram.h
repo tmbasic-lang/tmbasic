@@ -11,7 +11,7 @@ class CompiledGlobalVariable {
     std::string lowercaseName;
     bool isValue;
     int index;
-    boost::local_shared_ptr<TypeNode> type;
+    std::unique_ptr<Node> dimOrConstStatementNode;
 };
 
 class CompiledUserTypeField {

@@ -86,9 +86,8 @@ static void compileGlobal(const SourceMember& sourceMember, CompiledProgram* com
 
     // figure out the type of the variable. it must be a literal initializer.
     if (parserResult.node->getMemberType() == MemberType::kConstStatement) {
-        const auto* constNode = util::dynamic_cast_borrow<ConstStatementNode>(parserResult.node);
-        compiledGlobalVariable->type = getTypeForLiteralToken(constNode->value->token);
-        assert(compiledGlobalVariable->type);
+        auto& constNode = dynamic_cast<ConstStatementNode&>(*parserResult.node);
+        parserResult.node->evaluatedType = getTypeForLiteralToken(constNode.value->token);
     } else if (parserResult.node->getMemberType() == MemberType::kDimStatement) {
         const auto* dimNode = util::dynamic_cast_borrow<DimStatementNode>(parserResult.node);
         assert(dimNode->value || dimNode->type);
@@ -99,27 +98,26 @@ static void compileGlobal(const SourceMember& sourceMember, CompiledProgram* com
                     dimNode->value->token);
             }
             const auto* constValueNode = util::dynamic_cast_borrow<ConstValueExpressionNode>(dimNode->value);
-            compiledGlobalVariable->type = getTypeForLiteralToken(constValueNode->token);
+            parserResult.node->evaluatedType = getTypeForLiteralToken(constValueNode->token);
         } else {
-            compiledGlobalVariable->type = boost::make_local_shared<TypeNode>(*dimNode->type);
+            parserResult.node->evaluatedType = boost::make_local_shared<TypeNode>(*dimNode->type);
         }
     } else {
         throw CompilerException("This member must be a global variable (dim) or constant value (const).", tokens[0]);
     }
 
-    compiledGlobalVariable->isValue = compiledGlobalVariable->type->isValueType();
-    compiledGlobalVariable->index = compiledProgram->vmProgram.globalValues.size();
+    compiledGlobalVariable->isValue = parserResult.node->evaluatedType->isValueType();
     vm::Value initialValue{ decimal::Decimal{ 0 } };
     boost::local_shared_ptr<vm::Object> initialObject{};
 
     ExpressionNode* valueExpr = nullptr;
     if (parserResult.node->getMemberType() == MemberType::kDimStatement) {
-        auto* dimNode = util::dynamic_cast_borrow<DimStatementNode>(parserResult.node);
-        valueExpr = dimNode->value.get();
+        auto& dimNode = dynamic_cast<DimStatementNode&>(*parserResult.node);
+        valueExpr = dimNode.value.get();
     }
     if (parserResult.node->getMemberType() == MemberType::kConstStatement) {
-        auto* constNode = util::dynamic_cast_borrow<ConstStatementNode>(parserResult.node);
-        valueExpr = constNode->value.get();
+        auto& constNode = dynamic_cast<ConstStatementNode&>(*parserResult.node);
+        valueExpr = constNode.value.get();
     }
     if (valueExpr) {
         if (valueExpr->getExpressionType() != ExpressionType::kConstValue) {
@@ -134,6 +132,7 @@ static void compileGlobal(const SourceMember& sourceMember, CompiledProgram* com
             initialObject = getConstObject(constValueExpr);
         }
     }
+
     if (compiledGlobalVariable->isValue) {
         compiledGlobalVariable->index = compiledProgram->vmProgram.globalValues.size();
         compiledProgram->vmProgram.globalValues.push_back(initialValue);
@@ -141,6 +140,8 @@ static void compileGlobal(const SourceMember& sourceMember, CompiledProgram* com
         compiledGlobalVariable->index = compiledProgram->vmProgram.globalObjects.size();
         compiledProgram->vmProgram.globalObjects.push_back(std::move(initialObject));
     }
+
+    compiledGlobalVariable->dimOrConstStatementNode = std::move(parserResult.node);
 }
 
 void compileGlobals(const SourceProgram& sourceProgram, CompiledProgram* compiledProgram) {
