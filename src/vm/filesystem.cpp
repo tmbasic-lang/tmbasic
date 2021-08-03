@@ -69,7 +69,7 @@ static std::vector<std::string> listFilesOrDirectories(const std::string& path, 
         auto isSingleDot = wcscmp(findFileData.cFileName, L".") == 0;
         auto isDoubleDot = wcscmp(findFileData.cFileName, L"..") == 0;
         if (!isSingleDot && !isDoubleDot) {
-            std::wstring filenameUtf16{findFileData.cFileName};
+            std::wstring filenameUtf16{ findFileData.cFileName };
             auto filenameUtf8 = util::winUtf16ToUtf8(filenameUtf16);
             auto isDir = (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
             if (wantDirsOrFiles == isDir) {
