@@ -41,41 +41,38 @@ static const turbo::ColorScheme _codeEditorColors{
 };
 
 static const turbo::WindowColorScheme _codeEditorWindowColors{
-    _codeEditorColors,
-    {
-        TColorAttr{ TColorBIOS{ 0x7 }, kEditorBackground },  // wndFramePassive
-        TColorAttr{ TColorBIOS{ 0xF }, kEditorBackground },  // wndFrameActive
-        TColorAttr{ TColorBIOS{ 0xA }, kEditorBackground },  // wndFrameIcon
-        TColorAttr{ TColorBIOS{ 0x1 }, TColorBIOS{ 0x3 } },  // wndScrollBarPageArea
-        TColorAttr{ TColorBIOS{ 0x1 }, TColorBIOS{ 0x3 } },  // wndScrollBarControls
-        TColorAttr{ TColorBIOS{ 0xF }, kEditorBackground },  // wndStaticText
-        TColorAttr{ TColorBIOS{ 0x8 }, kEditorBackground },  // wndLabelNormal
-        TColorAttr{ TColorBIOS{ 0xF }, kEditorBackground },  // wndLabelSelected
-        TColorAttr{ TColorBIOS{ 0x6 }, kEditorBackground },  // wndLabelShortcut
-        TColorAttr{ TColorBIOS{ 0x0 }, TColorBIOS{ 0x2 } },  // wndButtonNormal
-        TColorAttr{ TColorBIOS{ 0xB }, TColorBIOS{ 0x2 } },  // wndButtonDefault
-        TColorAttr{ TColorBIOS{ 0xF }, TColorBIOS{ 0x2 } },  // wndButtonSelected
-        TColorAttr{ TColorBIOS{ 0x8 }, TColorBIOS{ 0x7 } },  // wndButtonDisabled
-        TColorAttr{ TColorBIOS{ 0xE }, TColorBIOS{ 0x2 } },  // wndButtonShortcut
-        TColorAttr{ TColorBIOS{ 0x8 }, TColorBIOS{ 0x1 } },  // wndButtonShadow
-        // These can be left empty since we don't use them yet.
-        {},  // wndClusterNormal
-        {},  // wndClusterSelected
-        {},  // wndClusterShortcut
-        {},  // wndInputLineNormal
-        {},  // wndInputLineSelected
-        {},  // wndInputLineArrows
-        {},  // wndHistoryArrow
-        {},  // wndHistorySides
-        {},  // wndHistWinScrollBarPageArea
-        {},  // wndHistWinScrollBarControls
-        {},  // wndListViewerNormal
-        {},  // wndListViewerFocused
-        {},  // wndListViewerSelected
-        {},  // wndListViewerDivider
-        {},  // wndInfoPane
-        {},  // wndClusterDisabled
-    },
+    TColorAttr{ TColorBIOS{ 0x7 }, kEditorBackground },  // wndFramePassive
+    TColorAttr{ TColorBIOS{ 0xF }, kEditorBackground },  // wndFrameActive
+    TColorAttr{ TColorBIOS{ 0xA }, kEditorBackground },  // wndFrameIcon
+    TColorAttr{ TColorBIOS{ 0x1 }, TColorBIOS{ 0x3 } },  // wndScrollBarPageArea
+    TColorAttr{ TColorBIOS{ 0x1 }, TColorBIOS{ 0x3 } },  // wndScrollBarControls
+    TColorAttr{ TColorBIOS{ 0xF }, kEditorBackground },  // wndStaticText
+    TColorAttr{ TColorBIOS{ 0x8 }, kEditorBackground },  // wndLabelNormal
+    TColorAttr{ TColorBIOS{ 0xF }, kEditorBackground },  // wndLabelSelected
+    TColorAttr{ TColorBIOS{ 0x6 }, kEditorBackground },  // wndLabelShortcut
+    TColorAttr{ TColorBIOS{ 0x0 }, TColorBIOS{ 0x2 } },  // wndButtonNormal
+    TColorAttr{ TColorBIOS{ 0xB }, TColorBIOS{ 0x2 } },  // wndButtonDefault
+    TColorAttr{ TColorBIOS{ 0xF }, TColorBIOS{ 0x2 } },  // wndButtonSelected
+    TColorAttr{ TColorBIOS{ 0x8 }, TColorBIOS{ 0x7 } },  // wndButtonDisabled
+    TColorAttr{ TColorBIOS{ 0xE }, TColorBIOS{ 0x2 } },  // wndButtonShortcut
+    TColorAttr{ TColorBIOS{ 0x8 }, TColorBIOS{ 0x1 } },  // wndButtonShadow
+    // These can be left empty since we don't use them yet.
+    {},  // wndClusterNormal
+    {},  // wndClusterSelected
+    {},  // wndClusterShortcut
+    {},  // wndInputLineNormal
+    {},  // wndInputLineSelected
+    {},  // wndInputLineArrows
+    {},  // wndHistoryArrow
+    {},  // wndHistorySides
+    {},  // wndHistWinScrollBarPageArea
+    {},  // wndHistWinScrollBarControls
+    {},  // wndListViewerNormal
+    {},  // wndListViewerFocused
+    {},  // wndListViewerSelected
+    {},  // wndListViewerDivider
+    {},  // wndInfoPane
+    {},  // wndClusterDisabled
 };
 
 static const turbo::LexerInfo::StyleMapping _codeStyles[] = {
@@ -90,7 +87,6 @@ static const turbo::LexerInfo _codeEditorLexerInfo{
     _codeStyles,  // styles
     {},           // keywords
     {},           // properties
-    "[](){}",     // braces
 };
 
 class CodeEditorFrame : public turbo::BasicEditorFrame {
@@ -232,6 +228,8 @@ CodeEditorWindow::CodeEditorWindow(
     _private->pendingText = member->source;
     setState(sfShadow, true);
     editor.theming.setLexerInfo(&_codeEditorLexerInfo);
+    editor.theming.setScheme(&_codeEditorColors);
+    editor.theming.apply(editor.scintilla);
     setScheme(&_codeEditorWindowColors);
     editor.callScintilla(SCI_SETSEL, member->selectionStart, member->selectionEnd);
     editor.lineNumbers.setState(true);
