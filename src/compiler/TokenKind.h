@@ -96,7 +96,6 @@ enum class TokenKind {
     kTrue,
     kTry,
     kType,
-    kUntil,
     kWend,
     kWhere,
     kWhile,

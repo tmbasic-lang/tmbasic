@@ -796,33 +796,12 @@ bool DimStatementNode::isSymbolVisibleToSiblingStatements() const {
     return true;
 }
 
-DoConditionNode::DoConditionNode(std::unique_ptr<ExpressionNode> condition, DoConditionType conditionType, Token token)
-    : Node(std::move(token)), condition(std::move(condition)), conditionType(conditionType) {}
-
-void DoConditionNode::dump(std::ostringstream& s, int n) const {
-    DUMP_TYPE(DoConditionNode);
-    DUMP_VAR_NODE(condition);
-    DUMP_VAR_ENUM(conditionType);
-}
-
-bool DoConditionNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
-    return visitChildExpression(rootsOnly, condition.get(), func);
-}
-
-DoStatementNode::DoStatementNode(
-    std::unique_ptr<DoConditionNode> condition,
-    DoConditionPosition conditionPosition,
-    std::unique_ptr<BodyNode> body,
-    Token token)
-    : StatementNode(std::move(token)),
-      condition(std::move(condition)),
-      conditionPosition(conditionPosition),
-      body(std::move(body)) {}
+DoStatementNode::DoStatementNode(std::unique_ptr<ExpressionNode> condition, std::unique_ptr<BodyNode> body, Token token)
+    : StatementNode(std::move(token)), condition(std::move(condition)), body(std::move(body)) {}
 
 void DoStatementNode::dump(std::ostringstream& s, int n) const {
     DUMP_TYPE(DoStatementNode);
     DUMP_VAR_NODE(condition);
-    DUMP_VAR_ENUM(conditionPosition);
     DUMP_VAR_NODE(body);
 }
 
@@ -831,7 +810,7 @@ bool DoStatementNode::visitBodies(const VisitBodyFunc& func) const {
 }
 
 bool DoStatementNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
-    return visitChildExpression(rootsOnly, condition->condition.get(), func);
+    return visitChildExpression(rootsOnly, condition.get(), func);
 }
 
 StatementType DoStatementNode::getStatementType() const {

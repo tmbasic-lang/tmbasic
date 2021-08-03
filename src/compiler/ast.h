@@ -473,35 +473,11 @@ class DimStatementNode : public StatementNode {
     StatementType getStatementType() const override;
 };
 
-enum class DoConditionPosition {
-    kBeforeBody,
-    kAfterBody,
-};
-
-enum class DoConditionType {
-    kWhile,
-    kUntil,
-};
-
-class DoConditionNode : public Node {
-   public:
-    std::unique_ptr<ExpressionNode> condition;
-    DoConditionType conditionType;
-    DoConditionNode(std::unique_ptr<ExpressionNode> condition, DoConditionType conditionType, Token token);
-    void dump(std::ostringstream& s, int n) const override;
-    bool visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const override;
-};
-
 class DoStatementNode : public StatementNode {
    public:
-    std::unique_ptr<DoConditionNode> condition;
-    DoConditionPosition conditionPosition;
+    std::unique_ptr<ExpressionNode> condition;
     std::unique_ptr<BodyNode> body;
-    DoStatementNode(
-        std::unique_ptr<DoConditionNode> condition,
-        DoConditionPosition conditionPosition,
-        std::unique_ptr<BodyNode> body,
-        Token token);
+    DoStatementNode(std::unique_ptr<ExpressionNode> condition, std::unique_ptr<BodyNode> body, Token token);
     void dump(std::ostringstream& s, int n) const override;
     bool visitBodies(const VisitBodyFunc& func) const override;
     bool visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const override;

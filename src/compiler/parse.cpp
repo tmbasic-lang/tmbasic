@@ -1639,71 +1639,25 @@ class JoinStatementProduction : public Production {
     }
 };
 
-class DoConditionProduction : public Production {
-   public:
-    explicit DoConditionProduction(const Production* expression)
-        : Production(
-              NAMEOF_TYPE(DoConditionProduction),
-              {
-                  capture(
-                      0,
-                      oneOf({
-                          term(TokenKind::kWhile),
-                          term(TokenKind::kUntil),
-                      })),
-                  cut(),
-                  capture(1, prod(expression)),
-              }) {}
-
-    std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
-        DoConditionType type;
-        switch (captureTokenKind(std::move(captures->at(0)))) {
-            case TokenKind::kWhile:
-                type = DoConditionType::kWhile;
-                break;
-            case TokenKind::kUntil:
-                type = DoConditionType::kUntil;
-                break;
-            default:
-                assert(false);
-                type = {};
-                break;
-        }
-        return nodeBox<DoConditionNode>(
-            captureSingleNode<ExpressionNode>(std::move(captures->at(1))), type, firstToken);
-    }
-};
-
 class DoStatementProduction : public Production {
    public:
-    DoStatementProduction(const Production* doCondition, const Production* body)
+    DoStatementProduction(const Production* expression, const Production* body)
         : Production(
               NAMEOF_TYPE(DoStatementProduction),
               {
                   term(TokenKind::kDo),
                   cut(),
-                  oneOf({
-                      list({
-                          capture(0, prod(doCondition)),
-                          term(TokenKind::kEndOfLine),
-                          capture(1, prod(body)),
-                          term(TokenKind::kLoop),
-                      }),
-                      list({
-                          term(TokenKind::kEndOfLine),
-                          capture(1, prod(body)),
-                          term(TokenKind::kLoop),
-                          capture(2, prod(doCondition)),
-                      }),
-                  }),
+                  term(TokenKind::kEndOfLine),
+                  capture(1, prod(body)),
+                  term(TokenKind::kLoop),
+                  term(TokenKind::kWhile),
+                  capture(2, prod(expression)),
                   term(TokenKind::kEndOfLine),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
-        auto isBefore = hasCapture(captures->at(0));
-        auto position = isBefore ? DoConditionPosition::kBeforeBody : DoConditionPosition::kAfterBody;
         return nodeBox<DoStatementNode>(
-            captureSingleNode<DoConditionNode>(std::move(captures->at(isBefore ? 0 : 2))), position,
+            captureSingleNode<ExpressionNode>(std::move(captures->at(2))),
             captureSingleNode<BodyNode>(std::move(captures->at(1))), firstToken);
     }
 };
@@ -2180,8 +2134,7 @@ class ProductionCollection {
         auto* selectCaseStatement = add<SelectCaseStatementProduction>(expression, case_);
         auto* groupStatement = add<GroupStatementProduction>(expression, body);
         auto* joinStatement = add<JoinStatementProduction>(expression, body);
-        auto* doCondition = add<DoConditionProduction>(expression);
-        auto* doStatement = add<DoStatementProduction>(doCondition, body);
+        auto* doStatement = add<DoStatementProduction>(expression, body);
         auto* elseIf = add<ElseIfProduction>(expression, body);
         auto* ifStatement = add<IfStatementProduction>(expression, body, elseIf);
         auto* whileStatement = add<WhileStatementProduction>(expression, body);

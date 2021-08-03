@@ -4,6 +4,7 @@ h2[Programming Reference]
 
 ul@
 li@Statements:
+{`do`:ref_do} •
 {`if`:ref_if} •
 {`input`:ref_input} •
 {`print`:ref_print} •

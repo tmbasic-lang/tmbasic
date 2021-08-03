@@ -457,6 +457,15 @@ static void typeCheckWhileStatement(WhileStatementNode* statementNode) {
     }
 }
 
+static void typeCheckDoStatement(DoStatementNode* statementNode) {
+    // condition must be a Boolean
+    assert(statementNode->condition->evaluatedType != nullptr);
+    if (statementNode->condition->evaluatedType->kind != Kind::kBoolean) {
+        throw CompilerException(
+            "The condition of a \"do\" statement must be a Boolean.", statementNode->condition->token);
+    }
+}
+
 static void typeCheckThrowStatement(ThrowStatementNode* statementNode) {
     // message must be a String
     assert(statementNode->message->evaluatedType != nullptr);
@@ -508,6 +517,10 @@ static void typeCheckBody(BodyNode* bodyNode, TypeCheckState* state) {
 
             case StatementType::kWhile:
                 typeCheckWhileStatement(dynamic_cast<WhileStatementNode*>(statementNode.get()));
+                break;
+
+            case StatementType::kDo:
+                typeCheckDoStatement(dynamic_cast<DoStatementNode*>(statementNode.get()));
                 break;
 
             case StatementType::kThrow:

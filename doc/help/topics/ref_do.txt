@@ -1,0 +1,57 @@
+nav@{TMBASIC Documentation:doc}@
+
+h1[`do` Statement]
+
+A `do` loop is one way to repeat a section of code more than once.
+After each time the loop is executed, the condition is checked.
+If the condition is `true`, then the loop body starts over from the top.
+
+h2[Syntax]
+
+code@
+do
+    <BODY>
+loop while <CONDITION>
+@
+
+ul@
+li@`<BODY>` is the code to execute repeatedly.@
+li@`<CONDITION>` is a Boolean expression indicating whether the loop should repeat for another iteration.@
+@
+
+h2[Usage]
+
+Consider the following example.
+
+code@
+sub Main()
+    dim num as Number
+    do
+        print "Enter a number: ";
+        input num
+    loop while num <> 0
+end sub
+@
+
+The execution looks like the following flow chart.
+
+pre@
+                ↓               
+   ┌───────────────────────────┐
+┌─>│ print "Enter a number: "; │
+│  └───────────────────────────┘
+│               ↓               
+│         ┌───────────┐         
+│         │ input num │         
+│         └───────────┘         
+│               ↓               
+│           ┌──────┐            
+└───────────│ num? │            
+  num <> 0  └──────┘            
+                ↓ num = 0       
+@
+
+This is similar to a {`while` loop:ref_while}.
+In a `do` loop, the condition is checked i[after] running the loop body.
+In a `while` loop, the condition is checked i[before] running the loop body.
+This means that a `do` loop will always execute at least once, but a `while` loop can execute zero times.

@@ -723,10 +723,6 @@ static void emitConstStatement(const ConstStatementNode& statementNode, Procedur
     emitDimOrConstStatement(statementNode, statementNode.value.get(), state);
 }
 
-static void emitDoStatement(const DoStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
-    throw std::runtime_error("not impl");
-}
-
 static void emitExitStatement(const ExitStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
     throw std::runtime_error("not impl");
 }
@@ -894,6 +890,19 @@ static void emitWhileStatement(const WhileStatementNode& statementNode, Procedur
 
     // we will jump here when the loop is done
     state->label(endLabel);
+}
+
+static void emitDoStatement(const DoStatementNode& statementNode, ProcedureState* state) {
+    // loop begins here
+    auto topLabel = state->labelId();
+    state->label(topLabel);
+
+    // loop body
+    emitBody(*statementNode.body, state);
+
+    // evaluate the condition, if it's true then jump to topLabel
+    emitExpression(*statementNode.condition, state);
+    state->branchIfTrue(topLabel);
 }
 
 static void emitPrintStatement(const PrintStatementNode& statementNode, ProcedureState* state) {

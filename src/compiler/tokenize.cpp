@@ -478,11 +478,6 @@ TokenKind Scanner::classifyToken(const std::string& text) {
                     return TokenKind::kType;
                 }
                 break;
-            case 'u':
-                if (lc == "until") {
-                    return TokenKind::kUntil;
-                }
-                break;
             case 'w':
                 if (lc == "wend") {
                     return TokenKind::kWend;
