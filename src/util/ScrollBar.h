@@ -10,7 +10,7 @@ class ScrollBar : public TScrollBar {
     std::optional<TColorAttr> colorArrows;
     std::optional<TColorAttr> colorIndicator;
     explicit ScrollBar(const TRect& bounds);
-    TColorAttr mapColor(uchar index) override;
+    TColorAttr mapColor(uchar index) noexcept override;
     void useBlueColorScheme();
     void useCyanColorScheme();
     void useWhiteColorScheme();

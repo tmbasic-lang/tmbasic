@@ -10,7 +10,6 @@
 #include "../util/StatusLine.h"
 #include "../util/ThinButton.h"
 #include "../util/ViewPtr.h"
-#include "../util/clipboard.h"
 #include "../util/tvutil.h"
 #include "../vm/UserForm.h"
 #include "App.h"
@@ -395,6 +394,7 @@ enum class PictureWindowMode {
 
 class PictureWindowPrivate {
    public:
+    PictureWindowPrivate(turbo::Clipboard &aClipboard);
     void updateScrollBars();
     void enableDisableCommands(bool enable);
     void updateStatusItems();
@@ -417,6 +417,7 @@ class PictureWindowPrivate {
     compiler::SourceMember* member{};
     std::function<void()> onEdited;
     PictureWindowStatusItems statusItems;
+    turbo::Clipboard &clipboard;
 
     // shared state
     TColorRGB fg{ 255, 255, 255 };
@@ -482,12 +483,13 @@ static std::string getPictureWindowTitle(const std::string& name) {
 
 PictureWindow::PictureWindow(
     const TRect& r,
+    turbo::Clipboard &clipboard,
     SourceMember* member,
     std::function<void()> onEdited,
     const PictureWindowStatusItems& statusItems)
     : TWindow(r, getPictureWindowTitle(member->identifier), wnNoNumber),
       TWindowInit(TWindow::initFrame),
-      _private(new PictureWindowPrivate()) {
+      _private(new PictureWindowPrivate(clipboard)) {
     options |= ofTileable;
 
     _private->member = member;
@@ -574,6 +576,11 @@ PictureWindow::PictureWindow(
 
 PictureWindow::~PictureWindow() {
     delete _private;
+}
+
+PictureWindowPrivate::PictureWindowPrivate(turbo::Clipboard &aClipboard) :
+    clipboard(aClipboard)
+{
 }
 
 void PictureWindowPrivate::updateScrollBars() {
@@ -752,33 +759,22 @@ void PictureWindowPrivate::onClear() {
 }
 
 void PictureWindowPrivate::onCut() {
-    try {
-        _clipboardText = canvasView->getSelectionTextForClipboard();
-        util::setClipboard(_clipboardText.text);
-        checkpoint();
-        onClear();
-    } catch (std::runtime_error& ex) {
-        messageBox(ex.what(), mfError | mfOKButton);
-    }
+    _clipboardText = canvasView->getSelectionTextForClipboard();
+    clipboard.setText(_clipboardText.text);
+    checkpoint();
+    onClear();
 }
 
 void PictureWindowPrivate::onCopy() {
-    try {
-        _clipboardText = canvasView->getSelectionTextForClipboard();
-        util::setClipboard(_clipboardText.text);
-    } catch (std::runtime_error& ex) {
-        messageBox(ex.what(), mfError | mfOKButton);
-    }
+    _clipboardText = canvasView->getSelectionTextForClipboard();
+    clipboard.setText(_clipboardText.text);
 }
 
 void PictureWindowPrivate::onPaste() {
     ClipboardText ct{};
-    try {
-        ct.text = util::getClipboard();
-    } catch (std::runtime_error& ex) {
-        messageBox(ex.what(), mfError | mfOKButton);
-        return;
-    }
+    clipboard.getText([&] (TStringView text) {
+        ct.text = text;
+    });
 
     if (ct.text.empty()) {
         return;

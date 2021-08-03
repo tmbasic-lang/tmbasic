@@ -292,12 +292,12 @@ endif
 
 # Linker flag to include turbo and friends.
 ifeq ($(TARGET_OS),linux)
-LDFLAGS += -lturbo-ui -lscintilla -lscilexers -lsciplatform -lclipboard -lxcb -lXau -lfmt
+LDFLAGS += -lturbo-core -lclipboard -lxcb -lXau -lfmt
 ifeq ($(LINUX_DISTRO),ubuntu)
 LDFLAGS += -lpthread
 endif
 else
-LDFLAGS += -lturbo-ui -lscintilla -lscilexers -lsciplatform -lclipboard -lfmt
+LDFLAGS += -lturbo-core -lclipboard -lfmt
 endif
 
 # Linker flag to include tvision.

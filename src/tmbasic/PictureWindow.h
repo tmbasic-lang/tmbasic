@@ -33,6 +33,7 @@ class PictureWindow : public TWindow {
    public:
     PictureWindow(
         const TRect& r,
+        turbo::Clipboard &clipboard,
         compiler::SourceMember* member,
         std::function<void()> onEdited,
         const PictureWindowStatusItems& statusItems);

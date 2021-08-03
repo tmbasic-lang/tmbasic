@@ -15,7 +15,7 @@ class Label : public TLabel {
     explicit Label(TStringView text, TView* link = nullptr);
     Label(const TRect& r, TStringView text, TView* link = nullptr);
     void setTitle(const std::string& title);
-    TColorAttr mapColor(uchar index) override;
+    TColorAttr mapColor(uchar index) noexcept override;
 };
 
 }  // namespace util

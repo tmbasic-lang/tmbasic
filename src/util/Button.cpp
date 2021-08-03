@@ -25,7 +25,7 @@ Button::Button(const TRect& bounds, TStringView aTitle, ushort aCommand, ushort 
 Button::Button(TStringView aTitle, ushort aCommand, ushort aFlags)
     : TButton(TRect(0, 0, getButtonWidth(aTitle), kButtonHeight), aTitle, aCommand, aFlags) {}
 
-TColorAttr Button::mapColor(uchar index) {
+TColorAttr Button::mapColor(uchar index) noexcept {
     switch (index) {
         case 1:
             if (colorTextNormal.has_value()) {

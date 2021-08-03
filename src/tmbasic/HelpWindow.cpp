@@ -8,7 +8,7 @@ namespace tmbasic {
 class HelpWindowFrame : public TFrame {
    public:
     explicit HelpWindowFrame(TRect r) : TFrame(r) {}
-    TColorAttr mapColor(uchar index) override {
+    TColorAttr mapColor(uchar index) noexcept override {
         auto attr = TFrame::mapColor(index);
         auto fore = getFore(attr);
         auto back = getBack(attr);
@@ -36,7 +36,7 @@ class HelpViewer : public THelpViewer {
         ushort context)
         : THelpViewer(bounds, aHScrollBar, aVScrollBar, aHelpFile, context) {}
 
-    TColorAttr mapColor(uchar index) override {
+    TColorAttr mapColor(uchar index) noexcept override {
         auto attr = THelpViewer::mapColor(index);
         auto fore = getFore(attr);
         auto back = getBack(attr);

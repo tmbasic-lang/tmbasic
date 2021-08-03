@@ -36,7 +36,7 @@ TStatusItem* App::insertColorDialogHelpStatusItem;
 class Background : public TBackground {
    public:
     explicit Background(const TRect& bounds) : TBackground(bounds, ' ') {}
-    TColorAttr mapColor(uchar /*index*/) override { return 0x88; }
+    TColorAttr mapColor(uchar /*index*/) noexcept override { return 0x88; }
 };
 
 class DeskTop : public TDeskTop {
@@ -54,6 +54,7 @@ class AppPrivate {
     std::chrono::steady_clock::time_point lastTimerTick;
     PictureWindowStatusItems pictureWindowStatusItems{};
     PictureWindow* pictureWindow = nullptr;
+    turbo::SystemClipboard clipboard;
 
     static TDeskTop* initDeskTop(TRect r) {
         r.a.y++;
@@ -511,6 +512,18 @@ class AppPrivate {
         }
     }
 
+    static void loadText(turbo::TScintilla &scintilla, std::string_view text) {
+        // Allocate 1000 extra bytes, as in SciTE.
+        turbo::call(scintilla, SCI_ALLOCATE, text.size() + 1000, 0U);
+        turbo::call(scintilla, SCI_APPENDTEXT, text.size(), reinterpret_cast<sptr_t>(text.data()));
+    }
+
+    turbo::Editor& createEditor(compiler::SourceMember* member) {
+        auto &scintilla = turbo::createScintilla(&clipboard);
+        loadText(scintilla, member->source);
+        return *new turbo::Editor(scintilla); // NOLINT
+    }
+
     void showEditorWindow(compiler::SourceMember* member) {
         // is there already an editor open for this member?
         FindEditorWindowEventArgs e = { nullptr };
@@ -520,7 +533,8 @@ class AppPrivate {
         if (e.window != nullptr) {
             e.window->select();
         } else {
-            auto* window = new CodeEditorWindow(getNewWindowRect(75, 20), member, []() -> void {
+            auto& editor = createEditor(member);
+            auto* window = new CodeEditorWindow(getNewWindowRect(75, 20), editor, member, []() -> void {
                 // onUpdated
                 auto* programWindow = findProgramWindow();
                 if (programWindow != nullptr) {
@@ -566,7 +580,7 @@ class AppPrivate {
             e.window->select();
         } else {
             auto* window = new PictureWindow(
-                getNewWindowRect(80, 25), member,
+                getNewWindowRect(80, 25), clipboard, member,
                 []() -> void {
                     // onUpdated
                     auto* programWindow = findProgramWindow();

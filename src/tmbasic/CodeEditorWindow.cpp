@@ -3,7 +3,6 @@
 #include "../compiler/tokenize.h"
 #include "../util/DialogPtr.h"
 #include "../util/ViewPtr.h"
-#include "../util/clipboard.h"
 #include "InsertColorDialog.h"
 #include "InsertSymbolDialog.h"
 #include "events.h"
@@ -21,54 +20,84 @@ const TColorRGB kEditorKeywordForeground{ 0xFFFF00 };
 const TColorRGB kEditorCommentForeground{ 0x00FFFF };
 const TColorRGB kEditorIdentifierForeground{ 0xFFFFFF };
 
-static const std::vector<TColorAttr> _codeEditorColors{
-    TColorAttr{ kEditorNormalForeground, kEditorBackground },  // sNormal
-    TColorAttr{ kEditorBackground, kEditorNormalForeground },  // sSelection
-    TColorAttr{ kEditorNormalForeground, kEditorBackground },  // sWhitespace
-    TColorAttr{ kEditorNormalForeground, kEditorBackground },  // sCtrlChar
-    TColorAttr{ kEditorNormalForeground, kEditorBackground },  // sLineNums
-    TColorAttr{ kEditorNormalForeground, kEditorBackground },  // sKeyword1
-    TColorAttr{ kEditorNormalForeground, kEditorBackground },  // sKeyword2
-    TColorAttr{ kEditorNormalForeground, kEditorBackground },  // sMisc
-    TColorAttr{ kEditorNormalForeground, kEditorBackground },  // sPreprocessor
-    TColorAttr{ kEditorNormalForeground, kEditorBackground },  // sOperator
-    TColorAttr{ kEditorNormalForeground, kEditorBackground },  // sComment
-    TColorAttr{ kEditorNormalForeground, kEditorBackground },  // sStringLiteral
-    TColorAttr{ kEditorNormalForeground, kEditorBackground },  // sCharLiteral
-    TColorAttr{ kEditorNormalForeground, kEditorBackground },  // sNumberLiteral
-    TColorAttr{ kEditorNormalForeground, kEditorBackground },  // sEscapeSequence
-    TColorAttr{ kEditorNormalForeground, kEditorBackground },  // sError
-    TColorAttr{ kEditorNormalForeground, kEditorBackground },  // sBraceMatch
-    TColorAttr{ TColorBIOS{ 0x7 }, kEditorBackground },        // sFramePassive
-    TColorAttr{ TColorBIOS{ 0xF }, kEditorBackground },        // sFrameActive
-    TColorAttr{ TColorBIOS{ 0xA }, kEditorBackground },        // sFrameIcon
-    TColorAttr{ TColorBIOS{ 0xF }, kEditorBackground },        // sStaticText
-    TColorAttr{ TColorBIOS{ 0x8 }, kEditorBackground },        // sLabelNormal
-    TColorAttr{ TColorBIOS{ 0xF }, kEditorBackground },        // sLabelSelected
-    TColorAttr{ TColorBIOS{ 0x6 }, kEditorBackground },        // sLabelShortcut
-    TColorAttr{ TColorBIOS{ 0x0 }, TColorBIOS{ 0x2 } },        // sButtonNormal
-    TColorAttr{ TColorBIOS{ 0xB }, TColorBIOS{ 0x2 } },        // sButtonDefault
-    TColorAttr{ TColorBIOS{ 0xF }, TColorBIOS{ 0x2 } },        // sButtonSelected
-    TColorAttr{ TColorBIOS{ 0x8 }, TColorBIOS{ 0x7 } },        // sButtonDisabled
-    TColorAttr{ TColorBIOS{ 0xE }, TColorBIOS{ 0x2 } },        // sButtonShortcut
-    TColorAttr{ TColorBIOS{ 0x8 }, TColorBIOS{ 0x1 } },        // sButtonShadow
+static const turbo::ColorScheme _codeEditorColors{
+    TColorAttr{ kEditorNormalForeground, kEditorBackground },     // sNormal
+    TColorAttr{ kEditorBackground, kEditorNormalForeground },     // sSelection
+    TColorAttr{ kEditorNormalForeground, kEditorBackground },     // sWhitespace
+    TColorAttr{ kEditorNormalForeground, kEditorBackground },     // sCtrlChar
+    TColorAttr{ kEditorNormalForeground, kEditorBackground },     // sLineNums
+    TColorAttr{ kEditorKeywordForeground, kEditorBackground },    // sKeyword1
+    TColorAttr{ kEditorIdentifierForeground, kEditorBackground }, // sKeyword2
+    TColorAttr{ kEditorNormalForeground, kEditorBackground },     // sMisc
+    TColorAttr{ kEditorNormalForeground, kEditorBackground },     // sPreprocessor
+    TColorAttr{ kEditorNormalForeground, kEditorBackground },     // sOperator
+    TColorAttr{ kEditorCommentForeground, kEditorBackground },    // sComment
+    TColorAttr{ kEditorStringForeground, kEditorBackground },     // sStringLiteral
+    TColorAttr{ kEditorNormalForeground, kEditorBackground },     // sCharLiteral
+    TColorAttr{ kEditorNormalForeground, kEditorBackground },     // sNumberLiteral
+    TColorAttr{ kEditorNormalForeground, kEditorBackground },     // sEscapeSequence
+    TColorAttr{ kEditorNormalForeground, kEditorBackground },     // sError
+    TColorAttr{ kEditorKeywordForeground, {}, slBold },           // sBraceMatch
 };
 
-class TurboClipboard : public Clipboard {
-   protected:
-    void fallbackSetText(std::string_view text) override { util::setClipboard(std::string{ text }); }
-
-    char* fallbackGetText() override {
-        auto s = util::getClipboard();
-        return strdup(s.c_str());
-    }
+static const turbo::WindowColorScheme _codeEditorWindowColors{
+    _codeEditorColors,
+    {
+        TColorAttr{ TColorBIOS{ 0x7 }, kEditorBackground }, // wndFramePassive
+        TColorAttr{ TColorBIOS{ 0xF }, kEditorBackground }, // wndFrameActive
+        TColorAttr{ TColorBIOS{ 0xA }, kEditorBackground }, // wndFrameIcon
+        TColorAttr{ TColorBIOS{ 0x1 }, TColorBIOS{ 0x3 } }, // wndScrollBarPageArea
+        TColorAttr{ TColorBIOS{ 0x1 }, TColorBIOS{ 0x3 } }, // wndScrollBarControls
+        TColorAttr{ TColorBIOS{ 0xF }, kEditorBackground }, // wndStaticText
+        TColorAttr{ TColorBIOS{ 0x8 }, kEditorBackground }, // wndLabelNormal
+        TColorAttr{ TColorBIOS{ 0xF }, kEditorBackground }, // wndLabelSelected
+        TColorAttr{ TColorBIOS{ 0x6 }, kEditorBackground }, // wndLabelShortcut
+        TColorAttr{ TColorBIOS{ 0x0 }, TColorBIOS{ 0x2 } }, // wndButtonNormal
+        TColorAttr{ TColorBIOS{ 0xB }, TColorBIOS{ 0x2 } }, // wndButtonDefault
+        TColorAttr{ TColorBIOS{ 0xF }, TColorBIOS{ 0x2 } }, // wndButtonSelected
+        TColorAttr{ TColorBIOS{ 0x8 }, TColorBIOS{ 0x7 } }, // wndButtonDisabled
+        TColorAttr{ TColorBIOS{ 0xE }, TColorBIOS{ 0x2 } }, // wndButtonShortcut
+        TColorAttr{ TColorBIOS{ 0x8 }, TColorBIOS{ 0x1 } }, // wndButtonShadow
+        // These can be left empty since we don't use them yet.
+        {},                                                 // wndClusterNormal
+        {},                                                 // wndClusterSelected
+        {},                                                 // wndClusterShortcut
+        {},                                                 // wndInputLineNormal
+        {},                                                 // wndInputLineSelected
+        {},                                                 // wndInputLineArrows
+        {},                                                 // wndHistoryArrow
+        {},                                                 // wndHistorySides
+        {},                                                 // wndHistWinScrollBarPageArea
+        {},                                                 // wndHistWinScrollBarControls
+        {},                                                 // wndListViewerNormal
+        {},                                                 // wndListViewerFocused
+        {},                                                 // wndListViewerSelected
+        {},                                                 // wndListViewerDivider
+        {},                                                 // wndInfoPane
+        {},                                                 // wndClusterDisabled
+    },
 };
 
-class CodeEditorFrame : public EditorFrame {
+static const turbo::LexerInfo::StyleMapping _codeStyles[] = {
+    {1, turbo::sKeyword1},      // keyword
+    {2, turbo::sStringLiteral}, // string
+    {3, turbo::sComment},       // comment
+    {4, turbo::sKeyword2},      // identifier
+};
+
+static const turbo::LexerInfo _codeEditorLexerInfo {
+    SCLEX_CONTAINER,
+    _codeStyles, // styles
+    {}, // keywords
+    {}, // properties
+    "[](){}", // braces
+};
+
+class CodeEditorFrame : public turbo::BasicEditorFrame {
    public:
-    explicit CodeEditorFrame(TRect r) : EditorFrame(r) {}
-    TColorAttr mapColor(uchar index) override {
-        auto attr = EditorFrame::mapColor(index);
+    explicit CodeEditorFrame(TRect r) : BasicEditorFrame(r) {}
+    TColorAttr mapColor(uchar index) noexcept override {
+        auto attr = BasicEditorFrame::mapColor(index);
         if (getBack(attr) == TColorBIOS(1)) {
             return TColorAttr{ getFore(attr), kEditorBackground };
         }
@@ -84,14 +113,13 @@ class CodeEditorWindowPrivate {
    public:
     CodeEditorWindow* window{};
     compiler::SourceMember* member{};
-    TurboClipboard clipboard;
     std::function<void()> onEdited;
     int pendingUpdate = -1;   // -1=no edit pending, 0+=number of ticks since the last edit
     std::string pendingText;  // text we saw at the last tick
 
     std::string getEditorText() const {
         std::ostringstream s;
-        size_t bytesLeft = window->editor.WndProc(SCI_GETTEXT, 0, 0) - 1;
+        size_t bytesLeft = window->editor.callScintilla(SCI_GETTEXT, 0, 0) - 1;
         if (bytesLeft) {
             constexpr size_t blockSize = 1 << 20;
             auto writeSize = std::min(bytesLeft, blockSize);
@@ -99,8 +127,8 @@ class CodeEditorWindowPrivate {
             auto bufParam = reinterpret_cast<sptr_t>(buffer.data());
             size_t i = 0;
             do {
-                window->editor.WndProc(SCI_SETTARGETRANGE, i, i + writeSize);
-                window->editor.WndProc(SCI_GETTARGETTEXT, 0U, bufParam);
+                window->editor.callScintilla(SCI_SETTARGETRANGE, i, i + writeSize);
+                window->editor.callScintilla(SCI_GETTARGETTEXT, 0U, bufParam);
                 s << std::string_view(buffer.data(), writeSize);
                 i += writeSize;
                 bytesLeft -= writeSize;
@@ -139,6 +167,8 @@ class CodeEditorWindowPrivate {
     }
 
     void onTimerTick() {
+        // TODO: It should be possible to tell whether the text changed by listening
+        // to Scintilla notifications. Copying the whole text on every tick is wasteful.
         auto newSource = getEditorText();
         if (newSource != pendingText) {
             pendingUpdate = 0;
@@ -156,10 +186,10 @@ class CodeEditorWindowPrivate {
     }
 
     void insertTextAtCursor(const std::string& str) const {
-        auto pos = window->editor.WndProc(SCI_GETCURRENTPOS, 0U, 0U);
-        window->editor.WndProc(SCI_INSERTTEXT, -1, reinterpret_cast<sptr_t>(str.c_str()));
-        window->editor.WndProc(SCI_GOTOPOS, pos + str.size(), 0U);
-        window->redrawEditor();
+        auto pos = window->editor.callScintilla(SCI_GETCURRENTPOS, 0U, 0U);
+        window->editor.callScintilla(SCI_INSERTTEXT, -1, reinterpret_cast<sptr_t>(str.c_str()));
+        window->editor.callScintilla(SCI_GOTOPOS, pos + str.size(), 0U);
+        window->editor.redraw();
     }
 
     void onEditInsertSymbol() const {
@@ -185,33 +215,27 @@ class CodeEditorWindowPrivate {
             member->setSource(std::move(newSource));
             onEdited();
         }
-        member->selectionStart = window->editor.WndProc(SCI_GETSELECTIONSTART, 0U, 0U);
-        member->selectionEnd = window->editor.WndProc(SCI_GETSELECTIONEND, 0U, 0U);
+        member->selectionStart = window->editor.callScintilla(SCI_GETSELECTIONSTART, 0U, 0U);
+        member->selectionEnd = window->editor.callScintilla(SCI_GETSELECTIONEND, 0U, 0U);
     }
 };
 
 CodeEditorWindow::CodeEditorWindow(
     const TRect& r,
+    turbo::Editor &aEditor,
     compiler::SourceMember* member,
     const std::function<void()>& onEdited)
-    : TWindowInit(initCodeEditorFrame), BaseEditorWindow(r), _private(new CodeEditorWindowPrivate()) {
+    : TWindowInit(initCodeEditorFrame), BasicEditorWindow(r, aEditor), _private(new CodeEditorWindowPrivate()) {
     _private->window = this;
     _private->member = member;
     _private->onEdited = onEdited;
     _private->pendingText = member->source;
-    theming.schema = _codeEditorColors.data();
-    setUpEditorPreLoad();
-    loadText(member->source);
-    setUpEditorPostLoad();
-    editor.WndProc(SCI_SETLEXER, SCLEX_CONTAINER, 0);
-    editor.setStyleColor(1, TColorAttr{ kEditorKeywordForeground, kEditorBackground });     // keyword
-    editor.setStyleColor(2, TColorAttr{ kEditorStringForeground, kEditorBackground });      // string
-    editor.setStyleColor(3, TColorAttr{ kEditorCommentForeground, kEditorBackground });     // comment
-    editor.setStyleColor(4, TColorAttr{ kEditorIdentifierForeground, kEditorBackground });  // identifier
-    editor.WndProc(SCI_SETSEL, member->selectionStart, member->selectionEnd);
-    editor.clipboard = &_private->clipboard;
-    lineNumbers.setState(true);
-    indent.autoIndent = true;
+    editor.theming.setLexerInfo(&_codeEditorLexerInfo);
+    setScheme(&_codeEditorWindowColors);
+    editor.callScintilla(SCI_SETSEL, member->selectionStart, member->selectionEnd);
+    editor.lineNumbers.setState(true);
+    editor.wrapping.setState(true, editor.scintilla);
+    editor.autoIndent.setState(true);
     _private->updateTitle();
 }
 
@@ -220,10 +244,10 @@ CodeEditorWindow::~CodeEditorWindow() {
 }
 
 void CodeEditorWindow::setState(uint16_t aState, bool enable) {
-    BaseEditorWindow::setState(aState, enable);
+    BasicEditorWindow::setState(aState, enable);
     if (aState == sfActive) {
-        if (state & sfExposed) {
-            hScrollBar->setState(sfVisible, false);  // we always word wrap rather than scroll horizontally
+        if (state & sfExposed && editor.hScrollBar) {
+            editor.hScrollBar->setState(sfVisible, false);  // we always word wrap rather than scroll horizontally
         }
 
         TCommandSet ts;
@@ -271,7 +295,7 @@ void CodeEditorWindow::handleEvent(TEvent& event) {
         }
     }
 
-    BaseEditorWindow::handleEvent(event);
+    BasicEditorWindow::handleEvent(event);
 }
 
 uint16_t CodeEditorWindow::getHelpCtx() {
@@ -300,21 +324,27 @@ static std::vector<compiler::TokenKind> tokenizeLine(std::string_view str) {
     return vec;
 }
 
-void CodeEditorWindow::notifyStyleToNeeded(Sci::Position endStyleNeeded) {
-    auto startPos = editor.WndProc(SCI_GETENDSTYLED, 0, 0);
-    auto startLineNumber = editor.WndProc(SCI_LINEFROMPOSITION, startPos, 0);
-    auto endLineNumber = editor.WndProc(SCI_LINEFROMPOSITION, endStyleNeeded, 0);
+void CodeEditorWindow::handleNotification(const SCNotification &scn, turbo::Editor &aEditor) {
+    BasicEditorWindow::handleNotification(scn, aEditor);
+    if (scn.nmhdr.code == SCN_STYLENEEDED)
+        handleStyleToNeeded(scn.position);
+}
+
+void CodeEditorWindow::handleStyleToNeeded(Sci_Position endStyleNeeded) {
+    auto startPos = editor.callScintilla(SCI_GETENDSTYLED, 0, 0);
+    auto startLineNumber = editor.callScintilla(SCI_LINEFROMPOSITION, startPos, 0);
+    auto endLineNumber = editor.callScintilla(SCI_LINEFROMPOSITION, endStyleNeeded, 0);
     for (auto lineNumber = startLineNumber; lineNumber <= endLineNumber; lineNumber++) {
-        auto lineStartPos = editor.WndProc(SCI_POSITIONFROMLINE, lineNumber, 0);
-        auto lineLength = editor.WndProc(SCI_LINELENGTH, lineNumber, 0);
+        auto lineStartPos = editor.callScintilla(SCI_POSITIONFROMLINE, lineNumber, 0);
+        auto lineLength = editor.callScintilla(SCI_LINELENGTH, lineNumber, 0);
         std::vector<char> line(lineLength + 1, '\0');
-        editor.WndProc(SCI_GETLINE, lineNumber, reinterpret_cast<sptr_t>(line.data()));
+        editor.callScintilla(SCI_GETLINE, lineNumber, reinterpret_cast<sptr_t>(line.data()));
         auto kinds = tokenizeLine(std::string_view(line.data(), lineLength));
 
         // "For example, with the standard settings of 5 style bits and 3 indicator bits, you would use a mask value
         // of 31 (0x1f) if you were setting text styles and did not want to change the indicators"
         // -- Scintilla docs for SCI_STARTSTYLING
-        editor.WndProc(SCI_STARTSTYLING, lineStartPos, 0x1F);
+        editor.callScintilla(SCI_STARTSTYLING, lineStartPos, 0x1F);
 
         for (auto& kind : kinds) {
             auto style = 0;
@@ -401,7 +431,7 @@ void CodeEditorWindow::notifyStyleToNeeded(Sci::Position endStyleNeeded) {
                     break;
             }
 
-            editor.WndProc(SCI_SETSTYLING, 1, style);
+            editor.callScintilla(SCI_SETSTYLING, 1, style);
         }
     }
 }

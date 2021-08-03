@@ -553,16 +553,7 @@ endif
 
 $(TURBO_DIR)/install: $(TURBO_DIR)/download $(TVISION_DIR)/install $(FMT_DIR)/install $(LIBCLIPBOARD_DIR)/install \
 		$(CMAKE_DIR)/install $(NCURSES_DIR)/install $(BINUTILS_DIR)/install
-ifneq ($(TARGET_OS),mac)
 	cd $(TURBO_DIR) && \
-		dos2unix CMakeLists.txt && \
-		patch CMakeLists.txt /tmp/turbo-CMakeLists.txt.diff
-endif
-	cd $(TURBO_DIR) && \
-		rm -f scintilla/lexers/* && \
-		touch scintilla/lexers/LexEmpty.cxx && \
-		cat scintilla/src/Catalogue.cxx | sed 's/LINK_LEXER(lm.*//g' > Catalogue.cxx && \
-		mv -f Catalogue.cxx scintilla/src/Catalogue.cxx && \
 		mkdir -p build && \
 		cd build && \
 		cmake .. \
@@ -573,10 +564,10 @@ endif
 			-DCMAKE_BUILD_TYPE=Release \
 			-DTURBO_USE_SYSTEM_TVISION=ON \
 			-DTURBO_USE_SYSTEM_DEPS=ON \
+			-DTURBO_BUILD_APP=OFF \
 			$(CMAKE_TOOLCHAIN_FLAG) && \
 		$(MAKE) && \
-		cp -f *.a $(TARGET_PREFIX)/lib/ && \
-		cp $(shell find $(TURBO_DIR) -name '*.h') $(TARGET_PREFIX)/include/ && \
+		$(MAKE) install
 	touch $@
 
 
