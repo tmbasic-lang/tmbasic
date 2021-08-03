@@ -230,6 +230,7 @@ CodeEditorWindow::CodeEditorWindow(
     _private->member = member;
     _private->onEdited = onEdited;
     _private->pendingText = member->source;
+    setState(sfShadow, true);
     editor.theming.setLexerInfo(&_codeEditorLexerInfo);
     setScheme(&_codeEditorWindowColors);
     editor.callScintilla(SCI_SETSEL, member->selectionStart, member->selectionEnd);
