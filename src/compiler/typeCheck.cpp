@@ -376,6 +376,15 @@ void typeCheckExpression(ExpressionNode* expressionNode, TypeCheckState* state) 
     assert(expressionNode->evaluatedType != nullptr);
 }
 
+static void typeCheckAssignStatement(AssignStatementNode* statementNode, TypeCheckState* state) {
+    // the assignment target must not be a constant
+    auto* decl = statementNode->symbolReference->boundSymbolDeclaration;
+    assert(decl != nullptr);
+    if (dynamic_cast<const ConstStatementNode*>(decl) != nullptr) {
+        throw CompilerException("Assignment target cannot be a constant.", statementNode->symbolReference->token);
+    }
+}
+
 static void typeCheckDimStatement(DimStatementNode* statementNode) {
     if (statementNode->type == nullptr) {
         assert(statementNode->value != nullptr);
@@ -384,6 +393,12 @@ static void typeCheckDimStatement(DimStatementNode* statementNode) {
     } else {
         statementNode->evaluatedType = statementNode->type;
     }
+}
+
+static void typeCheckConstStatement(ConstStatementNode* statementNode) {
+    assert(statementNode->value != nullptr);
+    assert(statementNode->value->evaluatedType != nullptr);
+    statementNode->evaluatedType = statementNode->value->evaluatedType;
 }
 
 static void typeCheckIfStatement(IfStatementNode* statementNode) {
@@ -462,8 +477,16 @@ static void typeCheckBody(BodyNode* bodyNode, TypeCheckState* state) {
         });
 
         switch (statementNode->getStatementType()) {
+            case StatementType::kAssign:
+                typeCheckAssignStatement(dynamic_cast<AssignStatementNode*>(statementNode.get()), state);
+                break;
+
             case StatementType::kDim:
                 typeCheckDimStatement(dynamic_cast<DimStatementNode*>(statementNode.get()));
+                break;
+
+            case StatementType::kConst:
+                typeCheckConstStatement(dynamic_cast<ConstStatementNode*>(statementNode.get()));
                 break;
 
             case StatementType::kCall:

@@ -600,10 +600,6 @@ static void emitCallStatement(const CallStatementNode& statementNode, ProcedureS
     }
 }
 
-static void emitConstStatement(const ConstStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
-    throw std::runtime_error("not impl");
-}
-
 static void emitContinueStatement(const ContinueStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
     throw std::runtime_error("not impl");
 }
@@ -616,13 +612,16 @@ static void emitDimMapStatement(const DimMapStatementNode& /*statementNode*/, Pr
     throw std::runtime_error("not impl");
 }
 
-static void emitDimStatement(const DimStatementNode& statementNode, ProcedureState* state) {
+static void emitDimOrConstStatement(
+    const StatementNode& statementNode,
+    const ExpressionNode* value,
+    ProcedureState* state) {
     assert(statementNode.evaluatedType != nullptr);
     const auto& type = *statementNode.evaluatedType;
 
     // if an initial value is provided, then use that
-    if (statementNode.value != nullptr) {
-        emitExpression(*statementNode.value, state);
+    if (value != nullptr) {
+        emitExpression(*value, state);
         if (statementNode.localValueIndex.has_value()) {
             state->setLocalValue(*statementNode.localValueIndex);
         } else if (statementNode.localObjectIndex.has_value()) {
@@ -713,6 +712,14 @@ static void emitDimStatement(const DimStatementNode& statementNode, ProcedureSta
     }
 
     state->setLocalObject(*statementNode.localValueIndex);
+}
+
+static void emitDimStatement(const DimStatementNode& statementNode, ProcedureState* state) {
+    emitDimOrConstStatement(statementNode, statementNode.value.get(), state);
+}
+
+static void emitConstStatement(const ConstStatementNode& statementNode, ProcedureState* state) {
+    emitDimOrConstStatement(statementNode, statementNode.value.get(), state);
 }
 
 static void emitDoStatement(const DoStatementNode& /*statementNode*/, ProcedureState* /*state*/) {

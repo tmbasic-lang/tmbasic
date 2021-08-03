@@ -684,6 +684,19 @@ boost::local_shared_ptr<TypeNode> ConstStatementNode::getSymbolDeclarationType()
     return evaluatedType;
 }
 
+bool ConstStatementNode::isSymbolVisibleToSiblingStatements() const {
+    return true;
+}
+
+bool ConstStatementNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
+    if (value) {
+        if (!visitChildExpression(rootsOnly, value.get(), func)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 ContinueStatementNode::ContinueStatementNode(ContinueScope scope, Token token)
     : StatementNode(std::move(token)), scope(scope) {}
 

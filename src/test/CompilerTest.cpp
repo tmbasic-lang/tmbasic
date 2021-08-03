@@ -51,28 +51,35 @@ static void run(string filenameWithoutExtension, compiler::CompiledProgram* prog
         source = pcodeFile;
     }
 
-    compiler::SourceProgram sourceProgram;
-    sourceProgram.loadFromContent(source);
-    try {
-        compiler::compileProgram(sourceProgram, program);
-    } catch (compiler::CompilerException& ex) {
-        std::cerr << ex.message << std::endl
-                  << NAMEOF_ENUM(ex.token.type) << " \"" << ex.token.text << "\" (" << ex.token.lineIndex + 1 << ":"
-                  << ex.token.columnIndex + 1 << ")" << std::endl;
-    }
-
     istringstream consoleInputStream(input);
     ostringstream consoleOutputStream;
-    auto interpreter = make_unique<Interpreter>(&program->vmProgram, &consoleInputStream, &consoleOutputStream);
-    interpreter->init(program->vmProgram.startupProcedureIndex);
-    while (interpreter->run(10000)) {
+
+    compiler::SourceProgram sourceProgram;
+    sourceProgram.loadFromContent(source);
+    bool compileSuccess = false;
+    try {
+        compiler::compileProgram(sourceProgram, program);
+        compileSuccess = true;
+    } catch (compiler::CompilerException& ex) {
+        consoleOutputStream << "Compiler error\n"
+                            << (ex.token.sourceMember == nullptr ? "token.sourceMember is null!"
+                                                                 : ex.token.sourceMember->identifier)
+                            << "\n"
+                            << (ex.token.lineIndex + 1) << ":" << (ex.token.columnIndex + 1) << "\n";
     }
 
-    auto error = interpreter->getError();
-    if (error.has_value()) {
-        consoleOutputStream << "Error" << std::endl
-                            << error->code.getString() << std::endl
-                            << error->message << std::endl;
+    if (compileSuccess) {
+        auto interpreter = make_unique<Interpreter>(&program->vmProgram, &consoleInputStream, &consoleOutputStream);
+        interpreter->init(program->vmProgram.startupProcedureIndex);
+        while (interpreter->run(10000)) {
+        }
+
+        auto error = interpreter->getError();
+        if (error.has_value()) {
+            consoleOutputStream << "Error" << std::endl
+                                << error->code.getString() << std::endl
+                                << error->message << std::endl;
+        }
     }
 
     auto actualOutput = consoleOutputStream.str();
@@ -139,6 +146,8 @@ COMPILER_TEST(built_in_constants)
 COMPILER_TEST(call_function_one_arg)
 COMPILER_TEST(call_function_zero_arg)
 COMPILER_TEST(call_sub)
+COMPILER_TEST(const_local)
+COMPILER_TEST(const_local_cannot_assign)
 COMPILER_TEST(directories)
 COMPILER_TEST(empty_main)
 COMPILER_TEST(for_loop)

@@ -416,7 +416,9 @@ class ConstStatementNode : public StatementNode {
     void dump(std::ostringstream& s, int n) const override;
     std::optional<std::string> getSymbolDeclaration() const override;
     boost::local_shared_ptr<TypeNode> getSymbolDeclarationType() const override;
+    bool isSymbolVisibleToSiblingStatements() const override;
     StatementType getStatementType() const override;
+    bool visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const override;
 };
 
 enum class ContinueScope {
