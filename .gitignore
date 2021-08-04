@@ -10,6 +10,7 @@
 debug.log
 /build/files/sysroot-*
 /build/files/deps.tar
+/build/deps/
 /build/downloads/
 /build/sysroots/sysroot-*
 /.vscode/settings.json

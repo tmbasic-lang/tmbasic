@@ -5,7 +5,11 @@
 set -euo pipefail
 
 scripts/depsDownload.sh
-export DOWNLOAD_DIR=$PWD/downloads
+
+rm -rf deps
+mkdir deps
+tar xf files/deps.tar -C deps
+export DOWNLOAD_DIR=$PWD/deps
 
 if [ "$ARCH" == "x86_64" ]; then
     export SHORT_ARCH=x64
