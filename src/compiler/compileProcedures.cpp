@@ -22,13 +22,7 @@ class VariableIndexingState {
 
 static void assignLocalVariableIndexToSymbolDeclaration(Node* symbolDeclarationNode, VariableIndexingState* state) {
     auto typeNode = symbolDeclarationNode->getSymbolDeclarationType();
-    if (typeNode == nullptr) {
-        throw CompilerException(
-            fmt::format(
-                "Internal error. getSymbolDeclarationType() returned null. Symbol name is \"{}\".",
-                *symbolDeclarationNode->getSymbolDeclaration()),
-            symbolDeclarationNode->token);
-    }
+    assert(typeNode != nullptr);
     if (typeNode->isValueType()) {
         symbolDeclarationNode->localValueIndex = state->nextLocalValueIndex++;
     } else {
@@ -162,10 +156,11 @@ void compileProcedures(const SourceProgram& sourceProgram, CompiledProgram* comp
         auto tokens = tokenize(sourceMember.source, TokenizeType::kCompile, &sourceMember);
         auto parserResult = parse(&sourceMember, ParserRootProduction::kMember, tokens);
         if (!parserResult.isSuccess) {
-            throw CompilerException(parserResult.message, *parserResult.token);
+            throw CompilerException(CompilerErrorCode::kSyntax, parserResult.message, *parserResult.token);
         }
         if (parserResult.node->getMemberType() != MemberType::kProcedure) {
-            throw CompilerException("This member must be a subroutine or function.", tokens[0]);
+            throw CompilerException(
+                CompilerErrorCode::kWrongMemberType, "This member must be a subroutine or function.", tokens[0]);
         }
         auto procedureNode = dynamic_cast_move<ProcedureNode>(std::move(parserResult.node));
         if (boost::to_lower_copy(procedureNode->name) == "main") {
@@ -179,7 +174,8 @@ void compileProcedures(const SourceProgram& sourceProgram, CompiledProgram* comp
 
     // we need a Main sub
     if (!mainProcedureIndex.has_value()) {
-        throw CompilerException("There is no \"Main\" subroutine in this program.", {});
+        throw CompilerException(
+            CompilerErrorCode::kMissingMainSub, "There is no \"Main\" subroutine in this program.", {});
     }
 
     // add symbols to the global scope for user procedures

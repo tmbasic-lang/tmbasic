@@ -6,5 +6,6 @@ sub Main()
 end sub
 --output--
 Compiler error
+kInvalidAssignmentTarget
 Main
 2:5

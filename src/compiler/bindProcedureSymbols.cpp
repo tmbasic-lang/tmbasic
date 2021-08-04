@@ -52,7 +52,7 @@ static void bindSymbol(Node* node, SymbolScope* parentScope, SymbolScope* childS
         std::ostringstream s;
         s << "There is already a variable named \"" << *node->getSymbolDeclaration()
           << "\". Try another name for this variable.";
-        throw CompilerException(s.str(), node->token);
+        throw CompilerException(CompilerErrorCode::kDuplicateSymbolName, s.str(), node->token);
     }
 }
 
@@ -66,7 +66,7 @@ static void bindExpressionSymbols(ExpressionNode* node, SymbolScope* scope) {
         } else {
             std::ostringstream s;
             s << "There is no variable named \"" << symbolRef->name << "\" accessible from here.";
-            throw CompilerException(s.str(), node->token);
+            throw CompilerException(CompilerErrorCode::kSymbolNotFound, s.str(), node->token);
         }
     } else if (node->getExpressionType() == ExpressionType::kCall) {
         // is this actually a list index?
@@ -129,7 +129,7 @@ void bindProcedureSymbols(SymbolScope* scope, ProcedureNode* procedure) {
             std::ostringstream s;
             s << "This parameter \"" << parameter->name << "\" conflicts with a global variable of the same name. "
               << "Try using a different name for this parameter.";
-            throw CompilerException(s.str(), parameter->token);
+            throw CompilerException(CompilerErrorCode::kDuplicateSymbolName, s.str(), parameter->token);
         }
     }
 

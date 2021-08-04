@@ -68,6 +68,7 @@ static void compileGlobal(const SourceMember& sourceMember, CompiledProgram* com
     for (auto& g : compiledProgram->globalVariables) {
         if (g->lowercaseName == lowercaseIdentifier) {
             throw CompilerException(
+                CompilerErrorCode::kDuplicateSymbolName,
                 fmt::format("The global variable name \"{}\" already exists.", sourceMember.identifier), {});
         }
     }
@@ -81,7 +82,7 @@ static void compileGlobal(const SourceMember& sourceMember, CompiledProgram* com
     auto tokens = tokenize(sourceMember.source + "\n", TokenizeType::kCompile, &sourceMember);
     auto parserResult = parse(&sourceMember, ParserRootProduction::kMember, tokens);
     if (!parserResult.isSuccess) {
-        throw CompilerException(parserResult.message, *parserResult.token);
+        throw CompilerException(CompilerErrorCode::kSyntax, parserResult.message, *parserResult.token);
     }
 
     // figure out the type of the variable. it must be a literal initializer.
@@ -94,6 +95,7 @@ static void compileGlobal(const SourceMember& sourceMember, CompiledProgram* com
         if (dimNode->value) {
             if (dimNode->value->getExpressionType() != ExpressionType::kConstValue) {
                 throw CompilerException(
+                    CompilerErrorCode::kInvalidGlobalVariableType,
                     "Global variable initial values must be a boolean, number, or string literal.",
                     dimNode->value->token);
             }
@@ -103,7 +105,9 @@ static void compileGlobal(const SourceMember& sourceMember, CompiledProgram* com
             parserResult.node->evaluatedType = boost::make_local_shared<TypeNode>(*dimNode->type);
         }
     } else {
-        throw CompilerException("This member must be a global variable (dim) or constant value (const).", tokens[0]);
+        throw CompilerException(
+            CompilerErrorCode::kWrongMemberType,
+            "This member must be a global variable (dim) or constant value (const).", tokens[0]);
     }
 
     compiledGlobalVariable->isValue = parserResult.node->evaluatedType->isValueType();
@@ -122,6 +126,7 @@ static void compileGlobal(const SourceMember& sourceMember, CompiledProgram* com
     if (valueExpr) {
         if (valueExpr->getExpressionType() != ExpressionType::kConstValue) {
             throw CompilerException(
+                CompilerErrorCode::kInvalidGlobalVariableType,
                 "The initial value of a global variable must be a boolean, number, or string literal.",
                 valueExpr->token);
         }

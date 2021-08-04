@@ -436,6 +436,7 @@ static void emitCallExpression(const CallExpressionNode& expressionNode, Procedu
         emitSymbolReference(*expressionNode.boundSymbolDeclaration, state);
         auto* declType = expressionNode.boundSymbolDeclaration->getSymbolDeclarationType().get();
         assert(declType);
+        assert(declType->kind == Kind::kList || declType->kind == Kind::kMap);
         if (declType->kind == Kind::kList) {
             auto& itemType = *declType->listItemType;
             if (itemType.isValueType()) {
@@ -445,8 +446,6 @@ static void emitCallExpression(const CallExpressionNode& expressionNode, Procedu
             }
         } else if (declType->kind == Kind::kMap) {
             throw std::runtime_error("not impl");
-        } else {
-            throw CompilerException("Internal error. Unexpected type.", expressionNode.boundSymbolDeclaration->token);
         }
     } else if (expressionNode.procedureIndex.has_value()) {
         state->call(
@@ -471,7 +470,9 @@ static void emitLiteralArrayExpression(const LiteralArrayExpressionNode& express
     }
     auto count = expressionNode.elements.size();
     if (count > std::numeric_limits<uint16_t>::max()) {
-        throw CompilerException("Too many elements in this literal list.", expressionNode.token);
+        throw CompilerException(
+            CompilerErrorCode::kTooManyLiteralListElements, "Too many elements in this literal list.",
+            expressionNode.token);
     }
     if (isValueList) {
         state->valueListNew(static_cast<uint16_t>(count));
@@ -588,7 +589,8 @@ static void emitCallStatement(const CallStatementNode& statementNode, ProcedureS
         arg->evaluatedType->isValueType() ? numValueArgs++ : numObjectArgs++;
         emitExpression(*arg, state);
         if (numValueArgs > maxArgs || numObjectArgs > maxArgs) {
-            throw CompilerException("Too many arguments in call.", statementNode.token);
+            throw CompilerException(
+                CompilerErrorCode::kTooManyCallArguments, "Too many arguments in call.", statementNode.token);
         }
     }
     if (statementNode.systemCall.has_value()) {
@@ -963,7 +965,7 @@ static void emitPrintStatement(const PrintStatementNode& statementNode, Procedur
             case Kind::kOptional:
                 throw std::runtime_error("not impl");
             default:
-                throw CompilerException("Unknown Kind", expressionNode->token);
+                throw CompilerException(CompilerErrorCode::kInternal, "Unknown Kind", expressionNode->token);
         }
     }
 
@@ -980,6 +982,7 @@ static void emitInputStatement(const InputStatementNode& statementNode, Procedur
     auto* targetSymbolReference = dynamic_cast<SymbolReferenceExpressionNode*>(statementNode.target.get());
     if (targetSymbolReference == nullptr) {
         throw CompilerException(
+            CompilerErrorCode::kInputTargetNotVariableName,
             "The target of an \"input\" statement must be the name of a variable, not a more complicated expression.",
             statementNode.target->token);
     }
@@ -1078,7 +1081,8 @@ vector<uint8_t> emit(const ProcedureNode& procedureNode, int numLocalValues, int
     ProcedureState state;
     int maxLocals = std::numeric_limits<uint16_t>::max();
     if (numLocalValues > maxLocals || numLocalObjects > maxLocals) {
-        throw CompilerException("Too many local variables.", procedureNode.token);
+        throw CompilerException(
+            CompilerErrorCode::kTooManyLocalVariables, "Too many local variables.", procedureNode.token);
     }
     state.initLocals(static_cast<uint16_t>(numLocalValues), static_cast<uint16_t>(numLocalObjects));
     emitBody(*procedureNode.body, &state);

@@ -59,6 +59,7 @@ static void typeCheckCall(
             doCallArgumentTypesMatchProcedureParameters(arguments, compiledProcedure->procedureNode->parameters)) {
             if (mustBeFunction && compiledProcedure->procedureNode->returnType == nullptr) {
                 throw CompilerException(
+                    CompilerErrorCode::kSubCalledAsFunction,
                     fmt::format("\"{}\" is a subroutine but is being called as a function.", name), callNode->token);
             }
             callNode->procedureIndex = compiledProcedure->procedureIndex;
@@ -73,6 +74,7 @@ static void typeCheckCall(
         if (doCallArgumentTypesMatchProcedureParameters(arguments, builtInProcedure->parameters)) {
             if (mustBeFunction && builtInProcedure->returnType == nullptr) {
                 throw CompilerException(
+                    CompilerErrorCode::kSubCalledAsFunction,
                     fmt::format("\"{}\" is a subroutine but is being called as a function.", name), callNode->token);
             }
             callNode->systemCall = builtInProcedure->systemCall;
@@ -83,7 +85,9 @@ static void typeCheckCall(
         }
     }
 
-    throw CompilerException(fmt::format("Call to undefined procedure \"{}\".", name), callNode->token);
+    throw CompilerException(
+        CompilerErrorCode::kProcedureNotFound, fmt::format("Call to undefined procedure \"{}\".", name),
+        callNode->token);
 }
 
 static std::string getOperatorText(BinaryOperator op) {
@@ -138,6 +142,7 @@ static void typeCheckBinaryExpression(BinaryExpressionNode* expressionNode, Type
                     suffix->evaluatedType = lhsType;
                 } else {
                     throw CompilerException(
+                        CompilerErrorCode::kTypeMismatch,
                         fmt::format(
                             "The \"{}\" operator requires Boolean operands.", getOperatorText(suffix->binaryOperator)),
                         suffix->token);
@@ -167,6 +172,7 @@ static void typeCheckBinaryExpression(BinaryExpressionNode* expressionNode, Type
                     }
                 } else {
                     throw CompilerException(
+                        CompilerErrorCode::kTypeMismatch,
                         fmt::format(
                             "The \"{}\" operator requires the operands to have equivalent types.",
                             getOperatorText(suffix->binaryOperator)),
@@ -183,6 +189,7 @@ static void typeCheckBinaryExpression(BinaryExpressionNode* expressionNode, Type
                     suffix->evaluatedType = lhsType;
                 } else {
                     throw CompilerException(
+                        CompilerErrorCode::kTypeMismatch,
                         fmt::format(
                             "The \"{}\" operator requires Number or String operands.",
                             getOperatorText(suffix->binaryOperator)),
@@ -198,6 +205,7 @@ static void typeCheckBinaryExpression(BinaryExpressionNode* expressionNode, Type
                 // lhs must be Number
                 if (lhsType->kind != Kind::kNumber) {
                     throw CompilerException(
+                        CompilerErrorCode::kTypeMismatch,
                         fmt::format(
                             "The \"{}\" operator requires the left operand to be a Number.",
                             getOperatorText(suffix->binaryOperator)),
@@ -206,6 +214,7 @@ static void typeCheckBinaryExpression(BinaryExpressionNode* expressionNode, Type
                 // rhs must be Number
                 if (rhsType->kind != Kind::kNumber) {
                     throw CompilerException(
+                        CompilerErrorCode::kTypeMismatch,
                         fmt::format(
                             "The \"{}\" operator requires the right operand to be a Number.",
                             getOperatorText(suffix->binaryOperator)),
@@ -242,10 +251,13 @@ static void typeCheckCallExpression(CallExpressionNode* expressionNode, TypeChec
                         return;
                     }
                 }
-                throw CompilerException("The list index must be a single number.", expressionNode->token);
+                throw CompilerException(
+                    CompilerErrorCode::kInvalidListIndex, "The list index must be a single number.",
+                    expressionNode->token);
             }
             throw CompilerException(
-                "Only lists and maps can be indexed with \"(...)\" like this.", expressionNode->token);
+                CompilerErrorCode::kTypeMismatch, "Only lists and maps can be indexed with \"(...)\" like this.",
+                expressionNode->token);
         }
     }
 
@@ -255,7 +267,9 @@ static void typeCheckCallExpression(CallExpressionNode* expressionNode, TypeChec
 static void typeCheckConstValueExpressionArray(LiteralArrayExpressionNode* expressionNode, TypeCheckState* state) {
     assert(expressionNode != nullptr);
     if (expressionNode->elements.empty()) {
-        throw CompilerException("Literal lists must have at least one element.", expressionNode->token);
+        throw CompilerException(
+            CompilerErrorCode::kEmptyLiteralList, "Literal lists must have at least one element.",
+            expressionNode->token);
     }
     for (auto& element : expressionNode->elements) {
         typeCheckExpression(element.get(), state);
@@ -263,7 +277,9 @@ static void typeCheckConstValueExpressionArray(LiteralArrayExpressionNode* expre
     auto& type = expressionNode->elements.at(0)->evaluatedType;
     for (auto& element : expressionNode->elements) {
         if (!type->isIdentical(*element->evaluatedType)) {
-            throw CompilerException("All elements of a literal list must have the same type.", element->token);
+            throw CompilerException(
+                CompilerErrorCode::kTypeMismatch, "All elements of a literal list must have the same type.",
+                element->token);
         }
     }
     auto arrayType = boost::make_local_shared<TypeNode>(Kind::kList, expressionNode->token, type);
@@ -313,29 +329,17 @@ static void typeCheckNotExpression(NotExpressionNode* expressionNode, TypeCheckS
     assert(expressionNode->operand->evaluatedType != nullptr);
     auto& operandType = expressionNode->operand->evaluatedType;
     if (operandType->kind != Kind::kBoolean) {
-        throw CompilerException("The \"not\" operator requires a Boolean operand.", expressionNode->operand->token);
+        throw CompilerException(
+            CompilerErrorCode::kTypeMismatch, "The \"not\" operator requires a Boolean operand.",
+            expressionNode->operand->token);
     }
     expressionNode->evaluatedType = operandType;
 }
 
 static void typeCheckSymbolReferenceExpression(SymbolReferenceExpressionNode* expressionNode, TypeCheckState* state) {
     const auto* decl = expressionNode->boundSymbolDeclaration;
-    if (decl == nullptr) {
-        throw CompilerException(
-            std::string("Internal error. The symbol reference \"") + expressionNode->name +
-                "\" is not bound to a symbol declaration.",
-            expressionNode->token);
-    }
-    if (!decl->getSymbolDeclaration().has_value()) {
-        std::ostringstream s;
-        decl->dump(s, 0);
-        throw CompilerException(
-            fmt::format(
-                "Internal error. The symbol reference \"{}\" is bound to a node that does not claim to declare a "
-                "symbol. That node is: {}",
-                expressionNode->name, s.str()),
-            expressionNode->token);
-    }
+    assert(decl != nullptr);
+    assert(decl->getSymbolDeclaration().has_value());
 
     // this could be a call to a function with no parameters
     const auto* procedureNode = dynamic_cast<const ProcedureNode*>(decl);
@@ -386,7 +390,9 @@ static void typeCheckAssignStatement(AssignStatementNode* statementNode, TypeChe
     auto* decl = statementNode->symbolReference->boundSymbolDeclaration;
     assert(decl != nullptr);
     if (dynamic_cast<const ConstStatementNode*>(decl) != nullptr) {
-        throw CompilerException("Assignment target cannot be a constant.", statementNode->symbolReference->token);
+        throw CompilerException(
+            CompilerErrorCode::kInvalidAssignmentTarget, "Assignment target cannot be a constant.",
+            statementNode->symbolReference->token);
     }
 }
 
@@ -410,13 +416,15 @@ static void typeCheckIfStatement(IfStatementNode* statementNode) {
     assert(statementNode->condition->evaluatedType != nullptr);
     if (statementNode->condition->evaluatedType->kind != Kind::kBoolean) {
         throw CompilerException(
-            "The condition of an \"if\" statement must be a Boolean.", statementNode->condition->token);
+            CompilerErrorCode::kTypeMismatch, "The condition of an \"if\" statement must be a Boolean.",
+            statementNode->condition->token);
     }
     for (auto& elseIf : statementNode->elseIfs) {
         assert(elseIf->condition->evaluatedType != nullptr);
         if (elseIf->condition->evaluatedType->kind != Kind::kBoolean) {
             throw CompilerException(
-                "The condition of an \"else if\" statement must be a Boolean.", elseIf->condition->token);
+                CompilerErrorCode::kTypeMismatch, "The condition of an \"else if\" statement must be a Boolean.",
+                elseIf->condition->token);
         }
     }
 }
@@ -430,20 +438,23 @@ static void typeCheckForStatement(ForStatementNode* statementNode) {
     assert(statementNode->fromValue->evaluatedType != nullptr);
     if (statementNode->fromValue->evaluatedType->kind != Kind::kNumber) {
         throw CompilerException(
-            "The \"from\" value of a \"for\" statement must be a number.", statementNode->fromValue->token);
+            CompilerErrorCode::kTypeMismatch, "The \"from\" value of a \"for\" statement must be a number.",
+            statementNode->fromValue->token);
     }
     // toValue must be a number
     assert(statementNode->toValue->evaluatedType != nullptr);
     if (statementNode->toValue->evaluatedType->kind != Kind::kNumber) {
         throw CompilerException(
-            "The \"to\" value of a \"for\" statement must be a number.", statementNode->toValue->token);
+            CompilerErrorCode::kTypeMismatch, "The \"to\" value of a \"for\" statement must be a number.",
+            statementNode->toValue->token);
     }
     // if it is provided, then step must be a number
     if (statementNode->step != nullptr) {
         assert(statementNode->step->evaluatedType != nullptr);
         if (statementNode->step->evaluatedType->kind != Kind::kNumber) {
             throw CompilerException(
-                "The \"step\" value of a \"for\" statement must be a number.", statementNode->step->token);
+                CompilerErrorCode::kTypeMismatch, "The \"step\" value of a \"for\" statement must be a number.",
+                statementNode->step->token);
         }
     }
 }
@@ -453,7 +464,8 @@ static void typeCheckWhileStatement(WhileStatementNode* statementNode) {
     assert(statementNode->condition->evaluatedType != nullptr);
     if (statementNode->condition->evaluatedType->kind != Kind::kBoolean) {
         throw CompilerException(
-            "The condition of a \"while\" statement must be a Boolean.", statementNode->condition->token);
+            CompilerErrorCode::kTypeMismatch, "The condition of a \"while\" statement must be a Boolean.",
+            statementNode->condition->token);
     }
 }
 
@@ -462,7 +474,8 @@ static void typeCheckDoStatement(DoStatementNode* statementNode) {
     assert(statementNode->condition->evaluatedType != nullptr);
     if (statementNode->condition->evaluatedType->kind != Kind::kBoolean) {
         throw CompilerException(
-            "The condition of a \"do\" statement must be a Boolean.", statementNode->condition->token);
+            CompilerErrorCode::kTypeMismatch, "The condition of a \"do\" statement must be a Boolean.",
+            statementNode->condition->token);
     }
 }
 
@@ -471,14 +484,16 @@ static void typeCheckThrowStatement(ThrowStatementNode* statementNode) {
     assert(statementNode->message->evaluatedType != nullptr);
     if (statementNode->message->evaluatedType->kind != Kind::kString) {
         throw CompilerException(
-            "The error message of a \"throw\" statement must be a String.", statementNode->message->token);
+            CompilerErrorCode::kTypeMismatch, "The error message of a \"throw\" statement must be a String.",
+            statementNode->message->token);
     }
     // if code is non-null, then it must be a Number
     if (statementNode->code != nullptr) {
         assert(statementNode->code->evaluatedType != nullptr);
         if (statementNode->code->evaluatedType->kind != Kind::kNumber) {
             throw CompilerException(
-                "The error code of a \"throw\" statement must be a Number.", statementNode->code->token);
+                CompilerErrorCode::kTypeMismatch, "The error code of a \"throw\" statement must be a Number.",
+                statementNode->code->token);
         }
     }
 }

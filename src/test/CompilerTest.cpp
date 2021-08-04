@@ -62,6 +62,7 @@ static void run(string filenameWithoutExtension, compiler::CompiledProgram* prog
         compileSuccess = true;
     } catch (compiler::CompilerException& ex) {
         consoleOutputStream << "Compiler error\n"
+                            << NAMEOF_ENUM(ex.code) << "\n"
                             << (ex.token.sourceMember == nullptr ? "token.sourceMember is null!"
                                                                  : ex.token.sourceMember->identifier)
                             << "\n"

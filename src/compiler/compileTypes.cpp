@@ -11,11 +11,12 @@ static void compileType(int sourceMemberIndex, const SourceMember& sourceMember,
     auto tokens = tokenize(sourceMember.source + "\n", TokenizeType::kCompile, &sourceMember);
     auto parserResult = parse(&sourceMember, ParserRootProduction::kMember, tokens);
     if (!parserResult.isSuccess) {
-        throw CompilerException(parserResult.message, *parserResult.token);
+        throw CompilerException(CompilerErrorCode::kSyntax, parserResult.message, *parserResult.token);
     }
 
     if (parserResult.node->getMemberType() != MemberType::kTypeDeclaration) {
-        throw CompilerException("This member was expected to be a type declaration.", tokens[0]);
+        throw CompilerException(
+            CompilerErrorCode::kWrongMemberType, "This member was expected to be a type declaration.", tokens[0]);
     }
 
     const auto& typeDeclarationNode = dynamic_cast<TypeDeclarationNode&>(*parserResult.node);
@@ -23,7 +24,9 @@ static void compileType(int sourceMemberIndex, const SourceMember& sourceMember,
 
     if (compiledProgram->userTypesByNameLowercase.find(lowercaseIdentifier) !=
         compiledProgram->userTypesByNameLowercase.end()) {
-        throw CompilerException(fmt::format("A type named \"{}\" already exists.", typeDeclarationNode.name), {});
+        throw CompilerException(
+            CompilerErrorCode::kDuplicateTypeName,
+            fmt::format("A type named \"{}\" already exists.", typeDeclarationNode.name), {});
     }
 
     auto t = std::make_unique<CompiledUserType>();
@@ -55,6 +58,7 @@ static void checkFieldType(const TypeNode& fieldTypeNode, const CompiledProgram&
         if (compiledProgram.userTypesByNameLowercase.find(lowercaseRecordName) ==
             compiledProgram.userTypesByNameLowercase.end()) {
             throw CompilerException(
+                CompilerErrorCode::kTypeNotFound,
                 fmt::format("The type \"{}\" is not defined.", *fieldTypeNode.recordName), fieldTypeNode.token);
         }
     } else if (fieldTypeNode.kind == Kind::kList) {

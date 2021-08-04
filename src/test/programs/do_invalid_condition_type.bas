@@ -6,5 +6,6 @@ sub Main()
 end sub
 --output--
 Compiler error
+kTypeMismatch
 Main
 4:16
