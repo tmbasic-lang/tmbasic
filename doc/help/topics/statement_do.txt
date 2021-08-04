@@ -51,7 +51,7 @@ pre@
                 ↓ num = 0       
 @
 
-This is similar to a {`while` loop:ref_while}.
+This is similar to a {`while` loop:statement_while}.
 In a `do` loop, the condition is checked i[after] running the loop body.
 In a `while` loop, the condition is checked i[before] running the loop body.
 This means that a `do` loop will always execute at least once, but a `while` loop can execute zero times.

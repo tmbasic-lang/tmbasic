@@ -1,7 +1,0 @@
-nav@{TMBASIC Documentation:doc}@
-
-h1[IDE Dialog Boxes]
-
-ul@
-li@{"Insert Color" Dialog:ide_insertColorDialog}@
-@

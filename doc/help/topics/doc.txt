@@ -3,44 +3,62 @@ h1[TMBASIC Documentation]
 h2[Programming Reference]
 
 ul@
-li@Statements:
-{`do`:ref_do} •
-{`if`:ref_if} •
-{`input`:ref_input} •
-{`print`:ref_print} •
-{`while`:ref_while}@
+li@i[Control flow statements:]
+{`do`:statement_do} │
+{`for`:statement_for} │
+{`for each`:statement_for_each} │
+{`group`:statement_group} │
+{`if`:statement_if} │
+{`join`:statement_join} │
+{`select case`:statement_select_case} │
+{`try`:statement_try} │
+{`while`:statement_while}@
 
-li@Operators:
-{Algebraic:ref_algebraic} •
-{Comparison:ref_comparison} •
-{Logical:ref_logical}@
+li@i[Command statements:]
+{`=`:statement_assign} │
+{call:statement_call} │
+{`const`:statement_const} │
+{`continue`:statement_continue} │
+{`dim`:statement_dim} │
+{`exit`:statement_exit} │
+{`input`:statement_input} │
+{`print`:statement_print} │
+{`rethrow`:statement_rethrow} │
+{`return`:statement_return} │
+{`select`:statement_select} │
+{`throw`:statement_throw}@
 
-li@Procedures:
-{All Procedures:procedures} •
-{Algebra and Trigonometry:procedures_algebra_and_trigonometry} •
-{Dates and Times:procedures_dates_and_times} •
-{Error Handling:procedures_error_handling} •
-{File I/O:procedures_file_io} •
-{Optionals:procedures_optionals} •
+li@i[Operators:]
+{Algebraic:operators_algebraic} │
+{Comparison:operators_comparison} │
+{Logical:operators_logical}@
+
+li@i[Procedures:]
+{All Procedures:procedures} │
+{Algebra and Trigonometry:procedures_algebra_and_trigonometry} │
+{Dates and Times:procedures_dates_and_times} │
+{Error Handling:procedures_error_handling} │
+{File I/O:procedures_file_io} │
+{Optionals:procedures_optionals} │
 {Strings:procedures_strings}@
 
-li@Types:
-{`Boolean`:type_boolean} •
-{`Date`:type_date} •
-{`DateTime`:type_datetime} •
-{`DateTimeOffset`:type_datetimeoffset} •
-{`List`:type_list} •
-{`Map`:type_map} •
-{`Number`:type_number} •
-{`Optional`:type_optional} •
-{`Record`:type_record} •
-{`String`:type_string} •
-{`TimeSpan`:type_timespan} •
+li@i[Types:]
+{`Boolean`:type_boolean} │
+{`Date`:type_date} │
+{`DateTime`:type_datetime} │
+{`DateTimeOffset`:type_datetimeoffset} │
+{`List`:type_list} │
+{`Map`:type_map} │
+{`Number`:type_number} │
+{`Optional`:type_optional} │
+{`Record`:type_record} │
+{`String`:type_string} │
+{`TimeSpan`:type_timespan} │
 {`TimeZone`:type_timezone}@
 
-li@{Constants:ref_constants}@
+li@{Constants:builtin_constants}@
 
-li@{Language Grammar:ref_grammar}@
+li@{Language Grammar:grammar}@
 @
 
 

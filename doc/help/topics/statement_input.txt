@@ -14,7 +14,7 @@ The `input` statement reads a line of text from the user's keyboard.
 It waits for the user to type something and then press Enter.
 Then it stores their entered value into the specified variable.
 
-The example below uses the {`print` statement:ref_print} to prompt the user to enter their name.
+The example below uses the {`print` statement:statement_print} to prompt the user to enter their name.
 After the user types a name and presses Enter, that name is stored in the `name` variable.
 Then, `print` is used again to greet the user by name.
 

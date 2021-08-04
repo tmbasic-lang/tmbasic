@@ -18,14 +18,14 @@ x = 5
 x = -9.1
 @
 
-Algebraic operators like {`+` (plus):ref_algebraic} and {`-` (minus):ref_algebraic} perform mathematical operations on numbers.
+Algebraic operators like {`+` (plus):operators_algebraic} and {`-` (minus):operators_algebraic} perform mathematical operations on numbers.
 code@
 dim x = 5 * 10  ' x is 50
 dim y = x / 4   ' y is 12.5
 dim z = -y      ' z is -12.5
 @
 
-Comparison operators like {`<` (less than):ref_comparison} and {`>` (greater than):ref_comparison} produce t[Boolean] values that allow you to make decisions.
+Comparison operators like {`<` (less than):operators_comparison} and {`>` (greater than):operators_comparison} produce t[Boolean] values that allow you to make decisions.
 code@
 dim x = 50
 dim y = x < 100  ' y is true

@@ -5,7 +5,7 @@
 Gets the last error code that was thrown.
 Use this function in a `catch` block to determine the type of error that was thrown.
 
-See {Built-In Constants:ref_constants} for a list of error codes used by TMBASIC functions.
+See {Built-In Constants:builtin_constants} for a list of error codes used by TMBASIC functions.
 .overload
 .return Number
 The last error code that was thrown.

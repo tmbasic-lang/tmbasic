@@ -1,4 +1,4 @@
-nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {IDE Dialog Boxes:ide}@
+nav@{TMBASIC Documentation:doc}
 
 h1["Insert Color" Dialog]
 
