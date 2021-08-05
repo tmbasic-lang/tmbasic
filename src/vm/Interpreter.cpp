@@ -42,11 +42,13 @@ static void pushObject(
 }
 
 static void popValue(std::array<Value, kValueStackSize>* valueStack, int* vsi) {
+    assert(*vsi > 0);
     (*vsi)--;
     valueStack->at(*vsi) = {};
 }
 
 static void popObject(std::array<boost::local_shared_ptr<Object>, kObjectStackSize>* objectStack, int* osi) {
+    assert(*osi > 0);
     (*osi)--;
     objectStack->at(*osi) = {};
 }
@@ -149,7 +151,23 @@ bool Interpreter::run(int maxCycles) {
         auto opcode = static_cast<Opcode>(instructions->at(instructionIndex));
 
 #ifdef LOG_EXECUTION
-        std::cerr << "cycle " << cycle << ": " << NAMEOF_ENUM(opcode) << std::endl;
+        std::cerr << "cycle " << std::setw(5) << cycle << " │ pc " << std::setw(5) << instructionIndex << " │ "
+                  << NAMEOF_ENUM(opcode);
+        switch (opcode) {
+            case Opcode::kSystemCall:
+            case Opcode::kSystemCallO:
+            case Opcode::kSystemCallV:
+            case Opcode::kSystemCallVO: {
+                int16_t syscallIndex{};
+                memcpy(&syscallIndex, &instructions->at(instructionIndex + 1), sizeof(int16_t));
+                std::cerr << " " << NAMEOF_ENUM(static_cast<SystemCall>(syscallIndex));
+                break;
+            }
+
+            default:
+                break;
+        }
+        std::cerr << std::endl;
 #endif
 
         instructionIndex++;
@@ -190,6 +208,17 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kPopObject: {
                 popObject(objectStack, &osi);
+                break;
+            }
+
+            case Opcode::kDuplicateValue: {
+                pushValue(valueStack, &vsi, valueStack->at(vsi - 1));
+                break;
+            }
+
+            case Opcode::kDuplicateObject: {
+                auto obj = objectStack->at(osi - 1);
+                pushObject(objectStack, &osi, std::move(obj));
                 break;
             }
 
@@ -352,9 +381,6 @@ bool Interpreter::run(int maxCycles) {
             case Opcode::kSystemCallO:
             case Opcode::kSystemCallVO: {
                 auto syscallIndex = readInt<uint16_t>(instructions, &instructionIndex);
-#ifdef LOG_EXECUTION
-                std::cerr << "System call is " << NAMEOF_ENUM(static_cast<SystemCall>(syscallIndex)) << std::endl;
-#endif
                 auto numVals = readInt<uint8_t>(instructions, &instructionIndex);
                 auto numObjs = readInt<uint8_t>(instructions, &instructionIndex);
                 auto returnsValue = opcode == Opcode::kSystemCallV || opcode == Opcode::kSystemCallVO;
@@ -521,9 +547,7 @@ bool Interpreter::run(int maxCycles) {
             }
 
             default:
-                std::cerr << "Unimplemented opcode: " << instructions->at(instructionIndex) << std::endl;
-                assert(false);
-                break;
+                throw std::runtime_error(fmt::format("Unknown opcode {}", static_cast<int>(opcode)));
         }
     }
 

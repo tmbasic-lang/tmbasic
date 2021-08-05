@@ -80,6 +80,11 @@ class ProcedureState {
 #endif
     }
 
+    void popValue() { op(Opcode::kPopValue); }
+    void popObject() { op(Opcode::kPopObject); }
+    void duplicateValue() { op(Opcode::kDuplicateValue); }
+    void duplicateObject() { op(Opcode::kDuplicateObject); }
+
     void initLocals(uint16_t numVals, uint16_t numObjs) {
         op(Opcode::kInitLocals);
         emitInt<uint16_t>(numVals);
@@ -261,6 +266,23 @@ static void emitBinaryExpression(const BinaryExpressionNode& expressionNode, Pro
             throw std::runtime_error("not impl");
             lhsType = binarySuffix->leftOperandConvertedType;
         }
+
+        // handle boolean AND/OR short circuiting
+        auto isOr = binarySuffix->binaryOperator == BinaryOperator::kOr;
+        auto isAnd = binarySuffix->binaryOperator == BinaryOperator::kAnd;
+        auto endOfBinarySuffixLabel = state->labelId();
+        if (lhsType->kind == Kind::kBoolean && (isOr || isAnd)) {
+            if (isOr) {
+                // if LHS=true, then skip evaluating RHS and keep the true value
+                state->duplicateValue();
+                state->branchIfTrue(endOfBinarySuffixLabel);
+            } else if (isAnd) {
+                // if LHS=false, then skip evaluating RHS and keep the false value
+                state->duplicateValue();
+                state->branchIfFalse(endOfBinarySuffixLabel);
+            }
+        }
+
         auto rhsType = binarySuffix->rightOperand->evaluatedType;
         emitExpression(*binarySuffix->rightOperand, state);
         if (binarySuffix->rightOperandConvertedType != nullptr) {
@@ -322,10 +344,31 @@ static void emitBinaryExpression(const BinaryExpressionNode& expressionNode, Pro
                 default:
                     throw std::runtime_error("not impl");
             }
+        } else if (lhsType->kind == Kind::kBoolean && rhsType->kind == Kind::kBoolean) {
+            SystemCall systemCall{};
+            switch (binarySuffix->binaryOperator) {
+                case BinaryOperator::kEquals:
+                    systemCall = SystemCall::kNumberEquals;
+                    break;
+                case BinaryOperator::kNotEquals:
+                    systemCall = SystemCall::kNumberNotEquals;
+                    break;
+                case BinaryOperator::kAnd:
+                    systemCall = SystemCall::kBooleanAnd;
+                    break;
+                case BinaryOperator::kOr:
+                    systemCall = SystemCall::kBooleanOr;
+                    break;
+                default:
+                    throw std::runtime_error("not impl");
+            }
+            state->syscall(Opcode::kSystemCallV, systemCall, 2, 0);
         } else {
             throw std::runtime_error("not impl");
         }
         lhsType = suffixResultType;
+
+        state->label(endOfBinarySuffixLabel);
     }
 }
 
@@ -917,18 +960,10 @@ static void emitPrintStatement(const PrintStatementNode& statementNode, Procedur
         assert(expressionNode->evaluatedType != nullptr);
         emitExpression(*expressionNode, state);
         switch (expressionNode->evaluatedType->kind) {
-            case Kind::kBoolean: {
-                auto printFalseLabel = state->labelId();
-                auto endPrintLabel = state->labelId();
-                state->branchIfFalse(printFalseLabel);
-                state->pushImmediateUtf8("true");
-                state->jump(endPrintLabel);
-                state->label(printFalseLabel);
-                state->pushImmediateUtf8("false");
-                state->label(endPrintLabel);
+            case Kind::kBoolean:
+                state->syscall(Opcode::kSystemCallO, SystemCall::kBooleanToString, 1, 0);
                 state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
                 break;
-            }
             case Kind::kNumber:
                 state->syscall(Opcode::kSystemCallO, SystemCall::kNumberToString, 1, 0);
                 state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);

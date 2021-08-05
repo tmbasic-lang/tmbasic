@@ -317,8 +317,18 @@ void initSystemCalls() {
     });
     initSystemCall(SystemCall::kAvailableLocales, systemCallAvailableLocales);
     initSystemCall(SystemCall::kAvailableTimeZones, systemCallAvailableTimeZones);
+    initSystemCall(SystemCall::kBooleanAnd, [](const auto& input, auto* result) {
+        result->returnedValue.setBoolean(input.getValue(-2).getBoolean() && input.getValue(-1).getBoolean());
+    });
     initSystemCall(SystemCall::kBooleanNot, [](const auto& input, auto* result) {
         result->returnedValue.setBoolean(!input.getValue(-1).getBoolean());
+    });
+    initSystemCall(SystemCall::kBooleanOr, [](const auto& input, auto* result) {
+        result->returnedValue.setBoolean(input.getValue(-2).getBoolean() || input.getValue(-1).getBoolean());
+    });
+    initSystemCall(SystemCall::kBooleanToString, [](const auto& input, auto* result) {
+        std::string s{ input.getValue(-1).getBoolean() ? "true" : "false" };
+        result->returnedObject = boost::make_local_shared<String>(std::move(s));
     });
     initSystemCall(SystemCall::kCeil, [](const auto& input, auto* result) {
         result->returnedValue.num = input.getValue(-1).num.ceil();

@@ -15,7 +15,10 @@ enum class SystemCall {
     kAtan2,                         // atan2(y as Number, x as Number) as Number
     kAvailableLocales,              // AvailableLocales() as List of String
     kAvailableTimeZones,            // AvailableTimeZones() as List of String
+    kBooleanAnd,                    // (x as Boolean, y as Boolean) as Boolean
     kBooleanNot,                    // BooleanNot(x as Boolean) as Boolean
+    kBooleanOr,                     // (x as Boolean, y as Boolean) as Boolean
+    kBooleanToString,               // BooleanToString(x as Boolean) as String
     kCeil,                          // Ceil(x as Number) as Number
     kCharacters1,                   // Characters(input as String) as List of String
     kCharacters2,                   // Characters(input as String, locale as String) as List of String
@@ -139,10 +142,12 @@ class SystemCallInput {
         const std::string& errorMessage);
     inline const Value& getValue(const int vsiOffset) const {
         assert(vsiOffset < 0);
+        assert(valueStackIndex + vsiOffset >= 0);
         return valueStack.at(valueStackIndex + vsiOffset);
     }
     inline const Object& getObject(const int osiOffset) const {
         assert(osiOffset < 0);
+        assert(objectStackIndex + osiOffset >= 0);
         const auto& ptr = objectStack.at(objectStackIndex + osiOffset);
         assert(ptr != nullptr);
         return *ptr;

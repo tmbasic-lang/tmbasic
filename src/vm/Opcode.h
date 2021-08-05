@@ -31,6 +31,8 @@ enum class Opcode {
     kPushImmediateUtf8,    // <u32 length, utf8 string> pusho string
     kPopValue,             // popv;
     kPopObject,            // popo;
+    kDuplicateValue,
+    kDuplicateObject,
 
     // variables
     kInitLocals,          // <u16 numVals, u16 numObjs>
@@ -49,8 +51,8 @@ enum class Opcode {
 
     // flow control
     kJump,           // <inst* index> goto byte index in the current procedure
-    kBranchIfTrue,   // <inst* index> if (vsp[-1]) goto index in current proc
-    kBranchIfFalse,  // <inst* index> if (!vsp[-1]) goto index in current proc
+    kBranchIfTrue,   // <inst* index> if (vsp[-1]) {goto index in current proc} popv;
+    kBranchIfFalse,  // <inst* index> if (!vsp[-1]) {goto index in current proc} popv;
 
     // procedures
     kCall,          // <proc* procIndex, u8 numVals, u8 numObjs>
