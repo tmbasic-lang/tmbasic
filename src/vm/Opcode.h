@@ -48,6 +48,7 @@ enum class Opcode {
     kPushLocalObject,     // <localObj* src> pusho *src
     kSetLocalValue,       // <localVal* dst> *dst = vsp[-1]; popv;
     kSetLocalObject,      // <localObj* dst> *dst = ospTop; popo;
+    kClearLocalObject,    // <localObj* dst> *dst = null;
 
     // flow control
     kJump,           // <inst* index> goto byte index in the current procedure

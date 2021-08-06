@@ -111,6 +111,11 @@ class ProcedureState {
         emitInt<uint16_t>(index);
     }
 
+    void clearLocalObject(uint16_t index) {
+        op(Opcode::kClearLocalObject);
+        emitInt<uint16_t>(index);
+    }
+
     void pushArgumentValue(uint8_t index) {
         op(Opcode::kPushArgumentValue);
         emitInt<uint8_t>(index);
@@ -838,6 +843,12 @@ static void emitForEachStatement(const ForEachStatementNode& statementNode, Proc
     // end of loop
     state->jump(startLabel);
     state->label(endLabel);
+
+    // clean up
+    state->clearLocalObject(listLocalObjectIndex);
+    if (!isValue) {
+        state->clearLocalObject(elementLocalValueOrObjectIndex);
+    }
 }
 
 static void emitForStatement(const ForStatementNode& statementNode, ProcedureState* state) {
@@ -1020,6 +1031,11 @@ static void emitSelectCaseStatement(const SelectCaseStatementNode& statementNode
     }
 
     state->label(endSelectCaseLabel);
+
+    // clean up
+    if (!isValue) {
+        state->clearLocalObject(exprLocalValueOrObjectIndex);
+    }
 }
 
 static void emitSelectStatement(const SelectStatementNode& /*statementNode*/, ProcedureState* /*state*/) {

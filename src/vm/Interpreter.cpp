@@ -333,6 +333,13 @@ bool Interpreter::run(int maxCycles) {
                 break;
             }
 
+            case Opcode::kClearLocalObject: {
+                auto dst = readInt<uint16_t>(instructions, &instructionIndex);
+                auto& callFrame = _private->callStack.top();
+                objectStack->at(callFrame.osiLocalsStart + dst) = nullptr;
+                break;
+            }
+
             case Opcode::kJump: {
                 instructionIndex = readInt<uint32_t>(instructions, &instructionIndex);
                 break;
