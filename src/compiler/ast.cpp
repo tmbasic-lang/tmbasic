@@ -308,6 +308,50 @@ bool TypeNode::isIdentical(const TypeNode& target) const {
     }
 }
 
+std::string TypeNode::toString() const {
+    switch (kind) {
+        case Kind::kBoolean:
+            return "Boolean";
+        case Kind::kNumber:
+            return "Number";
+        case Kind::kDate:
+            return "Date";
+        case Kind::kDateTime:
+            return "DateTime";
+        case Kind::kDateTimeOffset:
+            return "DateTimeOffset";
+        case Kind::kTimeSpan:
+            return "TimeSpan";
+        case Kind::kTimeZone:
+            return "TimeZone";
+        case Kind::kString:
+            return "String";
+        case Kind::kList:
+            return fmt::format("List of {}", listItemType->toString());
+        case Kind::kMap:
+            return fmt::format("Map from {} to {}", mapKeyType->toString(), mapValueType->toString());
+        case Kind::kRecord:
+            if (recordName.has_value()) {
+                return *recordName;
+            } else {
+                std::ostringstream ss;
+                ss << "Record (";
+                for (size_t i = 0; i < fields.size(); i++) {
+                    if (i > 0) {
+                        ss << ", ";
+                    }
+                    ss << fields[i]->name << " as " << fields[i]->type->toString();
+                }
+                ss << ")";
+                return ss.str();
+            }
+        case Kind::kOptional:
+            return fmt::format("Optional {}", optionalValueType->toString());
+        default:
+            throw std::runtime_error("not impl");
+    }
+}
+
 BinaryExpressionSuffixNode::BinaryExpressionSuffixNode(
     BinaryOperator binaryOperator,
     std::unique_ptr<ExpressionNode> rightOperand,
@@ -1215,11 +1259,27 @@ bool SelectCaseStatementNode::visitBodies(const VisitBodyFunc& func) const {
 }
 
 bool SelectCaseStatementNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
-    return visitChildExpression(rootsOnly, expression.get(), func);
+    if (!visitChildExpression(rootsOnly, expression.get(), func)) {
+        return false;
+    }
+    for (const auto& x : cases) {
+        if (!x->visitExpressions(rootsOnly, func)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 StatementType SelectCaseStatementNode::getStatementType() const {
     return StatementType::kSelectCase;
+}
+
+int SelectCaseStatementNode::getTempLocalValueCount() const {
+    return 1;
+}
+
+int SelectCaseStatementNode::getTempLocalObjectCount() const {
+    return 1;
 }
 
 SelectStatementNode::SelectStatementNode(

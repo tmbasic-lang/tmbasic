@@ -949,8 +949,77 @@ static void emitReturnStatement(const ReturnStatementNode& statementNode, Proced
     }
 }
 
-static void emitSelectCaseStatement(const SelectCaseStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
-    throw std::runtime_error("not impl");
+static void emitSelectCaseStatement(const SelectCaseStatementNode& statementNode, ProcedureState* state) {
+    assert(statementNode.getTempLocalValueCount() == 1);
+    assert(statementNode.getTempLocalObjectCount() == 1);
+    assert(statementNode.tempLocalValueIndex.has_value());
+    assert(statementNode.tempLocalObjectIndex.has_value());
+    assert(statementNode.expression->evaluatedType != nullptr);
+
+    auto isValue = statementNode.expression->evaluatedType->isValueType();
+    auto exprLocalValueOrObjectIndex =
+        isValue ? *statementNode.tempLocalValueIndex : *statementNode.tempLocalObjectIndex;
+
+    emitExpression(*statementNode.expression, state);
+    if (isValue) {
+        state->setLocalValue(exprLocalValueOrObjectIndex);
+    } else {
+        state->setLocalObject(exprLocalValueOrObjectIndex);
+    }
+
+    auto endSelectCaseLabel = state->labelId();
+
+    for (const auto& caseNode : statementNode.cases) {
+        // skip "case else" right now
+        if (caseNode->values.empty()) {
+            continue;
+        }
+
+        auto caseBodyLabel = state->labelId();
+        auto endCaseLabel = state->labelId();
+        for (auto& range : caseNode->values) {
+            if (range->toExpression == nullptr) {
+                // single value
+                if (isValue) {
+                    state->pushLocalValue(exprLocalValueOrObjectIndex);
+                    emitExpression(*range->expression, state);
+                    state->syscall(Opcode::kSystemCallV, SystemCall::kNumberEquals, 2, 0);
+                } else {
+                    state->pushLocalObject(exprLocalValueOrObjectIndex);
+                    emitExpression(*range->expression, state);
+                    state->syscall(Opcode::kSystemCallV, SystemCall::kObjectEquals, 0, 2);
+                }
+            } else {
+                assert(isValue);
+
+                state->pushLocalValue(exprLocalValueOrObjectIndex);
+                emitExpression(*range->expression, state);
+                state->syscall(Opcode::kSystemCallV, SystemCall::kNumberGreaterThanEquals, 2, 0);
+
+                state->pushLocalValue(exprLocalValueOrObjectIndex);
+                emitExpression(*range->toExpression, state);
+                state->syscall(Opcode::kSystemCallV, SystemCall::kNumberLessThanEquals, 2, 0);
+
+                state->syscall(Opcode::kSystemCallV, SystemCall::kBooleanAnd, 2, 0);
+            }
+            state->branchIfTrue(caseBodyLabel);
+        }
+
+        state->jump(endCaseLabel);
+        state->label(caseBodyLabel);
+        emitBody(*caseNode->body, state);
+        state->jump(endSelectCaseLabel);
+        state->label(endCaseLabel);
+    }
+
+    // if code execution falls through to here, then it was none of the cases. run "case else"
+    for (const auto& caseNode : statementNode.cases) {
+        if (caseNode->values.empty()) {
+            emitBody(*caseNode->body, state);
+        }
+    }
+
+    state->label(endSelectCaseLabel);
 }
 
 static void emitSelectStatement(const SelectStatementNode& /*statementNode*/, ProcedureState* /*state*/) {

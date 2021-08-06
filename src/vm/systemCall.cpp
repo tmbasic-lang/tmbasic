@@ -499,6 +499,9 @@ void initSystemCalls() {
         result->returnedValue.num = input.getValue(-2).num - input.getValue(-1).num;
     });
     initSystemCall(SystemCall::kNumberToString, systemCallNumberToString);
+    initSystemCall(SystemCall::kObjectEquals, [](const auto& input, auto* result) {
+        result->returnedValue.num = input.getObject(-2).equals(input.getObject(-1)) ? 1 : 0;
+    });
     initSystemCall(SystemCall::kObjectListGet, systemCallObjectListGet);
     initSystemCall(SystemCall::kObjectListLength, systemCallObjectListLength);
     initSystemCall(SystemCall::kObjectOptionalNewMissing, [](const auto& /*input*/, auto* result) {

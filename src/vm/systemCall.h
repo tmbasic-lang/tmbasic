@@ -9,15 +9,15 @@ namespace vm {
 
 enum class SystemCall {
     kAbs,                           // Abs(x as Number) as Number
-    kAcos,                          // acos(x as Number) as Number
-    kAsin,                          // asin(x as Number) as Number
-    kAtan,                          // atan(x as Number) as Number
-    kAtan2,                         // atan2(y as Number, x as Number) as Number
+    kAcos,                          // Acos(x as Number) as Number
+    kAsin,                          // Asin(x as Number) as Number
+    kAtan,                          // Atan(x as Number) as Number
+    kAtan2,                         // Atan2(y as Number, x as Number) as Number
     kAvailableLocales,              // AvailableLocales() as List of String
     kAvailableTimeZones,            // AvailableTimeZones() as List of String
-    kBooleanAnd,                    // (x as Boolean, y as Boolean) as Boolean
+    kBooleanAnd,                    // BooleanAnd(x as Boolean, y as Boolean) as Boolean
     kBooleanNot,                    // BooleanNot(x as Boolean) as Boolean
-    kBooleanOr,                     // (x as Boolean, y as Boolean) as Boolean
+    kBooleanOr,                     // BooleanOr(x as Boolean, y as Boolean) as Boolean
     kBooleanToString,               // BooleanToString(x as Boolean) as String
     kCeil,                          // Ceil(x as Number) as Number
     kCharacters1,                   // Characters(input as String) as List of String
@@ -44,7 +44,7 @@ enum class SystemCall {
     kDeleteFile,                    // DeleteFile(filePath as String)
     kErrorCode,                     // ErrorCode() as Number
     kErrorMessage,                  // ErrorMessage() as String
-    kExp,                           // exp(x as Number) as Number
+    kExp,                           // Exp(x as Number) as Number
     kFileExists,                    // FileExists(filePath as String) as Boolean
     kFloor,                         // Floor(x as Number) as Number
     kFlushConsoleOutput,            // FlushConsoleOutput()
@@ -72,6 +72,7 @@ enum class SystemCall {
     kNumberNotEquals,               // NumberNotEquals(lhs as Number, rhs as Number) as Boolean
     kNumberSubtract,                // NumberSubtract(lhs as Number, rhs as Number) as Number
     kNumberToString,                // NumberToString(input as Number) as String
+    kObjectEquals,                  // (lhs as Object, rhs as Object) as Boolean
     kObjectListGet,                 // ObjectListGet(input as ObjectList, index as Number) as Object
     kObjectListLength,              // ObjectListLength(input as ObjectList) as Number
     kObjectOptionalNewMissing,      // ObjectOptionalNewMissing() as ObjectOptional

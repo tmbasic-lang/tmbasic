@@ -385,7 +385,7 @@ void typeCheckExpression(ExpressionNode* expressionNode, TypeCheckState* state) 
     assert(expressionNode->evaluatedType != nullptr);
 }
 
-static void typeCheckAssignStatement(AssignStatementNode* statementNode, TypeCheckState* state) {
+static void typeCheckAssignStatement(AssignStatementNode* statementNode) {
     // the assignment target must not be a constant
     auto* decl = statementNode->symbolReference->boundSymbolDeclaration;
     assert(decl != nullptr);
@@ -508,6 +508,63 @@ static void typeCheckThrowStatement(ThrowStatementNode* statementNode) {
     }
 }
 
+static void typeCheckSelectCaseStatement(SelectCaseStatementNode* statementNode) {
+    assert(statementNode->expression->evaluatedType != nullptr);
+    auto& exprType = *statementNode->expression->evaluatedType;
+
+    // 1. every case must have expressions that match the switch type
+    // 2. case range expressions like "1 to 5" must be numbers
+    // 3. there must be at most one "case else"
+    bool seenCaseElse = false;
+    for (auto& caseNode : statementNode->cases) {
+        if (caseNode->values.empty()) {
+            if (seenCaseElse) {
+                throw CompilerException(
+                    CompilerErrorCode::kMultipleSelectCaseDefaults,
+                    "This \"select case\" has multiple \"case else\" blocks, but it can only have one.",
+                    caseNode->token);
+            }
+            seenCaseElse = true;
+        }
+
+        for (auto& caseValueNode : caseNode->values) {
+            assert(caseValueNode->expression->evaluatedType != nullptr);
+            auto& caseValueType = *caseValueNode->expression->evaluatedType;
+            if (!caseValueNode->expression->evaluatedType->isIdentical(exprType)) {
+                throw CompilerException(
+                    CompilerErrorCode::kTypeMismatch,
+                    fmt::format(
+                        "This \"case\" expression is of type {}, which does not match the \"select case\" expression "
+                        "type {}.",
+                        caseValueType.toString(), exprType.toString()),
+                    caseValueNode->expression->token);
+            }
+
+            if (caseValueNode->toExpression != nullptr) {
+                if (caseValueType.kind != Kind::kNumber) {
+                    throw CompilerException(
+                        CompilerErrorCode::kTypeMismatch,
+                        fmt::format(
+                            "Ranges in \"case\" expressions must be numbers, but this range's start value is of type "
+                            "{}.",
+                            caseValueType.toString()),
+                        caseValueNode->expression->token);
+                }
+
+                auto& toType = *caseValueNode->toExpression->evaluatedType;
+                if (toType.kind != Kind::kNumber) {
+                    throw CompilerException(
+                        CompilerErrorCode::kTypeMismatch,
+                        fmt::format(
+                            "Ranges in \"case\" expressions must be numbers, but this range's end value is of type {}.",
+                            toType.toString()),
+                        caseValueNode->toExpression->token);
+                }
+            }
+        }
+    }
+}
+
 static void typeCheckBody(BodyNode* bodyNode, TypeCheckState* state) {
     for (auto& statementNode : bodyNode->statements) {
         statementNode->visitExpressions(true, [state](ExpressionNode* expressionNode) -> bool {
@@ -517,7 +574,7 @@ static void typeCheckBody(BodyNode* bodyNode, TypeCheckState* state) {
 
         switch (statementNode->getStatementType()) {
             case StatementType::kAssign:
-                typeCheckAssignStatement(dynamic_cast<AssignStatementNode*>(statementNode.get()), state);
+                typeCheckAssignStatement(dynamic_cast<AssignStatementNode*>(statementNode.get()));
                 break;
 
             case StatementType::kDim:
@@ -554,6 +611,10 @@ static void typeCheckBody(BodyNode* bodyNode, TypeCheckState* state) {
 
             case StatementType::kThrow:
                 typeCheckThrowStatement(dynamic_cast<ThrowStatementNode*>(statementNode.get()));
+                break;
+
+            case StatementType::kSelectCase:
+                typeCheckSelectCaseStatement(dynamic_cast<SelectCaseStatementNode*>(statementNode.get()));
                 break;
 
             default:

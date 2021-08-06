@@ -113,6 +113,7 @@ class TypeNode : public Node {
     bool isValueType() const;
     bool canImplicitlyConvertTo(const TypeNode& target) const;
     bool isIdentical(const TypeNode& target) const;
+    std::string toString() const;
 };
 
 //
@@ -675,6 +676,8 @@ class SelectCaseStatementNode : public StatementNode {
     bool visitBodies(const VisitBodyFunc& func) const override;
     bool visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const override;
     StatementType getStatementType() const override;
+    int getTempLocalValueCount() const override;
+    int getTempLocalObjectCount() const override;
 };
 
 class SelectStatementNode : public StatementNode {
