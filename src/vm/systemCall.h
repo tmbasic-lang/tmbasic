@@ -73,6 +73,9 @@ enum class SystemCall {
     kNumberSubtract,                // NumberSubtract(lhs as Number, rhs as Number) as Number
     kNumberToString,                // NumberToString(input as Number) as String
     kObjectEquals,                  // (lhs as Object, rhs as Object) as Boolean
+    kObjectListBuilderNew,          // ObjectListBuilderNew() as ObjectListBuilder
+    kObjectListBuilderAdd,          // ObjectListBuilderAdd(builder as ObjectListBuilder, Object as Object)
+    kObjectListBuilderEnd,          // ObjectListBuilderEnd(builder as ObjectListBuilder) as ObjectList
     kObjectListGet,                 // ObjectListGet(input as ObjectList, index as Number) as Object
     kObjectListLength,              // ObjectListLength(input as ObjectList) as Number
     kObjectOptionalNewMissing,      // ObjectOptionalNewMissing() as ObjectOptional
@@ -110,6 +113,9 @@ enum class SystemCall {
     kTotalSeconds,                  // TotalSeconds(timeSpan as TimeSpan) as Number
     kTrunc,                         // Trunc(x as Number) as Number
     kUtcOffset,                     // UtcOffset(timeZone as TimeZone, dateTime as DateTime) as TimeSpan
+    kValueListBuilderNew,           // ValueListBuilderNew() as ValueListBuilder
+    kValueListBuilderAdd,           // ValueListBuilderAdd(builder as ValueListBuilder, value as Value)
+    kValueListBuilderEnd,           // ValueListBuilderEnd(builder as ValueListBuilder) as ValueList
     kValueListGet,                  // ValueListGet(input as ValueList, index as Number) as Value
     kValueO,                        // ValueO(input as Optional Object) as Boolean
     kValueOptionalNewMissing,       // ValueOptionalNewMissing() as ValueOptional
@@ -124,8 +130,8 @@ enum class SystemCall {
 
 class SystemCallInput {
    public:
-    const std::array<Value, kValueStackSize>& valueStack;
-    const std::array<boost::local_shared_ptr<Object>, kObjectStackSize>& objectStack;
+    std::array<Value, kValueStackSize>& valueStack;
+    std::array<boost::local_shared_ptr<Object>, kObjectStackSize>& objectStack;
     int valueStackIndex;
     int objectStackIndex;
     std::istream* consoleInputStream;
@@ -133,20 +139,20 @@ class SystemCallInput {
     const Value& errorCode;
     const std::string& errorMessage;
     SystemCallInput(
-        const std::array<Value, kValueStackSize>& valueStack,
-        const std::array<boost::local_shared_ptr<Object>, kObjectStackSize>& objectStack,
+        std::array<Value, kValueStackSize>& valueStack,
+        std::array<boost::local_shared_ptr<Object>, kObjectStackSize>& objectStack,
         int valueStackIndex,
         int objectStackIndex,
         std::istream* consoleInputStream,
         std::ostream* consoleOutputStream,
         const Value& errorCode,
         const std::string& errorMessage);
-    inline const Value& getValue(const int vsiOffset) const {
+    inline Value& getValue(const int vsiOffset) const {
         assert(vsiOffset < 0);
         assert(valueStackIndex + vsiOffset >= 0);
         return valueStack.at(valueStackIndex + vsiOffset);
     }
-    inline const Object& getObject(const int osiOffset) const {
+    inline Object& getObject(const int osiOffset) const {
         assert(osiOffset < 0);
         assert(objectStackIndex + osiOffset >= 0);
         const auto& ptr = objectStack.at(objectStackIndex + osiOffset);

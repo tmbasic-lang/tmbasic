@@ -3,6 +3,7 @@
 #include "BuiltInProcedureList.h"
 #include "CompilerException.h"
 #include "bindProcedureSymbols.h"
+#include "bindYieldStatements.h"
 #include "emit.h"
 #include "parse.h"
 #include "tokenize.h"
@@ -100,6 +101,7 @@ static void compileProcedure(
     const BuiltInProcedureList& builtInProcedures) {
     auto* procedureNode = compiledProcedure->procedureNode.get();
     bindProcedureSymbols(globalSymbolScope, procedureNode);
+    bindYieldStatements(procedureNode);
     typeCheck(procedureNode, sourceProgram, compiledProgram, builtInProcedures);
     int numLocalValues = 0;
     int numLocalObjects = 0;

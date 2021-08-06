@@ -1316,16 +1316,15 @@ class ReturnStatementProduction : public Production {
     }
 };
 
-class SelectStatementProduction : public Production {
+class YieldStatementProduction : public Production {
    public:
-    explicit SelectStatementProduction(const Production* expression)
+    explicit YieldStatementProduction(const Production* expression)
         : Production(
-              NAMEOF_TYPE(SelectStatementProduction),
+              NAMEOF_TYPE(YieldStatementProduction),
               {
-                  term(TokenKind::kSelect),
-                  // no cut here, since it could be 'select' 'case'
+                  term(TokenKind::kYield),
+                  cut(),
                   capture(0, prod(expression)),
-                  cut(),  // instead the cut is here
                   optional({
                       term(TokenKind::kTo),
                       capture(1, prod(expression)),
@@ -1334,7 +1333,7 @@ class SelectStatementProduction : public Production {
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
-        return nodeBox<SelectStatementNode>(
+        return nodeBox<YieldStatementNode>(
             captureSingleNode<ExpressionNode>(std::move(captures->at(0))),
             captureSingleNodeOrNull<ExpressionNode>(std::move(captures->at(1))), firstToken);
     }
@@ -1797,7 +1796,7 @@ class CommandStatementProduction : public Production {
    public:
     CommandStatementProduction(
         const Production* assignStatement,
-        const Production* selectStatement,
+        const Production* yieldStatement,
         const Production* returnStatement,
         const Production* callStatement,
         const Production* continueStatement,
@@ -1813,7 +1812,7 @@ class CommandStatementProduction : public Production {
                       0,
                       oneOf({
                           prod(assignStatement),
-                          prod(selectStatement),
+                          prod(yieldStatement),
                           prod(returnStatement),
                           prod(callStatement),
                           prod(continueStatement),
@@ -2058,7 +2057,7 @@ class ProductionCollection {
         auto* continueStatement = add<ContinueStatementProduction>();
         auto* callStatement = add<CallStatementProduction>(argumentList);
         auto* returnStatement = add<ReturnStatementProduction>(expression);
-        auto* selectStatement = add<SelectStatementProduction>(expression);
+        auto* yieldStatement = add<YieldStatementProduction>(expression);
         auto* constStatement = add<ConstStatementProduction>(literalValue);
         auto* assignLocationSuffix = add<AssignLocationSuffixProduction>(expression);
         auto* assignStatement = add<AssignStatementProduction>(assignLocationSuffix, expression);
@@ -2078,7 +2077,7 @@ class ProductionCollection {
         auto* printStatement = add<PrintStatementProduction>(expression);
         auto* inputStatement = add<InputStatementProduction>(expression);
         auto* commandStatement = add<CommandStatementProduction>(
-            assignStatement, selectStatement, returnStatement, callStatement, continueStatement, exitStatement,
+            assignStatement, yieldStatement, returnStatement, callStatement, continueStatement, exitStatement,
             throwStatement, rethrowStatement, printStatement, inputStatement);
         statement->init(
             commandStatement, forStatement, forEachStatement, whileStatement, doStatement, ifStatement,

@@ -7,7 +7,9 @@ namespace vm {
 enum class ObjectType {
     kString = 1,
     kValueList,
+    kValueListBuilder,
     kObjectList,
+    kObjectListBuilder,
     kValueToValueMap,
     kValueToObjectMap,
     kObjectToValueMap,

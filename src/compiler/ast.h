@@ -17,6 +17,7 @@ enum class MemberType {
 class BodyNode;
 class ExpressionNode;
 class TypeNode;
+class YieldStatementNode;
 
 typedef std::function<bool(BodyNode*)> VisitBodyFunc;
 typedef std::function<bool(ExpressionNode*)> VisitExpressionFunc;
@@ -50,6 +51,9 @@ class Node {
     // local variable symbol reference nodes
     std::optional<uint16_t> localValueIndex{};
     std::optional<uint16_t> localObjectIndex{};
+
+    // DimList, DimMap, Procedure
+    virtual std::vector<YieldStatementNode*>* getYieldStatementNodesList();
 };
 
 //
@@ -346,7 +350,7 @@ enum class StatementType {
     kRethrow,
     kReturn,
     kSelectCase,
-    kSelect,
+    kYield,
     kThrow,
     kTry,
     kWhile,
@@ -436,24 +440,57 @@ class ContinueStatementNode : public StatementNode {
     StatementType getStatementType() const override;
 };
 
+class YieldStatementNode : public StatementNode {
+   public:
+    std::unique_ptr<ExpressionNode> expression;
+    std::unique_ptr<ExpressionNode> toExpression;  // may be null
+
+    // added by bindYieldStatements
+    Node* boundCollectionDeclaration{};  // DimListNode | DimMapNode | ProcedureNode
+
+    YieldStatementNode(
+        std::unique_ptr<ExpressionNode> expression,
+        std::unique_ptr<ExpressionNode> toExpression,
+        Token token);
+    void dump(std::ostringstream& s, int n) const override;
+    bool visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const override;
+    StatementType getStatementType() const override;
+};
+
 class DimListStatementNode : public StatementNode {
    public:
     std::string name;
     std::unique_ptr<BodyNode> body;
+
+    // added by bindYieldStatements
+    std::vector<YieldStatementNode*> yieldStatements;
+    std::vector<YieldStatementNode*>* getYieldStatementNodesList() override;
+
     DimListStatementNode(std::string name, std::unique_ptr<BodyNode> body, Token token);
     void dump(std::ostringstream& s, int n) const override;
     bool visitBodies(const VisitBodyFunc& func) const override;
     StatementType getStatementType() const override;
+    std::optional<std::string> getSymbolDeclaration() const override;
+    boost::local_shared_ptr<TypeNode> getSymbolDeclarationType() const override;
+    bool isSymbolVisibleToSiblingStatements() const override;
 };
 
 class DimMapStatementNode : public StatementNode {
    public:
     std::string name;
     std::unique_ptr<BodyNode> body;
+
+    // added by bindYieldStatements
+    std::vector<YieldStatementNode*> yieldStatements;
+    std::vector<YieldStatementNode*>* getYieldStatementNodesList() override;
+
     DimMapStatementNode(std::string name, std::unique_ptr<BodyNode> body, Token token);
     void dump(std::ostringstream& s, int n) const override;
     bool visitBodies(const VisitBodyFunc& func) const override;
     StatementType getStatementType() const override;
+    std::optional<std::string> getSymbolDeclaration() const override;
+    boost::local_shared_ptr<TypeNode> getSymbolDeclarationType() const override;
+    bool isSymbolVisibleToSiblingStatements() const override;
 };
 
 class DimStatementNode : public StatementNode {
@@ -680,19 +717,6 @@ class SelectCaseStatementNode : public StatementNode {
     int getTempLocalObjectCount() const override;
 };
 
-class SelectStatementNode : public StatementNode {
-   public:
-    std::unique_ptr<ExpressionNode> expression;
-    std::unique_ptr<ExpressionNode> toExpression;  // may be null
-    SelectStatementNode(
-        std::unique_ptr<ExpressionNode> expression,
-        std::unique_ptr<ExpressionNode> toExpression,
-        Token token);
-    void dump(std::ostringstream& s, int n) const override;
-    bool visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const override;
-    StatementType getStatementType() const override;
-};
-
 class ThrowStatementNode : public StatementNode {
    public:
     std::unique_ptr<ExpressionNode> message;
@@ -762,6 +786,11 @@ class ProcedureNode : public Node {
     std::vector<std::unique_ptr<ParameterNode>> parameters;
     boost::local_shared_ptr<TypeNode> returnType;  // null for subroutines
     std::unique_ptr<BodyNode> body;                // null for system procedures
+
+    // added by bindYieldStatements
+    std::vector<YieldStatementNode*> yieldStatements;
+    std::vector<YieldStatementNode*>* getYieldStatementNodesList() override;
+
     ProcedureNode(
         std::string name,
         std::vector<std::unique_ptr<ParameterNode>> parameters,

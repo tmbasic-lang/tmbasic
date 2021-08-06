@@ -565,6 +565,140 @@ static void typeCheckSelectCaseStatement(SelectCaseStatementNode* statementNode)
     }
 }
 
+static void typeCheckYieldStatement(YieldStatementNode* statementNode) {
+    auto isListYield = statementNode->toExpression == nullptr;
+    auto isMapYield = !isListYield;
+    assert(statementNode->boundCollectionDeclaration != nullptr);
+    auto* procedure = dynamic_cast<ProcedureNode*>(statementNode->boundCollectionDeclaration);
+
+    if (procedure != nullptr) {
+        if (procedure->returnType == nullptr) {
+            throw CompilerException(
+                CompilerErrorCode::kYieldInSubroutine,
+                "A subroutine cannot contain a \"yield\" statement. It must be a function that returns a List or Map.",
+                statementNode->boundCollectionDeclaration->token);
+        }
+        if (procedure->returnType->kind != Kind::kList && procedure->returnType->kind != Kind::kMap) {
+            throw CompilerException(
+                CompilerErrorCode::kTypeMismatch,
+                fmt::format(
+                    "This function returns type {}, but the \"yield\" statement requires a List or Map return type.",
+                    procedure->returnType->toString()),
+                statementNode->boundCollectionDeclaration->token);
+        }
+        auto* collectionType = procedure->returnType.get();
+        assert(collectionType != nullptr);
+
+        if (collectionType->kind == Kind::kList && !isListYield) {
+            throw CompilerException(
+                CompilerErrorCode::kTypeMismatch,
+                fmt::format(
+                    "This \"yield ... to ...\" statement syntax is for building Map collections. However, this "
+                    "collection is a {}.",
+                    collectionType->toString()),
+                statementNode->token);
+        }
+
+        if (collectionType->kind == Kind::kMap && !isMapYield) {
+            throw CompilerException(
+                CompilerErrorCode::kTypeMismatch,
+                fmt::format(
+                    "This \"yield\" statement syntax is for building Map collections. However, this collection is a "
+                    "{}.",
+                    collectionType->toString()),
+                statementNode->token);
+        }
+
+        if (collectionType->kind == Kind::kList) {
+            auto& procedureItemType = procedure->returnType->listItemType;
+            if (!procedureItemType->isIdentical(*statementNode->expression->evaluatedType)) {
+                throw CompilerException(
+                    CompilerErrorCode::kTypeMismatch,
+                    fmt::format(
+                        "The expression in this \"yield\" statement must be of type {}, but it is type {}.",
+                        procedureItemType->toString(), statementNode->expression->evaluatedType->toString()),
+                    statementNode->expression->token);
+            }
+        } else {
+            throw std::runtime_error("not impl");
+        }
+    }
+}
+
+static void typeCheckDimListStatement(DimListStatementNode* statementNode) {
+    // there must be at least one yield statement
+    auto& yields = *statementNode->getYieldStatementNodesList();
+    if (yields.empty()) {
+        throw CompilerException(
+            CompilerErrorCode::kNoYieldsInDimCollection,
+            "A \"dim list\" block must contain at least one \"yield\" statement.", statementNode->token);
+    }
+
+    // all yields must be of the same type
+    auto& firstType = yields.at(0)->expression->evaluatedType;
+    assert(firstType != nullptr);
+    for (auto& yieldNode : yields) {
+        auto* yieldType = yieldNode->expression->evaluatedType.get();
+        if (!yieldType->isIdentical(*firstType)) {
+            throw CompilerException(
+                CompilerErrorCode::kTypeMismatch,
+                fmt::format(
+                    "All \"yield\" statements in a \"dim list\" must be of the same type. This block has \"yield\" "
+                    "statements of the incompatible types {} and {}.",
+                    firstType->toString(), yieldType->toString()),
+                yieldNode->token);
+        }
+    }
+
+    // the dim list's type is thus List of firstType
+    auto typeToken = firstType->token;
+    statementNode->evaluatedType = boost::make_local_shared<TypeNode>(Kind::kList, typeToken, firstType);
+}
+
+static void typeCheckDimMapStatement(DimMapStatementNode* statementNode) {
+    // there must be at least one yield statement
+    auto& yields = *statementNode->getYieldStatementNodesList();
+    if (yields.empty()) {
+        throw CompilerException(
+            CompilerErrorCode::kNoYieldsInDimCollection,
+            "A \"dim map\" block must contain at least one \"yield\" statement.", statementNode->token);
+    }
+
+    // all yields must be of the same from/to types
+    auto& firstKeyType = yields.at(0)->expression->evaluatedType;
+    assert(firstKeyType != nullptr);
+    auto& firstValueType = yields.at(0)->toExpression->evaluatedType;
+    assert(firstValueType != nullptr);
+    for (auto& yieldNode : yields) {
+        auto* yieldKeyType = yieldNode->expression->evaluatedType.get();
+        if (!yieldKeyType->isIdentical(*firstKeyType)) {
+            throw CompilerException(
+                CompilerErrorCode::kTypeMismatch,
+                fmt::format(
+                    "All \"yield\" statements in a \"dim map\" block must be of the same type. This block has "
+                    "\"yield\" statements with incompatible key types {} and {}.",
+                    firstKeyType->toString(), yieldKeyType->toString()),
+                yieldNode->token);
+        }
+
+        auto* yieldValueType = yieldNode->toExpression->evaluatedType.get();
+        if (!yieldValueType->isIdentical(*firstValueType)) {
+            throw CompilerException(
+                CompilerErrorCode::kTypeMismatch,
+                fmt::format(
+                    "All \"yield\" statements in a \"dim map\" block must be of the same type. This block has "
+                    "\"yield\" statements with incompatible value types {} and {}.",
+                    firstValueType->toString(), yieldValueType->toString()),
+                yieldNode->token);
+        }
+    }
+
+    // the dim map's type is thus Map from firstKeyType to firstValueType
+    auto typeToken = firstKeyType->token;
+    statementNode->evaluatedType =
+        boost::make_local_shared<TypeNode>(Kind::kMap, typeToken, firstKeyType, firstValueType);
+}
+
 static void typeCheckBody(BodyNode* bodyNode, TypeCheckState* state) {
     for (auto& statementNode : bodyNode->statements) {
         statementNode->visitExpressions(true, [state](ExpressionNode* expressionNode) -> bool {
@@ -572,7 +706,8 @@ static void typeCheckBody(BodyNode* bodyNode, TypeCheckState* state) {
             return true;
         });
 
-        switch (statementNode->getStatementType()) {
+        auto statementType = statementNode->getStatementType();
+        switch (statementType) {
             case StatementType::kAssign:
                 typeCheckAssignStatement(dynamic_cast<AssignStatementNode*>(statementNode.get()));
                 break;
@@ -617,6 +752,10 @@ static void typeCheckBody(BodyNode* bodyNode, TypeCheckState* state) {
                 typeCheckSelectCaseStatement(dynamic_cast<SelectCaseStatementNode*>(statementNode.get()));
                 break;
 
+            case StatementType::kYield:
+                typeCheckYieldStatement(dynamic_cast<YieldStatementNode*>(statementNode.get()));
+                break;
+
             default:
                 // do nothing
                 break;
@@ -626,6 +765,20 @@ static void typeCheckBody(BodyNode* bodyNode, TypeCheckState* state) {
             typeCheckBody(innerBodyNode, state);
             return true;
         });
+
+        // dim list and dim map require the yield statements to have been type checked first
+        switch (statementType) {
+            case StatementType::kDimList:
+                typeCheckDimListStatement(dynamic_cast<DimListStatementNode*>(statementNode.get()));
+                break;
+
+            case StatementType::kDimMap:
+                typeCheckDimMapStatement(dynamic_cast<DimMapStatementNode*>(statementNode.get()));
+                break;
+
+            default:
+                break;
+        }
     }
 }
 

@@ -19,8 +19,8 @@ static bool _systemCallsInitialized = false;
 static std::vector<SystemCallFunc> _systemCalls;
 
 SystemCallInput::SystemCallInput(
-    const std::array<Value, kValueStackSize>& valueStack,
-    const std::array<boost::local_shared_ptr<Object>, kObjectStackSize>& objectStack,
+    std::array<Value, kValueStackSize>& valueStack,
+    std::array<boost::local_shared_ptr<Object>, kObjectStackSize>& objectStack,
     int valueStackIndex,
     int objectStackIndex,
     std::istream* consoleInputStream,
@@ -502,6 +502,20 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kObjectEquals, [](const auto& input, auto* result) {
         result->returnedValue.num = input.getObject(-2).equals(input.getObject(-1)) ? 1 : 0;
     });
+    initSystemCall(SystemCall::kObjectListBuilderNew, [](const auto& input, auto* result) {
+        result->returnedObject = boost::make_local_shared<ObjectListBuilder>();
+    });
+    initSystemCall(SystemCall::kObjectListBuilderAdd, [](const auto& input, auto* result) {
+        auto& builder = dynamic_cast<ObjectListBuilder&>(input.getObject(-2));
+        auto obj = input.getObjectPtr(-1);
+        assert(obj->getObjectType() != ObjectType::kObjectListBuilder);
+        assert(obj->getObjectType() != ObjectType::kValueListBuilder);
+        builder.items.push_back(std::move(obj));
+    });
+    initSystemCall(SystemCall::kObjectListBuilderEnd, [](const auto& input, auto* result) {
+        auto& builder = dynamic_cast<ObjectListBuilder&>(input.getObject(-1));
+        result->returnedObject = boost::make_local_shared<ObjectList>(&builder);
+    });
     initSystemCall(SystemCall::kObjectListGet, systemCallObjectListGet);
     initSystemCall(SystemCall::kObjectListLength, systemCallObjectListLength);
     initSystemCall(SystemCall::kObjectOptionalNewMissing, [](const auto& /*input*/, auto* result) {
@@ -707,6 +721,17 @@ void initSystemCalls() {
     });
     initSystemCall(SystemCall::kUtcOffset, systemCallUtcOffset);
     initSystemCall(SystemCall::kValueO, systemCallValueO);
+    initSystemCall(SystemCall::kValueListBuilderNew, [](const auto& input, auto* result) {
+        result->returnedObject = boost::make_local_shared<ValueListBuilder>();
+    });
+    initSystemCall(SystemCall::kValueListBuilderAdd, [](const auto& input, auto* result) {
+        auto& builder = dynamic_cast<ValueListBuilder&>(input.getObject(-2));
+        builder.items.push_back(input.getValue(-1));
+    });
+    initSystemCall(SystemCall::kValueListBuilderEnd, [](const auto& input, auto* result) {
+        auto& builder = dynamic_cast<ValueListBuilder&>(input.getObject(-1));
+        result->returnedObject = boost::make_local_shared<ValueList>(&builder);
+    });
     initSystemCall(SystemCall::kValueListGet, systemCallValueListGet);
     initSystemCall(SystemCall::kValueOptionalNewMissing, [](const auto& /*input*/, auto* result) {
         result->returnedObject = boost::make_local_shared<ValueOptional>();

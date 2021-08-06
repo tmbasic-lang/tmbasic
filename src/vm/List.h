@@ -7,30 +7,37 @@
 
 namespace vm {
 
-template <typename TElement>
-class ListBuilder {
+template <typename TElement, ObjectType K>
+class ListBuilder : public Object {
    public:
     immer::vector_transient<TElement> items;
+
+    ObjectType getObjectType() const override { return K; }
+
+    std::size_t getHash() const override { return 0; }
+
+    bool equals(const Object& other) const override { return false; }
 };
 
-using ObjectListBuilder = ListBuilder<boost::local_shared_ptr<Object>>;
-using ValueListBuilder = ListBuilder<Value>;
+using ObjectListBuilder = ListBuilder<boost::local_shared_ptr<Object>, ObjectType::kObjectListBuilder>;
+using ValueListBuilder = ListBuilder<Value, ObjectType::kValueListBuilder>;
 
 class ListBase : public Object {
    public:
     virtual size_t size() const = 0;
 };
 
-template <typename TElement, ObjectType K>
+template <typename TElement, ObjectType K, typename TListBuilder>
 class List : public ListBase {
    public:
     const immer::vector<TElement> items = {};
 
-    explicit List(ListBuilder<TElement>* builder) : items(std::move(builder->items.persistent())) {}
+    explicit List(TListBuilder* builder) : items(std::move(builder->items.persistent())) {}
 
-    List(const List<TElement, K>& source, size_t removeIndex) : items(std::move(removeAt(source.items, removeIndex))) {}
+    List(const List<TElement, K, TListBuilder>& source, size_t removeIndex)
+        : items(std::move(removeAt(source.items, removeIndex))) {}
 
-    List(const List<TElement, K>& source, bool insert, size_t index, TElement newElement)
+    List(const List<TElement, K, TListBuilder>& source, bool insert, size_t index, TElement newElement)
         : items(std::move(insertOrSetAt(source.items, insert, index, newElement))) {}
 
     ObjectType getObjectType() const override { return K; }
@@ -48,7 +55,7 @@ class List : public ListBase {
         if (other.getObjectType() != K) {
             return false;
         }
-        auto& otherList = static_cast<const List<TElement, K>&>(other);
+        auto& otherList = static_cast<const List<TElement, K, TListBuilder>&>(other);
         if (items.size() != otherList.items.size()) {
             return false;
         }
@@ -90,7 +97,7 @@ class List : public ListBase {
     }
 };
 
-using ObjectList = List<boost::local_shared_ptr<Object>, ObjectType::kObjectList>;
-using ValueList = List<Value, ObjectType::kValueList>;
+using ObjectList = List<boost::local_shared_ptr<Object>, ObjectType::kObjectList, ObjectListBuilder>;
+using ValueList = List<Value, ObjectType::kValueList, ValueListBuilder>;
 
 }  // namespace vm

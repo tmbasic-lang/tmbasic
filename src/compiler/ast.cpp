@@ -121,6 +121,11 @@ TypeNode* Node::getChildTypeNode() const {
     return nullptr;
 }
 
+std::vector<YieldStatementNode*>* Node::getYieldStatementNodesList() {
+    assert(false);
+    throw std::runtime_error("This node does not support getYieldStatementNodesList.");
+}
+
 ExpressionNode::ExpressionNode(Token token) : Node(std::move(token)) {}
 
 ConstValueExpressionNode::ConstValueExpressionNode(Token token) : ExpressionNode(std::move(token)) {}
@@ -770,6 +775,23 @@ StatementType DimListStatementNode::getStatementType() const {
     return StatementType::kDimList;
 }
 
+std::optional<std::string> DimListStatementNode::getSymbolDeclaration() const {
+    return name;
+}
+
+boost::local_shared_ptr<TypeNode> DimListStatementNode::getSymbolDeclarationType() const {
+    assert(evaluatedType != nullptr);
+    return evaluatedType;
+}
+
+bool DimListStatementNode::isSymbolVisibleToSiblingStatements() const {
+    return true;
+}
+
+std::vector<YieldStatementNode*>* DimListStatementNode::getYieldStatementNodesList() {
+    return &yieldStatements;
+}
+
 DimMapStatementNode::DimMapStatementNode(std::string name, std::unique_ptr<BodyNode> body, Token token)
     : StatementNode(std::move(token)), name(std::move(name)), body(std::move(body)) {}
 
@@ -785,6 +807,23 @@ bool DimMapStatementNode::visitBodies(const VisitBodyFunc& func) const {
 
 StatementType DimMapStatementNode::getStatementType() const {
     return StatementType::kDimMap;
+}
+
+std::optional<std::string> DimMapStatementNode::getSymbolDeclaration() const {
+    return name;
+}
+
+boost::local_shared_ptr<TypeNode> DimMapStatementNode::getSymbolDeclarationType() const {
+    assert(evaluatedType != nullptr);
+    return evaluatedType;
+}
+
+bool DimMapStatementNode::isSymbolVisibleToSiblingStatements() const {
+    return true;
+}
+
+std::vector<YieldStatementNode*>* DimMapStatementNode::getYieldStatementNodesList() {
+    return &yieldStatements;
 }
 
 DimStatementNode::DimStatementNode(std::string name, boost::local_shared_ptr<TypeNode> type, Token token, bool shared)
@@ -1282,19 +1321,19 @@ int SelectCaseStatementNode::getTempLocalObjectCount() const {
     return 1;
 }
 
-SelectStatementNode::SelectStatementNode(
+YieldStatementNode::YieldStatementNode(
     std::unique_ptr<ExpressionNode> expression,
     std::unique_ptr<ExpressionNode> toExpression,
     Token token)
     : StatementNode(std::move(token)), expression(std::move(expression)), toExpression(std::move(toExpression)) {}
 
-void SelectStatementNode::dump(std::ostringstream& s, int n) const {
-    DUMP_TYPE(SelectStatementNode);
+void YieldStatementNode::dump(std::ostringstream& s, int n) const {
+    DUMP_TYPE(YieldStatementNode);
     DUMP_VAR_NODE(expression);
     DUMP_VAR_NODE(toExpression);
 }
 
-bool SelectStatementNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
+bool YieldStatementNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
     if (!visitChildExpression(rootsOnly, expression.get(), func)) {
         return false;
     }
@@ -1306,8 +1345,8 @@ bool SelectStatementNode::visitExpressions(bool rootsOnly, const VisitExpression
     return true;
 }
 
-StatementType SelectStatementNode::getStatementType() const {
-    return StatementType::kSelect;
+StatementType YieldStatementNode::getStatementType() const {
+    return StatementType::kYield;
 }
 
 ThrowStatementNode::ThrowStatementNode(
@@ -1487,6 +1526,18 @@ void ProcedureNode::dump(std::ostringstream& s, int n) const {
     DUMP_VAR_NODE(body);
 }
 
+MemberType ProcedureNode::getMemberType() const {
+    return MemberType::kProcedure;
+}
+
+std::optional<std::string> ProcedureNode::getSymbolDeclaration() const {
+    return name;
+}
+
+std::vector<YieldStatementNode*>* ProcedureNode::getYieldStatementNodesList() {
+    return &yieldStatements;
+}
+
 TypeDeclarationNode::TypeDeclarationNode(
     std::string name,
     std::vector<std::unique_ptr<ParameterNode>> fields,
@@ -1505,14 +1556,6 @@ void TypeDeclarationNode::dump(std::ostringstream& s, int n) const {
 
 ProgramNode::ProgramNode(std::vector<std::unique_ptr<Node>> members, Token token)
     : Node(std::move(token)), members(std::move(members)) {}
-
-MemberType ProcedureNode::getMemberType() const {
-    return MemberType::kProcedure;
-}
-
-std::optional<std::string> ProcedureNode::getSymbolDeclaration() const {
-    return name;
-}
 
 void ProgramNode::dump(std::ostringstream& s, int n) const {
     DUMP_TYPE(ProgramNode);

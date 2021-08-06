@@ -409,6 +409,7 @@ void CodeEditorWindow::handleStyleToNeeded(Sci_Position endStyleNeeded) {
                 case compiler::TokenKind::kWhere:
                 case compiler::TokenKind::kWhile:
                 case compiler::TokenKind::kWith:
+                case compiler::TokenKind::kYield:
                     style = 1;
                     break;
 

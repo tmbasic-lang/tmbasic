@@ -100,6 +100,7 @@ enum class TokenKind {
     kWhere,
     kWhile,
     kWith,
+    kYield,
 };
 
 }  // namespace compiler

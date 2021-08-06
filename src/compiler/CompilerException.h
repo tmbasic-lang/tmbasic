@@ -26,6 +26,8 @@ enum class CompilerErrorCode {
     kEmptyLiteralList,
     kInvalidAssignmentTarget,
     kMultipleSelectCaseDefaults,
+    kYieldInSubroutine,
+    kNoYieldsInDimCollection,
 };
 
 class CompilerException : public std::exception {

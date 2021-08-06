@@ -655,12 +655,49 @@ static void emitContinueStatement(const ContinueStatementNode& /*statementNode*/
     throw std::runtime_error("not impl");
 }
 
-static void emitDimListStatement(const DimListStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
-    throw std::runtime_error("not impl");
+static void emitDimListStatement(const DimListStatementNode& statementNode, ProcedureState* state) {
+    auto& listType = statementNode.evaluatedType;
+    assert(listType != nullptr);
+    assert(listType->kind == Kind::kList);
+    assert(listType->listItemType != nullptr);
+    auto isValueList = listType->listItemType->isValueType();
+    auto index = *statementNode.localObjectIndex;
+    if (isValueList) {
+        state->syscall(Opcode::kSystemCallO, SystemCall::kValueListBuilderNew, 0, 0);
+        state->setLocalObject(index);
+    } else {
+        state->syscall(Opcode::kSystemCallO, SystemCall::kObjectListBuilderNew, 0, 0);
+        state->setLocalObject(index);
+    }
+    emitBody(*statementNode.body, state);
+    state->pushLocalObject(index);
+    if (isValueList) {
+        state->syscall(Opcode::kSystemCallO, SystemCall::kValueListBuilderEnd, 0, 1);
+    } else {
+        state->syscall(Opcode::kSystemCallO, SystemCall::kObjectListBuilderEnd, 0, 1);
+    }
+    state->setLocalObject(index);
 }
 
 static void emitDimMapStatement(const DimMapStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
     throw std::runtime_error("not impl");
+}
+
+static void emitYieldStatement(const YieldStatementNode& statementNode, ProcedureState* state) {
+    assert(statementNode.boundCollectionDeclaration->localObjectIndex.has_value());
+    state->pushLocalObject(statementNode.boundCollectionDeclaration->localObjectIndex.value());
+    if (statementNode.toExpression == nullptr) {
+        // List
+        emitExpression(*statementNode.expression, state);
+        if (statementNode.expression->evaluatedType->isValueType()) {
+            state->syscall(Opcode::kSystemCall, SystemCall::kValueListBuilderAdd, 1, 1);
+        } else {
+            state->syscall(Opcode::kSystemCall, SystemCall::kObjectListBuilderAdd, 0, 2);
+        }
+    } else {
+        // Map
+        throw std::runtime_error("not impl");
+    }
 }
 
 static void emitDimOrConstStatement(
@@ -1038,10 +1075,6 @@ static void emitSelectCaseStatement(const SelectCaseStatementNode& statementNode
     }
 }
 
-static void emitSelectStatement(const SelectStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
-    throw std::runtime_error("not impl");
-}
-
 static void emitThrowStatement(const ThrowStatementNode& statementNode, ProcedureState* state) {
     if (statementNode.code != nullptr) {
         emitExpression(*statementNode.code, state);
@@ -1232,8 +1265,8 @@ static void emitInputStatement(const InputStatementNode& statementNode, Procedur
         case StatementType::kSelectCase:
             emitSelectCaseStatement(dynamic_cast<const SelectCaseStatementNode&>(statementNode), state);
             break;
-        case StatementType::kSelect:
-            emitSelectStatement(dynamic_cast<const SelectStatementNode&>(statementNode), state);
+        case StatementType::kYield:
+            emitYieldStatement(dynamic_cast<const YieldStatementNode&>(statementNode), state);
             break;
         case StatementType::kThrow:
             emitThrowStatement(dynamic_cast<const ThrowStatementNode&>(statementNode), state);

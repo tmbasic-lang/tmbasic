@@ -489,6 +489,11 @@ TokenKind Scanner::classifyToken(const std::string& text) {
                     return TokenKind::kWith;
                 }
                 break;
+            case 'y':
+                if (lc == "yield") {
+                    return TokenKind::kYield;
+                }
+                break;
         }
         return TokenKind::kIdentifier;
     }

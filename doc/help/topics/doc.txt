@@ -23,8 +23,8 @@ li@i[Command statements:]
 {`print`:statement_print} │
 {`rethrow`:statement_rethrow} │
 {`return`:statement_return} │
-{`select`:statement_select} │
-{`throw`:statement_throw}@
+{`throw`:statement_throw} │
+{`yield`:statement_yield}@
 
 li@i[Operators:]
 {Algebraic:operators_algebraic} │
