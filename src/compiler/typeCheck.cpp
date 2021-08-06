@@ -459,6 +459,16 @@ static void typeCheckForStatement(ForStatementNode* statementNode) {
     }
 }
 
+static void typeCheckForEachStatement(ForEachStatementNode* statementNode) {
+    // haystack must be a List
+    assert(statementNode->haystack->evaluatedType != nullptr);
+    if (statementNode->haystack->evaluatedType->kind != Kind::kList) {
+        throw CompilerException(
+            CompilerErrorCode::kTypeMismatch, "The collection argument of a \"for each\" statement must be a List.",
+            statementNode->haystack->token);
+    }
+}
+
 static void typeCheckWhileStatement(WhileStatementNode* statementNode) {
     // condition must be a Boolean
     assert(statementNode->condition->evaluatedType != nullptr);
@@ -528,6 +538,10 @@ static void typeCheckBody(BodyNode* bodyNode, TypeCheckState* state) {
 
             case StatementType::kFor:
                 typeCheckForStatement(dynamic_cast<ForStatementNode*>(statementNode.get()));
+                break;
+
+            case StatementType::kForEach:
+                typeCheckForEachStatement(dynamic_cast<ForEachStatementNode*>(statementNode.get()));
                 break;
 
             case StatementType::kWhile:

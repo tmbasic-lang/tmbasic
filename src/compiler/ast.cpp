@@ -867,6 +867,14 @@ boost::local_shared_ptr<TypeNode> ForEachStatementNode::getSymbolDeclarationType
     return listType->listItemType;
 }
 
+int ForEachStatementNode::getTempLocalValueCount() const {
+    return 2;
+}
+
+int ForEachStatementNode::getTempLocalObjectCount() const {
+    return 1;
+}
+
 ForStatementNode::ForStatementNode(
     std::string loopVariableName,
     std::unique_ptr<ExpressionNode> fromValue,

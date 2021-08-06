@@ -772,8 +772,72 @@ static void emitExitStatement(const ExitStatementNode& /*statementNode*/, Proced
     throw std::runtime_error("not impl");
 }
 
-static void emitForEachStatement(const ForEachStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
-    throw std::runtime_error("not impl");
+static void emitForEachStatement(const ForEachStatementNode& statementNode, ProcedureState* state) {
+    // we need two local temp values: count and index
+    assert(statementNode.getTempLocalValueCount() == 2);
+    assert(statementNode.tempLocalValueIndex.has_value());
+    auto countLocalValueIndex = *statementNode.tempLocalValueIndex;
+    auto indexLocalValueIndex = countLocalValueIndex + 1;
+
+    // we need one local object value: the list
+    assert(statementNode.getTempLocalObjectCount() == 1);
+    assert(statementNode.tempLocalObjectIndex.has_value());
+    auto listLocalObjectIndex = *statementNode.tempLocalObjectIndex;
+
+    // plus the element variable which is user-visible
+    auto isValue = statementNode.getSymbolDeclarationType()->isValueType();
+    assert(
+        (isValue && statementNode.localValueIndex.has_value()) ||
+        (!isValue && statementNode.localObjectIndex.has_value()));
+    auto elementLocalValueOrObjectIndex = isValue ? *statementNode.localValueIndex : *statementNode.localObjectIndex;
+
+    // evaluate list
+    emitExpression(*statementNode.haystack, state);
+    state->setLocalObject(listLocalObjectIndex);
+
+    // count = Len(list)
+    state->pushLocalObject(listLocalObjectIndex);
+    state->syscall(Opcode::kSystemCallV, SystemCall::kListLen, 0, 1);
+    state->setLocalValue(countLocalValueIndex);
+
+    // index = 0
+    state->pushImmediateInt64(0);
+    state->setLocalValue(indexLocalValueIndex);
+
+    // top of loop
+    auto startLabel = state->labelId();
+    auto endLabel = state->labelId();
+    state->label(startLabel);
+
+    // if index >= count then jump to endLabel
+    state->pushLocalValue(indexLocalValueIndex);
+    state->pushLocalValue(countLocalValueIndex);
+    state->syscall(Opcode::kSystemCallV, SystemCall::kNumberGreaterThanEquals, 2, 0);
+    state->branchIfTrue(endLabel);
+
+    // get the element at index
+    state->pushLocalObject(listLocalObjectIndex);
+    state->pushLocalValue(indexLocalValueIndex);
+    if (isValue) {
+        state->syscall(Opcode::kSystemCallV, SystemCall::kValueListGet, 1, 1);
+        state->setLocalValue(elementLocalValueOrObjectIndex);
+    } else {
+        state->syscall(Opcode::kSystemCallO, SystemCall::kObjectListGet, 1, 1);
+        state->setLocalObject(elementLocalValueOrObjectIndex);
+    }
+
+    // run loop body
+    emitBody(*statementNode.body, state);
+
+    // increment index
+    state->pushLocalValue(indexLocalValueIndex);
+    state->pushImmediateInt64(1);
+    state->syscall(Opcode::kSystemCallV, SystemCall::kNumberAdd, 2, 0);
+    state->setLocalValue(indexLocalValueIndex);
+
+    // end of loop
+    state->jump(startLabel);
+    state->label(endLabel);
 }
 
 static void emitForStatement(const ForStatementNode& statementNode, ProcedureState* state) {
@@ -871,13 +935,17 @@ static void emitRethrowStatement(const RethrowStatementNode& statementNode, Proc
 }
 
 static void emitReturnStatement(const ReturnStatementNode& statementNode, ProcedureState* state) {
-    assert(statementNode.expression->evaluatedType != nullptr);
-    emitExpression(*statementNode.expression, state);
-    auto isValue = statementNode.expression->evaluatedType->isValueType();
-    if (isValue) {
-        state->returnValue();
+    if (statementNode.expression == nullptr) {
+        state->returnVoid();
     } else {
-        state->returnObject();
+        assert(statementNode.expression->evaluatedType != nullptr);
+        emitExpression(*statementNode.expression, state);
+        auto isValue = statementNode.expression->evaluatedType->isValueType();
+        if (isValue) {
+            state->returnValue();
+        } else {
+            state->returnObject();
+        }
     }
 }
 

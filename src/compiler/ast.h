@@ -516,6 +516,8 @@ class ForEachStatementNode : public StatementNode {
     bool visitBodies(const VisitBodyFunc& func) const override;
     bool visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const override;
     StatementType getStatementType() const override;
+    int getTempLocalValueCount() const override;
+    int getTempLocalObjectCount() const override;
 };
 
 class ForStatementNode : public StatementNode {

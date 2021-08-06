@@ -1745,7 +1745,8 @@ class ForEachStatementProduction : public Production {
         : Production(
               NAMEOF_TYPE(ForEachStatementProduction),
               {
-                  term(TokenKind::kFrom),
+                  term(TokenKind::kFor),
+                  term(TokenKind::kEach),
                   cut(),
                   capture(0, term(TokenKind::kIdentifier)),
                   term(TokenKind::kIn),
