@@ -394,7 +394,7 @@ enum class PictureWindowMode {
 
 class PictureWindowPrivate {
    public:
-    PictureWindowPrivate(turbo::Clipboard& aClipboard);
+    explicit PictureWindowPrivate(turbo::Clipboard* aClipboard);
     void updateScrollBars();
     void enableDisableCommands(bool enable);
     void updateStatusItems();
@@ -417,7 +417,7 @@ class PictureWindowPrivate {
     compiler::SourceMember* member{};
     std::function<void()> onEdited;
     PictureWindowStatusItems statusItems;
-    turbo::Clipboard& clipboard;
+    turbo::Clipboard* clipboard;
 
     // shared state
     TColorRGB fg{ 255, 255, 255 };
@@ -483,7 +483,7 @@ static std::string getPictureWindowTitle(const std::string& name) {
 
 PictureWindow::PictureWindow(
     const TRect& r,
-    turbo::Clipboard& clipboard,
+    turbo::Clipboard* clipboard,
     SourceMember* member,
     std::function<void()> onEdited,
     const PictureWindowStatusItems& statusItems)
@@ -578,7 +578,7 @@ PictureWindow::~PictureWindow() {
     delete _private;
 }
 
-PictureWindowPrivate::PictureWindowPrivate(turbo::Clipboard& aClipboard) : clipboard(aClipboard) {}
+PictureWindowPrivate::PictureWindowPrivate(turbo::Clipboard* aClipboard) : clipboard(aClipboard) {}
 
 void PictureWindowPrivate::updateScrollBars() {
     vScrollBar->setParams(
@@ -757,19 +757,19 @@ void PictureWindowPrivate::onClear() {
 
 void PictureWindowPrivate::onCut() {
     _clipboardText = canvasView->getSelectionTextForClipboard();
-    clipboard.setText(_clipboardText.text);
+    clipboard->setText(_clipboardText.text);
     checkpoint();
     onClear();
 }
 
 void PictureWindowPrivate::onCopy() {
     _clipboardText = canvasView->getSelectionTextForClipboard();
-    clipboard.setText(_clipboardText.text);
+    clipboard->setText(_clipboardText.text);
 }
 
 void PictureWindowPrivate::onPaste() {
     ClipboardText ct{};
-    clipboard.getText([&](TStringView text) { ct.text = text; });
+    clipboard->getText([&](TStringView text) { ct.text = text; });
 
     if (ct.text.empty()) {
         return;

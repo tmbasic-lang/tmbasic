@@ -105,9 +105,8 @@ static std::vector<std::string> listFilesOrDirectories(const std::string& path, 
             auto err = errno;
             if (err == 0) {
                 break;
-            } else {
-                throw Error::fromDirectoryErrno(err, path);
             }
+            throw Error::fromDirectoryErrno(err, path);
         }
 
         if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {

@@ -75,6 +75,7 @@ static const turbo::WindowColorScheme _codeEditorWindowColors{
     {},  // wndClusterDisabled
 };
 
+// NOLINTNEXTLINE(modernize-avoid-c-arrays)
 static const turbo::LexerInfo::StyleMapping _codeStyles[] = {
     { 1, turbo::sKeyword1 },       // keyword
     { 2, turbo::sStringLiteral },  // string
@@ -226,7 +227,7 @@ CodeEditorWindow::CodeEditorWindow(
     _private->member = member;
     _private->onEdited = onEdited;
     _private->pendingText = member->source;
-    setState(sfShadow, true);
+    TWindow::setState(sfShadow, true);
     editor.theming.setLexerInfo(&_codeEditorLexerInfo);
     editor.theming.setScheme(&_codeEditorColors);
     editor.theming.apply(editor.scintilla);
@@ -325,8 +326,11 @@ static std::vector<compiler::TokenKind> tokenizeLine(std::string_view str) {
 
 void CodeEditorWindow::handleNotification(const SCNotification& scn, turbo::Editor& aEditor) {
     BasicEditorWindow::handleNotification(scn, aEditor);
-    if (scn.nmhdr.code == SCN_STYLENEEDED)
-        handleStyleToNeeded(scn.position);
+    if (scn.nmhdr.code == SCN_STYLENEEDED) {
+        {
+            handleStyleToNeeded(scn.position);
+        }
+    }
 }
 
 void CodeEditorWindow::handleStyleToNeeded(Sci_Position endStyleNeeded) {

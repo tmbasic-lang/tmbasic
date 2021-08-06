@@ -656,7 +656,7 @@ static void emitContinueStatement(const ContinueStatementNode& /*statementNode*/
 }
 
 static void emitDimListStatement(const DimListStatementNode& statementNode, ProcedureState* state) {
-    auto& listType = statementNode.evaluatedType;
+    const auto& listType = statementNode.evaluatedType;
     assert(listType != nullptr);
     assert(listType->kind == Kind::kList);
     assert(listType->listItemType != nullptr);
@@ -973,7 +973,7 @@ static void emitJoinStatement(const JoinStatementNode& /*statementNode*/, Proced
     throw std::runtime_error("not impl");
 }
 
-static void emitRethrowStatement(const RethrowStatementNode& statementNode, ProcedureState* state) {
+static void emitRethrowStatement(ProcedureState* state) {
     state->bubbleError();
     if (state->catchLabelIds.empty()) {
         state->returnVoid();
@@ -1257,7 +1257,7 @@ static void emitInputStatement(const InputStatementNode& statementNode, Procedur
             emitJoinStatement(dynamic_cast<const JoinStatementNode&>(statementNode), state);
             break;
         case StatementType::kRethrow:
-            emitRethrowStatement(dynamic_cast<const RethrowStatementNode&>(statementNode), state);
+            emitRethrowStatement(state);
             break;
         case StatementType::kReturn:
             emitReturnStatement(dynamic_cast<const ReturnStatementNode&>(statementNode), state);

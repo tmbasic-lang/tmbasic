@@ -29,8 +29,8 @@ BuiltInConstantList::BuiltInConstantList()
     // end_errors
 }
 
-void BuiltInConstantList::addError(std::string name, vm::ErrorCode code) {
-    addNumber(std::move(name), static_cast<int64_t>(code));
+void BuiltInConstantList::addError(const std::string& name, vm::ErrorCode code) {
+    addNumber(name, static_cast<int64_t>(code));
 }
 
 void BuiltInConstantList::addNumber(const std::string& name, const decimal::Decimal& number) {

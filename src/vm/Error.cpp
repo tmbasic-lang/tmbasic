@@ -3,7 +3,7 @@
 
 namespace vm {
 
-Error::Error(ErrorCode code, std::string message) : code(code), std::runtime_error(std::move(message)) {}
+Error::Error(ErrorCode code, const std::string& message) : code(code), std::runtime_error(message) {}
 
 Error Error::fromDirectoryErrno(int posixError, const std::string& path) {
     switch (posixError) {
@@ -29,6 +29,8 @@ Error Error::fromDirectoryErrno(int posixError, const std::string& path) {
 }
 
 Error Error::fromDirectoryWinError(uint32_t winError, const std::string& path) {
+    (void)winError;
+    (void)path;
 #ifdef _WIN32
     switch (winError) {
         case ERROR_FILE_NOT_FOUND:

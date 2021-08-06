@@ -387,7 +387,7 @@ void typeCheckExpression(ExpressionNode* expressionNode, TypeCheckState* state) 
 
 static void typeCheckAssignStatement(AssignStatementNode* statementNode) {
     // the assignment target must not be a constant
-    auto* decl = statementNode->symbolReference->boundSymbolDeclaration;
+    const auto* decl = statementNode->symbolReference->boundSymbolDeclaration;
     assert(decl != nullptr);
     if (dynamic_cast<const ConstStatementNode*>(decl) != nullptr) {
         throw CompilerException(

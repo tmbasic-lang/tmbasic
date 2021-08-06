@@ -387,7 +387,7 @@ void initSystemCalls() {
         result->returnedValue.setDouble(std::cos(input.getValue(-1).getDouble()));
     });
     initSystemCall(SystemCall::kCounterIsPastLimit, systemCallCounterIsPastLimit);
-    initSystemCall(SystemCall::kCreateDirectory, [](const auto& input, auto* result) {
+    initSystemCall(SystemCall::kCreateDirectory, [](const auto& input, auto* /*result*/) {
         const auto& path = dynamic_cast<const String&>(input.getObject(-1)).toUtf8();
         vm::createDirectory(path);
     });
@@ -400,16 +400,16 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kDays, [](const auto& input, auto* result) {
         result->returnedValue.num = input.getValue(-1).num * U_MILLIS_PER_DAY;
     });
-    initSystemCall(SystemCall::kDeleteDirectory1, [](const auto& input, auto* result) {
+    initSystemCall(SystemCall::kDeleteDirectory1, [](const auto& input, auto* /*result*/) {
         const auto& path = dynamic_cast<const String&>(input.getObject(-1)).toUtf8();
         vm::deleteDirectory(path, false);
     });
-    initSystemCall(SystemCall::kDeleteDirectory2, [](const auto& input, auto* result) {
+    initSystemCall(SystemCall::kDeleteDirectory2, [](const auto& input, auto* /*result*/) {
         const auto& path = dynamic_cast<const String&>(input.getObject(-1)).toUtf8();
         auto recursive = input.getValue(-1).getBoolean();
         vm::deleteDirectory(path, recursive);
     });
-    initSystemCall(SystemCall::kDeleteFile, [](const auto& input, auto* result) {
+    initSystemCall(SystemCall::kDeleteFile, [](const auto& input, auto* /*result*/) {
         const auto& path = dynamic_cast<const String&>(input.getObject(-1));
         auto pathStr = path.toUtf8();
         if (unlink(pathStr.c_str()) != 0) {
@@ -502,10 +502,10 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kObjectEquals, [](const auto& input, auto* result) {
         result->returnedValue.num = input.getObject(-2).equals(input.getObject(-1)) ? 1 : 0;
     });
-    initSystemCall(SystemCall::kObjectListBuilderNew, [](const auto& input, auto* result) {
+    initSystemCall(SystemCall::kObjectListBuilderNew, [](const auto& /*input*/, auto* result) {
         result->returnedObject = boost::make_local_shared<ObjectListBuilder>();
     });
-    initSystemCall(SystemCall::kObjectListBuilderAdd, [](const auto& input, auto* result) {
+    initSystemCall(SystemCall::kObjectListBuilderAdd, [](const auto& input, auto* /*result*/) {
         auto& builder = dynamic_cast<ObjectListBuilder&>(input.getObject(-2));
         auto obj = input.getObjectPtr(-1);
         assert(obj->getObjectType() != ObjectType::kObjectListBuilder);
@@ -721,10 +721,10 @@ void initSystemCalls() {
     });
     initSystemCall(SystemCall::kUtcOffset, systemCallUtcOffset);
     initSystemCall(SystemCall::kValueO, systemCallValueO);
-    initSystemCall(SystemCall::kValueListBuilderNew, [](const auto& input, auto* result) {
+    initSystemCall(SystemCall::kValueListBuilderNew, [](const auto& /*input*/, auto* result) {
         result->returnedObject = boost::make_local_shared<ValueListBuilder>();
     });
-    initSystemCall(SystemCall::kValueListBuilderAdd, [](const auto& input, auto* result) {
+    initSystemCall(SystemCall::kValueListBuilderAdd, [](const auto& input, auto* /*result*/) {
         auto& builder = dynamic_cast<ValueListBuilder&>(input.getObject(-2));
         builder.items.push_back(input.getValue(-1));
     });
@@ -746,7 +746,7 @@ void initSystemCalls() {
         result->returnedObject = boost::make_local_shared<ValueToValueMap>();
     });
     initSystemCall(SystemCall::kValueV, systemCallValueV);
-    initSystemCall(SystemCall::kWriteFileBytes, [](const auto& input, auto* result) {
+    initSystemCall(SystemCall::kWriteFileBytes, [](const auto& input, auto* /*result*/) {
         const auto& filePath = dynamic_cast<const String&>(input.getObject(-2)).toUtf8();
         const auto& bytesValueList = dynamic_cast<const ValueList&>(input.getObject(-1));
         std::vector<char> bytes;
@@ -760,7 +760,7 @@ void initSystemCalls() {
         }
         stream.write(bytes.data(), bytes.size());
     });
-    initSystemCall(SystemCall::kWriteFileLines, [](const auto& input, auto* result) {
+    initSystemCall(SystemCall::kWriteFileLines, [](const auto& input, auto* /*result*/) {
         const auto& filePath = dynamic_cast<const String&>(input.getObject(-2)).toUtf8();
         const auto& lines = dynamic_cast<const ObjectList&>(input.getObject(-1));
         std::ofstream stream{ filePath };
@@ -774,7 +774,7 @@ void initSystemCalls() {
             }
         }
     });
-    initSystemCall(SystemCall::kWriteFileText, [](const auto& input, auto* result) {
+    initSystemCall(SystemCall::kWriteFileText, [](const auto& input, auto* /*result*/) {
         const auto& filePath = dynamic_cast<const String&>(input.getObject(-2)).toUtf8();
         const auto& text = dynamic_cast<const String&>(input.getObject(-1));
         std::ofstream stream{ filePath };

@@ -15,7 +15,7 @@ class BuiltInConstantList {
     BuiltInConstantList();
 
    private:
-    void addError(std::string name, vm::ErrorCode code);
+    void addError(const std::string& name, vm::ErrorCode code);
     void addNumber(const std::string& name, const decimal::Decimal& number);
     void addString(const std::string& name, std::string string);
 

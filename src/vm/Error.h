@@ -29,7 +29,7 @@ enum class ErrorCode {
 class Error : public std::runtime_error {
    public:
     ErrorCode code;
-    Error(ErrorCode code, std::string message);
+    Error(ErrorCode code, const std::string& message);
     static Error fromDirectoryErrno(int posixError, const std::string& path);
     static Error fromFileErrno(int posixError, const std::string& filePath);
     static Error fromDirectoryWinError(uint32_t winError, const std::string& path);
