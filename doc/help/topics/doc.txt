@@ -7,9 +7,7 @@ li@i[Control flow statements:]
 {`do`:statement_do} │
 {`for`:statement_for} │
 {`for each`:statement_for_each} │
-{`group`:statement_group} │
 {`if`:statement_if} │
-{`join`:statement_join} │
 {`select case`:statement_select_case} │
 {`try`:statement_try} │
 {`while`:statement_while}@

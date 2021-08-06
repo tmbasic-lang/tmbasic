@@ -1,3 +1,0 @@
-nav@{TMBASIC Documentation:doc}@
-
-h1[`join` Statement]

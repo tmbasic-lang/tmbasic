@@ -16,7 +16,7 @@ li@Statement ::= DeclarationStatement | BlockStatement | CommandStatement@
 h2[Statements]
 
 ul@
-li@Statement ::= CommandStatement | ForStatement | ForEachStatement | WhileStatement | DoStatement | IfStatement | JoinStatement | GroupStatement | SelectCaseStatement | TryStatement | DimStatement | DimCollectionStatement | ConstStatement@
+li@Statement ::= CommandStatement | ForStatement | ForEachStatement | WhileStatement | DoStatement | IfStatement | SelectCaseStatement | TryStatement | DimStatement | DimCollectionStatement | ConstStatement@
 li@CommandStatement ::= AssignStatement | SelectStatement | ReturnStatement | CallStatement | ContinueStatement | ExitStatement | ThrowStatement | RethrowStatement | PrintStatement | InputStatement@
 li@AssignStatement ::= identifier AssignLocationSuffix* "=" Expression "\n"@
 li@AssignLocationSuffix ::= "." identifier | "(" Expression ")"@
@@ -28,8 +28,6 @@ li@IfStatement ::= "if" Expression "then" ("\n" Body ElseIf* Else? "end" "if" | 
 li@ElseIf ::= "else" "if" Expression "then" "\n" Body@
 li@Else ::= "else" "\n" Body@
 li@DoStatement ::= "do" "\n" Body "loop" "while" Expression "\n"@
-li@JoinStatement ::= "join" identifier "in" Expression "on" Expression "\n" Body "next" "\n"@
-li@GroupStatement ::= "group" Expression "by" Expression "into" identifier ("with" "key" identifier)? "\n" Body "next" "\n"@
 li@SelectCaseStatement ::= "select" "case" Expression "\n" Case* "end" "select" "\n"@
 li@Case ::= "case" (CaseValueList | "else") "\n" Body@
 li@CaseValueList ::= CaseValue ("," CaseValue)*@

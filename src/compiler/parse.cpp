@@ -1578,67 +1578,6 @@ class SelectCaseStatementProduction : public Production {
     }
 };
 
-class GroupStatementProduction : public Production {
-   public:
-    GroupStatementProduction(const Production* expression, const Production* body)
-        : Production(
-              NAMEOF_TYPE(GroupStatementProduction),
-              {
-                  term(TokenKind::kGroup),
-                  cut(),
-                  capture(0, prod(expression)),
-                  term(TokenKind::kBy),
-                  capture(1, prod(expression)),
-                  term(TokenKind::kInto),
-                  capture(2, term(TokenKind::kIdentifier)),
-                  optional({
-                      term(TokenKind::kWith),
-                      term(TokenKind::kKey),
-                      capture(3, term(TokenKind::kIdentifier)),
-                  }),
-                  term(TokenKind::kEndOfLine),
-                  capture(4, prod(body)),
-                  term(TokenKind::kNext),
-                  term(TokenKind::kEndOfLine),
-              }) {}
-
-    std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
-        auto groupKeyNameToken = captureTokenNoMove(captures->at(3).get());
-        return nodeBox<GroupStatementNode>(
-            captureSingleNode<ExpressionNode>(std::move(captures->at(0))),
-            captureSingleNode<ExpressionNode>(std::move(captures->at(1))), captureTokenText(std::move(captures->at(2))),
-            std::make_unique<GroupKeyNameNode>(captureTokenText(std::move(captures->at(3))), groupKeyNameToken),
-            captureSingleNode<BodyNode>(std::move(captures->at(4))), firstToken);
-    }
-};
-
-class JoinStatementProduction : public Production {
-   public:
-    JoinStatementProduction(const Production* expression, const Production* body)
-        : Production(
-              NAMEOF_TYPE(JoinStatementProduction),
-              {
-                  term(TokenKind::kJoin),
-                  cut(),
-                  capture(0, term(TokenKind::kIdentifier)),
-                  term(TokenKind::kIn),
-                  capture(1, prod(expression)),
-                  term(TokenKind::kOn),
-                  capture(2, prod(expression)),
-                  term(TokenKind::kEndOfLine),
-                  capture(1, prod(body)),
-                  term(TokenKind::kNext),
-                  term(TokenKind::kEndOfLine),
-              }) {}
-
-    std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
-        return nodeBox<JoinStatementNode>(
-            captureTokenText(std::move(captures->at(0))), captureSingleNode<ExpressionNode>(std::move(captures->at(1))),
-            captureSingleNode<ExpressionNode>(std::move(captures->at(2))),
-            captureSingleNode<BodyNode>(std::move(captures->at(3))), firstToken);
-    }
-};
-
 class DoStatementProduction : public Production {
    public:
     DoStatementProduction(const Production* expression, const Production* body)
@@ -1902,8 +1841,6 @@ class StatementProduction : public Production {
         const Production* whileStatement,
         const Production* doStatement,
         const Production* ifStatement,
-        const Production* joinStatement,
-        const Production* groupStatement,
         const Production* selectCaseStatement,
         const Production* tryStatement,
         const Production* dimStatement,
@@ -1919,8 +1856,6 @@ class StatementProduction : public Production {
                     prod(whileStatement),
                     prod(doStatement),
                     prod(ifStatement),
-                    prod(joinStatement),
-                    prod(groupStatement),
                     prod(selectCaseStatement),
                     prod(tryStatement),
                     prod(dimStatement),
@@ -2133,8 +2068,6 @@ class ProductionCollection {
         auto* caseValueList = add<CaseValueListProduction>(caseValue);
         auto* case_ = add<CaseProduction>(caseValueList, body);
         auto* selectCaseStatement = add<SelectCaseStatementProduction>(expression, case_);
-        auto* groupStatement = add<GroupStatementProduction>(expression, body);
-        auto* joinStatement = add<JoinStatementProduction>(expression, body);
         auto* doStatement = add<DoStatementProduction>(expression, body);
         auto* elseIf = add<ElseIfProduction>(expression, body);
         auto* ifStatement = add<IfStatementProduction>(expression, body, elseIf);
@@ -2148,8 +2081,8 @@ class ProductionCollection {
             assignStatement, selectStatement, returnStatement, callStatement, continueStatement, exitStatement,
             throwStatement, rethrowStatement, printStatement, inputStatement);
         statement->init(
-            commandStatement, forStatement, forEachStatement, whileStatement, doStatement, ifStatement, joinStatement,
-            groupStatement, selectCaseStatement, tryStatement, dimStatement, dimCollectionStatement, constStatement);
+            commandStatement, forStatement, forEachStatement, whileStatement, doStatement, ifStatement,
+            selectCaseStatement, tryStatement, dimStatement, dimCollectionStatement, constStatement);
         auto* typeDeclaration = add<TypeDeclarationProduction>(parameter);
         auto* function = add<FunctionProduction>(parameterList, type, body);
         auto* subroutine = add<SubroutineProduction>(parameterList, body);
