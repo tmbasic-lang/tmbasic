@@ -1021,70 +1021,6 @@ int ForStatementNode::getTempLocalValueCount() const {
     return 2;
 }
 
-GroupKeyNameNode::GroupKeyNameNode(std::string name, Token token) : Node(std::move(token)), name(std::move(name)) {}
-
-void GroupKeyNameNode::dump(std::ostringstream& s, int n) const {
-    DUMP_TYPE(GroupKeyNameNode);
-    DUMP_VAR(name);
-}
-
-std::optional<std::string> GroupKeyNameNode::getSymbolDeclaration() const {
-    return name;
-}
-
-boost::local_shared_ptr<TypeNode> GroupKeyNameNode::getSymbolDeclarationType() const {
-    return evaluatedType;
-}
-
-GroupStatementNode::GroupStatementNode(
-    std::unique_ptr<ExpressionNode> itemExpression,
-    std::unique_ptr<ExpressionNode> groupingExpression,
-    std::string groupName,
-    std::unique_ptr<GroupKeyNameNode> keyName,
-    std::unique_ptr<BodyNode> body,
-    Token token)
-    : StatementNode(std::move(token)),
-      itemExpression(std::move(itemExpression)),
-      groupingExpression(std::move(groupingExpression)),
-      groupName(std::move(groupName)),
-      keyName(std::move(keyName)),
-      body(std::move(body)) {}
-
-void GroupStatementNode::dump(std::ostringstream& s, int n) const {
-    DUMP_TYPE(GroupStatementNode);
-    DUMP_VAR_NODE(itemExpression);
-    DUMP_VAR_NODE(groupingExpression);
-    DUMP_VAR(groupName);
-    DUMP_VAR_NODE(keyName);
-    DUMP_VAR_NODE(body);
-}
-
-std::optional<std::string> GroupStatementNode::getSymbolDeclaration() const {
-    return groupName;
-}
-
-bool GroupStatementNode::visitBodies(const VisitBodyFunc& func) const {
-    return func(body.get());
-}
-
-bool GroupStatementNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
-    if (!visitChildExpression(rootsOnly, itemExpression.get(), func)) {
-        return false;
-    }
-    if (!visitChildExpression(rootsOnly, groupingExpression.get(), func)) {
-        return false;
-    }
-    return true;
-}
-
-StatementType GroupStatementNode::getStatementType() const {
-    return StatementType::kGroup;
-}
-
-boost::local_shared_ptr<TypeNode> GroupStatementNode::getSymbolDeclarationType() const {
-    return itemExpression->evaluatedType;
-}
-
 ElseIfNode::ElseIfNode(std::unique_ptr<ExpressionNode> condition, std::unique_ptr<BodyNode> body, Token token)
     : Node(std::move(token)), condition(std::move(condition)), body(std::move(body)) {}
 
@@ -1151,52 +1087,6 @@ bool IfStatementNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc
 
 StatementType IfStatementNode::getStatementType() const {
     return StatementType::kIf;
-}
-
-JoinStatementNode::JoinStatementNode(
-    std::string needleName,
-    std::unique_ptr<ExpressionNode> haystack,
-    std::unique_ptr<ExpressionNode> joinExpression,
-    std::unique_ptr<BodyNode> body,
-    Token token)
-    : StatementNode(std::move(token)),
-      needleName(std::move(needleName)),
-      haystack(std::move(haystack)),
-      joinExpression(std::move(joinExpression)),
-      body(std::move(body)) {}
-
-void JoinStatementNode::dump(std::ostringstream& s, int n) const {
-    DUMP_TYPE(JoinStatementNode);
-    DUMP_VAR(needleName);
-    DUMP_VAR_NODE(haystack);
-    DUMP_VAR_NODE(joinExpression);
-    DUMP_VAR_NODE(body);
-}
-
-std::optional<std::string> JoinStatementNode::getSymbolDeclaration() const {
-    return needleName;
-}
-
-bool JoinStatementNode::visitBodies(const VisitBodyFunc& func) const {
-    return func(body.get());
-}
-
-bool JoinStatementNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
-    if (!visitChildExpression(rootsOnly, haystack.get(), func)) {
-        return false;
-    }
-    if (!visitChildExpression(rootsOnly, joinExpression.get(), func)) {
-        return false;
-    }
-    return true;
-}
-
-StatementType JoinStatementNode::getStatementType() const {
-    return StatementType::kJoin;
-}
-
-boost::local_shared_ptr<TypeNode> JoinStatementNode::getSymbolDeclarationType() const {
-    return haystack->evaluatedType->listItemType;
 }
 
 RethrowStatementNode::RethrowStatementNode(Token token) : StatementNode(std::move(token)) {}

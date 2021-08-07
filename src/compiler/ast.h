@@ -344,9 +344,7 @@ enum class StatementType {
     kExit,
     kForEach,
     kFor,
-    kGroup,
     kIf,
-    kJoin,
     kRethrow,
     kReturn,
     kSelectCase,
@@ -584,37 +582,6 @@ class ForStatementNode : public StatementNode {
     mutable boost::local_shared_ptr<TypeNode> _type = nullptr;  // set by getSymbolDeclarationType(); always Number
 };
 
-class GroupKeyNameNode : public Node {
-   public:
-    std::string name;
-    GroupKeyNameNode(std::string name, Token token);
-    void dump(std::ostringstream& s, int n) const override;
-    std::optional<std::string> getSymbolDeclaration() const override;
-    boost::local_shared_ptr<TypeNode> getSymbolDeclarationType() const override;
-};
-
-class GroupStatementNode : public StatementNode {
-   public:
-    std::unique_ptr<ExpressionNode> itemExpression;
-    std::unique_ptr<ExpressionNode> groupingExpression;
-    std::string groupName;
-    std::unique_ptr<GroupKeyNameNode> keyName;  // may be null
-    std::unique_ptr<BodyNode> body;
-    GroupStatementNode(
-        std::unique_ptr<ExpressionNode> itemExpression,
-        std::unique_ptr<ExpressionNode> groupingExpression,
-        std::string groupName,
-        std::unique_ptr<GroupKeyNameNode> keyName,
-        std::unique_ptr<BodyNode> body,
-        Token token);
-    void dump(std::ostringstream& s, int n) const override;
-    std::optional<std::string> getSymbolDeclaration() const override;
-    boost::local_shared_ptr<TypeNode> getSymbolDeclarationType() const override;
-    bool visitBodies(const VisitBodyFunc& func) const override;
-    bool visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const override;
-    StatementType getStatementType() const override;
-};
-
 class ElseIfNode : public Node {
    public:
     std::unique_ptr<ExpressionNode> condition;
@@ -638,26 +605,6 @@ class IfStatementNode : public StatementNode {
         std::unique_ptr<BodyNode> elseBody,
         Token token);
     void dump(std::ostringstream& s, int n) const override;
-    bool visitBodies(const VisitBodyFunc& func) const override;
-    bool visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const override;
-    StatementType getStatementType() const override;
-};
-
-class JoinStatementNode : public StatementNode {
-   public:
-    std::string needleName;
-    std::unique_ptr<ExpressionNode> haystack;
-    std::unique_ptr<ExpressionNode> joinExpression;
-    std::unique_ptr<BodyNode> body;
-    JoinStatementNode(
-        std::string needleName,
-        std::unique_ptr<ExpressionNode> haystack,
-        std::unique_ptr<ExpressionNode> joinExpression,
-        std::unique_ptr<BodyNode> body,
-        Token token);
-    void dump(std::ostringstream& s, int n) const override;
-    std::optional<std::string> getSymbolDeclaration() const override;
-    boost::local_shared_ptr<TypeNode> getSymbolDeclarationType() const override;
     bool visitBodies(const VisitBodyFunc& func) const override;
     bool visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const override;
     StatementType getStatementType() const override;

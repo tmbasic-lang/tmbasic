@@ -943,10 +943,6 @@ static void emitForStatement(const ForStatementNode& statementNode, ProcedureSta
     state->label(endLabel);
 }
 
-static void emitGroupStatement(const GroupStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
-    throw std::runtime_error("not impl");
-}
-
 static void emitIfStatement(const IfStatementNode& statementNode, ProcedureState* state) {
     emitExpression(*statementNode.condition, state);
     auto elseIfsLabel = state->labelId();
@@ -967,10 +963,6 @@ static void emitIfStatement(const IfStatementNode& statementNode, ProcedureState
         emitBody(*statementNode.elseBody, state);
     }
     state->label(endIfLabel);
-}
-
-static void emitJoinStatement(const JoinStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
-    throw std::runtime_error("not impl");
 }
 
 static void emitRethrowStatement(ProcedureState* state) {
@@ -1247,14 +1239,8 @@ static void emitInputStatement(const InputStatementNode& statementNode, Procedur
         case StatementType::kFor:
             emitForStatement(dynamic_cast<const ForStatementNode&>(statementNode), state);
             break;
-        case StatementType::kGroup:
-            emitGroupStatement(dynamic_cast<const GroupStatementNode&>(statementNode), state);
-            break;
         case StatementType::kIf:
             emitIfStatement(dynamic_cast<const IfStatementNode&>(statementNode), state);
-            break;
-        case StatementType::kJoin:
-            emitJoinStatement(dynamic_cast<const JoinStatementNode&>(statementNode), state);
             break;
         case StatementType::kRethrow:
             emitRethrowStatement(state);
