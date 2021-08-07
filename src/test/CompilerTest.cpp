@@ -18,7 +18,8 @@ using std::string;
 using std::vector;
 using vm::Interpreter;
 
-static void run(string filenameWithoutExtension, compiler::CompiledProgram* program) {
+static void run(string filenameWithoutExtension) {
+    compiler::CompiledProgram program{};
     auto pcodeFile = readFile(filenameWithoutExtension + ".bas");
 
     string inputSentinel = "--input--\n";
@@ -58,7 +59,7 @@ static void run(string filenameWithoutExtension, compiler::CompiledProgram* prog
     sourceProgram.loadFromContent(source);
     bool compileSuccess = false;
     try {
-        compiler::compileProgram(sourceProgram, program);
+        compiler::compileProgram(sourceProgram, &program);
         compileSuccess = true;
     } catch (compiler::CompilerException& ex) {
         consoleOutputStream << "Compiler error\n"
@@ -70,8 +71,8 @@ static void run(string filenameWithoutExtension, compiler::CompiledProgram* prog
     }
 
     if (compileSuccess) {
-        auto interpreter = make_unique<Interpreter>(&program->vmProgram, &consoleInputStream, &consoleOutputStream);
-        interpreter->init(program->vmProgram.startupProcedureIndex);
+        auto interpreter = make_unique<Interpreter>(&program.vmProgram, &consoleInputStream, &consoleOutputStream);
+        interpreter->init(program.vmProgram.startupProcedureIndex);
         while (interpreter->run(10000)) {
         }
 
@@ -85,27 +86,6 @@ static void run(string filenameWithoutExtension, compiler::CompiledProgram* prog
 
     auto actualOutput = consoleOutputStream.str();
     ASSERT_EQ(expectedOutput, actualOutput);
-}
-
-static void run(string filenameWithoutExtension) {
-    compiler::CompiledProgram compiledProgram{};
-    run(filenameWithoutExtension, &compiledProgram);
-}
-
-TEST(CompilerTest, GlobalValue_Number_CheckValue) {
-    compiler::CompiledProgram program{};
-    run("global_value_number", &program);
-    ASSERT_EQ(0, program.vmProgram.globalValues.at(0).getInt32());
-}
-
-TEST(CompilerTest, GlobalValue_String_CheckValue) {
-    compiler::CompiledProgram program{};
-    run("global_value_string", &program);
-    auto* o = program.vmProgram.globalObjects.at(0).get();
-    ASSERT_NE(nullptr, o);
-    ASSERT_EQ(vm::ObjectType::kString, o->getObjectType());
-    auto str = dynamic_cast<vm::String*>(o)->toUtf8();
-    ASSERT_EQ("test", str);
 }
 
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)

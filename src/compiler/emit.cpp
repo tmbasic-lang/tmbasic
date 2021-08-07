@@ -116,6 +116,26 @@ class ProcedureState {
         emitInt<uint16_t>(index);
     }
 
+    void pushGlobalValue(uint16_t index) {
+        op(Opcode::kPushGlobalValue);
+        emitInt<uint16_t>(index);
+    }
+
+    void setGlobalValue(uint16_t index) {
+        op(Opcode::kSetGlobalValue);
+        emitInt<uint16_t>(index);
+    }
+
+    void pushGlobalObject(uint16_t index) {
+        op(Opcode::kPushGlobalObject);
+        emitInt<uint16_t>(index);
+    }
+
+    void setGlobalObject(uint16_t index) {
+        op(Opcode::kSetGlobalObject);
+        emitInt<uint16_t>(index);
+    }
+
     void pushArgumentValue(uint8_t index) {
         op(Opcode::kPushArgumentValue);
         emitInt<uint8_t>(index);
@@ -395,6 +415,22 @@ static void emitSymbolReference(const Node& declarationNode, ProcedureState* sta
         }
         return;
     }
+    if (declarationNode.globalValueIndex.has_value()) {
+        if (set) {
+            state->setGlobalValue(*declarationNode.globalValueIndex);
+        } else {
+            state->pushGlobalValue(*declarationNode.globalValueIndex);
+        }
+        return;
+    }
+    if (declarationNode.globalObjectIndex.has_value()) {
+        if (set) {
+            state->setGlobalObject(*declarationNode.globalObjectIndex);
+        } else {
+            state->pushGlobalObject(*declarationNode.globalObjectIndex);
+        }
+        return;
+    }
 
     // procedure argument
     const auto* parameterNode = dynamic_cast<const ParameterNode*>(&declarationNode);
@@ -464,7 +500,8 @@ static void emitSymbolReference(const Node& declarationNode, ProcedureState* sta
         return;
     }
 
-    throw std::runtime_error("not impl");
+    throw CompilerException(
+        CompilerErrorCode::kInternal, "Internal error. Unknown declaration node type.", declarationNode.token);
 }
 
 static void emitCallExpression(const CallExpressionNode& expressionNode, ProcedureState* state) {

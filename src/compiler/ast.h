@@ -48,9 +48,11 @@ class Node {
     // symbol reference and procedure call nodes
     boost::local_shared_ptr<TypeNode> evaluatedType = nullptr;  // set during type checking
 
-    // local variable symbol reference nodes
+    // local/global variable symbol reference nodes
     std::optional<uint16_t> localValueIndex{};
     std::optional<uint16_t> localObjectIndex{};
+    std::optional<uint16_t> globalValueIndex{};
+    std::optional<uint16_t> globalObjectIndex{};
 
     // DimList, DimMap, Procedure
     virtual std::vector<YieldStatementNode*>* getYieldStatementNodesList();

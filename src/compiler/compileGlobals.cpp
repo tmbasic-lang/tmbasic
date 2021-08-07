@@ -136,14 +136,21 @@ static void compileGlobal(const SourceMember& sourceMember, CompiledProgram* com
         } else {
             initialObject = getConstObject(constValueExpr);
         }
+    } else if (compiledGlobalVariable->isValue) {
+        initialValue = vm::Value{ decimal::Decimal{ 0 } };
+    } else {
+        assert(parserResult.node->evaluatedType->kind == Kind::kString);
+        initialObject = boost::make_local_shared<vm::String>("", 0);
     }
 
     if (compiledGlobalVariable->isValue) {
         compiledGlobalVariable->index = compiledProgram->vmProgram.globalValues.size();
         compiledProgram->vmProgram.globalValues.push_back(initialValue);
+        parserResult.node->globalValueIndex = compiledGlobalVariable->index;
     } else {
         compiledGlobalVariable->index = compiledProgram->vmProgram.globalObjects.size();
         compiledProgram->vmProgram.globalObjects.push_back(std::move(initialObject));
+        parserResult.node->globalObjectIndex = compiledGlobalVariable->index;
     }
 
     compiledGlobalVariable->dimOrConstStatementNode = std::move(parserResult.node);
