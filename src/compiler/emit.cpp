@@ -346,7 +346,9 @@ static void emitBinaryExpression(const BinaryExpressionNode& expressionNode, Pro
                     systemCall = SystemCall::kPow;
                     break;
                 default:
-                    throw std::runtime_error("not impl");
+                    throw CompilerException(
+                        CompilerErrorCode::kInternal, "Internal error. Unimplemented binary operator.",
+                        expressionNode.token);
             }
             state->syscall(Opcode::kSystemCallV, systemCall, 2, 0);
         } else if (lhsType->kind == Kind::kString && rhsType->kind == Kind::kString) {
@@ -358,7 +360,9 @@ static void emitBinaryExpression(const BinaryExpressionNode& expressionNode, Pro
                     state->syscall(Opcode::kSystemCallV, SystemCall::kStringEquals, 0, 2);
                     break;
                 default:
-                    throw std::runtime_error("not impl");
+                    throw CompilerException(
+                        CompilerErrorCode::kInternal, "Internal error. Unimplemented binary operator.",
+                        expressionNode.token);
             }
         } else if (lhsType->kind == Kind::kBoolean && rhsType->kind == Kind::kBoolean) {
             SystemCall systemCall{};
@@ -376,7 +380,9 @@ static void emitBinaryExpression(const BinaryExpressionNode& expressionNode, Pro
                     systemCall = SystemCall::kBooleanOr;
                     break;
                 default:
-                    throw std::runtime_error("not impl");
+                    throw CompilerException(
+                        CompilerErrorCode::kInternal, "Internal error. Unimplemented binary operator.",
+                        expressionNode.token);
             }
             state->syscall(Opcode::kSystemCallV, systemCall, 2, 0);
         } else {
@@ -532,7 +538,9 @@ static void emitCallExpression(const CallExpressionNode& expressionNode, Procedu
             returnsValue ? Opcode::kSystemCallV : Opcode::kSystemCallO, *expressionNode.systemCall, numValueArgs,
             numObjectArgs);
     } else {
-        throw std::runtime_error("not impl");
+        throw CompilerException(
+            CompilerErrorCode::kInternal, "Internal error. Call expression not bound to declaration.",
+            expressionNode.token);
     }
 }
 
@@ -1206,7 +1214,8 @@ static void emitPrintStatement(const PrintStatementNode& statementNode, Procedur
             case Kind::kOptional:
                 throw std::runtime_error("not impl");
             default:
-                throw CompilerException(CompilerErrorCode::kInternal, "Unknown Kind", expressionNode->token);
+                throw CompilerException(
+                    CompilerErrorCode::kInternal, "Internal error. Unknown type.", expressionNode->token);
         }
     }
 

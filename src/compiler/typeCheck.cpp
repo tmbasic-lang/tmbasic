@@ -139,7 +139,8 @@ static std::string getOperatorText(BinaryOperator op) {
         case BinaryOperator::kPower:
             return "^";
         default:
-            throw std::runtime_error("not impl");
+            throw CompilerException(
+                CompilerErrorCode::kInternal, fmt::format("Internal error. Unimplemented binary operator."), Token{});
     }
 }
 
@@ -231,7 +232,10 @@ static void typeCheckBinaryExpression(BinaryExpressionNode* expressionNode, Type
                 break;
 
             default:
-                throw std::runtime_error("not impl");
+                throw CompilerException(
+                    CompilerErrorCode::kInternal,
+                    fmt::format("Internal error. Unknown binary operator {}", static_cast<int>(suffix->binaryOperator)),
+                    suffix->token);
         }
     }
 
