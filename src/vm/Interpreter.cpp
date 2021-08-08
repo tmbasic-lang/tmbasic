@@ -327,6 +327,7 @@ bool Interpreter::run(int maxCycles) {
             case Opcode::kSetLocalObject: {
                 auto dst = readInt<uint16_t>(instructions, &instructionIndex);
                 auto* obj = objectAt(objectStack, osi, -1);
+                assert(obj != nullptr);
                 auto& callFrame = _private->callStack.top();
                 objectStack->at(callFrame.osiLocalsStart + dst) = std::move(*obj);
                 popObject(objectStack, &osi);

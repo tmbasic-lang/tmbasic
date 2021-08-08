@@ -194,12 +194,14 @@ static void typeCheckBinaryExpression(BinaryExpressionNode* expressionNode, Type
                     suffix->evaluatedType = lhsType;
                 } else if (lhsType->kind == Kind::kString && rhsType->kind == Kind::kString) {
                     suffix->evaluatedType = lhsType;
+                } else if (lhsType->kind == Kind::kList && rhsType->equals(*lhsType->listItemType)) {
+                    suffix->evaluatedType = lhsType;
                 } else {
                     throw CompilerException(
                         CompilerErrorCode::kTypeMismatch,
                         fmt::format(
-                            "The \"{}\" operator requires Number or String operands.",
-                            getOperatorText(suffix->binaryOperator)),
+                            "The types {} and {} are not valid operands for the \"+\" operator.", lhsType->toString(),
+                            rhsType->toString()),
                         suffix->token);
                 }
                 break;

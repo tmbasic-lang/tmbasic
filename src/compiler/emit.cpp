@@ -385,6 +385,13 @@ static void emitBinaryExpression(const BinaryExpressionNode& expressionNode, Pro
                         expressionNode.token);
             }
             state->syscall(Opcode::kSystemCallV, systemCall, 2, 0);
+        } else if (lhsType->kind == Kind::kList) {
+            assert(binarySuffix->binaryOperator == BinaryOperator::kAdd);
+            if (lhsType->listItemType->isValueType()) {
+                state->syscall(Opcode::kSystemCallO, SystemCall::kValueListAdd, 1, 1);
+            } else {
+                state->syscall(Opcode::kSystemCallO, SystemCall::kObjectListAdd, 0, 2);
+            }
         } else {
             throw std::runtime_error("not impl");
         }
@@ -835,7 +842,7 @@ static void emitDimOrConstStatement(
             throw std::runtime_error("Unknown Kind");
     }
 
-    state->setLocalObject(*statementNode.localValueIndex);
+    state->setLocalObject(*statementNode.localObjectIndex);
 }
 
 static void emitDimStatement(const DimStatementNode& statementNode, ProcedureState* state) {
