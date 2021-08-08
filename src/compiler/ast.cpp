@@ -144,10 +144,17 @@ int StatementNode::getTempLocalObjectCount() const {
     return 0;
 }
 
-TypeNode::TypeNode(Kind kind, Token token) : Node(std::move(token)), kind(kind) {}
+TypeNode::TypeNode(Kind kind, Token token) : Node(std::move(token)), kind(kind) {
+    assert(kind != Kind::kList);
+    assert(kind != Kind::kMap);
+    assert(kind != Kind::kOptional);
+    assert(kind != Kind::kRecord);
+}
 
 TypeNode::TypeNode(Kind kind, Token token, std::string recordName)
-    : Node(std::move(token)), kind(kind), recordName(recordName) {}
+    : Node(std::move(token)), kind(kind), recordName(recordName) {
+    assert(kind == Kind::kRecord);
+}
 
 TypeNode::TypeNode(Kind kind, Token token, boost::local_shared_ptr<TypeNode> optionalValueTypeOrListItemType)
     : Node(std::move(token)),
@@ -155,17 +162,23 @@ TypeNode::TypeNode(Kind kind, Token token, boost::local_shared_ptr<TypeNode> opt
       listItemType(
           kind == Kind::kList ? std::move(optionalValueTypeOrListItemType) : boost::local_shared_ptr<TypeNode>()),
       optionalValueType(
-          kind == Kind::kOptional ? std::move(optionalValueTypeOrListItemType) : boost::local_shared_ptr<TypeNode>()) {}
+          kind == Kind::kOptional ? std::move(optionalValueTypeOrListItemType) : boost::local_shared_ptr<TypeNode>()) {
+    assert(kind == Kind::kOptional || kind == Kind::kList);
+}
 
 TypeNode::TypeNode(
     Kind kind,
     Token token,
     boost::local_shared_ptr<TypeNode> mapKeyType,
     boost::local_shared_ptr<TypeNode> mapValueType)
-    : Node(std::move(token)), kind(kind), mapKeyType(std::move(mapKeyType)), mapValueType(std::move(mapValueType)) {}
+    : Node(std::move(token)), kind(kind), mapKeyType(std::move(mapKeyType)), mapValueType(std::move(mapValueType)) {
+    assert(kind == Kind::kMap);
+}
 
 TypeNode::TypeNode(Kind kind, Token token, std::vector<boost::local_shared_ptr<ParameterNode>> fields)
-    : Node(std::move(token)), kind(kind), fields(std::move(fields)) {}
+    : Node(std::move(token)), kind(kind), fields(std::move(fields)) {
+    assert(kind == Kind::kRecord);
+}
 
 static std::vector<boost::local_shared_ptr<ParameterNode>> cloneFields(
     const std::vector<boost::local_shared_ptr<ParameterNode>>& source) {
@@ -188,7 +201,6 @@ TypeNode::TypeNode(const TypeNode& source)
     : Node(source.token),
       kind(source.kind),
       recordName(source.recordName),
-      genericPlaceholderName(source.genericPlaceholderName),
       fields(cloneFields(source.fields)),
       listItemType(cloneType(source.listItemType)),
       mapKeyType(cloneType(source.mapKeyType)),
@@ -199,7 +211,6 @@ void TypeNode::dump(std::ostringstream& s, int n) const {
     DUMP_TYPE(TypeNode);
     DUMP_VAR_ENUM(kind);
     DUMP_VAR_OPTIONAL(recordName);
-    DUMP_VAR_OPTIONAL(genericPlaceholderName);
     DUMP_VAR_NODES(fields);
     DUMP_VAR_NODE(listItemType);
     DUMP_VAR_NODE(mapKeyType);
@@ -212,16 +223,13 @@ bool TypeNode::isValueType() const {
         kind == Kind::kTimeSpan;
 }
 
-bool TypeNode::canImplicitlyConvertTo(const TypeNode& target) const {
-    if (target.kind == Kind::kOptional) {
-        return canImplicitlyConvertTo(*target.optionalValueType);
-    }
-
+bool TypeNode::equals(const TypeNode& target) const {
     if (kind != target.kind) {
         return false;
     }
 
     switch (kind) {
+        case Kind::kAny:
         case Kind::kBoolean:
         case Kind::kNumber:
         case Kind::kDate:
@@ -233,62 +241,11 @@ bool TypeNode::canImplicitlyConvertTo(const TypeNode& target) const {
             return true;
 
         case Kind::kList:
-            if (target.listItemType == nullptr) {
-                // target is a generic list, any source list item type is acceptable
-                return true;
-            }
-            return listItemType->canImplicitlyConvertTo(*target.listItemType);
+            assert(target.listItemType != nullptr);
+            return listItemType->equals(*target.listItemType);
 
         case Kind::kMap:
-            return mapKeyType->canImplicitlyConvertTo(*target.mapKeyType) &&
-                mapValueType->canImplicitlyConvertTo(*target.mapValueType);
-
-        case Kind::kRecord:
-            if (!recordName.has_value() && target.recordName.has_value()) {
-                return false;  // can't convert anonymous -> named type
-            }
-            if (recordName.has_value() && target.recordName.has_value()) {
-                return *recordName == *target.recordName;  // named -> named has to be the identical record name
-            }
-            // named -> anonymous or anonymous -> anonymous has to have matching fields
-            if (fields.size() != target.fields.size()) {
-                return false;
-            }
-            for (size_t i = 0; i < fields.size(); i++) {
-                const auto& srcField = *fields[i];
-                const auto& dstField = *target.fields[i];
-                if (srcField.name != dstField.name || !srcField.type->isIdentical(*dstField.type)) {
-                    return false;
-                }
-            }
-            return true;
-
-        default:
-            throw std::runtime_error("not impl");
-    }
-}
-
-bool TypeNode::isIdentical(const TypeNode& target) const {
-    if (kind != target.kind) {
-        return false;
-    }
-
-    switch (kind) {
-        case Kind::kBoolean:
-        case Kind::kNumber:
-        case Kind::kDate:
-        case Kind::kDateTime:
-        case Kind::kDateTimeOffset:
-        case Kind::kTimeSpan:
-        case Kind::kTimeZone:
-        case Kind::kString:
-            return true;
-
-        case Kind::kList:
-            return listItemType->isIdentical(*target.listItemType);
-
-        case Kind::kMap:
-            return mapKeyType->isIdentical(*target.mapKeyType) && mapValueType->isIdentical(*target.mapValueType);
+            return mapKeyType->equals(*target.mapKeyType) && mapValueType->equals(*target.mapValueType);
 
         case Kind::kRecord:
             if (recordName.has_value() != target.recordName.has_value()) {
@@ -300,16 +257,16 @@ bool TypeNode::isIdentical(const TypeNode& target) const {
             for (size_t i = 0; i < fields.size(); i++) {
                 const auto& srcField = *fields[i];
                 const auto& dstField = *target.fields[i];
-                if (srcField.name != dstField.name || !srcField.type->isIdentical(*dstField.type)) {
+                if (srcField.name != dstField.name || !srcField.type->equals(*dstField.type)) {
                     return false;
                 }
             }
 
         case Kind::kOptional:
-            return optionalValueType->isIdentical(*target.optionalValueType);
+            return optionalValueType->equals(*target.optionalValueType);
 
         default:
-            throw std::runtime_error("not impl");
+            throw std::runtime_error(fmt::format("Unhandled kind {}", NAMEOF_ENUM(kind)));
     }
 }
 

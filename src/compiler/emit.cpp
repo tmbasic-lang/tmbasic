@@ -287,11 +287,6 @@ static void emitBinaryExpression(const BinaryExpressionNode& expressionNode, Pro
     auto lhsType = expressionNode.leftOperand->evaluatedType;
     emitExpression(*expressionNode.leftOperand, state);
     for (const auto& binarySuffix : expressionNode.binarySuffixes) {
-        if (binarySuffix->leftOperandConvertedType != nullptr) {
-            throw std::runtime_error("not impl");
-            lhsType = binarySuffix->leftOperandConvertedType;
-        }
-
         // handle boolean AND/OR short circuiting
         auto isOr = binarySuffix->binaryOperator == BinaryOperator::kOr;
         auto isAnd = binarySuffix->binaryOperator == BinaryOperator::kAnd;
@@ -310,10 +305,6 @@ static void emitBinaryExpression(const BinaryExpressionNode& expressionNode, Pro
 
         auto rhsType = binarySuffix->rightOperand->evaluatedType;
         emitExpression(*binarySuffix->rightOperand, state);
-        if (binarySuffix->rightOperandConvertedType != nullptr) {
-            throw std::runtime_error("not impl");
-            rhsType = binarySuffix->rightOperandConvertedType;
-        }
         auto suffixResultType = binarySuffix->evaluatedType;
         if (lhsType->kind == Kind::kNumber && rhsType->kind == Kind::kNumber) {
             SystemCall systemCall{};

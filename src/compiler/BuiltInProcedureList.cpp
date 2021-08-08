@@ -3,6 +3,7 @@
 namespace compiler {
 
 BuiltInProcedureList::BuiltInProcedureList() {
+    auto any = boost::make_local_shared<TypeNode>(Kind::kAny, Token{});
     auto boolean = boost::make_local_shared<TypeNode>(Kind::kBoolean, Token{});
     auto number = boost::make_local_shared<TypeNode>(Kind::kNumber, Token{});
     auto string = boost::make_local_shared<TypeNode>(Kind::kString, Token{});
@@ -13,7 +14,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     auto timeZone = boost::make_local_shared<TypeNode>(Kind::kTimeZone, Token{});
     auto listOfString = boost::make_local_shared<TypeNode>(Kind::kList, Token{}, string);
     auto listOfNumber = boost::make_local_shared<TypeNode>(Kind::kList, Token{}, number);
-    auto listGeneric = boost::make_local_shared<TypeNode>(Kind::kList, Token{});
+    auto listGeneric = boost::make_local_shared<TypeNode>(Kind::kList, Token{}, any);
 
     addFunction("Abs", { "x" }, { number }, number, vm::SystemCall::kAbs);
     addFunction("Acos", { "x" }, { number }, number, vm::SystemCall::kAcos);

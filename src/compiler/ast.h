@@ -63,6 +63,7 @@ class Node {
 //
 
 enum class Kind {
+    kAny,
     kBoolean,
     kNumber,
     kDate,
@@ -95,8 +96,7 @@ class ParameterNode : public Node {
 class TypeNode : public Node {
    public:
     Kind kind;
-    std::optional<std::string> recordName;              // kind = kRecord (named)
-    std::optional<std::string> genericPlaceholderName;  // kind = kGenericPlaceholder
+    std::optional<std::string> recordName;  // kind = kRecord (named)
     std::vector<boost::local_shared_ptr<ParameterNode>>
         fields;  // kind = kRecord (anonymous), will be filled for named types by bindNamedTypes
     // nullable type parameters
@@ -117,8 +117,7 @@ class TypeNode : public Node {
     TypeNode(const TypeNode& source);
     void dump(std::ostringstream& s, int n) const override;
     bool isValueType() const;
-    bool canImplicitlyConvertTo(const TypeNode& target) const;
-    bool isIdentical(const TypeNode& target) const;
+    bool equals(const TypeNode& target) const;
     std::string toString() const;
 };
 
@@ -163,11 +162,6 @@ class BinaryExpressionSuffixNode : public Node {
    public:
     BinaryOperator binaryOperator;
     std::unique_ptr<ExpressionNode> rightOperand;
-
-    // added by type checker
-    boost::local_shared_ptr<TypeNode> leftOperandConvertedType{};   // or null for no conversion
-    boost::local_shared_ptr<TypeNode> rightOperandConvertedType{};  // or null for no conversion
-
     BinaryExpressionSuffixNode(
         BinaryOperator binaryOperator,
         std::unique_ptr<ExpressionNode> rightOperand,

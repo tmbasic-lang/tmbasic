@@ -35,7 +35,25 @@ static bool doCallArgumentTypesMatchProcedureParameters(
         assert(parameterType != nullptr);
         auto& argumentType = arguments.at(i)->evaluatedType;
         assert(argumentType != nullptr);
-        if (!argumentType->canImplicitlyConvertTo(*parameterType)) {
+
+        // parameter may be generic:
+        // List of Any
+        // Map of Any to Any
+        // Optional Any
+        if (parameterType->kind == Kind::kList && argumentType->kind == Kind::kList &&
+            parameterType->listItemType->kind == Kind::kAny) {
+            continue;
+        }
+        if (parameterType->kind == Kind::kMap && argumentType->kind == Kind::kMap &&
+            parameterType->mapKeyType->kind == Kind::kAny && parameterType->mapValueType->kind == Kind::kAny) {
+            continue;
+        }
+        if (parameterType->kind == Kind::kOptional && argumentType->kind == Kind::kOptional &&
+            parameterType->optionalValueType->kind == Kind::kAny) {
+            continue;
+        }
+
+        if (!argumentType->equals(*parameterType)) {
             return false;
         }
     }
@@ -156,25 +174,13 @@ static void typeCheckBinaryExpression(BinaryExpressionNode* expressionNode, Type
             case BinaryOperator::kLessThanEquals:
             case BinaryOperator::kGreaterThan:
             case BinaryOperator::kGreaterThanEquals: {
-                auto identicalTypes = lhsType->isIdentical(*rhsType);
-                auto lhsCanConvertToRhs = lhsType->canImplicitlyConvertTo(*rhsType);
-                auto rhsCanConvertToLhs = rhsType->canImplicitlyConvertTo(*lhsType);
-                if (identicalTypes || lhsCanConvertToRhs || rhsCanConvertToLhs) {
+                if (lhsType->equals(*rhsType)) {
                     suffix->evaluatedType = boost::make_local_shared<TypeNode>(Kind::kBoolean, suffix->token);
-                    if (!identicalTypes) {
-                        if (lhsCanConvertToRhs) {
-                            suffix->leftOperandConvertedType = rhsType;
-                        } else if (rhsCanConvertToLhs) {
-                            suffix->rightOperandConvertedType = lhsType;
-                        } else {
-                            assert(false);
-                        }
-                    }
                 } else {
                     throw CompilerException(
                         CompilerErrorCode::kTypeMismatch,
                         fmt::format(
-                            "The \"{}\" operator requires the operands to have equivalent types.",
+                            "The \"{}\" operator requires the operands to have identical types.",
                             getOperatorText(suffix->binaryOperator)),
                         suffix->token);
                 }
@@ -276,7 +282,7 @@ static void typeCheckConstValueExpressionArray(LiteralArrayExpressionNode* expre
     }
     auto& type = expressionNode->elements.at(0)->evaluatedType;
     for (auto& element : expressionNode->elements) {
-        if (!type->isIdentical(*element->evaluatedType)) {
+        if (!type->equals(*element->evaluatedType)) {
             throw CompilerException(
                 CompilerErrorCode::kTypeMismatch, "All elements of a literal list must have the same type.",
                 element->token);
@@ -530,7 +536,7 @@ static void typeCheckSelectCaseStatement(SelectCaseStatementNode* statementNode)
         for (auto& caseValueNode : caseNode->values) {
             assert(caseValueNode->expression->evaluatedType != nullptr);
             auto& caseValueType = *caseValueNode->expression->evaluatedType;
-            if (!caseValueNode->expression->evaluatedType->isIdentical(exprType)) {
+            if (!caseValueNode->expression->evaluatedType->equals(exprType)) {
                 throw CompilerException(
                     CompilerErrorCode::kTypeMismatch,
                     fmt::format(
@@ -611,7 +617,7 @@ static void typeCheckYieldStatement(YieldStatementNode* statementNode) {
 
         if (collectionType->kind == Kind::kList) {
             auto& procedureItemType = procedure->returnType->listItemType;
-            if (!procedureItemType->isIdentical(*statementNode->expression->evaluatedType)) {
+            if (!procedureItemType->equals(*statementNode->expression->evaluatedType)) {
                 throw CompilerException(
                     CompilerErrorCode::kTypeMismatch,
                     fmt::format(
@@ -639,7 +645,7 @@ static void typeCheckDimListStatement(DimListStatementNode* statementNode) {
     assert(firstType != nullptr);
     for (auto& yieldNode : yields) {
         auto* yieldType = yieldNode->expression->evaluatedType.get();
-        if (!yieldType->isIdentical(*firstType)) {
+        if (!yieldType->equals(*firstType)) {
             throw CompilerException(
                 CompilerErrorCode::kTypeMismatch,
                 fmt::format(
@@ -671,7 +677,7 @@ static void typeCheckDimMapStatement(DimMapStatementNode* statementNode) {
     assert(firstValueType != nullptr);
     for (auto& yieldNode : yields) {
         auto* yieldKeyType = yieldNode->expression->evaluatedType.get();
-        if (!yieldKeyType->isIdentical(*firstKeyType)) {
+        if (!yieldKeyType->equals(*firstKeyType)) {
             throw CompilerException(
                 CompilerErrorCode::kTypeMismatch,
                 fmt::format(
@@ -682,7 +688,7 @@ static void typeCheckDimMapStatement(DimMapStatementNode* statementNode) {
         }
 
         auto* yieldValueType = yieldNode->toExpression->evaluatedType.get();
-        if (!yieldValueType->isIdentical(*firstValueType)) {
+        if (!yieldValueType->equals(*firstValueType)) {
             throw CompilerException(
                 CompilerErrorCode::kTypeMismatch,
                 fmt::format(
