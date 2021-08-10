@@ -1,8 +1,8 @@
 .procedure CodeUnits
 .category Strings
-.blurb Converts a string to a list of 16-bit Unicode code units.
+.blurb Converts a string to a list of UTF-16 code units.
 .description
-Converts a string to a list of 16-bit Unicode code units.
+Converts a string to a list of UTF-16 code units.
 To convert the list back into a string, use the p[StringFromCodeUnits] function.
 
 Warning: Correct usage of this function requires deep Unicode knowledge.
@@ -11,7 +11,7 @@ Consider using the p[Characters] function instead.
 .parameter input: String
 The input string.
 .return String
-A list of the 16-bit Unicode code units in i[input].
+A list of the UTF-16 code units in i[input].
 .example
 .example-code
 dim x = CodeUnits("ABC")

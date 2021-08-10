@@ -1,15 +1,15 @@
 .procedure StringFromCodeUnits
 .category Strings
-.blurb Creates a string from a list of 16-bit Unicode code units.
+.blurb Creates a string from a list of UTF-16 code units.
 .description
-Creates a string from a list of 16-bit Unicode code units.
+Creates a string from a list of UTF-16 code units.
 To convert the string back into a list of code units, use the p[CodeUnits] function.
 
 Warning: Correct usage of this function requires deep Unicode knowledge.
 Consider using the p[Characters] and p[Concat] functions instead.
 .overload
 .parameter codeUnits: List of Number
-List of 16-bit Unicode code units.
+List of UTF-16 code units.
 .return String
 String created from i[codeUnits].
 .example
