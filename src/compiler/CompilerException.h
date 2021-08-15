@@ -28,6 +28,10 @@ enum class CompilerErrorCode {
     kMultipleSelectCaseDefaults,
     kYieldInSubroutine,
     kNoYieldsInDimCollection,
+    kContinueOutsideLoop,
+    kContinueTypeMismatch,
+    kExitOutsideLoop,
+    kExitTypeMismatch,
 };
 
 class CompilerException : public std::exception {

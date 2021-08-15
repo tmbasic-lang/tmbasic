@@ -1205,30 +1205,22 @@ class ExitStatementProduction : public Production {
                       oneOf({
                           term(TokenKind::kDo),
                           term(TokenKind::kFor),
-                          term(TokenKind::kSelect),
-                          term(TokenKind::kTry),
                           term(TokenKind::kWhile),
                       })),
                   term(TokenKind::kEndOfLine),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
-        ExitScope scope;
+        LoopType scope;
         switch (captureTokenKind(std::move(captures->at(0)))) {
             case TokenKind::kDo:
-                scope = ExitScope::kDo;
+                scope = LoopType::kDo;
                 break;
             case TokenKind::kFor:
-                scope = ExitScope::kFor;
-                break;
-            case TokenKind::kSelect:
-                scope = ExitScope::kSelectCase;
-                break;
-            case TokenKind::kTry:
-                scope = ExitScope::kTry;
+                scope = LoopType::kFor;
                 break;
             case TokenKind::kWhile:
-                scope = ExitScope::kWhile;
+                scope = LoopType::kWhile;
                 break;
             default:
                 assert(false);
@@ -1245,7 +1237,7 @@ class ContinueStatementProduction : public Production {
         : Production(
               NAMEOF_TYPE(ContinueStatementProduction),
               {
-                  term(TokenKind::kExit),
+                  term(TokenKind::kContinue),
                   capture(
                       0,
                       oneOf({
@@ -1257,16 +1249,16 @@ class ContinueStatementProduction : public Production {
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
-        ContinueScope scope;
+        LoopType scope;
         switch (captureTokenKind(std::move(captures->at(0)))) {
             case TokenKind::kDo:
-                scope = ContinueScope::kDo;
+                scope = LoopType::kDo;
                 break;
             case TokenKind::kFor:
-                scope = ContinueScope::kFor;
+                scope = LoopType::kFor;
                 break;
             case TokenKind::kWhile:
-                scope = ContinueScope::kWhile;
+                scope = LoopType::kWhile;
                 break;
             default:
                 assert(false);

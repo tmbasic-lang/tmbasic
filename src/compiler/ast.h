@@ -420,7 +420,7 @@ class ConstStatementNode : public StatementNode {
     bool visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const override;
 };
 
-enum class ContinueScope {
+enum class LoopType {
     kDo,
     kFor,
     kWhile,
@@ -428,8 +428,8 @@ enum class ContinueScope {
 
 class ContinueStatementNode : public StatementNode {
    public:
-    ContinueScope scope;
-    ContinueStatementNode(ContinueScope scope, Token token);
+    LoopType scope;
+    ContinueStatementNode(LoopType scope, Token token);
     void dump(std::ostringstream& s, int n) const override;
     StatementType getStatementType() const override;
 };
@@ -516,18 +516,10 @@ class DoStatementNode : public StatementNode {
     StatementType getStatementType() const override;
 };
 
-enum class ExitScope {
-    kDo,
-    kFor,
-    kSelectCase,
-    kTry,
-    kWhile,
-};
-
 class ExitStatementNode : public StatementNode {
    public:
-    ExitScope scope;
-    ExitStatementNode(ExitScope scope, Token token);
+    LoopType scope;
+    ExitStatementNode(LoopType scope, Token token);
     void dump(std::ostringstream& s, int n) const override;
     StatementType getStatementType() const override;
 };

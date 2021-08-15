@@ -703,7 +703,7 @@ bool ConstStatementNode::visitExpressions(bool rootsOnly, const VisitExpressionF
     return true;
 }
 
-ContinueStatementNode::ContinueStatementNode(ContinueScope scope, Token token)
+ContinueStatementNode::ContinueStatementNode(LoopType scope, Token token)
     : StatementNode(std::move(token)), scope(scope) {}
 
 void ContinueStatementNode::dump(std::ostringstream& s, int n) const {
@@ -857,7 +857,7 @@ StatementType DoStatementNode::getStatementType() const {
     return StatementType::kDo;
 }
 
-ExitStatementNode::ExitStatementNode(ExitScope scope, Token token) : StatementNode(std::move(token)), scope(scope) {}
+ExitStatementNode::ExitStatementNode(LoopType scope, Token token) : StatementNode(std::move(token)), scope(scope) {}
 
 void ExitStatementNode::dump(std::ostringstream& s, int n) const {
     DUMP_TYPE(ExitStatementNode);

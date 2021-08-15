@@ -23,6 +23,15 @@ class JumpFixup {
 
 typedef JumpFixup Label;
 
+class LoopFrame {
+   public:
+    LoopType loopType;
+    int continueLabelId;
+    int exitLabelId;
+    LoopFrame(LoopType loopType, int continueLabelId, int exitLabelId)
+        : loopType(loopType), continueLabelId(continueLabelId), exitLabelId(exitLabelId) {}
+};
+
 class ProcedureState {
    public:
     vector<uint8_t> bytecode;
@@ -30,6 +39,7 @@ class ProcedureState {
     vector<Label> labels;          // labels that have already been emitted
     int nextLabelId = 1;
     stack<int> catchLabelIds;
+    stack<LoopFrame> loopFrames;
 
     int labelId() { return nextLabelId++; }
 
@@ -694,8 +704,40 @@ static void emitCallStatement(const CallStatementNode& statementNode, ProcedureS
     }
 }
 
-static void emitContinueStatement(const ContinueStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
-    throw std::runtime_error("not impl");
+static std::string loopTypeToString(LoopType loopType) {
+    switch (loopType) {
+        case LoopType::kWhile:
+            return "while";
+        case LoopType::kDo:
+            return "do";
+        case LoopType::kFor:
+            return "for";
+        default:
+            assert(false);
+            throw std::runtime_error("Unknown LoopType");
+    }
+}
+
+static void emitContinueStatement(const ContinueStatementNode& statementNode, ProcedureState* state) {
+    if (state->loopFrames.empty()) {
+        throw CompilerException(
+            CompilerErrorCode::kContinueOutsideLoop,
+            "\"continue\" must be inside a \"do\", \"for\", or \"while\" loop.", statementNode.token);
+    }
+
+    const auto& loopFrame = state->loopFrames.top();
+
+    // this check should probably not be here, but rather in a separate compiler step
+    if (loopFrame.loopType != statementNode.scope) {
+        throw CompilerException(
+            CompilerErrorCode::kContinueTypeMismatch,
+            fmt::format(
+                "This \"continue {}\" statement is inside a \"{}\" loop. The loop type must match.",
+                loopTypeToString(statementNode.scope), loopTypeToString(loopFrame.loopType)),
+            statementNode.token);
+    }
+
+    state->jump(loopFrame.continueLabelId);
 }
 
 static void emitDimListStatement(const DimListStatementNode& statementNode, ProcedureState* state) {
@@ -853,8 +895,26 @@ static void emitConstStatement(const ConstStatementNode& statementNode, Procedur
     emitDimOrConstStatement(statementNode, statementNode.value.get(), state);
 }
 
-static void emitExitStatement(const ExitStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
-    throw std::runtime_error("not impl");
+static void emitExitStatement(const ExitStatementNode& statementNode, ProcedureState* state) {
+    if (state->loopFrames.empty()) {
+        throw CompilerException(
+            CompilerErrorCode::kExitOutsideLoop, "\"exit\" must be inside a \"do\", \"for\", or \"while\" loop.",
+            statementNode.token);
+    }
+
+    const auto& loopFrame = state->loopFrames.top();
+
+    // this check should probably not be here, but rather in a separate compiler step
+    if (loopFrame.loopType != statementNode.scope) {
+        throw CompilerException(
+            CompilerErrorCode::kExitTypeMismatch,
+            fmt::format(
+                "This \"exit {}\" statement is inside a \"{}\" loop. The loop type must match.",
+                loopTypeToString(statementNode.scope), loopTypeToString(loopFrame.loopType)),
+            statementNode.token);
+    }
+
+    state->jump(loopFrame.exitLabelId);
 }
 
 static void emitForEachStatement(const ForEachStatementNode& statementNode, ProcedureState* state) {
@@ -912,9 +972,13 @@ static void emitForEachStatement(const ForEachStatementNode& statementNode, Proc
     }
 
     // run loop body
+    auto continueLabel = state->labelId();
+    state->loopFrames.emplace(LoopType::kFor, continueLabel, endLabel);
     emitBody(*statementNode.body, state);
+    state->loopFrames.pop();
 
     // increment index
+    state->label(continueLabel);
     state->pushLocalValue(indexLocalValueIndex);
     state->pushImmediateInt64(1);
     state->syscall(Opcode::kSystemCallV, SystemCall::kNumberAdd, 2, 0);
@@ -971,9 +1035,13 @@ static void emitForStatement(const ForStatementNode& statementNode, ProcedureSta
     state->branchIfTrue(endLabel);
 
     // loop body
+    auto continueLabel = state->labelId();
+    state->loopFrames.emplace(LoopType::kFor, continueLabel, endLabel);
     emitBody(*statementNode.body, state);
+    state->loopFrames.pop();
 
     // increment the counter by the step
+    state->label(continueLabel);
     state->pushLocalValue(counterLocalValueIndex);
     state->pushLocalValue(stepLocalValueIndex);
     state->syscall(Opcode::kSystemCallV, SystemCall::kNumberAdd, 2, 0);
@@ -1154,7 +1222,9 @@ static void emitWhileStatement(const WhileStatementNode& statementNode, Procedur
     state->branchIfFalse(endLabel);
 
     // loop body
+    state->loopFrames.emplace(LoopType::kWhile, topLabel, endLabel);
     emitBody(*statementNode.body, state);
+    state->loopFrames.pop();
 
     // jump to topLabel
     state->jump(topLabel);
@@ -1169,11 +1239,18 @@ static void emitDoStatement(const DoStatementNode& statementNode, ProcedureState
     state->label(topLabel);
 
     // loop body
+    auto continueLabel = state->labelId();
+    auto exitLabel = state->labelId();
+    state->loopFrames.emplace(LoopType::kDo, continueLabel, exitLabel);
     emitBody(*statementNode.body, state);
+    state->loopFrames.pop();
 
     // evaluate the condition, if it's true then jump to topLabel
+    state->label(continueLabel);
     emitExpression(*statementNode.condition, state);
     state->branchIfTrue(topLabel);
+
+    state->label(exitLabel);
 }
 
 static void emitPrintStatement(const PrintStatementNode& statementNode, ProcedureState* state) {
