@@ -175,37 +175,20 @@ TypeNode::TypeNode(
     assert(kind == Kind::kMap);
 }
 
-TypeNode::TypeNode(Kind kind, Token token, std::vector<boost::local_shared_ptr<ParameterNode>> fields)
-    : Node(std::move(token)), kind(kind), fields(std::move(fields)) {
+TypeNode::TypeNode(Kind kind, Token token, std::vector<boost::local_shared_ptr<ParameterNode>> aFields)
+    : Node(std::move(token)), kind(kind), fields(std::move(aFields)) {
     assert(kind == Kind::kRecord);
-}
 
-static std::vector<boost::local_shared_ptr<ParameterNode>> cloneFields(
-    const std::vector<boost::local_shared_ptr<ParameterNode>>& source) {
-    std::vector<boost::local_shared_ptr<ParameterNode>> dest;
-    dest.reserve(source.size());
-    for (const auto& n : source) {
-        dest.push_back(boost::make_local_shared<ParameterNode>(*n));
+    auto valueIndex = 0;
+    auto objectIndex = 0;
+    for (auto& field : fields) {
+        if (field->type->isValueType()) {
+            field->fieldValueIndex = valueIndex++;
+        } else {
+            field->fieldObjectIndex = objectIndex++;
+        }
     }
-    return dest;
 }
-
-static boost::local_shared_ptr<TypeNode> cloneType(const boost::local_shared_ptr<TypeNode>& source) {
-    if (source) {
-        return boost::make_local_shared<TypeNode>(*source);
-    }
-    return nullptr;
-}
-
-TypeNode::TypeNode(const TypeNode& source)
-    : Node(source.token),
-      kind(source.kind),
-      recordName(source.recordName),
-      fields(cloneFields(source.fields)),
-      listItemType(cloneType(source.listItemType)),
-      mapKeyType(cloneType(source.mapKeyType)),
-      mapValueType(cloneType(source.mapValueType)),
-      optionalValueType(cloneType(source.optionalValueType)) {}
 
 void TypeNode::dump(std::ostringstream& s, int n) const {
     DUMP_TYPE(TypeNode);
@@ -410,24 +393,23 @@ ExpressionType ConvertExpressionNode::getExpressionType() const {
 }
 
 DottedExpressionSuffixNode::DottedExpressionSuffixNode(
-    std::string name,
-    bool isCall,
-    std::vector<std::unique_ptr<ExpressionNode>> callArguments,
+    std::string aName,
+    std::unique_ptr<ExpressionNode> collectionIndex,
     Token token)
-    : Node(std::move(token)), name(std::move(name)), isCall(isCall), callArguments(std::move(callArguments)) {}
+    : Node(std::move(token)),
+      name(std::move(aName)),
+      nameLowercase(boost::to_lower_copy(name)),
+      collectionIndex(std::move(collectionIndex)) {}
 
 void DottedExpressionSuffixNode::dump(std::ostringstream& s, int n) const {
     DUMP_TYPE(DottedExpressionSuffixNode);
     DUMP_VAR(name);
-    DUMP_VAR(isCall);
-    DUMP_VAR_NODES(callArguments);
+    DUMP_VAR_NODE(collectionIndex);
 }
 
 bool DottedExpressionSuffixNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
-    for (const auto& x : callArguments) {
-        if (!visitChildExpression(rootsOnly, x.get(), func)) {
-            return false;
-        }
+    if (collectionIndex != nullptr && !visitChildExpression(rootsOnly, collectionIndex.get(), func)) {
+        return false;
     }
     return true;
 }
@@ -1314,8 +1296,11 @@ StatementType InputStatementNode::getStatementType() const {
     return StatementType::kInput;
 }
 
-ParameterNode::ParameterNode(std::string name, boost::local_shared_ptr<TypeNode> type, Token token)
-    : Node(std::move(token)), name(std::move(name)), type(std::move(type)) {}
+ParameterNode::ParameterNode(std::string aName, boost::local_shared_ptr<TypeNode> type, Token token)
+    : Node(std::move(token)),
+      name(std::move(aName)),
+      nameLowercase(boost::to_lower_copy(name)),
+      type(std::move(type)) {}
 
 void ParameterNode::dump(std::ostringstream& s, int n) const {
     DUMP_TYPE(ParameterNode);

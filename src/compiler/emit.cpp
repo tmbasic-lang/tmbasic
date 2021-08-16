@@ -238,6 +238,16 @@ class ProcedureState {
         emitInt<uint16_t>(numObjs);
     }
 
+    void recordGetValue(uint16_t index) {
+        op(Opcode::kRecordGetValue);
+        emitInt<uint16_t>(index);
+    }
+
+    void recordGetObject(uint16_t index) {
+        op(Opcode::kRecordGetObject);
+        emitInt<uint16_t>(index);
+    }
+
     void valueListNew(uint16_t numVals) {
         op(Opcode::kValueListNew);
         emitInt<uint16_t>(numVals);
@@ -590,10 +600,18 @@ static void emitLiteralNumberExpression(const LiteralNumberExpressionNode& expre
     state->pushImmediateDec128(expressionNode.value);
 }
 
-static void emitLiteralRecordExpression(
-    const LiteralRecordExpressionNode& /*expressionNode*/,
-    ProcedureState* /*state*/) {
-    throw std::runtime_error("not impl");
+static void emitLiteralRecordExpression(const LiteralRecordExpressionNode& expressionNode, ProcedureState* state) {
+    auto numValues = 0;
+    auto numObjects = 0;
+    for (auto& field : expressionNode.fields) {
+        emitExpression(*field->value, state);
+        if (field->value->evaluatedType->isValueType()) {
+            numValues++;
+        } else {
+            numObjects++;
+        }
+    }
+    state->recordNew(numValues, numObjects);
 }
 
 static void emitLiteralStringExpression(const LiteralStringExpressionNode& expressionNode, ProcedureState* state) {
@@ -627,8 +645,38 @@ static void emitConvertExpression(const ConvertExpressionNode& /*expressionNode*
     throw std::runtime_error("not impl");
 }
 
-static void emitDottedExpression(const DottedExpressionNode& /*expressionNode*/, ProcedureState* /*state*/) {
-    throw std::runtime_error("not impl");
+static void emitDottedExpression(const DottedExpressionNode& expressionNode, ProcedureState* state) {
+    emitExpression(*expressionNode.base, state);
+    auto* baseType = expressionNode.base->evaluatedType.get();
+
+    for (auto& dottedSuffix : expressionNode.dottedSuffixes) {
+        auto* parameterNode = dottedSuffix->boundParameterNode;
+        if (parameterNode->fieldValueIndex.has_value()) {
+            state->recordGetValue(*parameterNode->fieldValueIndex);
+        } else if (parameterNode->fieldObjectIndex.has_value()) {
+            state->recordGetObject(*parameterNode->fieldObjectIndex);
+        } else {
+            throw CompilerException(
+                CompilerErrorCode::kInternal,
+                "Internal error. Dotted suffix has neither fieldValueIndex nor fieldObjectIndex set.",
+                expressionNode.token);
+        }
+        baseType = parameterNode->type.get();
+
+        if (dottedSuffix->collectionIndex != nullptr) {
+            emitExpression(*dottedSuffix->collectionIndex, state);
+            if (baseType->kind == Kind::kList) {
+                if (baseType->listItemType->isValueType()) {
+                    state->syscall(Opcode::kSystemCallV, SystemCall::kValueListGet, 1, 1);
+                } else {
+                    state->syscall(Opcode::kSystemCallO, SystemCall::kObjectListGet, 1, 1);
+                }
+                baseType = baseType->listItemType.get();
+            } else {
+                throw std::runtime_error("not impl");
+            }
+        }
+    }
 }
 
 static void emitNotExpression(const NotExpressionNode& expressionNode, ProcedureState* state) {
@@ -785,31 +833,10 @@ static void emitYieldStatement(const YieldStatementNode& statementNode, Procedur
     }
 }
 
-static void emitDimOrConstStatement(
-    const StatementNode& statementNode,
-    const ExpressionNode* value,
-    ProcedureState* state) {
-    assert(statementNode.evaluatedType != nullptr);
-    const auto& type = *statementNode.evaluatedType;
-
-    // if an initial value is provided, then use that
-    if (value != nullptr) {
-        emitExpression(*value, state);
-        if (statementNode.localValueIndex.has_value()) {
-            state->setLocalValue(*statementNode.localValueIndex);
-        } else if (statementNode.localObjectIndex.has_value()) {
-            state->setLocalObject(*statementNode.localObjectIndex);
-        } else {
-            throw std::runtime_error("Internal error. No local variable index found!");
-        }
-        return;
-    }
-
+static void emitDefaultValue(const TypeNode& type, ProcedureState* state) {
     // initialize all value types to 0.
     if (type.isValueType()) {
-        assert(statementNode.localValueIndex >= 0);
         state->pushImmediateInt64(0);
-        state->setLocalValue(*statementNode.localValueIndex);
         return;
     }
 
@@ -868,8 +895,20 @@ static void emitDimOrConstStatement(
                 0, 0);
             break;
 
-        case Kind::kRecord:
-            throw std::runtime_error("not impl");
+        case Kind::kRecord: {
+            auto numValues = 0;
+            auto numObjects = 0;
+            for (auto& field : type.fields) {
+                emitDefaultValue(*field->type, state);
+                if (field->type->isValueType()) {
+                    numValues++;
+                } else {
+                    numObjects++;
+                }
+            }
+            state->recordNew(numValues, numObjects);
+            break;
+        }
 
         case Kind::kString:
             state->pushImmediateUtf8("");
@@ -883,8 +922,34 @@ static void emitDimOrConstStatement(
         default:
             throw std::runtime_error("Unknown Kind");
     }
+}
 
-    state->setLocalObject(*statementNode.localObjectIndex);
+static void emitDimOrConstStatement(
+    const StatementNode& statementNode,
+    const ExpressionNode* value,
+    ProcedureState* state) {
+    assert(statementNode.evaluatedType != nullptr);
+    const auto& type = *statementNode.evaluatedType;
+
+    // if an initial value is provided, then use that
+    if (value != nullptr) {
+        emitExpression(*value, state);
+        if (statementNode.localValueIndex.has_value()) {
+            state->setLocalValue(*statementNode.localValueIndex);
+        } else if (statementNode.localObjectIndex.has_value()) {
+            state->setLocalObject(*statementNode.localObjectIndex);
+        } else {
+            throw std::runtime_error("Internal error. No local variable index found!");
+        }
+        return;
+    }
+
+    emitDefaultValue(type, state);
+    if (type.isValueType()) {
+        state->setLocalValue(*statementNode.localValueIndex);
+    } else {
+        state->setLocalObject(*statementNode.localObjectIndex);
+    }
 }
 
 static void emitDimStatement(const DimStatementNode& statementNode, ProcedureState* state) {

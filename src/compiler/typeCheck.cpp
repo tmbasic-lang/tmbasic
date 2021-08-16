@@ -298,9 +298,15 @@ static void typeCheckConstValueExpressionArray(LiteralArrayExpressionNode* expre
     expressionNode->evaluatedType = arrayType;
 }
 
-static void typeCheckConstValueExpressionRecord(LiteralRecordFieldNode* expressionNode) {
-    (void)expressionNode;
-    throw std::runtime_error("not impl");
+static void typeCheckLiteralRecordExpressionNode(LiteralRecordExpressionNode* expressionNode, TypeCheckState* state) {
+    std::vector<boost::local_shared_ptr<ParameterNode>> typeFields;
+    for (auto& field : expressionNode->fields) {
+        typeCheckExpression(field->value.get(), state);
+        typeFields.push_back(
+            boost::make_local_shared<ParameterNode>(field->key, field->value->evaluatedType, field->value->token));
+    }
+    expressionNode->evaluatedType =
+        boost::make_local_shared<TypeNode>(Kind::kRecord, expressionNode->token, typeFields);
 }
 
 static void typeCheckConstValueExpression(ConstValueExpressionNode* expressionNode, TypeCheckState* state) {
@@ -315,7 +321,7 @@ static void typeCheckConstValueExpression(ConstValueExpressionNode* expressionNo
             expressionNode->evaluatedType = boost::make_local_shared<TypeNode>(Kind::kNumber, expressionNode->token);
             break;
         case ConstValueExpressionType::kRecord:
-            typeCheckConstValueExpressionRecord(dynamic_cast<LiteralRecordFieldNode*>(expressionNode));
+            typeCheckLiteralRecordExpressionNode(dynamic_cast<LiteralRecordExpressionNode*>(expressionNode), state);
             break;
         case ConstValueExpressionType::kString:
             expressionNode->evaluatedType = boost::make_local_shared<TypeNode>(Kind::kString, expressionNode->token);
@@ -331,9 +337,63 @@ static void typeCheckConvertExpression(ConvertExpressionNode* expressionNode) {
     throw std::runtime_error("not impl");
 }
 
-static void typeCheckDottedExpression(DottedExpressionNode* expressionNode) {
-    (void)expressionNode;
-    throw std::runtime_error("not impl");
+static void typeCheckDottedExpression(DottedExpressionNode* expressionNode, TypeCheckState* state) {
+    typeCheckExpression(expressionNode->base.get(), state);
+    auto baseType = expressionNode->base->evaluatedType;
+
+    for (auto& usageSuffix : expressionNode->dottedSuffixes) {
+        if (baseType->kind != Kind::kRecord) {
+            throw CompilerException(
+                CompilerErrorCode::kTypeMismatch,
+                fmt::format(
+                    "The base of a dotted expression must be a Record type, but this is a {}.", baseType->toString()),
+                baseType->token);
+        }
+
+        assert(usageSuffix->nameLowercase != "");
+        ParameterNode* typeField{};
+        for (auto& f : baseType->fields) {
+            assert(f->nameLowercase != "");
+            if (f->nameLowercase == usageSuffix->nameLowercase) {
+                typeField = f.get();
+            }
+        }
+
+        if (typeField == nullptr) {
+            throw CompilerException(
+                CompilerErrorCode::kFieldNotFound,
+                fmt::format("The type {} does not have a field named {}.", baseType->toString(), usageSuffix->name),
+                usageSuffix->token);
+        }
+
+        assert(typeField->fieldValueIndex.has_value() || typeField->fieldObjectIndex.has_value());
+        usageSuffix->boundParameterNode = typeField;
+
+        if (usageSuffix->collectionIndex != nullptr) {
+            typeCheckExpression(usageSuffix->collectionIndex.get(), state);
+            if (typeField->type->kind == Kind::kList) {
+                if (usageSuffix->collectionIndex->evaluatedType->kind != Kind::kNumber) {
+                    throw CompilerException(
+                        CompilerErrorCode::kTypeMismatch,
+                        fmt::format(
+                            "The list index must be a Number, but this is a {}.",
+                            usageSuffix->collectionIndex->evaluatedType->toString()),
+                        usageSuffix->collectionIndex->token);
+                }
+                baseType = typeField->type->listItemType;
+            } else if (typeField->type->kind == Kind::kMap) {
+                throw std::runtime_error("not impl");
+            } else {
+                throw CompilerException(
+                    CompilerErrorCode::kTypeMismatch,
+                    fmt::format("The field {} is not a collection type.", typeField->name), usageSuffix->token);
+            }
+        } else {
+            baseType = typeField->type;
+        }
+    }
+
+    expressionNode->evaluatedType = baseType;
 }
 
 static void typeCheckNotExpression(NotExpressionNode* expressionNode, TypeCheckState* state) {
@@ -382,7 +442,7 @@ void typeCheckExpression(ExpressionNode* expressionNode, TypeCheckState* state) 
             typeCheckConvertExpression(dynamic_cast<ConvertExpressionNode*>(expressionNode));
             break;
         case ExpressionType::kDotted:
-            typeCheckDottedExpression(dynamic_cast<DottedExpressionNode*>(expressionNode));
+            typeCheckDottedExpression(dynamic_cast<DottedExpressionNode*>(expressionNode), state);
             break;
         case ExpressionType::kNot:
             typeCheckNotExpression(dynamic_cast<NotExpressionNode*>(expressionNode), state);

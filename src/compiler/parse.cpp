@@ -758,7 +758,7 @@ class ExpressionTermProduction : public Production {
 
 class DottedExpressionSuffixProduction : public Production {
    public:
-    explicit DottedExpressionSuffixProduction(const Production* argumentList)
+    explicit DottedExpressionSuffixProduction(const Production* expression)
         : Production(
               NAMEOF_TYPE(DottedExpressionSuffixProduction),
               {
@@ -767,16 +767,16 @@ class DottedExpressionSuffixProduction : public Production {
                   capture(0, term(TokenKind::kIdentifier)),
                   optional({
                       term(TokenKind::kLeftParenthesis),
-                      capture(1, prod(argumentList)),
+                      capture(1, prod(expression)),
                       term(TokenKind::kRightParenthesis),
                   }),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
-        auto isCall = hasCapture(captures->at(1));
         return nodeBox<DottedExpressionSuffixNode>(
-            captureTokenText(std::move(captures->at(0))), isCall,
-            captureNodeArray<ExpressionNode>(std::move(captures->at(1))), firstToken);
+            captureTokenText(std::move(captures->at(0))),
+            hasCapture(captures->at(1)) ? captureSingleNode<ExpressionNode>(std::move(captures->at(1))) : nullptr,
+            firstToken);
     }
 };
 
@@ -2022,7 +2022,7 @@ class ProductionCollection {
         auto* parenthesesTerm = add<ParenthesesTermProduction>(expression);
         auto* expressionTerm = add<ExpressionTermProduction>(
             literalValue, parenthesesTerm, functionCallTerm, literalArrayTerm, literalRecordTerm);
-        auto* dottedExpressionSuffix = add<DottedExpressionSuffixProduction>(argumentList);
+        auto* dottedExpressionSuffix = add<DottedExpressionSuffixProduction>(expression);
         auto* dottedExpression = add<DottedExpressionProduction>(expressionTerm, dottedExpressionSuffix);
         auto* convertExpression = add<ConvertExpressionProduction>(dottedExpression, type);
         auto* unaryExpression = add<UnaryExpressionProduction>(convertExpression);

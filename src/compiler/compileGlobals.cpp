@@ -102,7 +102,7 @@ static void compileGlobal(const SourceMember& sourceMember, CompiledProgram* com
             const auto* constValueNode = util::dynamic_cast_borrow<ConstValueExpressionNode>(dimNode->value);
             parserResult.node->evaluatedType = getTypeForLiteralToken(constValueNode->token);
         } else {
-            parserResult.node->evaluatedType = boost::make_local_shared<TypeNode>(*dimNode->type);
+            parserResult.node->evaluatedType = dimNode->type;
         }
     } else {
         throw CompilerException(

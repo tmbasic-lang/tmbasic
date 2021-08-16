@@ -32,6 +32,7 @@ enum class CompilerErrorCode {
     kContinueTypeMismatch,
     kExitOutsideLoop,
     kExitTypeMismatch,
+    kFieldNotFound,
 };
 
 class CompilerException : public std::exception {

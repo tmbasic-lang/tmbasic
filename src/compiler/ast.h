@@ -81,11 +81,14 @@ enum class Kind {
 class ParameterNode : public Node {
    public:
     std::string name;
+    std::string nameLowercase;
     boost::local_shared_ptr<TypeNode> type;
 
     // added during compilation
     std::optional<int> argumentValueIndex{};
     std::optional<int> argumentObjectIndex{};
+    std::optional<int> fieldValueIndex{};
+    std::optional<int> fieldObjectIndex{};
 
     ParameterNode(std::string name, boost::local_shared_ptr<TypeNode> type, Token token);
     void dump(std::ostringstream& s, int n) const override;
@@ -114,7 +117,7 @@ class TypeNode : public Node {
         boost::local_shared_ptr<TypeNode> mapKeyType,
         boost::local_shared_ptr<TypeNode> mapValueType);
     TypeNode(Kind kind, Token token, std::vector<boost::local_shared_ptr<ParameterNode>> fields);
-    TypeNode(const TypeNode& source);
+    TypeNode(const TypeNode& source) = delete;
     void dump(std::ostringstream& s, int n) const override;
     bool isValueType() const;
     bool equals(const TypeNode& target) const;
@@ -227,13 +230,13 @@ class ConvertExpressionNode : public ExpressionNode {
 class DottedExpressionSuffixNode : public Node {
    public:
     std::string name;
-    bool isCall;
-    std::vector<std::unique_ptr<ExpressionNode>> callArguments;
-    DottedExpressionSuffixNode(
-        std::string name,
-        bool isCall,
-        std::vector<std::unique_ptr<ExpressionNode>> callArguments,
-        Token token);
+    std::string nameLowercase;
+    std::unique_ptr<ExpressionNode> collectionIndex;  // may be null
+
+    // set by type checker
+    ParameterNode* boundParameterNode{};
+
+    DottedExpressionSuffixNode(std::string name, std::unique_ptr<ExpressionNode> collectionIndex, Token token);
     void dump(std::ostringstream& s, int n) const override;
     bool visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const override;
 };
