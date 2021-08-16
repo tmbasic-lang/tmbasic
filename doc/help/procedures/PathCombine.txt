@@ -1,5 +1,5 @@
 .procedure PathCombine
-.category File I/O
+.category Files
 .blurb Makes a filesystem path by combining multiple path components with slashes.
 .description
 Makes a filesystem path by combining multiple path components with slashes.

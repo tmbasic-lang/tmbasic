@@ -1,5 +1,5 @@
 .procedure WriteFileBytes
-.category File I/O
+.category Files
 .blurb Creates or overwrites a text file with a list of bytes.
 .description
 Creates or overwrites a text file with a list of bytes.

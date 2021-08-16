@@ -1,5 +1,5 @@
 .procedure Atan
-.category Algebra and Trigonometry
+.category Math
 .blurb Calculates the arc tangent of a number.
 .description
 Returns the arc tangent of the number, in radians.

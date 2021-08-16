@@ -1,5 +1,5 @@
 .procedure DeleteDirectory
-.category File I/O
+.category Files
 .blurb Deletes a directory, and optionally any subdirectories or files inside it.
 .description
 Deletes a directory, and optionally any subdirectories or files inside it.

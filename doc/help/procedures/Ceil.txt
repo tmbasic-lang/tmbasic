@@ -1,5 +1,5 @@
 .procedure Ceil
-.category Algebra and Trigonometry
+.category Math
 .blurb Finds the closest integer ≥ i[x].
 .description
 Returns the smallest integer that is greater than or equal to i[x].

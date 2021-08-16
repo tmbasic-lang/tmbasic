@@ -1,5 +1,5 @@
 .procedure WriteFileLines
-.category File I/O
+.category Files
 .blurb Creates or overwrites a text file with a list of line strings.
 .description
 Creates or overwrites a text file with a list of line strings.

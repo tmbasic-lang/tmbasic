@@ -1,5 +1,5 @@
 .procedure CreateDirectory
-.category File I/O
+.category Files
 .blurb Creates a directory, and any parent directories in the path as needed.
 .description
 Creates a directory, and any parent directories in the path as needed.

@@ -1,5 +1,5 @@
 .procedure Sqr
-.category Algebra and Trigonometry
+.category Math
 .blurb Calculates the square root of a number.
 .description
 Returns the square root of the given number i[x].

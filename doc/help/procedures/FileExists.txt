@@ -1,5 +1,5 @@
 .procedure FileExists
-.category File I/O
+.category Files
 .blurb Checks whether a file exists or not.
 .description
 Returns whether a file exists at the given path and filename.

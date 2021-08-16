@@ -1,5 +1,5 @@
 .procedure Cos
-.category Algebra and Trigonometry
+.category Math
 .blurb Calculates the cosine of an angle in radians.
 .description
 Returns the cosine of the given angle i[x], which is specified in radians.

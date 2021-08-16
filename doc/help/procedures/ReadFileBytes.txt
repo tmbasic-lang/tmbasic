@@ -1,5 +1,5 @@
 .procedure ReadFileBytes
-.category File I/O
+.category Files
 .blurb Reads the contents of a file as a list of bytes.
 .description
 Reads the contents of a file as a list of bytes.

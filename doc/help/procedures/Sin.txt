@@ -1,5 +1,5 @@
 .procedure Sin
-.category Algebra and Trigonometry
+.category Math
 .blurb Calculates the sine of an angle in radians.
 .description
 Returns the sine of the given angle i[x], which is specified in radians.

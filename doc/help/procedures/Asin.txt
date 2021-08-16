@@ -1,5 +1,5 @@
 .procedure Asin
-.category Algebra and Trigonometry
+.category Math
 .blurb Calculates the arc sine of a number.
 .description
 Returns the arc sine of the number, in radians.

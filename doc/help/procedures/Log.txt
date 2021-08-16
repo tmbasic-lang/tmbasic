@@ -1,5 +1,5 @@
 .procedure Log
-.category Algebra and Trigonometry
+.category Math
 .blurb Calculates the natural (base-e) logarithm of a number.
 .description
 Returns the natural (base-e) logarithm of a number.

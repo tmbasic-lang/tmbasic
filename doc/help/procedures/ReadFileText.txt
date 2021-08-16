@@ -1,5 +1,5 @@
 .procedure ReadFileText
-.category File I/O
+.category Files
 .blurb Reads the contents of a file as a string.
 .description
 Reads the contents of a file as a string.

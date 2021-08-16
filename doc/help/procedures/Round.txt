@@ -1,5 +1,5 @@
 .procedure Round
-.category Algebra and Trigonometry
+.category Math
 .blurb Finds the closest integer to a given number.
 .description
 Rounds i[x] to the nearest integer.

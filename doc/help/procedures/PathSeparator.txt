@@ -1,5 +1,5 @@
 .procedure PathSeparator
-.category File I/O
+.category Files
 .blurb Returns the path separator character.
 .description
 Returns the path separator character, which depends on the user's operating system.

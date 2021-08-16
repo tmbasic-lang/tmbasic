@@ -1,5 +1,5 @@
 .procedure Acos
-.category Algebra and Trigonometry
+.category Math
 .blurb Calculates the arc cosine of a number.
 .description
 Returns the arc cosine of the number, in radians.

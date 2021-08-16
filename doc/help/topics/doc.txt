@@ -3,7 +3,7 @@ h1[TMBASIC Documentation]
 h2[Programming Reference]
 
 ul@
-li@i[Control flow statements:]
+li@i[Control flow:]
 {`do`:statement_do} │
 {`for`:statement_for} │
 {`for each`:statement_for_each} │
@@ -12,7 +12,7 @@ li@i[Control flow statements:]
 {`try`:statement_try} │
 {`while`:statement_while}@
 
-li@i[Command statements:]
+li@i[Commands:]
 {`=`:statement_assign} │
 {call:statement_call} │
 {`const`:statement_const} │
@@ -33,32 +33,38 @@ li@i[Operators:]
 
 li@i[Procedures:]
 {All Procedures:procedures} │
-{Algebra and Trigonometry:procedures_algebra_and_trigonometry} │
 {Dates and Times:procedures_dates_and_times} │
 {Error Handling:procedures_error_handling} │
-{File I/O:procedures_file_io} │
+{Files:procedures_files} │
+{Math:procedures_math} │
 {Optionals:procedures_optionals} │
 {Strings:procedures_strings}@
 
-li@i[Types:]
+li@i[Simple types:]
 {`Boolean`:type_boolean} │
-{`Date`:type_date} │
-{`DateTime`:type_datetime} │
-{`DateTimeOffset`:type_datetimeoffset} │
-{`List`:type_list} │
-{`Map`:type_map} │
 {`Number`:type_number} │
 {`Optional`:type_optional} │
 {`Record`:type_record} │
-{`String`:type_string} │
+{`String`:type_string}
+@
+
+li@i[Date and time types:]
+{`Date`:type_date} │
+{`DateTime`:type_datetime} │
+{`DateTimeOffset`:type_datetimeoffset} │
 {`TimeSpan`:type_timespan} │
-{`TimeZone`:type_timezone}@
+{`TimeZone`:type_timezone}
+@
+
+li@i[Collection types:]
+{`List`:type_list} │
+{`Map`:type_map}
+@
 
 li@{Constants:builtin_constants}@
 
 li@{Language Grammar:grammar}@
 @
-
 
 h2[Appendices]
 

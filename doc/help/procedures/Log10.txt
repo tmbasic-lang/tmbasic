@@ -1,5 +1,5 @@
 .procedure Log10
-.category Algebra and Trigonometry
+.category Math
 .blurb Calculates the base-10 logarithm of a number.
 .description
 Returns the base-10 logarithm of a number.

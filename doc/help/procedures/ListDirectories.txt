@@ -1,5 +1,5 @@
 .procedure ListDirectories
-.category File I/O
+.category Files
 .blurb Lists all the subdirectories in a given directory.
 .description
 Lists all the subdirectories in a given directory.

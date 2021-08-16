@@ -1,5 +1,5 @@
 .procedure ListFiles
-.category File I/O
+.category Files
 .blurb Lists all the files in a given directory.
 .description
 Lists all the files in a given directory.

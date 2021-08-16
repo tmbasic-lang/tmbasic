@@ -1,5 +1,5 @@
 .procedure PathFileNameWithoutExtension
-.category File I/O
+.category Files
 .blurb Gets the part of the filename before the final dot.
 .description
 Gets the part of the filename before the final dot.

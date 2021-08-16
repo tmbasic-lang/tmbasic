@@ -1,5 +1,5 @@
 .procedure Trunc
-.category Algebra and Trigonometry
+.category Math
 .blurb Returns the integer part of the given number.
 .description
 Removes the fractional part and returns the integer part of the given number i[x].

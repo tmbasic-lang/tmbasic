@@ -1,5 +1,5 @@
 .procedure Abs
-.category Algebra and Trigonometry
+.category Math
 .blurb Converts negative numbers to positive numbers.
 .description
 Returns the absolute value of the number.

@@ -1,5 +1,5 @@
 .procedure PathExtension
-.category File I/O
+.category Files
 .blurb Gets the file extension (like `.txt`) from a path.
 .description
 Gets the file extension (like `.txt`) from a path.

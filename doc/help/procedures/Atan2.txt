@@ -1,5 +1,5 @@
 .procedure Atan2
-.category Algebra and Trigonometry
+.category Math
 .blurb Calculates the arc tangent of `y/x`.
 .description
 Returns the arc tangent of `y/x`, in radians.
