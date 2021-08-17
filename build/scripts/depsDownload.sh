@@ -19,7 +19,7 @@ function downloadFile {
 
 # don't update these versions by hand. instead, run scripts/depsCheck.sh
 BINUTILS_VERSION=2.37
-BOOST_VERSION=1.76.0
+BOOST_VERSION=1.77.0
 CMAKE_VERSION=3.21.1
 FMT_VERSION=8.0.1
 GOOGLETEST_VERSION=1.11.0
