@@ -1330,54 +1330,113 @@ static void emitDoStatement(const DoStatementNode& statementNode, ProcedureState
     state->label(exitLabel);
 }
 
+static void emitPrint(const TypeNode& type, const Token& token, ProcedureState* state) {
+    // object/value must already be on the stack
+    switch (type.kind) {
+        case Kind::kBoolean:
+            state->syscall(Opcode::kSystemCallO, SystemCall::kBooleanToString, 1, 0);
+            state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
+            break;
+        case Kind::kNumber:
+            state->syscall(Opcode::kSystemCallO, SystemCall::kNumberToString, 1, 0);
+            state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
+            break;
+        case Kind::kDate:
+            state->syscall(Opcode::kSystemCallO, SystemCall::kDateToString, 1, 0);
+            state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
+            break;
+        case Kind::kDateTime:
+            state->syscall(Opcode::kSystemCallO, SystemCall::kDateTimeToString, 1, 0);
+            state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
+            break;
+        case Kind::kDateTimeOffset:
+            state->syscall(Opcode::kSystemCallO, SystemCall::kDateTimeOffsetToString, 0, 1);
+            state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
+            break;
+        case Kind::kTimeSpan:
+            state->syscall(Opcode::kSystemCallO, SystemCall::kTimeSpanToString, 1, 0);
+            state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
+            break;
+        case Kind::kTimeZone:
+            state->syscall(Opcode::kSystemCallO, SystemCall::kTimeZoneToString, 0, 1);
+            state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
+            break;
+        case Kind::kString:
+            state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
+            break;
+        case Kind::kList:
+            throw std::runtime_error("not impl");
+        case Kind::kMap:
+            throw std::runtime_error("not impl");
+        case Kind::kRecord: {
+            state->pushImmediateUtf8("{ ");
+            state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
+            auto isFirst = true;
+            for (const auto& field : type.fields) {
+                if (!isFirst) {
+                    state->pushImmediateUtf8(", ");
+                    state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
+                }
+                isFirst = false;
+                state->pushImmediateUtf8(field->name);
+                state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
+                state->pushImmediateUtf8(": ");
+                state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
+                state->duplicateObject();
+                if (field->fieldValueIndex.has_value()) {
+                    state->recordGetValue(*field->fieldValueIndex);
+                } else if (field->fieldObjectIndex.has_value()) {
+                    state->recordGetObject(*field->fieldObjectIndex);
+                } else {
+                    throw CompilerException(
+                        CompilerErrorCode::kInternal, fmt::format("No field index assigned for \"{}\".", field->name),
+                        token);
+                }
+                std::string beforeChar{};
+                std::string afterChar{};
+                switch (field->type->kind) {
+                    case Kind::kBoolean:
+                    case Kind::kList:
+                    case Kind::kMap:
+                    case Kind::kNumber:
+                    case Kind::kRecord:
+                        // nothing before or after
+                        break;
+                    case Kind::kString:
+                        beforeChar = "\"";
+                        afterChar = "\"";
+                        break;
+                    default:
+                        beforeChar = "<";
+                        afterChar = ">";
+                        break;
+                }
+                if (!beforeChar.empty()) {
+                    state->pushImmediateUtf8(beforeChar);
+                    state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
+                }
+                emitPrint(*field->type, token, state);
+                if (!afterChar.empty()) {
+                    state->pushImmediateUtf8(afterChar);
+                    state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
+                }
+            }
+            state->pushImmediateUtf8(" }");
+            state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
+            break;
+        }
+        case Kind::kOptional:
+            throw std::runtime_error("not impl");
+        default:
+            throw CompilerException(CompilerErrorCode::kInternal, "Internal error. Unknown type.", token);
+    }
+}
+
 static void emitPrintStatement(const PrintStatementNode& statementNode, ProcedureState* state) {
     for (const auto& expressionNode : statementNode.expressions) {
         assert(expressionNode->evaluatedType != nullptr);
         emitExpression(*expressionNode, state);
-        switch (expressionNode->evaluatedType->kind) {
-            case Kind::kBoolean:
-                state->syscall(Opcode::kSystemCallO, SystemCall::kBooleanToString, 1, 0);
-                state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
-                break;
-            case Kind::kNumber:
-                state->syscall(Opcode::kSystemCallO, SystemCall::kNumberToString, 1, 0);
-                state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
-                break;
-            case Kind::kDate:
-                state->syscall(Opcode::kSystemCallO, SystemCall::kDateToString, 1, 0);
-                state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
-                break;
-            case Kind::kDateTime:
-                state->syscall(Opcode::kSystemCallO, SystemCall::kDateTimeToString, 1, 0);
-                state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
-                break;
-            case Kind::kDateTimeOffset:
-                state->syscall(Opcode::kSystemCallO, SystemCall::kDateTimeOffsetToString, 0, 1);
-                state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
-                break;
-            case Kind::kTimeSpan:
-                state->syscall(Opcode::kSystemCallO, SystemCall::kTimeSpanToString, 1, 0);
-                state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
-                break;
-            case Kind::kTimeZone:
-                state->syscall(Opcode::kSystemCallO, SystemCall::kTimeZoneToString, 0, 1);
-                state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
-                break;
-            case Kind::kString:
-                state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
-                break;
-            case Kind::kList:
-                throw std::runtime_error("not impl");
-            case Kind::kMap:
-                throw std::runtime_error("not impl");
-            case Kind::kRecord:
-                throw std::runtime_error("not impl");
-            case Kind::kOptional:
-                throw std::runtime_error("not impl");
-            default:
-                throw CompilerException(
-                    CompilerErrorCode::kInternal, "Internal error. Unknown type.", expressionNode->token);
-        }
+        emitPrint(*expressionNode->evaluatedType, expressionNode->token, state);
     }
 
     if (!statementNode.trailingSemicolon) {
