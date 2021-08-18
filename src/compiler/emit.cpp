@@ -617,7 +617,7 @@ static void emitLiteralNumberExpression(const LiteralNumberExpressionNode& expre
 static void emitLiteralRecordExpression(const LiteralRecordExpressionNode& expressionNode, ProcedureState* state) {
     auto numValues = 0;
     auto numObjects = 0;
-    for (auto& field : expressionNode.fields) {
+    for (const auto& field : expressionNode.fields) {
         emitExpression(*field->value, state);
         if (field->value->evaluatedType->isValueType()) {
             numValues++;
@@ -661,9 +661,8 @@ static void emitConvertExpression(const ConvertExpressionNode& /*expressionNode*
 
 static void emitDottedExpression(const DottedExpressionNode& expressionNode, ProcedureState* state) {
     emitExpression(*expressionNode.base, state);
-    auto* baseType = expressionNode.base->evaluatedType.get();
 
-    for (auto& dottedSuffix : expressionNode.dottedSuffixes) {
+    for (const auto& dottedSuffix : expressionNode.dottedSuffixes) {
         auto* parameterNode = dottedSuffix->boundParameterNode;
         if (parameterNode->fieldValueIndex.has_value()) {
             state->recordGetValue(*parameterNode->fieldValueIndex);
@@ -675,9 +674,9 @@ static void emitDottedExpression(const DottedExpressionNode& expressionNode, Pro
                 "Internal error. Dotted suffix has neither fieldValueIndex nor fieldObjectIndex set.",
                 expressionNode.token);
         }
-        baseType = parameterNode->type.get();
 
         if (dottedSuffix->collectionIndex != nullptr) {
+            auto* baseType = parameterNode->type.get();
             emitExpression(*dottedSuffix->collectionIndex, state);
             if (baseType->kind == Kind::kList) {
                 if (baseType->listItemType->isValueType()) {
@@ -685,7 +684,6 @@ static void emitDottedExpression(const DottedExpressionNode& expressionNode, Pro
                 } else {
                     state->syscall(Opcode::kSystemCallO, SystemCall::kObjectListGet, 1, 1);
                 }
-                baseType = baseType->listItemType.get();
             } else {
                 throw std::runtime_error("not impl");
             }
@@ -912,7 +910,7 @@ static void emitDefaultValue(const TypeNode& type, ProcedureState* state) {
         case Kind::kRecord: {
             auto numValues = 0;
             auto numObjects = 0;
-            for (auto& field : type.fields) {
+            for (const auto& field : type.fields) {
                 emitDefaultValue(*field->type, state);
                 if (field->type->isValueType()) {
                     numValues++;

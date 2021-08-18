@@ -311,8 +311,10 @@ static void typeCheckConstValueExpressionArray(LiteralArrayExpressionNode* expre
 }
 
 static void typeCheckLiteralRecordExpressionNode(LiteralRecordExpressionNode* expressionNode, TypeCheckState* state) {
+    assert(expressionNode != nullptr);
     std::vector<boost::local_shared_ptr<ParameterNode>> typeFields;
     for (auto& field : expressionNode->fields) {
+        assert(field != nullptr);
         typeCheckExpression(field->value.get(), state);
         typeFields.push_back(
             boost::make_local_shared<ParameterNode>(field->key, field->value->evaluatedType, field->value->token));
@@ -362,10 +364,10 @@ static void typeCheckDottedExpression(DottedExpressionNode* expressionNode, Type
                 baseType->token);
         }
 
-        assert(usageSuffix->nameLowercase != "");
+        assert(!usageSuffix->nameLowercase.empty());
         ParameterNode* typeField{};
         for (auto& f : baseType->fields) {
-            assert(f->nameLowercase != "");
+            assert(!f->nameLowercase.empty());
             if (f->nameLowercase == usageSuffix->nameLowercase) {
                 typeField = f.get();
             }

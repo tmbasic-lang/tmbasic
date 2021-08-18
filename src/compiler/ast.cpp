@@ -409,6 +409,7 @@ void DottedExpressionSuffixNode::dump(std::ostringstream& s, int n) const {
 
 bool DottedExpressionSuffixNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
     if (collectionIndex != nullptr && !visitChildExpression(rootsOnly, collectionIndex.get(), func)) {
+        // NOLINTNEXTLINE(readability-simplify-boolean-expr): the replacement is actually less readable
         return false;
     }
     return true;
