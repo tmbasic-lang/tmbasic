@@ -11,11 +11,10 @@ template <typename TElement, ObjectType K>
 class ListBuilder : public Object {
    public:
     immer::vector_transient<TElement> items;
-
+    ListBuilder() {}
+    explicit ListBuilder(immer::vector_transient<TElement> items) : items(std::move(items)) {}
     ObjectType getObjectType() const override { return K; }
-
     std::size_t getHash() const override { return 0; }
-
     bool equals(const Object& other) const override { return false; }
 };
 

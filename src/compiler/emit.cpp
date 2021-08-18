@@ -405,7 +405,21 @@ static void emitBinaryExpression(const BinaryExpressionNode& expressionNode, Pro
                         expressionNode.token);
             }
             state->syscall(Opcode::kSystemCallV, systemCall, 2, 0);
-        } else if (lhsType->kind == Kind::kList) {
+        } else if (lhsType->kind == Kind::kList && rhsType->kind == Kind::kList) {
+            switch (binarySuffix->binaryOperator) {
+                case BinaryOperator::kAdd:
+                    if (lhsType->listItemType->isValueType()) {
+                        state->syscall(Opcode::kSystemCallO, SystemCall::kValueListConcat, 0, 2);
+                    } else {
+                        state->syscall(Opcode::kSystemCallO, SystemCall::kObjectListConcat, 0, 2);
+                    }
+                    break;
+                default:
+                    throw CompilerException(
+                        CompilerErrorCode::kInternal, "Internal error. Unimplemented binary operator.",
+                        expressionNode.token);
+            }
+        } else if (lhsType->kind == Kind::kList && rhsType->kind != Kind::kList) {
             assert(binarySuffix->binaryOperator == BinaryOperator::kAdd);
             if (lhsType->listItemType->isValueType()) {
                 state->syscall(Opcode::kSystemCallO, SystemCall::kValueListAdd, 1, 1);

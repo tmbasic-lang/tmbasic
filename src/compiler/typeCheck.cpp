@@ -196,6 +196,18 @@ static void typeCheckBinaryExpression(BinaryExpressionNode* expressionNode, Type
                     suffix->evaluatedType = lhsType;
                 } else if (lhsType->kind == Kind::kList && rhsType->equals(*lhsType->listItemType)) {
                     suffix->evaluatedType = lhsType;
+                } else if (lhsType->kind == Kind::kList && rhsType->kind == Kind::kList) {
+                    if (lhsType->listItemType->equals(*rhsType->listItemType)) {
+                        suffix->evaluatedType = lhsType;
+                    } else {
+                        throw CompilerException(
+                            CompilerErrorCode::kTypeMismatch,
+                            fmt::format(
+                                "These lists cannot be combined because the list on the left is type {} and the list "
+                                "on the right is type {}. The types must match.",
+                                lhsType->listItemType->toString(), rhsType->listItemType->toString()),
+                            suffix->token);
+                    }
                 } else {
                     throw CompilerException(
                         CompilerErrorCode::kTypeMismatch,

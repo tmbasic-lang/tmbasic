@@ -77,6 +77,7 @@ enum class SystemCall {
     kObjectListBuilderNew,          // ObjectListBuilderNew() as ObjectListBuilder
     kObjectListBuilderAdd,          // ObjectListBuilderAdd(builder as ObjectListBuilder, Object as Object)
     kObjectListBuilderEnd,          // ObjectListBuilderEnd(builder as ObjectListBuilder) as ObjectList
+    kObjectListConcat,              // (lhs as ObjectList, rhs as ObjectList) as ObjectList
     kObjectListGet,                 // ObjectListGet(input as ObjectList, index as Number) as Object
     kObjectListLength,              // ObjectListLength(input as ObjectList) as Number
     kObjectOptionalNewMissing,      // ObjectOptionalNewMissing() as ObjectOptional
@@ -118,6 +119,7 @@ enum class SystemCall {
     kValueListBuilderNew,           // ValueListBuilderNew() as ValueListBuilder
     kValueListBuilderAdd,           // ValueListBuilderAdd(builder as ValueListBuilder, value as Value)
     kValueListBuilderEnd,           // ValueListBuilderEnd(builder as ValueListBuilder) as ValueList
+    kValueListConcat,               // (lhs as ValueList, rhs as ValueList) as ValueList
     kValueListGet,                  // ValueListGet(input as ValueList, index as Number) as Value
     kValueO,                        // ValueO(input as Optional Object) as Boolean
     kValueOptionalNewMissing,       // ValueOptionalNewMissing() as ValueOptional
