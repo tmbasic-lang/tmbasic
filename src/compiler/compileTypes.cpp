@@ -42,7 +42,12 @@ static void compileType(int sourceMemberIndex, const SourceMember& sourceMember,
         compiledField->isValue = field->type->isValueType();
         compiledField->isObject = !compiledField->isValue;
         compiledField->fieldIndex = compiledField->isValue ? nextValueIndex++ : nextObjectIndex++;
-        compiledField->type = std::move(field->type);
+        compiledField->parameterNode = boost::make_local_shared<ParameterNode>(field->name, field->type, field->token);
+        if (compiledField->isValue) {
+            compiledField->parameterNode->fieldValueIndex = compiledField->fieldIndex;
+        } else {
+            compiledField->parameterNode->fieldObjectIndex = compiledField->fieldIndex;
+        }
         t->fieldsByNameLowercase.insert(std::make_pair(compiledField->nameLowercase, compiledField.get()));
         t->fields.push_back(std::move(compiledField));
     }
@@ -72,7 +77,7 @@ static void checkFieldType(const TypeNode& fieldTypeNode, const CompiledProgram&
 static void checkFieldTypes(size_t sourceMemberIndex, CompiledProgram* compiledProgram) {
     auto* compiledUserType = compiledProgram->userTypesBySourceMemberIndex.find(sourceMemberIndex)->second;
     for (auto& field : compiledUserType->fields) {
-        checkFieldType(*field->type, *compiledProgram);
+        checkFieldType(*field->parameterNode->type, *compiledProgram);
     }
 }
 

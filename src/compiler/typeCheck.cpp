@@ -376,7 +376,7 @@ static void typeCheckDottedExpression(DottedExpressionNode* expressionNode, Type
         if (typeField == nullptr) {
             throw CompilerException(
                 CompilerErrorCode::kFieldNotFound,
-                fmt::format("The type {} does not have a field named {}.", baseType->toString(), usageSuffix->name),
+                fmt::format("The type {} does not have a field named \"{}\".", baseType->toString(), usageSuffix->name),
                 usageSuffix->token);
         }
 

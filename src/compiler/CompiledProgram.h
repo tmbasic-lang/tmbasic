@@ -21,7 +21,7 @@ class CompiledUserTypeField {
     bool isValue = false;
     bool isObject = false;
     int fieldIndex = -1;
-    boost::local_shared_ptr<TypeNode> type;
+    boost::local_shared_ptr<ParameterNode> parameterNode;
 };
 
 class CompiledUserType {

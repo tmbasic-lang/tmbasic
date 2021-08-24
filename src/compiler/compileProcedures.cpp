@@ -2,6 +2,7 @@
 #include "BuiltInConstantList.h"
 #include "BuiltInProcedureList.h"
 #include "CompilerException.h"
+#include "bindNamedRecordTypes.h"
 #include "bindProcedureSymbols.h"
 #include "bindYieldStatements.h"
 #include "emit.h"
@@ -102,6 +103,7 @@ static void compileProcedure(
     auto* procedureNode = compiledProcedure->procedureNode.get();
     bindProcedureSymbols(globalSymbolScope, procedureNode);
     bindYieldStatements(procedureNode);
+    bindNamedRecordTypes(procedureNode, *compiledProgram);
     typeCheck(procedureNode, sourceProgram, compiledProgram, builtInProcedures);
     int numLocalValues = 0;
     int numLocalObjects = 0;
