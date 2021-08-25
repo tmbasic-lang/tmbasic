@@ -1,4 +1,5 @@
 * text=auto
+*.bas eol=lf linguist-language=BASIC
 *.c text eol=lf
 *.cfg text eol=lf
 *.cpp text eol=lf
@@ -7,7 +8,7 @@
 *.html text eol=lf
 *.js text eol=lf
 *.json text eol=lf
-*.linq text eol=crlf
+*.linq text eol=crlf linguist-documentation
 *.md text eol=lf
 *.rc text eol=crlf
 *.sh text eol=lf
@@ -18,4 +19,4 @@
 .gitignore text eol=lf
 Dockerfile* text eol=lf
 Makefile text eol=lf
-doc/licenses/* linguist-vendored
+doc/* linguist-documentation
