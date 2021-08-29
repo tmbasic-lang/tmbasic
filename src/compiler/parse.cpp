@@ -686,11 +686,11 @@ class LiteralArrayTermProduction : public Production {
     }
 };
 
-class FunctionCallTermProduction : public Production {
+class CallOrIndexTermProduction : public Production {
    public:
-    explicit FunctionCallTermProduction(const Production* argumentList)
+    explicit CallOrIndexTermProduction(const Production* argumentList)
         : Production(
-              NAMEOF_TYPE(FunctionCallTermProduction),
+              NAMEOF_TYPE(CallOrIndexTermProduction),
               {
                   capture(0, term(TokenKind::kIdentifier)),
                   term(TokenKind::kLeftParenthesis),
@@ -700,7 +700,7 @@ class FunctionCallTermProduction : public Production {
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
-        return nodeBox<CallExpressionNode>(
+        return nodeBox<CallOrIndexExpressionNode>(
             captureTokenText(std::move(captures->at(0))), captureNodeArray<ExpressionNode>(std::move(captures->at(1))),
             firstToken);
     }
@@ -728,7 +728,7 @@ class ExpressionTermProduction : public Production {
     ExpressionTermProduction(
         const Production* literalValue,
         const Production* parenthesesTerm,
-        const Production* functionCallTerm,
+        const Production* callOrIndexTerm,
         const Production* literalArrayTerm,
         const Production* literalRecordTerm)
         : Production(
@@ -737,7 +737,7 @@ class ExpressionTermProduction : public Production {
                   oneOf({
                       capture(0, prod(literalValue)),
                       capture(0, prod(parenthesesTerm)),
-                      capture(0, prod(functionCallTerm)),
+                      capture(0, prod(callOrIndexTerm)),
                       capture(0, prod(literalArrayTerm)),
                       capture(0, prod(literalRecordTerm)),
                       capture(1, term(TokenKind::kIdentifier)),
@@ -1353,54 +1353,22 @@ class ConstStatementProduction : public Production {
     }
 };
 
-class AssignLocationSuffixProduction : public Production {
-   public:
-    explicit AssignLocationSuffixProduction(const Production* expression)
-        : Production(
-              NAMEOF_TYPE(AssignLocationSuffixProduction),
-              {
-                  oneOf({
-                      list({
-                          term(TokenKind::kDot),
-                          capture(0, term(TokenKind::kIdentifier)),
-                      }),
-                      list({
-                          term(TokenKind::kLeftParenthesis),
-                          capture(1, prod(expression)),
-                          term(TokenKind::kRightParenthesis),
-                      }),
-                  }),
-              }) {}
-
-    std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
-        if (hasCapture(captures->at(0))) {
-            return nodeBox<AssignLocationSuffixNode>(captureTokenText(std::move(captures->at(0))), firstToken);
-        }
-        return nodeBox<AssignLocationSuffixNode>(
-            captureSingleNode<ExpressionNode>(std::move(captures->at(1))), firstToken);
-    }
-};
-
 class AssignStatementProduction : public Production {
    public:
-    AssignStatementProduction(const Production* assignLocationSuffix, const Production* expression)
+    AssignStatementProduction(const Production* expression, const Production* dottedExpression)
         : Production(
               NAMEOF_TYPE(AssignStatementProduction),
               {
-                  capture(0, term(TokenKind::kIdentifier)),
-                  zeroOrMore({
-                      capture(1, prod(assignLocationSuffix)),
-                  }),
+                  capture(0, prod(dottedExpression)),
                   term(TokenKind::kEqualsSign),
-                  capture(2, prod(expression)),
+                  capture(1, prod(expression)),
                   term(TokenKind::kEndOfLine),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
         return nodeBox<AssignStatementNode>(
-            std::make_unique<SymbolReferenceExpressionNode>(captureTokenText(std::move(captures->at(0))), firstToken),
-            captureNodeArray<AssignLocationSuffixNode>(std::move(captures->at(1))),
-            captureSingleNode<ExpressionNode>(std::move(captures->at(2))), firstToken);
+            captureSingleNode<ExpressionNode>(std::move(captures->at(0))),
+            captureSingleNode<ExpressionNode>(std::move(captures->at(1))), firstToken);
     }
 };
 
@@ -2018,10 +1986,10 @@ class ProductionCollection {
         auto* literalRecordFieldList = add<LiteralRecordFieldListProduction>(literalRecordField);
         auto* literalRecordTerm = add<LiteralRecordTermProduction>(literalRecordFieldList);
         auto* literalArrayTerm = add<LiteralArrayTermProduction>(argumentList);
-        auto* functionCallTerm = add<FunctionCallTermProduction>(argumentList);
+        auto* callOrIndexTerm = add<CallOrIndexTermProduction>(argumentList);
         auto* parenthesesTerm = add<ParenthesesTermProduction>(expression);
         auto* expressionTerm = add<ExpressionTermProduction>(
-            literalValue, parenthesesTerm, functionCallTerm, literalArrayTerm, literalRecordTerm);
+            literalValue, parenthesesTerm, callOrIndexTerm, literalArrayTerm, literalRecordTerm);
         auto* dottedExpressionSuffix = add<DottedExpressionSuffixProduction>(expression);
         auto* dottedExpression = add<DottedExpressionProduction>(expressionTerm, dottedExpressionSuffix);
         auto* convertExpression = add<ConvertExpressionProduction>(dottedExpression, type);
@@ -2051,8 +2019,7 @@ class ProductionCollection {
         auto* returnStatement = add<ReturnStatementProduction>(expression);
         auto* yieldStatement = add<YieldStatementProduction>(expression);
         auto* constStatement = add<ConstStatementProduction>(literalValue);
-        auto* assignLocationSuffix = add<AssignLocationSuffixProduction>(expression);
-        auto* assignStatement = add<AssignStatementProduction>(assignLocationSuffix, expression);
+        auto* assignStatement = add<AssignStatementProduction>(expression, dottedExpression);
         auto* dimStatement = add<DimStatementProduction>(type, expression);
         auto* dimCollectionStatement = add<DimCollectionStatementProduction>(body);
         auto* caseValue = add<CaseValueProduction>(expression);

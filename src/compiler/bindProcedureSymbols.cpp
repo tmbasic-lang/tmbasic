@@ -57,6 +57,7 @@ static void bindSymbol(Node* node, SymbolScope* parentScope, SymbolScope* childS
 }
 
 static void bindExpressionSymbols(ExpressionNode* node, SymbolScope* scope) {
+    assert(node != nullptr);
     if (node->isSymbolReference()) {
         auto* symbolRef = dynamic_cast<SymbolReferenceExpressionNode*>(node);
         auto lowercaseName = boost::to_lower_copy(symbolRef->name);
@@ -68,9 +69,9 @@ static void bindExpressionSymbols(ExpressionNode* node, SymbolScope* scope) {
             s << "There is no variable named \"" << symbolRef->name << "\" accessible from here.";
             throw CompilerException(CompilerErrorCode::kSymbolNotFound, s.str(), node->token);
         }
-    } else if (node->getExpressionType() == ExpressionType::kCall) {
+    } else if (node->getExpressionType() == ExpressionType::kCallOrIndex) {
         // is this actually a list index?
-        auto* call = dynamic_cast<CallExpressionNode*>(node);
+        auto* call = dynamic_cast<CallOrIndexExpressionNode*>(node);
         auto lowercaseName = boost::to_lower_copy(call->name);
         const auto* symbolDeclaration = scope->lookup(lowercaseName);
         if (symbolDeclaration != nullptr) {

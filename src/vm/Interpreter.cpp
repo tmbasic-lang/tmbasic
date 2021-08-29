@@ -222,6 +222,16 @@ bool Interpreter::run(int maxCycles) {
                 break;
             }
 
+            case Opcode::kSwapValues: {
+                std::swap(valueStack->at(vsi - 1), valueStack->at(vsi - 2));
+                break;
+            }
+
+            case Opcode::kSwapObjects: {
+                std::swap(objectStack->at(osi - 1), objectStack->at(osi - 2));
+                break;
+            }
+
             case Opcode::kInitLocals: {
                 auto numVals = readInt<uint16_t>(instructions, &instructionIndex);
                 auto numObjs = readInt<uint16_t>(instructions, &instructionIndex);

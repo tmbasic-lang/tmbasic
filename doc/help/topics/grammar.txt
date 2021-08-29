@@ -18,8 +18,7 @@ h2[Statements]
 ul@
 li@Statement ::= CommandStatement | ForStatement | ForEachStatement | WhileStatement | DoStatement | IfStatement | SelectCaseStatement | TryStatement | DimStatement | DimCollectionStatement | ConstStatement@
 li@CommandStatement ::= AssignStatement | YieldStatement | ReturnStatement | CallStatement | ContinueStatement | ExitStatement | ThrowStatement | RethrowStatement | PrintStatement | InputStatement@
-li@AssignStatement ::= identifier AssignLocationSuffix* "=" Expression "\n"@
-li@AssignLocationSuffix ::= "." identifier | "(" Expression ")"@
+li@AssignStatement ::= DottedExpression "=" Expression "\n"@
 li@ForStatement ::= "for" identifier "=" Expression "to" Expression ForStep? "\n" Body "next" "\n"@
 li@ForStep ::= "step" Expression@
 li@ForEachStatement ::= "for" "each" identifier "in" Expression "\n" Body "next" "\n"@
@@ -70,9 +69,9 @@ li@UnaryExpression ::= "not"? ConvertExpression@
 li@ConvertExpression ::= DottedExpression ("as" Type)?@
 li@DottedExpression ::= ExpressionTerm DottedExpressionSuffix*@
 li@DottedExpressionSuffix ::= "." identifier ("(" ArgumentList ")")?@
-li@ExpressionTerm ::= LiteralValue | identifier | ParenthesesTerm | FunctionCallTerm | LiteralArrayTerm | LiteralRecordTerm@
+li@ExpressionTerm ::= LiteralValue | identifier | ParenthesesTerm | CallOrIndexTerm | LiteralArrayTerm | LiteralRecordTerm@
 li@ParenthesesTerm ::= "(" Expression ")"@
-li@FunctionCallTerm ::= identifier "(" ArgumentList ")"@
+li@CallOrIndexTerm ::= identifier "(" ArgumentList ")"@
 li@LiteralArrayTerm ::= "[" ArgumentList "]"@
 li@LiteralRecordTerm ::= "{{" LiteralRecordFieldList "}"@
 li@LiteralRecordFieldList ::= (LiteralRecordField ("," LiteralRecordField)*)?@

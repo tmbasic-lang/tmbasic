@@ -211,18 +211,6 @@ static void systemCallNumberToString(const SystemCallInput& input, SystemCallRes
     result->returnedObject = boost::make_local_shared<String>(value.getString());
 }
 
-static void systemCallObjectListGet(const SystemCallInput& input, SystemCallResult* result) {
-    const auto& objectList = dynamic_cast<const ObjectList&>(input.getObject(-1));
-    const auto& index = input.getValue(-1).getInt64();
-    result->returnedObject = objectList.items.at(index);
-    assert(result->returnedObject != nullptr);
-}
-
-static void systemCallObjectListLength(const SystemCallInput& input, SystemCallResult* result) {
-    const auto& objectList = dynamic_cast<const ObjectList&>(input.getObject(-1));
-    result->returnedValue.num = objectList.items.size();
-}
-
 static void systemCallTimeZoneFromName(const SystemCallInput& input, SystemCallResult* result) {
     const auto& name = dynamic_cast<const String&>(input.getObject(-1));
     auto icuTimeZone = std::unique_ptr<icu::TimeZone>(icu::TimeZone::createTimeZone(name.value));
@@ -245,12 +233,6 @@ static void systemCallValueV(const SystemCallInput& input, SystemCallResult* res
         throw Error(ErrorCode::kValueNotPresent, "Optional value is not present.");
     }
     result->returnedValue = *opt.item;
-}
-
-static void systemCallValueListGet(const SystemCallInput& input, SystemCallResult* result) {
-    const auto& valueList = dynamic_cast<const ValueList&>(input.getObject(-1));
-    const auto& index = input.getValue(-1).getInt64();
-    result->returnedValue = valueList.items.at(index);
 }
 
 static void systemCallValueO(const SystemCallInput& input, SystemCallResult* result) {
@@ -530,8 +512,18 @@ void initSystemCalls() {
         }
         result->returnedObject = boost::make_local_shared<ObjectList>(&builder);
     });
-    initSystemCall(SystemCall::kObjectListGet, systemCallObjectListGet);
-    initSystemCall(SystemCall::kObjectListLength, systemCallObjectListLength);
+    initSystemCall(SystemCall::kObjectListGet, [](const auto& input, auto* result) {
+        const auto& objectList = dynamic_cast<const ObjectList&>(input.getObject(-1));
+        const auto& index = input.getValue(-1).getInt64();
+        result->returnedObject = objectList.items.at(index);
+        assert(result->returnedObject != nullptr);
+    });
+    initSystemCall(SystemCall::kObjectListSet, [](const auto& input, auto* result) {
+        const auto& objectList = dynamic_cast<const ObjectList&>(input.getObject(-2));
+        const auto& index = static_cast<size_t>(input.getValue(-1).getInt64());
+        const auto& element = input.getObjectPtr(-1);
+        result->returnedObject = boost::make_local_shared<ObjectList>(objectList, /* insert */ false, index, element);
+    });
     initSystemCall(SystemCall::kObjectOptionalNewMissing, [](const auto& /*input*/, auto* result) {
         result->returnedObject = boost::make_local_shared<ObjectOptional>();
     });
@@ -760,7 +752,17 @@ void initSystemCalls() {
         }
         result->returnedObject = boost::make_local_shared<ValueList>(&builder);
     });
-    initSystemCall(SystemCall::kValueListGet, systemCallValueListGet);
+    initSystemCall(SystemCall::kValueListGet, [](const auto& input, auto* result) {
+        const auto& valueList = dynamic_cast<const ValueList&>(input.getObject(-1));
+        const auto& index = input.getValue(-1).getInt64();
+        result->returnedValue = valueList.items.at(index);
+    });
+    initSystemCall(SystemCall::kValueListSet, [](const auto& input, auto* result) {
+        const auto& valueList = dynamic_cast<const ValueList&>(input.getObject(-1));
+        const auto& index = static_cast<size_t>(input.getValue(-2).getInt64());
+        const auto& value = input.getValue(-1);
+        result->returnedObject = boost::make_local_shared<ValueList>(valueList, /* insert */ false, index, value);
+    });
     initSystemCall(SystemCall::kValueOptionalNewMissing, [](const auto& /*input*/, auto* result) {
         result->returnedObject = boost::make_local_shared<ValueOptional>();
     });

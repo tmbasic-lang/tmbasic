@@ -256,7 +256,7 @@ static void typeCheckBinaryExpression(BinaryExpressionNode* expressionNode, Type
     expressionNode->evaluatedType = lhsType;
 }
 
-static void typeCheckCallExpression(CallExpressionNode* expressionNode, TypeCheckState* state) {
+static void typeCheckCallOrIndexExpression(CallOrIndexExpressionNode* expressionNode, TypeCheckState* state) {
     if (expressionNode->boundSymbolDeclaration != nullptr) {
         const auto& decl = *expressionNode->boundSymbolDeclaration;
         if (dynamic_cast<const ProcedureNode*>(&decl) == nullptr) {
@@ -446,8 +446,8 @@ void typeCheckExpression(ExpressionNode* expressionNode, TypeCheckState* state) 
         case ExpressionType::kBinary:
             typeCheckBinaryExpression(dynamic_cast<BinaryExpressionNode*>(expressionNode), state);
             break;
-        case ExpressionType::kCall:
-            typeCheckCallExpression(dynamic_cast<CallExpressionNode*>(expressionNode), state);
+        case ExpressionType::kCallOrIndex:
+            typeCheckCallOrIndexExpression(dynamic_cast<CallOrIndexExpressionNode*>(expressionNode), state);
             break;
         case ExpressionType::kConstValue:
             typeCheckConstValueExpression(dynamic_cast<ConstValueExpressionNode*>(expressionNode), state);
@@ -471,14 +471,69 @@ void typeCheckExpression(ExpressionNode* expressionNode, TypeCheckState* state) 
     assert(expressionNode->evaluatedType != nullptr);
 }
 
-static void typeCheckAssignStatement(AssignStatementNode* statementNode) {
-    // the assignment target must not be a constant
-    const auto* decl = statementNode->symbolReference->boundSymbolDeclaration;
-    assert(decl != nullptr);
-    if (dynamic_cast<const ConstStatementNode*>(decl) != nullptr) {
+static void typeCheckAssignToExpression(const ExpressionNode& expressionNode);
+
+static void typeCheckAssignToDottedExpression(const DottedExpressionNode& expressionNode) {
+    typeCheckAssignToExpression(*expressionNode.base);
+}
+
+static void typeCheckAssignToCallOrIndexExpression(const CallOrIndexExpressionNode& expressionNode) {
+    assert(expressionNode.boundSymbolDeclaration != nullptr);
+    const auto& decl = *expressionNode.boundSymbolDeclaration;
+    if (decl.procedureIndex.has_value() || decl.systemCall.has_value()) {
         throw CompilerException(
-            CompilerErrorCode::kInvalidAssignmentTarget, "Assignment target cannot be a constant.",
-            statementNode->symbolReference->token);
+            CompilerErrorCode::kTypeMismatch, "Cannot assign to a function call.", expressionNode.token);
+    }
+}
+
+static void typeCheckAssignToSymbolReferenceExpression(const SymbolReferenceExpressionNode& expressionNode) {
+    assert(expressionNode.boundSymbolDeclaration != nullptr);
+    const auto& decl = *expressionNode.boundSymbolDeclaration;
+    if (decl.procedureIndex.has_value() || decl.systemCall.has_value()) {
+        throw CompilerException(
+            CompilerErrorCode::kTypeMismatch, "Cannot assign to a function call.", expressionNode.token);
+    }
+
+    if (decl.getMemberType() == MemberType::kConstStatement) {
+        throw CompilerException(
+            CompilerErrorCode::kInvalidAssignmentTarget, "Cannot assign to a constant.", expressionNode.token);
+    }
+}
+
+/*static*/ void typeCheckAssignToExpression(const ExpressionNode& expressionNode) {
+    switch (expressionNode.getExpressionType()) {
+        case ExpressionType::kDotted:
+            typeCheckAssignToDottedExpression(dynamic_cast<const DottedExpressionNode&>(expressionNode));
+            break;
+        case ExpressionType::kCallOrIndex:
+            typeCheckAssignToCallOrIndexExpression(dynamic_cast<const CallOrIndexExpressionNode&>(expressionNode));
+            break;
+        case ExpressionType::kSymbolReference:
+            typeCheckAssignToSymbolReferenceExpression(
+                dynamic_cast<const SymbolReferenceExpressionNode&>(expressionNode));
+            break;
+        default:
+            throw CompilerException(
+                CompilerErrorCode::kInvalidAssignmentTarget,
+                "The target of an assignment must be a variable, field access, or collection element.",
+                expressionNode.token);
+    }
+}
+
+static void typeCheckAssignStatement(AssignStatementNode* statementNode) {
+    typeCheckAssignToExpression(*statementNode->target);
+
+    // the LHS and RHS must have matching types
+    assert(statementNode->target->evaluatedType != nullptr);
+    assert(statementNode->value->evaluatedType != nullptr);
+    if (!statementNode->target->evaluatedType->equals(*statementNode->value->evaluatedType)) {
+        throw CompilerException(
+            CompilerErrorCode::kTypeMismatch,
+            fmt::format(
+                "The types on the left-hand and right-hand sides of an assignment must match, but these types are {} "
+                "and {}.",
+                statementNode->target->evaluatedType->toString(), statementNode->value->evaluatedType->toString()),
+            statementNode->token);
     }
 }
 

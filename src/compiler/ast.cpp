@@ -343,19 +343,19 @@ ExpressionType BinaryExpressionNode::getExpressionType() const {
     return ExpressionType::kBinary;
 }
 
-CallExpressionNode::CallExpressionNode(
+CallOrIndexExpressionNode::CallOrIndexExpressionNode(
     std::string name,
     std::vector<std::unique_ptr<ExpressionNode>> arguments,
     Token token)
     : ExpressionNode(std::move(token)), name(std::move(name)), arguments(std::move(arguments)) {}
 
-void CallExpressionNode::dump(std::ostringstream& s, int n) const {
-    DUMP_TYPE(CallExpressionNode);
+void CallOrIndexExpressionNode::dump(std::ostringstream& s, int n) const {
+    DUMP_TYPE(CallOrIndexExpressionNode);
     DUMP_VAR(name);
     DUMP_VAR_NODES(arguments);
 }
 
-bool CallExpressionNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
+bool CallOrIndexExpressionNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
     for (const auto& x : arguments) {
         if (!visitChildExpression(rootsOnly, x.get(), func)) {
             return false;
@@ -364,8 +364,8 @@ bool CallExpressionNode::visitExpressions(bool rootsOnly, const VisitExpressionF
     return true;
 }
 
-ExpressionType CallExpressionNode::getExpressionType() const {
-    return ExpressionType::kCall;
+ExpressionType CallOrIndexExpressionNode::getExpressionType() const {
+    return ExpressionType::kCallOrIndex;
 }
 
 ConvertExpressionNode::ConvertExpressionNode(
@@ -570,43 +570,21 @@ ExpressionType SymbolReferenceExpressionNode::getExpressionType() const {
     return ExpressionType::kSymbolReference;
 }
 
-AssignLocationSuffixNode::AssignLocationSuffixNode(std::string name, Token token)
-    : Node(std::move(token)), arrayIndex(std::unique_ptr<ExpressionNode>()), name(std::optional<std::string>(name)) {}
-
-AssignLocationSuffixNode::AssignLocationSuffixNode(std::unique_ptr<ExpressionNode> arrayIndex, Token token)
-    : Node(std::move(token)), arrayIndex(std::move(arrayIndex)), name({}) {}
-
-void AssignLocationSuffixNode::dump(std::ostringstream& s, int n) const {
-    DUMP_TYPE(AssignLocationSuffixNode);
-    DUMP_VAR_OPTIONAL(name);
-    DUMP_VAR_NODE(arrayIndex);
-}
-
 AssignStatementNode::AssignStatementNode(
-    std::unique_ptr<SymbolReferenceExpressionNode> symbolReference,
-    std::vector<std::unique_ptr<AssignLocationSuffixNode>> suffixes,
+    std::unique_ptr<ExpressionNode> target,
     std::unique_ptr<ExpressionNode> value,
     Token token)
-    : StatementNode(std::move(token)),
-      symbolReference(std::move(symbolReference)),
-      suffixes(std::move(suffixes)),
-      value(std::move(value)) {}
+    : StatementNode(std::move(token)), target(std::move(target)), value(std::move(value)) {}
 
 void AssignStatementNode::dump(std::ostringstream& s, int n) const {
     DUMP_TYPE(AssignStatementNode);
-    DUMP_VAR_NODE(symbolReference);
-    DUMP_VAR_NODES(suffixes);
+    DUMP_VAR_NODE(target);
     DUMP_VAR_NODE(value);
 }
 
 bool AssignStatementNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
-    if (!visitChildExpression(rootsOnly, symbolReference.get(), func)) {
+    if (!visitChildExpression(rootsOnly, target.get(), func)) {
         return false;
-    }
-    for (const auto& x : suffixes) {
-        if (!visitChildExpression(rootsOnly, x->arrayIndex.get(), func)) {
-            return false;
-        }
     }
     return visitChildExpression(rootsOnly, value.get(), func);
 }

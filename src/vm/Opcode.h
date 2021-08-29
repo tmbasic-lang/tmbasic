@@ -33,6 +33,8 @@ enum class Opcode {
     kPopObject,            // popo;
     kDuplicateValue,
     kDuplicateObject,
+    kSwapValues,   // swap top two values
+    kSwapObjects,  // swap top two objects
 
     // variables
     kInitLocals,          // <u16 numVals, u16 numObjs>

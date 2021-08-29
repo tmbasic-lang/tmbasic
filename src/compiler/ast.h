@@ -130,7 +130,7 @@ class TypeNode : public Node {
 
 enum class ExpressionType {
     kBinary,
-    kCall,
+    kCallOrIndex,
     kConstValue,
     kConvert,
     kDotted,
@@ -186,7 +186,7 @@ class BinaryExpressionNode : public ExpressionNode {
     ExpressionType getExpressionType() const override;
 };
 
-class CallExpressionNode : public ExpressionNode {
+class CallOrIndexExpressionNode : public ExpressionNode {
    public:
     std::string name;
     std::vector<std::unique_ptr<ExpressionNode>> arguments;
@@ -195,7 +195,7 @@ class CallExpressionNode : public ExpressionNode {
     // if this is indeed an array index expression, then this is bound to the list.
     const Node* boundSymbolDeclaration = nullptr;
 
-    CallExpressionNode(std::string name, std::vector<std::unique_ptr<ExpressionNode>> arguments, Token token);
+    CallOrIndexExpressionNode(std::string name, std::vector<std::unique_ptr<ExpressionNode>> arguments, Token token);
     void dump(std::ostringstream& s, int n) const override;
     bool visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const override;
     ExpressionType getExpressionType() const override;
@@ -379,14 +379,9 @@ class AssignLocationSuffixNode : public Node {
 
 class AssignStatementNode : public StatementNode {
    public:
-    std::unique_ptr<SymbolReferenceExpressionNode> symbolReference;
-    std::vector<std::unique_ptr<AssignLocationSuffixNode>> suffixes;
+    std::unique_ptr<ExpressionNode> target;
     std::unique_ptr<ExpressionNode> value;
-    AssignStatementNode(
-        std::unique_ptr<SymbolReferenceExpressionNode> symbolReference,
-        std::vector<std::unique_ptr<AssignLocationSuffixNode>> suffixes,
-        std::unique_ptr<ExpressionNode> value,
-        Token token);
+    AssignStatementNode(std::unique_ptr<ExpressionNode> target, std::unique_ptr<ExpressionNode> value, Token token);
     void dump(std::ostringstream& s, int n) const override;
     bool visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const override;
     StatementType getStatementType() const override;
