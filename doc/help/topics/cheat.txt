@@ -75,7 +75,7 @@ sub Main()
 end sub
 @
 
-h3[Build a list efficiently with `select`]
+h3[Build a list efficiently with `yield`]
 
 code@
 function Fibonacci(count as Number) as List of Number
@@ -83,12 +83,12 @@ function Fibonacci(count as Number) as List of Number
     dim a = 0
     dim b = 1
 
-    ' Use "select" to build the list to be returned.
-    select a
-    select b
+    ' Use "yield" to build the list to be returned.
+    yield a
+    yield b
     for i = 3 to count
         dim c = a + b
-        select c
+        yield c
         a = b
         b = c
     next
