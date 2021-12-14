@@ -814,14 +814,18 @@ void App::setPictureWindow(PictureWindow* pictureWindow) {
 
 }  // namespace tmbasic
 
+static void go(int argc, char** argv) {
+    tmbasic::App app(argc, argv);
+    app.run();
+    app.shutDown();
+}
+
 int main(int argc, char** argv) {
 #ifdef _WIN32
     SetConsoleTitle(TEXT("TMBASIC"));
 #else
-    setenv("LANG", "en_US.UTF-8", 1);
+    setlocale(LC_ALL, "en_US.UTF-8");
 #endif
-    tmbasic::App app(argc, argv);
-    app.run();
-    app.shutDown();
+    go(argc, argv);
     return 0;
 }
