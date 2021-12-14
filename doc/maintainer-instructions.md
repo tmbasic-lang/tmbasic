@@ -39,6 +39,8 @@ pngcrush -brute -reduce -ow screenshot.png
 1. In `build/`, run `scripts/depsDownload.sh` to pull the latest version of each dep.
 1. In `build/downloads/`, `rm sysroot-* ; aws s3 sync . s3://tmbasic/deps/ --acl public-read --size-only`
 1. Commit as "Update deps".
+1. Check for new Alpine releases. Search for `alpine:` to find the Dockerfiles to update. Commit as "Update Alpine".
+1. If ICU updated, then manually update `Dockerfile.sysroot` with the new version, and update the Linux sysroots using the instructions below.
 
 ## Update Linux sysroots
 
@@ -47,11 +49,9 @@ We keep prebuilt sysroots in the `tmbasic` S3 bucket. These instructions will bu
 1. Start the following machines. Prepare them for building using the instructions in the [Building from Source](https://github.com/electroly/tmbasic/blob/master/doc/building-from-source.md) document. Make sure they have AWSCLI installed and are configured with access to write to the `tmbasic` S3 bucket.
 
     - **Small Linux x64 machine** &mdash; Ubuntu Linux 20.04 &mdash; x64
-        - Specs: 1 vCPU + 1GB RAM + 10GB disk
         - Recommended: AWS `c5a.large`
     - **Small Linux ARM64 machine** &mdash; Ubuntu Linux 20.04 &mdash; ARM64, *excluding* Apple M1
-        - Specs: 1 vCPU + 1GB RAM + 10GB disk
-        - Recommended: AWS `c6g.medium`
+        - Recommended: AWS `c6g.large`
         - Apple M1 is not supported because it cannot run ARM32 code.
 
 1. On the ARM64 machine: `rm -rf tmbasic && git clone https://github.com/electroly/tmbasic.git && cd tmbasic/build/sysroots && ./buildArmSysroots.sh`
