@@ -42,9 +42,9 @@ pngcrush -brute -reduce -ow screenshot.png
 
 ## Update Linux sysroots
 
-We keep prebuilt sysroots in the `tmbasic` bucket. These instructions will build new images, capturing updates in the base Alpine files.
+We keep prebuilt sysroots in the `tmbasic` S3 bucket. These instructions will build new images, capturing updates in the base Alpine files.
 
-1. Start the following machines. Prepare them for building using the instructions in the [Building from Source](https://github.com/electroly/tmbasic/blob/master/doc/building-from-source.md) document. Make sure they have AWSCLI installed and configured with access to write to the `tmbasic` S3 bucket.
+1. Start the following machines. Prepare them for building using the instructions in the [Building from Source](https://github.com/electroly/tmbasic/blob/master/doc/building-from-source.md) document. Make sure they have AWSCLI installed and are configured with access to write to the `tmbasic` S3 bucket.
 
     - **Small Linux x64 machine** &mdash; Ubuntu Linux 20.04 &mdash; x64
         - Specs: 1 vCPU + 1GB RAM + 10GB disk
