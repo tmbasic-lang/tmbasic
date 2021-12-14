@@ -7,7 +7,7 @@ RUN apk update && apk upgrade && apk add clang linux-headers g++ musl-dev
 # https://github.com/unicode-org/icu/releases
 RUN apk add curl make
 RUN cd /tmp && \
-	curl -L https://github.com/unicode-org/icu/releases/download/release-69-1/icu4c-69_1-src.tgz | tar zx && \
+	curl -L https://github.com/unicode-org/icu/releases/download/release-70-1/icu4c-70_1-src.tgz | tar zx && \
 	curl -L -o icu/source/config.guess 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD' && \
 	curl -L -o icu/source/config.sub 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD' && \
     mkdir -p icu/source/build && \
