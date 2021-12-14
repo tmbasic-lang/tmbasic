@@ -230,7 +230,7 @@ $(NCURSES_DIR)/install: $(NCURSES_DIR)/download $(BINUTILS_DIR)/install
 			--disable-rpath-hack \
 			--disable-stripping \
 			--without-cxx-binding \
-			--enable-pc-files \
+			--disable-pc-files \
 			--with-static \
 			--enable-widec \
 			--without-debug && \
@@ -251,7 +251,7 @@ $(NCURSES_DIR)/install: $(NCURSES_DIR)/download $(BINUTILS_DIR)/install
 			--disable-stripping \
 			--without-cxx-binding \
 			--with-terminfo-dirs="/usr/share/terminfo" \
-			--enable-pc-files \
+			--disable-pc-files \
 			--with-static \
 			--enable-widec \
 			--without-debug && \
