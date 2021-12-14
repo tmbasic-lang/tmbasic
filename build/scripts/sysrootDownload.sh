@@ -4,16 +4,16 @@
 set -eu
 
 if [ "$ARCH" = "arm32v7" ]; then
-    export SYSROOT_VERSION="arm32v7-20210706081140"
+    export SYSROOT_VERSION="arm32v7-20211214024321"
 fi
 if [ "$ARCH" = "arm64v8" ]; then
-    export SYSROOT_VERSION="arm64v8-20210706081423"
+    export SYSROOT_VERSION="arm64v8-20211214024919"
 fi
 if [ "$ARCH" = "x86_64" ]; then
-    export SYSROOT_VERSION="amd64-20210706081512"
+    export SYSROOT_VERSION="amd64-20211214025046"
 fi
 if [ "$ARCH" = "i686" ]; then
-    export SYSROOT_VERSION="i386-20210706081203"
+    export SYSROOT_VERSION="i386-20211214024328"
 fi
 
 mkdir -p downloads

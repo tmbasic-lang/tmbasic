@@ -60,6 +60,8 @@ We keep prebuilt sysroots in the `tmbasic` S3 bucket. These instructions will bu
 
 1. Edit the `build/scripts/sysrootDownload.sh` file to include the new filenames, and commit/push to git.
 
+1. On the development machine, `docker system prune -a`.
+
 ## Make a release build
 
 1. If this is for a production release, then update the Linux sysroots using the instructions above.
