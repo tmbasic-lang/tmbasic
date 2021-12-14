@@ -150,9 +150,10 @@ TEST(IcuTest, Words2) {
 }
 
 TEST(IcuTest, AvailableTimeZones) {
-    auto iter = std::unique_ptr<StringEnumeration>(TimeZone::createEnumeration());
-    const char* item = nullptr;
     auto status = U_ZERO_ERROR;
+    auto iter = std::unique_ptr<StringEnumeration>(TimeZone::createEnumeration(status));
+    ASSERT_FALSE(U_FAILURE(status));
+    const char* item = nullptr;
     auto americaChicago = false;
     auto cst = false;
     auto etcGmtMinus4 = false;

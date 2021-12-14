@@ -51,11 +51,14 @@ static void systemCallAvailableLocales(const SystemCallInput& /*unused*/, System
 }
 
 static void systemCallAvailableTimeZones(const SystemCallInput& /*unused*/, SystemCallResult* result) {
-    auto iter = std::unique_ptr<icu::StringEnumeration>(icu::TimeZone::createEnumeration());
+    auto status = U_ZERO_ERROR;
+    auto iter = std::unique_ptr<icu::StringEnumeration>(icu::TimeZone::createEnumeration(status));
+    if (U_FAILURE(status)) {
+        throw Error(ErrorCode::kInternalIcuError, "Failed to retrieve the time zone list from ICU.");
+    }
 
     auto objectListBuilder = ObjectListBuilder();
     const char* item = nullptr;
-    auto status = U_ZERO_ERROR;
     while ((item = iter->next(nullptr, status)) != nullptr) {
         objectListBuilder.items.push_back(boost::make_local_shared<String>(item, strlen(item)));
     }
