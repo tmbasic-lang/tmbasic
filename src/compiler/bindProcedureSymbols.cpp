@@ -69,16 +69,25 @@ static void bindExpressionSymbols(ExpressionNode* node, SymbolScope* scope) {
             s << "There is no variable named \"" << symbolRef->name << "\" accessible from here.";
             throw CompilerException(CompilerErrorCode::kSymbolNotFound, s.str(), node->token);
         }
-    } else if (node->getExpressionType() == ExpressionType::kCallOrIndex) {
-        // is this actually a list index?
-        auto* call = dynamic_cast<CallOrIndexExpressionNode*>(node);
-        auto lowercaseName = boost::to_lower_copy(call->name);
-        const auto* symbolDeclaration = scope->lookup(lowercaseName);
-        if (symbolDeclaration != nullptr) {
-            call->boundSymbolDeclaration = symbolDeclaration;
+    } else if (node->getExpressionType() == ExpressionType::kDotted) {
+        auto& dotted = dynamic_cast<DottedExpressionNode&>(*node);
+        bindExpressionSymbols(dotted.base.get(), scope);
+        for (auto& suffix : dotted.dottedSuffixes) {
+            for (auto& collectionIndexOrCallArg : suffix->collectionIndexOrCallArgs) {
+                bindExpressionSymbols(collectionIndexOrCallArg.get(), scope);
+            }
         }
-        // it's ok if it's not
     }
+    // else if (node->getExpressionType() == ExpressionType::kCallOrIndex) {
+    //     // is this actually a list index?
+    //     auto* call = dynamic_cast<CallOrIndexExpressionNode*>(node);
+    //     auto lowercaseName = boost::to_lower_copy(call->name);
+    //     const auto* symbolDeclaration = scope->lookup(lowercaseName);
+    //     if (symbolDeclaration != nullptr) {
+    //         call->boundSymbolDeclaration = symbolDeclaration;
+    //     }
+    //     // it's ok if it's not
+    // }
 }
 
 static void bindBodySymbols(BodyNode* node, SymbolScope* scope);

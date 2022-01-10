@@ -33,6 +33,7 @@ enum class CompilerErrorCode {
     kExitOutsideLoop,
     kExitTypeMismatch,
     kFieldNotFound,
+    kTooManyIndexArguments,
 };
 
 class CompilerException : public std::exception {

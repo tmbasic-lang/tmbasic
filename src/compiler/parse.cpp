@@ -1,5 +1,8 @@
-// uncomment to dump AST parse tree to std::cerr
+// uncomment to dump parse tree to std::cerr
 // #define DUMP_PARSE
+
+// uncomment to dump final AST to std::cerr
+#define DUMP_AST
 
 #include "compiler/parse.h"
 #include "util/decimal.h"
@@ -686,26 +689,6 @@ class LiteralArrayTermProduction : public Production {
     }
 };
 
-class CallOrIndexTermProduction : public Production {
-   public:
-    explicit CallOrIndexTermProduction(const Production* argumentList)
-        : Production(
-              NAMEOF_TYPE(CallOrIndexTermProduction),
-              {
-                  capture(0, term(TokenKind::kIdentifier)),
-                  term(TokenKind::kLeftParenthesis),
-                  cut(),
-                  capture(1, prod(argumentList)),
-                  term(TokenKind::kRightParenthesis),
-              }) {}
-
-    std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
-        return nodeBox<CallOrIndexExpressionNode>(
-            captureTokenText(std::move(captures->at(0))), captureNodeArray<ExpressionNode>(std::move(captures->at(1))),
-            firstToken);
-    }
-};
-
 class ParenthesesTermProduction : public Production {
    public:
     explicit ParenthesesTermProduction(const Production* expression)
@@ -728,7 +711,6 @@ class ExpressionTermProduction : public Production {
     ExpressionTermProduction(
         const Production* literalValue,
         const Production* parenthesesTerm,
-        const Production* callOrIndexTerm,
         const Production* literalArrayTerm,
         const Production* literalRecordTerm)
         : Production(
@@ -737,7 +719,6 @@ class ExpressionTermProduction : public Production {
                   oneOf({
                       capture(0, prod(literalValue)),
                       capture(0, prod(parenthesesTerm)),
-                      capture(0, prod(callOrIndexTerm)),
                       capture(0, prod(literalArrayTerm)),
                       capture(0, prod(literalRecordTerm)),
                       capture(1, term(TokenKind::kIdentifier)),
@@ -762,21 +743,36 @@ class DottedExpressionSuffixProduction : public Production {
         : Production(
               NAMEOF_TYPE(DottedExpressionSuffixProduction),
               {
-                  term(TokenKind::kDot),
-                  cut(),
-                  capture(0, term(TokenKind::kIdentifier)),
-                  optional({
-                      term(TokenKind::kLeftParenthesis),
-                      capture(1, prod(expression)),
-                      term(TokenKind::kRightParenthesis),
+                  oneOf({
+                      // field access
+                      list({
+                          term(TokenKind::kDot),
+                          cut(),
+                          capture(0, term(TokenKind::kIdentifier)),
+                      }),
+                      // collection index or function call
+                      list({
+                          term(TokenKind::kLeftParenthesis),
+                          cut(),
+                          zeroOrMore({
+                              capture(1, prod(expression)),
+                          }),
+                          term(TokenKind::kRightParenthesis),
+                      }),
                   }),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
-        return nodeBox<DottedExpressionSuffixNode>(
-            captureTokenText(std::move(captures->at(0))),
-            hasCapture(captures->at(1)) ? captureSingleNode<ExpressionNode>(std::move(captures->at(1))) : nullptr,
-            firstToken);
+        if (hasCapture(captures->at(0))) {
+            // field access
+            return nodeBox<DottedExpressionSuffixNode>(captureTokenText(std::move(captures->at(0))), firstToken);
+        } else if (hasCapture(captures->at(1))) {
+            // collection index or function call
+            return nodeBox<DottedExpressionSuffixNode>(
+                captureNodeArray<ExpressionNode>(std::move(captures->at(1))), firstToken);
+        } else {
+            assert(false);
+        }
     }
 };
 
@@ -1986,10 +1982,9 @@ class ProductionCollection {
         auto* literalRecordFieldList = add<LiteralRecordFieldListProduction>(literalRecordField);
         auto* literalRecordTerm = add<LiteralRecordTermProduction>(literalRecordFieldList);
         auto* literalArrayTerm = add<LiteralArrayTermProduction>(argumentList);
-        auto* callOrIndexTerm = add<CallOrIndexTermProduction>(argumentList);
         auto* parenthesesTerm = add<ParenthesesTermProduction>(expression);
-        auto* expressionTerm = add<ExpressionTermProduction>(
-            literalValue, parenthesesTerm, callOrIndexTerm, literalArrayTerm, literalRecordTerm);
+        auto* expressionTerm =
+            add<ExpressionTermProduction>(literalValue, parenthesesTerm, literalArrayTerm, literalRecordTerm);
         auto* dottedExpressionSuffix = add<DottedExpressionSuffixProduction>(expression);
         auto* dottedExpression = add<DottedExpressionProduction>(expressionTerm, dottedExpressionSuffix);
         auto* convertExpression = add<ConvertExpressionProduction>(dottedExpression, type);
@@ -2599,7 +2594,11 @@ static ParserResult parseRootProduction(
             // the code is good but there is unparsed junk left over
             return ParserResult("This token was unexpected.", inputState.tokens.at(inputState.tokenIndex));
         }
-        return ParserResult(captureSingleNode<Node>(std::move(result->box)));
+        auto root = captureSingleNode<Node>(std::move(result->box));
+#ifdef DUMP_AST
+        root->dump(std::cerr, 0);
+#endif
+        return ParserResult(std::move(root));
     }
     return ParserResult("This token was unexpected.", inputState.tokens.at(inputState.tokenIndex));
 }

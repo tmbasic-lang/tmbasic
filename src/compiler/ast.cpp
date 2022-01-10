@@ -33,7 +33,7 @@ static std::string stripNamespace(std::string_view sv) {
     { s << indent(n + 1) << NAMEOF(f) << '=' << f << '\n'; }  // NOLINT
 
 template <typename T>
-static void dumpVarOptional(std::ostringstream& s, const std::optional<T>& f, int n) {
+static void dumpVarOptional(std::ostream& s, const std::optional<T>& f, int n) {
     if (f.has_value()) {
         s << indent(n + 1) << NAMEOF(f) << '=' << *f << '\n';  // NOLINT
     }
@@ -68,7 +68,7 @@ Node::Node(Token token) : token(std::move(token)) {}
 
 Node::~Node() = default;
 
-void Node::dump(std::ostringstream& /*s*/, int /*n*/) const {
+void Node::dump(std::ostream& /*s*/, int /*n*/) const {
     throw std::runtime_error("dump() called on node that does not implement it!");
 }
 
@@ -190,7 +190,7 @@ TypeNode::TypeNode(Kind kind, Token token, std::vector<boost::local_shared_ptr<P
     }
 }
 
-void TypeNode::dump(std::ostringstream& s, int n) const {
+void TypeNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(TypeNode);
     DUMP_VAR_ENUM(kind);
     DUMP_VAR_OPTIONAL(recordName);
@@ -303,7 +303,7 @@ BinaryExpressionSuffixNode::BinaryExpressionSuffixNode(
     Token token)
     : Node(std::move(token)), binaryOperator(binaryOperator), rightOperand(std::move(rightOperand)) {}
 
-void BinaryExpressionSuffixNode::dump(std::ostringstream& s, int n) const {
+void BinaryExpressionSuffixNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(BinaryExpressionSuffixNode);
     DUMP_VAR_ENUM(binaryOperator);
     DUMP_VAR_NODE(rightOperand);
@@ -321,7 +321,7 @@ BinaryExpressionNode::BinaryExpressionNode(
       leftOperand(std::move(leftOperand)),
       binarySuffixes(std::move(binarySuffixes)) {}
 
-void BinaryExpressionNode::dump(std::ostringstream& s, int n) const {
+void BinaryExpressionNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(BinaryExpressionNode);
     DUMP_VAR_NODE(leftOperand);
     DUMP_VAR_NODES(binarySuffixes);
@@ -343,38 +343,13 @@ ExpressionType BinaryExpressionNode::getExpressionType() const {
     return ExpressionType::kBinary;
 }
 
-CallOrIndexExpressionNode::CallOrIndexExpressionNode(
-    std::string name,
-    std::vector<std::unique_ptr<ExpressionNode>> arguments,
-    Token token)
-    : ExpressionNode(std::move(token)), name(std::move(name)), arguments(std::move(arguments)) {}
-
-void CallOrIndexExpressionNode::dump(std::ostringstream& s, int n) const {
-    DUMP_TYPE(CallOrIndexExpressionNode);
-    DUMP_VAR(name);
-    DUMP_VAR_NODES(arguments);
-}
-
-bool CallOrIndexExpressionNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
-    for (const auto& x : arguments) {
-        if (!visitChildExpression(rootsOnly, x.get(), func)) {
-            return false;
-        }
-    }
-    return true;
-}
-
-ExpressionType CallOrIndexExpressionNode::getExpressionType() const {
-    return ExpressionType::kCallOrIndex;
-}
-
 ConvertExpressionNode::ConvertExpressionNode(
     std::unique_ptr<ExpressionNode> value,
     boost::local_shared_ptr<TypeNode> type,
     Token token)
     : ExpressionNode(std::move(token)), value(std::move(value)), type(std::move(type)) {}
 
-void ConvertExpressionNode::dump(std::ostringstream& s, int n) const {
+void ConvertExpressionNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(ConvertExpressionNode);
     DUMP_VAR_NODE(value);
     DUMP_VAR_NODE(type);
@@ -392,25 +367,29 @@ ExpressionType ConvertExpressionNode::getExpressionType() const {
     return ExpressionType::kConvert;
 }
 
-DottedExpressionSuffixNode::DottedExpressionSuffixNode(
-    std::string aName,
-    std::unique_ptr<ExpressionNode> collectionIndex,
-    Token token)
-    : Node(std::move(token)),
-      name(std::move(aName)),
-      nameLowercase(boost::to_lower_copy(name)),
-      collectionIndex(std::move(collectionIndex)) {}
+DottedExpressionSuffixNode::DottedExpressionSuffixNode(std::string aName, Token token)
+    : Node(std::move(token)), name(std::move(aName)), nameLowercase(boost::to_lower_copy(*name)) {}
 
-void DottedExpressionSuffixNode::dump(std::ostringstream& s, int n) const {
+DottedExpressionSuffixNode::DottedExpressionSuffixNode(
+    std::vector<std::unique_ptr<ExpressionNode>> collectionIndexOrCallArgs,
+    Token token)
+    : Node(std::move(token)), collectionIndexOrCallArgs(std::move(collectionIndexOrCallArgs)) {}
+
+void DottedExpressionSuffixNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(DottedExpressionSuffixNode);
-    DUMP_VAR(name);
-    DUMP_VAR_NODE(collectionIndex);
+    if (name.has_value()) {
+        DUMP_VAR(*name);
+    }
+    for (auto& x : collectionIndexOrCallArgs) {
+        DUMP_VAR_NODE(x);
+    }
 }
 
 bool DottedExpressionSuffixNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
-    if (collectionIndex != nullptr && !visitChildExpression(rootsOnly, collectionIndex.get(), func)) {
-        // NOLINTNEXTLINE(readability-simplify-boolean-expr): the replacement is actually less readable
-        return false;
+    for (auto& x : collectionIndexOrCallArgs) {
+        if (!visitChildExpression(rootsOnly, x.get(), func)) {
+            return false;
+        }
     }
     return true;
 }
@@ -421,7 +400,7 @@ DottedExpressionNode::DottedExpressionNode(
     Token token)
     : ExpressionNode(std::move(token)), base(std::move(base)), dottedSuffixes(std::move(dottedSuffixes)) {}
 
-void DottedExpressionNode::dump(std::ostringstream& s, int n) const {
+void DottedExpressionNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(DottedExpressionNode);
     DUMP_VAR_NODE(base);
     DUMP_VAR_NODES(dottedSuffixes);
@@ -448,7 +427,7 @@ LiteralArrayExpressionNode::LiteralArrayExpressionNode(
     Token token)
     : ConstValueExpressionNode(std::move(token)), elements(std::move(elements)) {}
 
-void LiteralArrayExpressionNode::dump(std::ostringstream& s, int n) const {
+void LiteralArrayExpressionNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(LiteralArrayExpressionNode);
     DUMP_VAR_NODES(elements);
 }
@@ -469,7 +448,7 @@ ConstValueExpressionType LiteralArrayExpressionNode::getConstValueExpressionType
 LiteralBooleanExpressionNode::LiteralBooleanExpressionNode(bool value, Token token)
     : ConstValueExpressionNode(std::move(token)), value(value) {}
 
-void LiteralBooleanExpressionNode::dump(std::ostringstream& s, int n) const {
+void LiteralBooleanExpressionNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(LiteralBooleanExpressionNode);
     DUMP_VAR(value);
 }
@@ -481,7 +460,7 @@ ConstValueExpressionType LiteralBooleanExpressionNode::getConstValueExpressionTy
 LiteralNumberExpressionNode::LiteralNumberExpressionNode(decimal::Decimal value, Token token)
     : ConstValueExpressionNode(std::move(token)), value(std::move(value)) {}
 
-void LiteralNumberExpressionNode::dump(std::ostringstream& s, int n) const {
+void LiteralNumberExpressionNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(LiteralNumberExpressionNode);
     DUMP_VAR_DECIMAL(value);
 }
@@ -493,7 +472,7 @@ ConstValueExpressionType LiteralNumberExpressionNode::getConstValueExpressionTyp
 LiteralRecordFieldNode::LiteralRecordFieldNode(std::string key, std::unique_ptr<ExpressionNode> value, Token token)
     : Node(std::move(token)), key(std::move(key)), value(std::move(value)) {}
 
-void LiteralRecordFieldNode::dump(std::ostringstream& s, int n) const {
+void LiteralRecordFieldNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(LiteralRecordFieldNode);
     DUMP_VAR(key);
     DUMP_VAR_NODE(value);
@@ -508,7 +487,7 @@ LiteralRecordExpressionNode::LiteralRecordExpressionNode(
     Token token)
     : ConstValueExpressionNode(std::move(token)), fields(std::move(fields)) {}
 
-void LiteralRecordExpressionNode::dump(std::ostringstream& s, int n) const {
+void LiteralRecordExpressionNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(LiteralRecordExpressionNode);
     DUMP_VAR_NODES(fields);
 }
@@ -529,7 +508,7 @@ ConstValueExpressionType LiteralRecordExpressionNode::getConstValueExpressionTyp
 LiteralStringExpressionNode::LiteralStringExpressionNode(std::string value, Token token)
     : ConstValueExpressionNode(std::move(token)), value(std::move(value)) {}
 
-void LiteralStringExpressionNode::dump(std::ostringstream& s, int n) const {
+void LiteralStringExpressionNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(LiteralStringExpressionNode);
     DUMP_VAR(value);
 }
@@ -541,7 +520,7 @@ ConstValueExpressionType LiteralStringExpressionNode::getConstValueExpressionTyp
 NotExpressionNode::NotExpressionNode(std::unique_ptr<ExpressionNode> operand, Token token)
     : ExpressionNode(std::move(token)), operand(std::move(operand)) {}
 
-void NotExpressionNode::dump(std::ostringstream& s, int n) const {
+void NotExpressionNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(NotExpressionNode);
     DUMP_VAR_NODE(operand);
 }
@@ -557,7 +536,7 @@ ExpressionType NotExpressionNode::getExpressionType() const {
 SymbolReferenceExpressionNode::SymbolReferenceExpressionNode(std::string name, Token token)
     : ExpressionNode(std::move(token)), name(std::move(name)) {}
 
-void SymbolReferenceExpressionNode::dump(std::ostringstream& s, int n) const {
+void SymbolReferenceExpressionNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(SymbolReferenceExpressionNode);
     DUMP_VAR(name);
 }
@@ -576,7 +555,7 @@ AssignStatementNode::AssignStatementNode(
     Token token)
     : StatementNode(std::move(token)), target(std::move(target)), value(std::move(value)) {}
 
-void AssignStatementNode::dump(std::ostringstream& s, int n) const {
+void AssignStatementNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(AssignStatementNode);
     DUMP_VAR_NODE(target);
     DUMP_VAR_NODE(value);
@@ -596,7 +575,7 @@ StatementType AssignStatementNode::getStatementType() const {
 BodyNode::BodyNode(std::vector<std::unique_ptr<StatementNode>> statements, Token token)
     : Node(std::move(token)), statements(std::move(statements)) {}
 
-void BodyNode::dump(std::ostringstream& s, int n) const {
+void BodyNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(BodyNode);
     DUMP_VAR_NODES(statements);
 }
@@ -607,7 +586,7 @@ CallStatementNode::CallStatementNode(
     Token token)
     : StatementNode(std::move(token)), name(std::move(name)), arguments(std::move(arguments)) {}
 
-void CallStatementNode::dump(std::ostringstream& s, int n) const {
+void CallStatementNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(CallStatementNode);
     DUMP_VAR(name);
     DUMP_VAR_NODES(arguments);
@@ -633,7 +612,7 @@ MemberType ConstStatementNode::getMemberType() const {
     return MemberType::kConstStatement;
 }
 
-void ConstStatementNode::dump(std::ostringstream& s, int n) const {
+void ConstStatementNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(ConstStatementNode);
     DUMP_VAR(name);
     DUMP_VAR_NODE(value);
@@ -667,7 +646,7 @@ bool ConstStatementNode::visitExpressions(bool rootsOnly, const VisitExpressionF
 ContinueStatementNode::ContinueStatementNode(LoopType scope, Token token)
     : StatementNode(std::move(token)), scope(scope) {}
 
-void ContinueStatementNode::dump(std::ostringstream& s, int n) const {
+void ContinueStatementNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(ContinueStatementNode);
     DUMP_VAR_ENUM(scope);
 }
@@ -679,7 +658,7 @@ StatementType ContinueStatementNode::getStatementType() const {
 DimListStatementNode::DimListStatementNode(std::string name, std::unique_ptr<BodyNode> body, Token token)
     : StatementNode(std::move(token)), name(std::move(name)), body(std::move(body)) {}
 
-void DimListStatementNode::dump(std::ostringstream& s, int n) const {
+void DimListStatementNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(DimListStatementNode);
     DUMP_VAR(name);
     DUMP_VAR_NODE(body);
@@ -713,7 +692,7 @@ std::vector<YieldStatementNode*>* DimListStatementNode::getYieldStatementNodesLi
 DimMapStatementNode::DimMapStatementNode(std::string name, std::unique_ptr<BodyNode> body, Token token)
     : StatementNode(std::move(token)), name(std::move(name)), body(std::move(body)) {}
 
-void DimMapStatementNode::dump(std::ostringstream& s, int n) const {
+void DimMapStatementNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(DimMapStatementNode);
     DUMP_VAR(name);
     DUMP_VAR_NODE(body);
@@ -758,7 +737,7 @@ MemberType DimStatementNode::getMemberType() const {
     return MemberType::kDimStatement;
 }
 
-void DimStatementNode::dump(std::ostringstream& s, int n) const {
+void DimStatementNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(DimStatementNode);
     DUMP_VAR(name);
     DUMP_VAR_NODE(type);
@@ -800,7 +779,7 @@ bool DimStatementNode::isSymbolVisibleToSiblingStatements() const {
 DoStatementNode::DoStatementNode(std::unique_ptr<ExpressionNode> condition, std::unique_ptr<BodyNode> body, Token token)
     : StatementNode(std::move(token)), condition(std::move(condition)), body(std::move(body)) {}
 
-void DoStatementNode::dump(std::ostringstream& s, int n) const {
+void DoStatementNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(DoStatementNode);
     DUMP_VAR_NODE(condition);
     DUMP_VAR_NODE(body);
@@ -820,7 +799,7 @@ StatementType DoStatementNode::getStatementType() const {
 
 ExitStatementNode::ExitStatementNode(LoopType scope, Token token) : StatementNode(std::move(token)), scope(scope) {}
 
-void ExitStatementNode::dump(std::ostringstream& s, int n) const {
+void ExitStatementNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(ExitStatementNode);
     DUMP_VAR_ENUM(scope);
 }
@@ -839,7 +818,7 @@ ForEachStatementNode::ForEachStatementNode(
       haystack(std::move(haystack)),
       body(std::move(body)) {}
 
-void ForEachStatementNode::dump(std::ostringstream& s, int n) const {
+void ForEachStatementNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(ForEachStatementNode);
     DUMP_VAR(needleName);
     DUMP_VAR_NODE(haystack);
@@ -890,7 +869,7 @@ ForStatementNode::ForStatementNode(
       step(std::move(step)),
       body(std::move(body)) {}
 
-void ForStatementNode::dump(std::ostringstream& s, int n) const {
+void ForStatementNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(ForStatementNode);
     DUMP_VAR(loopVariableName);
     DUMP_VAR_NODE(fromValue);
@@ -942,7 +921,7 @@ int ForStatementNode::getTempLocalValueCount() const {
 ElseIfNode::ElseIfNode(std::unique_ptr<ExpressionNode> condition, std::unique_ptr<BodyNode> body, Token token)
     : Node(std::move(token)), condition(std::move(condition)), body(std::move(body)) {}
 
-void ElseIfNode::dump(std::ostringstream& s, int n) const {
+void ElseIfNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(ElseIfNode);
     DUMP_VAR_NODE(condition);
     DUMP_VAR_NODE(body);
@@ -968,7 +947,7 @@ IfStatementNode::IfStatementNode(
       elseIfs(std::move(elseIfs)),
       elseBody(std::move(elseBody)) {}
 
-void IfStatementNode::dump(std::ostringstream& s, int n) const {
+void IfStatementNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(IfStatementNode);
     DUMP_VAR_NODE(condition);
     DUMP_VAR_NODE(body);
@@ -1009,7 +988,7 @@ StatementType IfStatementNode::getStatementType() const {
 
 RethrowStatementNode::RethrowStatementNode(Token token) : StatementNode(std::move(token)) {}
 
-void RethrowStatementNode::dump(std::ostringstream& s, int n) const {
+void RethrowStatementNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(RethrowStatementNode);
 }
 
@@ -1020,7 +999,7 @@ StatementType RethrowStatementNode::getStatementType() const {
 ReturnStatementNode::ReturnStatementNode(std::unique_ptr<ExpressionNode> expression, Token token)
     : StatementNode(std::move(token)), expression(std::move(expression)) {}
 
-void ReturnStatementNode::dump(std::ostringstream& s, int n) const {
+void ReturnStatementNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(ReturnStatementNode);
     DUMP_VAR_NODE(expression);
 }
@@ -1044,7 +1023,7 @@ CaseValueNode::CaseValueNode(
     Token token)
     : Node(std::move(token)), expression(std::move(expression)), toExpression(std::move(toExpression)) {}
 
-void CaseValueNode::dump(std::ostringstream& s, int n) const {
+void CaseValueNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(CaseValueNode);
     DUMP_VAR_NODE(expression);
     DUMP_VAR_NODE(toExpression);
@@ -1065,7 +1044,7 @@ bool CaseValueNode::visitExpressions(bool /*rootsOnly*/, const VisitExpressionFu
 CaseNode::CaseNode(std::vector<std::unique_ptr<CaseValueNode>> values, std::unique_ptr<BodyNode> body, Token token)
     : Node(std::move(token)), values(std::move(values)), body(std::move(body)) {}
 
-void CaseNode::dump(std::ostringstream& s, int n) const {
+void CaseNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(CaseNode);
     DUMP_VAR_NODES(values);
     DUMP_VAR_NODE(body);
@@ -1090,7 +1069,7 @@ SelectCaseStatementNode::SelectCaseStatementNode(
     Token token)
     : StatementNode(std::move(token)), expression(std::move(expression)), cases(std::move(cases)) {}
 
-void SelectCaseStatementNode::dump(std::ostringstream& s, int n) const {
+void SelectCaseStatementNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(SelectCaseStatementNode);
     DUMP_VAR_NODE(expression);
     DUMP_VAR_NODES(cases);
@@ -1135,7 +1114,7 @@ YieldStatementNode::YieldStatementNode(
     Token token)
     : StatementNode(std::move(token)), expression(std::move(expression)), toExpression(std::move(toExpression)) {}
 
-void YieldStatementNode::dump(std::ostringstream& s, int n) const {
+void YieldStatementNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(YieldStatementNode);
     DUMP_VAR_NODE(expression);
     DUMP_VAR_NODE(toExpression);
@@ -1163,7 +1142,7 @@ ThrowStatementNode::ThrowStatementNode(
     Token token)
     : StatementNode(std::move(token)), message(std::move(message)), code(std::move(code)) {}
 
-void ThrowStatementNode::dump(std::ostringstream& s, int n) const {
+void ThrowStatementNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(ThrowStatementNode);
     if (code != nullptr) {
         DUMP_VAR_NODE(code);
@@ -1188,7 +1167,7 @@ StatementType ThrowStatementNode::getStatementType() const {
 TryStatementNode::TryStatementNode(std::unique_ptr<BodyNode> tryBody, std::unique_ptr<BodyNode> catchBody, Token token)
     : StatementNode(std::move(token)), tryBody(std::move(tryBody)), catchBody(std::move(catchBody)) {}
 
-void TryStatementNode::dump(std::ostringstream& s, int n) const {
+void TryStatementNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(TryStatementNode);
     DUMP_VAR_NODE(tryBody);
     DUMP_VAR_NODE(catchBody);
@@ -1216,7 +1195,7 @@ WhileStatementNode::WhileStatementNode(
     Token token)
     : StatementNode(std::move(token)), condition(std::move(condition)), body(std::move(body)) {}
 
-void WhileStatementNode::dump(std::ostringstream& s, int n) const {
+void WhileStatementNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(WhileStatementNode);
     DUMP_VAR_NODE(condition);
     DUMP_VAR_NODE(body);
@@ -1240,7 +1219,7 @@ PrintStatementNode::PrintStatementNode(
     Token token)
     : StatementNode(std::move(token)), expressions(std::move(expressions)), trailingSemicolon(trailingSemicolon) {}
 
-void PrintStatementNode::dump(std::ostringstream& s, int n) const {
+void PrintStatementNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(PrintStatementNode);
     DUMP_VAR_NODES(expressions);
     DUMP_VAR(trailingSemicolon);
@@ -1262,7 +1241,7 @@ StatementType PrintStatementNode::getStatementType() const {
 InputStatementNode::InputStatementNode(std::unique_ptr<ExpressionNode> target, Token token)
     : StatementNode(std::move(token)), target(std::move(target)) {}
 
-void InputStatementNode::dump(std::ostringstream& s, int n) const {
+void InputStatementNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(InputStatementNode);
     DUMP_VAR_NODE(target);
 }
@@ -1281,7 +1260,7 @@ ParameterNode::ParameterNode(std::string aName, boost::local_shared_ptr<TypeNode
       nameLowercase(boost::to_lower_copy(name)),
       type(std::move(type)) {}
 
-void ParameterNode::dump(std::ostringstream& s, int n) const {
+void ParameterNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(ParameterNode);
     DUMP_VAR(name);
     DUMP_VAR_NODE(type);
@@ -1298,7 +1277,7 @@ boost::local_shared_ptr<TypeNode> ParameterNode::getSymbolDeclarationType() cons
 GlobalVariableNode::GlobalVariableNode(std::string name)
     : Node(Token(0, 0, TokenKind::kError, "", nullptr)), name(std::move(std::move(name))) {}
 
-void GlobalVariableNode::dump(std::ostringstream& s, int n) const {
+void GlobalVariableNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(GlobalVariableNode);
 }
 
@@ -1329,7 +1308,7 @@ ProcedureNode::ProcedureNode(
     Token token)
     : Node(std::move(token)), name(std::move(name)), parameters(std::move(parameters)), body(std::move(body)) {}
 
-void ProcedureNode::dump(std::ostringstream& s, int n) const {
+void ProcedureNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(ProcedureNode);
     DUMP_VAR(name);
     DUMP_VAR_NODES(parameters);
@@ -1359,7 +1338,7 @@ MemberType TypeDeclarationNode::getMemberType() const {
     return MemberType::kTypeDeclaration;
 }
 
-void TypeDeclarationNode::dump(std::ostringstream& s, int n) const {
+void TypeDeclarationNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(TypeDeclarationNode);
     DUMP_VAR(name);
     DUMP_VAR_NODES(fields);
@@ -1368,7 +1347,7 @@ void TypeDeclarationNode::dump(std::ostringstream& s, int n) const {
 ProgramNode::ProgramNode(std::vector<std::unique_ptr<Node>> members, Token token)
     : Node(std::move(token)), members(std::move(members)) {}
 
-void ProgramNode::dump(std::ostringstream& s, int n) const {
+void ProgramNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(ProgramNode);
     DUMP_VAR_NODES(members);
 }

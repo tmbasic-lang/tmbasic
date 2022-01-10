@@ -250,6 +250,16 @@ class ProcedureState {
         emitInt<uint16_t>(index);
     }
 
+    void recordSetValue(uint16_t index) {
+        op(Opcode::kRecordSetValue);
+        emitInt<uint16_t>(index);
+    }
+
+    void recordSetObject(uint16_t index) {
+        op(Opcode::kRecordSetObject);
+        emitInt<uint16_t>(index);
+    }
+
     void valueListNew(uint16_t numVals) {
         op(Opcode::kValueListNew);
         emitInt<uint16_t>(numVals);
@@ -544,48 +554,48 @@ static void emitSymbolReference(const Node& declarationNode, ProcedureState* sta
         CompilerErrorCode::kInternal, "Internal error. Unknown declaration node type.", declarationNode.token);
 }
 
-static void emitCallExpression(const CallOrIndexExpressionNode& expressionNode, ProcedureState* state) {
-    assert(expressionNode.evaluatedType != nullptr);
-    auto returnsValue = expressionNode.evaluatedType->isValueType();
-    auto numValueArgs = 0;
-    auto numObjectArgs = 0;
-    for (const auto& arg : expressionNode.arguments) {
-        assert(arg->evaluatedType != nullptr);
-        arg->evaluatedType->isValueType() ? numValueArgs++ : numObjectArgs++;
-        emitExpression(*arg, state);
-    }
-    if (expressionNode.boundSymbolDeclaration != nullptr &&
-        dynamic_cast<const ProcedureNode*>(expressionNode.boundSymbolDeclaration) == nullptr) {
-        // this is a list or map index
-        assert(expressionNode.boundSymbolDeclaration->evaluatedType != nullptr);
-        emitSymbolReference(*expressionNode.boundSymbolDeclaration, state);
-        auto* declType = expressionNode.boundSymbolDeclaration->getSymbolDeclarationType().get();
-        assert(declType);
-        assert(declType->kind == Kind::kList || declType->kind == Kind::kMap);
-        if (declType->kind == Kind::kList) {
-            auto& itemType = *declType->listItemType;
-            if (itemType.isValueType()) {
-                state->syscall(Opcode::kSystemCallV, SystemCall::kValueListGet, 1, 1);
-            } else {
-                state->syscall(Opcode::kSystemCallO, SystemCall::kObjectListGet, 1, 1);
-            }
-        } else if (declType->kind == Kind::kMap) {
-            throw std::runtime_error("not impl");
-        }
-    } else if (expressionNode.procedureIndex.has_value()) {
-        state->call(
-            returnsValue ? Opcode::kCallV : Opcode::kCallO, *expressionNode.procedureIndex, numValueArgs,
-            numObjectArgs);
-    } else if (expressionNode.systemCall.has_value()) {
-        state->syscall(
-            returnsValue ? Opcode::kSystemCallV : Opcode::kSystemCallO, *expressionNode.systemCall, numValueArgs,
-            numObjectArgs);
-    } else {
-        throw CompilerException(
-            CompilerErrorCode::kInternal, "Internal error. Call expression not bound to declaration.",
-            expressionNode.token);
-    }
-}
+// static void emitCallExpression(const CallOrIndexExpressionNode& expressionNode, ProcedureState* state) {
+//     assert(expressionNode.evaluatedType != nullptr);
+//     auto returnsValue = expressionNode.evaluatedType->isValueType();
+//     auto numValueArgs = 0;
+//     auto numObjectArgs = 0;
+//     for (const auto& arg : expressionNode.arguments) {
+//         assert(arg->evaluatedType != nullptr);
+//         arg->evaluatedType->isValueType() ? numValueArgs++ : numObjectArgs++;
+//         emitExpression(*arg, state);
+//     }
+//     if (expressionNode.boundSymbolDeclaration != nullptr &&
+//         dynamic_cast<const ProcedureNode*>(expressionNode.boundSymbolDeclaration) == nullptr) {
+//         // this is a list or map index
+//         assert(expressionNode.boundSymbolDeclaration->evaluatedType != nullptr);
+//         emitSymbolReference(*expressionNode.boundSymbolDeclaration, state);
+//         auto* declType = expressionNode.boundSymbolDeclaration->getSymbolDeclarationType().get();
+//         assert(declType);
+//         assert(declType->kind == Kind::kList || declType->kind == Kind::kMap);
+//         if (declType->kind == Kind::kList) {
+//             auto& itemType = *declType->listItemType;
+//             if (itemType.isValueType()) {
+//                 state->syscall(Opcode::kSystemCallV, SystemCall::kValueListGet, 1, 1);
+//             } else {
+//                 state->syscall(Opcode::kSystemCallO, SystemCall::kObjectListGet, 1, 1);
+//             }
+//         } else if (declType->kind == Kind::kMap) {
+//             throw std::runtime_error("not impl");
+//         }
+//     } else if (expressionNode.procedureIndex.has_value()) {
+//         state->call(
+//             returnsValue ? Opcode::kCallV : Opcode::kCallO, *expressionNode.procedureIndex, numValueArgs,
+//             numObjectArgs);
+//     } else if (expressionNode.systemCall.has_value()) {
+//         state->syscall(
+//             returnsValue ? Opcode::kSystemCallV : Opcode::kSystemCallO, *expressionNode.systemCall, numValueArgs,
+//             numObjectArgs);
+//     } else {
+//         throw CompilerException(
+//             CompilerErrorCode::kInternal, "Internal error. Call expression not bound to declaration.",
+//             expressionNode.token);
+//     }
+// }
 
 static void emitLiteralArrayExpression(const LiteralArrayExpressionNode& expressionNode, ProcedureState* state) {
     assert(!expressionNode.elements.empty());
@@ -662,24 +672,58 @@ static void emitConvertExpression(const ConvertExpressionNode& /*expressionNode*
 }
 
 static void emitDottedExpression(const DottedExpressionNode& expressionNode, ProcedureState* state) {
-    emitExpression(*expressionNode.base, state);
+    assert(expressionNode.dottedSuffixes.size() > 0);
+    auto& firstSuffix = expressionNode.dottedSuffixes.at(0);
+    auto suffixIndex = 0;
+    auto* baseType = expressionNode.base->evaluatedType.get();
+
+    // The base could be a function call like Foo(1, 2). This is the only place a function call can be.
+    auto baseSymbolRef = dynamic_cast<SymbolReferenceExpressionNode*>(expressionNode.base.get());
+    if (baseSymbolRef != nullptr && baseSymbolRef->boundSymbolDeclaration != nullptr &&
+        baseSymbolRef->boundSymbolDeclaration->getMemberType() == MemberType::kProcedure) {
+        // It is indeed a function call.
+        assert(firstSuffix->procedureIndex.has_value());
+        assert(firstSuffix->evaluatedType != nullptr);
+        auto numValueArgs = 0;
+        auto numObjectArgs = 0;
+        for (auto& arg : firstSuffix->collectionIndexOrCallArgs) {
+            assert(arg->evaluatedType != nullptr);
+            arg->evaluatedType->isValueType() ? numValueArgs++ : numObjectArgs++;
+            emitExpression(*arg, state);
+        }
+        state->call(
+            firstSuffix->evaluatedType->isValueType() ? Opcode::kCallV : Opcode::kCallO, *firstSuffix->procedureIndex,
+            numValueArgs, numObjectArgs);
+        baseType = firstSuffix->evaluatedType.get();
+        // We have now emitted both the base and the first suffix.
+        suffixIndex++;
+    } else {
+        // Otherwise the base is just a regular expression. We will just emit the base.
+        emitExpression(*expressionNode.base, state);
+    }
 
     for (const auto& dottedSuffix : expressionNode.dottedSuffixes) {
-        auto* parameterNode = dottedSuffix->boundParameterNode;
-        if (parameterNode->fieldValueIndex.has_value()) {
-            state->recordGetValue(*parameterNode->fieldValueIndex);
-        } else if (parameterNode->fieldObjectIndex.has_value()) {
-            state->recordGetObject(*parameterNode->fieldObjectIndex);
-        } else {
-            throw CompilerException(
-                CompilerErrorCode::kInternal,
-                "Internal error. Dotted suffix has neither fieldValueIndex nor fieldObjectIndex set.",
-                expressionNode.token);
-        }
-
-        if (dottedSuffix->collectionIndex != nullptr) {
-            auto* baseType = parameterNode->type.get();
-            emitExpression(*dottedSuffix->collectionIndex, state);
+        if (dottedSuffix->isFieldAccess()) {
+            auto* parameterNode = dottedSuffix->boundParameterNode;
+            assert(parameterNode != nullptr);
+            if (parameterNode->fieldValueIndex.has_value()) {
+                state->recordGetValue(*parameterNode->fieldValueIndex);
+            } else if (parameterNode->fieldObjectIndex.has_value()) {
+                state->recordGetObject(*parameterNode->fieldObjectIndex);
+            } else {
+                throw CompilerException(
+                    CompilerErrorCode::kInternal,
+                    "Internal error. Dotted suffix has neither fieldValueIndex nor fieldObjectIndex set.",
+                    expressionNode.token);
+            }
+        } else if (dottedSuffix->isIndexOrCall()) {
+            // We know it's an index and not a call.
+            if (dottedSuffix->collectionIndexOrCallArgs.size() != 1) {
+                throw CompilerException(
+                    CompilerErrorCode::kTooManyIndexArguments,
+                    "Collection access should have exactly one index argument.", expressionNode.token);
+            }
+            emitExpression(*dottedSuffix->collectionIndexOrCallArgs.at(0), state);
             if (baseType->kind == Kind::kList) {
                 if (baseType->listItemType->isValueType()) {
                     state->syscall(Opcode::kSystemCallV, SystemCall::kValueListGet, 1, 1);
@@ -689,6 +733,8 @@ static void emitDottedExpression(const DottedExpressionNode& expressionNode, Pro
             } else {
                 throw std::runtime_error("not impl");
             }
+        } else {
+            assert(false);
         }
     }
 }
@@ -708,9 +754,6 @@ static void emitSymbolReferenceExpression(const SymbolReferenceExpressionNode& e
     switch (expressionNode.getExpressionType()) {
         case ExpressionType::kBinary:
             emitBinaryExpression(dynamic_cast<const BinaryExpressionNode&>(expressionNode), state);
-            break;
-        case ExpressionType::kCallOrIndex:
-            emitCallExpression(dynamic_cast<const CallOrIndexExpressionNode&>(expressionNode), state);
             break;
         case ExpressionType::kConstValue:
             emitConstValueExpressionNode(dynamic_cast<const ConstValueExpressionNode&>(expressionNode), state);
@@ -733,89 +776,42 @@ static void emitSymbolReferenceExpression(const SymbolReferenceExpressionNode& e
     }
 }
 
-static void emitAssignToExpression(const ExpressionNode& expressionNode, ProcedureState* state);
+static void emitAssignToExpression(
+    const ExpressionNode& expressionNode,
+    const ExpressionNode& rhs,
+    ProcedureState* state);
 
-static void emitAssignToDottedExpression(const DottedExpressionNode& expressionNode, ProcedureState* state) {
-    throw std::runtime_error("not impl");
+static void emitAssignToDottedExpression(
+    const DottedExpressionNode& expressionNode,
+    const ExpressionNode& rhs,
+    ProcedureState* state) {
+    // TODO
 }
 
 static void emitAssignToSymbolReferenceExpression(
     const SymbolReferenceExpressionNode& expressionNode,
+    const ExpressionNode& rhs,
     ProcedureState* state) {
     // this won't be a zero-argument function call. the type checker will ensure it is a variable.
     const auto* decl = expressionNode.boundSymbolDeclaration;
     assert(decl != nullptr);
     assert(decl->getMemberType() != MemberType::kProcedure);
 
+    emitExpression(rhs, state);
     emitSymbolReference(*decl, state, /* set */ true);
 }
 
-static void emitAssignToListIndex(const CallOrIndexExpressionNode& expressionNode, ProcedureState* state) {
-    // the value or object to be assigned is on the stack already.
-    const auto& decl = expressionNode.boundSymbolDeclaration;
-    const auto& itemType = decl->evaluatedType->listItemType;
-    assert(itemType != nullptr);
-    auto isValueList = itemType->isValueType();
-
-    // push the list.
-    emitSymbolReference(*decl, state, /* set */ false);
-
-    // push the index.
-    assert(expressionNode.arguments.size() == 1);
-    emitExpression(*expressionNode.arguments[0], state);
-
-    // we're almost ready to call ValueListSet/ObjectListSet, but the arguments are in the wrong order on the stack.
-    if (isValueList) {
-        // the index and the element are in the wrong order. we need the index first and then the element.
-        state->swapValues();
-        state->syscall(Opcode::kSystemCallO, SystemCall::kValueListSet, 2, 1);
-    } else {
-        // the list and the element are in the wrong order. we need the list first and then the element.
-        state->swapObjects();
-        state->syscall(Opcode::kSystemCallO, SystemCall::kObjectListSet, 1, 2);
-    }
-
-    // now write back to the original location
-    emitSymbolReference(*decl, state, /* set */ true);
-}
-
-static void emitAssignToIndexExpression(const CallOrIndexExpressionNode& expressionNode, ProcedureState* state) {
-    // this won't be a function call. the type checker will ensure this is a collection index.
-    const auto* decl = expressionNode.boundSymbolDeclaration;
-    assert(decl != nullptr);
-    auto memberType = decl->getMemberType();
-    assert(memberType != MemberType::kProcedure);
-
-    if (memberType == MemberType::kConstStatement) {
-        throw CompilerException(
-            CompilerErrorCode::kInvalidAssignmentTarget, "Cannot assign to a constant.", expressionNode.token);
-    }
-
-    switch (decl->evaluatedType->kind) {
-        case Kind::kList:
-            emitAssignToListIndex(expressionNode, state);
-            break;
-
-        case Kind::kMap:
-            throw std::runtime_error("not impl");
-
-        default:
-            throw CompilerException(
-                CompilerErrorCode::kInternal, "Internal error. Unexpected declaration type.", expressionNode.token);
-    }
-}
-
-/*static*/ void emitAssignToExpression(const ExpressionNode& expressionNode, ProcedureState* state) {
+/*static*/ void emitAssignToExpression(
+    const ExpressionNode& expressionNode,
+    const ExpressionNode& rhs,
+    ProcedureState* state) {
     switch (expressionNode.getExpressionType()) {
         case ExpressionType::kDotted:
-            emitAssignToDottedExpression(dynamic_cast<const DottedExpressionNode&>(expressionNode), state);
+            emitAssignToDottedExpression(dynamic_cast<const DottedExpressionNode&>(expressionNode), rhs, state);
             break;
         case ExpressionType::kSymbolReference:
             emitAssignToSymbolReferenceExpression(
-                dynamic_cast<const SymbolReferenceExpressionNode&>(expressionNode), state);
-            break;
-        case ExpressionType::kCallOrIndex:
-            emitAssignToIndexExpression(dynamic_cast<const CallOrIndexExpressionNode&>(expressionNode), state);
+                dynamic_cast<const SymbolReferenceExpressionNode&>(expressionNode), rhs, state);
             break;
         default:
             throw CompilerException(
@@ -825,8 +821,7 @@ static void emitAssignToIndexExpression(const CallOrIndexExpressionNode& express
 }
 
 static void emitAssignStatement(const AssignStatementNode& statementNode, ProcedureState* state) {
-    emitExpression(*statementNode.value, state);
-    emitAssignToExpression(*statementNode.target, state);
+    emitAssignToExpression(*statementNode.target, *statementNode.value, state);
 }
 
 static void emitCallStatement(const CallStatementNode& statementNode, ProcedureState* state) {

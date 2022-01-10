@@ -136,6 +136,208 @@ std::optional<InterpreterError> Interpreter::getError() const {
     return std::nullopt;
 }
 
+struct SetDottedExpressionState {
+    InterpreterPrivate* p{};
+    int* valueStackIndex{};
+    int* objectStackIndex{};
+    const std::vector<uint8_t>* instructions{};
+    size_t* instructionIndex{};
+    bool isAssigningValue{};
+    boost::local_shared_ptr<Object> baseObject{};
+    Value sourceValue{};
+    boost::local_shared_ptr<Object> sourceObject{};
+};
+
+static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
+    const SetDottedExpressionState& state,
+    const boost::local_shared_ptr<Object>& base,
+    int remainingSuffixes,  // includes this one
+    int nextKeyValueIndex,
+    int nextKeyObjectValue) {
+    auto suffixType = readInt<uint8_t>(state.instructions, state.instructionIndex);
+    auto baseType = base->getObjectType();
+
+    switch (suffixType) {
+        case 0x01: {
+            // Record value field. We must be assigning to this value field because you can't recurse into it.
+            if (baseType != ObjectType::kRecord) {
+                throw std::runtime_error("Expected assignment target to be a record.");
+            }
+            if (remainingSuffixes != 1) {
+                throw std::runtime_error("Expected end of dotted expression, but more suffixes are present.");
+            }
+            if (!state.isAssigningValue) {
+                throw std::runtime_error("Expected assignment target to be a value.");
+            }
+            auto valueFieldIndex = readInt<uint16_t>(state.instructions, state.instructionIndex);
+            auto& baseRecord = dynamic_cast<Record&>(*base);
+            return boost::make_local_shared<Record>(baseRecord, valueFieldIndex, state.sourceValue);
+        }
+
+        case 0x02: {
+            // Record object field.
+            if (baseType != ObjectType::kRecord) {
+                throw std::runtime_error("Expected assignment target to be a record.");
+            }
+            auto objectFieldIndex = readInt<uint16_t>(state.instructions, state.instructionIndex);
+            auto& baseRecord = dynamic_cast<Record&>(*base);
+
+            if (remainingSuffixes == 1) {
+                // We are assigning to this object field.
+                if (state.isAssigningValue) {
+                    throw std::runtime_error("Expected assignment target to be an object.");
+                }
+                return boost::make_local_shared<Record>(baseRecord, objectFieldIndex, state.sourceObject);
+            }
+
+            // We are recursing into this object field.
+            const auto& objectField = baseRecord.objects.at(objectFieldIndex);
+            auto updatedObjectField = setDottedExpressionRecurse(
+                state, objectField, remainingSuffixes - 1, nextKeyValueIndex, nextKeyObjectValue);
+            return boost::make_local_shared<Record>(baseRecord, objectFieldIndex, updatedObjectField);
+        }
+
+        case 0x03: {
+            // Value index/key + value element
+            if (remainingSuffixes != 1) {
+                throw std::runtime_error("Expected end of dotted expression, but more suffixes are present.");
+            }
+            if (!state.isAssigningValue) {
+                throw std::runtime_error("Expected assignment target to be a value.");
+            }
+            auto indexOrKeyValue = *valueAt(&state.p->valueStack, *state.valueStackIndex, nextKeyValueIndex++);
+            if (baseType == ObjectType::kValueList) {
+                // We are assigning to this value list element.
+                auto index = indexOrKeyValue.getInt64();
+                auto& baseValueList = dynamic_cast<ValueList&>(*base);
+                return boost::make_local_shared<ValueList>(baseValueList, /* insert */ false, index, state.sourceValue);
+            } else if (baseType != ObjectType::kValueToValueMap) {
+                // We are assigning to this value map element.
+                auto& baseMap = dynamic_cast<ValueToValueMap&>(*base);
+                return boost::make_local_shared<ValueToValueMap>(baseMap, indexOrKeyValue, state.sourceValue);
+            } else {
+                throw std::runtime_error("Expected assignment target to be value list or value-value map.");
+            }
+        }
+
+        case 0x04: {
+            // Value index/key + object element
+            auto indexOrKeyValue = *valueAt(&state.p->valueStack, *state.valueStackIndex, nextKeyValueIndex++);
+            if (baseType == ObjectType::kObjectList) {
+                auto& baseObjectList = dynamic_cast<ObjectList&>(*base);
+                if (remainingSuffixes == 1) {
+                    // We are assigning to this object list element.
+                    if (state.isAssigningValue) {
+                        throw std::runtime_error("Expected assignment target to be a object.");
+                    }
+                    return boost::make_local_shared<ObjectList>(
+                        baseObjectList, /* insert */ false, indexOrKeyValue.getInt64(), state.sourceObject);
+                } else {
+                    // We are recursing into this object list element.
+                    auto index = indexOrKeyValue.getInt64();
+                    auto objectElement = baseObjectList.items.at(index);
+                    auto updatedObjectElement = setDottedExpressionRecurse(
+                        state, objectElement, remainingSuffixes - 1, nextKeyValueIndex, nextKeyObjectValue);
+                    return boost::make_local_shared<ObjectList>(
+                        baseObjectList, /* insert */ false, indexOrKeyValue.getInt64(), updatedObjectElement);
+                }
+            } else if (baseType == ObjectType::kValueToObjectMap) {
+                auto& baseMap = dynamic_cast<ValueToObjectMap&>(*base);
+                if (remainingSuffixes == 1) {
+                    // We are assigning to this value-object map element.
+                    if (state.isAssigningValue) {
+                        throw std::runtime_error("Expected assignment target to be a object.");
+                    }
+                    return boost::make_local_shared<ValueToObjectMap>(baseMap, indexOrKeyValue, state.sourceObject);
+                } else {
+                    // We are recursing into this value-object map element.
+                    throw std::runtime_error("not impl");
+                }
+            } else {
+                throw std::runtime_error("Expected assignment target to be object list or value-object map.");
+            }
+        }
+
+        case 0x05: {
+            // Object key + value element
+            if (baseType != ObjectType::kObjectToValueMap) {
+                throw std::runtime_error("Expected assignment target to be an object-value map.");
+            }
+            if (remainingSuffixes != 1) {
+                throw std::runtime_error("Expected end of dotted expression, but more suffixes are present.");
+            }
+            if (!state.isAssigningValue) {
+                throw std::runtime_error("Expected assignment target to be an object, but it's a value.");
+            }
+            auto keyObject = *objectAt(&state.p->objectStack, *state.objectStackIndex, nextKeyObjectValue++);
+            // We are assigning to this object-value map element.
+            auto& baseMap = dynamic_cast<ObjectToValueMap&>(*base);
+            return boost::make_local_shared<ObjectToValueMap>(baseMap, keyObject, state.sourceValue);
+        }
+
+        case 0x06: {
+            // Object key + object element
+            throw std::runtime_error("not impl");
+        }
+
+        default:
+            throw std::runtime_error("Unknown dotted expression suffix type.");
+    }
+}
+
+static void setDottedExpression(SetDottedExpressionState* state) {
+    assert(state->p != nullptr);
+    assert(state->valueStackIndex != nullptr);
+    assert(state->objectStackIndex != nullptr);
+    assert(state->instructions != nullptr);
+    assert(state->instructionIndex != nullptr);
+
+    auto numSuffixes = (int)readInt<uint8_t>(state->instructions, state->instructionIndex);
+    auto numKeyValues = (int)readInt<uint8_t>(state->instructions, state->instructionIndex);
+    auto numKeyObjects = (int)readInt<uint8_t>(state->instructions, state->instructionIndex);
+
+    // Let's get our bearings in the stack.
+    //                  <--- lower indices              higher indices --->
+    // Value stack:  [source-value]  [key-0]  [key-1]  ...  <vsi>
+    // Object stack: [source-object]  [target-base]  [key-0]  [key-1]  ...  <osi>
+    auto* osi = state->objectStackIndex;
+    auto* vsi = state->valueStackIndex;
+    auto sourceValueIndex = *vsi - numKeyValues - 1;        // If there is a source value, then it's here.
+    auto startKeyValueIndex = sourceValueIndex + 1;         // Key values will start here.
+    auto sourceObjectIndex = *osi - numKeyObjects - 2;      // If there is a source object, then it's here.
+    auto targetBaseObjectIndex = *osi - numKeyObjects - 1;  // Target base object is here.
+    auto startKeyObjectIndex = targetBaseObjectIndex + 1;   // Key objects will start here.
+
+    // Some things are immediately available for us to read out.
+    auto baseObject = *objectAt(&state->p->objectStack, *osi, targetBaseObjectIndex);
+    assert(baseObject != nullptr);
+    state->sourceValue = state->isAssigningValue ? *valueAt(&state->p->valueStack, *vsi, sourceValueIndex) : Value{};
+    state->sourceObject = !state->isAssigningValue ? *objectAt(&state->p->objectStack, *osi, sourceObjectIndex)
+                                                   : boost::local_shared_ptr<Object>{};
+
+    // Now recursively process the suffixes to reach the target value or object.
+    auto updatedBaseObject =
+        setDottedExpressionRecurse(*state, state->baseObject, numSuffixes, startKeyValueIndex, startKeyObjectIndex);
+
+    // Pop the index/keys.
+    while (*vsi > startKeyValueIndex) {
+        popValue(&state->p->valueStack, vsi);
+    }
+    while (*osi > startKeyObjectIndex) {
+        popObject(&state->p->objectStack, osi);
+    }
+
+    // Pop the source value or object.
+    if (state->isAssigningValue) {
+        popValue(&state->p->valueStack, vsi);
+    } else {
+        popObject(&state->p->objectStack, osi);
+    }
+
+    // Push updatedBaseObject.
+    pushObject(&state->p->objectStack, osi, std::move(updatedBaseObject));
+}
+
 bool Interpreter::run(int maxCycles) {
     const auto& procedures = _private->program->procedures;
     const auto* procedure = _private->procedure;
@@ -538,6 +740,28 @@ bool Interpreter::run(int maxCycles) {
                 break;
             }
 
+            case Opcode::kRecordSetValue: {
+                auto index = readInt<uint16_t>(instructions, &instructionIndex);
+                auto& record = dynamic_cast<Record&>(**objectAt(objectStack, osi, -1));
+                auto& newValue = *valueAt(valueStack, vsi, -1);
+                auto newRecord = boost::make_local_shared<Record>(record, index, newValue);
+                popObject(objectStack, &osi);  // pop record
+                popValue(valueStack, &vsi);    // pop newValue
+                pushObject(objectStack, &osi, std::move(newRecord));
+                break;
+            }
+
+            case Opcode::kRecordSetObject: {
+                auto index = readInt<uint16_t>(instructions, &instructionIndex);
+                auto& record = dynamic_cast<Record&>(**objectAt(objectStack, osi, -2));
+                auto& newObject = *objectAt(objectStack, osi, -1);
+                auto newRecord = boost::make_local_shared<Record>(record, index, newObject);
+                popObject(objectStack, &osi);  // pop record
+                popObject(objectStack, &osi);  // pop newObject
+                pushObject(objectStack, &osi, std::move(newRecord));
+                break;
+            }
+
             case Opcode::kValueListNew: {
                 int numVals = readInt<uint16_t>(instructions, &instructionIndex);
                 ValueListBuilder valueListBuilder{};
@@ -561,6 +785,19 @@ bool Interpreter::run(int maxCycles) {
                     popObject(objectStack, &osi);
                 }
                 pushObject(objectStack, &osi, boost::make_local_shared<ObjectList>(&objectListBuilder));
+                break;
+            }
+
+            case Opcode::kDottedExpressionSetValue:
+            case Opcode::kDottedExpressionSetObject: {
+                SetDottedExpressionState state{};
+                state.p = _private;
+                state.valueStackIndex = &vsi;
+                state.objectStackIndex = &osi;
+                state.instructions = instructions;
+                state.instructionIndex = &instructionIndex;
+                state.isAssigningValue = opcode == Opcode::kDottedExpressionSetValue;
+                setDottedExpression(&state);
                 break;
             }
 

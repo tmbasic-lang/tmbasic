@@ -80,8 +80,26 @@ enum class Opcode {
     kRecordNew,        // <u16 numVals, u16 numObjs> pushes record with values taken from stack
     kRecordGetValue,   // <u16 valIndex>
     kRecordGetObject,  // <u16 objIndex>
+    kRecordSetValue,   // <u16 valIndex> record and new value are on the stack
+    kRecordSetObject,  // <u16 objIndex> record and new object are on the stack
     kValueListNew,     // <u16 numVals> pushes value list with items taken from stack
     kObjectListNew,    // <u16 numObjs> pushes object list with items taken from stack
+
+    // A variable-length representation of the dotted expression follows the fixed bits specified next to the opcode
+    // below. The calling code pushes the value/object to be assigned, then the base of the target dotted expression.
+    // Any index/key objects and values are pushed next, as described below. From left-to-right:
+    // - for a dotted name:
+    //      u8: 0x01 for value field, 0x02 for object field
+    //      u16: field index
+    // - for a list index / map key that is a value:
+    //      u8: 0x03 for value element, 0x04 for object element
+    //      index/key is on the value stack -- the count of these is in numKeyValuesOnStack
+    // - for a map key that is an object:
+    //      u8: 0x05 for value element, 0x06 for object element
+    //      key is on the object stack -- the count of these is in numKeyObjectsOnStack
+    // The updated base object is pushed on the stack.
+    kDottedExpressionSetValue,   // <u8 numSuffixes, u8 numKeyValuesOnStack, u8 numKeyObjectsOnStack, ...>
+    kDottedExpressionSetObject,  // <u8 numSuffixes, u8 numKeyValuesOnStack, u8 numKeyObjectsOnStack, ...>
 };
 
 }  // namespace vm

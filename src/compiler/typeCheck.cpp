@@ -256,37 +256,37 @@ static void typeCheckBinaryExpression(BinaryExpressionNode* expressionNode, Type
     expressionNode->evaluatedType = lhsType;
 }
 
-static void typeCheckCallOrIndexExpression(CallOrIndexExpressionNode* expressionNode, TypeCheckState* state) {
-    if (expressionNode->boundSymbolDeclaration != nullptr) {
-        const auto& decl = *expressionNode->boundSymbolDeclaration;
-        if (dynamic_cast<const ProcedureNode*>(&decl) == nullptr) {
-            // this is a variable being used as a function: a map or list
-            auto& declType = *decl.getSymbolDeclarationType();
-            if (declType.kind == Kind::kMap) {
-                // index type must match map key type
-                throw std::runtime_error("not impl");
-            }
-            if (declType.kind == Kind::kList) {
-                // index type must be Number
-                if (expressionNode->arguments.size() == 1) {
-                    typeCheckExpression(expressionNode->arguments.at(0).get(), state);
-                    if (expressionNode->arguments.at(0)->evaluatedType->kind == Kind::kNumber) {
-                        expressionNode->evaluatedType = declType.listItemType;
-                        return;
-                    }
-                }
-                throw CompilerException(
-                    CompilerErrorCode::kInvalidListIndex, "The list index must be a single number.",
-                    expressionNode->token);
-            }
-            throw CompilerException(
-                CompilerErrorCode::kTypeMismatch, "Only lists and maps can be indexed with \"(...)\" like this.",
-                expressionNode->token);
-        }
-    }
+// static void typeCheckCallOrIndexExpression(CallOrIndexExpressionNode* expressionNode, TypeCheckState* state) {
+//     if (expressionNode->boundSymbolDeclaration != nullptr) {
+//         const auto& decl = *expressionNode->boundSymbolDeclaration;
+//         if (dynamic_cast<const ProcedureNode*>(&decl) == nullptr) {
+//             // this is a variable being used as a function: a map or list
+//             auto& declType = *decl.getSymbolDeclarationType();
+//             if (declType.kind == Kind::kMap) {
+//                 // index type must match map key type
+//                 throw std::runtime_error("not impl");
+//             }
+//             if (declType.kind == Kind::kList) {
+//                 // index type must be Number
+//                 if (expressionNode->arguments.size() == 1) {
+//                     typeCheckExpression(expressionNode->arguments.at(0).get(), state);
+//                     if (expressionNode->arguments.at(0)->evaluatedType->kind == Kind::kNumber) {
+//                         expressionNode->evaluatedType = declType.listItemType;
+//                         return;
+//                     }
+//                 }
+//                 throw CompilerException(
+//                     CompilerErrorCode::kInvalidListIndex, "The list index must be a single number.",
+//                     expressionNode->token);
+//             }
+//             throw CompilerException(
+//                 CompilerErrorCode::kTypeMismatch, "Only lists and maps can be indexed with \"(...)\" like this.",
+//                 expressionNode->token);
+//         }
+//     }
 
-    typeCheckCall(expressionNode, expressionNode->name, expressionNode->arguments, state, true);
-}
+//     typeCheckCall(expressionNode, expressionNode->name, expressionNode->arguments, state, true);
+// }
 
 static void typeCheckConstValueExpressionArray(LiteralArrayExpressionNode* expressionNode, TypeCheckState* state) {
     assert(expressionNode != nullptr);
@@ -354,57 +354,96 @@ static void typeCheckConvertExpression(ConvertExpressionNode* expressionNode) {
 static void typeCheckDottedExpression(DottedExpressionNode* expressionNode, TypeCheckState* state) {
     typeCheckExpression(expressionNode->base.get(), state);
     auto baseType = expressionNode->base->evaluatedType;
+    auto baseSymbolRef = dynamic_cast<SymbolReferenceExpressionNode*>(expressionNode->base.get());
+    auto isFirstSuffix = true;
 
     for (auto& usageSuffix : expressionNode->dottedSuffixes) {
-        if (baseType->kind != Kind::kRecord) {
-            throw CompilerException(
-                CompilerErrorCode::kTypeMismatch,
-                fmt::format(
-                    "The base of a dotted expression must be a Record type, but this is a {}.", baseType->toString()),
-                baseType->token);
-        }
-
-        assert(!usageSuffix->nameLowercase.empty());
-        ParameterNode* typeField{};
-        for (auto& f : baseType->fields) {
-            assert(!f->nameLowercase.empty());
-            if (f->nameLowercase == usageSuffix->nameLowercase) {
-                typeField = f.get();
+        if (usageSuffix->isFieldAccess()) {
+            // this is a record field access like "base.suffix"
+            if (baseType->kind != Kind::kRecord) {
+                throw CompilerException(
+                    CompilerErrorCode::kTypeMismatch,
+                    fmt::format(
+                        "The base of a dotted expression must be a Record type, but this is a {}.",
+                        baseType->toString()),
+                    baseType->token);
             }
-        }
 
-        if (typeField == nullptr) {
-            throw CompilerException(
-                CompilerErrorCode::kFieldNotFound,
-                fmt::format("The type {} does not have a field named \"{}\".", baseType->toString(), usageSuffix->name),
-                usageSuffix->token);
-        }
+            assert(!(*usageSuffix->nameLowercase).empty());
+            ParameterNode* typeField{};
+            for (auto& f : baseType->fields) {
+                assert(!f->nameLowercase.empty());
+                if (f->nameLowercase == usageSuffix->nameLowercase) {
+                    typeField = f.get();
+                }
+            }
 
-        assert(typeField->fieldValueIndex.has_value() || typeField->fieldObjectIndex.has_value());
-        usageSuffix->boundParameterNode = typeField;
+            if (typeField == nullptr) {
+                throw CompilerException(
+                    CompilerErrorCode::kFieldNotFound,
+                    fmt::format(
+                        "The type {} does not have a field named \"{}\".", baseType->toString(), *usageSuffix->name),
+                    usageSuffix->token);
+            }
 
-        if (usageSuffix->collectionIndex != nullptr) {
-            typeCheckExpression(usageSuffix->collectionIndex.get(), state);
-            if (typeField->type->kind == Kind::kList) {
-                if (usageSuffix->collectionIndex->evaluatedType->kind != Kind::kNumber) {
+            assert(typeField->fieldValueIndex.has_value() || typeField->fieldObjectIndex.has_value());
+            usageSuffix->boundParameterNode = typeField;
+            baseType = typeField->type;
+            usageSuffix->evaluatedType = baseType;
+        } else if (usageSuffix->isIndexOrCall()) {
+            if (isFirstSuffix && baseSymbolRef->boundSymbolDeclaration != nullptr &&
+                baseSymbolRef->boundSymbolDeclaration->getMemberType() == MemberType::kProcedure) {
+                // this is a function call
+                typeCheckCall(
+                    usageSuffix.get(), baseSymbolRef->name, usageSuffix->collectionIndexOrCallArgs, state, true);
+                assert(usageSuffix->evaluatedType != nullptr);
+
+                // set baseType to the return type of the function
+                baseType = usageSuffix->evaluatedType;
+            } else {
+                if (usageSuffix->collectionIndexOrCallArgs.size() != 1) {
+                    throw CompilerException(
+                        CompilerErrorCode::kInvalidListIndex,
+                        fmt::format(
+                            "The parentheses here look like a List or Map index, but there are {} comma-separated "
+                            "expressions inside these parentheses instead of 1.",
+                            usageSuffix->collectionIndexOrCallArgs.size()),
+                        usageSuffix->token);
+                }
+
+                if (baseType->kind != Kind::kList && baseType->kind != Kind::kMap) {
                     throw CompilerException(
                         CompilerErrorCode::kTypeMismatch,
                         fmt::format(
-                            "The list index must be a Number, but this is a {}.",
-                            usageSuffix->collectionIndex->evaluatedType->toString()),
-                        usageSuffix->collectionIndex->token);
+                            "The base of an index expression must be a List or Map type, but this is a {}.",
+                            baseType->toString()),
+                        baseType->token);
                 }
-                baseType = typeField->type->listItemType;
-            } else if (typeField->type->kind == Kind::kMap) {
-                throw std::runtime_error("not impl");
-            } else {
-                throw CompilerException(
-                    CompilerErrorCode::kTypeMismatch,
-                    fmt::format("The field {} is not a collection type.", typeField->name), usageSuffix->token);
+
+                auto& collectionIndex = usageSuffix->collectionIndexOrCallArgs.at(0);
+
+                typeCheckExpression(collectionIndex.get(), state);
+                if (baseType->kind == Kind::kList) {
+                    if (collectionIndex->evaluatedType->kind != Kind::kNumber) {
+                        throw CompilerException(
+                            CompilerErrorCode::kTypeMismatch,
+                            fmt::format(
+                                "The list index must be a Number, but this is a {}.",
+                                collectionIndex->evaluatedType->toString()),
+                            collectionIndex->token);
+                    }
+                    baseType = baseType->listItemType;
+                } else if (baseType->kind == Kind::kMap) {
+                    throw std::runtime_error("not impl");
+                }
             }
+
+            usageSuffix->evaluatedType = baseType;
         } else {
-            baseType = typeField->type;
+            assert(false);
         }
+
+        isFirstSuffix = false;
     }
 
     expressionNode->evaluatedType = baseType;
@@ -446,9 +485,6 @@ void typeCheckExpression(ExpressionNode* expressionNode, TypeCheckState* state) 
         case ExpressionType::kBinary:
             typeCheckBinaryExpression(dynamic_cast<BinaryExpressionNode*>(expressionNode), state);
             break;
-        case ExpressionType::kCallOrIndex:
-            typeCheckCallOrIndexExpression(dynamic_cast<CallOrIndexExpressionNode*>(expressionNode), state);
-            break;
         case ExpressionType::kConstValue:
             typeCheckConstValueExpression(dynamic_cast<ConstValueExpressionNode*>(expressionNode), state);
             break;
@@ -477,14 +513,14 @@ static void typeCheckAssignToDottedExpression(const DottedExpressionNode& expres
     typeCheckAssignToExpression(*expressionNode.base);
 }
 
-static void typeCheckAssignToCallOrIndexExpression(const CallOrIndexExpressionNode& expressionNode) {
-    assert(expressionNode.boundSymbolDeclaration != nullptr);
-    const auto& decl = *expressionNode.boundSymbolDeclaration;
-    if (decl.procedureIndex.has_value() || decl.systemCall.has_value()) {
-        throw CompilerException(
-            CompilerErrorCode::kTypeMismatch, "Cannot assign to a function call.", expressionNode.token);
-    }
-}
+// static void typeCheckAssignToCallOrIndexExpression(const CallOrIndexExpressionNode& expressionNode) {
+//     assert(expressionNode.boundSymbolDeclaration != nullptr);
+//     const auto& decl = *expressionNode.boundSymbolDeclaration;
+//     if (decl.procedureIndex.has_value() || decl.systemCall.has_value()) {
+//         throw CompilerException(
+//             CompilerErrorCode::kTypeMismatch, "Cannot assign to a function call.", expressionNode.token);
+//     }
+// }
 
 static void typeCheckAssignToSymbolReferenceExpression(const SymbolReferenceExpressionNode& expressionNode) {
     assert(expressionNode.boundSymbolDeclaration != nullptr);
@@ -504,9 +540,6 @@ static void typeCheckAssignToSymbolReferenceExpression(const SymbolReferenceExpr
     switch (expressionNode.getExpressionType()) {
         case ExpressionType::kDotted:
             typeCheckAssignToDottedExpression(dynamic_cast<const DottedExpressionNode&>(expressionNode));
-            break;
-        case ExpressionType::kCallOrIndex:
-            typeCheckAssignToCallOrIndexExpression(dynamic_cast<const CallOrIndexExpressionNode&>(expressionNode));
             break;
         case ExpressionType::kSymbolReference:
             typeCheckAssignToSymbolReferenceExpression(
