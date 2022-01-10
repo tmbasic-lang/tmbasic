@@ -66,8 +66,17 @@ Linux and Windows builds must be produced on a Linux build machine. Ubuntu Linux
 1. Type `exit` to leave the build environment.
 
 ## Use Visual Studio Code for development and debugging
-1. Install the `ms-vscode.cpptools` and `ms-vscode-remote.remote-containers` extensions in Visual Studio Code.
+1. Install the `ms-vscode.cpptools`, `ms-vscode-remote.remote-containers`, and `ms-azuretools.vscode-docker` extensions in Visual Studio Code.
 1. Start the container using the instructions above.
-1. In Visual Studio Code, click "View" > "Command Palette..." and run the "Remote-Containers: Attach to Running Container..." command.
+1. In Visual Studio Code, click "View" > "Command Palette..." and run the "Remote-Containers: Attach to Running Container..." command. OR: switch to the Docker tab, right-click on the container > "Attach Visual Studio Code".
 1. Choose the `/tmbasic-dev` container.
 1. Choose the `/code` directory.
+
+If your Docker engine is running on another machine, modify the above steps:
+1. Install the `ms-vscode-remote.remote-ssh` extension too.
+1. Download the [Docker client EXE](https://github.com/StefanScherer/docker-cli-builder/releases) and stick it somewhere on your `PATH`.
+1. On the remote Linux machine, run `sudo systemctl edit --full docker.service` and edit the `ExecStart` line to add `-H tcp://0.0.0.0:2375`. Example: `ExecStart=/usr/bin/dockerd -H fd:// -H tcp://0.0.0.0:2375 --containerd=/run/containerd/containerd.sock`. Then `sudo systemctl restart docker.service`.
+1. On the local Windows machine, add the system environment variable `DOCKER_HOST` set to the hostname of the target machine.
+1. Test with `docker image ls` on the local machine.
+1. Start `build/dev.sh` on the remote machine.
+1. Continue with the original steps.
