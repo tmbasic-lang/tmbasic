@@ -22,7 +22,8 @@ RUN apt-get update -y && \
         automake \
         dos2unix \
         pngcrush \
-        nano
+        nano \
+        texinfo
 
 # unprivileged user
 RUN mkdir -p /code && \

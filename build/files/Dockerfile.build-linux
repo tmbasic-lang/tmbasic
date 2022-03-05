@@ -17,7 +17,8 @@ RUN apk update && \
         g++ \
         musl-dev \
         patch \
-        linux-headers
+        linux-headers \
+        texinfo
 
 # unprivileged user
 RUN (addgroup -g $HOST_GID user || true) && \

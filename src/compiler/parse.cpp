@@ -772,6 +772,7 @@ class DottedExpressionSuffixProduction : public Production {
                 captureNodeArray<ExpressionNode>(std::move(captures->at(1))), firstToken);
         } else {
             assert(false);
+            return nullptr;
         }
     }
 };
