@@ -6,6 +6,7 @@
 #include "bindProcedureSymbols.h"
 #include "bindYieldStatements.h"
 #include "emit.h"
+#include "fixDottedExpressionFunctionCalls.h"
 #include "parse.h"
 #include "tokenize.h"
 #include "typeCheck.h"
@@ -101,6 +102,7 @@ static void compileProcedure(
     SymbolScope* globalSymbolScope,
     const BuiltInProcedureList& builtInProcedures) {
     auto* procedureNode = compiledProcedure->procedureNode.get();
+    fixDottedExpressionFunctionCalls(procedureNode, builtInProcedures, *compiledProgram);
     bindProcedureSymbols(globalSymbolScope, procedureNode);
     bindYieldStatements(procedureNode);
     bindNamedRecordTypes(procedureNode, *compiledProgram);

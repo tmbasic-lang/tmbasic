@@ -422,6 +422,31 @@ ExpressionType DottedExpressionNode::getExpressionType() const {
     return ExpressionType::kDotted;
 }
 
+FunctionCallExpressionNode::FunctionCallExpressionNode(
+    std::string name,
+    std::vector<std::unique_ptr<ExpressionNode>> args,
+    Token token)
+    : ExpressionNode(std::move(token)), name(std::move(name)), args(std::move(args)) {}
+
+void FunctionCallExpressionNode::dump(std::ostream& s, int n) const {
+    DUMP_TYPE(FunctionCallExpressionNode);
+    DUMP_VAR(name);
+    DUMP_VAR_NODES(args);
+}
+
+bool FunctionCallExpressionNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
+    for (auto& x : args) {
+        if (!visitChildExpression(rootsOnly, x.get(), func)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+ExpressionType FunctionCallExpressionNode::getExpressionType() const {
+    return ExpressionType::kFunctionCall;
+}
+
 LiteralArrayExpressionNode::LiteralArrayExpressionNode(
     std::vector<std::unique_ptr<ExpressionNode>> elements,
     Token token)

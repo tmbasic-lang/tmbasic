@@ -135,6 +135,7 @@ enum class ExpressionType {
     kDotted,
     kNot,
     kSymbolReference,
+    kFunctionCall,
 };
 
 class ExpressionNode : public Node {
@@ -239,6 +240,17 @@ class DottedExpressionNode : public ExpressionNode {
         std::unique_ptr<ExpressionNode> base,
         std::vector<std::unique_ptr<DottedExpressionSuffixNode>> dottedSuffixes,
         Token token);
+    void dump(std::ostream& s, int n) const override;
+    bool visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const override;
+    ExpressionType getExpressionType() const override;
+};
+
+// fixDottedExpressionFunctionCalls() creates this node to be the base of DottedExpressionNodes.
+class FunctionCallExpressionNode : public ExpressionNode {
+   public:
+    std::string name;
+    std::vector<std::unique_ptr<ExpressionNode>> args;
+    FunctionCallExpressionNode(std::string name, std::vector<std::unique_ptr<ExpressionNode>> args, Token token);
     void dump(std::ostream& s, int n) const override;
     bool visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const override;
     ExpressionType getExpressionType() const override;

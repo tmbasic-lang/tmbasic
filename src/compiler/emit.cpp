@@ -671,36 +671,37 @@ static void emitConvertExpression(const ConvertExpressionNode& /*expressionNode*
     throw std::runtime_error("not impl");
 }
 
-static void emitDottedExpression(const DottedExpressionNode& expressionNode, ProcedureState* state) {
-    assert(expressionNode.dottedSuffixes.size() > 0);
-    auto& firstSuffix = expressionNode.dottedSuffixes.at(0);
-    auto suffixIndex = 0;
-    auto* baseType = expressionNode.base->evaluatedType.get();
-
-    // The base could be a function call like Foo(1, 2). This is the only place a function call can be.
-    auto baseSymbolRef = dynamic_cast<SymbolReferenceExpressionNode*>(expressionNode.base.get());
-    if (baseSymbolRef != nullptr && baseSymbolRef->boundSymbolDeclaration != nullptr &&
-        baseSymbolRef->boundSymbolDeclaration->getMemberType() == MemberType::kProcedure) {
-        // It is indeed a function call.
-        assert(firstSuffix->procedureIndex.has_value());
-        assert(firstSuffix->evaluatedType != nullptr);
-        auto numValueArgs = 0;
-        auto numObjectArgs = 0;
-        for (auto& arg : firstSuffix->collectionIndexOrCallArgs) {
-            assert(arg->evaluatedType != nullptr);
-            arg->evaluatedType->isValueType() ? numValueArgs++ : numObjectArgs++;
-            emitExpression(*arg, state);
-        }
-        state->call(
-            firstSuffix->evaluatedType->isValueType() ? Opcode::kCallV : Opcode::kCallO, *firstSuffix->procedureIndex,
-            numValueArgs, numObjectArgs);
-        baseType = firstSuffix->evaluatedType.get();
-        // We have now emitted both the base and the first suffix.
-        suffixIndex++;
-    } else {
-        // Otherwise the base is just a regular expression. We will just emit the base.
-        emitExpression(*expressionNode.base, state);
+static void emitFunctionCallExpression(const FunctionCallExpressionNode& expressionNode, ProcedureState* state) {
+    assert(expressionNode.procedureIndex.has_value() || expressionNode.systemCall.has_value());
+    assert(expressionNode.evaluatedType != nullptr);
+    auto numValueArgs = 0;
+    auto numObjectArgs = 0;
+    for (auto& arg : expressionNode.args) {
+        assert(arg->evaluatedType != nullptr);
+        arg->evaluatedType->isValueType() ? numValueArgs++ : numObjectArgs++;
+        emitExpression(*arg, state);
     }
+    if (expressionNode.systemCall.has_value()) {
+        state->syscall(
+            expressionNode.evaluatedType->isValueType() ? Opcode::kSystemCallV : Opcode::kSystemCallO,
+            *expressionNode.systemCall, numValueArgs, numObjectArgs);
+    } else {
+        state->call(
+            expressionNode.evaluatedType->isValueType() ? Opcode::kCallV : Opcode::kCallO,
+            *expressionNode.procedureIndex, numValueArgs, numObjectArgs);
+    }
+}
+
+static void emitDottedExpression(const DottedExpressionNode& expressionNode, ProcedureState* state) {
+    // In fixDottedExpressionFunctionCalls() we may have transformed the suffix into part of the base, leaving no
+    // suffixes left in the list here.
+    if (expressionNode.dottedSuffixes.empty()) {
+        emitExpression(*expressionNode.base, state);
+        return;
+    }
+
+    auto* baseType = expressionNode.base->evaluatedType.get();
+    emitExpression(*expressionNode.base, state);
 
     for (const auto& dottedSuffix : expressionNode.dottedSuffixes) {
         if (dottedSuffix->isFieldAccess()) {
@@ -771,6 +772,9 @@ static void emitSymbolReferenceExpression(const SymbolReferenceExpressionNode& e
             break;
         case ExpressionType::kSymbolReference:
             emitSymbolReferenceExpression(dynamic_cast<const SymbolReferenceExpressionNode&>(expressionNode), state);
+            break;
+        case ExpressionType::kFunctionCall:
+            emitFunctionCallExpression(dynamic_cast<const FunctionCallExpressionNode&>(expressionNode), state);
             break;
         default:
             assert(false);

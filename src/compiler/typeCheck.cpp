@@ -73,6 +73,8 @@ static void typeCheckCall(
 
     auto anyNameMatches = false;
 
+    // Note: fixDottedExpressionFunctionCalls() and typeCheckCall() duplicate the procedure lookup logic
+
     auto lowercaseProcedureName = boost::to_lower_copy(name);
     for (auto& compiledProcedure : state->compiledProgram->procedures) {
         if (compiledProcedure->nameLowercase == lowercaseProcedureName) {
@@ -359,6 +361,10 @@ static void typeCheckConvertExpression(ConvertExpressionNode* expressionNode) {
     throw std::runtime_error("not impl");
 }
 
+static void typeCheckFunctionCallExpression(FunctionCallExpressionNode* expressionNode, TypeCheckState* state) {
+    typeCheckCall(expressionNode, expressionNode->name, expressionNode->args, state, true);
+}
+
 static void typeCheckDottedExpression(DottedExpressionNode* expressionNode, TypeCheckState* state) {
     typeCheckExpression(expressionNode->base.get(), state);
     auto baseType = expressionNode->base->evaluatedType;
@@ -507,6 +513,9 @@ void typeCheckExpression(ExpressionNode* expressionNode, TypeCheckState* state) 
             break;
         case ExpressionType::kSymbolReference:
             typeCheckSymbolReferenceExpression(dynamic_cast<SymbolReferenceExpressionNode*>(expressionNode), state);
+            break;
+        case ExpressionType::kFunctionCall:
+            typeCheckFunctionCallExpression(dynamic_cast<FunctionCallExpressionNode*>(expressionNode), state);
             break;
         default:
             throw std::runtime_error("Unrecognized expression type.");

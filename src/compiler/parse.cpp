@@ -754,8 +754,12 @@ class DottedExpressionSuffixProduction : public Production {
                       list({
                           term(TokenKind::kLeftParenthesis),
                           cut(),
-                          zeroOrMore({
+                          optional({
                               capture(1, prod(expression)),
+                              zeroOrMore({
+                                  term(TokenKind::kComma),
+                                  capture(1, prod(expression)),
+                              }),
                           }),
                           term(TokenKind::kRightParenthesis),
                       }),
@@ -766,13 +770,10 @@ class DottedExpressionSuffixProduction : public Production {
         if (hasCapture(captures->at(0))) {
             // field access
             return nodeBox<DottedExpressionSuffixNode>(captureTokenText(std::move(captures->at(0))), firstToken);
-        } else if (hasCapture(captures->at(1))) {
+        } else {
             // collection index or function call
             return nodeBox<DottedExpressionSuffixNode>(
                 captureNodeArray<ExpressionNode>(std::move(captures->at(1))), firstToken);
-        } else {
-            assert(false);
-            return nullptr;
         }
     }
 };
