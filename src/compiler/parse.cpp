@@ -2,7 +2,7 @@
 // #define DUMP_PARSE
 
 // uncomment to dump final AST to std::cerr
-#define DUMP_AST
+// #define DUMP_AST
 
 #include "compiler/parse.h"
 #include "util/decimal.h"

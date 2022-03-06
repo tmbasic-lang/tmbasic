@@ -706,6 +706,8 @@ static void emitDottedExpression(const DottedExpressionNode& expressionNode, Pro
         if (dottedSuffix->isFieldAccess()) {
             auto* parameterNode = dottedSuffix->boundParameterNode;
             assert(parameterNode != nullptr);
+            baseType = parameterNode->type.get();
+            assert(baseType != nullptr);
             if (parameterNode->fieldValueIndex.has_value()) {
                 state->recordGetValue(*parameterNode->fieldValueIndex);
             } else if (parameterNode->fieldObjectIndex.has_value()) {

@@ -71,24 +71,30 @@ static void typeCheckCall(
         typeCheckExpression(argument.get(), state);
     }
 
+    auto anyNameMatches = false;
+
     auto lowercaseProcedureName = boost::to_lower_copy(name);
     for (auto& compiledProcedure : state->compiledProgram->procedures) {
-        if (compiledProcedure->nameLowercase == lowercaseProcedureName &&
-            doCallArgumentTypesMatchProcedureParameters(arguments, compiledProcedure->procedureNode->parameters)) {
-            if (mustBeFunction && compiledProcedure->procedureNode->returnType == nullptr) {
-                throw CompilerException(
-                    CompilerErrorCode::kSubCalledAsFunction,
-                    fmt::format("\"{}\" is a subroutine but is being called as a function.", name), callNode->token);
+        if (compiledProcedure->nameLowercase == lowercaseProcedureName) {
+            anyNameMatches = true;
+            if (doCallArgumentTypesMatchProcedureParameters(arguments, compiledProcedure->procedureNode->parameters)) {
+                if (mustBeFunction && compiledProcedure->procedureNode->returnType == nullptr) {
+                    throw CompilerException(
+                        CompilerErrorCode::kSubCalledAsFunction,
+                        fmt::format("\"{}\" is a subroutine but is being called as a function.", name),
+                        callNode->token);
+                }
+                callNode->procedureIndex = compiledProcedure->procedureIndex;
+                if (compiledProcedure->procedureNode->returnType != nullptr) {
+                    callNode->evaluatedType = compiledProcedure->procedureNode->returnType;
+                }
+                return;
             }
-            callNode->procedureIndex = compiledProcedure->procedureIndex;
-            if (compiledProcedure->procedureNode->returnType != nullptr) {
-                callNode->evaluatedType = compiledProcedure->procedureNode->returnType;
-            }
-            return;
         }
     }
 
     for (const auto& builtInProcedure : state->builtInProcedures.get(name)) {
+        anyNameMatches = true;
         if (doCallArgumentTypesMatchProcedureParameters(arguments, builtInProcedure->parameters)) {
             if (mustBeFunction && builtInProcedure->returnType == nullptr) {
                 throw CompilerException(
@@ -104,7 +110,9 @@ static void typeCheckCall(
     }
 
     throw CompilerException(
-        CompilerErrorCode::kProcedureNotFound, fmt::format("Call to undefined procedure \"{}\".", name),
+        CompilerErrorCode::kProcedureNotFound,
+        anyNameMatches ? fmt::format("Call to procedure \"{}\" with the wrong parameters.", name)
+                       : fmt::format("Call to undefined procedure \"{}\".", name),
         callNode->token);
 }
 
