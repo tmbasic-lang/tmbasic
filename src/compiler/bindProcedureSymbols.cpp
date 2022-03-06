@@ -78,16 +78,6 @@ static void bindExpressionSymbols(ExpressionNode* node, SymbolScope* scope) {
             }
         }
     }
-    // else if (node->getExpressionType() == ExpressionType::kCallOrIndex) {
-    //     // is this actually a list index?
-    //     auto* call = dynamic_cast<CallOrIndexExpressionNode*>(node);
-    //     auto lowercaseName = boost::to_lower_copy(call->name);
-    //     const auto* symbolDeclaration = scope->lookup(lowercaseName);
-    //     if (symbolDeclaration != nullptr) {
-    //         call->boundSymbolDeclaration = symbolDeclaration;
-    //     }
-    //     // it's ok if it's not
-    // }
 }
 
 static void bindBodySymbols(BodyNode* node, SymbolScope* scope);

@@ -111,7 +111,7 @@ static void compileProcedure(
     int numLocalObjects = 0;
     assignLocalVariableIndices(procedureNode, &numLocalValues, &numLocalObjects);
     assignArgumentIndices(procedureNode);
-    auto pcode = emit(*procedureNode, numLocalValues, numLocalObjects);
+    auto pcode = emit(*procedureNode, numLocalValues, numLocalObjects, compiledProgram);
     auto vmProcedure = std::make_unique<vm::Procedure>();
     vmProcedure->instructions = std::move(pcode);
     compiledProgram->vmProgram.procedures.push_back(std::move(vmProcedure));

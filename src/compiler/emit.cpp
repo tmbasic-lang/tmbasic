@@ -270,6 +270,29 @@ class ProcedureState {
         emitInt<uint16_t>(numObjs);
     }
 
+    void dottedExpressionSetValue(uint8_t numSuffixes, uint8_t numKeyValuesOnStack, uint8_t numKeyObjectsOnStack) {
+        op(Opcode::kDottedExpressionSetValue);
+        emitInt<uint8_t>(numSuffixes);
+        emitInt<uint8_t>(numKeyValuesOnStack);
+        emitInt<uint8_t>(numKeyObjectsOnStack);
+    }
+
+    void dottedExpressionSetObject(uint8_t numSuffixes, uint8_t numKeyValuesOnStack, uint8_t numKeyObjectsOnStack) {
+        op(Opcode::kDottedExpressionSetObject);
+        emitInt<uint8_t>(numSuffixes);
+        emitInt<uint8_t>(numKeyValuesOnStack);
+        emitInt<uint8_t>(numKeyObjectsOnStack);
+    }
+
+    void dottedExpressionDottedSuffix(bool isValueField, uint16_t fieldIndex) {
+        emitInt<uint8_t>(isValueField ? 1 : 2);
+        emitInt<uint16_t>(fieldIndex);
+    }
+
+    void dottedExpressionValueKeySuffix(bool isValueElement) { emitInt<uint8_t>(isValueElement ? 3 : 4); }
+
+    void dottedExpressionObjectKeySuffix(bool isValueElement) { emitInt<uint8_t>(isValueElement ? 5 : 6); }
+
    private:
     template <typename TOutputInt, typename TInputInt>
     void emitInt(TInputInt value, bool log = true) {
@@ -554,49 +577,6 @@ static void emitSymbolReference(const Node& declarationNode, ProcedureState* sta
         CompilerErrorCode::kInternal, "Internal error. Unknown declaration node type.", declarationNode.token);
 }
 
-// static void emitCallExpression(const CallOrIndexExpressionNode& expressionNode, ProcedureState* state) {
-//     assert(expressionNode.evaluatedType != nullptr);
-//     auto returnsValue = expressionNode.evaluatedType->isValueType();
-//     auto numValueArgs = 0;
-//     auto numObjectArgs = 0;
-//     for (const auto& arg : expressionNode.arguments) {
-//         assert(arg->evaluatedType != nullptr);
-//         arg->evaluatedType->isValueType() ? numValueArgs++ : numObjectArgs++;
-//         emitExpression(*arg, state);
-//     }
-//     if (expressionNode.boundSymbolDeclaration != nullptr &&
-//         dynamic_cast<const ProcedureNode*>(expressionNode.boundSymbolDeclaration) == nullptr) {
-//         // this is a list or map index
-//         assert(expressionNode.boundSymbolDeclaration->evaluatedType != nullptr);
-//         emitSymbolReference(*expressionNode.boundSymbolDeclaration, state);
-//         auto* declType = expressionNode.boundSymbolDeclaration->getSymbolDeclarationType().get();
-//         assert(declType);
-//         assert(declType->kind == Kind::kList || declType->kind == Kind::kMap);
-//         if (declType->kind == Kind::kList) {
-//             auto& itemType = *declType->listItemType;
-//             if (itemType.isValueType()) {
-//                 state->syscall(Opcode::kSystemCallV, SystemCall::kValueListGet, 1, 1);
-//             } else {
-//                 state->syscall(Opcode::kSystemCallO, SystemCall::kObjectListGet, 1, 1);
-//             }
-//         } else if (declType->kind == Kind::kMap) {
-//             throw std::runtime_error("not impl");
-//         }
-//     } else if (expressionNode.procedureIndex.has_value()) {
-//         state->call(
-//             returnsValue ? Opcode::kCallV : Opcode::kCallO, *expressionNode.procedureIndex, numValueArgs,
-//             numObjectArgs);
-//     } else if (expressionNode.systemCall.has_value()) {
-//         state->syscall(
-//             returnsValue ? Opcode::kSystemCallV : Opcode::kSystemCallO, *expressionNode.systemCall, numValueArgs,
-//             numObjectArgs);
-//     } else {
-//         throw CompilerException(
-//             CompilerErrorCode::kInternal, "Internal error. Call expression not bound to declaration.",
-//             expressionNode.token);
-//     }
-// }
-
 static void emitLiteralArrayExpression(const LiteralArrayExpressionNode& expressionNode, ProcedureState* state) {
     assert(!expressionNode.elements.empty());
     assert(expressionNode.elements.at(0)->evaluatedType != nullptr);
@@ -791,7 +771,92 @@ static void emitAssignToDottedExpression(
     const DottedExpressionNode& expressionNode,
     const ExpressionNode& rhs,
     ProcedureState* state) {
-    // TODO
+    if (expressionNode.base->getExpressionType() != ExpressionType::kSymbolReference) {
+        throw CompilerException(
+            CompilerErrorCode::kInvalidAssignmentTarget,
+            "The target on the left side of this assignment cannot be assigned to.", expressionNode.token);
+    }
+
+    // kDottedExpressionSetValue/Object expects the new value/object (RHS) to be pushed first.
+
+    emitExpression(rhs, state);
+
+    // We will push the base, then kDottedExpressionSetValue/Object will replace it with a modified base.
+    // Then we will write the base back to where it came from.
+    // See the description of kDottedExpressionSetValue in Opcode.h for most information.
+
+    auto& baseSymbolReference = dynamic_cast<SymbolReferenceExpressionNode&>(*expressionNode.base);
+    emitExpression(baseSymbolReference, state);
+
+    // We need to know:
+    // - How many suffixes
+    // - How many value arguments (call arguments or collection indexes)
+    // - How many object arguments (call arguments or collection indexes)
+    // In an expression like "Foo.MyList(1).MyMap(2).Field.Bar(myString)" there are 4 suffixes, 2 value arguments, and
+    // 1 object argument. We will evaluate the arguments as we go, so they're on the stack in the order they appear in
+    // the suffixes. kDottedExpressionSetValue/Object will consume them.
+
+    auto numSuffixes = expressionNode.dottedSuffixes.size();
+    auto numValueArgs = 0;
+    auto numObjectArgs = 0;
+    for (const auto& dottedSuffix : expressionNode.dottedSuffixes) {
+        if (!dottedSuffix->isIndexOrCall()) {
+            continue;
+        }
+        assert(dottedSuffix->collectionIndexOrCallArgs.size() == 1);
+        const auto& arg = dottedSuffix->collectionIndexOrCallArgs.at(0);
+        assert(arg->evaluatedType != nullptr);
+        if (arg->evaluatedType->isValueType()) {
+            numValueArgs++;
+        } else {
+            numObjectArgs++;
+        }
+        emitExpression(*arg, state);
+    }
+
+    // The arguments are all pushed, so we can begin emitting the kDottedExpressionSetValue/Object call.
+
+    assert(expressionNode.evaluatedType != nullptr);
+    if (expressionNode.evaluatedType->isValueType()) {
+        state->dottedExpressionSetValue(numSuffixes, numValueArgs, numObjectArgs);
+    } else {
+        state->dottedExpressionSetObject(numSuffixes, numValueArgs, numObjectArgs);
+    }
+
+    // The opcode is followed by an encoding of the suffixes. We push the key value/objects in the same order they
+    // appear in these suffixes.
+
+    for (const auto& dottedSuffix : expressionNode.dottedSuffixes) {
+        assert(dottedSuffix->evaluatedType != nullptr);
+        auto suffixIsValue = dottedSuffix->evaluatedType->isValueType();
+        if (dottedSuffix->isFieldAccess()) {
+            auto* bound = dottedSuffix->boundParameterNode;
+            assert(bound != nullptr);
+            assert(
+                (suffixIsValue && bound->fieldValueIndex.has_value()) ||
+                (!suffixIsValue && bound->fieldObjectIndex.has_value()));
+            auto index = suffixIsValue ? *bound->fieldValueIndex : *bound->fieldObjectIndex;
+            state->dottedExpressionDottedSuffix(suffixIsValue, index);
+        } else if (dottedSuffix->isIndexOrCall()) {
+            // It's an index, not a call.
+            assert(dottedSuffix->collectionIndexOrCallArgs.size() == 1);
+            const auto& arg = *dottedSuffix->collectionIndexOrCallArgs.at(0);
+            assert(arg.evaluatedType != nullptr);
+            if (arg.evaluatedType->isValueType()) {
+                state->dottedExpressionValueKeySuffix(suffixIsValue);
+            } else {
+                state->dottedExpressionObjectKeySuffix(suffixIsValue);
+            }
+        } else {
+            assert(false);
+        }
+    }
+
+    // The kDottedExpressionSetValue/Object call is complete and the modified base is on the stack. We have to move it
+    // back to the target.
+
+    const auto* decl = baseSymbolReference.boundSymbolDeclaration;
+    emitSymbolReference(*decl, state, /* set */ true);
 }
 
 static void emitAssignToSymbolReferenceExpression(
@@ -1627,7 +1692,11 @@ static void emitInputStatement(const InputStatementNode& statementNode, Procedur
     }
 }
 
-vector<uint8_t> emit(const ProcedureNode& procedureNode, int numLocalValues, int numLocalObjects) {
+vector<uint8_t> emit(
+    const ProcedureNode& procedureNode,
+    int numLocalValues,
+    int numLocalObjects,
+    CompiledProgram* compiledProgram) {
 #ifdef DUMP_ASM
     std::cerr << "--start of emit--";
 #endif
@@ -1638,6 +1707,20 @@ vector<uint8_t> emit(const ProcedureNode& procedureNode, int numLocalValues, int
             CompilerErrorCode::kTooManyLocalVariables, "Too many local variables.", procedureNode.token);
     }
     state.initLocals(static_cast<uint16_t>(numLocalValues), static_cast<uint16_t>(numLocalObjects));
+
+    if (boost::to_lower_copy(procedureNode.name) == "main") {
+        // We have to initialize any global objects that don't have initializers.
+        for (const auto& globalVariable : compiledProgram->globalVariables) {
+            auto* type = globalVariable->dimOrConstStatementNode->evaluatedType.get();
+            assert(type != nullptr);
+            if (type->isValueType() || type->kind == Kind::kString) {
+                continue;
+            }
+            emitDefaultValue(*type, &state);
+            state.setGlobalObject(globalVariable->index);
+        }
+    }
+
     emitBody(*procedureNode.body, &state);
     state.returnVoid();
 #ifdef DUMP_ASM

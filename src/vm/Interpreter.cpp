@@ -143,7 +143,6 @@ struct SetDottedExpressionState {
     const std::vector<uint8_t>* instructions{};
     size_t* instructionIndex{};
     bool isAssigningValue{};
-    boost::local_shared_ptr<Object> baseObject{};
     Value sourceValue{};
     boost::local_shared_ptr<Object> sourceObject{};
 };
@@ -152,9 +151,10 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
     const SetDottedExpressionState& state,
     const boost::local_shared_ptr<Object>& base,
     int remainingSuffixes,  // includes this one
-    int nextKeyValueIndex,
-    int nextKeyObjectValue) {
+    int nextKeyValueOffset,
+    int nextKeyObjectOffset) {
     auto suffixType = readInt<uint8_t>(state.instructions, state.instructionIndex);
+    assert(base != nullptr);
     auto baseType = base->getObjectType();
 
     switch (suffixType) {
@@ -193,7 +193,7 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
             // We are recursing into this object field.
             const auto& objectField = baseRecord.objects.at(objectFieldIndex);
             auto updatedObjectField = setDottedExpressionRecurse(
-                state, objectField, remainingSuffixes - 1, nextKeyValueIndex, nextKeyObjectValue);
+                state, objectField, remainingSuffixes - 1, nextKeyValueOffset, nextKeyObjectOffset);
             return boost::make_local_shared<Record>(baseRecord, objectFieldIndex, updatedObjectField);
         }
 
@@ -205,7 +205,7 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
             if (!state.isAssigningValue) {
                 throw std::runtime_error("Expected assignment target to be a value.");
             }
-            auto indexOrKeyValue = *valueAt(&state.p->valueStack, *state.valueStackIndex, nextKeyValueIndex++);
+            auto indexOrKeyValue = *valueAt(&state.p->valueStack, *state.valueStackIndex, nextKeyValueOffset++);
             if (baseType == ObjectType::kValueList) {
                 // We are assigning to this value list element.
                 auto index = indexOrKeyValue.getInt64();
@@ -222,7 +222,7 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
 
         case 0x04: {
             // Value index/key + object element
-            auto indexOrKeyValue = *valueAt(&state.p->valueStack, *state.valueStackIndex, nextKeyValueIndex++);
+            auto indexOrKeyValue = *valueAt(&state.p->valueStack, *state.valueStackIndex, nextKeyValueOffset++);
             if (baseType == ObjectType::kObjectList) {
                 auto& baseObjectList = dynamic_cast<ObjectList&>(*base);
                 if (remainingSuffixes == 1) {
@@ -237,7 +237,7 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
                     auto index = indexOrKeyValue.getInt64();
                     auto objectElement = baseObjectList.items.at(index);
                     auto updatedObjectElement = setDottedExpressionRecurse(
-                        state, objectElement, remainingSuffixes - 1, nextKeyValueIndex, nextKeyObjectValue);
+                        state, objectElement, remainingSuffixes - 1, nextKeyValueOffset, nextKeyObjectOffset);
                     return boost::make_local_shared<ObjectList>(
                         baseObjectList, /* insert */ false, indexOrKeyValue.getInt64(), updatedObjectElement);
                 }
@@ -269,7 +269,7 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
             if (!state.isAssigningValue) {
                 throw std::runtime_error("Expected assignment target to be an object, but it's a value.");
             }
-            auto keyObject = *objectAt(&state.p->objectStack, *state.objectStackIndex, nextKeyObjectValue++);
+            auto keyObject = *objectAt(&state.p->objectStack, *state.objectStackIndex, nextKeyObjectOffset++);
             // We are assigning to this object-value map element.
             auto& baseMap = dynamic_cast<ObjectToValueMap&>(*base);
             return boost::make_local_shared<ObjectToValueMap>(baseMap, keyObject, state.sourceValue);
@@ -302,28 +302,28 @@ static void setDottedExpression(SetDottedExpressionState* state) {
     // Object stack: [source-object]  [target-base]  [key-0]  [key-1]  ...  <osi>
     auto* osi = state->objectStackIndex;
     auto* vsi = state->valueStackIndex;
-    auto sourceValueIndex = *vsi - numKeyValues - 1;        // If there is a source value, then it's here.
-    auto startKeyValueIndex = sourceValueIndex + 1;         // Key values will start here.
-    auto sourceObjectIndex = *osi - numKeyObjects - 2;      // If there is a source object, then it's here.
-    auto targetBaseObjectIndex = *osi - numKeyObjects - 1;  // Target base object is here.
-    auto startKeyObjectIndex = targetBaseObjectIndex + 1;   // Key objects will start here.
+    auto sourceValueOffset = -numKeyValues - 1;              // If there is a source value, then it's here.
+    auto startKeyValueOffset = sourceValueOffset + 1;        // Key values will start here.
+    auto sourceObjectOffset = -numKeyObjects - 2;            // If there is a source object, then it's here.
+    auto targetBaseObjectOffset = -numKeyObjects - 1;        // Target base object is here.
+    auto startKeyObjectOffset = targetBaseObjectOffset + 1;  // Key objects will start here.
 
     // Some things are immediately available for us to read out.
-    auto baseObject = *objectAt(&state->p->objectStack, *osi, targetBaseObjectIndex);
+    auto baseObject = *objectAt(&state->p->objectStack, *osi, targetBaseObjectOffset);
     assert(baseObject != nullptr);
-    state->sourceValue = state->isAssigningValue ? *valueAt(&state->p->valueStack, *vsi, sourceValueIndex) : Value{};
-    state->sourceObject = !state->isAssigningValue ? *objectAt(&state->p->objectStack, *osi, sourceObjectIndex)
+    state->sourceValue = state->isAssigningValue ? *valueAt(&state->p->valueStack, *vsi, sourceValueOffset) : Value{};
+    state->sourceObject = !state->isAssigningValue ? *objectAt(&state->p->objectStack, *osi, sourceObjectOffset)
                                                    : boost::local_shared_ptr<Object>{};
 
     // Now recursively process the suffixes to reach the target value or object.
     auto updatedBaseObject =
-        setDottedExpressionRecurse(*state, state->baseObject, numSuffixes, startKeyValueIndex, startKeyObjectIndex);
+        setDottedExpressionRecurse(*state, baseObject, numSuffixes, startKeyValueOffset, startKeyObjectOffset);
 
     // Pop the index/keys.
-    while (*vsi > startKeyValueIndex) {
+    for (auto i = 0; i < numKeyValues; i++) {
         popValue(&state->p->valueStack, vsi);
     }
-    while (*osi > startKeyObjectIndex) {
+    for (auto i = 0; i < numKeyObjects; i++) {
         popObject(&state->p->objectStack, osi);
     }
 

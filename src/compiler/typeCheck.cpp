@@ -266,38 +266,6 @@ static void typeCheckBinaryExpression(BinaryExpressionNode* expressionNode, Type
     expressionNode->evaluatedType = lhsType;
 }
 
-// static void typeCheckCallOrIndexExpression(CallOrIndexExpressionNode* expressionNode, TypeCheckState* state) {
-//     if (expressionNode->boundSymbolDeclaration != nullptr) {
-//         const auto& decl = *expressionNode->boundSymbolDeclaration;
-//         if (dynamic_cast<const ProcedureNode*>(&decl) == nullptr) {
-//             // this is a variable being used as a function: a map or list
-//             auto& declType = *decl.getSymbolDeclarationType();
-//             if (declType.kind == Kind::kMap) {
-//                 // index type must match map key type
-//                 throw std::runtime_error("not impl");
-//             }
-//             if (declType.kind == Kind::kList) {
-//                 // index type must be Number
-//                 if (expressionNode->arguments.size() == 1) {
-//                     typeCheckExpression(expressionNode->arguments.at(0).get(), state);
-//                     if (expressionNode->arguments.at(0)->evaluatedType->kind == Kind::kNumber) {
-//                         expressionNode->evaluatedType = declType.listItemType;
-//                         return;
-//                     }
-//                 }
-//                 throw CompilerException(
-//                     CompilerErrorCode::kInvalidListIndex, "The list index must be a single number.",
-//                     expressionNode->token);
-//             }
-//             throw CompilerException(
-//                 CompilerErrorCode::kTypeMismatch, "Only lists and maps can be indexed with \"(...)\" like this.",
-//                 expressionNode->token);
-//         }
-//     }
-
-//     typeCheckCall(expressionNode, expressionNode->name, expressionNode->arguments, state, true);
-// }
-
 static void typeCheckConstValueExpressionArray(LiteralArrayExpressionNode* expressionNode, TypeCheckState* state) {
     assert(expressionNode != nullptr);
     if (expressionNode->elements.empty()) {
@@ -529,15 +497,6 @@ static void typeCheckAssignToExpression(const ExpressionNode& expressionNode);
 static void typeCheckAssignToDottedExpression(const DottedExpressionNode& expressionNode) {
     typeCheckAssignToExpression(*expressionNode.base);
 }
-
-// static void typeCheckAssignToCallOrIndexExpression(const CallOrIndexExpressionNode& expressionNode) {
-//     assert(expressionNode.boundSymbolDeclaration != nullptr);
-//     const auto& decl = *expressionNode.boundSymbolDeclaration;
-//     if (decl.procedureIndex.has_value() || decl.systemCall.has_value()) {
-//         throw CompilerException(
-//             CompilerErrorCode::kTypeMismatch, "Cannot assign to a function call.", expressionNode.token);
-//     }
-// }
 
 static void typeCheckAssignToSymbolReferenceExpression(const SymbolReferenceExpressionNode& expressionNode) {
     assert(expressionNode.boundSymbolDeclaration != nullptr);

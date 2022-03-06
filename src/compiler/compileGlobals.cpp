@@ -22,7 +22,6 @@ static boost::local_shared_ptr<TypeNode> getTypeForLiteralToken(const Token& tok
             kind = Kind::kString;
             break;
         default:
-            assert(false);
             return nullptr;
     }
 
@@ -96,11 +95,17 @@ static void compileGlobal(const SourceMember& sourceMember, CompiledProgram* com
             if (dimNode->value->getExpressionType() != ExpressionType::kConstValue) {
                 throw CompilerException(
                     CompilerErrorCode::kInvalidGlobalVariableType,
-                    "Global variable initial values must be a boolean, number, or string literal.",
+                    "Global variable initial values must be a Boolean, Number, or String literal.",
                     dimNode->value->token);
             }
             const auto* constValueNode = util::dynamic_cast_borrow<ConstValueExpressionNode>(dimNode->value);
             parserResult.node->evaluatedType = getTypeForLiteralToken(constValueNode->token);
+            if (parserResult.node->evaluatedType == nullptr) {
+                throw CompilerException(
+                    CompilerErrorCode::kInvalidGlobalVariableType,
+                    "Global variable initial values must be a Boolean, Number, or String literal.",
+                    dimNode->value->token);
+            }
         } else {
             parserResult.node->evaluatedType = dimNode->type;
         }
@@ -123,7 +128,7 @@ static void compileGlobal(const SourceMember& sourceMember, CompiledProgram* com
         auto& constNode = dynamic_cast<ConstStatementNode&>(*parserResult.node);
         valueExpr = constNode.value.get();
     }
-    if (valueExpr) {
+    if (valueExpr != nullptr) {
         if (valueExpr->getExpressionType() != ExpressionType::kConstValue) {
             throw CompilerException(
                 CompilerErrorCode::kInvalidGlobalVariableType,
@@ -139,8 +144,14 @@ static void compileGlobal(const SourceMember& sourceMember, CompiledProgram* com
     } else if (compiledGlobalVariable->isValue) {
         initialValue = vm::Value{ decimal::Decimal{ 0 } };
     } else {
-        assert(parserResult.node->evaluatedType->kind == Kind::kString);
-        initialObject = boost::make_local_shared<vm::String>("", 0);
+        assert(parserResult.node->evaluatedType != nullptr);
+        auto kind = parserResult.node->evaluatedType->kind;
+        if (kind == Kind::kString) {
+            initialObject = boost::make_local_shared<vm::String>("", 0);
+        } else {
+            // It's the emit phase's responsibility to initialize this in Main()!
+            initialObject = nullptr;
+        }
     }
 
     if (compiledGlobalVariable->isValue) {

@@ -244,8 +244,10 @@ bool TypeNode::equals(const TypeNode& target) const {
                     return false;
                 }
             }
+            return true;
 
         case Kind::kOptional:
+            assert(target.optionalValueType != nullptr);
             return optionalValueType->equals(*target.optionalValueType);
 
         default:
@@ -378,10 +380,11 @@ DottedExpressionSuffixNode::DottedExpressionSuffixNode(
 void DottedExpressionSuffixNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(DottedExpressionSuffixNode);
     if (name.has_value()) {
-        DUMP_VAR(*name);
+        auto dottedName = fmt::format(".{}", *name);
+        DUMP_VAR(dottedName);
     }
-    for (auto& x : collectionIndexOrCallArgs) {
-        DUMP_VAR_NODE(x);
+    for (auto& collectionIndexOrCallArg : collectionIndexOrCallArgs) {
+        DUMP_VAR_NODE(collectionIndexOrCallArg);
     }
 }
 
