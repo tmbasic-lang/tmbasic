@@ -24,6 +24,9 @@ enum class ErrorCode {
     kInvalidDateTime = 201,    // ERR_INVALID_DATETIME
     kInvalidTimeZone = 202,    // ERR_INVALID_TIMEZONE
     kInvalidLocaleName = 203,  // ERR_INVALID_LOCALE_NAME
+
+    // Collections
+    kMapKeyNotFound = 300,  // ERR_MAP_KEY_NOT_FOUND
 };
 
 class Error : public std::runtime_error {

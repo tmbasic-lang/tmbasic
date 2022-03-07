@@ -74,9 +74,9 @@ enum class SystemCall {
     kNumberToString,                // (input as Number) as String
     kObjectEquals,                  // (lhs as Object, rhs as Object) as Boolean
     kObjectListAdd,                 // (lhs as ObjectList, rhs as Object) as ObjectList
-    kObjectListBuilderNew,          // () as ObjectListBuilder
     kObjectListBuilderAdd,          // (builder as ObjectListBuilder, Object as Object)
     kObjectListBuilderEnd,          // (builder as ObjectListBuilder) as ObjectList
+    kObjectListBuilderNew,          // () as ObjectListBuilder
     kObjectListConcat,              // (lhs as ObjectList, rhs as ObjectList) as ObjectList
     kObjectListGet,                 // (input as ObjectList, index as Number) as Object
     kObjectListSet,                 // (input as ObjectList, index as Number, value as Object) as ObjectList
@@ -116,9 +116,9 @@ enum class SystemCall {
     kTrunc,                         // (x as Number) as Number
     kUtcOffset,                     // (timeZone as TimeZone, dateTime as DateTime) as TimeSpan
     kValueListAdd,                  // (lhs as ValueList, rhs as Value) as ValueList
-    kValueListBuilderNew,           // () as ValueListBuilder
     kValueListBuilderAdd,           // (builder as ValueListBuilder, value as Value)
     kValueListBuilderEnd,           // (builder as ValueListBuilder) as ValueList
+    kValueListBuilderNew,           // () as ValueListBuilder
     kValueListConcat,               // (lhs as ValueList, rhs as ValueList) as ValueList
     kValueListGet,                  // (input as ValueList, index as Number) as Value
     kValueListSet,                  // (input as ValueList, index as Number, value as Value) as ValueList

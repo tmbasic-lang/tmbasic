@@ -26,6 +26,7 @@ BuiltInConstantList::BuiltInConstantList()
     addError("ERR_INVALID_DATETIME", vm::ErrorCode::kInvalidDateTime);
     addError("ERR_INVALID_TIMEZONE", vm::ErrorCode::kInvalidTimeZone);
     addError("ERR_INVALID_LOCALE_NAME", vm::ErrorCode::kInvalidLocaleName);
+    addError("ERR_MAP_KEY_NOT_FOUND", vm::ErrorCode::kMapKeyNotFound);
     // end_errors
 }
 

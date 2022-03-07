@@ -2,21 +2,22 @@
 // #define LOG_EXECUTION
 
 #include "Interpreter.h"
+#include "CallFrame.h"
+#include "Error.h"
+#include "List.h"
 #include "List.h"
 #include "Map.h"
+#include "Object.h"
 #include "Opcode.h"
 #include "Optional.h"
 #include "Record.h"
+#include "RecordBuilder.h"
 #include "String.h"
+#include "constants.h"
 #include "date.h"
 #include "systemCall.h"
 #include "util/cast.h"
 #include "util/decimal.h"
-#include "vm/CallFrame.h"
-#include "vm/List.h"
-#include "vm/Object.h"
-#include "vm/RecordBuilder.h"
-#include "vm/constants.h"
 
 namespace vm {
 
@@ -211,7 +212,7 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
                 auto index = indexOrKeyValue.getInt64();
                 auto& baseValueList = dynamic_cast<ValueList&>(*base);
                 return boost::make_local_shared<ValueList>(baseValueList, /* insert */ false, index, state.sourceValue);
-            } else if (baseType != ObjectType::kValueToValueMap) {
+            } else if (baseType == ObjectType::kValueToValueMap) {
                 // We are assigning to this value map element.
                 auto& baseMap = dynamic_cast<ValueToValueMap&>(*base);
                 return boost::make_local_shared<ValueToValueMap>(baseMap, indexOrKeyValue, state.sourceValue);
@@ -798,6 +799,77 @@ bool Interpreter::run(int maxCycles) {
                 state.instructionIndex = &instructionIndex;
                 state.isAssigningValue = opcode == Opcode::kDottedExpressionSetValue;
                 setDottedExpression(&state);
+                break;
+            }
+
+            case Opcode::kObjectToObjectMapTryGet: {
+                // Input object stack: map, key
+                // Input value stack: (none)
+                // Output object stack: element
+                // Output value stack: success
+                auto& map = dynamic_cast<ObjectToObjectMap&>(**objectAt(objectStack, osi, -2));
+                auto& key = *objectAt(objectStack, osi, -1);
+                auto* elementWeak = map.pairs.find(key);
+                auto element = elementWeak != nullptr ? *elementWeak : nullptr;  // take reference
+                popObject(objectStack, &osi);
+                popObject(objectStack, &osi);
+                pushObject(objectStack, &osi, std::move(element));
+                pushValue(valueStack, &vsi, Value{ elementWeak == nullptr ? 0 : 1 });
+                break;
+            }
+
+            case Opcode::kObjectToValueMapTryGet: {
+                // Input object stack: map, key
+                // Input value stack: (none)
+                // Output object stack: (none)
+                // Output value stack: element, success
+                auto& map = dynamic_cast<ObjectToValueMap&>(**objectAt(objectStack, osi, -2));
+                auto& key = *objectAt(objectStack, osi, -1);
+                auto elementWeak = map.pairs.find(key);
+                auto element = elementWeak != nullptr ? *elementWeak : Value{ 0 };  // copy
+                popObject(objectStack, &osi);
+                popObject(objectStack, &osi);
+                pushValue(valueStack, &vsi, element);
+                pushValue(valueStack, &vsi, Value{ elementWeak == nullptr ? 0 : 1 });
+                break;
+            }
+
+            case Opcode::kValueToObjectMapTryGet: {
+                // Input object stack: map
+                // Input value stack: key
+                // Output object stack: element
+                // Output value stack: success
+                auto& map = dynamic_cast<ValueToObjectMap&>(**objectAt(objectStack, osi, -2));
+                auto key = *valueAt(valueStack, vsi, -1);
+                auto elementWeak = map.pairs.find(key);
+                auto element = elementWeak != nullptr ? *elementWeak : nullptr;  // take reference
+                popObject(objectStack, &osi);
+                popValue(valueStack, &vsi);
+                pushObject(objectStack, &osi, std::move(element));
+                pushValue(valueStack, &vsi, Value{ elementWeak == nullptr ? 0 : 1 });
+                break;
+            }
+
+            case Opcode::kValueToValueMapTryGet: {
+                // Input object stack: map
+                // Input value stack: key
+                // Output object stack: (none)
+                // Output value stack: element, success
+                auto& map = dynamic_cast<ValueToValueMap&>(**objectAt(objectStack, osi, -2));
+                auto key = *valueAt(valueStack, vsi, -1);
+                auto elementWeak = map.pairs.find(key);
+                auto element = elementWeak != nullptr ? *elementWeak : Value{ 0 };  // copy
+                popObject(objectStack, &osi);
+                popValue(valueStack, &vsi);
+                pushValue(valueStack, &vsi, element);
+                pushValue(valueStack, &vsi, Value{ elementWeak == nullptr ? 0 : 1 });
+                break;
+            }
+
+            case Opcode::kSetErrorMapKeyNotFound: {
+                _private->hasError = true;
+                _private->errorCode.num = static_cast<int>(ErrorCode::kMapKeyNotFound);
+                _private->errorMessage = "Key not found.";
                 break;
             }
 

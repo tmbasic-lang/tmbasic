@@ -183,17 +183,21 @@ class ProcedureState {
         emitJumpTarget(labelId);
     }
 
+    void returnOrBranchIfError() {
+        if (catchLabelIds.empty()) {
+            returnIfError();
+        } else {
+            branchIfError(catchLabelIds.top());
+        }
+    }
+
     void call(Opcode opcode, uint32_t procedureIndex, uint8_t numVals, uint8_t numObjs) {
         op(opcode, false);
         emitInt<uint32_t>(procedureIndex, false);
         emitInt<uint8_t>(numVals, false);
         emitInt<uint8_t>(numObjs, false);
 
-        if (catchLabelIds.empty()) {
-            returnIfError();
-        } else {
-            branchIfError(catchLabelIds.top());
-        }
+        returnOrBranchIfError();
 
 #ifdef DUMP_ASM
         std::cerr << std::endl
@@ -292,6 +296,12 @@ class ProcedureState {
     void dottedExpressionValueKeySuffix(bool isValueElement) { emitInt<uint8_t>(isValueElement ? 3 : 4); }
 
     void dottedExpressionObjectKeySuffix(bool isValueElement) { emitInt<uint8_t>(isValueElement ? 5 : 6); }
+
+    void objectToObjectMapTryGet() { op(Opcode::kObjectToObjectMapTryGet); }
+    void objectToValueMapTryGet() { op(Opcode::kObjectToValueMapTryGet); }
+    void valueToObjectMapTryGet() { op(Opcode::kValueToObjectMapTryGet); }
+    void valueToValueMapTryGet() { op(Opcode::kValueToValueMapTryGet); }
+    void setErrorMapKeyNotFound() { op(Opcode::kSetErrorMapKeyNotFound); }
 
    private:
     template <typename TOutputInt, typename TInputInt>
@@ -713,6 +723,28 @@ static void emitDottedExpression(const DottedExpressionNode& expressionNode, Pro
                 } else {
                     state->syscall(Opcode::kSystemCallO, SystemCall::kObjectListGet, 1, 1);
                 }
+            } else if (baseType->kind == Kind::kMap) {
+                assert(baseType->mapKeyType != nullptr);
+                assert(baseType->mapValueType != nullptr);
+                if (baseType->mapKeyType->isValueType()) {
+                    if (baseType->mapValueType->isValueType()) {
+                        state->valueToValueMapTryGet();
+                    } else {
+                        state->valueToObjectMapTryGet();
+                    }
+                } else {
+                    if (baseType->mapValueType->isValueType()) {
+                        state->objectToValueMapTryGet();
+                    } else {
+                        state->objectToObjectMapTryGet();
+                    }
+                }
+                // Success boolean is on the value stack
+                auto continueLabel = state->labelId();
+                state->branchIfTrue(continueLabel);
+                state->setErrorMapKeyNotFound();
+                state->returnOrBranchIfError();
+                state->label(continueLabel);
             } else {
                 throw std::runtime_error("not impl");
             }

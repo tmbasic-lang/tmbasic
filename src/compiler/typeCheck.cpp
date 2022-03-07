@@ -416,7 +416,16 @@ static void typeCheckDottedExpression(DottedExpressionNode* expressionNode, Type
                     }
                     baseType = baseType->listItemType;
                 } else if (baseType->kind == Kind::kMap) {
-                    throw std::runtime_error("not impl");
+                    assert(baseType->mapKeyType != nullptr);
+                    if (!collectionIndex->evaluatedType->equals(*baseType->mapKeyType)) {
+                        throw CompilerException(
+                            CompilerErrorCode::kTypeMismatch,
+                            fmt::format(
+                                "The map key must be a {}, but this is a {}.", baseType->mapKeyType->toString(),
+                                collectionIndex->evaluatedType->toString()),
+                            collectionIndex->token);
+                    }
+                    baseType = baseType->mapValueType;
                 }
             }
 

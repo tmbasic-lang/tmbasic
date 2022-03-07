@@ -70,20 +70,29 @@ enum class Opcode {
     kReturnObject,  // restores osp/vsp and pushes the return object ospTop
 
     // error handling
-    kSetError,       // set error flag from code vsp[-1] and message ospTop; popv; popo;
+    kSetError,       // set error flag from code vsp[-1] and message osp[-1]; popv; popo;
     kClearError,     // clear error flag, don't clear message or code
     kBubbleError,    // set error flag
     kReturnIfError,  // if error is set, return
     kBranchIfError,  // <inst* index> if error, then jump
 
-    // objects
+    // records
     kRecordNew,        // <u16 numVals, u16 numObjs> pushes record with values taken from stack
     kRecordGetValue,   // <u16 valIndex>
     kRecordGetObject,  // <u16 objIndex>
     kRecordSetValue,   // <u16 valIndex> record and new value are on the stack
     kRecordSetObject,  // <u16 objIndex> record and new object are on the stack
-    kValueListNew,     // <u16 numVals> pushes value list with items taken from stack
-    kObjectListNew,    // <u16 numObjs> pushes object list with items taken from stack
+
+    // lists
+    kValueListNew,   // <u16 numVals> pushes value list with items taken from stack
+    kObjectListNew,  // <u16 numObjs> pushes object list with items taken from stack
+
+    // maps
+    kObjectToObjectMapTryGet,  // in: map obj, key obj. out: result obj, success bool.
+    kObjectToValueMapTryGet,   // in: map obj, key obj. out: result val, success bool.
+    kValueToObjectMapTryGet,   // in: map obj, key val. out: result obj, success bool.
+    kValueToValueMapTryGet,    // in: map obj, key val. out: result val, success bool.
+    kSetErrorMapKeyNotFound,   // SetError with preset code and message
 
     // A variable-length representation of the dotted expression follows the fixed bits specified next to the opcode
     // below. The calling code pushes the value/object to be assigned, then the base of the target dotted expression.
