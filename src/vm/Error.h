@@ -26,7 +26,8 @@ enum class ErrorCode {
     kInvalidLocaleName = 203,  // ERR_INVALID_LOCALE_NAME
 
     // Collections
-    kMapKeyNotFound = 300,  // ERR_MAP_KEY_NOT_FOUND
+    kMapKeyNotFound = 300,       // ERR_MAP_KEY_NOT_FOUND
+    kListIndexOutOfRange = 301,  // ERR_LIST_INDEX_OUT_OF_RANGE
 };
 
 class Error : public std::runtime_error {

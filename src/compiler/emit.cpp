@@ -739,6 +739,7 @@ static void emitDottedExpression(const DottedExpressionNode& expressionNode, Pro
                         state->objectToObjectMapTryGet();
                     }
                 }
+
                 // Success boolean is on the value stack
                 auto continueLabel = state->labelId();
                 state->branchIfTrue(continueLabel);
@@ -883,6 +884,8 @@ static void emitAssignToDottedExpression(
             assert(false);
         }
     }
+
+    state->returnOrBranchIfError();  // it may have raised an error
 
     // The kDottedExpressionSetValue/Object call is complete and the modified base is on the stack. We have to move it
     // back to the target.
