@@ -657,7 +657,13 @@ static void emitConstValueExpressionNode(const ConstValueExpressionNode& express
     }
 }
 
-static void emitConvertExpression(const ConvertExpressionNode& /*expressionNode*/, ProcedureState* /*state*/) {
+static void emitConvertExpression(const ConvertExpressionNode& expressionNode, ProcedureState* state) {
+    // For record -> record conversions, there is nothing to do; it's a type-only conversion.
+    if (expressionNode.value->evaluatedType->kind == Kind::kRecord && expressionNode.type->kind == Kind::kRecord) {
+        emitExpression(*expressionNode.value, state);
+        return;
+    }
+
     throw std::runtime_error("not impl");
 }
 

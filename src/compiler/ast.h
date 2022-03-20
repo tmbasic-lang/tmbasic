@@ -101,13 +101,12 @@ class TypeNode : public Node {
     Kind kind;
     std::optional<std::string> recordName;  // kind = kRecord (named)
     std::vector<boost::local_shared_ptr<ParameterNode>>
-        fields;  // kind = kRecord (anonymous), will be filled for named types by bindNamedTypes
+        fields;  // kind = kRecord (anonymous), will be filled for named types by bindNamedRecordTypes
     // nullable type parameters
     boost::local_shared_ptr<TypeNode> listItemType;       // kind = kList, null for generic
     boost::local_shared_ptr<TypeNode> mapKeyType;         // kind = kMap
     boost::local_shared_ptr<TypeNode> mapValueType;       // kind = kMap
     boost::local_shared_ptr<TypeNode> optionalValueType;  // kind = kOptional
-    bool namedTypesAreBound = false;                      // set by bindNamedTypes
     TypeNode(Kind kind, Token token);
     TypeNode(Kind kind, Token token, std::string recordName);
     TypeNode(Kind kind, Token token, boost::local_shared_ptr<TypeNode> optionalValueTypeOrListItemType);

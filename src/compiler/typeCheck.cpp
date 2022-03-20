@@ -324,9 +324,51 @@ static void typeCheckConstValueExpression(ConstValueExpressionNode* expressionNo
     }
 }
 
-static void typeCheckConvertExpression(ConvertExpressionNode* expressionNode) {
-    (void)expressionNode;
-    throw std::runtime_error("not impl");
+static void typeCheckConvertExpression(ConvertExpressionNode* expressionNode, TypeCheckState* state) {
+    typeCheckExpression(expressionNode->value.get(), state);
+
+    assert(expressionNode->value->evaluatedType != nullptr);
+    assert(expressionNode->type != nullptr);
+
+    const auto& srcType = *expressionNode->value->evaluatedType;
+    const auto& dstType = *expressionNode->type;
+
+    // Conversion from named type to an anonymous record type that matches the fields, or vice versa.
+    if (srcType.kind == Kind::kRecord && dstType.kind == Kind::kRecord) {
+        if (srcType.fields.size() != dstType.fields.size()) {
+            throw CompilerException(
+                CompilerErrorCode::kInvalidTypeConversion,
+                "This type conversion is not allowed because the target type has a different number of fields.",
+                expressionNode->token);
+        }
+
+        auto numFields = srcType.fields.size();
+        for (size_t i = 0; i < numFields; i++) {
+            auto& srcField = *srcType.fields.at(i);
+            auto& dstField = *dstType.fields.at(i);
+
+            if (srcField.nameLowercase != dstField.nameLowercase) {
+                throw CompilerException(
+                    CompilerErrorCode::kInvalidTypeConversion,
+                    "This type conversion is not allowed because the target type does not have the same field names.",
+                    expressionNode->token);
+            }
+
+            if (!srcField.type->equals(*dstField.type)) {
+                throw CompilerException(
+                    CompilerErrorCode::kInvalidTypeConversion,
+                    "This type conversion is not allowed because the target type does not have the same field types.",
+                    expressionNode->token);
+            }
+        }
+
+        // The record types are compatible.
+        expressionNode->evaluatedType = expressionNode->type;
+        return;
+    }
+
+    throw CompilerException(
+        CompilerErrorCode::kInvalidTypeConversion, "This type conversion is not allowed.", expressionNode->token);
 }
 
 static void typeCheckFunctionCallExpression(FunctionCallExpressionNode* expressionNode, TypeCheckState* state) {
@@ -480,7 +522,7 @@ void typeCheckExpression(ExpressionNode* expressionNode, TypeCheckState* state) 
             typeCheckConstValueExpression(dynamic_cast<ConstValueExpressionNode*>(expressionNode), state);
             break;
         case ExpressionType::kConvert:
-            typeCheckConvertExpression(dynamic_cast<ConvertExpressionNode*>(expressionNode));
+            typeCheckConvertExpression(dynamic_cast<ConvertExpressionNode*>(expressionNode), state);
             break;
         case ExpressionType::kDotted:
             typeCheckDottedExpression(dynamic_cast<DottedExpressionNode*>(expressionNode), state);

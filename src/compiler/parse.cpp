@@ -814,12 +814,11 @@ class ConvertExpressionProduction : public Production {
                   }),
               }) {}
 
-    std::unique_ptr<Box> parse(CaptureArray* captures, const Token& /*firstToken*/) const override {
+    std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
         if (hasCapture(captures->at(1))) {
-            auto token = captureTokenNoMove(captures->at(1).get());
             return nodeBox<ConvertExpressionNode>(
                 captureSingleNode<ExpressionNode>(std::move(captures->at(0))),
-                captureSingleNode<TypeNode>(std::move(captures->at(1))), token);
+                captureSingleNode<TypeNode>(std::move(captures->at(1))), firstToken);
         }
         return std::move(captures->at(0));
     }
