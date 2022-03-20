@@ -18,44 +18,42 @@ using std::string;
 using std::vector;
 using vm::Interpreter;
 
-static void run(string filenameWithoutExtension) {
+static void runCode(const string& basFile) {
     compiler::CompiledProgram program{};
-    auto pcodeFile = readFile(filenameWithoutExtension + ".bas");
 
     string inputSentinel = "--input--\n";
-    auto inputStart = pcodeFile.find(inputSentinel);
+    auto inputStart = basFile.find(inputSentinel);
 
     string outputSentinel = "--output--\n";
-    auto outputStart = pcodeFile.find(outputSentinel);
+    auto outputStart = basFile.find(outputSentinel);
 
     string input;
     if (inputStart != string::npos) {
         if (outputStart == string::npos) {
-            input = pcodeFile.substr(inputStart + inputSentinel.size());
+            input = basFile.substr(inputStart + inputSentinel.size());
         } else {
-            input =
-                pcodeFile.substr(inputStart + inputSentinel.size(), outputStart - inputStart - inputSentinel.size());
+            input = basFile.substr(inputStart + inputSentinel.size(), outputStart - inputStart - inputSentinel.size());
         }
     }
 
     string expectedOutput;
     if (outputStart != string::npos) {
-        expectedOutput = pcodeFile.substr(outputStart + outputSentinel.size());
+        expectedOutput = basFile.substr(outputStart + outputSentinel.size());
     }
 
     string source;
     if (inputStart != string::npos) {
-        source = pcodeFile.substr(0, inputStart);
+        source = basFile.substr(0, inputStart);
     } else if (outputStart != string::npos) {
-        source = pcodeFile.substr(0, outputStart);
+        source = basFile.substr(0, outputStart);
     } else {
-        source = pcodeFile;
+        source = basFile;
     }
 
-    istringstream consoleInputStream(input);
-    ostringstream consoleOutputStream;
+    istringstream consoleInputStream{ input };
+    ostringstream consoleOutputStream{};
 
-    compiler::SourceProgram sourceProgram;
+    compiler::SourceProgram sourceProgram{};
     sourceProgram.loadFromContent(source);
     bool compileSuccess = false;
     try {
@@ -86,6 +84,24 @@ static void run(string filenameWithoutExtension) {
 
     auto actualOutput = consoleOutputStream.str();
     ASSERT_EQ(expectedOutput, actualOutput);
+}
+
+static void run(string filenameWithoutExtension) {
+    auto code = readFile(filenameWithoutExtension + ".bas");
+    runCode(code);
+}
+
+TEST(CompilerTest, CrLfLineEndings) {
+    // Don't assume any particular line ending in crlf.bas, although it should be LFs.
+    auto code = readFile("crlf.bas");
+    auto codeLf = boost::replace_all_copy(code, "\r\n", "\n");
+    auto codeCrLf = boost::replace_all_copy(codeLf, "\n", "\r\n");
+
+    // Just need to see that it compiles successfully.
+    compiler::SourceProgram sourceProgram{};
+    compiler::CompiledProgram program{};
+    sourceProgram.loadFromContent(codeCrLf);
+    compiler::compileProgram(sourceProgram, &program);
 }
 
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)

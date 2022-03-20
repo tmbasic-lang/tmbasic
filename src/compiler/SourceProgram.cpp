@@ -106,6 +106,12 @@ void SourceProgram::load(const std::string& filePath) {
 }
 
 void SourceProgram::loadFromContent(const std::string& content) {
+    // If this has Windows CRLF line endings, convert it to Unix LF line endings.
+    if (content.find("\r\n") != std::string::npos) {
+        loadFromContent(boost::replace_all_copy(content, "\r\n", "\n"));
+        return;
+    }
+
     std::istringstream file{ content };
     members.clear();
 

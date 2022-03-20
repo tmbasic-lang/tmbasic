@@ -135,6 +135,10 @@ void Scanner::processChar(char ch, char peek) {
                 endCurrentToken();
                 break;
 
+            case '\r':
+                // ignore
+                break;
+
             case '\n':
                 endCurrentToken();
                 append(ch);
