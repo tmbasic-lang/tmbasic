@@ -658,10 +658,49 @@ static void emitConstValueExpressionNode(const ConstValueExpressionNode& express
 }
 
 static void emitConvertExpression(const ConvertExpressionNode& expressionNode, ProcedureState* state) {
-    // For record -> record conversions, there is nothing to do; it's a type-only conversion.
-    if (expressionNode.value->evaluatedType->kind == Kind::kRecord && expressionNode.type->kind == Kind::kRecord) {
-        emitExpression(*expressionNode.value, state);
+    auto srcKind = expressionNode.value->evaluatedType->kind;
+    auto dstKind = expressionNode.type->kind;
+
+    emitExpression(*expressionNode.value, state);
+
+    // Record -> Record
+    if (srcKind == Kind::kRecord && dstKind == Kind::kRecord) {
+        // Named and anonymous types with the same fields are indistinguishable at runtime; no conversion needed.
         return;
+    }
+
+    // Number -> String
+    if (srcKind == Kind::kNumber && dstKind == Kind::kString) {
+        state->syscall(Opcode::kSystemCallO, SystemCall::kNumberToString, 1, 0);
+        return;
+    }
+
+    // Date -> DateTime
+    if (srcKind == Kind::kDate && dstKind == Kind::kDateTime) {
+        // A Date is just a DateTime where the time is zero, so we don't need to convert.
+        return;
+    }
+
+    // DateTime -> Date
+    if (srcKind == Kind::kDateTime && dstKind == Kind::kDate) {
+        state->syscall(Opcode::kSystemCallV, SystemCall::kDateTimeToDate, 1, 0);
+        return;
+    }
+
+    if (srcKind == Kind::kDateTimeOffset) {
+        // A DateTimeOffset is a record where the first field is the DateTime.
+        state->recordGetValue(0);
+
+        // DateTimeOffset -> Date
+        if (dstKind == Kind::kDate) {
+            state->syscall(Opcode::kSystemCallV, SystemCall::kDateTimeToDate, 1, 0);
+            return;
+        }
+
+        // DateTimeOffset -> DateTime
+        if (dstKind == Kind::kDateTime) {
+            return;  // Good to go.
+        }
     }
 
     throw std::runtime_error("not impl");

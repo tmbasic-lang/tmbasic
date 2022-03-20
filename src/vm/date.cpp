@@ -139,4 +139,12 @@ boost::local_shared_ptr<String> timeSpanToString(const Value& timeSpan) {
     return boost::make_local_shared<String>(ss.str());
 }
 
+Value dateTimeToDate(const Value& dateTime) {
+    auto* cal = getCalendar(dateTime);
+    auto year = getDatePart(*cal, UCAL_YEAR);
+    auto month = getDatePart(*cal, UCAL_MONTH) + 1;
+    auto day = getDatePart(*cal, UCAL_DATE);
+    return newDate(year, month, day);
+}
+
 }  // namespace vm

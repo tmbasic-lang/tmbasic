@@ -36,6 +36,7 @@ enum class SystemCall {
     kDateTimeFromParts,             // (year as Number, ...) as DateTime
     kDateTimeOffsetFromParts,       // (year as N ... timeZone as TimeZone) as DateTimeOffset
     kDateTimeOffsetToString,        // (dateTimeOffset as DateTimeOffset) as String
+    kDateTimeToDate,                // (dateTime as DateTime) as Date
     kDateTimeToString,              // (dateTime as DateTime) as String
     kDateToString,                  // (date as Date) as String
     kDays,                          // (count as Number) as TimeSpan

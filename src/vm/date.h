@@ -14,5 +14,6 @@ boost::local_shared_ptr<String> dateToString(const Value& date);
 boost::local_shared_ptr<String> dateTimeToString(const Value& dateTime);
 boost::local_shared_ptr<String> dateTimeOffsetToString(const Record& dateTimeOffset);
 boost::local_shared_ptr<String> timeSpanToString(const Value& timeSpan);
+Value dateTimeToDate(const Value& dateTime);
 
 }  // namespace vm

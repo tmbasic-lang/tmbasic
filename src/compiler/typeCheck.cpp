@@ -333,7 +333,7 @@ static void typeCheckConvertExpression(ConvertExpressionNode* expressionNode, Ty
     const auto& srcType = *expressionNode->value->evaluatedType;
     const auto& dstType = *expressionNode->type;
 
-    // Conversion from named type to an anonymous record type that matches the fields, or vice versa.
+    // Named type <-> anonymous record type
     if (srcType.kind == Kind::kRecord && dstType.kind == Kind::kRecord) {
         if (srcType.fields.size() != dstType.fields.size()) {
             throw CompilerException(
@@ -363,6 +363,16 @@ static void typeCheckConvertExpression(ConvertExpressionNode* expressionNode, Ty
         }
 
         // The record types are compatible.
+        expressionNode->evaluatedType = expressionNode->type;
+        return;
+    }
+
+    // Number -> String, Date -> DateTime, DateTime -> Date, DateTimeOffset -> Date, DateTimeOffset -> DateTime
+    if ((srcType.kind == Kind::kNumber && dstType.kind == Kind::kString) ||
+        (srcType.kind == Kind::kDate && dstType.kind == Kind::kDateTime) ||
+        (srcType.kind == Kind::kDateTime && dstType.kind == Kind::kDate) ||
+        (srcType.kind == Kind::kDateTimeOffset && dstType.kind == Kind::kDate) ||
+        (srcType.kind == Kind::kDateTimeOffset && dstType.kind == Kind::kDateTime)) {
         expressionNode->evaluatedType = expressionNode->type;
         return;
     }

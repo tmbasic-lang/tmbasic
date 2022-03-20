@@ -380,6 +380,10 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kDateTimeFromParts, systemCallDateTimeFromParts);
     initSystemCall(SystemCall::kDateTimeOffsetFromParts, systemCallDateTimeOffsetFromParts);
     initSystemCall(SystemCall::kDateToString, systemCallDateToString);
+    initSystemCall(SystemCall::kDateTimeToDate, [](const auto& input, auto* result) {
+        const auto& dateTime = input.getValue(-1);
+        result->returnedValue = dateTimeToDate(dateTime);
+    });
     initSystemCall(SystemCall::kDateTimeToString, systemCallDateTimeToString);
     initSystemCall(SystemCall::kDateTimeOffsetToString, systemCallDateTimeOffsetToString);
     initSystemCall(SystemCall::kDays, [](const auto& input, auto* result) {
