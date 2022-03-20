@@ -1925,6 +1925,9 @@ class MemberProduction : public Production {
         : Production(
               NAMEOF_TYPE(MemberProduction),
               {
+                  zeroOrMore({
+                      term(TokenKind::kEndOfLine),
+                  }),
                   capture(
                       0,
                       oneOf({
