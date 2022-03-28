@@ -406,13 +406,13 @@ void DottedExpressionSuffixNode::dump(std::ostream& s, int n) const {
         auto dottedName = fmt::format(".{}", *name);
         DUMP_VAR(dottedName);
     }
-    for (auto& collectionIndexOrCallArg : collectionIndexOrCallArgs) {
+    for (const auto& collectionIndexOrCallArg : collectionIndexOrCallArgs) {
         DUMP_VAR_NODE(collectionIndexOrCallArg);
     }
 }
 
 bool DottedExpressionSuffixNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
-    for (auto& x : collectionIndexOrCallArgs) {
+    for (const auto& x : collectionIndexOrCallArgs) {
         if (!visitChildExpression(rootsOnly, x.get(), func)) {
             return false;
         }
@@ -461,7 +461,7 @@ void FunctionCallExpressionNode::dump(std::ostream& s, int n) const {
 }
 
 bool FunctionCallExpressionNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
-    for (auto& x : args) {
+    for (const auto& x : args) {
         if (!visitChildExpression(rootsOnly, x.get(), func)) {
             return false;
         }

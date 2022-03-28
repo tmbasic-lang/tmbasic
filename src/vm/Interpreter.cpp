@@ -213,6 +213,7 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
                 throw std::runtime_error("Expected assignment target to be a value.");
             }
             auto indexOrKeyValue = *valueAt(&state->p->valueStack, *state->valueStackIndex, nextKeyValueOffset++);
+
             if (baseType == ObjectType::kValueList) {
                 // We are assigning to this value list element.
                 auto index = indexOrKeyValue.getInt64();
@@ -225,13 +226,15 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
                 }
                 return boost::make_local_shared<ValueList>(
                     baseValueList, /* insert */ false, index, state->sourceValue);
-            } else if (baseType == ObjectType::kValueToValueMap) {
+            }
+
+            if (baseType == ObjectType::kValueToValueMap) {
                 // We are assigning to this value map element.
                 auto& baseMap = dynamic_cast<ValueToValueMap&>(*base);
                 return boost::make_local_shared<ValueToValueMap>(baseMap, indexOrKeyValue, state->sourceValue);
-            } else {
-                throw std::runtime_error("Expected assignment target to be value list or value-value map.");
             }
+
+            throw std::runtime_error("Expected assignment target to be value list or value-value map.");
         }
 
         case 0x04: {
@@ -262,7 +265,9 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
                     state, objectElement, remainingSuffixes - 1, nextKeyValueOffset, nextKeyObjectOffset);
                 return boost::make_local_shared<ObjectList>(
                     baseObjectList, /* insert */ false, indexOrKeyValue.getInt64(), updatedObjectElement);
-            } else if (baseType == ObjectType::kValueToObjectMap) {
+            }
+
+            if (baseType == ObjectType::kValueToObjectMap) {
                 auto& baseMap = dynamic_cast<ValueToObjectMap&>(*base);
                 if (remainingSuffixes == 1) {
                     // We are assigning to this value-object map element.
@@ -273,7 +278,7 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
                 }
 
                 // We are recursing into this value-object map element.
-                auto* findResult = baseMap.pairs.find(indexOrKeyValue);
+                const auto* findResult = baseMap.pairs.find(indexOrKeyValue);
                 if (findResult == nullptr) {
                     state->error = true;
                     state->errorMessage = "Map key not found.";
@@ -284,9 +289,9 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
                 auto updatedObjectElement = setDottedExpressionRecurse(
                     state, objectElement, remainingSuffixes - 1, nextKeyValueOffset, nextKeyObjectOffset);
                 return boost::make_local_shared<ValueToObjectMap>(baseMap, indexOrKeyValue, updatedObjectElement);
-            } else {
-                throw std::runtime_error("Expected assignment target to be object list or value-object map.");
             }
+
+            throw std::runtime_error("Expected assignment target to be object list or value-object map.");
         }
 
         case 0x05: {
@@ -325,7 +330,7 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
             }
 
             // We are recursing into this object-object map element.
-            auto* findResult = baseMap.pairs.find(keyObject);
+            const auto* findResult = baseMap.pairs.find(keyObject);
             if (findResult == nullptr) {
                 state->error = true;
                 state->errorMessage = "Map key not found.";
@@ -350,9 +355,9 @@ static void setDottedExpression(SetDottedExpressionState* state) {
     assert(state->instructions != nullptr);
     assert(state->instructionIndex != nullptr);
 
-    auto numSuffixes = (int)readInt<uint8_t>(state->instructions, state->instructionIndex);
-    auto numKeyValues = (int)readInt<uint8_t>(state->instructions, state->instructionIndex);
-    auto numKeyObjects = (int)readInt<uint8_t>(state->instructions, state->instructionIndex);
+    int numSuffixes = readInt<uint8_t>(state->instructions, state->instructionIndex);
+    int numKeyValues = readInt<uint8_t>(state->instructions, state->instructionIndex);
+    int numKeyObjects = readInt<uint8_t>(state->instructions, state->instructionIndex);
 
     // Let's get our bearings in the stack.
     //                  <--- lower indices              higher indices --->
@@ -885,7 +890,7 @@ bool Interpreter::run(int maxCycles) {
                 // Output value stack: success
                 auto& map = dynamic_cast<ObjectToObjectMap&>(**objectAt(objectStack, osi, -2));
                 auto& key = *objectAt(objectStack, osi, -1);
-                auto* elementWeak = map.pairs.find(key);
+                const auto* elementWeak = map.pairs.find(key);
                 auto element = elementWeak != nullptr ? *elementWeak : nullptr;  // take reference
                 popObject(objectStack, &osi);
                 popObject(objectStack, &osi);
@@ -901,7 +906,7 @@ bool Interpreter::run(int maxCycles) {
                 // Output value stack: element, success
                 auto& map = dynamic_cast<ObjectToValueMap&>(**objectAt(objectStack, osi, -2));
                 auto& key = *objectAt(objectStack, osi, -1);
-                auto elementWeak = map.pairs.find(key);
+                const auto* elementWeak = map.pairs.find(key);
                 auto element = elementWeak != nullptr ? *elementWeak : Value{ 0 };  // copy
                 popObject(objectStack, &osi);
                 popObject(objectStack, &osi);
@@ -917,7 +922,7 @@ bool Interpreter::run(int maxCycles) {
                 // Output value stack: success
                 auto& map = dynamic_cast<ValueToObjectMap&>(**objectAt(objectStack, osi, -1));
                 auto key = *valueAt(valueStack, vsi, -1);
-                auto elementWeak = map.pairs.find(key);
+                const auto* elementWeak = map.pairs.find(key);
                 auto element = elementWeak != nullptr ? *elementWeak : nullptr;  // take reference
                 popObject(objectStack, &osi);
                 popValue(valueStack, &vsi);
@@ -933,7 +938,7 @@ bool Interpreter::run(int maxCycles) {
                 // Output value stack: element, success
                 auto& map = dynamic_cast<ValueToValueMap&>(**objectAt(objectStack, osi, -1));
                 auto key = *valueAt(valueStack, vsi, -1);
-                auto elementWeak = map.pairs.find(key);
+                const auto* elementWeak = map.pairs.find(key);
                 auto element = elementWeak != nullptr ? *elementWeak : Value{ 0 };  // copy
                 popObject(objectStack, &osi);
                 popValue(valueStack, &vsi);

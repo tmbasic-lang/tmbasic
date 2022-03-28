@@ -419,7 +419,7 @@ static void typeCheckFunctionCallExpression(FunctionCallExpressionNode* expressi
 static void typeCheckDottedExpression(DottedExpressionNode* expressionNode, TypeCheckState* state) {
     typeCheckExpression(expressionNode->base.get(), state);
     auto baseType = expressionNode->base->evaluatedType;
-    auto baseSymbolRef = dynamic_cast<SymbolReferenceExpressionNode*>(expressionNode->base.get());
+    auto* baseSymbolRef = dynamic_cast<SymbolReferenceExpressionNode*>(expressionNode->base.get());
     auto isFirstSuffix = true;
 
     for (auto& usageSuffix : expressionNode->dottedSuffixes) {

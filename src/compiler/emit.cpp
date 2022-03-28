@@ -727,7 +727,7 @@ static void emitFunctionCallExpression(const FunctionCallExpressionNode& express
     assert(expressionNode.evaluatedType != nullptr);
     auto numValueArgs = 0;
     auto numObjectArgs = 0;
-    for (auto& arg : expressionNode.args) {
+    for (const auto& arg : expressionNode.args) {
         assert(arg->evaluatedType != nullptr);
         arg->evaluatedType->isValueType() ? numValueArgs++ : numObjectArgs++;
         emitExpression(*arg, state);

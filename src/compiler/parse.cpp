@@ -770,11 +770,11 @@ class DottedExpressionSuffixProduction : public Production {
         if (hasCapture(captures->at(0))) {
             // field access
             return nodeBox<DottedExpressionSuffixNode>(captureTokenText(std::move(captures->at(0))), firstToken);
-        } else {
-            // collection index or function call
-            return nodeBox<DottedExpressionSuffixNode>(
-                captureNodeArray<ExpressionNode>(std::move(captures->at(1))), firstToken);
         }
+
+        // collection index or function call
+        return nodeBox<DottedExpressionSuffixNode>(
+            captureNodeArray<ExpressionNode>(std::move(captures->at(1))), firstToken);
     }
 };
 

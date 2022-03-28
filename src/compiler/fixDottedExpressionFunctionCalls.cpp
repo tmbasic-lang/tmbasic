@@ -44,7 +44,7 @@ class DottedExpressionFunctionCallFixer {
     void fixDottedExpression(DottedExpressionNode* dotted) {
         // does this look like SymbolRef(...)?
         auto hasCallShape = dotted->base->getExpressionType() == ExpressionType::kSymbolReference &&
-            dotted->dottedSuffixes.size() > 0 && !dotted->dottedSuffixes.at(0)->name.has_value();
+            !dotted->dottedSuffixes.empty() && !dotted->dottedSuffixes.at(0)->name.has_value();
         if (!hasCallShape) {
             return;
         }
@@ -54,7 +54,7 @@ class DottedExpressionFunctionCallFixer {
         auto& symbolReference = dynamic_cast<SymbolReferenceExpressionNode&>(*dotted->base);
         auto lowercaseProcedureName = boost::to_lower_copy(symbolReference.name);
         auto functionExists = false;
-        for (auto& compiledProcedure : _compiledProgram.procedures) {
+        for (const auto& compiledProcedure : _compiledProgram.procedures) {
             if (compiledProcedure->nameLowercase == lowercaseProcedureName) {
                 functionExists = true;
                 break;
@@ -72,7 +72,7 @@ class DottedExpressionFunctionCallFixer {
         }
     }
 
-    void fixDottedExpressionWithFunctionCallBase(
+    static void fixDottedExpressionWithFunctionCallBase(
         DottedExpressionNode* dotted,
         SymbolReferenceExpressionNode* symbolReference) {
         auto suffix = std::move(dotted->dottedSuffixes.at(0));
