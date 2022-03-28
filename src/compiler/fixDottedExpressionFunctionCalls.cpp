@@ -1,5 +1,4 @@
-#include "bindNamedRecordTypes.h"
-#include "BuiltInProcedureList.h"
+#include "fixDottedExpressionFunctionCalls.h"
 #include "CompilerException.h"
 
 namespace compiler {
@@ -37,7 +36,9 @@ class DottedExpressionFunctionCallFixer {
 
     void fixExpression(ExpressionNode* expression) {
         if (expression->getExpressionType() == ExpressionType::kDotted) {
-            fixDottedExpression(&dynamic_cast<DottedExpressionNode&>(*expression));
+            auto* dotted = dynamic_cast<DottedExpressionNode*>(expression);
+            assert(dotted != nullptr);
+            fixDottedExpression(dotted);
         }
     }
 

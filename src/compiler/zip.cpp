@@ -1,5 +1,5 @@
 #include "zip.h"
-#include <zip.h>
+#include <zip.h>  // NOLINT(build/include)
 
 namespace compiler {
 

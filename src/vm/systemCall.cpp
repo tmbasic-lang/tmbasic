@@ -19,8 +19,8 @@ static bool _systemCallsInitialized = false;
 static std::vector<SystemCallFunc> _systemCalls;
 
 SystemCallInput::SystemCallInput(
-    std::array<Value, kValueStackSize>& valueStack,
-    std::array<boost::local_shared_ptr<Object>, kObjectStackSize>& objectStack,
+    std::array<Value, kValueStackSize>* valueStack,
+    std::array<boost::local_shared_ptr<Object>, kObjectStackSize>* objectStack,
     int valueStackIndex,
     int objectStackIndex,
     std::istream* consoleInputStream,

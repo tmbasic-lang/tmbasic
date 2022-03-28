@@ -530,7 +530,6 @@ void ProgramWindow::publish() {
         }
         statusWindow.get()->close();
         messageBox("Publish successful!", mfInformation | mfOKButton);
-
     } catch (const std::runtime_error& ex) {
         statusWindow.get()->close();
         messageBox(ex.what(), mfError | mfOKButton);

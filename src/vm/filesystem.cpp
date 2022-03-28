@@ -13,7 +13,7 @@
 // Linux and macOS support opendir/readdir/closedir, but Windows does not.
 #ifndef _WIN32
 #include <dirent.h>
-#include <sys/stat.h>
+#include <sys/stat.h>  // NOLINT(build/include)
 #include <sys/types.h>
 #endif
 

@@ -136,8 +136,8 @@ enum class SystemCall {
 
 class SystemCallInput {
    public:
-    std::array<Value, kValueStackSize>& valueStack;
-    std::array<boost::local_shared_ptr<Object>, kObjectStackSize>& objectStack;
+    std::array<Value, kValueStackSize>* valueStack;
+    std::array<boost::local_shared_ptr<Object>, kObjectStackSize>* objectStack;
     int valueStackIndex;
     int objectStackIndex;
     std::istream* consoleInputStream;
@@ -145,8 +145,8 @@ class SystemCallInput {
     const Value& errorCode;
     const std::string& errorMessage;
     SystemCallInput(
-        std::array<Value, kValueStackSize>& valueStack,
-        std::array<boost::local_shared_ptr<Object>, kObjectStackSize>& objectStack,
+        std::array<Value, kValueStackSize>* valueStack,
+        std::array<boost::local_shared_ptr<Object>, kObjectStackSize>* objectStack,
         int valueStackIndex,
         int objectStackIndex,
         std::istream* consoleInputStream,
@@ -156,17 +156,17 @@ class SystemCallInput {
     inline Value& getValue(const int vsiOffset) const {
         assert(vsiOffset < 0);
         assert(valueStackIndex + vsiOffset >= 0);
-        return valueStack.at(valueStackIndex + vsiOffset);
+        return valueStack->at(valueStackIndex + vsiOffset);
     }
     inline Object& getObject(const int osiOffset) const {
         assert(osiOffset < 0);
         assert(objectStackIndex + osiOffset >= 0);
-        const auto& ptr = objectStack.at(objectStackIndex + osiOffset);
+        const auto& ptr = objectStack->at(objectStackIndex + osiOffset);
         assert(ptr != nullptr);
         return *ptr;
     }
     inline boost::local_shared_ptr<Object> getObjectPtr(const int osiOffset) const {
-        return objectStack.at(objectStackIndex + osiOffset);
+        return objectStack->at(objectStackIndex + osiOffset);
     }
 };
 

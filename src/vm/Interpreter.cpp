@@ -682,8 +682,8 @@ bool Interpreter::run(int maxCycles) {
                 auto numObjs = readInt<uint8_t>(instructions, &instructionIndex);
                 auto returnsValue = opcode == Opcode::kSystemCallV || opcode == Opcode::kSystemCallVO;
                 auto returnsObject = opcode == Opcode::kSystemCallO || opcode == Opcode::kSystemCallVO;
-                SystemCallInput systemCallInput{ *valueStack,
-                                                 *objectStack,
+                SystemCallInput systemCallInput{ valueStack,
+                                                 objectStack,
                                                  vsi,
                                                  osi,
                                                  _private->consoleInputStream,

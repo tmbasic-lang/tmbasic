@@ -9,7 +9,7 @@ class CodeEditorWindow : public turbo::BasicEditorWindow {
    public:
     CodeEditorWindow(
         const TRect& r,
-        turbo::Editor& aEditor,
+        std::unique_ptr<turbo::Editor> aEditor,
         compiler::SourceMember* member,
         const std::function<void()>& onEdited);
     virtual ~CodeEditorWindow();

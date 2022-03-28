@@ -1,8 +1,9 @@
 #pragma once
 
 #include "../common.h"
-#include "compiler/CompiledProgram.h"
-#include "compiler/ast.h"
+#include "ast.h"
+#include "BuiltInProcedureList.h"
+#include "CompiledProgram.h"
 
 namespace compiler {
 

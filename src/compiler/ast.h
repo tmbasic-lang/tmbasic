@@ -709,7 +709,7 @@ class InputStatementNode : public StatementNode {
 class GlobalVariableNode : public Node {
    public:
     std::string name;
-    GlobalVariableNode(std::string name);
+    explicit GlobalVariableNode(std::string name);
     void dump(std::ostream& s, int n) const override;
     std::optional<std::string> getSymbolDeclaration() const override;
     boost::local_shared_ptr<TypeNode> getSymbolDeclarationType() const override;

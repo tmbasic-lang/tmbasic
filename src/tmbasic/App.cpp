@@ -518,10 +518,10 @@ class AppPrivate {
         turbo::call(*scintilla, SCI_APPENDTEXT, text.size(), reinterpret_cast<sptr_t>(text.data()));
     }
 
-    turbo::Editor& createEditor(compiler::SourceMember* member) {
+    std::unique_ptr<turbo::Editor> createEditor(compiler::SourceMember* member) {
         auto& scintilla = turbo::createScintilla(&clipboard);
         loadText(&scintilla, member->source);
-        return *new turbo::Editor(scintilla);  // NOLINT
+        return std::make_unique<turbo::Editor>(scintilla);
     }
 
     void showEditorWindow(compiler::SourceMember* member) {
@@ -533,8 +533,8 @@ class AppPrivate {
         if (e.window != nullptr) {
             e.window->select();
         } else {
-            auto& editor = createEditor(member);
-            auto* window = new CodeEditorWindow(getNewWindowRect(75, 20), editor, member, []() -> void {
+            auto editor = createEditor(member);
+            auto* window = new CodeEditorWindow(getNewWindowRect(75, 20), std::move(editor), member, []() -> void {
                 // onUpdated
                 auto* programWindow = findProgramWindow();
                 if (programWindow != nullptr) {

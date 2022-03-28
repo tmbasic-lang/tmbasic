@@ -219,10 +219,12 @@ class CodeEditorWindowPrivate {
 
 CodeEditorWindow::CodeEditorWindow(
     const TRect& r,
-    turbo::Editor& aEditor,
+    std::unique_ptr<turbo::Editor> aEditor,
     compiler::SourceMember* member,
     const std::function<void()>& onEdited)
-    : TWindowInit(initCodeEditorFrame), BasicEditorWindow(r, aEditor), _private(new CodeEditorWindowPrivate()) {
+    : TWindowInit(initCodeEditorFrame),
+      BasicEditorWindow(r, *aEditor.release()),
+      _private(new CodeEditorWindowPrivate()) {
     _private->window = this;
     _private->member = member;
     _private->onEdited = onEdited;
