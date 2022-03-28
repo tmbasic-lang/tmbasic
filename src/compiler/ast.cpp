@@ -255,6 +255,29 @@ bool TypeNode::equals(const TypeNode& target) const {
     }
 }
 
+bool TypeNode::isImplicitlyAssignableFrom(const TypeNode& source) const {
+    // MARKER: This function concerns implicit type conversions. Search for this line to find others.
+
+    // Target may be generic: List of Any, Map of Any to Any, Optional Any.
+    if (kind == Kind::kList && source.kind == Kind::kList && listItemType->kind == Kind::kAny) {
+        return true;
+    }
+    if (kind == Kind::kMap && source.kind == Kind::kMap && mapKeyType->kind == Kind::kAny &&
+        mapValueType->kind == Kind::kAny) {
+        return true;
+    }
+    if (kind == Kind::kOptional && source.kind == Kind::kOptional && optionalValueType->kind == Kind::kAny) {
+        return true;
+    }
+
+    // Target may be Optional T, in which case we can assign just a T.
+    if (kind == Kind::kOptional && source.equals(*optionalValueType)) {
+        return true;
+    }
+
+    return equals(source);
+}
+
 std::string TypeNode::toString() const {
     switch (kind) {
         case Kind::kBoolean:

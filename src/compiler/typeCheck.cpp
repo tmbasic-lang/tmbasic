@@ -36,24 +36,7 @@ static bool doCallArgumentTypesMatchProcedureParameters(
         auto& argumentType = arguments.at(i)->evaluatedType;
         assert(argumentType != nullptr);
 
-        // parameter may be generic:
-        // List of Any
-        // Map of Any to Any
-        // Optional Any
-        if (parameterType->kind == Kind::kList && argumentType->kind == Kind::kList &&
-            parameterType->listItemType->kind == Kind::kAny) {
-            continue;
-        }
-        if (parameterType->kind == Kind::kMap && argumentType->kind == Kind::kMap &&
-            parameterType->mapKeyType->kind == Kind::kAny && parameterType->mapValueType->kind == Kind::kAny) {
-            continue;
-        }
-        if (parameterType->kind == Kind::kOptional && argumentType->kind == Kind::kOptional &&
-            parameterType->optionalValueType->kind == Kind::kAny) {
-            continue;
-        }
-
-        if (!argumentType->equals(*parameterType)) {
+        if (!parameterType->isImplicitlyAssignableFrom(*argumentType)) {
             return false;
         }
     }
@@ -61,13 +44,58 @@ static bool doCallArgumentTypesMatchProcedureParameters(
     return true;
 }
 
+static void replaceImplicitArgumentTypeConversionsWithExplicit(
+    std::vector<std::unique_ptr<ExpressionNode>>* arguments,
+    const std::vector<std::unique_ptr<ParameterNode>>& parameters) {
+    // MARKER: This function concerns implicit type conversions. Search for this line to find others.
+    // We assume that doCallArgumentTypesMatchProcedureParameters() was already called and returned true.
+    for (size_t i = 0; i < parameters.size(); i++) {
+        auto& parameterType = parameters.at(i)->type;
+        auto& argumentType = *arguments->at(i)->evaluatedType;
+        if (parameterType->equals(argumentType)) {
+            continue;  // No implicit type conversion.
+        }
+
+        // Copy the token first, before we move from arguments[i]
+        auto token = arguments->at(i)->token;
+
+        // Conversion from T -> Optional T.
+        if (parameterType->kind == Kind::kOptional && argumentType.equals(*parameterType->optionalValueType)) {
+            auto convertExpression =
+                std::make_unique<ConvertExpressionNode>(std::move(arguments->at(i)), parameterType, token);
+            convertExpression->evaluatedType = parameterType;
+            arguments->at(i) = std::move(convertExpression);
+            continue;
+        }
+
+        // Concrete->Generic doesn't require a conversion.
+        if (parameterType->kind == Kind::kList && argumentType.kind == Kind::kList &&
+            parameterType->listItemType->kind == Kind::kAny) {
+            continue;
+        }
+        if (parameterType->kind == Kind::kMap && argumentType.kind == Kind::kMap &&
+            parameterType->mapKeyType->kind == Kind::kAny && parameterType->mapValueType->kind == Kind::kAny) {
+            continue;
+        }
+        if (parameterType->kind == Kind::kOptional && argumentType.kind == Kind::kOptional &&
+            parameterType->optionalValueType->kind == Kind::kAny) {
+            continue;
+        }
+
+        // Make sure we don't miss any conversions.
+        throw CompilerException(
+            CompilerErrorCode::kInternal,
+            "Internal error. Type checking for this implicit type conversion is not implemented.", token);
+    }
+}
+
 static void typeCheckCall(
     Node* callNode,
     const std::string& name,
-    const std::vector<std::unique_ptr<ExpressionNode>>& arguments,
+    std::vector<std::unique_ptr<ExpressionNode>>* arguments,
     TypeCheckState* state,
     bool mustBeFunction) {
-    for (const auto& argument : arguments) {
+    for (const auto& argument : *arguments) {
         typeCheckExpression(argument.get(), state);
     }
 
@@ -79,7 +107,9 @@ static void typeCheckCall(
     for (auto& compiledProcedure : state->compiledProgram->procedures) {
         if (compiledProcedure->nameLowercase == lowercaseProcedureName) {
             anyNameMatches = true;
-            if (doCallArgumentTypesMatchProcedureParameters(arguments, compiledProcedure->procedureNode->parameters)) {
+            if (doCallArgumentTypesMatchProcedureParameters(*arguments, compiledProcedure->procedureNode->parameters)) {
+                replaceImplicitArgumentTypeConversionsWithExplicit(
+                    arguments, compiledProcedure->procedureNode->parameters);
                 if (mustBeFunction && compiledProcedure->procedureNode->returnType == nullptr) {
                     throw CompilerException(
                         CompilerErrorCode::kSubCalledAsFunction,
@@ -97,7 +127,8 @@ static void typeCheckCall(
 
     for (const auto& builtInProcedure : state->builtInProcedures.get(name)) {
         anyNameMatches = true;
-        if (doCallArgumentTypesMatchProcedureParameters(arguments, builtInProcedure->parameters)) {
+        if (doCallArgumentTypesMatchProcedureParameters(*arguments, builtInProcedure->parameters)) {
+            replaceImplicitArgumentTypeConversionsWithExplicit(arguments, builtInProcedure->parameters);
             if (mustBeFunction && builtInProcedure->returnType == nullptr) {
                 throw CompilerException(
                     CompilerErrorCode::kSubCalledAsFunction,
@@ -382,7 +413,7 @@ static void typeCheckConvertExpression(ConvertExpressionNode* expressionNode, Ty
 }
 
 static void typeCheckFunctionCallExpression(FunctionCallExpressionNode* expressionNode, TypeCheckState* state) {
-    typeCheckCall(expressionNode, expressionNode->name, expressionNode->args, state, true);
+    typeCheckCall(expressionNode, expressionNode->name, &expressionNode->args, state, true);
 }
 
 static void typeCheckDottedExpression(DottedExpressionNode* expressionNode, TypeCheckState* state) {
@@ -429,7 +460,7 @@ static void typeCheckDottedExpression(DottedExpressionNode* expressionNode, Type
                 baseSymbolRef->boundSymbolDeclaration->getMemberType() == MemberType::kProcedure) {
                 // this is a function call
                 typeCheckCall(
-                    usageSuffix.get(), baseSymbolRef->name, usageSuffix->collectionIndexOrCallArgs, state, true);
+                    usageSuffix.get(), baseSymbolRef->name, &usageSuffix->collectionIndexOrCallArgs, state, true);
                 assert(usageSuffix->evaluatedType != nullptr);
 
                 // set baseType to the return type of the function
@@ -513,7 +544,7 @@ static void typeCheckSymbolReferenceExpression(SymbolReferenceExpressionNode* ex
     const auto* procedureNode = dynamic_cast<const ProcedureNode*>(decl);
     if (procedureNode != nullptr) {
         std::vector<std::unique_ptr<ExpressionNode>> arguments{};
-        typeCheckCall(expressionNode, expressionNode->name, arguments, state, true);
+        typeCheckCall(expressionNode, expressionNode->name, &arguments, state, true);
         return;
     }
 
@@ -591,19 +622,32 @@ static void typeCheckAssignToSymbolReferenceExpression(const SymbolReferenceExpr
 }
 
 static void typeCheckAssignStatement(AssignStatementNode* statementNode) {
+    // MARKER: This function concerns implicit type conversions. Search for this line to find others.
+
     typeCheckAssignToExpression(*statementNode->target);
 
-    // the LHS and RHS must have matching types
+    // RHS type must be implicitly convertible to LHS type.
     assert(statementNode->target->evaluatedType != nullptr);
+    auto& lhsType = *statementNode->target->evaluatedType;
     assert(statementNode->value->evaluatedType != nullptr);
-    if (!statementNode->target->evaluatedType->equals(*statementNode->value->evaluatedType)) {
+    auto& rhsType = *statementNode->value->evaluatedType;
+    if (!lhsType.isImplicitlyAssignableFrom(rhsType)) {
         throw CompilerException(
             CompilerErrorCode::kTypeMismatch,
             fmt::format(
-                "The types on the left-hand and right-hand sides of an assignment must match, but these types are {} "
-                "and {}.",
-                statementNode->target->evaluatedType->toString(), statementNode->value->evaluatedType->toString()),
+                "The types on both sides of an assignment must match, but these types are {} and {}.",
+                lhsType.toString(), rhsType.toString()),
             statementNode->token);
+    }
+
+    // If the types aren't exactly identical, then turn the implicit conversion into an explicit one.
+    // We don't have to worry about concrete->generic here; both LHS and RHS will be concrete types.
+    if (!lhsType.equals(rhsType)) {
+        auto token = statementNode->value->token;
+        auto convertExpression = std::make_unique<ConvertExpressionNode>(
+            std::move(statementNode->value), statementNode->target->evaluatedType, token);
+        convertExpression->evaluatedType = statementNode->target->evaluatedType;
+        statementNode->value = std::move(convertExpression);
     }
 }
 
@@ -641,7 +685,7 @@ static void typeCheckIfStatement(IfStatementNode* statementNode) {
 }
 
 static void typeCheckCallStatement(CallStatementNode* statementNode, TypeCheckState* state) {
-    typeCheckCall(statementNode, statementNode->name, statementNode->arguments, state, false);
+    typeCheckCall(statementNode, statementNode->name, &statementNode->arguments, state, false);
 }
 
 static void typeCheckForStatement(ForStatementNode* statementNode) {

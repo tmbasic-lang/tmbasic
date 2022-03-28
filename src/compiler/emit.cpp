@@ -658,6 +658,10 @@ static void emitConstValueExpressionNode(const ConstValueExpressionNode& express
 }
 
 static void emitConvertExpression(const ConvertExpressionNode& expressionNode, ProcedureState* state) {
+    // MARKER: This function concerns implicit type conversions. Search for this line to find others.
+
+    auto& srcType = *expressionNode.value->evaluatedType;
+    auto& dstType = *expressionNode.type;
     auto srcKind = expressionNode.value->evaluatedType->kind;
     auto dstKind = expressionNode.type->kind;
 
@@ -703,7 +707,19 @@ static void emitConvertExpression(const ConvertExpressionNode& expressionNode, P
         }
     }
 
-    throw std::runtime_error("not impl");
+    // T -> Optional T
+    if (dstKind == Kind::kOptional && dstType.optionalValueType->equals(srcType)) {
+        if (srcType.isValueType()) {
+            state->syscall(Opcode::kSystemCallO, SystemCall::kValueOptionalNewPresent, 1, 0);
+        } else {
+            state->syscall(Opcode::kSystemCallO, SystemCall::kObjectOptionalNewPresent, 0, 1);
+        }
+        return;
+    }
+
+    throw CompilerException(
+        CompilerErrorCode::kInternal,
+        "Internal error. Code generation for this implicit type conversion is not implemented.", expressionNode.token);
 }
 
 static void emitFunctionCallExpression(const FunctionCallExpressionNode& expressionNode, ProcedureState* state) {

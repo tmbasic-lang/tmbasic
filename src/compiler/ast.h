@@ -120,6 +120,7 @@ class TypeNode : public Node {
     void dump(std::ostream& s, int n) const override;
     bool isValueType() const;
     bool equals(const TypeNode& target) const;
+    bool isImplicitlyAssignableFrom(const TypeNode& source) const;
     std::string toString() const;
 };
 
