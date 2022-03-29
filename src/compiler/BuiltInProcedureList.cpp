@@ -15,6 +15,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     auto listOfString = boost::make_local_shared<TypeNode>(Kind::kList, Token{}, string);
     auto listOfNumber = boost::make_local_shared<TypeNode>(Kind::kList, Token{}, number);
     auto listGeneric = boost::make_local_shared<TypeNode>(Kind::kList, Token{}, any);
+    auto optionalGeneric = boost::make_local_shared<TypeNode>(Kind::kOptional, Token{}, any);
 
     addFunction("Abs", { "x" }, { number }, number, vm::SystemCall::kAbs);
     addFunction("Acos", { "x" }, { number }, number, vm::SystemCall::kAcos);
@@ -52,6 +53,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("Exp", { "x" }, { number }, number, vm::SystemCall::kExp);
     addFunction("FileExists", { "filePath" }, { string }, boolean, vm::SystemCall::kFileExists);
     addFunction("Floor", { "x" }, { number }, number, vm::SystemCall::kFloor);
+    addFunction("HasValue", { "this" }, { optionalGeneric }, boolean, vm::SystemCall::kHasValue);
     addFunction("Hours", { "count" }, { number }, timeSpan, vm::SystemCall::kHours);
     addFunction("Len", { "input" }, { listGeneric }, number, vm::SystemCall::kListLen);
     addFunction("Len", { "input" }, { string }, number, vm::SystemCall::kStringLen);

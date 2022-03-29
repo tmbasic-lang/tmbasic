@@ -49,8 +49,7 @@ enum class SystemCall {
     kFileExists,                    // (filePath as String) as Boolean
     kFloor,                         // (x as Number) as Number
     kFlushConsoleOutput,            // ()
-    kHasValueO,                     // (input as Optional Object) as Boolean
-    kHasValueV,                     // (input as Optional Value) as Boolean
+    kHasValue,                      // (input as Optional Any) as Boolean
     kHours,                         // (count as Number) as TimeSpan
     kInputString,                   // () as String
     kListDirectories,               // (path as String) as List of String

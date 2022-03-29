@@ -7,7 +7,8 @@ namespace vm {
 // run build/scripts/updateErrors.sh to update BuiltInConstantList.cpp to match this enum
 enum class ErrorCode {
     // Miscellaneous
-    kValueNotPresent = 1,  // ERR_VALUE_NOT_PRESENT
+    kValueNotPresent = 1,        // ERR_VALUE_NOT_PRESENT
+    kInternalTypeConfusion = 2,  // ERR_INTERNAL_TYPE_CONFUSION
 
     // I/O
     kIoFailure = 100,           // ERR_IO_FAILURE

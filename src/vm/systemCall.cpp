@@ -184,14 +184,25 @@ static void systemCallDateTimeOffsetToString(const SystemCallInput& input, Syste
     result->returnedObject = dateTimeOffsetToString(date);
 }
 
-static void systemCallHasValueV(const SystemCallInput& input, SystemCallResult* result) {
-    const auto& opt = dynamic_cast<const ValueOptional&>(input.getObject(-1));
-    result->returnedValue.setBoolean(opt.item.has_value());
-}
+static void systemCallHasValue(const SystemCallInput& input, SystemCallResult* result) {
+    auto& object = input.getObject(-1);
+    const auto* valueOptional = dynamic_cast<const ValueOptional*>(&object);
+    if (valueOptional != nullptr) {
+        result->returnedValue.setBoolean(valueOptional->item.has_value());
+        return;
+    }
 
-static void systemCallHasValueO(const SystemCallInput& input, SystemCallResult* result) {
-    const auto& opt = dynamic_cast<const ObjectOptional&>(input.getObject(-1));
-    result->returnedValue.setBoolean(opt.item.has_value());
+    const auto* objectOptional = dynamic_cast<const ObjectOptional*>(&object);
+    if (objectOptional != nullptr) {
+        result->returnedValue.setBoolean(objectOptional->item.has_value());
+        return;
+    }
+
+    throw Error(
+        ErrorCode::kInternalTypeConfusion,
+        fmt::format(
+            "Internal type confusion error. HasValue target is neither {} nor {}.", NAMEOF_TYPE(ValueOptional),
+            NAMEOF_TYPE(ObjectOptional)));
 }
 
 static void systemCallHours(const SystemCallInput& input, SystemCallResult* result) {
@@ -428,8 +439,7 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kFlushConsoleOutput, [](const auto& input, auto* /*result*/) {
         input.consoleOutputStream->flush();
     });
-    initSystemCall(SystemCall::kHasValueO, systemCallHasValueO);
-    initSystemCall(SystemCall::kHasValueV, systemCallHasValueV);
+    initSystemCall(SystemCall::kHasValue, systemCallHasValue);
     initSystemCall(SystemCall::kHours, systemCallHours);
     initSystemCall(SystemCall::kInputString, systemCallInputString);
     initSystemCall(SystemCall::kListLen, [](const auto& input, auto* result) {
