@@ -215,7 +215,7 @@ static void systemCallInputString(const SystemCallInput& input, SystemCallResult
     result->returnedObject = boost::make_local_shared<String>(line);
 }
 
-static void systemCallLen(const SystemCallInput& input, SystemCallResult* result) {
+static void systemCallStringLen(const SystemCallInput& input, SystemCallResult* result) {
     const auto& str = dynamic_cast<const String&>(input.getObject(-1)).value;
     result->returnedValue.num = str.length();
 }
@@ -266,6 +266,33 @@ static void systemCallValue(const SystemCallInput& input, SystemCallResult* resu
         fmt::format(
             "Internal type confusion error. HasValue target is neither {} nor {}.", NAMEOF_TYPE(ValueOptional),
             NAMEOF_TYPE(ObjectOptional)));
+}
+
+static void systemCallListFirst(const SystemCallInput& input, SystemCallResult* result) {
+    auto& object = input.getObject(-1);
+    const auto* valueList = dynamic_cast<const ValueList*>(&object);
+    if (valueList != nullptr) {
+        if (valueList->items.empty()) {
+            throw Error(ErrorCode::kListIsEmpty, "List is empty.");
+        }
+        result->returnedValue = valueList->items.front();
+        return;
+    }
+
+    const auto* objectList = dynamic_cast<const ObjectList*>(&object);
+    if (objectList != nullptr) {
+        if (objectList->items.empty()) {
+            throw Error(ErrorCode::kListIsEmpty, "List is empty.");
+        }
+        result->returnedObject = objectList->items.front();
+        return;
+    }
+
+    throw Error(
+        ErrorCode::kInternalTypeConfusion,
+        fmt::format(
+            "Internal type confusion error. ListFirst target is neither {} nor {}.", NAMEOF_TYPE(ValueList),
+            NAMEOF_TYPE(ObjectList)));
 }
 
 static boost::local_shared_ptr<String> stringConcat(const ObjectList& objectList, const String& separator) {
@@ -611,6 +638,7 @@ void initSystemCalls() {
         }
         result->returnedObject = boost::make_local_shared<ObjectList>(&builder);
     });
+    initSystemCall(SystemCall::kListFirst, systemCallListFirst);
     initSystemCall(SystemCall::kPathSeparator, [](const auto& /*input*/, auto* result) {
 #ifdef _WIN32
         result->returnedObject = boost::make_local_shared<String>("\\", 1);
@@ -721,7 +749,7 @@ void initSystemCalls() {
         const auto& rhs = dynamic_cast<const String&>(input.getObject(-1));
         result->returnedValue.setBoolean(lhs.equals(rhs));
     });
-    initSystemCall(SystemCall::kStringLen, systemCallLen);
+    initSystemCall(SystemCall::kStringLen, systemCallStringLen);
     initSystemCall(SystemCall::kTan, [](const auto& input, auto* result) {
         result->returnedValue.setDouble(std::tan(input.getValue(-1).getDouble()));
     });

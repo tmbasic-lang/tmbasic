@@ -27,6 +27,7 @@ enum class ErrorCode {
     kListIndexOutOfRange = 301,    // ERR_LIST_INDEX_OUT_OF_RANGE
     kValueNotPresent = 302,        // ERR_VALUE_NOT_PRESENT
     kInternalTypeConfusion = 303,  // ERR_INTERNAL_TYPE_CONFUSION
+    kListIsEmpty = 304,            // ERR_LIST_IS_EMPTY
 };
 
 class Error : public std::runtime_error {

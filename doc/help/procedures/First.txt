@@ -1,0 +1,31 @@
+.procedure First
+.category Lists
+.blurb Returns the first element of a t[List].
+.description
+If the t[List] contains at least one value, then the first element returned. If not, an error is thrown.
+.overload
+.parameter list: List of T
+Any t[List] value.
+.return T
+The first element of i[list].
+.example
+This example program shows how to use p[First] and p[Len] together.
+.example-code
+sub PrintFirstNumberIfPresent(x as List of Number)
+    if Len(x) > 0 then
+        print First(x)
+    else
+        print "Empty list!"
+    end if
+end sub
+
+sub Main()
+    dim x = [1, 2, 3]
+    PrintFirstNumberIfPresent x
+    dim y as List of Number
+    PrintFirstNumberIfPresent y
+end sub
+.example-output
+1
+Empty list!
+.

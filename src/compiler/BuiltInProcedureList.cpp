@@ -53,6 +53,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("ErrorMessage", {}, {}, string, vm::SystemCall::kErrorMessage);
     addFunction("Exp", { "x" }, { number }, number, vm::SystemCall::kExp);
     addFunction("FileExists", { "filePath" }, { string }, boolean, vm::SystemCall::kFileExists);
+    addFunction("First", { "list" }, { listGeneric }, generic1, vm::SystemCall::kListFirst);
     addFunction("Floor", { "x" }, { number }, number, vm::SystemCall::kFloor);
     addFunction("HasValue", { "this" }, { optionalGeneric }, boolean, vm::SystemCall::kHasValue);
     addFunction("Hours", { "count" }, { number }, timeSpan, vm::SystemCall::kHours);
