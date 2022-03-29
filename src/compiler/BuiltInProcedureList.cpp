@@ -16,6 +16,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     auto listOfNumber = boost::make_local_shared<TypeNode>(Kind::kList, Token{}, number);
     auto listGeneric = boost::make_local_shared<TypeNode>(Kind::kList, Token{}, any);
     auto optionalGeneric = boost::make_local_shared<TypeNode>(Kind::kOptional, Token{}, any);
+    auto generic1 = boost::make_local_shared<TypeNode>(Kind::kGeneric1, Token{});
 
     addFunction("Abs", { "x" }, { number }, number, vm::SystemCall::kAbs);
     addFunction("Acos", { "x" }, { number }, number, vm::SystemCall::kAcos);
@@ -89,6 +90,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("TotalMinutes", { "timeSpan" }, { timeSpan }, number, vm::SystemCall::kTotalMinutes);
     addFunction("TotalSeconds", { "timeSpan" }, { timeSpan }, number, vm::SystemCall::kTotalSeconds);
     addFunction("Trunc", { "x" }, { number }, number, vm::SystemCall::kTrunc);
+    addFunction("Value", { "this" }, { optionalGeneric }, generic1, vm::SystemCall::kValue);
     addSub("WriteFileBytes", { "filePath", "bytes" }, { string, listOfNumber }, vm::SystemCall::kWriteFileBytes);
     addSub("WriteFileLines", { "filePath", "lines" }, { string, listOfString }, vm::SystemCall::kWriteFileLines);
     addSub("WriteFileText", { "filePath", "text" }, { string, string }, vm::SystemCall::kWriteFileText);

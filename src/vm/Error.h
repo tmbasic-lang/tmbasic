@@ -6,10 +6,6 @@ namespace vm {
 
 // run build/scripts/updateErrors.sh to update BuiltInConstantList.cpp to match this enum
 enum class ErrorCode {
-    // Miscellaneous
-    kValueNotPresent = 1,        // ERR_VALUE_NOT_PRESENT
-    kInternalTypeConfusion = 2,  // ERR_INTERNAL_TYPE_CONFUSION
-
     // I/O
     kIoFailure = 100,           // ERR_IO_FAILURE
     kFileNotFound = 101,        // ERR_FILE_NOT_FOUND
@@ -27,8 +23,10 @@ enum class ErrorCode {
     kInvalidLocaleName = 203,  // ERR_INVALID_LOCALE_NAME
 
     // Collections
-    kMapKeyNotFound = 300,       // ERR_MAP_KEY_NOT_FOUND
-    kListIndexOutOfRange = 301,  // ERR_LIST_INDEX_OUT_OF_RANGE
+    kMapKeyNotFound = 300,         // ERR_MAP_KEY_NOT_FOUND
+    kListIndexOutOfRange = 301,    // ERR_LIST_INDEX_OUT_OF_RANGE
+    kValueNotPresent = 302,        // ERR_VALUE_NOT_PRESENT
+    kInternalTypeConfusion = 303,  // ERR_INTERNAL_TYPE_CONFUSION
 };
 
 class Error : public std::runtime_error {

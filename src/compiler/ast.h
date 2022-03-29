@@ -76,6 +76,9 @@ enum class Kind {
     kMap,
     kRecord,
     kOptional,
+    // The following are special types that refer to "Any" types in parameters.
+    kGeneric1,
+    kGeneric2,
 };
 
 class ParameterNode : public Node {

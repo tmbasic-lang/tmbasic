@@ -136,7 +136,60 @@ static void typeCheckCall(
             }
             callNode->systemCall = builtInProcedure->systemCall;
             if (builtInProcedure->returnType != nullptr) {
-                callNode->evaluatedType = builtInProcedure->returnType;
+                // If the return type is Generic1/2 then pick from the first argument's generic type(s).
+                auto returnKind = builtInProcedure->returnType->kind;
+                if (returnKind == Kind::kGeneric1 || returnKind == Kind::kGeneric2) {
+                    if (arguments->empty()) {
+                        throw CompilerException(
+                            CompilerErrorCode::kInternal,
+                            "Internal error. Built-in procedure has generic return type but no arguments.",
+                            callNode->token);
+                    }
+
+                    auto& argType = *arguments->at(0)->evaluatedType;
+                    switch (argType.kind) {
+                        case Kind::kList:
+                            if (returnKind == Kind::kGeneric2) {
+                                throw CompilerException(
+                                    CompilerErrorCode::kInternal,
+                                    "Internal error. Built-in procedure has Generic2 return type but the first "
+                                    "argument is a List.",
+                                    callNode->token);
+                            }
+                            callNode->evaluatedType = argType.listItemType;
+                            break;
+
+                        case Kind::kMap:
+                            if (returnKind == Kind::kGeneric1) {
+                                callNode->evaluatedType = argType.mapKeyType;
+                            } else {
+                                callNode->evaluatedType = argType.mapValueType;
+                            }
+                            break;
+
+                        case Kind::kOptional:
+                            if (returnKind == Kind::kGeneric2) {
+                                throw CompilerException(
+                                    CompilerErrorCode::kInternal,
+                                    "Internal error. Built-in procedure has Generic2 return type but the first "
+                                    "argument is an Optional.",
+                                    callNode->token);
+                            }
+                            callNode->evaluatedType = argType.optionalValueType;
+                            break;
+
+                        default:
+                            throw CompilerException(
+                                CompilerErrorCode::kInternal,
+                                "Internal error. Built-in procedure has generic return type but the first "
+                                "argument is a non-generic type.",
+                                callNode->token);
+                    }
+                } else {
+                    callNode->evaluatedType = builtInProcedure->returnType;
+                }
+
+                assert(callNode->evaluatedType != nullptr);
             }
             return;
         }

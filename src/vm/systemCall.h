@@ -115,6 +115,7 @@ enum class SystemCall {
     kTotalSeconds,                  // (timeSpan as TimeSpan) as Number
     kTrunc,                         // (x as Number) as Number
     kUtcOffset,                     // (timeZone as TimeZone, dateTime as DateTime) as TimeSpan
+    kValue,                         // (input as Optional T) as T
     kValueListAdd,                  // (lhs as ValueList, rhs as Value) as ValueList
     kValueListBuilderAdd,           // (builder as ValueListBuilder, value as Value)
     kValueListBuilderEnd,           // (builder as ValueListBuilder) as ValueList
@@ -122,12 +123,10 @@ enum class SystemCall {
     kValueListConcat,               // (lhs as ValueList, rhs as ValueList) as ValueList
     kValueListGet,                  // (input as ValueList, index as Number) as Value
     kValueListSet,                  // (input as ValueList, index as Number, value as Value) as ValueList
-    kValueO,                        // (input as Optional Object) as Boolean
     kValueOptionalNewMissing,       // () as ValueOptional
     kValueOptionalNewPresent,       // (input as Value) as ValueOptional
     kValueToObjectMapNew,           // () as ValueToObjectMap
     kValueToValueMapNew,            // () as ValueToValueMap
-    kValueV,                        // (input as Optional Value) as Boolean
     kWriteFileBytes,                // (filePath as String, bytes as List of Number)
     kWriteFileLines,                // (filePath as String, lines as List of String)
     kWriteFileText,                 // (filePath as String, text as String)

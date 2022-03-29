@@ -241,20 +241,31 @@ static void systemCallUtcOffset(const SystemCallInput& input, SystemCallResult* 
     result->returnedValue.num = timeZone.getUtcOffset(dateTime.num);
 }
 
-static void systemCallValueV(const SystemCallInput& input, SystemCallResult* result) {
-    const auto& opt = dynamic_cast<const ValueOptional&>(input.getObject(-1));
-    if (!opt.item.has_value()) {
-        throw Error(ErrorCode::kValueNotPresent, "Optional value is not present.");
+static void systemCallValue(const SystemCallInput& input, SystemCallResult* result) {
+    auto& object = input.getObject(-1);
+    const auto* valueOptional = dynamic_cast<const ValueOptional*>(&object);
+    if (valueOptional != nullptr) {
+        if (!valueOptional->item.has_value()) {
+            throw Error(ErrorCode::kValueNotPresent, "Optional value is not present.");
+        }
+        result->returnedValue = *valueOptional->item;
+        return;
     }
-    result->returnedValue = *opt.item;
-}
 
-static void systemCallValueO(const SystemCallInput& input, SystemCallResult* result) {
-    const auto& opt = dynamic_cast<const ObjectOptional&>(input.getObject(-1));
-    if (!opt.item.has_value()) {
-        throw Error(ErrorCode::kValueNotPresent, "Optional value is not present.");
+    const auto* objectOptional = dynamic_cast<const ObjectOptional*>(&object);
+    if (objectOptional != nullptr) {
+        if (!objectOptional->item.has_value()) {
+            throw Error(ErrorCode::kValueNotPresent, "Optional value is not present.");
+        }
+        result->returnedObject = *objectOptional->item;
+        return;
     }
-    result->returnedObject = *opt.item;
+
+    throw Error(
+        ErrorCode::kInternalTypeConfusion,
+        fmt::format(
+            "Internal type confusion error. HasValue target is neither {} nor {}.", NAMEOF_TYPE(ValueOptional),
+            NAMEOF_TYPE(ObjectOptional)));
 }
 
 static boost::local_shared_ptr<String> stringConcat(const ObjectList& objectList, const String& separator) {
@@ -743,7 +754,7 @@ void initSystemCalls() {
         result->returnedValue.num = input.getValue(-1).num.trunc();
     });
     initSystemCall(SystemCall::kUtcOffset, systemCallUtcOffset);
-    initSystemCall(SystemCall::kValueO, systemCallValueO);
+    initSystemCall(SystemCall::kValue, systemCallValue);
     initSystemCall(SystemCall::kValueListAdd, [](const auto& input, auto* result) {
         const auto& valueList = dynamic_cast<const ValueList&>(input.getObject(-1));
         const auto& value = input.getValue(-1);
@@ -792,7 +803,6 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kValueToValueMapNew, [](const auto& /*input*/, auto* result) {
         result->returnedObject = boost::make_local_shared<ValueToValueMap>();
     });
-    initSystemCall(SystemCall::kValueV, systemCallValueV);
     initSystemCall(SystemCall::kWriteFileBytes, [](const auto& input, auto* /*result*/) {
         const auto& filePath = dynamic_cast<const String&>(input.getObject(-2)).toUtf8();
         const auto& bytesValueList = dynamic_cast<const ValueList&>(input.getObject(-1));
