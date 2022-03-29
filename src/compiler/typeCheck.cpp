@@ -408,6 +408,12 @@ static void typeCheckConvertExpression(ConvertExpressionNode* expressionNode, Ty
         return;
     }
 
+    // T -> Optional T
+    if (dstType.kind == Kind::kOptional && dstType.optionalValueType->equals(srcType)) {
+        expressionNode->evaluatedType = expressionNode->type;
+        return;
+    }
+
     throw CompilerException(
         CompilerErrorCode::kInvalidTypeConversion, "This type conversion is not allowed.", expressionNode->token);
 }
