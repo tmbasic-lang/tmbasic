@@ -301,6 +301,48 @@ static void systemCallListFirstOrLast(const SystemCallInput& input, SystemCallRe
     }
 }
 
+static void systemCallListMid(const SystemCallInput& input, SystemCallResult* result) {
+    // If the requested count is greater than the number of items in the list, don't throw an error, just return as many
+    // items as there are.
+    const auto countSigned = input.getValue(-1).getInt64();
+    if (countSigned < 0) {
+        throw Error(ErrorCode::kInvalidArgument, "Count must be non-negative");
+    }
+    size_t count = static_cast<size_t>(countSigned);
+
+    const auto startSigned = input.getValue(-2).getInt64();
+    if (startSigned < 0) {
+        throw Error(ErrorCode::kListIndexOutOfRange, "Start must be non-negative");
+    }
+    size_t start = static_cast<size_t>(startSigned);
+
+    const auto valueOrObject = valueOrObjectList(input.getObject(-1));
+    const auto* valueList = valueOrObject.first;
+    const auto* objectList = valueOrObject.second;
+
+    if (valueList != nullptr) {
+        if (start < 0 || start >= valueList->items.size()) {
+            throw Error(ErrorCode::kListIndexOutOfRange, "Index out of range.");
+        }
+        ValueListBuilder builder{};
+        auto takeCount = std::min(count, valueList->items.size() - start);
+        for (size_t i = start; i < start + takeCount; i++) {
+            builder.items.push_back(valueList->items.at(i));
+        }
+        result->returnedObject = boost::make_local_shared<ValueList>(&builder);
+    } else {
+        if (start < 0 || start >= objectList->items.size()) {
+            throw Error(ErrorCode::kListIndexOutOfRange, "Index out of range.");
+        }
+        ObjectListBuilder builder{};
+        auto takeCount = std::min(count, objectList->items.size() - start);
+        for (size_t i = start; i < start + takeCount; i++) {
+            builder.items.push_back(objectList->items.at(i));
+        }
+        result->returnedObject = boost::make_local_shared<ObjectList>(&builder);
+    }
+}
+
 static void systemCallListSkipOrTake(const SystemCallInput& input, SystemCallResult* result, bool skip) {
     auto countSigned = input.getValue(-1).getInt64();
     if (countSigned < 0) {
@@ -316,11 +358,11 @@ static void systemCallListSkipOrTake(const SystemCallInput& input, SystemCallRes
         ValueListBuilder builder{};
         if (skip) {
             for (size_t i = count; i < valueList->items.size(); i++) {
-                builder.items.push_back(valueList->items[i]);
+                builder.items.push_back(valueList->items.at(i));
             }
         } else {
             for (size_t i = 0; i < count && i < valueList->items.size(); i++) {
-                builder.items.push_back(valueList->items[i]);
+                builder.items.push_back(valueList->items.at(i));
             }
         }
         result->returnedObject = boost::make_local_shared<ValueList>(&builder);
@@ -328,11 +370,11 @@ static void systemCallListSkipOrTake(const SystemCallInput& input, SystemCallRes
         ObjectListBuilder builder{};
         if (skip) {
             for (size_t i = count; i < objectList->items.size(); i++) {
-                builder.items.push_back(objectList->items[i]);
+                builder.items.push_back(objectList->items.at(i));
             }
         } else {
             for (size_t i = 0; i < count && i < objectList->items.size(); i++) {
-                builder.items.push_back(objectList->items[i]);
+                builder.items.push_back(objectList->items.at(i));
             }
         }
         result->returnedObject = boost::make_local_shared<ObjectList>(&builder);
@@ -688,6 +730,7 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kListLast, [](const auto& input, auto* result) {
         systemCallListFirstOrLast(input, result, false);
     });
+    initSystemCall(SystemCall::kListMid, [](const auto& input, auto* result) { systemCallListMid(input, result); });
     initSystemCall(
         SystemCall::kListSkip, [](const auto& input, auto* result) { systemCallListSkipOrTake(input, result, true); });
     initSystemCall(

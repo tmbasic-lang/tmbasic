@@ -65,6 +65,8 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("ListFiles", { "path" }, { string }, listOfString, vm::SystemCall::kListFiles);
     addFunction("Log", { "x" }, { number }, number, vm::SystemCall::kLog);
     addFunction("Log10", { "x" }, { number }, number, vm::SystemCall::kLog10);
+    addFunction(
+        "Mid", { "list", "start", "count" }, { listGeneric, number, number }, listOfGeneric1, vm::SystemCall::kListMid);
     addFunction("Milliseconds", { "count" }, { number }, timeSpan, vm::SystemCall::kMilliseconds);
     addFunction("Minutes", { "count" }, { number }, timeSpan, vm::SystemCall::kMinutes);
     addFunction("NewLine", {}, {}, string, vm::SystemCall::kNewLine);

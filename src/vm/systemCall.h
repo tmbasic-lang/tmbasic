@@ -57,6 +57,7 @@ enum class SystemCall {
     kListFirst,                     // (list as List of T) as T
     kListLast,                      // (list as List of T) as T
     kListLen,                       // (input as List of T) as Number
+    kListMid,                       // (input as List of T, start as Number, count as Number) as List of T
     kListSkip,                      // (input as List of T, count as Number) as List of T
     kListTake,                      // (input as List of T, count as Number) as List of T
     kLog,                           // (x as Number) as Number

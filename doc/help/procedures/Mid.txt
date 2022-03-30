@@ -1,0 +1,30 @@
+.procedure Mid
+.category Lists
+.blurb Copies a t[List] by taking only a range of its elements.
+.description
+Creates a new list from consecutive elements in i[list] starting at index i[start].
+The returned list has at most i[count] elements; it may have less if i[count] exceeds the number of elements in i[list].
+.overload
+.parameter list: List of T
+Any t[List] value.
+.parameter start: Number
+The starting index.
+.parameter count: Number
+The number of initial elements to skip.
+.return T
+A list containing at most i[count] elements starting at index i[start].
+.example
+This example program constructs a list and then constructs a list of three of its elements.
+.example-code
+sub Main()
+    dim myList = [1, 2, 3, 4, 5]
+    dim newList = Mid(myList, 1, 3)
+    for each element in newList
+        print element
+    next
+end sub
+.example-output
+2
+3
+4
+.
