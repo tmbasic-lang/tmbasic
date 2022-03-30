@@ -322,6 +322,27 @@ std::string TypeNode::toString() const {
     }
 }
 
+bool TypeNode::isGeneric() const {
+    switch (kind) {
+        case Kind::kAny:
+        case Kind::kGeneric1:
+        case Kind::kGeneric2:
+            return true;
+
+        case Kind::kList:
+            return listItemType->isGeneric();
+
+        case Kind::kMap:
+            return mapKeyType->isGeneric() || mapValueType->isGeneric();
+
+        case Kind::kOptional:
+            return optionalValueType->isGeneric();
+
+        default:
+            return false;
+    }
+}
+
 BinaryExpressionSuffixNode::BinaryExpressionSuffixNode(
     BinaryOperator binaryOperator,
     std::unique_ptr<ExpressionNode> rightOperand,

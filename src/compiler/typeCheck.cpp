@@ -137,8 +137,7 @@ static void typeCheckCall(
             callNode->systemCall = builtInProcedure->systemCall;
             if (builtInProcedure->returnType != nullptr) {
                 // If the return type is Generic1/2 then pick from the first argument's generic type(s).
-                auto returnKind = builtInProcedure->returnType->kind;
-                if (returnKind == Kind::kGeneric1 || returnKind == Kind::kGeneric2) {
+                if (builtInProcedure->returnType->isGeneric()) {
                     if (arguments->empty()) {
                         throw CompilerException(
                             CompilerErrorCode::kInternal,
@@ -146,50 +145,79 @@ static void typeCheckCall(
                             callNode->token);
                     }
 
+                    boost::local_shared_ptr<TypeNode> concrete1{}, concrete2{};
+
                     auto& argType = *arguments->at(0)->evaluatedType;
                     switch (argType.kind) {
                         case Kind::kList:
-                            if (returnKind == Kind::kGeneric2) {
-                                throw CompilerException(
-                                    CompilerErrorCode::kInternal,
-                                    "Internal error. Built-in procedure has Generic2 return type but the first "
-                                    "argument is a List.",
-                                    callNode->token);
-                            }
-                            callNode->evaluatedType = argType.listItemType;
+                            concrete1 = argType.listItemType;
                             break;
-
                         case Kind::kMap:
-                            if (returnKind == Kind::kGeneric1) {
-                                callNode->evaluatedType = argType.mapKeyType;
-                            } else {
-                                callNode->evaluatedType = argType.mapValueType;
-                            }
+                            concrete1 = argType.mapKeyType;
+                            concrete2 = argType.mapValueType;
                             break;
-
                         case Kind::kOptional:
-                            if (returnKind == Kind::kGeneric2) {
-                                throw CompilerException(
-                                    CompilerErrorCode::kInternal,
-                                    "Internal error. Built-in procedure has Generic2 return type but the first "
-                                    "argument is an Optional.",
-                                    callNode->token);
-                            }
-                            callNode->evaluatedType = argType.optionalValueType;
+                            concrete1 = argType.optionalValueType;
                             break;
-
                         default:
+                            // Nothing to do.
+                            break;
+                    }
+
+                    switch (builtInProcedure->returnType->kind) {
+                        case Kind::kAny:
                             throw CompilerException(
                                 CompilerErrorCode::kInternal,
-                                "Internal error. Built-in procedure has generic return type but the first "
-                                "argument is a non-generic type.",
+                                "Internal error. Built-in procedure has return type of \"any\" which is not allowed.",
                                 callNode->token);
+
+                        case Kind::kGeneric1:
+                            if (concrete1 == nullptr) {
+                                throw CompilerException(
+                                    CompilerErrorCode::kInternal,
+                                    "Internal error. Built-in procedure has return type of \"Generic1\" but the first "
+                                    "parameter isn't a generic type.",
+                                    callNode->token);
+                            }
+                            callNode->evaluatedType = std::move(concrete1);
+                            break;
+
+                        case Kind::kGeneric2:
+                            if (concrete1 == nullptr || concrete2 == nullptr) {
+                                throw CompilerException(
+                                    CompilerErrorCode::kInternal,
+                                    "Internal error. Built-in procedure has return type of \"Generic2\" but the first "
+                                    "parameter isn't a Map.",
+                                    callNode->token);
+                            }
+                            callNode->evaluatedType = std::move(concrete2);
+                            break;
+
+                        case Kind::kList: {
+                            auto listItemTypeKind = builtInProcedure->returnType->listItemType->kind;
+                            if (listItemTypeKind == Kind::kGeneric1) {
+                                callNode->evaluatedType =
+                                    boost::make_local_shared<TypeNode>(Kind::kList, Token{}, std::move(concrete1));
+                            } else {
+                                throw CompilerException(
+                                    CompilerErrorCode::kInternal,
+                                    "Internal error. Built-in procedure has return type of \"List\" with an invalid "
+                                    "type parameter.",
+                                    callNode->token);
+                            }
+                            break;
+                        }
+
+                        default:
+                            throw std::runtime_error("not impl");
                     }
+
                 } else {
                     callNode->evaluatedType = builtInProcedure->returnType;
                 }
 
                 assert(callNode->evaluatedType != nullptr);
+                assert(!callNode->evaluatedType->isGeneric());
             }
             return;
         }

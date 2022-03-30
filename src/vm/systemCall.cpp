@@ -36,6 +36,42 @@ SystemCallInput::SystemCallInput(
       errorCode(errorCode),
       errorMessage(errorMessage) {}
 
+static std::pair<const ValueOptional*, const ObjectOptional*> valueOrObjectOptional(const Object& object) {
+    const auto* valueOptional = dynamic_cast<const ValueOptional*>(&object);
+    if (valueOptional != nullptr) {
+        return { valueOptional, nullptr };
+    }
+
+    const auto* objectOptional = dynamic_cast<const ObjectOptional*>(&object);
+    if (objectOptional != nullptr) {
+        return { nullptr, objectOptional };
+    }
+
+    throw Error(
+        ErrorCode::kInternalTypeConfusion,
+        fmt::format(
+            "Internal type confusion error. Target is neither {} nor {}.", NAMEOF_TYPE(ValueOptional),
+            NAMEOF_TYPE(ObjectOptional)));
+}
+
+static std::pair<const ValueList*, const ObjectList*> valueOrObjectList(const Object& object) {
+    const auto* valueList = dynamic_cast<const ValueList*>(&object);
+    if (valueList != nullptr) {
+        return { valueList, nullptr };
+    }
+
+    const auto* objectList = dynamic_cast<const ObjectList*>(&object);
+    if (objectList != nullptr) {
+        return { nullptr, objectList };
+    }
+
+    throw Error(
+        ErrorCode::kInternalTypeConfusion,
+        fmt::format(
+            "Internal type confusion error. Target is neither {} nor {}.", NAMEOF_TYPE(ValueList),
+            NAMEOF_TYPE(ObjectList)));
+}
+
 static void systemCallAvailableLocales(const SystemCallInput& /*unused*/, SystemCallResult* result) {
     int32_t count = 0;
     const auto* locales = icu::Locale::getAvailableLocales(count);
@@ -185,24 +221,12 @@ static void systemCallDateTimeOffsetToString(const SystemCallInput& input, Syste
 }
 
 static void systemCallHasValue(const SystemCallInput& input, SystemCallResult* result) {
-    auto& object = input.getObject(-1);
-    const auto* valueOptional = dynamic_cast<const ValueOptional*>(&object);
-    if (valueOptional != nullptr) {
-        result->returnedValue.setBoolean(valueOptional->item.has_value());
-        return;
-    }
+    const auto valueOrObject = valueOrObjectOptional(input.getObject(-1));
+    const auto* valueOptional = valueOrObject.first;
+    const auto* objectOptional = valueOrObject.second;
 
-    const auto* objectOptional = dynamic_cast<const ObjectOptional*>(&object);
-    if (objectOptional != nullptr) {
-        result->returnedValue.setBoolean(objectOptional->item.has_value());
-        return;
-    }
-
-    throw Error(
-        ErrorCode::kInternalTypeConfusion,
-        fmt::format(
-            "Internal type confusion error. HasValue target is neither {} nor {}.", NAMEOF_TYPE(ValueOptional),
-            NAMEOF_TYPE(ObjectOptional)));
+    result->returnedValue.setBoolean(
+        valueOptional != nullptr ? valueOptional->item.has_value() : objectOptional->item.has_value());
 }
 
 static void systemCallHours(const SystemCallInput& input, SystemCallResult* result) {
@@ -242,57 +266,77 @@ static void systemCallUtcOffset(const SystemCallInput& input, SystemCallResult* 
 }
 
 static void systemCallValue(const SystemCallInput& input, SystemCallResult* result) {
-    auto& object = input.getObject(-1);
-    const auto* valueOptional = dynamic_cast<const ValueOptional*>(&object);
+    const auto valueOrObject = valueOrObjectOptional(input.getObject(-1));
+    const auto* valueOptional = valueOrObject.first;
+    const auto* objectOptional = valueOrObject.second;
+
     if (valueOptional != nullptr) {
         if (!valueOptional->item.has_value()) {
             throw Error(ErrorCode::kValueNotPresent, "Optional value is not present.");
         }
         result->returnedValue = *valueOptional->item;
-        return;
-    }
-
-    const auto* objectOptional = dynamic_cast<const ObjectOptional*>(&object);
-    if (objectOptional != nullptr) {
+    } else {
         if (!objectOptional->item.has_value()) {
             throw Error(ErrorCode::kValueNotPresent, "Optional value is not present.");
         }
         result->returnedObject = *objectOptional->item;
-        return;
     }
-
-    throw Error(
-        ErrorCode::kInternalTypeConfusion,
-        fmt::format(
-            "Internal type confusion error. HasValue target is neither {} nor {}.", NAMEOF_TYPE(ValueOptional),
-            NAMEOF_TYPE(ObjectOptional)));
 }
 
 static void systemCallListFirstOrLast(const SystemCallInput& input, SystemCallResult* result, bool first) {
-    auto& object = input.getObject(-1);
-    const auto* valueList = dynamic_cast<const ValueList*>(&object);
+    const auto valueOrObject = valueOrObjectList(input.getObject(-1));
+    const auto* valueList = valueOrObject.first;
+    const auto* objectList = valueOrObject.second;
+
     if (valueList != nullptr) {
         if (valueList->items.empty()) {
             throw Error(ErrorCode::kListIsEmpty, "List is empty.");
         }
         result->returnedValue = first ? valueList->items.front() : valueList->items.back();
-        return;
-    }
-
-    const auto* objectList = dynamic_cast<const ObjectList*>(&object);
-    if (objectList != nullptr) {
+    } else {
         if (objectList->items.empty()) {
             throw Error(ErrorCode::kListIsEmpty, "List is empty.");
         }
         result->returnedObject = first ? objectList->items.front() : objectList->items.back();
-        return;
     }
+}
 
-    throw Error(
-        ErrorCode::kInternalTypeConfusion,
-        fmt::format(
-            "Internal type confusion error. ListFirst target is neither {} nor {}.", NAMEOF_TYPE(ValueList),
-            NAMEOF_TYPE(ObjectList)));
+static void systemCallListSkipOrTake(const SystemCallInput& input, SystemCallResult* result, bool skip) {
+    auto countSigned = input.getValue(-1).getInt64();
+    if (countSigned < 0) {
+        throw Error(ErrorCode::kInvalidArgument, "Count must be non-negative.");
+    }
+    auto count = static_cast<size_t>(countSigned);
+
+    const auto valueOrObject = valueOrObjectList(input.getObject(-1));
+    const auto* valueList = valueOrObject.first;
+    const auto* objectList = valueOrObject.second;
+
+    if (valueList != nullptr) {
+        ValueListBuilder builder{};
+        if (skip) {
+            for (size_t i = count; i < valueList->items.size(); i++) {
+                builder.items.push_back(valueList->items[i]);
+            }
+        } else {
+            for (size_t i = 0; i < count && i < valueList->items.size(); i++) {
+                builder.items.push_back(valueList->items[i]);
+            }
+        }
+        result->returnedObject = boost::make_local_shared<ValueList>(&builder);
+    } else {
+        ObjectListBuilder builder{};
+        if (skip) {
+            for (size_t i = count; i < objectList->items.size(); i++) {
+                builder.items.push_back(objectList->items[i]);
+            }
+        } else {
+            for (size_t i = 0; i < count && i < objectList->items.size(); i++) {
+                builder.items.push_back(objectList->items[i]);
+            }
+        }
+        result->returnedObject = boost::make_local_shared<ObjectList>(&builder);
+    }
 }
 
 static boost::local_shared_ptr<String> stringConcat(const ObjectList& objectList, const String& separator) {
@@ -644,6 +688,10 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kListLast, [](const auto& input, auto* result) {
         systemCallListFirstOrLast(input, result, false);
     });
+    initSystemCall(
+        SystemCall::kListSkip, [](const auto& input, auto* result) { systemCallListSkipOrTake(input, result, true); });
+    initSystemCall(
+        SystemCall::kListTake, [](const auto& input, auto* result) { systemCallListSkipOrTake(input, result, false); });
     initSystemCall(SystemCall::kPathSeparator, [](const auto& /*input*/, auto* result) {
 #ifdef _WIN32
         result->returnedObject = boost::make_local_shared<String>("\\", 1);

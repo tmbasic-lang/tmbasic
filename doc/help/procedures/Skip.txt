@@ -1,0 +1,29 @@
+.procedure Skip
+.category Lists
+.blurb Copies a t[List] by skipping the first N elements.
+.description
+Creates a new list from the remaining elements in i[list] after skipping the first i[count] elements.
+If i[count] exceeds the number of elements in i[list], then an empty list is returned.
+.overload
+.parameter list: List of T
+Any t[List] value.
+.parameter count: Number
+The number of initial elements to skip.
+.return T
+A list containing the remaining elements.
+.example
+This example program constructs a list and then prints the elements after the first three.
+.example-code
+sub Main()
+    dim myList = [1, 2, 3, 4, 5, 6, 7]
+    dim newList = Skip(myList, 3)
+    for each element in newList
+        print element
+    next
+end sub
+.example-output
+4
+5
+6
+7
+.

@@ -6,6 +6,9 @@ namespace vm {
 
 // run build/scripts/updateErrors.sh to update BuiltInConstantList.cpp to match this enum
 enum class ErrorCode {
+    // General purpose
+    kInvalidArgument = 50,  // ERR_INVALID_ARGUMENT
+
     // I/O
     kIoFailure = 100,           // ERR_IO_FAILURE
     kFileNotFound = 101,        // ERR_FILE_NOT_FOUND

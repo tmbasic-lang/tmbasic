@@ -54,9 +54,11 @@ enum class SystemCall {
     kInputString,                   // () as String
     kListDirectories,               // (path as String) as List of String
     kListFiles,                     // (path as String) as List of String
-    kListLast,                      // (list as List of T) as T
-    kListLen,                       // (input as List) as Number
     kListFirst,                     // (list as List of T) as T
+    kListLast,                      // (list as List of T) as T
+    kListLen,                       // (input as List of T) as Number
+    kListSkip,                      // (input as List of T, count as Number) as List of T
+    kListTake,                      // (input as List of T, count as Number) as List of T
     kLog,                           // (x as Number) as Number
     kLog10,                         // (x as Number) as Number
     kMilliseconds,                  // (count as Number) as TimeSpan

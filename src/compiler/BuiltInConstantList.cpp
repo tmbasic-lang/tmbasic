@@ -13,6 +13,7 @@ BuiltInConstantList::BuiltInConstantList()
 
     // this is updated automatically by build/scripts/updateErrors.sh
     // start_errors
+    addError("ERR_INVALID_ARGUMENT", vm::ErrorCode::kInvalidArgument);
     addError("ERR_IO_FAILURE", vm::ErrorCode::kIoFailure);
     addError("ERR_FILE_NOT_FOUND", vm::ErrorCode::kFileNotFound);
     addError("ERR_ACCESS_DENIED", vm::ErrorCode::kAccessDenied);
@@ -29,6 +30,7 @@ BuiltInConstantList::BuiltInConstantList()
     addError("ERR_LIST_INDEX_OUT_OF_RANGE", vm::ErrorCode::kListIndexOutOfRange);
     addError("ERR_VALUE_NOT_PRESENT", vm::ErrorCode::kValueNotPresent);
     addError("ERR_INTERNAL_TYPE_CONFUSION", vm::ErrorCode::kInternalTypeConfusion);
+    addError("ERR_LIST_IS_EMPTY", vm::ErrorCode::kListIsEmpty);
     // end_errors
 }
 

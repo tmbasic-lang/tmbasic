@@ -17,6 +17,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     auto listGeneric = boost::make_local_shared<TypeNode>(Kind::kList, Token{}, any);
     auto optionalGeneric = boost::make_local_shared<TypeNode>(Kind::kOptional, Token{}, any);
     auto generic1 = boost::make_local_shared<TypeNode>(Kind::kGeneric1, Token{});
+    auto listOfGeneric1 = boost::make_local_shared<TypeNode>(Kind::kList, Token{}, generic1);
 
     addFunction("Abs", { "x" }, { number }, number, vm::SystemCall::kAbs);
     addFunction("Acos", { "x" }, { number }, number, vm::SystemCall::kAcos);
@@ -80,10 +81,12 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("Round", { "x" }, { number }, number, vm::SystemCall::kRound);
     addFunction("Seconds", { "count" }, { number }, timeSpan, vm::SystemCall::kSeconds);
     addFunction("Sin", { "x" }, { number }, number, vm::SystemCall::kSin);
+    addFunction("Skip", { "list", "count" }, { listGeneric, number }, listOfGeneric1, vm::SystemCall::kListSkip);
     addFunction("Sqr", { "x" }, { number }, number, vm::SystemCall::kSqr);
     addFunction(
         "StringFromCodePoints", { "codePoints" }, { listOfNumber }, string, vm::SystemCall::kStringFromCodePoints);
     addFunction("StringFromCodeUnits", { "codeUnits" }, { listOfNumber }, string, vm::SystemCall::kStringFromCodeUnits);
+    addFunction("Take", { "list", "count" }, { listGeneric, number }, listOfGeneric1, vm::SystemCall::kListTake);
     addFunction("Tan", { "x" }, { number }, number, vm::SystemCall::kTan);
     addFunction("TimeZoneFromName", { "name" }, { string }, timeZone, vm::SystemCall::kTimeZoneFromName);
     addFunction("TotalDays", { "timeSpan" }, { timeSpan }, number, vm::SystemCall::kTotalDays);

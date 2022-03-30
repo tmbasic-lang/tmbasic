@@ -124,6 +124,7 @@ class TypeNode : public Node {
     bool isValueType() const;
     bool equals(const TypeNode& target) const;
     bool isImplicitlyAssignableFrom(const TypeNode& source) const;
+    bool isGeneric() const;
     std::string toString() const;
 };
 
