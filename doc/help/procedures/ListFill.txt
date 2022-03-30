@@ -1,0 +1,28 @@
+.procedure ListFill
+.category Lists
+.blurb Creates a new t[List] by filling every element with the same value.
+.description
+Creates a new list with i[count] elements, all set to i[value].
+.overload
+.parameter value: T
+Any value.
+.parameter count: Number
+The number of times to copy i[value] into the constructed list.
+.return T
+A list containing i[value] repeated i[count] times.
+.example
+This example program constructs a list and then prints it.
+.example-code
+sub Main()
+    dim myList = ListFill("Hi!", 3)
+    print Len(myList)
+    for each element in myList
+        print element
+    next
+end sub
+.example-output
+3
+Hi!
+Hi!
+Hi!
+.

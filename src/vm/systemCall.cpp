@@ -381,6 +381,38 @@ static void systemCallListSkipOrTake(const SystemCallInput& input, SystemCallRes
     }
 }
 
+static void systemCallListFillV(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& value = input.getValue(-2);
+
+    const auto& countSigned = input.getValue(-1).getInt64();
+    if (countSigned < 0) {
+        throw Error(ErrorCode::kInvalidArgument, "Count must be non-negative.");
+    }
+    auto count = static_cast<size_t>(countSigned);
+
+    ValueListBuilder builder{};
+    for (size_t i = 0; i < count; i++) {
+        builder.items.push_back(value);
+    }
+    result->returnedObject = boost::make_local_shared<ValueList>(&builder);
+}
+
+static void systemCallListFillO(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& object = input.getObjectPtr(-1);
+
+    const auto& countSigned = input.getValue(-1).getInt64();
+    if (countSigned < 0) {
+        throw Error(ErrorCode::kInvalidArgument, "Count must be non-negative.");
+    }
+    auto count = static_cast<size_t>(countSigned);
+
+    ObjectListBuilder builder{};
+    for (size_t i = 0; i < count; i++) {
+        builder.items.push_back(object);
+    }
+    result->returnedObject = boost::make_local_shared<ObjectList>(&builder);
+}
+
 static boost::local_shared_ptr<String> stringConcat(const ObjectList& objectList, const String& separator) {
     std::vector<char16_t> uchars{};
     bool isFirst = true;
@@ -724,6 +756,8 @@ void initSystemCalls() {
         }
         result->returnedObject = boost::make_local_shared<ObjectList>(&builder);
     });
+    initSystemCall(SystemCall::kListFillO, systemCallListFillO);
+    initSystemCall(SystemCall::kListFillV, systemCallListFillV);
     initSystemCall(SystemCall::kListFirst, [](const auto& input, auto* result) {
         systemCallListFirstOrLast(input, result, true);
     });
@@ -988,6 +1022,15 @@ SystemCallResult systemCall(SystemCall which, const SystemCallInput& input) {
     }
 
     return result;
+}
+
+std::optional<SystemCall> getDualGenericSystemCall(SystemCall call) {
+    switch (call) {
+        case SystemCall::kListFillO:
+            return SystemCall::kListFillV;
+        default:
+            return {};
+    }
 }
 
 }  // namespace vm

@@ -69,6 +69,9 @@ static void replaceImplicitArgumentTypeConversionsWithExplicit(
         }
 
         // Concrete->Generic doesn't require a conversion.
+        if (parameterType->kind == Kind::kAny) {
+            continue;
+        }
         if (parameterType->kind == Kind::kList && argumentType.kind == Kind::kList &&
             parameterType->listItemType->kind == Kind::kAny) {
             continue;
@@ -147,20 +150,25 @@ static void typeCheckCall(
 
                     boost::local_shared_ptr<TypeNode> concrete1{}, concrete2{};
 
-                    auto& argType = *arguments->at(0)->evaluatedType;
-                    switch (argType.kind) {
+                    auto& argType = arguments->at(0)->evaluatedType;
+                    assert(argType != nullptr);
+                    switch (argType->kind) {
                         case Kind::kList:
-                            concrete1 = argType.listItemType;
+                            concrete1 = argType->listItemType;
+                            assert(concrete1 != nullptr);
                             break;
                         case Kind::kMap:
-                            concrete1 = argType.mapKeyType;
-                            concrete2 = argType.mapValueType;
+                            concrete1 = argType->mapKeyType;
+                            concrete2 = argType->mapValueType;
+                            assert(concrete1 != nullptr);
+                            assert(concrete2 != nullptr);
                             break;
                         case Kind::kOptional:
-                            concrete1 = argType.optionalValueType;
+                            concrete1 = argType->optionalValueType;
+                            assert(concrete1 != nullptr);
                             break;
                         default:
-                            // Nothing to do.
+                            concrete1 = argType;
                             break;
                     }
 

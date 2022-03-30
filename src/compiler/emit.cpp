@@ -733,9 +733,23 @@ static void emitFunctionCallExpression(const FunctionCallExpressionNode& express
         emitExpression(*arg, state);
     }
     if (expressionNode.systemCall.has_value()) {
+        auto systemCall = *expressionNode.systemCall;
+        auto dualSystemCall = vm::getDualGenericSystemCall(*expressionNode.systemCall);
+        if (dualSystemCall.has_value()) {
+            // There is one system call when the first argument is a value and another when it is an object.
+            // expressionNode.systemCall is the one for objects and *dualSystemCall is the one for values.
+            // So if the first argument is a value, we have to swap over to dualSystemCall.
+            assert(!expressionNode.args.empty());
+            const auto& firstArg = *expressionNode.args.at(0);
+            assert(firstArg.evaluatedType != nullptr);
+            if (firstArg.evaluatedType->isValueType()) {
+                systemCall = *dualSystemCall;
+            }
+        }
+
         state->syscall(
-            expressionNode.evaluatedType->isValueType() ? Opcode::kSystemCallV : Opcode::kSystemCallO,
-            *expressionNode.systemCall, numValueArgs, numObjectArgs);
+            expressionNode.evaluatedType->isValueType() ? Opcode::kSystemCallV : Opcode::kSystemCallO, systemCall,
+            numValueArgs, numObjectArgs);
     } else {
         state->call(
             expressionNode.evaluatedType->isValueType() ? Opcode::kCallV : Opcode::kCallO,
@@ -1005,6 +1019,9 @@ static void emitCallStatement(const CallStatementNode& statementNode, ProcedureS
         }
     }
     if (statementNode.systemCall.has_value()) {
+        if (vm::getDualGenericSystemCall(*statementNode.systemCall).has_value()) {
+            throw std::runtime_error("not impl");
+        }
         state->syscall(Opcode::kSystemCall, *statementNode.systemCall, numValueArgs, numObjectArgs);
     } else {
         assert(statementNode.procedureIndex.has_value());

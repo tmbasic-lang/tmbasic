@@ -63,6 +63,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("Len", { "input" }, { string }, number, vm::SystemCall::kStringLen);
     addFunction("ListDirectories", { "path" }, { string }, listOfString, vm::SystemCall::kListDirectories);
     addFunction("ListFiles", { "path" }, { string }, listOfString, vm::SystemCall::kListFiles);
+    addFunction("ListFill", { "value", "count" }, { any, number }, listOfGeneric1, vm::SystemCall::kListFillO);
     addFunction("Log", { "x" }, { number }, number, vm::SystemCall::kLog);
     addFunction("Log10", { "x" }, { number }, number, vm::SystemCall::kLog10);
     addFunction(

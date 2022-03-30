@@ -54,6 +54,8 @@ enum class SystemCall {
     kInputString,                   // () as String
     kListDirectories,               // (path as String) as List of String
     kListFiles,                     // (path as String) as List of String
+    kListFillO,                     // (value as TObject, count as Number) as List of TObject
+    kListFillV,                     // (value as TValue, count as Number) as List of TValue
     kListFirst,                     // (list as List of T) as T
     kListLast,                      // (list as List of T) as T
     kListLen,                       // (input as List of T) as Number
@@ -184,5 +186,6 @@ class SystemCallResult {
 
 void initSystemCalls();
 SystemCallResult systemCall(SystemCall which, const SystemCallInput& input);
+std::optional<SystemCall> getDualGenericSystemCall(SystemCall call);
 
 }  // namespace vm

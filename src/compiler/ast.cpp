@@ -258,7 +258,10 @@ bool TypeNode::equals(const TypeNode& target) const {
 bool TypeNode::isImplicitlyAssignableFrom(const TypeNode& source) const {
     // MARKER: This function concerns implicit type conversions. Search for this line to find others.
 
-    // Target may be generic: List of Any, Map of Any to Any, Optional Any.
+    // Target may be generic: Any, List of Any, Map of Any to Any, Optional Any.
+    if (kind == Kind::kAny) {
+        return true;
+    }
     if (kind == Kind::kList && source.kind == Kind::kList && listItemType->kind == Kind::kAny) {
         return true;
     }
@@ -330,12 +333,16 @@ bool TypeNode::isGeneric() const {
             return true;
 
         case Kind::kList:
+            assert(listItemType != nullptr);
             return listItemType->isGeneric();
 
         case Kind::kMap:
+            assert(mapKeyType != nullptr);
+            assert(mapValueType != nullptr);
             return mapKeyType->isGeneric() || mapValueType->isGeneric();
 
         case Kind::kOptional:
+            assert(optionalValueType != nullptr);
             return optionalValueType->isGeneric();
 
         default:
