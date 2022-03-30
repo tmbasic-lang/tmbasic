@@ -148,7 +148,8 @@ static void typeCheckCall(
                             callNode->token);
                     }
 
-                    boost::local_shared_ptr<TypeNode> concrete1{}, concrete2{};
+                    boost::local_shared_ptr<TypeNode> concrete1{};
+                    boost::local_shared_ptr<TypeNode> concrete2{};
 
                     auto& argType = arguments->at(0)->evaluatedType;
                     assert(argType != nullptr);

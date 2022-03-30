@@ -308,13 +308,13 @@ static void systemCallListMid(const SystemCallInput& input, SystemCallResult* re
     if (countSigned < 0) {
         throw Error(ErrorCode::kInvalidArgument, "Count must be non-negative");
     }
-    size_t count = static_cast<size_t>(countSigned);
+    auto count = static_cast<size_t>(countSigned);
 
     const auto startSigned = input.getValue(-2).getInt64();
     if (startSigned < 0) {
         throw Error(ErrorCode::kListIndexOutOfRange, "Start must be non-negative");
     }
-    size_t start = static_cast<size_t>(startSigned);
+    auto start = static_cast<size_t>(startSigned);
 
     const auto valueOrObject = valueOrObjectList(input.getObject(-1));
     const auto* valueList = valueOrObject.first;
