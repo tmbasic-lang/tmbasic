@@ -268,14 +268,14 @@ static void systemCallValue(const SystemCallInput& input, SystemCallResult* resu
             NAMEOF_TYPE(ObjectOptional)));
 }
 
-static void systemCallListFirst(const SystemCallInput& input, SystemCallResult* result) {
+static void systemCallListFirstOrLast(const SystemCallInput& input, SystemCallResult* result, bool first) {
     auto& object = input.getObject(-1);
     const auto* valueList = dynamic_cast<const ValueList*>(&object);
     if (valueList != nullptr) {
         if (valueList->items.empty()) {
             throw Error(ErrorCode::kListIsEmpty, "List is empty.");
         }
-        result->returnedValue = valueList->items.front();
+        result->returnedValue = first ? valueList->items.front() : valueList->items.back();
         return;
     }
 
@@ -284,7 +284,7 @@ static void systemCallListFirst(const SystemCallInput& input, SystemCallResult* 
         if (objectList->items.empty()) {
             throw Error(ErrorCode::kListIsEmpty, "List is empty.");
         }
-        result->returnedObject = objectList->items.front();
+        result->returnedObject = first ? objectList->items.front() : objectList->items.back();
         return;
     }
 
@@ -638,7 +638,12 @@ void initSystemCalls() {
         }
         result->returnedObject = boost::make_local_shared<ObjectList>(&builder);
     });
-    initSystemCall(SystemCall::kListFirst, systemCallListFirst);
+    initSystemCall(SystemCall::kListFirst, [](const auto& input, auto* result) {
+        systemCallListFirstOrLast(input, result, true);
+    });
+    initSystemCall(SystemCall::kListLast, [](const auto& input, auto* result) {
+        systemCallListFirstOrLast(input, result, false);
+    });
     initSystemCall(SystemCall::kPathSeparator, [](const auto& /*input*/, auto* result) {
 #ifdef _WIN32
         result->returnedObject = boost::make_local_shared<String>("\\", 1);

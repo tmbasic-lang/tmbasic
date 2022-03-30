@@ -1,0 +1,31 @@
+.procedure Last
+.category Lists
+.blurb Returns the last element of a t[List].
+.description
+If the t[List] contains at least one value, then the last element returned. If not, an error is thrown.
+.overload
+.parameter list: List of T
+Any t[List] value.
+.return T
+The last element of i[list].
+.example
+This example program shows how to use p[First] and p[Len] together.
+.example-code
+sub PrintLastNumberIfPresent(x as List of Number)
+    if Len(x) > 0 then
+        print Last(x)
+    else
+        print "Empty list!"
+    end if
+end sub
+
+sub Main()
+    dim x = [1, 2, 3]
+    PrintLastNumberIfPresent x
+    dim y as List of Number
+    PrintLastNumberIfPresent y
+end sub
+.example-output
+3
+Empty list!
+.

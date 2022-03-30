@@ -54,6 +54,7 @@ enum class SystemCall {
     kInputString,                   // () as String
     kListDirectories,               // (path as String) as List of String
     kListFiles,                     // (path as String) as List of String
+    kListLast,                      // (list as List of T) as T
     kListLen,                       // (input as List) as Number
     kListFirst,                     // (list as List of T) as T
     kLog,                           // (x as Number) as Number

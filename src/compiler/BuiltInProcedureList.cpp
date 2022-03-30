@@ -57,6 +57,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("Floor", { "x" }, { number }, number, vm::SystemCall::kFloor);
     addFunction("HasValue", { "this" }, { optionalGeneric }, boolean, vm::SystemCall::kHasValue);
     addFunction("Hours", { "count" }, { number }, timeSpan, vm::SystemCall::kHours);
+    addFunction("Last", { "list" }, { listGeneric }, generic1, vm::SystemCall::kListLast);
     addFunction("Len", { "input" }, { listGeneric }, number, vm::SystemCall::kListLen);
     addFunction("Len", { "input" }, { string }, number, vm::SystemCall::kStringLen);
     addFunction("ListDirectories", { "path" }, { string }, listOfString, vm::SystemCall::kListDirectories);
