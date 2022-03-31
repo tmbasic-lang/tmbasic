@@ -518,6 +518,7 @@ bool Interpreter::run(int maxCycles) {
                 auto& frame = _private->callStack.top();
                 assert(frame.vsiLocalsStart == vsi);
                 assert(frame.osiLocalsStart == osi);
+                (void)frame;
                 vsi += numVals;
                 osi += numObjs;
                 break;
