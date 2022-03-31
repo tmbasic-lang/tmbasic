@@ -36,7 +36,7 @@ function checkGitHubRelease {
     local url=$2
     local version=$(curl --silent $url \
         | grep '<title>' \
-        | grep -v '\-rc' \
+        | grep -vi 'rc' \
         | grep -v 'cldr' \
         | head -n 2 \
         | tail -n 1 \
