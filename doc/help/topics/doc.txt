@@ -46,21 +46,18 @@ li@i[Simple types:]
 {`Number`:type_number} │
 {`Optional`:type_optional} │
 {`Record`:type_record} │
-{`String`:type_string}
-@
+{`String`:type_string}@
 
 li@i[Date and time types:]
 {`Date`:type_date} │
 {`DateTime`:type_datetime} │
 {`DateTimeOffset`:type_datetimeoffset} │
 {`TimeSpan`:type_timespan} │
-{`TimeZone`:type_timezone}
-@
+{`TimeZone`:type_timezone}@
 
 li@i[Collection types:]
 {`List`:type_list} │
-{`Map`:type_map}
-@
+{`Map`:type_map}@
 
 li@{Constants:builtin_constants}@
 
