@@ -12,11 +12,12 @@ String::String(const std::string& utf8) : value(icu::UnicodeString::fromUTF8(utf
 
 String::String(icu::UnicodeString utf16) : value(std::move(utf16)) {}
 
-String::String(const uint8_t* source, int length)
-    : value(icu::UnicodeString::fromUTF8(icu::StringPiece(convertUint8ToInt8(source), length))) {}
+String::String(const uint8_t* utf8, int length)
+    : value(icu::UnicodeString::fromUTF8(icu::StringPiece(convertUint8ToInt8(utf8), length))) {}
 
-String::String(const char* source, int length)
-    : value(icu::UnicodeString::fromUTF8(icu::StringPiece(source, length))) {}
+String::String(const char* utf8, int length) : value(icu::UnicodeString::fromUTF8(icu::StringPiece(utf8, length))) {}
+
+String::String(const char* utf8) : value(icu::UnicodeString::fromUTF8(utf8)) {}
 
 ObjectType String::getObjectType() const {
     return ObjectType::kString;

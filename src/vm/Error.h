@@ -7,7 +7,8 @@ namespace vm {
 // run build/scripts/updateErrors.sh to update BuiltInConstantList.cpp to match this enum
 enum class ErrorCode {
     // General purpose
-    kInvalidArgument = 50,  // ERR_INVALID_ARGUMENT
+    kInvalidArgument = 50,   // ERR_INVALID_ARGUMENT
+    kInvalidOperation = 51,  // ERR_INVALID_OPERATION
 
     // I/O
     kIoFailure = 100,           // ERR_IO_FAILURE
@@ -31,6 +32,11 @@ enum class ErrorCode {
     kValueNotPresent = 302,        // ERR_VALUE_NOT_PRESENT
     kInternalTypeConfusion = 303,  // ERR_INTERNAL_TYPE_CONFUSION
     kListIsEmpty = 304,            // ERR_LIST_IS_EMPTY
+
+    // Forms
+    kFormNotFound = 400,        // ERR_FORM_NOT_FOUND
+    kControlNotFound = 401,     // ERR_CONTROL_NOT_FOUND
+    kInvalidControlType = 402,  // ERR_INVALID_CONTROL_TYPE
 };
 
 class Error : public std::runtime_error {

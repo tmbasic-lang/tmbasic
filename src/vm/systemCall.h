@@ -1,15 +1,17 @@
 #pragma once
 
 #include "../common.h"
-#include "vm/Value.h"
-#include "vm/Object.h"
-#include "vm/constants.h"
+#include "Interpreter.h"
+#include "Object.h"
+#include "Value.h"
+#include "constants.h"
 
 namespace vm {
 
 enum class SystemCall {
     kAbs,                           // (x as Number) as Number
     kAcos,                          // (x as Number) as Number
+    kAddControlToForm,              // (form as Form, control as Control)
     kAsin,                          // (x as Number) as Number
     kAtan,                          // (x as Number) as Number
     kAtan2,                         // (y as Number, x as Number) as Number
@@ -29,6 +31,7 @@ enum class SystemCall {
     kCodeUnits,                     // (input as String) as List of Number
     kConcat1,                       // (input as List of String) as String
     kConcat2,                       // (input as List of String, separator as String) as String
+    kControlText,                   // (control as Control) as String
     kCos,                           // (x as Number) as Number
     kCounterIsPastLimit,            // (counter as N, limit as N, step as N) as Boolean
     kCreateDirectory,               // (path as String) as Boolean
@@ -49,6 +52,7 @@ enum class SystemCall {
     kFileExists,                    // (filePath as String) as Boolean
     kFloor,                         // (x as Number) as Number
     kFlushConsoleOutput,            // ()
+    kFormTitle,                     // (form as Form) as String
     kHasValue,                      // (input as Optional Any) as Boolean
     kHours,                         // (count as Number) as TimeSpan
     kInputString,                   // () as String
@@ -66,6 +70,8 @@ enum class SystemCall {
     kLog10,                         // (x as Number) as Number
     kMilliseconds,                  // (count as Number) as TimeSpan
     kMinutes,                       // (count as Number) as TimeSpan
+    kNewForm,                       // () as Form
+    kNewLabel,                      // () as Control
     kNewLine,                       // () as String
     kNumberAdd,                     // (lhs as Number, rhs as Number) as Number
     kNumberDivide,                  // (lhs as Number, rhs as Number) as Number
@@ -103,7 +109,10 @@ enum class SystemCall {
     kReadFileLines,                 // (filePath as String) as List of String
     kReadFileText,                  // (filePath as String) as String
     kRound,                         // (x as Number) as Number
+    kRunForm,                       // (form as Form)
     kSeconds,                       // (count as Number) as TimeSpan
+    kSetControlText,                // (control as Control, text as String)
+    kSetFormTitle,                  // (form as Form, title as String)
     kSin,                           // (x as Number) as Number
     kSqr,                           // (x as Number) as Number
     kStringConcat,                  // (lhs as String, rhs as String) as String
@@ -141,6 +150,7 @@ enum class SystemCall {
 
 class SystemCallInput {
    public:
+    Interpreter* interpreter;
     std::array<Value, kValueStackSize>* valueStack;
     std::array<boost::local_shared_ptr<Object>, kObjectStackSize>* objectStack;
     int valueStackIndex;
@@ -150,6 +160,7 @@ class SystemCallInput {
     const Value& errorCode;
     const std::string& errorMessage;
     SystemCallInput(
+        Interpreter* interpreter,
         std::array<Value, kValueStackSize>* valueStack,
         std::array<boost::local_shared_ptr<Object>, kObjectStackSize>* objectStack,
         int valueStackIndex,

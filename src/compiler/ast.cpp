@@ -202,8 +202,19 @@ void TypeNode::dump(std::ostream& s, int n) const {
 }
 
 bool TypeNode::isValueType() const {
-    return kind == Kind::kNumber || kind == Kind::kBoolean || kind == Kind::kDate || kind == Kind::kDateTime ||
-        kind == Kind::kTimeSpan;
+    switch (kind) {
+        case Kind::kNumber:
+        case Kind::kBoolean:
+        case Kind::kDate:
+        case Kind::kDateTime:
+        case Kind::kTimeSpan:
+        case Kind::kForm:
+        case Kind::kControl:
+            return true;
+
+        default:
+            return false;
+    }
 }
 
 bool TypeNode::equals(const TypeNode& target) const {
@@ -221,6 +232,8 @@ bool TypeNode::equals(const TypeNode& target) const {
         case Kind::kTimeSpan:
         case Kind::kTimeZone:
         case Kind::kString:
+        case Kind::kForm:
+        case Kind::kControl:
             return true;
 
         case Kind::kList:
@@ -320,6 +333,10 @@ std::string TypeNode::toString() const {
             }
         case Kind::kOptional:
             return fmt::format("Optional {}", optionalValueType->toString());
+        case Kind::kForm:
+            return "Form";
+        case Kind::kControl:
+            return "Control";
         default:
             throw std::runtime_error("not impl");
     }
@@ -1331,6 +1348,31 @@ bool InputStatementNode::visitExpressions(bool rootsOnly, const VisitExpressionF
 
 StatementType InputStatementNode::getStatementType() const {
     return StatementType::kInput;
+}
+
+OnStatementNode::OnStatementNode(
+    std::unique_ptr<SymbolReferenceExpressionNode> target,
+    std::string eventName,
+    std::string handlerName,
+    Token token)
+    : StatementNode(std::move(token)),
+      target(std::move(target)),
+      eventName(std::move(eventName)),
+      handlerName(std::move(handlerName)) {}
+
+void OnStatementNode::dump(std::ostream& s, int n) const {
+    DUMP_TYPE(OnStatementNode);
+    DUMP_VAR_NODE(target);
+    DUMP_VAR(eventName);
+    DUMP_VAR(handlerName);
+}
+
+bool OnStatementNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
+    return visitChildExpression(rootsOnly, target.get(), func);
+}
+
+StatementType OnStatementNode::getStatementType() const {
+    return StatementType::kOn;
 }
 
 ParameterNode::ParameterNode(std::string aName, boost::local_shared_ptr<TypeNode> type, Token token)

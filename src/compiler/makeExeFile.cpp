@@ -114,15 +114,26 @@ static size_t findBytecodeIndex(const vector<uint8_t>& runnerBinary) {
     throw runtime_error("Cannot find the bytecode in the runner binary!");
 }
 
+vector<uint8_t> readRunnerFile() {
+    // Read the contents of /code/bin/runner and return it
+    vector<uint8_t> runnerBinary{};
+    ifstream runnerFile{ "/code/bin/runner", ios::binary };
+    if (!runnerFile.is_open()) {
+        throw runtime_error("Cannot open /code/bin/runner");
+    }
+    runnerFile.seekg(0, ios::end);
+    runnerBinary.resize(runnerFile.tellg());
+    runnerFile.seekg(0, ios::beg);
+    runnerFile.read(reinterpret_cast<char*>(runnerBinary.data()), runnerBinary.size());
+    runnerFile.close();
+    return runnerBinary;
+}
+
 vector<uint8_t> makeExeFile(const vector<uint8_t>& bytecode, TargetPlatform platform) {
     auto runnerBinaryGzip = getRunnerTemplateGzipped(platform);
 
-    // return blank file if this is a dev build without the runners linked in
-    if (runnerBinaryGzip.empty()) {
-        return {};
-    }
+    auto runnerBinary = runnerBinaryGzip.empty() ? readRunnerFile() : gunzip(runnerBinaryGzip);
 
-    auto runnerBinary = gunzip(runnerBinaryGzip);
     auto bytecodeIndex = findBytecodeIndex(runnerBinary);
     (void)bytecodeIndex;
     memcpy(&runnerBinary.at(bytecodeIndex), bytecode.data(), bytecode.size());

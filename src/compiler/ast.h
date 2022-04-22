@@ -76,6 +76,8 @@ enum class Kind {
     kMap,
     kRecord,
     kOptional,
+    kForm,
+    kControl,
     // The following are special types that refer to "Any" types in parameters.
     kGeneric1,
     kGeneric2,
@@ -359,6 +361,7 @@ enum class StatementType {
     kWhile,
     kPrint,
     kInput,
+    kOn,
 };
 
 class StatementNode : public Node {
@@ -701,6 +704,21 @@ class InputStatementNode : public StatementNode {
    public:
     std::unique_ptr<ExpressionNode> target;
     InputStatementNode(std::unique_ptr<ExpressionNode> target, Token token);
+    void dump(std::ostream& s, int n) const override;
+    bool visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const override;
+    StatementType getStatementType() const override;
+};
+
+class OnStatementNode : public StatementNode {
+   public:
+    std::unique_ptr<SymbolReferenceExpressionNode> target;
+    std::string eventName;
+    std::string handlerName;
+    OnStatementNode(
+        std::unique_ptr<SymbolReferenceExpressionNode> target,
+        std::string eventName,
+        std::string handlerName,
+        Token token);
     void dump(std::ostream& s, int n) const override;
     bool visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const override;
     StatementType getStatementType() const override;

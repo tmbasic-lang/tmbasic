@@ -1,0 +1,55 @@
+#include "systemCall.h"
+#include "BasicForm.h"
+#include "BasicFormsStorage.h"
+#include "Error.h"
+#include "String.h"
+#include "util/WindowPtr.h"
+
+using util::WindowPtr;
+
+namespace vm {
+
+class BasicApp : public TApplication {
+   public:
+    BasicApp() : TProgInit(initStatusLine, initMenuBar, initDeskTop) {}
+};
+
+void initSystemCallsForms() {
+    initSystemCall(SystemCall::kNewForm, [](const auto& input, auto* result) {
+        result->returnedValue.num = BasicForm::newForm(input.interpreter);
+    });
+
+    initSystemCall(SystemCall::kRunForm, [](const auto& input, auto* result) {
+        auto* form = basicFormsStorage.forms.find(input.getValue(-1).getInt64());
+        assert(form != nullptr);
+        assert(TProgram::application == nullptr);
+        BasicApp app{};
+        TProgram::deskTop->insert(form);
+        app.run();
+        app.shutDown();
+    });
+
+    initSystemCall(SystemCall::kFormTitle, [](const auto& input, auto* result) {
+        auto* form = basicFormsStorage.forms.find(input.getValue(-1).getInt64());
+        std::string title{ form->title };
+        result->returnedObject = boost::make_local_shared<String>(std::move(title));
+    });
+
+    initSystemCall(SystemCall::kSetFormTitle, [](const auto& input, auto* result) {
+        auto* form = basicFormsStorage.forms.find(input.getValue(-1).getInt64());
+        auto& title = dynamic_cast<String&>(input.getObject(-1));
+        delete[] form->title;  // NOLINT(cppcoreguidelines-owning-memory)
+        form->title = newStr(title.toUtf8());
+    });
+
+    initSystemCall(SystemCall::kAddControlToForm, [](const auto& input, auto* result) {
+        auto* form = basicFormsStorage.forms.find(input.getValue(-2).getInt64());
+        auto* control = basicFormsStorage.controls.find(input.getValue(-1).getInt64());
+        if (control->owner != nullptr) {
+            throw Error(ErrorCode::kInvalidOperation, "This control was already added to another form.");
+        }
+        form->insert(control);
+    });
+}
+
+}  // namespace vm

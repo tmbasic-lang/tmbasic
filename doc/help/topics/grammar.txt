@@ -45,6 +45,7 @@ li@ThrowStatement ::= "throw" (Expression ",")? Expression "\n"@
 li@RethrowStatement ::= "rethrow" "\n"@
 li@PrintStatement ::= "print" Expression (";" Expression)* ";"? "\n"@
 li@InputStatement ::= "input" identifier "\n"@
+li@OnStatement ::= "on" identifier identifier "call" identifier "\n"@
 @
 
 h2[Expressions]

@@ -497,6 +497,8 @@ class PrimitiveTypeProduction : public Production {
                           term(TokenKind::kDateTimeOffset),
                           term(TokenKind::kTimeSpan),
                           term(TokenKind::kTimeZone),
+                          term(TokenKind::kForm),
+                          term(TokenKind::kControl),
                       })),
               }) {}
 
@@ -526,6 +528,12 @@ class PrimitiveTypeProduction : public Production {
                 break;
             case TokenKind::kTimeSpan:
                 k = Kind::kTimeSpan;
+                break;
+            case TokenKind::kForm:
+                k = Kind::kForm;
+                break;
+            case TokenKind::kControl:
+                k = Kind::kControl;
                 break;
             default:
                 assert(false);
@@ -1746,6 +1754,28 @@ class InputStatementProduction : public Production {
 
     std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
         return nodeBox<InputStatementNode>(captureSingleNode<ExpressionNode>(std::move(captures->at(1))), firstToken);
+    }
+};
+
+class OnStatementProduction : public Production {
+   public:
+    explicit OnStatementProduction(const Production* symbolReferenceExpression)
+        : Production(
+              NAMEOF_TYPE(OnStatementProduction),
+              {
+                  term(TokenKind::kOn),
+                  cut(),
+                  capture(1, prod(symbolReferenceExpression)),
+                  capture(2, term(TokenKind::kIdentifier)),
+                  term(TokenKind::kCall),
+                  capture(3, term(TokenKind::kIdentifier)),
+                  term(TokenKind::kEndOfLine),
+              }) {}
+
+    std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
+        return nodeBox<OnStatementNode>(
+            captureSingleNode<SymbolReferenceExpressionNode>(std::move(captures->at(1))),
+            captureTokenText(std::move(captures->at(2))), captureTokenText(std::move(captures->at(3))), firstToken);
     }
 };
 

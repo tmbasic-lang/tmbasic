@@ -44,6 +44,29 @@ static bool doCallArgumentTypesMatchProcedureParameters(
     return true;
 }
 
+static bool doCallArgumentTypesMatchProcedureParameters(
+    const std::vector<std::unique_ptr<TypeNode>>& arguments,
+    const std::vector<std::unique_ptr<ParameterNode>>& parameters) {
+    auto parameterCount = parameters.size();
+    auto argumentCount = arguments.size();
+    if (parameterCount != argumentCount) {
+        return false;
+    }
+
+    for (size_t i = 0; i < parameterCount; i++) {
+        auto& parameterType = parameters.at(i)->type;
+        assert(parameterType != nullptr);
+        auto& argumentType = arguments.at(i);
+        assert(argumentType != nullptr);
+
+        if (!parameterType->isImplicitlyAssignableFrom(*argumentType)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 static void replaceImplicitArgumentTypeConversionsWithExplicit(
     std::vector<std::unique_ptr<ExpressionNode>>* arguments,
     const std::vector<std::unique_ptr<ParameterNode>>& parameters) {
@@ -104,7 +127,7 @@ static void typeCheckCall(
 
     auto anyNameMatches = false;
 
-    // Note: fixDottedExpressionFunctionCalls() and typeCheckCall() duplicate the procedure lookup logic
+    // MARKER: This function concerns procedure lookups. Search for this line to find others.
 
     auto lowercaseProcedureName = boost::to_lower_copy(name);
     for (auto& compiledProcedure : state->compiledProgram->procedures) {
@@ -1050,6 +1073,65 @@ static void typeCheckDimMapStatement(DimMapStatementNode* statementNode) {
         boost::make_local_shared<TypeNode>(Kind::kMap, typeToken, firstKeyType, firstValueType);
 }
 
+static void typeCheckOnStatement(OnStatementNode* statementNode, TypeCheckState* state) {
+    assert(statementNode->target->evaluatedType != nullptr);
+    auto targetKind = statementNode->target->evaluatedType->kind;
+
+    // Validate the event type and come up with the parameter list for the event handler.
+    std::vector<std::unique_ptr<TypeNode>> expectedHandlerParameters;
+    if (targetKind == Kind::kForm) {
+        if (statementNode->eventName == "shown") {
+            expectedHandlerParameters.push_back(std::make_unique<TypeNode>(Kind::kForm, Token{}));
+        } else {
+            throw CompilerException(
+                CompilerErrorCode::kTypeMismatch,
+                fmt::format("The event name \"{}\" is not valid for forms.", statementNode->eventName),
+                statementNode->token);
+        }
+    } else if (targetKind == Kind::kControl) {
+        throw std::runtime_error("not impl");
+    } else {
+        throw CompilerException(
+            CompilerErrorCode::kTypeMismatch,
+            fmt::format(
+                "The \"on\" statement target must be a Form or Control, but this target type is {}.",
+                statementNode->target->evaluatedType->toString()),
+            statementNode->token);
+    }
+
+    // Find the specified event handler procedure with the expected parameters.
+    // MARKER: This function concerns procedure lookups. Search for this line to find others.
+    auto lowercaseProcedureName = boost::to_lower_copy(statementNode->handlerName);
+    auto nameMatch = false;
+    auto signatureMatch = false;
+    for (auto& compiledProcedure : state->compiledProgram->procedures) {
+        if (compiledProcedure->nameLowercase == lowercaseProcedureName) {
+            nameMatch = true;
+            if (doCallArgumentTypesMatchProcedureParameters(
+                    expectedHandlerParameters, compiledProcedure->procedureNode->parameters)) {
+                signatureMatch = true;
+                statementNode->procedureIndex = compiledProcedure->procedureIndex;
+            }
+        }
+    }
+
+    if (!nameMatch) {
+        throw CompilerException(
+            CompilerErrorCode::kProcedureNotFound,
+            fmt::format("The event handler procedure \"{}\" was not found.", statementNode->handlerName),
+            statementNode->token);
+    }
+
+    if (!signatureMatch) {
+        throw CompilerException(
+            CompilerErrorCode::kTypeMismatch,
+            fmt::format(
+                "The event handler procedure \"{}\" does not accept the right parameters for this event.",
+                statementNode->handlerName),
+            statementNode->token);
+    }
+}
+
 static void typeCheckBody(BodyNode* bodyNode, TypeCheckState* state) {
     for (auto& statementNode : bodyNode->statements) {
         statementNode->visitExpressions(true, [state](ExpressionNode* expressionNode) -> bool {
@@ -1105,6 +1187,10 @@ static void typeCheckBody(BodyNode* bodyNode, TypeCheckState* state) {
 
             case StatementType::kYield:
                 typeCheckYieldStatement(dynamic_cast<YieldStatementNode*>(statementNode.get()));
+                break;
+
+            case StatementType::kOn:
+                typeCheckOnStatement(dynamic_cast<OnStatementNode*>(statementNode.get()), state);
                 break;
 
             default:

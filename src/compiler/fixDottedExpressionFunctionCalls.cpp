@@ -51,7 +51,7 @@ class DottedExpressionFunctionCallFixer {
         }
 
         // is there a function with this name?
-        // Note: fixDottedExpressionFunctionCalls() and typeCheckCall() duplicate the procedure lookup logic
+        // MARKER: This function concerns procedure lookups. Search for this line to find others.
         auto& symbolReference = dynamic_cast<SymbolReferenceExpressionNode&>(*dotted->base);
         auto lowercaseProcedureName = boost::to_lower_copy(symbolReference.name);
         auto functionExists = false;

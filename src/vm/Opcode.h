@@ -109,6 +109,9 @@ enum class Opcode {
     // The updated base object is pushed on the stack.
     kDottedExpressionSetValue,   // <u8 numSuffixes, u8 numKeyValuesOnStack, u8 numKeyObjectsOnStack, ...>
     kDottedExpressionSetObject,  // <u8 numSuffixes, u8 numKeyValuesOnStack, u8 numKeyObjectsOnStack, ...>
+
+    // minimal support for callbacks
+    kSetEventHandler,  // <4b procedureIndex, 2b event> in: target obj
 };
 
 }  // namespace vm

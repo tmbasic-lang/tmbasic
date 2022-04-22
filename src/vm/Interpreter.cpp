@@ -683,7 +683,8 @@ bool Interpreter::run(int maxCycles) {
                 auto numObjs = readInt<uint8_t>(instructions, &instructionIndex);
                 auto returnsValue = opcode == Opcode::kSystemCallV || opcode == Opcode::kSystemCallVO;
                 auto returnsObject = opcode == Opcode::kSystemCallO || opcode == Opcode::kSystemCallVO;
-                SystemCallInput systemCallInput{ valueStack,
+                SystemCallInput systemCallInput{ this,
+                                                 valueStack,
                                                  objectStack,
                                                  vsi,
                                                  osi,
@@ -952,6 +953,10 @@ bool Interpreter::run(int maxCycles) {
                 _private->hasError = true;
                 _private->errorCode.num = static_cast<int>(ErrorCode::kMapKeyNotFound);
                 _private->errorMessage = "Key not found.";
+                break;
+            }
+
+            case Opcode::kSetEventHandler: {
                 break;
             }
 

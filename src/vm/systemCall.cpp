@@ -17,6 +17,7 @@ static bool _systemCallsInitialized = false;
 static std::vector<SystemCallFunc> _systemCalls;
 
 SystemCallInput::SystemCallInput(
+    Interpreter* interpreter,
     std::array<Value, kValueStackSize>* valueStack,
     std::array<boost::local_shared_ptr<Object>, kObjectStackSize>* objectStack,
     int valueStackIndex,
@@ -25,7 +26,8 @@ SystemCallInput::SystemCallInput(
     std::ostream* consoleOutputStream,
     const Value& errorCode,
     const std::string& errorMessage)
-    : valueStack(valueStack),
+    : interpreter(interpreter),
+      valueStack(valueStack),
       objectStack(objectStack),
       valueStackIndex(valueStackIndex),
       objectStackIndex(objectStackIndex),
@@ -45,8 +47,10 @@ void initSystemCall(SystemCall which, SystemCallFunc func) {
 }
 
 // Defined in systemCalls.*.cpp
+void initSystemCallsControls();
 void initSystemCallsDates();
 void initSystemCallsFiles();
+void initSystemCallsForms();
 void initSystemCallsLists();
 void initSystemCallsMaps();
 void initSystemCallsNumbers();
@@ -58,8 +62,10 @@ void initSystemCalls() {
         return;
     }
 
+    initSystemCallsControls();
     initSystemCallsDates();
     initSystemCallsFiles();
+    initSystemCallsForms();
     initSystemCallsLists();
     initSystemCallsMaps();
     initSystemCallsNumbers();

@@ -329,7 +329,9 @@ TokenKind Scanner::classifyToken(const std::string& text) {
                 }
                 break;
             case 'c':
-                if (lc == "case") {
+                if (lc == "call") {
+                    return TokenKind::kCall;
+                } else if (lc == "case") {
                     return TokenKind::kCase;
                 } else if (lc == "catch") {
                     return TokenKind::kCatch;

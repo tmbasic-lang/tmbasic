@@ -473,7 +473,7 @@ class AppPrivate {
     }
 
     void showNewProgramWindow(std::optional<std::string> filePath) {
-        auto* deskTop = TApplication::deskTop;
+        auto* deskTop = TProgram::deskTop;
         auto sourceProgram = std::make_unique<SourceProgram>();
         if (filePath.has_value()) {
             try {
