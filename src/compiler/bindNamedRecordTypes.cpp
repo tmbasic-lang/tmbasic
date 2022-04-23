@@ -1,5 +1,6 @@
 #include "bindNamedRecordTypes.h"
 #include "CompilerException.h"
+#include "findBuiltInRecordType.h"
 
 namespace compiler {
 
@@ -33,12 +34,18 @@ class NamedRecordTypeBinder {
 
         if (typeNode->recordName.has_value()) {
             auto recordNameLowercase = boost::to_lower_copy(*typeNode->recordName);
+
+            if (findBuiltInRecordType(recordNameLowercase, &typeNode->fields)) {
+                return;
+            }
+
             const auto& userType = _compiledProgram.userTypesByNameLowercase.find(recordNameLowercase);
             if (userType == _compiledProgram.userTypesByNameLowercase.end()) {
                 throw CompilerException(
                     CompilerErrorCode::kTypeNotFound, fmt::format("Type \"{}\" not found", *typeNode->recordName),
                     typeNode->token);
             }
+            assert(typeNode->fields.empty());
             for (auto& field : userType->second->fields) {
                 typeNode->fields.push_back(field->parameterNode);
             }

@@ -10,7 +10,7 @@ namespace vm {
 }
 
 BasicLabel::BasicLabel(int64_t id, Interpreter* interpreter)
-    : TLabel(TRect{ 0, 0, 15, 1 }, "", nullptr), _id(id), _interpreter(interpreter) {}
+    : TLabel(TRect{ 1, 1, 15, 2 }, "", nullptr), _id(id), _interpreter(interpreter) {}
 
 BasicLabel::~BasicLabel() {
     basicFormsStorage.controls.remove(_id);

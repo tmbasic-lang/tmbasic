@@ -1,4 +1,5 @@
 #include "BuiltInProcedureList.h"
+#include "findBuiltInRecordType.h"
 
 using vm::SystemCall;
 
@@ -22,6 +23,10 @@ BuiltInProcedureList::BuiltInProcedureList() {
     auto listOfGeneric1 = boost::make_local_shared<TypeNode>(Kind::kList, Token{}, generic1);
     auto form = boost::make_local_shared<TypeNode>(Kind::kForm, Token{});
     auto control = boost::make_local_shared<TypeNode>(Kind::kControl, Token{});
+    auto rectangle = boost::make_local_shared<TypeNode>(Kind::kRecord, Token{}, "Rectangle");
+    if (!findBuiltInRecordType("rectangle", &rectangle->fields)) {
+        throw std::runtime_error("Built-in record type Rectangle not found");
+    }
 
     addFunction("Abs", { "x" }, { number }, number, SystemCall::kAbs);
     addFunction("Acos", { "x" }, { number }, number, SystemCall::kAcos);
@@ -40,6 +45,8 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("CodeUnits", { "input" }, { string }, listOfNumber, SystemCall::kCodeUnits);
     addFunction("Concat", { "strings" }, { listOfString }, string, SystemCall::kConcat1);
     addFunction("Concat", { "strings", "separator" }, { listOfString, string }, string, SystemCall::kConcat2);
+    addFunction("ControlBounds", { "control" }, { control }, rectangle, SystemCall::kControlBounds);
+    addFunction("ControlText", { "control" }, { control }, string, SystemCall::kControlText);
     addFunction("Cos", { "x" }, { number }, number, SystemCall::kCos);
     addSub("CreateDirectory", { "path" }, { string }, SystemCall::kCreateDirectory);
     addFunction(
@@ -92,6 +99,10 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("Round", { "x" }, { number }, number, SystemCall::kRound);
     addSub("RunForm", { "form" }, { form }, SystemCall::kRunForm);
     addFunction("Seconds", { "count" }, { number }, timeSpan, SystemCall::kSeconds);
+    addSub("SetControlBounds", { "control", "bounds" }, { control, rectangle }, SystemCall::kSetControlBounds1);
+    addSub(
+        "SetControlBounds", { "control", "left", "top", "width", "height" },
+        { control, number, number, number, number }, SystemCall::kSetControlBounds2);
     addSub("SetControlText", { "control", "text" }, { control, string }, SystemCall::kSetControlText);
     addSub("SetFormTitle", { "form", "title" }, { form, string }, SystemCall::kSetFormTitle);
     addFunction("Sin", { "x" }, { number }, number, SystemCall::kSin);

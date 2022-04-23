@@ -31,6 +31,7 @@ enum class SystemCall {
     kCodeUnits,                     // (input as String) as List of Number
     kConcat1,                       // (input as List of String) as String
     kConcat2,                       // (input as List of String, separator as String) as String
+    kControlBounds,                 // (control as Control) as Rectangle
     kControlText,                   // (control as Control) as String
     kCos,                           // (x as Number) as Number
     kCounterIsPastLimit,            // (counter as N, limit as N, step as N) as Boolean
@@ -111,6 +112,8 @@ enum class SystemCall {
     kRound,                         // (x as Number) as Number
     kRunForm,                       // (form as Form)
     kSeconds,                       // (count as Number) as TimeSpan
+    kSetControlBounds1,             // (control as Control, bounds as Rectangle)
+    kSetControlBounds2,             // (control as Control, left as Num, top as Num, width as Num, height as Num)
     kSetControlText,                // (control as Control, text as String)
     kSetFormTitle,                  // (form as Form, title as String)
     kSin,                           // (x as Number) as Number
