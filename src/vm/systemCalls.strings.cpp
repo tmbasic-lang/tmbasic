@@ -72,7 +72,7 @@ static boost::local_shared_ptr<String> stringConcat(const ObjectList& objectList
 }
 
 void initSystemCallsStrings() {
-    initSystemCall(SystemCall::kAvailableLocales, [](const auto& input, auto* result) {
+    initSystemCall(SystemCall::kAvailableLocales, [](const auto& /*input*/, auto* result) {
         int32_t count = 0;
         const auto* locales = icu::Locale::getAvailableLocales(count);
 

@@ -56,7 +56,7 @@ static bool doCallArgumentTypesMatchProcedureParameters(
     for (size_t i = 0; i < parameterCount; i++) {
         auto& parameterType = parameters.at(i)->type;
         assert(parameterType != nullptr);
-        auto& argumentType = arguments.at(i);
+        const auto& argumentType = arguments.at(i);
         assert(argumentType != nullptr);
 
         if (!parameterType->isImplicitlyAssignableFrom(*argumentType)) {

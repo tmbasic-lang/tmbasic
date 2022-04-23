@@ -9,7 +9,7 @@ namespace vm {
 template <typename T>
 class IdKeyedStorage {
    public:
-    void add(int64_t id, T item) { _map[id] = item; }
+    void add(int64_t id, gsl::owner<T> item) { _map[id] = item; }
 
     T find(int64_t id) {
         auto it = _map.find(id);

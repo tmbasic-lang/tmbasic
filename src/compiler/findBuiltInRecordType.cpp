@@ -20,19 +20,19 @@ class BuiltInRecordTypesList {
     std::unordered_map<std::string, FieldList> types{};
 
    private:
-    boost::local_shared_ptr<ParameterNode> ValueField(
+    static boost::local_shared_ptr<ParameterNode> ValueField(
         int index,
         std::string name,
-        boost::local_shared_ptr<TypeNode> type) {
+        const boost::local_shared_ptr<TypeNode>& type) {
         auto param = boost::make_local_shared<ParameterNode>(std::move(name), type, Token{});
         param->fieldValueIndex = index;
         return param;
     }
 
-    boost::local_shared_ptr<ParameterNode> ObjectField(
+    static boost::local_shared_ptr<ParameterNode> ObjectField(
         int index,
         std::string name,
-        boost::local_shared_ptr<TypeNode> type) {
+        const boost::local_shared_ptr<TypeNode>& type) {
         auto param = boost::make_local_shared<ParameterNode>(std::move(name), type, Token{});
         param->fieldObjectIndex = index;
         return param;

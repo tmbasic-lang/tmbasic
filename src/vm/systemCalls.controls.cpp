@@ -7,8 +7,6 @@
 #include "String.h"
 #include "util/WindowPtr.h"
 
-using util::WindowPtr;
-
 namespace vm {
 
 static boost::local_shared_ptr<Record> newRectangle(int left, int top, int width, int height);
@@ -31,7 +29,7 @@ void initSystemCallsControls() {
         throw Error(ErrorCode::kInvalidControlType, "ControlText does not support this type of control.");
     });
 
-    initSystemCall(SystemCall::kSetControlText, [](const auto& input, auto* result) {
+    initSystemCall(SystemCall::kSetControlText, [](const auto& input, auto* /*result*/) {
         auto* control = basicFormsStorage.controls.find(input.getValue(-1).getInt64());
         auto& text = dynamic_cast<String&>(input.getObject(-1));
 
@@ -50,7 +48,7 @@ void initSystemCallsControls() {
         result->returnedObject = newRectangle(tvRect.a.x, tvRect.a.y, tvRect.b.x - tvRect.a.x, tvRect.b.y - tvRect.a.y);
     });
 
-    initSystemCall(SystemCall::kSetControlBounds1, [](const auto& input, auto* result) {
+    initSystemCall(SystemCall::kSetControlBounds1, [](const auto& input, auto* /*result*/) {
         auto* control = basicFormsStorage.controls.find(input.getValue(-1).getInt64());
         const auto& rect = dynamic_cast<const Record&>(input.getObject(-1));
         control->setBounds(newTRect(
@@ -61,7 +59,7 @@ void initSystemCallsControls() {
         }
     });
 
-    initSystemCall(SystemCall::kSetControlBounds2, [](const auto& input, auto* result) {
+    initSystemCall(SystemCall::kSetControlBounds2, [](const auto& input, auto* /*result*/) {
         auto* control = basicFormsStorage.controls.find(input.getValue(-5).getInt64());
         control->setBounds(newTRect(
             input.getValue(-4).getInt32(), input.getValue(-3).getInt32(), input.getValue(-2).getInt32(),
