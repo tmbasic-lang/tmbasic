@@ -1,4 +1,4 @@
-FROM $IMAGE_ARCH/alpine:3.15
+FROM $IMAGE_ARCH/alpine:3.17
 RUN apk update && apk upgrade && apk add clang linux-headers g++ musl-dev
 
 # Install ICU natively. I can get it to cross-compile but the resulting ICU doesn't have the locale data properly
@@ -7,7 +7,7 @@ RUN apk update && apk upgrade && apk add clang linux-headers g++ musl-dev
 # https://github.com/unicode-org/icu/releases
 RUN apk add curl make
 RUN cd /tmp && \
-	curl -L https://github.com/unicode-org/icu/releases/download/release-70-1/icu4c-70_1-src.tgz | tar zx && \
+	curl -L https://github.com/unicode-org/icu/releases/download/release-72-1/icu4c-72_1-src.tgz | tar zx && \
 	curl -L -o icu/source/config.guess 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD' && \
 	curl -L -o icu/source/config.sub 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD' && \
     mkdir -p icu/source/build && \

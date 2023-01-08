@@ -3,9 +3,9 @@ set -euxo pipefail
 
 # don't update these versions by hand. instead, run scripts/depsCheck.sh
 PKG_CONFIG_VERSION=0.29.2
-BINUTILS_VERSION=2.37  # build breaks on 2.38
-MINGW_VERSION=9.0.0
-GCC_VERSION=11.2.0
+BINUTILS_VERSION=2.39
+MINGW_VERSION=10.0.0
+GCC_VERSION=12.2.0
 
 curl -L https://pkg-config.freedesktop.org/releases/pkg-config-$PKG_CONFIG_VERSION.tar.gz | tar -xz &
 curl -L https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VERSION.tar.xz | tar -xJ &
