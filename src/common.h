@@ -17,6 +17,7 @@
 #define Uses_TBackground
 #define Uses_TButton
 #define Uses_TCheckBoxes
+#define Uses_TClipboard
 #define Uses_TDeskTop
 #define Uses_TDialog
 #define Uses_TDrawBuffer
