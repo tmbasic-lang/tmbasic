@@ -54,7 +54,7 @@ class AppPrivate {
     std::chrono::steady_clock::time_point lastTimerTick;
     PictureWindowStatusItems pictureWindowStatusItems{};
     PictureWindow* pictureWindow = nullptr;
-    turbo::SystemClipboard clipboard;
+    // turbo::SystemClipboard clipboard;
 
     static TDeskTop* initDeskTop(TRect r) {
         r.a.y++;
@@ -519,7 +519,7 @@ class AppPrivate {
     }
 
     std::unique_ptr<turbo::Editor> createEditor(compiler::SourceMember* member) {
-        auto& scintilla = turbo::createScintilla(&clipboard);
+        auto& scintilla = turbo::createScintilla(/*&clipboard*/);
         loadText(&scintilla, member->source);
         return std::make_unique<turbo::Editor>(scintilla);
     }
@@ -580,7 +580,7 @@ class AppPrivate {
             e.window->select();
         } else {
             auto* window = new PictureWindow(
-                getNewWindowRect(80, 25), &clipboard, member,
+                getNewWindowRect(80, 25), /*&clipboard,*/ member,
                 []() -> void {
                     // onUpdated
                     auto* programWindow = findProgramWindow();

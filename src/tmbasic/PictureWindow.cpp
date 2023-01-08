@@ -394,7 +394,7 @@ enum class PictureWindowMode {
 
 class PictureWindowPrivate {
    public:
-    explicit PictureWindowPrivate(turbo::Clipboard* aClipboard);
+    //explicit PictureWindowPrivate(turbo::Clipboard* aClipboard);
     void updateScrollBars();
     void enableDisableCommands(bool enable);
     void updateStatusItems();
@@ -417,7 +417,7 @@ class PictureWindowPrivate {
     compiler::SourceMember* member{};
     std::function<void()> onEdited;
     PictureWindowStatusItems statusItems;
-    turbo::Clipboard* clipboard;
+    //turbo::Clipboard* clipboard;
 
     // shared state
     TColorRGB fg{ 255, 255, 255 };
@@ -483,13 +483,13 @@ static std::string getPictureWindowTitle(const std::string& name) {
 
 PictureWindow::PictureWindow(
     const TRect& r,
-    turbo::Clipboard* clipboard,
+    //turbo::Clipboard* clipboard,
     SourceMember* member,
     std::function<void()> onEdited,
     const PictureWindowStatusItems& statusItems)
     : TWindow(r, getPictureWindowTitle(member->identifier), wnNoNumber),
       TWindowInit(TWindow::initFrame),
-      _private(new PictureWindowPrivate(clipboard)) {
+      _private(new PictureWindowPrivate(/*clipboard*/)) {
     options |= ofTileable;
 
     _private->member = member;
@@ -578,7 +578,7 @@ PictureWindow::~PictureWindow() {
     delete _private;
 }
 
-PictureWindowPrivate::PictureWindowPrivate(turbo::Clipboard* aClipboard) : clipboard(aClipboard) {}
+//PictureWindowPrivate::PictureWindowPrivate(turbo::Clipboard* aClipboard) : clipboard(aClipboard) {}
 
 void PictureWindowPrivate::updateScrollBars() {
     vScrollBar->setParams(
@@ -757,87 +757,87 @@ void PictureWindowPrivate::onClear() {
 
 void PictureWindowPrivate::onCut() {
     _clipboardText = canvasView->getSelectionTextForClipboard();
-    clipboard->setText(_clipboardText.text);
+    // clipboard->setText(_clipboardText.text);
     checkpoint();
     onClear();
 }
 
 void PictureWindowPrivate::onCopy() {
     _clipboardText = canvasView->getSelectionTextForClipboard();
-    clipboard->setText(_clipboardText.text);
+    // clipboard->setText(_clipboardText.text);
 }
 
 void PictureWindowPrivate::onPaste() {
-    ClipboardText ct{};
-    clipboard->getText([&](TStringView text) { ct.text = text; });
+    // ClipboardText ct{};
+    // clipboard->getText([&](TStringView text) { ct.text = text; });
 
-    if (ct.text.empty()) {
-        return;
-    }
+    // if (ct.text.empty()) {
+    //     return;
+    // }
 
-    checkpoint();
+    // checkpoint();
 
-    if (ct.text == _clipboardText.text) {
-        ct = _clipboardText;
-    }
+    // if (ct.text == _clipboardText.text) {
+    //     ct = _clipboardText;
+    // }
 
-    int x = 0;
-    int y = 0;
-    int maxLineLength = 0;
-    std::vector<std::vector<std::string>> charsByRowThenColumn;
-    charsByRowThenColumn.emplace_back();
-    for (size_t i = 0; i < ct.text.size();) {
-        if (ct.text.at(i) == '\r') {
-            i++;
-            continue;
-        }
+    // int x = 0;
+    // int y = 0;
+    // int maxLineLength = 0;
+    // std::vector<std::vector<std::string>> charsByRowThenColumn;
+    // charsByRowThenColumn.emplace_back();
+    // for (size_t i = 0; i < ct.text.size();) {
+    //     if (ct.text.at(i) == '\r') {
+    //         i++;
+    //         continue;
+    //     }
 
-        if (ct.text.at(i) == '\n') {
-            charsByRowThenColumn.emplace_back();
-            x = 0;
-            y++;
-            i++;
-            continue;
-        }
+    //     if (ct.text.at(i) == '\n') {
+    //         charsByRowThenColumn.emplace_back();
+    //         x = 0;
+    //         y++;
+    //         i++;
+    //         continue;
+    //     }
 
-        // it may be a multi-byte sequence
-        auto len = TText::next(&ct.text.at(i));
-        assert(len > 0);
-        charsByRowThenColumn.at(y).push_back(ct.text.substr(i, len));
-        i += len;
-        x++;
+    //     // it may be a multi-byte sequence
+    //     auto len = TText::next(&ct.text.at(i));
+    //     assert(len > 0);
+    //     charsByRowThenColumn.at(y).push_back(ct.text.substr(i, len));
+    //     i += len;
+    //     x++;
 
-        if (x > maxLineLength) {
-            maxLineLength = x;
-        }
-    }
+    //     if (x > maxLineLength) {
+    //         maxLineLength = x;
+    //     }
+    // }
 
-    canvasView->pastedPicture = { maxLineLength, static_cast<int>(charsByRowThenColumn.size()) };
-    canvasView->pastedPictureLocation = { 0, 0 };
-    auto& pastedPicture = *canvasView->pastedPicture;
-    for (int y = 0; y < static_cast<int>(charsByRowThenColumn.size()); y++) {
-        const auto& charsByColumn = charsByRowThenColumn.at(y);
-        for (int x = 0; x < maxLineLength; x++) {
-            auto cellIndex = y * maxLineLength + x;
-            auto& cell = pastedPicture.cells.at(cellIndex);
-            if (x < static_cast<int>(charsByColumn.size())) {
-                cell.ch = charsByColumn.at(x);
-            } else {
-                cell.transparent = true;
-            }
-            if (cellIndex < static_cast<int>(ct.colors.size())) {
-                cell.colorAttr = ct.colors.at(cellIndex);
-            }
-            if (cellIndex < static_cast<int>(ct.mask.size())) {
-                cell.transparent = ct.mask.at(cellIndex) != 0;
-            }
-        }
-    }
+    // canvasView->pastedPicture = { maxLineLength, static_cast<int>(charsByRowThenColumn.size()) };
+    // canvasView->pastedPictureLocation = { 0, 0 };
+    // auto& pastedPicture = *canvasView->pastedPicture;
+    // for (int y = 0; y < static_cast<int>(charsByRowThenColumn.size()); y++) {
+    //     const auto& charsByColumn = charsByRowThenColumn.at(y);
+    //     for (int x = 0; x < maxLineLength; x++) {
+    //         auto cellIndex = y * maxLineLength + x;
+    //         auto& cell = pastedPicture.cells.at(cellIndex);
+    //         if (x < static_cast<int>(charsByColumn.size())) {
+    //             cell.ch = charsByColumn.at(x);
+    //         } else {
+    //             cell.transparent = true;
+    //         }
+    //         if (cellIndex < static_cast<int>(ct.colors.size())) {
+    //             cell.colorAttr = ct.colors.at(cellIndex);
+    //         }
+    //         if (cellIndex < static_cast<int>(ct.mask.size())) {
+    //             cell.transparent = ct.mask.at(cellIndex) != 0;
+    //         }
+    //     }
+    // }
 
-    mode = PictureWindowMode::kPaste;
-    enableDisableCommands(true);
-    updateStatusItems();
-    canvasView->drawView();
+    // mode = PictureWindowMode::kPaste;
+    // enableDisableCommands(true);
+    // updateStatusItems();
+    // canvasView->drawView();
 }
 
 void PictureWindowPrivate::onPasteCancel() {
