@@ -46,7 +46,6 @@ RUN curl -L https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
     apt-get install -y clang clang-format clang-tidy
 
 # tmbasic dependencies
-COPY libclipboard-CMakeLists.txt.diff /tmp/
 COPY deps.mk /tmp/deps.mk
 COPY deps.tar /tmp/
 

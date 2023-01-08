@@ -1,5 +1,0 @@
-nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {License:license}@
-
-h1["libxcb" License]
-
-dia[license_libxcb]

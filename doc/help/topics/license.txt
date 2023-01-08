@@ -11,10 +11,7 @@ li@{boost:license_boost}@
 li@{fmt:license_fmt}@
 li@{icu:license_icu}@
 li@{immer:license_immer}@
-li@{libclipboard:license_libclipboard}@
 li@libstdc++ - {Part 1:license_libstdcxx1}, {Part 2:license_libstdcxx2}, {Part 3:license_libstdcxx3}@
-li@{libXau:license_libxau}@
-li@{libxcb:license_libxcb}@
 li@{mpdecimal:license_mpdecimal}@
 li@{musl:license_musl}@
 li@{ncurses:license_ncurses}@

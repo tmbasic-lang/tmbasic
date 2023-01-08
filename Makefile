@@ -133,9 +133,6 @@ LICENSE_FILES=\
 	doc/licenses/tvision/COPYRIGHT \
 	doc/licenses/icu/LICENSE \
 	doc/licenses/fmt/LICENSE.rst \
-	doc/licenses/libclipboard/LICENSE \
-	doc/licenses/libXau/COPYING \
-	doc/licenses/libxcb/COPYING \
 	doc/licenses/scintilla/License.txt \
 	doc/licenses/turbo/COPYRIGHT \
 	doc/licenses/libzip/LICENSE \
@@ -156,9 +153,6 @@ LICENSE_DIAGRAM_TXT_FILES=\
 	obj/doc-temp/diagrams-license/license_tvision.txt \
 	obj/doc-temp/diagrams-license/license_icu.txt \
 	obj/doc-temp/diagrams-license/license_fmt.txt \
-	obj/doc-temp/diagrams-license/license_libclipboard.txt \
-	obj/doc-temp/diagrams-license/license_libxau.txt \
-	obj/doc-temp/diagrams-license/license_libxcb.txt \
 	obj/doc-temp/diagrams-license/license_scintilla.txt \
 	obj/doc-temp/diagrams-license/license_turbo.txt \
 	obj/doc-temp/diagrams-license/license_libzip.txt \
@@ -292,12 +286,12 @@ endif
 
 # Linker flag to include turbo and friends.
 ifeq ($(TARGET_OS),linux)
-LDFLAGS += -lturbo-core -lclipboard -lxcb -lXau -lfmt
+LDFLAGS += -lturbo-core -lfmt
 ifeq ($(LINUX_DISTRO),ubuntu)
 LDFLAGS += -lpthread
 endif
 else
-LDFLAGS += -lturbo-core -lclipboard -lfmt
+LDFLAGS += -lturbo-core -lfmt
 endif
 
 # Linker flag to include tvision.
@@ -505,18 +499,9 @@ obj/resources/LICENSE.txt: $(LICENSE_FILES)
 	@echo === immer license === >> $@
 	@cat doc/licenses/immer/LICENSE >> $@
 	@echo >> $@
-	@echo === libclipboard license === >> $@
-	@cat doc/licenses/libclipboard/LICENSE >> $@
-	@echo >> $@
 	@echo === libstdc++ license === >> $@
 	@cat doc/licenses/gcc/GPL-3 >> $@
 	@cat doc/licenses/gcc/copyright >> $@
-	@echo >> $@
-	@echo === libXau license === >> $@
-	@cat doc/licenses/libXau/COPYING >> $@
-	@echo >> $@
-	@echo === libxcb license === >> $@
-	@cat doc/licenses/libxcb/COPYING >> $@
 	@echo >> $@
 	@echo === mpdecimal license === >> $@
 	@cat doc/licenses/mpdecimal/LICENSE.txt >> $@

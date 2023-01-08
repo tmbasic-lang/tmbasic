@@ -13,9 +13,6 @@ cp -f doc/licenses/ncurses/COPYING obj/doc-temp/diagrams-license/license_ncurses
 cp -f doc/licenses/tvision/COPYRIGHT obj/doc-temp/diagrams-license/license_tvision.txt
 cp -f doc/licenses/icu/LICENSE obj/doc-temp/diagrams-license/license_icu.txt
 cp -f doc/licenses/fmt/LICENSE.rst obj/doc-temp/diagrams-license/license_fmt.txt
-cp -f doc/licenses/libclipboard/LICENSE obj/doc-temp/diagrams-license/license_libclipboard.txt
-cp -f doc/licenses/libXau/COPYING obj/doc-temp/diagrams-license/license_libxau.txt
-cp -f doc/licenses/libxcb/COPYING obj/doc-temp/diagrams-license/license_libxcb.txt
 cp -f doc/licenses/scintilla/License.txt obj/doc-temp/diagrams-license/license_scintilla.txt
 cp -f doc/licenses/turbo/COPYRIGHT obj/doc-temp/diagrams-license/license_turbo.txt
 cp -f doc/licenses/libzip/LICENSE obj/doc-temp/diagrams-license/license_libzip.txt

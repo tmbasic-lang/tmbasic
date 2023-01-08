@@ -32,7 +32,6 @@ RUN mkdir /target-sysroot && \
 
 # tmbasic dependencies
 COPY cmake-toolchain-linux-$ARCH.cmake /tmp/
-COPY libclipboard-CMakeLists.txt.diff /tmp/
 COPY deps.mk /tmp/
 COPY deps.tar /tmp/
 RUN mkdir -p /tmp/downloads && \

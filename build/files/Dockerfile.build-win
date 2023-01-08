@@ -68,7 +68,6 @@ $WINE_INSTALL
 
 # tmbasic dependencies
 COPY cmake-toolchain-win-$ARCH.cmake /tmp/
-COPY libclipboard-CMakeLists.txt.diff /tmp/
 COPY deps.mk /tmp/deps.mk
 COPY deps.tar /tmp/
 RUN mkdir -p /tmp/downloads && \

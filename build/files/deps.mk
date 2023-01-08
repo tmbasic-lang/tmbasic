@@ -7,9 +7,6 @@ FMT_DIR=$(PWD)/fmt
 GOOGLETEST_DIR=$(PWD)/googletest
 ICU_DIR=$(PWD)/icu
 IMMER_DIR=$(PWD)/immer
-LIBCLIPBOARD_DIR=$(PWD)/libclipboard
-LIBXAU_DIR=$(PWD)/libXau
-LIBXCB_DIR=$(PWD)/libxcb
 LIBZIP_DIR=$(PWD)/libzip
 MICROTAR_DIR=$(PWD)/microtar
 MPDECIMAL_DIR=$(PWD)/mpdecimal
@@ -17,8 +14,6 @@ NAMEOF_DIR=$(PWD)/nameof
 NCURSES_DIR=$(PWD)/ncurses
 TURBO_DIR=$(PWD)/turbo
 TVISION_DIR=$(PWD)/tvision
-XCBPROTO_DIR=$(PWD)/xcbproto
-XORGPROTO_DIR=$(PWD)/xorgproto
 ZLIB_DIR=$(PWD)/zlib
 
 ifneq ($(ARCH),i686)
@@ -122,7 +117,6 @@ all: \
 	$(GOOGLETEST_DIR)/install \
 	$(ICU_DIR)/install \
 	$(IMMER_DIR)/install \
-	$(LIBCLIPBOARD_DIR)/install \
 	$(LIBZIP_DIR)/install \
 	$(MICROTAR_DIR)/install \
 	$(MPDECIMAL_DIR)/install \
@@ -378,36 +372,6 @@ $(FMT_DIR)/install: $(FMT_DIR)/download $(CMAKE_DIR)/install $(BINUTILS_DIR)/ins
 
 
 
-# libclipboard --------------------------------------------------------------------------------------------------------
-
-$(LIBCLIPBOARD_DIR)/download:
-	tar zxf $(DOWNLOAD_DIR)/libclipboard-*.tar.gz
-	mv -f libclipboard-*/ $(LIBCLIPBOARD_DIR)/
-	touch $@
-
-$(LIBCLIPBOARD_DIR)/install: $(LIBCLIPBOARD_DIR)/download $(CMAKE_DIR)/install $(LIBXAU_DIR)/install \
-		$(LIBXCB_DIR)/install $(BINUTILS_DIR)/install
-ifneq ($(TARGET_OS),mac)
-	cd $(LIBCLIPBOARD_DIR) && \
-		dos2unix CMakeLists.txt && \
-		patch CMakeLists.txt /tmp/libclipboard-CMakeLists.txt.diff
-endif
-	cd $(LIBCLIPBOARD_DIR) && \
-		mkdir -p build && \
-		cd build && \
-		PKG_CONFIG_PATH="/usr/local/$(LINUX_TRIPLE)/lib/pkgconfig/:/usr/local/$(LINUX_TRIPLE)/share/pkgconfig/" \
-			cmake .. \
-			$(CMAKE_FLAGS) \
-			-DCMAKE_BUILD_TYPE=Release \
-			-DCMAKE_PREFIX_PATH=$(TARGET_PREFIX) \
-			-DCMAKE_INSTALL_PREFIX=$(TARGET_PREFIX) \
-			$(CMAKE_TOOLCHAIN_FLAG) && \
-		$(MAKE) && \
-		$(MAKE) install
-	touch $@
-
-
-
 # immer ---------------------------------------------------------------------------------------------------------------
 
 $(IMMER_DIR)/download:
@@ -551,7 +515,7 @@ ifeq ($(TARGET_OS),mac)
 TURBO_CMAKE_FLAGS=-DCMAKE_EXE_LINKER_FLAGS="-framework ServiceManagement -framework Foundation -framework Cocoa"
 endif
 
-$(TURBO_DIR)/install: $(TURBO_DIR)/download $(TVISION_DIR)/install $(FMT_DIR)/install $(LIBCLIPBOARD_DIR)/install \
+$(TURBO_DIR)/install: $(TURBO_DIR)/download $(TVISION_DIR)/install $(FMT_DIR)/install \
 		$(CMAKE_DIR)/install $(NCURSES_DIR)/install $(BINUTILS_DIR)/install
 	cd $(TURBO_DIR) && \
 		mkdir -p build && \
@@ -568,99 +532,6 @@ $(TURBO_DIR)/install: $(TURBO_DIR)/download $(TVISION_DIR)/install $(FMT_DIR)/in
 			$(CMAKE_TOOLCHAIN_FLAG) && \
 		$(MAKE) && \
 		$(MAKE) install
-	touch $@
-
-
-
-# xorgproto -----------------------------------------------------------------------------------------------------------
-
-$(XORGPROTO_DIR)/download:
-ifeq ($(TARGET_OS),linux)
-	tar zxf $(DOWNLOAD_DIR)/xorgproto-*.tar.gz
-	mv -f xorgproto-*/ $(XORGPROTO_DIR)/
-else
-	mkdir -p $(XORGPROTO_DIR)
-endif
-	touch $@
-
-$(XORGPROTO_DIR)/install: $(XORGPROTO_DIR)/download $(BINUTILS_DIR)/install
-ifeq ($(TARGET_OS),linux)
-	cd $(XORGPROTO_DIR) && \
-		CC="$(CC)" CXX="$(CXX)" LD="$(LD)" AR="$(AR)" \
-			./configure $(HOST_FLAG) --prefix=$(TARGET_PREFIX) && \
-		$(MAKE) && \
-		$(MAKE) install
-endif
-	touch $@
-
-
-
-# libXau --------------------------------------------------------------------------------------------------------------
-
-$(LIBXAU_DIR)/download:
-ifeq ($(TARGET_OS),linux)
-	tar zxf $(DOWNLOAD_DIR)/libXau-*.tar.gz
-	mv -f libXau-*/ $(LIBXAU_DIR)/
-else
-	mkdir -p $(LIBXAU_DIR)
-endif
-	touch $@
-
-$(LIBXAU_DIR)/install: $(LIBXAU_DIR)/download $(XORGPROTO_DIR)/install $(BINUTILS_DIR)/install
-ifeq ($(TARGET_OS),linux)
-	cd $(LIBXAU_DIR) && \
-		CC="$(CC)" CXX="$(CXX)" LD="$(LD)" AR="$(AR)" PKG_CONFIG_PATH="/usr/local/$(LINUX_TRIPLE)/share/pkgconfig/" \
-			./configure $(HOST_FLAG) --prefix=$(TARGET_PREFIX) --enable-static && \
-		$(MAKE) && \
-		$(MAKE) install
-endif
-	touch $@
-
-
-
-# xcb-proto -----------------------------------------------------------------------------------------------------------
-
-$(XCBPROTO_DIR)/download:
-ifeq ($(TARGET_OS),linux)
-	tar zxf $(DOWNLOAD_DIR)/xcbproto-*.tar.gz
-	mv -f xcbproto-*/ $(XCBPROTO_DIR)/
-else
-	mkdir -p $(XCBPROTO_DIR)
-endif
-	touch $@
-
-$(XCBPROTO_DIR)/install: $(LIBXAU_DIR)/install $(XCBPROTO_DIR)/download $(BINUTILS_DIR)/install
-ifeq ($(TARGET_OS),linux)
-	cd $(XCBPROTO_DIR) && \
-		./autogen.sh && \
-		CC="$(CC)" CXX="$(CXX)" LD="$(LD)" AR="$(AR)" \
-			./configure $(HOST_FLAG) --prefix=$(TARGET_PREFIX) && \
-		$(MAKE) && \
-		$(MAKE) install
-endif
-	touch $@
-
-
-
-# libxcb --------------------------------------------------------------------------------------------------------------
-
-$(LIBXCB_DIR)/download:
-ifeq ($(TARGET_OS),linux)
-	tar zxf $(DOWNLOAD_DIR)/libxcb-*.tar.gz
-	mv -f libxcb-*/ $(LIBXCB_DIR)/
-else
-	mkdir -p $(LIBXCB_DIR)
-endif
-	touch $@
-
-$(LIBXCB_DIR)/install: $(XCBPROTO_DIR)/install $(LIBXCB_DIR)/download $(BINUTILS_DIR)/install
-ifeq ($(TARGET_OS),linux)
-	cd $(LIBXCB_DIR) && \
-		CC="$(CC)" CXX="$(CXX)" LD="$(LD)" AR="$(AR)" PKG_CONFIG_PATH="/usr/local/$(LINUX_TRIPLE)/lib/pkgconfig/:/usr/local/$(LINUX_TRIPLE)/share/pkgconfig/" \
-			./configure $(HOST_FLAG) --prefix=$(TARGET_PREFIX) --enable-static --disable-shared && \
-		$(MAKE) && \
-		$(MAKE) install
-endif
 	touch $@
 
 

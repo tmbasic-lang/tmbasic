@@ -25,18 +25,13 @@ FMT_VERSION=9.1.0
 GOOGLETEST_VERSION=1.12.1
 ICU_VERSION=72.1
 IMMER_VERSION=119f9d858aa18876e468c722de75a933c691b15b
-LIBCLIPBOARD_VERSION=1.1
-LIBXAU_VERSION=1.0.11
-LIBXCB_VERSION=1.15
 LIBZIP_VERSION=1.9.2
 MICROTAR_VERSION=27076e1b9290e9c7842bb7890a54fcf172406c84
 MPDECIMAL_VERSION=2.5.1
 NAMEOF_VERSION=0.10.2
 NCURSES_VERSION=6.4
 TURBO_VERSION=b8ead99c7be9073843dfc344c6ec82745d991d52
-TVISION_VERSION=08d83577d47f65b8c9d5d05d965deb206ff39648
-XCBPROTO_VERSION=1.15.2
-XORGPROTO_VERSION=2022.2
+TVISION_VERSION=59e2838a0df0e3c0c60713bbf1c575023aa0de3b
 ZLIB_VERSION=1.2.13
 
 # https://ftp.gnu.org/gnu/binutils
@@ -66,15 +61,6 @@ downloadFile "icu-$ICU_VERSION.tar.gz" "https://github.com/unicode-org/icu/relea
 # https://github.com/arximboldi/immer
 downloadFile "immer-$IMMER_VERSION.tar.gz" "https://github.com/arximboldi/immer/archive/$IMMER_VERSION.tar.gz"
 
-# https://github.com/jtanx/libclipboard/releases
-downloadFile "libclipboard-$LIBCLIPBOARD_VERSION.tar.gz" "https://github.com/jtanx/libclipboard/archive/refs/tags/v$LIBCLIPBOARD_VERSION.tar.gz"
-
-# https://xorg.freedesktop.org/archive/individual/lib
-downloadFile "libXau-$LIBXAU_VERSION.tar.gz" "https://xorg.freedesktop.org/archive/individual/lib/libXau-$LIBXAU_VERSION.tar.gz"
-
-# https://xorg.freedesktop.org/archive/individual/lib
-downloadFile "libxcb-$LIBXCB_VERSION.tar.gz" "https://xorg.freedesktop.org/archive/individual/lib/libxcb-$LIBXCB_VERSION.tar.gz"
-
 # https://github.com/nih-at/libzip/releases
 downloadFile "libzip-$LIBZIP_VERSION.tar.gz" "https://github.com/nih-at/libzip/releases/download/v$LIBZIP_VERSION/libzip-$LIBZIP_VERSION.tar.gz"
 
@@ -95,12 +81,6 @@ downloadFile "turbo-$TURBO_VERSION.tar.gz" "https://github.com/magiblot/turbo/ar
 
 # https://github.com/magiblot/tvision
 downloadFile "tvision-$TVISION_VERSION.tar.gz" "https://github.com/magiblot/tvision/archive/$TVISION_VERSION.tar.gz"
-
-# https://gitlab.freedesktop.org/xorg/proto/xcbproto
-downloadFile "xcbproto-$XCBPROTO_VERSION.tar.gz" "https://gitlab.freedesktop.org/xorg/proto/xcbproto/-/archive/xcb-proto-$XCBPROTO_VERSION/xcbproto-xcb-proto-$XCBPROTO_VERSION.tar.gz"
-
-# https://xorg.freedesktop.org/archive/individual/proto/
-downloadFile "xorgproto-$XORGPROTO_VERSION.tar.gz" "https://xorg.freedesktop.org/archive/individual/proto/xorgproto-$XORGPROTO_VERSION.tar.gz"
 
 # https://zlib.net
 downloadFile "zlib-$ZLIB_VERSION.tar.gz" "https://zlib.net/zlib-$ZLIB_VERSION.tar.gz"
