@@ -1,5 +1,4 @@
 name: linux-sysroots
-
 on:
   push:
     paths:
@@ -7,6 +6,7 @@ on:
 
 jobs:
   build:
+    name: linux-sysroots
     runs-on: ubuntu-latest
     steps:
       - name: Configure AWS credentials
