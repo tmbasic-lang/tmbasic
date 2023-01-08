@@ -1,8 +1,5 @@
 name: linux-sysroots
-on:
-  push:
-    paths:
-      - 'build/sysroots/**'
+on: workflow_dispatch
 
 jobs:
   build:
