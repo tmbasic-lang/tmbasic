@@ -16,14 +16,14 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-    - name: Checkout
-    - uses: actions/checkout@v2
+      - name: Checkout
+      - uses: actions/checkout@v2
 
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
 
-    - name: Set up Docker
-      uses: docker/setup-docker@v2
+      - name: Set up Docker
+        uses: docker/setup-docker@v2
 
-    - name: Build
-      run: cd build/sysroots && ./buildArmSysroots.sh && ./buildIntelSysroots.sh
+      - name: Build
+        run: cd build/sysroots && ./buildArmSysroots.sh && ./buildIntelSysroots.sh
