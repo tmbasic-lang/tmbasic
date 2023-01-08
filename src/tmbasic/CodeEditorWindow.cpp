@@ -76,14 +76,14 @@ static const turbo::WindowColorScheme _codeEditorWindowColors{
 };
 
 // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-static const turbo::LexerInfo::StyleMapping _codeStyles[] = {
+static const turbo::LexerSettings::StyleMapping _codeStyles[] = {
     { 1, turbo::sKeyword1 },       // keyword
     { 2, turbo::sStringLiteral },  // string
     { 3, turbo::sComment },        // comment
     { 4, turbo::sKeyword2 },       // identifier
 };
 
-static const turbo::LexerInfo _codeEditorLexerInfo{
+static const turbo::LexerSettings _codeEditorLexerInfo{
     SCLEX_CONTAINER,
     _codeStyles,  // styles
     {},           // keywords
@@ -230,9 +230,7 @@ CodeEditorWindow::CodeEditorWindow(
     _private->onEdited = onEdited;
     _private->pendingText = member->source;
     TWindow::setState(sfShadow, true);
-    editor.theming.setLexerInfo(&_codeEditorLexerInfo);
-    editor.theming.setScheme(&_codeEditorColors);
-    editor.theming.apply(editor.scintilla);
+    turbo::applyTheming(&_codeEditorLexerInfo, &_codeEditorColors, editor.scintilla);
     setScheme(&_codeEditorWindowColors);
     editor.callScintilla(SCI_SETSEL, member->selectionStart, member->selectionEnd);
     editor.lineNumbers.setState(true);

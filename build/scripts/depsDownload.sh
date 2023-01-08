@@ -18,7 +18,7 @@ function downloadFile {
 }
 
 # don't update these versions by hand. instead, run scripts/depsCheck.sh
-BINUTILS_VERSION=2.37  # build breaks on 2.38 and 2.39
+BINUTILS_VERSION=2.37
 BOOST_VERSION=1.81.0
 CMAKE_VERSION=3.25.1
 FMT_VERSION=9.1.0
@@ -27,7 +27,7 @@ ICU_VERSION=72.1
 IMMER_VERSION=119f9d858aa18876e468c722de75a933c691b15b
 LIBCLIPBOARD_VERSION=1.1
 LIBXAU_VERSION=1.0.11
-LIBXCB_VERSION=1.14  # build breaks on 1.15
+LIBXCB_VERSION=1.15
 LIBZIP_VERSION=1.9.2
 MICROTAR_VERSION=27076e1b9290e9c7842bb7890a54fcf172406c84
 MPDECIMAL_VERSION=2.5.1
@@ -35,7 +35,7 @@ NAMEOF_VERSION=0.10.2
 NCURSES_VERSION=6.4
 TURBO_VERSION=b8ead99c7be9073843dfc344c6ec82745d991d52
 TVISION_VERSION=08d83577d47f65b8c9d5d05d965deb206ff39648
-XCBPROTO_VERSION=842d91316243eb1f2e208231acc1512c2cf43a1f
+XCBPROTO_VERSION=1.15.2
 XORGPROTO_VERSION=2022.2
 ZLIB_VERSION=1.2.13
 
@@ -97,7 +97,7 @@ downloadFile "turbo-$TURBO_VERSION.tar.gz" "https://github.com/magiblot/turbo/ar
 downloadFile "tvision-$TVISION_VERSION.tar.gz" "https://github.com/magiblot/tvision/archive/$TVISION_VERSION.tar.gz"
 
 # https://gitlab.freedesktop.org/xorg/proto/xcbproto
-downloadFile "xcbproto-$XCBPROTO_VERSION.tar.gz" "https://gitlab.freedesktop.org/xorg/proto/xcbproto/-/archive/$XCBPROTO_VERSION/xcbproto-$XCBPROTO_VERSION.tar.gz"
+downloadFile "xcbproto-$XCBPROTO_VERSION.tar.gz" "https://gitlab.freedesktop.org/xorg/proto/xcbproto/-/archive/xcb-proto-$XCBPROTO_VERSION/xcbproto-xcb-proto-$XCBPROTO_VERSION.tar.gz"
 
 # https://xorg.freedesktop.org/archive/individual/proto/
 downloadFile "xorgproto-$XORGPROTO_VERSION.tar.gz" "https://xorg.freedesktop.org/archive/individual/proto/xorgproto-$XORGPROTO_VERSION.tar.gz"

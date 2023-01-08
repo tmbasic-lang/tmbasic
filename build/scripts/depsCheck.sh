@@ -112,7 +112,11 @@ function checkGcc {
 
 echo
 echo '# depsDownload.sh'
-checkGnu "binutils-" "BINUTILS" "https://ftp.gnu.org/gnu/binutils/"
+
+# Build breaks on 2.38 and 2.39 and I don't know why, so let's pin to the last good version.
+#checkGnu "binutils-" "BINUTILS" "https://ftp.gnu.org/gnu/binutils/"
+echo "BINUTILS_VERSION=2.37"
+
 checkJfrog "BOOST" "https://boostorg.jfrog.io/artifactory/main/release/"
 checkGitHubRelease "CMAKE" "https://github.com/Kitware/CMake/releases.atom"
 checkGitHubRelease "FMT" "https://github.com/fmtlib/fmt/releases.atom"
@@ -129,7 +133,7 @@ checkGitHubRelease "NAMEOF" "https://github.com/Neargye/nameof/releases.atom"
 checkNcurses "NCURSES" "https://invisible-mirror.net/ncurses/announce.html"
 checkGitHubCommit "TURBO" "https://github.com/magiblot/turbo/commits.atom"
 checkGitHubCommit "TVISION" "https://github.com/magiblot/tvision/commits.atom"
-checkGitHubCommit "XCBPROTO" "https://gitlab.freedesktop.org/xorg/proto/xcbproto/-/commits/master?format=atom"
+checkGitHubRelease "XCBPROTO" "https://gitlab.freedesktop.org/xorg/proto/xcbproto/-/tags?format=atom"
 checkGnu "xorgproto-" "XORGPROTO" "https://xorg.freedesktop.org/archive/individual/proto/"
 checkZlib "ZLIB" "https://zlib.net/"
 

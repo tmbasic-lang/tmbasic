@@ -105,9 +105,9 @@ EXE_EXTENSION=.exe
 endif
 
 ifeq ($(TARGET_OS),mac)
-CMAKE_DIR=$(PWD)/cmake-$(CMAKE_VERSION)-macos-universal
+CMAKE_DIR=$(PWD)/cmake-macos-universal
 else
-CMAKE_DIR=$(PWD)/cmake-$(CMAKE_VERSION)-linux-$(shell uname -m)
+CMAKE_DIR=$(PWD)/cmake-linux-$(shell uname -m)
 endif
 
 ifeq ($(TARGET_OS),win)
