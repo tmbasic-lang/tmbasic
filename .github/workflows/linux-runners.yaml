@@ -20,7 +20,7 @@ jobs:
         uses: docker/setup-buildx-action@v2
 
       - name: Download Linux Sysroots
-        runs: >-
+        run: >-
           cd build
           && ARCH=arm32v7 scripts/sysrootDownload.sh
           && ARCH=arm64v8 scripts/sysrootDownload.sh
