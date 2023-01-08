@@ -20,7 +20,7 @@ jobs:
         uses: docker/setup-buildx-action@v2
 
       - name: Download Linux Sysroots
-        runs: |>
+        runs: >-
           cd build
           && ARCH=arm32v7 scripts/sysrootDownload.sh
           && ARCH=arm64v8 scripts/sysrootDownload.sh
@@ -28,12 +28,12 @@ jobs:
           && ARCH=i686 scripts/sysrootDownload.sh
 
       - name: Setup Temp Directory
-        run: |>
+        run: >-
           mkdir -p /tmp/tmbasic-publish/tmbasic
           && cp -rf * /tmp/tmbasic-publish/tmbasic/
 
       - name: Build
-        run: |>
+        run: >-
           cd build/publish
           && ./buildRunners.sh
           && aws s3 cp runners.tar s3://tmbasic-temp/runners-linux-windows.tar
