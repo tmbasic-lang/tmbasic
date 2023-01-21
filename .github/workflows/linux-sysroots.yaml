@@ -17,9 +17,6 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
         id: ecr
 
-      - name: Debug
-        run: echo "Registry: ${{ steps.ecr.outputs.registry }}"
-
       - name: Checkout
         uses: actions/checkout@v2
 
