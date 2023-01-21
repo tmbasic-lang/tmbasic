@@ -12,6 +12,10 @@ cat Dockerfile.sysroot \
     | docker buildx build --platform "$BUILDX_ARCH" -t $REPO:$TAG . -f- \
     ;
 
+echo "Built: $REPO:$TAG"
+
+docker image ls
+
 docker push $REPO:$TAG
 
 echo "Pushed: $REPO:$TAG"
