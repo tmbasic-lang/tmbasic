@@ -9,13 +9,7 @@ echo "Generating sysroot for $BUILDX_ARCH ($TAG)"
 
 cat Dockerfile.sysroot \
     | envsubst \
-    | docker buildx build --platform "$BUILDX_ARCH" -t $REPO:$TAG . -f- \
+    | docker buildx build --push --platform "$BUILDX_ARCH" -t $REPO:$TAG . -f- \
     ;
-
-echo "Built: $REPO:$TAG"
-
-docker image ls
-
-docker push $REPO:$TAG
 
 echo "Pushed: $REPO:$TAG"
