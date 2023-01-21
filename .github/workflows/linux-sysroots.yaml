@@ -13,8 +13,12 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Login into ECR
-        run: aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/k4r2l7j7
+      - name: AWS ECR login
+        uses: aws-actions/amazon-ecr-login@v1
+        id: ecr
+
+      - name: Debug
+        run: echo "Registry: ${{ steps.ecr.outputs.registry }}"
 
       - name: Checkout
         uses: actions/checkout@v2
@@ -25,77 +29,77 @@ jobs:
       - name: Build and push to ECR
         run: cd build/sysroots && ./build-x64.sh
 
-  x86:
-    name: linux-sysroots-x86
-    runs-on: ubuntu-latest
-    steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
+  # x86:
+  #   name: linux-sysroots-x86
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Configure AWS credentials
+  #       uses: aws-actions/configure-aws-credentials@v1
+  #       with:
+  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #         aws-region: us-east-1
 
-      - name: Login into ECR
-        run: aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/k4r2l7j7
+  #     - name: Login into ECR
+  #       run: aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/k4r2l7j7
 
-      - name: Checkout
-        uses: actions/checkout@v2
+  #     - name: Checkout
+  #       uses: actions/checkout@v2
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+  #     - name: Set up Docker Buildx
+  #       uses: docker/setup-buildx-action@v2
 
-      - name: Build and push to ECR
-        run: cd build/sysroots && ./build-x86.sh
+  #     - name: Build and push to ECR
+  #       run: cd build/sysroots && ./build-x86.sh
 
-  arm64:
-    name: linux-sysroots-arm64
-    runs-on: ubuntu-latest
-    steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
+  # arm64:
+  #   name: linux-sysroots-arm64
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Configure AWS credentials
+  #       uses: aws-actions/configure-aws-credentials@v1
+  #       with:
+  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #         aws-region: us-east-1
 
-      - name: Login into ECR
-        run: aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/k4r2l7j7
+  #     - name: Login into ECR
+  #       run: aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/k4r2l7j7
 
-      - name: Checkout
-        uses: actions/checkout@v2
+  #     - name: Checkout
+  #       uses: actions/checkout@v2
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+  #     - name: Set up QEMU
+  #       uses: docker/setup-qemu-action@v2
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+  #     - name: Set up Docker Buildx
+  #       uses: docker/setup-buildx-action@v2
 
-      - name: Build and push to ECR
-        run: cd build/sysroots && ./build-arm64.sh
+  #     - name: Build and push to ECR
+  #       run: cd build/sysroots && ./build-arm64.sh
 
-  arm32:
-    name: linux-sysroots-arm32
-    runs-on: ubuntu-latest
-    steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
+  # arm32:
+  #   name: linux-sysroots-arm32
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Configure AWS credentials
+  #       uses: aws-actions/configure-aws-credentials@v1
+  #       with:
+  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #         aws-region: us-east-1
 
-      - name: Login into ECR
-        run: aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/k4r2l7j7
+  #     - name: Login into ECR
+  #       run: aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/k4r2l7j7
 
-      - name: Checkout
-        uses: actions/checkout@v2
+  #     - name: Checkout
+  #       uses: actions/checkout@v2
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+  #     - name: Set up QEMU
+  #       uses: docker/setup-qemu-action@v2
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+  #     - name: Set up Docker Buildx
+  #       uses: docker/setup-buildx-action@v2
 
-      - name: Build and push to ECR
-        run: cd build/sysroots && ./build-arm32.sh
+  #     - name: Build and push to ECR
+  #       run: cd build/sysroots && ./build-arm32.sh
