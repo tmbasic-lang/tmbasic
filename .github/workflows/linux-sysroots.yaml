@@ -3,7 +3,7 @@ on: workflow_dispatch
 
 jobs:
   x64:
-    name: linux-sysroots-x64
+    name: linux-sysroot-x64
     runs-on: ubuntu-latest
     steps:
       - name: Configure AWS credentials
@@ -27,7 +27,7 @@ jobs:
 
 
   x86:
-    name: linux-sysroots-x86
+    name: linux-sysroot-x86
     runs-on: ubuntu-latest
     steps:
       - name: Configure AWS credentials
@@ -51,7 +51,7 @@ jobs:
 
 
   arm64:
-    name: linux-sysroots-arm64
+    name: linux-sysroot-arm64
     runs-on: ubuntu-latest
     steps:
       - name: Configure AWS credentials
@@ -78,7 +78,7 @@ jobs:
 
 
   arm32:
-    name: linux-sysroots-arm32
+    name: linux-sysroot-arm32
     runs-on: ubuntu-latest
     steps:
       - name: Configure AWS credentials
