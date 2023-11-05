@@ -2,103 +2,41 @@ name: linux-sysroots
 on: workflow_dispatch
 
 jobs:
-  x64:
-    name: linux-sysroot-x64
+  build-system-root:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - arch: amd64
+            buildx-arch: linux/amd64
+          - arch: i386
+            buildx-arch: linux/386
+          - arch: arm32v7
+            buildx-arch: linux/arm/v7
+          - arch: arm64v8
+            buildx-arch: linux/arm/v8
+    name: Build Linux sysroot - ${{ matrix.arch }}
     steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1-node16
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-
-      - name: Login into ECR
-        run: aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/k4r2l7j7
-
       - name: Checkout
         uses: actions/checkout@v3
-
+      
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Build and push to ECR
-        run: cd build/sysroots && ./build-x64.sh
-
-
-  x86:
-    name: linux-sysroot-x86
-    runs-on: ubuntu-latest
-    steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1-node16
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Login into ECR
-        run: aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/k4r2l7j7
-
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Build and push to ECR
-        run: cd build/sysroots && ./build-x86.sh
-
-
-  arm64:
-    name: linux-sysroot-arm64
-    runs-on: ubuntu-latest
-    steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1-node16
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-
-      - name: Login into ECR
-        run: aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/k4r2l7j7
-
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Build and push to ECR
-        run: cd build/sysroots && ./build-arm64.sh
-
-
-  arm32:
-    name: linux-sysroot-arm32
-    runs-on: ubuntu-latest
-    steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1-node16
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-
-      - name: Login into ECR
-        run: aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/k4r2l7j7
-
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Build and push to ECR
-        run: cd build/sysroots && ./build-arm32.sh
+      - name: Build and push to GitHub Container Registry
+        env:
+          IMAGE_ARCH: ${{ matrix.arch }}
+          BUILDX_ARCH: ${{ matrix.buildx-arch }}
+          REPO: ${{ github.repository_owner }}/tmbasic-linux-sysroot
+        run: |
+          TIMESTAMP=$(date -u "+%Y%m%d%H%M%S")
+          IMAGE_TAG=${{ matrix.arch }}-$TIMESTAMP
+          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/tmbasic-linux-sysroot:$IMAGE_TAG
+          cd build/sysroots && ./build.sh

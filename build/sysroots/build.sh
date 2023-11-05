@@ -1,15 +1,12 @@
 #!/bin/bash
-# arguments: $BUILDX_ARCH $IMAGE_ARCH
+# arguments: $BUILDX_ARCH $IMAGE_ARCH $IMAGE_NAME
 set -euo pipefail
-TIMESTAMP=$(date --utc "+%Y%m%d%H%M%S")
-REPO="public.ecr.aws/k4r2l7j7/tmbasic-linux-sysroot"
-TAG="$IMAGE_ARCH-$TIMESTAMP"
 
-echo "Generating sysroot for $BUILDX_ARCH ($TAG)"
+echo "Generating sysroot for $BUILDX_ARCH ($IMAGE_NAME)"
 
 cat Dockerfile.sysroot \
     | envsubst \
-    | docker buildx build --push --platform "$BUILDX_ARCH" -t $REPO:$TAG . -f- \
+    | docker buildx build --push --platform "$BUILDX_ARCH" -t "$IMAGE_NAME" . -f- \
     ;
 
-echo "Pushed: $REPO:$TAG"
+echo "Pushed: $IMAGE_NAME"
