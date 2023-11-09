@@ -1,4 +1,4 @@
-FROM alpine:3.17
+FROM alpine:3.17 AS first-stage
 
 RUN apk update && \
     apk upgrade && \
@@ -28,7 +28,8 @@ RUN (addgroup -g $HOST_GID user || true) && \
 COPY sysroot-$ARCH.tar.gz /tmp/sysroot.tar.gz
 RUN mkdir /target-sysroot && \
     cd /target-sysroot && \
-    tar zxf /tmp/sysroot.tar.gz
+    tar zxf /tmp/sysroot.tar.gz && \
+    rm -f /tmp/sysroot.tar.gz
 
 # tmbasic dependencies
 COPY cmake-toolchain-linux-$ARCH.cmake /tmp/
@@ -60,6 +61,10 @@ RUN echo "export ARCH=\"$ARCH\"" >> /etc/profile.d/tmbasic.sh && \
     echo "export PREFIX=/usr/local/$TRIPLE" >> /etc/profile.d/tmbasic.sh && \
     echo "make -f /code/Makefile help" >> /etc/profile.d/tmbasic.sh && \
     chmod +x /etc/profile.d/tmbasic.sh
+
+# Flatten layers
+FROM scratch AS second-stage
+COPY --from=first-stage / /
 
 USER $HOST_UID
 ENTRYPOINT ["/bin/bash", "-l"]

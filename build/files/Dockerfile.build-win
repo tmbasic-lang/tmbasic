@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:20.04 AS first-stage
 
 # mingw - build steps adapted from https://github.com/mmozeiko/docker-mingw-w64/blob/master/Dockerfile
 RUN apt-get update -y && \
@@ -92,6 +92,10 @@ RUN echo "export ARCH=\"$ARCH\"" >> /etc/profile.d/tmbasic.sh && \
     echo "export TARGET_OS=win" >> /etc/profile.d/tmbasic.sh && \
     echo "make -f /code/Makefile help" >> /etc/profile.d/tmbasic.sh && \
     chmod +x /etc/profile.d/tmbasic.sh
+
+# Flatten layers
+FROM scratch AS second-stage
+COPY --from=first-stage / /
 
 USER $HOST_UID
 ENTRYPOINT ["/bin/bash", "-l"]
