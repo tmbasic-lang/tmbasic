@@ -1,7 +1,8 @@
 #!/bin/bash
+# Parameters: $IMAGE_NAME (optional), $PUSH_ONLY (optional)
 set -euo pipefail
 
-export IMAGE_NAME="tmbasic-win-x64"
+export IMAGE_NAME=${IMAGE_NAME:="tmbasic-win-x64"}
 export HOST_UID=$(id -u "$USER")
 export HOST_GID=$(id -g "$USER")
 export ARCH="x86_64"
@@ -15,9 +16,18 @@ fi
 
 scripts/depsDownload.sh
 
-if [ "$(docker image ls $IMAGE_NAME | wc -l)" == "1" ]; then
-    cat files/Dockerfile.build-win | sed "s/\$IMAGE_NAME/$IMAGE_NAME/g; s/\$HOST_UID/$HOST_UID/g; s/\$HOST_GID/$HOST_GID/g; s/\$ARCH/$ARCH/g; s/\$LIB3264/$LIB3264/g; s/\$WINE_INSTALL/$WINE_INSTALL/g" | docker buildx build -t $IMAGE_NAME files -f-
+# If $PUSH_ONLY is non-empty, then set the --push argument.
+export BUILDX_FLAGS=""
+if [ -n "${PUSH_ONLY+x}" ]; then
+    export BUILDX_FLAGS="--push"
 fi
 
-cd ..
-docker run --rm ${TTY_FLAG:=--tty --interactive} --volume "$PWD:/code" --workdir /code --name $IMAGE_NAME ${DOCKER_FLAGS:= } $IMAGE_NAME "$@"
+if [ "$(docker image ls $IMAGE_NAME | wc -l)" == "1" ]; then
+    cat files/Dockerfile.build-win | sed "s/\$IMAGE_NAME/$IMAGE_NAME/g; s/\$HOST_UID/$HOST_UID/g; s/\$HOST_GID/$HOST_GID/g; s/\$ARCH/$ARCH/g; s/\$LIB3264/$LIB3264/g; s/\$WINE_INSTALL/$WINE_INSTALL/g" | docker buildx build $BUILDX_FLAGS -t $IMAGE_NAME files -f-
+fi
+
+# If $PUSH_ONLY is empty or unset, then run.
+if [ -z "${PUSH_ONLY+x}" ]; then
+    cd ..
+    docker run --rm ${TTY_FLAG:=--tty --interactive} --volume "$PWD:/code" --workdir /code --name $IMAGE_NAME ${DOCKER_FLAGS:= } $IMAGE_NAME "$@"
+fi

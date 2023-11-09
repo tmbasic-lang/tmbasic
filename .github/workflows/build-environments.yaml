@@ -1,0 +1,50 @@
+name: Build Environments
+on: workflow_dispatch
+
+jobs:
+  build-docker:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - platform: linux-arm64
+            arch: arm64v8
+            os: linux
+          - platform: linux-arm32
+            arch: arm32v7
+            os: linux
+          - platform: linux-x64
+            arch: x86_64
+            os: linux
+          - platform: linux-x86
+            arch: i686
+            os: linux
+          - platform: win-x64
+            arch: x86_64
+            os: win
+          - platform: win-x86
+            arch: i686
+            os: win
+    name: ${{ matrix.platform }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build
+        run: |
+          if [ "${{ matrix.os }}" = "linux" ]; then
+            echo "Downloading Linux System Root."
+            cd build && ARCH=${{ matrix.arch }} scripts/sysrootDownload.sh
+          fi
+
+          echo "Building container."
+          export TIMESTAMP=$(date -u "+%Y%m%d%H%M%S")
+          export IMAGE_TAG=${{ matrix.platform }}-$TIMESTAMP
+          export IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/tmbasic-build-env:$IMAGE_TAG"
+          export PUSH_ONLY=1
+          cd build && ./${{ matrix.platform }}.sh
+
+          echo "Finished building container: $IMAGE_NAME"
