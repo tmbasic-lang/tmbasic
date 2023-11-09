@@ -7,9 +7,24 @@ jobs:
     strategy:
       matrix:
         include:
+          - platform: linux-arm64
+            arch: arm64v8
+            os: linux
+          - platform: linux-arm32
+            arch: arm32v7
+            os: linux
           - platform: linux-x64
             arch: x86_64
             os: linux
+          - platform: linux-x86
+            arch: i686
+            os: linux
+          - platform: win-x64
+            arch: x86_64
+            os: win
+          - platform: win-x86
+            arch: i686
+            os: win
     name: ${{ matrix.platform }}
     steps:
       - name: Checkout
