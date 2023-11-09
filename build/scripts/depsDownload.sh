@@ -11,7 +11,7 @@ function downloadFile {
     # $1=filename, $2=url
     if [ ! -f "$1" ]; then
         echo "Downloading $2..."
-        curl -L -o "$1.tmp" "$2"
+        curl -L -o "$1.tmp" --retry 5 "$2"
         mv -f "$1.tmp" "$1"
     fi
     DEPFILES="$DEPFILES $1"
