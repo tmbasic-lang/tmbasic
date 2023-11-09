@@ -39,6 +39,8 @@ jobs:
           BUILDX_ARCH: ${{ matrix.buildx-arch }}
           REPO: ${{ github.repository_owner }}/tmbasic-linux-sysroot
         run: |
+          set -euxo pipefail
+
           export TIMESTAMP=$(date -u "+%Y%m%d%H%M%S")
           export IMAGE_TAG=${{ matrix.arch }}-$TIMESTAMP
           export IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/tmbasic-linux-sysroot:$IMAGE_TAG

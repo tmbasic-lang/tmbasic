@@ -35,9 +35,12 @@ jobs:
 
       - name: Build
         run: |
+          set -euxo pipefail
+          
+          cd build
           if [ "${{ matrix.os }}" = "linux" ]; then
             echo "Downloading Linux System Root."
-            cd build && ARCH=${{ matrix.arch }} scripts/sysrootDownload.sh
+            ARCH=${{ matrix.arch }} scripts/sysrootDownload.sh
           fi
 
           echo "Building container."
@@ -45,6 +48,6 @@ jobs:
           export IMAGE_TAG=${{ matrix.platform }}-$TIMESTAMP
           export IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/tmbasic-build-env:$IMAGE_TAG"
           export PUSH_ONLY=1
-          cd build && ./${{ matrix.platform }}.sh
+          ./${{ matrix.platform }}.sh
 
           echo "Finished building container: $IMAGE_NAME"
