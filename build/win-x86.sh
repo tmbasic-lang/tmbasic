@@ -1,10 +1,10 @@
 #!/bin/bash
-# Parameters: $IMAGE_NAME (optional), $PUSH_ONLY (optional)
-set -euo pipefail
+# Optional parameters: $IMAGE_NAME, $PUSH_ONLY, $HOST_UID, $HOST_GID
+set -euxo pipefail
 
 export IMAGE_NAME=${IMAGE_NAME:="tmbasic-win-x86"}
-export HOST_UID=$(id -u "$USER")
-export HOST_GID=$(id -g "$USER")
+export HOST_UID=${HOST_UID:=$(id -u "$USER")}
+export HOST_GID=${HOST_GID:=$(id -g "$USER")}
 export ARCH="i686"
 export LIB3264="--enable-lib32 --disable-lib64"
 
@@ -23,7 +23,7 @@ if [ -n "${PUSH_ONLY+x}" ]; then
 fi
 
 if [ "$(docker image ls $IMAGE_NAME | wc -l)" == "1" ]; then
-    cat files/Dockerfile.build-win | sed "s/\$IMAGE_NAME/$IMAGE_NAME/g; s/\$HOST_UID/$HOST_UID/g; s/\$HOST_GID/$HOST_GID/g; s/\$ARCH/$ARCH/g; s/\$LIB3264/$LIB3264/g; s/\$WINE_INSTALL/$WINE_INSTALL/g" | docker buildx build $BUILDX_FLAGS -t $IMAGE_NAME files -f-
+    cat files/Dockerfile.build-win | sed "s=\$IMAGE_NAME=$IMAGE_NAME=g; s/\$HOST_UID/$HOST_UID/g; s/\$HOST_GID/$HOST_GID/g; s/\$ARCH/$ARCH/g; s/\$LIB3264/$LIB3264/g; s/\$WINE_INSTALL/$WINE_INSTALL/g" | docker buildx build $BUILDX_FLAGS -t $IMAGE_NAME files -f-
 fi
 
 # If $PUSH_ONLY is empty or unset, then run.

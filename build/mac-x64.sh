@@ -1,4 +1,4 @@
 #!/bin/bash
-set -euo pipefail
+set -euxo pipefail
 scripts/depsDownload.sh
 ARCH="x86_64" scripts/macSetup.sh "$@"
