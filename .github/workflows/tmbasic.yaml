@@ -45,7 +45,7 @@ jobs:
       - name: Upload runner.gz
         uses: actions/upload-artifact@v3
         with:
-          name: runner-${{ matrix.platform }}
+          name: runner-${{ matrix.platform }}.gz
           path: runner-${{ matrix.platform }}.gz
 
   build-runner-mac:
@@ -87,7 +87,7 @@ jobs:
       - name: Upload runner.gz
         uses: actions/upload-artifact@v3
         with:
-          name: runner-${{ matrix.platform }}
+          name: runner-${{ matrix.platform }}.gz
           path: runner-${{ matrix.platform }}.gz
 
   gather-runners:
@@ -116,7 +116,7 @@ jobs:
       - name: Upload runners.tar
         uses: actions/upload-artifact@v3
         with:
-          name: runners
+          name: runners.tar
           path: runners.tar
 
       - name: Delete runner-*.gz
@@ -159,7 +159,7 @@ jobs:
       - name: Download runners.tar
         uses: actions/download-artifact@v3
         with:
-          name: runners
+          name: runners.tar
           path: .
 
       - name: Login to GitHub Container Registry
@@ -186,7 +186,7 @@ jobs:
 
           pushd bin
           if [ "${{ matrix.format }}" = "zip" ]; then
-            zip -9 tmbasic.zip tmbasic
+            zip -9 tmbasic.zip tmbasic*
           else
             tar cvf tmbasic.tar.gz tmbasic
           fi
@@ -223,7 +223,7 @@ jobs:
       - name: Download runners.tar
         uses: actions/download-artifact@v3
         with:
-          name: runners
+          name: runners.tar
           path: .
 
       - name: Build
@@ -269,4 +269,4 @@ jobs:
         uses: geekyeggo/delete-artifact@v2
         with:
           useGlob: false
-          name: runners
+          name: runners.tar
