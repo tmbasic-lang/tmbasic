@@ -37,7 +37,7 @@ jobs:
           docker pull "$IMAGE_NAME"
 
           pushd build
-          ./${{ matrix.platform }}.sh -c "make runner"
+          ./${{ matrix.platform }}.sh -c "make test && make clean && make runner"
           popd
 
           mv bin/runner.gz runner-${{ matrix.platform }}.gz
@@ -79,7 +79,7 @@ jobs:
           tar zxf build-environment.tar.gz
 
           pushd build
-          ./${{ matrix.platform }}.sh -c "make runner"
+          ./${{ matrix.platform }}.sh -c "make test && make clean && make runner"
           popd
           
           mv bin/runner.gz runner-${{ matrix.platform }}.gz
@@ -189,7 +189,7 @@ jobs:
           ls -lR obj/resources/runners/
 
           pushd build
-          ./${{ matrix.platform }}.sh -c "make test && make clean && make release"
+          ./${{ matrix.platform }}.sh -c "make release"
           popd
 
           pushd bin
@@ -256,7 +256,7 @@ jobs:
           ls -lR obj/resources/runners/
 
           pushd build
-          ./${{ matrix.platform }}.sh -c "make test && make clean && make release"
+          ./${{ matrix.platform }}.sh -c "make release"
           popd
 
           pushd bin
