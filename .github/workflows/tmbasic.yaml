@@ -13,7 +13,7 @@ jobs:
           - platform: linux-x86
           - platform: win-x64
           - platform: win-x86
-    name: runner-${{ matrix.platform }}
+    name: Runner (${{ matrix.platform }})
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -56,7 +56,7 @@ jobs:
         include:
           - platform: mac-arm64
           - platform: mac-x64
-    name: runner-${{ matrix.platform }}
+    name: Runner (${{ matrix.platform }})
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -150,7 +150,7 @@ jobs:
             format: zip
           - platform: win-x86
             format: zip
-    name: tmbasic-${{ matrix.platform }}
+    name: TMBASIC (${{ matrix.platform }})
     needs: gather-runners
     steps:
       - name: Checkout
@@ -214,7 +214,7 @@ jobs:
         include:
           - platform: mac-arm64
           - platform: mac-x64
-    name: tmbasic-${{ matrix.platform }}
+    name: TMBASIC (${{ matrix.platform }})
     needs: gather-runners
     steps:
       - name: Checkout
