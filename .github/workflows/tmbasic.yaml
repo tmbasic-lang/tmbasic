@@ -93,41 +93,49 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: runner-linux-arm64.gz
+          path: runner-linux-arm64.gz
       
       - name: Download runner-linux-arm32.gz
         uses: actions/download-artifact@v3
         with:
           name: runner-linux-arm32.gz
+          path: runner-linux-arm32.gz
 
       - name: Download runner-linux-x64.gz
         uses: actions/download-artifact@v3
         with:
           name: runner-linux-x64.gz
+          path: runner-linux-x64.gz
 
       - name: Download runner-linux-x86.gz
         uses: actions/download-artifact@v3
         with:
           name: runner-linux-x86.gz
+          path: runner-linux-x86.gz
 
       - name: Download runner-win-x64.gz
         uses: actions/download-artifact@v3
         with:
           name: runner-win-x64.gz
+          path: runner-win-x64.gz
       
       - name: Download runner-win-x86.gz
         uses: actions/download-artifact@v3
         with:
           name: runner-win-x86.gz
+          path: runner-win-x86.gz
 
       - name: Download runner-mac-arm64.gz
         uses: actions/download-artifact@v3
         with:
           name: runner-mac-arm64.gz
+          path: runner-mac-arm64.gz
       
       - name: Download runner-mac-x64.gz
         uses: actions/download-artifact@v3
         with:
           name: runner-mac-x64.gz
+          path: runner-mac-x64.gz
 
       - name: Combine
         run: |
@@ -190,6 +198,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: runners.tar
+          path: runners.tar
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v2
@@ -252,6 +261,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: runners.tar
+          path: runners.tar
 
       - name: Build
         env:
