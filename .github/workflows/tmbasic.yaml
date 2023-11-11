@@ -45,7 +45,7 @@ jobs:
       - name: Upload runner.gz
         uses: actions/upload-artifact@v3
         with:
-          name: runner-${{ matrix.platform }}.gz
+          name: runner-${{ matrix.platform }}
           path: runner-${{ matrix.platform }}.gz
 
   build-runner-mac:
@@ -87,7 +87,7 @@ jobs:
       - name: Upload runner.gz
         uses: actions/upload-artifact@v3
         with:
-          name: runner-${{ matrix.platform }}.gz
+          name: runner-${{ matrix.platform }}
           path: runner-${{ matrix.platform }}.gz
 
   gather-runners:
@@ -116,7 +116,7 @@ jobs:
       - name: Upload runners.tar
         uses: actions/upload-artifact@v3
         with:
-          name: runners.tar
+          name: runners
           path: runners.tar
 
       - name: Delete runner-*.gz
@@ -159,7 +159,7 @@ jobs:
       - name: Download runners.tar
         uses: actions/download-artifact@v3
         with:
-          name: runners.tar
+          name: runners
           path: .
 
       - name: Login to GitHub Container Registry
@@ -196,14 +196,14 @@ jobs:
         if: matrix.format == 'zip'
         uses: actions/upload-artifact@v3
         with:
-          name: tmbasic-${{ matrix.platform }}.zip
+          name: tmbasic-${{ matrix.platform }}
           path: bin/tmbasic.zip
 
       - name: Upload tmbasic.tar.gz
         if: matrix.format == 'tar.gz'
         uses: actions/upload-artifact@v3
         with:
-          name: tmbasic-${{ matrix.platform }}.tar.gz
+          name: tmbasic-${{ matrix.platform }}
           path: bin/tmbasic.tar.gz
 
   build-tmbasic-mac:
@@ -223,7 +223,7 @@ jobs:
       - name: Download runners.tar
         uses: actions/download-artifact@v3
         with:
-          name: runners.tar
+          name: runners
           path: .
 
       - name: Build
@@ -257,7 +257,7 @@ jobs:
       - name: Upload tmbasic.zip
         uses: actions/upload-artifact@v3
         with:
-          name: tmbasic-${{ matrix.platform }}.zip
+          name: tmbasic-${{ matrix.platform }}
           path: bin/tmbasic.zip
 
   final-cleanup:
@@ -269,4 +269,4 @@ jobs:
         uses: geekyeggo/delete-artifact@v2
         with:
           useGlob: false
-          name: runners.tar
+          name: runners
