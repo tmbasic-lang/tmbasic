@@ -173,11 +173,11 @@ std::string getTempFilePath(const std::string& filename) {
     const char* temp_path = getenv("TMPDIR");
     std::ostringstream ss{};
     if (temp_path != nullptr) {
-        s << temp_path << "/" << filename;
+        ss << temp_path << "/" << filename;
         return ss.str();
     } else {
         // Default to "/tmp" if TMPDIR is not set
-        s << "/tmp/" << filename;
+        ss << "/tmp/" << filename;
         return ss.str();
     }
 #else
