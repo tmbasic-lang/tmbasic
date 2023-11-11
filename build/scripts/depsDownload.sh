@@ -1,4 +1,5 @@
 #!/bin/bash
+# Inputs: $USE_S3_MIRROR (optional)
 # run from the build/ directory
 set -euo pipefail
 mkdir -p downloads
@@ -9,6 +10,18 @@ DEPFILES=
 
 function downloadFile {
     # $1=filename, $2=url
+
+    # If $USE_S3MIRROR is set, we will download from our S3 bucket instead of the original source.
+    if [ -n "${USE_S3_MIRROR:-}" ]; then
+        if [ ! -f "$1" ]; then
+            echo "Downloading $2 from S3 mirror..."
+            aws s3 cp "s3://tmbasic/deps/$1" "$1" --request-payer requester
+        fi
+        DEPFILES="$DEPFILES $1"
+        return
+    fi
+
+    # Otherwise, download from the original source.
     if [ ! -f "$1" ]; then
         echo "Downloading $2..."
         curl -L -o "$1.tmp" --retry 5 "$2"

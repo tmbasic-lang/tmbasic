@@ -34,6 +34,12 @@ jobs:
         uses: docker/setup-buildx-action@v2
 
       - name: Build
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1
+          AWS_DEFAULT_OUTPUT: json
+          USE_S3_MIRROR: 1
         run: |
           set -euxo pipefail
 
@@ -51,3 +57,43 @@ jobs:
           ./${{ matrix.platform }}.sh
 
           echo "Finished building container: $IMAGE_NAME"
+
+  build-mac:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        include:
+          - platform: mac-arm64
+            short_arch: arm64
+          - platform: mac-x64
+            short_arch: x64
+    name: ${{ matrix.platform }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Build
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1
+          AWS_DEFAULT_OUTPUT: json
+          USE_S3_MIRROR: 1
+        run: |
+          set -euxo pipefail
+
+          echo "Building environment."
+          pushd build
+          ./${{ matrix.platform }}.sh
+          popd
+
+          echo "Archiving environment."
+          export TIMESTAMP=$(date -u "+%Y%m%d%H%M%S")
+          export FILENAME=tmbasic-build-env-${{ matrix.platform }}-$TIMESTAMP.tar.gz
+          tar zcvf "../$FILENAME" "mac-${{ short_arch }}"
+
+          echo "Uploading environment tarball."
+          export S3_URL="s3://tmbasic/mac-build-envs/$FILENAME"
+          aws s3 cp "../$FILENAME" $S3_URL
+
+          echo "Finished building environment: $S3_URL"
