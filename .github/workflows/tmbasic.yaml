@@ -157,6 +157,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
       - name: Download runners.tar
         uses: actions/download-artifact@v3
         with:
@@ -186,7 +189,7 @@ jobs:
           ls -lR obj/resources/runners/
 
           pushd build
-          ./${{ matrix.platform }}.sh -c "make release"
+          ./${{ matrix.platform }}.sh -c "make test && make clean && make release"
           popd
 
           pushd bin
@@ -253,7 +256,7 @@ jobs:
           ls -lR obj/resources/runners/
 
           pushd build
-          ./${{ matrix.platform }}.sh -c "make release"
+          ./${{ matrix.platform }}.sh -c "make test && make clean && make release"
           popd
 
           pushd bin
