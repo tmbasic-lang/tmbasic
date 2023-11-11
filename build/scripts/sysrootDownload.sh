@@ -1,37 +1,46 @@
-#!/bin/sh
+#!/bin/bash
 # inputs: $ARCH
 # run from the build/ directory
-set -eu
+set -euxo pipefail
 
-export SYSROOT_VERSION="unknown_arch"
+export IMAGE_TAG="unknown_arch"
 export BUILDX_ARCH="unknown_arch"
 
 if [ "$ARCH" = "arm32v7" ]; then
-    export SYSROOT_VERSION=$(awk -F= '{ if ($1 == "linux-system-root-arm32") print $2 }' tags.ini)
+    export IMAGE_TAG=$(awk -F= '{ if ($1 == "linux-system-root-arm32") print $2 }' tags.ini)
     export BUILDX_ARCH="linux/arm/v7"
 fi
 if [ "$ARCH" = "arm64v8" ]; then
-    export SYSROOT_VERSION=$(awk -F= '{ if ($1 == "linux-system-root-arm64") print $2 }' tags.ini)
+    export IMAGE_TAG=$(awk -F= '{ if ($1 == "linux-system-root-arm64") print $2 }' tags.ini)
     export BUILDX_ARCH="linux/arm/v8"
 fi
 if [ "$ARCH" = "x86_64" ]; then
-    export SYSROOT_VERSION=$(awk -F= '{ if ($1 == "linux-system-root-x64") print $2 }' tags.ini)
+    export IMAGE_TAG=$(awk -F= '{ if ($1 == "linux-system-root-x64") print $2 }' tags.ini)
     export BUILDX_ARCH="linux/amd64"
 fi
 if [ "$ARCH" = "i686" ]; then
-    export SYSROOT_VERSION=$(awk -F= '{ if ($1 == "linux-system-root-x86") print $2 }' tags.ini)
+    export IMAGE_TAG=$(awk -F= '{ if ($1 == "linux-system-root-x86") print $2 }' tags.ini)
     export BUILDX_ARCH="linux/386"
 fi
 
-export IMAGE_NAME="ghcr.io/electroly/tmbasic-linux-sysroot:$SYSROOT_VERSION"
-export FILENAME="downloads/sysroot-$SYSROOT_VERSION.tar.gz"
+export IMAGE_NAME="ghcr.io/electroly/tmbasic-linux-sysroot"
+export FILENAME="downloads/sysroot-$IMAGE_TAG.tar.gz"
 
 mkdir -p downloads
-if [ ! -f "downloads/sysroot-$SYSROOT_VERSION.tar.gz" ]; then
-    echo "Pulling $IMAGE_NAME..."
-    docker pull --platform $BUILDX_ARCH $IMAGE_NAME
+if [ ! -f "downloads/sysroot-$IMAGE_TAG.tar.gz" ]; then
+    echo "Pulling $IMAGE_NAME:$IMAGE_TAG..."
+    docker pull --platform "$BUILDX_ARCH" "$IMAGE_NAME:$IMAGE_TAG"
 
     echo "Saving to tar.gz..."
-    docker save $IMAGE_NAME | gzip > "$FILENAME"
+    export CONTAINER_NAME=$(docker create --platform "$BUILDX_ARCH" "$IMAGE_NAME:$IMAGE_TAG" /bin/bash)
+
+    if [ -z "$CONTAINER_NAME" ]; then
+        echo "Failed to create the container. Exiting."
+        exit 1
+    fi
+
+    docker export "$CONTAINER_NAME" | gzip > "$FILENAME"
+
+    docker rm "$CONTAINER_NAME"
 fi
 cp -f "$FILENAME" "files/sysroot-$ARCH.tar.gz"
