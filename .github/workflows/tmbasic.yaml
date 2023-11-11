@@ -182,6 +182,7 @@ jobs:
 
           mkdir -p obj/resources/runners/
           tar xf runners.tar -C obj/resources/runners/
+          ls -lR obj/resources/runners/
 
           pushd build
           ./${{ matrix.platform }}.sh -c "make release"
@@ -248,6 +249,7 @@ jobs:
 
           mkdir -p obj/resources/runners/
           tar xf runners.tar -C obj/resources/runners/
+          ls -lR obj/resources/runners/
 
           pushd build
           ./${{ matrix.platform }}.sh -c "make release"
