@@ -282,7 +282,7 @@ jobs:
           tar zxf build-environment.tar.gz
 
           mkdir -p obj/resources/runners/
-          tar zxvf runners.tar -C obj/resources/runners/
+          tar xf runners.tar -C obj/resources/runners/
 
           pushd build
           ./${{ matrix.platform }}.sh -c "make release"
