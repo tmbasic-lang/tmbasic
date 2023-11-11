@@ -89,9 +89,6 @@ jobs:
     name: Gather Runners
     needs: [build-runner-docker, build-runner-mac]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
       - name: Download runner-linux-arm64.gz
         uses: actions/download-artifact@v3
         with:
@@ -135,7 +132,16 @@ jobs:
       - name: Combine
         run: |
           set -euxo pipefail
-          tar cvf runners.tar runner-*.gz
+          tar cvf runners.tar \
+            runner-linux-arm64.gz \
+            runner-linux-arm32.gz \
+            runner-linux-x64.gz \
+            runner-linux-x86.gz \
+            runner-win-x64.gz \
+            runner-win-x86.gz \
+            runner-mac-arm64.gz \
+            runner-mac-x64.gz \
+            ;
 
       - name: Upload runners.tar
         uses: actions/upload-artifact@v3
