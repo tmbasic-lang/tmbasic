@@ -4,6 +4,13 @@
 # run from the build directory.
 set -euo pipefail
 
+# Verify that the host macOS system is ARM64, NOT Intel.
+echo "Host type: $(uname -m)"
+if [ "$(uname -m)" != "arm64" ]; then
+    echo "This script must be run on an Apple Silicon Mac."
+    exit 1
+fi
+
 scripts/depsDownload.sh
 
 rm -rf deps
@@ -38,7 +45,7 @@ export TARGET_CC=clang
 export TARGET_AR=ar
 export NATIVE_PREFIX="$PREFIX"
 export TARGET_PREFIX="$PREFIX"
-gnumake -j8 -f ../../build/files/deps.mk
+gnumake -j6 -f ../../build/files/deps.mk
 cd ..
 rm -rf $PREFIX/lib/*.dylib
 
