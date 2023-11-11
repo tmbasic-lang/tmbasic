@@ -214,12 +214,13 @@ jobs:
         run: |
           set -euxo pipefail
 
-          cd build
-          export IMAGE_TAG=$(awk -F= '{ if ($1 == "build-environment-${{ matrix.platform }}") print $2 }' tags.ini)
+          export IMAGE_TAG=$(awk -F= '{ if ($1 == "build-environment-${{ matrix.platform }}") print $2 }' build/tags.ini)
           export IMAGE_NAME="ghcr.io/electroly/tmbasic-build-env:$IMAGE_TAG"
           docker pull "$IMAGE_NAME"
 
+          pushd build
           ./${{ matrix.platform }}.sh -c "make release"
+          popd
 
           pushd bin
           if [ "${{ matrix.format }}" = "zip" ]; then
@@ -278,13 +279,14 @@ jobs:
           export FILENAME=$(awk -F= '{ if ($1 == "build-environment-${{ matrix.platform }}") print $2 }' build/tags.ini)
           export S3_URL="s3://tmbasic/mac-build-envs/$FILENAME"
           aws s3 cp "$S3_URL" build-environment.tar.gz
-          tar zxvf build-environment.tar.gz
+          tar zxf build-environment.tar.gz
 
           mkdir -p obj/resources/runners/
           tar zxvf runners.tar -C obj/resources/runners/
 
-          cd build
+          pushd build
           ./${{ matrix.platform }}.sh -c "make release"
+          popd
 
           pushd bin
           zip -9 tmbasic.zip tmbasic
@@ -295,3 +297,14 @@ jobs:
         with:
           name: tmbasic-${{ matrix.platform }}.zip
           path: bin/tmbasic.zip
+
+  final-cleanup:
+    runs-on: ubuntu-latest
+    name: Cleanup
+    needs: [build-tmbasic-docker, build-tmbasic-mac]
+    steps:
+      - name: Delete runners.tar
+        uses: geekyeggo/delete-artifact@v2
+        with:
+          useGlob: false
+          name: runners.tar
