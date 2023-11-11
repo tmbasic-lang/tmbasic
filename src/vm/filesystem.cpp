@@ -181,7 +181,7 @@ std::string getTempFilePath(const std::string& filename) {
         return ss.str();
     }
 #else
-    return (std::filesystem::temp_directory_path() / filename).str();
+    return (std::filesystem::temp_directory_path() / filename).string();
 #endif
 }
 
