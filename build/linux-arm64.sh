@@ -1,8 +1,9 @@
 #!/bin/bash
-# Optional parameters: $IMAGE_NAME, $NO_BUILD, $PUSH_ONLY, $HOST_UID, $HOST_GID
+# Optional parameters: $IMAGE_NAME, $CONTAINER_NAME, $NO_BUILD, $PUSH_ONLY, $HOST_UID, $HOST_GID
 set -euxo pipefail
 
 export IMAGE_NAME=${IMAGE_NAME:="tmbasic-linux-arm64"}
+export CONTAINER_NAME=${CONTAINER_NAME:="tmbasic-linux-arm64"}
 export HOST_UID=${HOST_UID:=$(id -u "$USER")}
 export HOST_GID=${HOST_GID:=$(id -g "$USER")}
 export DOCKER_ARCH="arm64v8"
@@ -28,5 +29,5 @@ fi
 # If $PUSH_ONLY is empty or unset, then run.
 if [ -z "${PUSH_ONLY+x}" ]; then
     cd ..
-    docker run --rm ${TTY_FLAG:=--tty --interactive} --volume "$PWD:/code" --workdir /code --name $IMAGE_NAME ${DOCKER_FLAGS:= } $IMAGE_NAME "$@"
+    docker run --rm ${TTY_FLAG:=--tty --interactive} --volume "$PWD:/code" --workdir /code --name $CONTAINER_NAME ${DOCKER_FLAGS:= } $IMAGE_NAME "$@"
 fi
