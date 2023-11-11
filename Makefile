@@ -229,7 +229,8 @@ endif
 ifeq ($(TARGET_OS),win)
 CXXFLAGS += \
 	-isystem /usr/$(ARCH)-w64-mingw32/include/libmpdec \
-	-isystem /usr/$(ARCH)-w64-mingw32/include/libmpdec++
+	-isystem /usr/$(ARCH)-w64-mingw32/include/libmpdec++ \
+	-Wno-array-bounds
 endif
 
 CXXFLAGS += \
