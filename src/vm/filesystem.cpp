@@ -168,4 +168,29 @@ void deleteDirectory(const std::string& path, bool recursive) {
     }
 }
 
+std::string getTempFilePath(const std::string& filename) {
+#ifdef __APPLE__
+    const char* temp_path = getenv("TMPDIR");
+    std::ostringstream ss{};
+    if (temp_path != nullptr) {
+        s << temp_path << "/" << filename;
+        return ss.str();
+    } else {
+        // Default to "/tmp" if TMPDIR is not set
+        s << "/tmp/" << filename;
+        return ss.str();
+    }
+#else
+    return (std::filesystem::temp_directory_path() / filename).str();
+#endif
+}
+
+void deleteFile(const std::string& path) {
+#ifdef __APPLE__
+    unlink(path.c_str());
+#else
+    std::filesystem::remove(path);
+#endif
+}
+
 }  // namespace vm

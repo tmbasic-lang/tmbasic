@@ -18,6 +18,7 @@
 #include "../util/tvutil.h"
 #include "../vm/Interpreter.h"
 #include "../vm/Program.h"
+#include "../vm/filesystem.h"
 #include "CodeEditorWindow.h"
 #include "DesignerWindow.h"
 #include "GridLayout.h"
@@ -38,6 +39,8 @@ using util::Label;
 using util::ListViewer;
 using util::ViewPtr;
 using util::WindowPtr;
+using vm::deleteFile;
+using vm::getTempFilePath;
 using vm::Program;
 
 namespace tmbasic {
@@ -562,7 +565,7 @@ void ProgramWindow::run() {
     auto pcode = program.vmProgram.serialize();
     auto nativePlatform = TargetPlatform::kLinuxArm64;  // TODO
     auto exeData = compiler::makeExeFile(pcode, nativePlatform);
-    auto tempFilePath = std::filesystem::temp_directory_path() / getTempExeFilename(nativePlatform);
+    auto tempFilePath = getTempFilePath(getTempExeFilename(nativePlatform));
     std::ofstream f{ tempFilePath, std::ios::out | std::ios::binary };
     f.write(reinterpret_cast<const char*>(exeData.data()), exeData.size());
     f.close();
@@ -572,11 +575,11 @@ void ProgramWindow::run() {
 
     // Execute it
     TProgram::application->suspend();
-    auto args = fmt::format("\"{}\"", tempFilePath.string());
+    auto args = fmt::format("\"{}\"", tempFilePath);
     std::system(args.c_str());
 
     // Delete the temp file
-    std::filesystem::remove(tempFilePath);
+    deleteFile(tempFilePath);
 
     std::cout << "Press Enter to return to TMBASIC." << std::endl;
     std::cin.get();
