@@ -83,6 +83,10 @@ jobs:
         run: |
           set -euxo pipefail
 
+          # https://github.com/actions/runner-images/issues/8613
+          echo "Installing AWSCLI."
+          brew install awscli
+
           echo "Building environment."
           pushd build
           ./${{ matrix.platform }}.sh
