@@ -32,12 +32,14 @@ jobs:
         run: |
           set -euxo pipefail
 
-          cd build
-          export IMAGE_TAG=$(awk -F= '{ if ($1 == "build-environment-${{ matrix.platform }}") print $2 }' tags.ini)
+          export IMAGE_TAG=$(awk -F= '{ if ($1 == "build-environment-${{ matrix.platform }}") print $2 }' build/tags.ini)
           export IMAGE_NAME="ghcr.io/electroly/tmbasic-build-env:$IMAGE_TAG"
           docker pull "$IMAGE_NAME"
 
+          pushd build
           ./${{ matrix.platform }}.sh -c "make runner"
+          popd
+
           mv bin/runner.gz runner-${{ matrix.platform }}.gz
 
       - name: Upload runner.gz
@@ -76,8 +78,10 @@ jobs:
           aws s3 cp "$S3_URL" build-environment.tar.gz
           tar zxvf build-environment.tar.gz
 
-          cd build
+          pushd build
           ./${{ matrix.platform }}.sh -c "make runner"
+          popd
+          
           mv bin/runner.gz runner-${{ matrix.platform }}.gz
 
       - name: Upload runner.gz
