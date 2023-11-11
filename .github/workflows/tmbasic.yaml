@@ -14,6 +14,7 @@ jobs:
           - platform: win-x64
           - platform: win-x86
     name: runner-${{ matrix.platform }}
+    steps:
       - name: Checkout
         uses: actions/checkout@v3
 
