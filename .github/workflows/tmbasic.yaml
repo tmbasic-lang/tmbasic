@@ -180,6 +180,9 @@ jobs:
           export IMAGE_NAME="ghcr.io/electroly/tmbasic-build-env:$IMAGE_TAG"
           docker pull "$IMAGE_NAME"
 
+          mkdir -p obj/resources/runners/
+          tar xf runners.tar -C obj/resources/runners/
+
           pushd build
           ./${{ matrix.platform }}.sh -c "make release"
           popd
