@@ -70,7 +70,7 @@ jobs:
           # https://github.com/actions/runner-images/issues/8613
           brew install awscli
 
-          export FILENAME=$(awk -F= '{ if ($1 == "build-environment-${{ matrix.platform }}") print $2 }' tags.ini)
+          export FILENAME=$(awk -F= '{ if ($1 == "build-environment-${{ matrix.platform }}") print $2 }' build/tags.ini)
           export S3_URL="s3://tmbasic/mac-build-envs/$FILENAME"
           aws s3 cp "$S3_URL" build-environment.tar.gz
           tar zxvf build-environment.tar.gz
