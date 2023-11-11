@@ -11,7 +11,7 @@ class BasicLabel : public TLabel {
     BasicLabel(int64_t id, Interpreter* interpreter);
     virtual ~BasicLabel();
     static int64_t newLabel(Interpreter* interpreter);
-    boost::local_shared_ptr<String> getText();
+    boost::local_shared_ptr<String> getBasicText();
     void setText(const String& newText);
 
    private:

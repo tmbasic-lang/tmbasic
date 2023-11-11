@@ -10,13 +10,15 @@ namespace vm {
 }
 
 BasicLabel::BasicLabel(int64_t id, Interpreter* interpreter)
-    : TLabel(TRect{ 1, 1, 15, 2 }, "", nullptr), _id(id), _interpreter(interpreter) {}
+    : TLabel(TRect{ 1, 1, 15, 2 }, "", nullptr), _id(id), _interpreter(interpreter) {
+    (void)_interpreter;  // temporary
+}
 
 BasicLabel::~BasicLabel() {
     basicFormsStorage.controls.remove(_id);
 }
 
-boost::local_shared_ptr<String> BasicLabel::getText() {
+boost::local_shared_ptr<String> BasicLabel::getBasicText() {
     return boost::make_local_shared<String>(text);
 }
 

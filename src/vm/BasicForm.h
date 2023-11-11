@@ -13,7 +13,7 @@ class BasicForm : public TDialog {
 
    private:
     int64_t _id;
-    Interpreter* _interpreter;
+    Interpreter* _interpreter = nullptr;
 };
 
 }  // namespace vm

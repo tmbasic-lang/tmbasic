@@ -22,7 +22,7 @@ void initSystemCallsControls() {
 
         auto* label = dynamic_cast<BasicLabel*>(control);
         if (label != nullptr) {
-            result->returnedObject = label->getText();
+            result->returnedObject = label->getBasicText();
             return;
         }
 

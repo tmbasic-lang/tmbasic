@@ -13,6 +13,7 @@ namespace vm {
 BasicForm::BasicForm(int64_t id, Interpreter* interpreter)
     : TDialog(TRect(0, 0, 40, 15), "Form"), TWindowInit(initFrame), _id(id), _interpreter(interpreter) {
     options |= ofCentered;
+    (void)_interpreter;  // temporary
 }
 
 BasicForm::~BasicForm() {
