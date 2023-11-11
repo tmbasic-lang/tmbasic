@@ -103,15 +103,16 @@ jobs:
       - name: Combine
         run: |
           set -euxo pipefail
-          mv runner-linux-arm64/*.gz .
-          mv runner-linux-arm32/*.gz .
-          mv runner-linux-x64/*.gz .
-          mv runner-linux-x86/*.gz .
-          mv runner-win-x64/*.gz .
-          mv runner-win-x86/*.gz .
-          mv runner-mac-arm64/*.gz .
-          mv runner-mac-x64/*.gz .
+          mv runner-linux-arm64/runner-linux-arm64.gz linux_arm64.gz
+          mv runner-linux-arm32/runner-linux-arm32.gz linux_arm32.gz
+          mv runner-linux-x64/runner-linux-x64.gz linux_x64.gz
+          mv runner-linux-x86/runner-linux-x86.gz linux_x86.gz
+          mv runner-win-x64/runner-win-x64.gz win_x64.gz
+          mv runner-win-x86/runner-win-x86.gz win_x86.gz
+          mv runner-mac-arm64/runner-mac-arm64.gz mac_arm64.gz
+          mv runner-mac-x64/runner-mac-x64.gz mac_x64.gz
           tar cvf runners.tar *.gz
+          ls -l runners.tar
 
       - name: Upload runners.tar
         uses: actions/upload-artifact@v3
