@@ -26,7 +26,6 @@ using std::endl;
 using std::function;
 using std::istringstream;
 using std::make_unique;
-using std::move;
 using std::ofstream;
 using std::ostringstream;
 using std::regex;
@@ -368,7 +367,7 @@ static unique_ptr<Procedure> parseProcedure(const string& input) {
             } else if (section == ".overload") {
                 auto newOverload = make_unique<Overload>();
                 overload = newOverload.get();
-                procedure->overloads.push_back(move(newOverload));
+                procedure->overloads.push_back(std::move(newOverload));
             } else if (section == ".description") {
                 if (procedure->description.length() > 0) {
                     throw runtime_error(string("Duplicate description in procedure ") + procedure->name);
@@ -390,13 +389,13 @@ static unique_ptr<Procedure> parseProcedure(const string& input) {
                 parameter->name = trim_copy(parameterMatch[1].str());
                 parameter->type = trim_copy(parameterMatch[2].str());
                 parameter->description = readProcedureBlock(lines, &i);
-                overload->parameters.push_back(move(parameter));
+                overload->parameters.push_back(std::move(parameter));
             } else if (section == ".return") {
                 // like ".return boolean"
                 auto returns = make_unique<ReturnType>();
                 returns->type = rest;
                 returns->description = readProcedureBlock(lines, &i);
-                overload->returns = move(returns);
+                overload->returns = std::move(returns);
             } else if (section == ".errors") {
                 auto block = readProcedureBlock(lines, &i);
                 vector<string> errorCodes{};
@@ -405,12 +404,12 @@ static unique_ptr<Procedure> parseProcedure(const string& input) {
                 while (std::getline(ss, line)) {
                     errorCodes.push_back(line);
                 }
-                overload->errorCodes = move(errorCodes);
+                overload->errorCodes = std::move(errorCodes);
             } else if (section == ".example") {
                 auto newExample = make_unique<Example>();
                 example = newExample.get();
                 newExample->description = readProcedureBlock(lines, &i);
-                overload->examples.push_back(move(newExample));
+                overload->examples.push_back(std::move(newExample));
             } else if (section == ".example-code") {
                 if (example->code.length() > 0) {
                     throw runtime_error(string("Duplicate example-code in procedure ") + procedure->name);
