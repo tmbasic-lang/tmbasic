@@ -1,14 +1,18 @@
 #!/bin/bash
-# arguments: $ARCH
+# arguments: $ARCH, $NO_BUILD (optional)
 # $ARCH: x86_64 or arm64v8
 # run from the build directory.
-set -euo pipefail
+set -euxo pipefail
 
-scripts/depsDownload.sh
+# Build unless $NO_BUILD is non-empty.
+if [ -z "${NO_BUILD+x}" ]; then
+    scripts/depsDownload.sh
 
-rm -rf deps
-mkdir deps
-tar xf files/deps.tar -C deps
+    rm -rf deps
+    mkdir deps
+    tar xf files/deps.tar -C deps
+fi
+
 export DOWNLOAD_DIR=$PWD/deps
 
 if [ "$ARCH" == "x86_64" ]; then
@@ -38,7 +42,12 @@ export TARGET_CC=clang
 export TARGET_AR=ar
 export NATIVE_PREFIX="$PREFIX"
 export TARGET_PREFIX="$PREFIX"
-gnumake -j6 -f ../../build/files/deps.mk
+
+# Build unless $NO_BUILD is non-empty.
+if [ -z "${NO_BUILD+x}" ]; then
+    gnumake -j6 -f ../../build/files/deps.mk
+fi
+
 cd ..
 rm -rf $PREFIX/lib/*.dylib
 

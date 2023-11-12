@@ -8,5 +8,4 @@ if [ "$(uname -m)" != "arm64" ]; then
     exit 1
 fi
 
-scripts/depsDownload.sh
 ARCH="arm64v8" scripts/macSetup.sh "$@"
