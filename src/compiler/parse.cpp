@@ -183,7 +183,7 @@ template <typename T>
 static std::unique_ptr<T> captureSingleNode(std::unique_ptr<Box> box) {
     assert(box->type == BoxType::kNode);
     auto nodeBox = dynamic_cast_move<NodeBox>(std::move(box));
-    return dynamic_cast_move<T>(std::move(nodeBox->value()));
+    return dynamic_cast_move<T>(nodeBox->value());
 }
 
 static bool hasCapture(const std::unique_ptr<Box>& box) {
