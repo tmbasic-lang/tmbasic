@@ -50,9 +50,9 @@ COPY deps.mk /tmp/deps.mk
 COPY deps.tar /tmp/
 
 # If you're trying to fix a failure here, comment everything below this point.
-# Run the container. Change $ARCH below to arm64v8 then paste this command.
+# Run the container. Run "export ARCH=x86_64" then paste the command below.
 # Because it runs multiple parallel jobs, the console output will be confusing.
-# Enter /tmp/deps and run make -f /tmp/deps.mk to see the error.
+# To see the error, run: cd /tmp/deps && make -f /tmp/deps.mk
 RUN mkdir -p /tmp/downloads && \
     tar xf /tmp/deps.tar -C /tmp/downloads && \
     mkdir -p /usr/local/$(uname -m)-linux-gnu/include && \

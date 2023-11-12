@@ -380,18 +380,7 @@ $(IMMER_DIR)/download:
 	touch $@
 
 $(IMMER_DIR)/install: $(IMMER_DIR)/download $(CMAKE_DIR)/install $(BINUTILS_DIR)/install
-	cd $(IMMER_DIR) && \
-		rm -rf BUILD && \
-		mkdir -p build && \
-		cd build && \
-		cmake .. \
-			$(CMAKE_FLAGS) \
-			-DCMAKE_BUILD_TYPE=Release \
-			-DCMAKE_PREFIX_PATH=$(TARGET_PREFIX) \
-			-DCMAKE_INSTALL_PREFIX=$(TARGET_PREFIX) \
-			$(CMAKE_TOOLCHAIN_FLAG) && \
-		$(MAKE) && \
-		$(MAKE) install
+	cp -rf $(IMMER_DIR)/immer $(TARGET_PREFIX)/include/
 	touch $@
 
 

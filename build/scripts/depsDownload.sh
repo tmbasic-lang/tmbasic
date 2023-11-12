@@ -32,20 +32,20 @@ function downloadFile {
 
 # don't update these versions by hand. instead, run scripts/depsCheck.sh
 BINUTILS_VERSION=2.37
-BOOST_VERSION=1.81.0
-CMAKE_VERSION=3.25.1
-FMT_VERSION=9.1.0
-GOOGLETEST_VERSION=1.12.1
-ICU_VERSION=72.1
-IMMER_VERSION=119f9d858aa18876e468c722de75a933c691b15b
-LIBZIP_VERSION=1.9.2
+BOOST_VERSION=1.83.0
+CMAKE_VERSION=3.27.7
+FMT_VERSION=10.1.1
+GOOGLETEST_VERSION=1.14.0
+ICU_VERSION=74.1
+IMMER_VERSION=0.8.1
+LIBZIP_VERSION=1.10.1
 MICROTAR_VERSION=27076e1b9290e9c7842bb7890a54fcf172406c84
 MPDECIMAL_VERSION=2.5.1
-NAMEOF_VERSION=0.10.2
+NAMEOF_VERSION=0.10.3
 NCURSES_VERSION=6.4
-TURBO_VERSION=b8ead99c7be9073843dfc344c6ec82745d991d52
-TVISION_VERSION=59e2838a0df0e3c0c60713bbf1c575023aa0de3b
-ZLIB_VERSION=1.2.13
+TURBO_VERSION=5d7e794b511d0b4e2257e567f7df9f79d5f43be6
+TVISION_VERSION=e9fac379992815aaadcba99f55d8d34b7037a311
+ZLIB_VERSION=1.3
 
 # https://ftp.gnu.org/gnu/binutils
 downloadFile "binutils-$BINUTILS_VERSION.tar.gz" "https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VERSION.tar.gz"
@@ -66,13 +66,13 @@ downloadFile "config.sub" "https://git.savannah.gnu.org/gitweb/?p=config.git;a=b
 downloadFile "fmt-$FMT_VERSION.tar.gz" "https://github.com/fmtlib/fmt/archive/refs/tags/$FMT_VERSION.tar.gz"
 
 # https://github.com/google/googletest/releases
-downloadFile "googletest-$GOOGLETEST_VERSION.tar.gz" "https://github.com/google/googletest/archive/release-$GOOGLETEST_VERSION.tar.gz"
+downloadFile "googletest-$GOOGLETEST_VERSION.tar.gz" "https://github.com/google/googletest/archive/refs/tags/v$GOOGLETEST_VERSION.tar.gz"
 
 # https://github.com/unicode-org/icu/releases
 downloadFile "icu-$ICU_VERSION.tar.gz" "https://github.com/unicode-org/icu/releases/download/release-$(echo $ICU_VERSION | tr '.' '-')/icu4c-$(echo $ICU_VERSION | tr '.' '_')-src.tgz"
 
 # https://github.com/arximboldi/immer
-downloadFile "immer-$IMMER_VERSION.tar.gz" "https://github.com/arximboldi/immer/archive/$IMMER_VERSION.tar.gz"
+downloadFile "immer-$IMMER_VERSION.tar.gz" "https://github.com/arximboldi/immer/archive/refs/tags/v$IMMER_VERSION.tar.gz"
 
 # https://github.com/nih-at/libzip/releases
 downloadFile "libzip-$LIBZIP_VERSION.tar.gz" "https://github.com/nih-at/libzip/releases/download/v$LIBZIP_VERSION/libzip-$LIBZIP_VERSION.tar.gz"

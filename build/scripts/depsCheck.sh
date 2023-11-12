@@ -91,6 +91,7 @@ function checkMingw {
     local version=$(curl --silent $url \
         | grep '<link>' \
         | grep '\.tar\.bz2/' \
+        | sort -V -r \
         | head -n 1 \
         | grep -o '[0-9\.]\+\.tar' \
         | sed 's/\.tar//')
@@ -122,7 +123,7 @@ checkGitHubRelease "CMAKE" "https://github.com/Kitware/CMake/releases.atom"
 checkGitHubRelease "FMT" "https://github.com/fmtlib/fmt/releases.atom"
 checkGitHubRelease "GOOGLETEST" "https://github.com/google/googletest/releases.atom"
 checkGitHubRelease "ICU" "https://github.com/unicode-org/icu/releases.atom"
-checkGitHubCommit "IMMER" "https://github.com/arximboldi/immer/commits.atom"
+checkGitHubRelease "IMMER" "https://github.com/arximboldi/immer/releases.atom"
 checkGitHubRelease "LIBZIP" "https://github.com/nih-at/libzip/releases.atom"
 checkGitHubCommit "MICROTAR" "https://github.com/rxi/microtar/commits.atom"
 checkMpdecimal "MPDECIMAL" "https://www.bytereef.org/mpdecimal/download.html"

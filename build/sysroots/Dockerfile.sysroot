@@ -1,4 +1,4 @@
-FROM $IMAGE_ARCH/alpine:3.17 AS initial
+FROM $IMAGE_ARCH/alpine:3.18 AS initial
 RUN apk update && apk upgrade && apk add clang linux-headers g++ musl-dev
 
 # Install ICU natively. I can get it to cross-compile but the resulting ICU doesn't have the locale data properly

@@ -1,4 +1,4 @@
-FROM alpine:3.17 AS first-stage
+FROM alpine:3.18 AS first-stage
 
 RUN apk update && \
     apk upgrade && \
