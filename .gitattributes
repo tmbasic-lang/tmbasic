@@ -6,6 +6,7 @@
 *.diff text eol=lf
 *.h text eol=lf
 *.html text eol=lf
+*.ini ext eol=lf
 *.js text eol=lf
 *.json text eol=lf
 *.linq text eol=crlf linguist-documentation
