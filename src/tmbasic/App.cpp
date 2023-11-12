@@ -823,7 +823,7 @@ int main(int argc, char** argv) {
 #ifdef _WIN32
     SetConsoleTitle(TEXT("TMBASIC"));
 #else
-    setlocale(LC_ALL, "en_US.UTF-8");
+    setlocale(LC_ALL, "C.UTF-8");
 #endif
     go(argc, argv);
     return 0;
