@@ -543,15 +543,6 @@ void ProgramWindow::publish() {
     }
 }
 
-static std::string getTempExeFilename(TargetPlatform platform) {
-#ifdef _WIN32
-    auto pid = static_cast<int64_t>(GetCurrentProcessId());
-#else
-    auto pid = static_cast<int64_t>(getpid());
-#endif
-    return fmt::format("tmbasic-debug-{}{}", pid, compiler::getPlatformExeExtension(platform));
-}
-
 void ProgramWindow::run() {
     compiler::CompiledProgram program;
     try {
@@ -561,27 +552,25 @@ void ProgramWindow::run() {
         return;
     }
 
-    // Write a temporary EXE file
-    auto pcode = program.vmProgram.serialize();
-    auto nativePlatform = TargetPlatform::kLinuxArm64;  // TODO
-    auto exeData = compiler::makeExeFile(pcode, nativePlatform);
-    auto tempFilePath = getTempFilePath(getTempExeFilename(nativePlatform));
-    std::ofstream f{ tempFilePath, std::ios::out | std::ios::binary };
-    f.write(reinterpret_cast<const char*>(exeData.data()), exeData.size());
-    f.close();
-#ifndef _WIN32
-    chmod(tempFilePath.c_str(), 0777);
-#endif
-
-    // Execute it
     TProgram::application->suspend();
-    auto args = fmt::format("\"{}\"", tempFilePath);
-    std::system(args.c_str());
 
-    // Delete the temp file
-    deleteFile(tempFilePath);
+    try {
+        vm::Interpreter interpreter{ &program.vmProgram, &std::cin, &std::cout };
+        interpreter.init(program.vmProgram.startupProcedureIndex);
+        while (interpreter.run(10000)) {
+        }
 
-    std::cout << "Press Enter to return to TMBASIC." << std::endl;
+        auto error = interpreter.getError();
+        if (error.has_value()) {
+            std::cerr << "Uncaught error:\n" << error->message << std::endl;
+        }
+    } catch (const std::runtime_error& ex) {
+        std::cerr << "Interpreter error:\n" << ex.what() << std::endl;
+    } catch (...) {
+        std::cerr << "Unknown interpreter error." << std::endl;
+    }
+
+    std::cout << "\nPress Enter to return to TMBASIC." << std::endl;
     std::cin.get();
 
     TProgram::application->resume();
