@@ -6,6 +6,7 @@
 // std::filesystem support requires macOS 10.15, and we are targeting 10.13, so don't use it on macOS.
 // instead we will fall back to standard POSIX stuff.
 #ifdef __APPLE__
+#include <errno.h>
 #include <libgen.h>
 #include <sys/stat.h>
 #endif

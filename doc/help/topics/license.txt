@@ -26,7 +26,8 @@ Include this license file when sharing your TMBASIC app.
 
 The following additional components are included in the TMBASIC development environment only.
 
-ul@li@{libzip:license_libzip}@
+ul@li@{CLI11:license_cli11}@
+li@{libzip:license_libzip}@
 li@{microtar:license_microtar}@
 li@{nameof:license_nameof}@
 li@{zlib:license_zlib}@

@@ -102,7 +102,7 @@ class ProgramReader {
     }
 };
 
-std::vector<uint8_t> Program::serialize() {
+std::vector<uint8_t> Program::serialize() const {
     ProgramWriter writer{};
     writer.writeInt<uint32_t>(static_cast<uint32_t>(startupProcedureIndex));
 

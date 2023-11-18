@@ -18,3 +18,4 @@ cp -f doc/licenses/turbo/COPYRIGHT obj/doc-temp/diagrams-license/license_turbo.t
 cp -f doc/licenses/libzip/LICENSE obj/doc-temp/diagrams-license/license_libzip.txt
 cp -f doc/licenses/microtar/LICENSE obj/doc-temp/diagrams-license/license_microtar.txt
 cp -f doc/licenses/zlib/LICENSE.txt obj/doc-temp/diagrams-license/license_zlib.txt
+cp -f doc/licenses/cli11/LICENSE obj/doc-temp/diagrams-license/license_cli11.txt

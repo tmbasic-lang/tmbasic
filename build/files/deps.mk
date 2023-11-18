@@ -3,6 +3,7 @@
 
 BINUTILS_DIR=$(PWD)/binutils
 BOOST_DIR=$(PWD)/boost
+CLI11_DIR=$(PWD)/cli11
 FMT_DIR=$(PWD)/fmt
 GOOGLETEST_DIR=$(PWD)/googletest
 ICU_DIR=$(PWD)/icu
@@ -113,6 +114,7 @@ endif
 .PHONY: all
 all: \
 	$(BOOST_DIR)/install \
+	$(CLI11_DIR)/install \
 	$(FMT_DIR)/install \
 	$(GOOGLETEST_DIR)/install \
 	$(ICU_DIR)/install \
@@ -622,3 +624,15 @@ $(LIBZIP_DIR)/install: $(LIBZIP_DIR)/download $(CMAKE_DIR)/install $(ZLIB_DIR)/i
 		$(MAKE) && \
 		$(MAKE) install
 	touch $@
+
+
+
+# cli11 ---------------------------------------------------------------------------------------------------------------
+
+$(CLI11_DIR)/download:
+	mkdir -p $(CLI11_DIR)
+	mv -f $(DOWNLOAD_DIR)/cli11-*.hpp $(CLI11_DIR)/CLI11.hpp
+	touch $@
+
+$(CLI11_DIR)/install: $(CLI11_DIR)/download
+	cp -f $(CLI11_DIR)/CLI11.hpp $(TARGET_PREFIX)/include/

@@ -137,7 +137,8 @@ LICENSE_FILES=\
 	doc/licenses/turbo/COPYRIGHT \
 	doc/licenses/libzip/LICENSE \
 	doc/licenses/microtar/LICENSE \
-	doc/licenses/zlib/LICENSE.txt
+	doc/licenses/zlib/LICENSE.txt \
+	doc/licenses/cli11/LICENSE
 LICENSE_DIAGRAM_TXT_TIMESTAMP_FILE=obj/doc-temp/diagrams-license/timestamp
 LICENSE_DIAGRAM_TXT_FILES=\
 	obj/doc-temp/diagrams-license/license_tmbasic.txt \
@@ -157,7 +158,8 @@ LICENSE_DIAGRAM_TXT_FILES=\
 	obj/doc-temp/diagrams-license/license_turbo.txt \
 	obj/doc-temp/diagrams-license/license_libzip.txt \
 	obj/doc-temp/diagrams-license/license_microtar.txt \
-	obj/doc-temp/diagrams-license/license_zlib.txt
+	obj/doc-temp/diagrams-license/license_zlib.txt \
+	obj/doc-temp/diagrams-license/license_cli11.txt
 	
 
 # icon resource

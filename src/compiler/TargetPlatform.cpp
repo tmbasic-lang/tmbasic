@@ -38,6 +38,28 @@ const char* getPlatformName(TargetPlatform platform) {
     }
 }
 
+TargetPlatform parsePlatformName(const std::string& name) {
+    if (name == "linux-arm32") {
+        return TargetPlatform::kLinuxArm32;
+    } else if (name == "linux-arm64") {
+        return TargetPlatform::kLinuxArm64;
+    } else if (name == "linux-x86") {
+        return TargetPlatform::kLinuxX86;
+    } else if (name == "linux-x64") {
+        return TargetPlatform::kLinuxX64;
+    } else if (name == "mac-arm64") {
+        return TargetPlatform::kMacArm64;
+    } else if (name == "mac-x64") {
+        return TargetPlatform::kMacX64;
+    } else if (name == "win-x86") {
+        return TargetPlatform::kWinX86;
+    } else if (name == "win-x64") {
+        return TargetPlatform::kWinX64;
+    } else {
+        throw std::runtime_error{ "Unknown platform name: " + name };
+    }
+}
+
 TargetPlatformArchiveType getTargetPlatformArchiveType(TargetPlatform platform) {
     switch (platform) {
         case TargetPlatform::kMacArm64:
@@ -86,6 +108,40 @@ std::string getLicenseForPlatform(TargetPlatform platform) {
         default:
             return std::string{ sv };
     }
+}
+
+TargetPlatform getNativeTargetPlatform() {
+#if defined(__linux__)
+#if defined(__arm__) && !defined(__aarch64__)
+    return TargetPlatform::kLinuxArm32;
+#elif defined(__aarch64__)
+    return TargetPlatform::kLinuxArm64;
+#elif defined(__i386__)
+    return TargetPlatform::kLinuxX86;
+#elif defined(__x86_64__)
+    return TargetPlatform::kLinuxX64;
+#else
+#error "getNativeTargetPlatform(): Unsupported Linux platform."
+#endif
+#elif defined(__APPLE__) && defined(__MACH__)
+#if defined(__aarch64__)
+    return TargetPlatform::kMacArm64;
+#elif defined(__x86_64__)
+    return TargetPlatform::kMacX64;
+#else
+#error "getNativeTargetPlatform(): Unsupported macOS platform."
+#endif
+#elif defined(_WIN32)
+#if defined(_M_IX86)
+    return TargetPlatform::kWinX86;
+#elif defined(_M_X64)
+    return TargetPlatform::kWinX64;
+#else
+#error "getNativeTargetPlatform(): Unsupported Windows platform."
+#endif
+#else
+#error "getNativeTargetPlatform(): Unsupported platform."
+#endif
 }
 
 }  // namespace compiler

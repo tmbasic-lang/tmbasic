@@ -20,7 +20,7 @@ std::string getFileName(const std::string& filePath) {
 #endif
 }
 
-std::string getDirectoryName(const std::string& filePath) {
+static std::string getDirectoryNameCore(const std::string& filePath) {
 #ifdef __APPLE__
     auto* str = newStr(filePath.c_str());
     std::string directoryName{ dirname(str) };
@@ -31,6 +31,14 @@ std::string getDirectoryName(const std::string& filePath) {
     assert(str.size() <= filePath.size());
     return str;
 #endif
+}
+
+std::string getDirectoryName(const std::string& filePath) {
+    auto directoryName = getDirectoryNameCore(filePath);
+    if (directoryName.empty()) {
+        return ".";
+    }
+    return directoryName;
 }
 
 void createDirectory(const std::string& path) {

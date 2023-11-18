@@ -2,6 +2,7 @@
 #include "../../obj/resources/help/helpfile.h"
 #include "../compiler/CompilerException.h"
 #include "../compiler/TargetPlatform.h"
+#include "../compiler/Publisher.h"
 #include "../compiler/compileProgram.h"
 #include "../compiler/gzip.h"
 #include "../compiler/makeExeFile.h"
@@ -447,38 +448,6 @@ void ProgramWindow::checkForErrors() {
     }
 }
 
-static void publishPlatform(
-    TargetPlatform platform,
-    const std::string& programName,
-    const std::vector<uint8_t>& pcode,
-    const std::string& publishDir) {
-    auto isZip = compiler::getTargetPlatformArchiveType(platform) == compiler::TargetPlatformArchiveType::kZip;
-    auto archiveFilename =
-        fmt::format("{}-{}.{}", programName, compiler::getPlatformName(platform), isZip ? "zip" : "tar.gz");
-    auto archiveFilePath = util::pathCombine(publishDir, archiveFilename);
-    auto exeData = compiler::makeExeFile(pcode, platform);
-    auto exeFilename = fmt::format("{}{}", programName, compiler::getPlatformExeExtension(platform));
-    const std::string licFilename{ "LICENSE.txt" };
-    auto licString = compiler::getLicenseForPlatform(platform);
-    std::vector<uint8_t> licData{};
-    licData.insert(licData.end(), licString.begin(), licString.end());
-    if (isZip) {
-        std::vector<compiler::ZipEntry> entries{
-            compiler::ZipEntry{ std::move(exeFilename), std::move(exeData) },
-            compiler::ZipEntry{ licFilename, std::move(licData) },
-        };
-        compiler::zip(archiveFilePath, entries);
-    } else {
-        std::vector<compiler::TarEntry> entries{
-            compiler::TarEntry{ std::move(exeFilename), std::move(exeData), 0777 },
-            compiler::TarEntry{ licFilename, std::move(licData), 0664 },
-        };
-        auto gz = compiler::gzip(compiler::tar(entries));
-        std::ofstream f{ archiveFilePath, std::ios::out | std::ios::binary };
-        f.write(reinterpret_cast<const char*>(gz.data()), gz.size());
-    }
-}
-
 class PublishStatusWindow : public TWindow {
    public:
     ViewPtr<Label> labelTop{ TRect{ 0, 0, 30, 1 }, "Checking for errors..." };
@@ -518,14 +487,9 @@ void ProgramWindow::publish() {
         return;
     }
 
-    auto basFilePath = *_private->filePath;
-    auto basFilename = util::getFileName(basFilePath);
-    auto publishDir = util::pathCombine(util::getDirectoryName(basFilePath), "publish");
-    util::createDirectory(publishDir);
-    auto programName = basFilename.size() > 4 ? basFilename.substr(0, basFilename.size() - 4) : basFilename;
-    auto pcode = program.vmProgram.serialize();
-
     try {
+        compiler::Publisher publisher{ program, *_private->filePath };
+
         for (auto platform : compiler::getTargetPlatforms()) {
             statusWindow.get()->labelTop->setTitle("Publishing:");
             statusWindow.get()->labelTop->drawView();
@@ -533,7 +497,7 @@ void ProgramWindow::publish() {
             statusWindow.get()->labelBottom->drawView();
             statusWindow.get()->drawView();
             TScreen::flushScreen();
-            publishPlatform(platform, programName, pcode, publishDir);
+            publisher.publish(platform);
         }
         statusWindow.get()->close();
         messageBox("Publish successful!", mfInformation | mfOKButton);

@@ -33,6 +33,7 @@ function downloadFile {
 # don't update these versions by hand. instead, run scripts/depsCheck.sh
 BINUTILS_VERSION=2.37
 BOOST_VERSION=1.83.0
+CLI11_VERSION=2.3.2
 CMAKE_VERSION=3.27.7
 FMT_VERSION=10.1.1
 GOOGLETEST_VERSION=1.14.0
@@ -52,6 +53,9 @@ downloadFile "binutils-$BINUTILS_VERSION.tar.gz" "https://ftp.gnu.org/gnu/binuti
 
 # https://boostorg.jfrog.io/artifactory/main/release/
 downloadFile "boost-$BOOST_VERSION.tar.gz" "https://boostorg.jfrog.io/artifactory/main/release/$BOOST_VERSION/source/boost_$(echo $BOOST_VERSION | tr '.' '_').tar.gz"
+
+# https://github.com/CLIUtils/CLI11/releases
+downloadFile "cli11-$CLI11_VERSION.hpp" "https://github.com/CLIUtils/CLI11/releases/download/v$CLI11_VERSION/CLI11.hpp"
 
 # https://github.com/Kitware/CMake/releases
 downloadFile "cmake-mac-$CMAKE_VERSION.tar.gz" "https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION-macos-universal.tar.gz"

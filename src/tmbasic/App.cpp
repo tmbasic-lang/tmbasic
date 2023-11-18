@@ -1,11 +1,16 @@
 #include "tmbasic/App.h"
 #include "../../obj/resources/help/helpfile.h"
+#include "../compiler/CompilerException.h"
+#include "../compiler/Publisher.h"
 #include "../compiler/SourceProgram.h"
+#include "../compiler/TargetPlatform.h"
+#include "../compiler/compileProgram.h"
 #include "../util/DialogPtr.h"
 #include "../util/StatusLine.h"
 #include "../util/ViewPtr.h"
 #include "../util/WindowPtr.h"
 #include "../util/membuf.h"
+#include "../util/path.h"
 #include "AboutDialog.h"
 #include "AddProgramItemDialog.h"
 #include "DesignerWindow.h"
@@ -812,19 +817,3 @@ void App::setPictureWindow(PictureWindow* pictureWindow) {
 }
 
 }  // namespace tmbasic
-
-static void go(int argc, char** argv) {
-    tmbasic::App app(argc, argv);
-    app.run();
-    app.shutDown();
-}
-
-int main(int argc, char** argv) {
-#ifdef _WIN32
-    SetConsoleTitle(TEXT("TMBASIC"));
-#else
-    setlocale(LC_ALL, "C.UTF-8");
-#endif
-    go(argc, argv);
-    return 0;
-}

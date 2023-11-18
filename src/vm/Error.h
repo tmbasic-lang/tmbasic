@@ -19,6 +19,7 @@ enum class ErrorCode {
     kPathIsDirectory = 105,     // ERR_PATH_IS_DIRECTORY
     kPathIsNotDirectory = 106,  // ERR_PATH_IS_NOT_DIRECTORY
     kDirectoryNotEmpty = 107,   // ERR_DIRECTORY_NOT_EMPTY
+    kInvalidPath = 108,         // ERR_INVALID_PATH
 
     // ICU
     kInternalIcuError = 200,   // ERR_INTERNAL_ICU_ERROR

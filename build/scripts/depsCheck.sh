@@ -119,6 +119,7 @@ echo '# depsDownload.sh'
 echo "BINUTILS_VERSION=2.37"
 
 checkJfrog "BOOST" "https://boostorg.jfrog.io/artifactory/main/release/"
+checkGitHubRelease "CLI11" "https://github.com/CLIUtils/CLI11/releases.atom"
 checkGitHubRelease "CMAKE" "https://github.com/Kitware/CMake/releases.atom"
 checkGitHubRelease "FMT" "https://github.com/fmtlib/fmt/releases.atom"
 checkGitHubRelease "GOOGLETEST" "https://github.com/google/googletest/releases.atom"
