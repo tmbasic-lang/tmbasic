@@ -3,6 +3,7 @@
 #include "../compiler/Publisher.h"
 #include "../compiler/TargetPlatform.h"
 #include "../compiler/compileProgram.h"
+#include "../util/console.h"
 
 #include <CLI11.hpp>
 
@@ -56,9 +57,7 @@ static void publishProgram(const std::string& filename, const std::vector<std::s
 }
 
 int main(int argc, char** argv) {
-#ifndef _WIN32
-    setlocale(LC_ALL, "C.UTF-8");
-#endif
+    util::setUtf8Locale();
 
     CLI::App cli{ "TMBASIC programming language" };
 

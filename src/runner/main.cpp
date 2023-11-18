@@ -1,4 +1,5 @@
 #include "../common.h"
+#include "util/console.h"
 #include "vm/Interpreter.h"
 #include "vm/Program.h"
 
@@ -6,6 +7,7 @@ extern uint8_t kResourcePcode[];  // NOLINT(cppcoreguidelines-avoid-c-arrays,mod
 extern uint kResourcePcode_len;
 
 int main(int /*argc*/, const char* /*argv*/[]) {
+    util::setUtf8Locale();
     std::vector<uint8_t> pcode{};
     pcode.reserve(kResourcePcode_len);
     // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
