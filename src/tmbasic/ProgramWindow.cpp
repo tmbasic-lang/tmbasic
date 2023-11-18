@@ -34,14 +34,11 @@
 using compiler::SourceMember;
 using compiler::SourceMemberType;
 using compiler::SourceProgram;
-using compiler::TargetPlatform;
 using util::DialogPtr;
 using util::Label;
 using util::ListViewer;
 using util::ViewPtr;
 using util::WindowPtr;
-using vm::deleteFile;
-using vm::getTempFilePath;
 using vm::Program;
 
 namespace tmbasic {

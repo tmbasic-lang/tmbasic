@@ -39,7 +39,8 @@ static void publishProgram(const std::string& filename, const std::vector<std::s
     compiler::compileProgram(source, &program);
 
     std::vector<compiler::TargetPlatform> publishPlatforms{};
-    for (auto& platformString : platformStrings) {
+    publishPlatforms.reserve(platformStrings.size());
+    for (const auto& platformString : platformStrings) {
         publishPlatforms.push_back(compiler::parsePlatformName(platformString));
     }
 

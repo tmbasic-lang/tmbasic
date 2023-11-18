@@ -41,23 +41,29 @@ const char* getPlatformName(TargetPlatform platform) {
 TargetPlatform parsePlatformName(const std::string& name) {
     if (name == "linux-arm32") {
         return TargetPlatform::kLinuxArm32;
-    } else if (name == "linux-arm64") {
-        return TargetPlatform::kLinuxArm64;
-    } else if (name == "linux-x86") {
-        return TargetPlatform::kLinuxX86;
-    } else if (name == "linux-x64") {
-        return TargetPlatform::kLinuxX64;
-    } else if (name == "mac-arm64") {
-        return TargetPlatform::kMacArm64;
-    } else if (name == "mac-x64") {
-        return TargetPlatform::kMacX64;
-    } else if (name == "win-x86") {
-        return TargetPlatform::kWinX86;
-    } else if (name == "win-x64") {
-        return TargetPlatform::kWinX64;
-    } else {
-        throw std::runtime_error{ "Unknown platform name: " + name };
     }
+    if (name == "linux-arm64") {
+        return TargetPlatform::kLinuxArm64;
+    }
+    if (name == "linux-x86") {
+        return TargetPlatform::kLinuxX86;
+    }
+    if (name == "linux-x64") {
+        return TargetPlatform::kLinuxX64;
+    }
+    if (name == "mac-arm64") {
+        return TargetPlatform::kMacArm64;
+    }
+    if (name == "mac-x64") {
+        return TargetPlatform::kMacX64;
+    }
+    if (name == "win-x86") {
+        return TargetPlatform::kWinX86;
+    }
+    if (name == "win-x64") {
+        return TargetPlatform::kWinX64;
+    }
+    throw std::runtime_error{ "Unknown platform name: " + name };
 }
 
 TargetPlatformArchiveType getTargetPlatformArchiveType(TargetPlatform platform) {

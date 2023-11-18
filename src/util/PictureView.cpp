@@ -3,23 +3,24 @@
 namespace util {
 
 static char parseHexNibble(char ch) {
+    int nibble = 0;
     if (ch >= '0' && ch <= '9') {
-        return ch - '0';
+        nibble = ch - '0';
+    } else if (ch >= 'a' && ch <= 'f') {
+        nibble = ch - 'a' + 10;
+    } else if (ch >= 'A' && ch <= 'F') {
+        nibble = ch - 'A' + 10;
+    } else {
+        throw std::runtime_error("Unexpected data in picture source.");
     }
-    if (ch >= 'a' && ch <= 'f') {
-        return ch - 'a' + 10;
-    }
-    if (ch >= 'A' && ch <= 'F') {
-        return ch - 'A' + 10;
-    }
-    return 0;
+    assert(nibble >= 0 && nibble <= 15);
+    return static_cast<char>(nibble);
 }
 
 static char parseHexByte(char hi, char lo) {
     char value = parseHexNibble(hi);
     value <<= 4;
-    value |= parseHexNibble(lo);
-    return value;
+    return static_cast<char>(value | parseHexNibble(lo));
 }
 
 Picture::Picture(int width, int height) : cells(width * height, PictureCell{}), width(width), height(height) {}
@@ -108,7 +109,7 @@ std::string Picture::exportToString() {
             auto changesBitMask = (previousChar != cell.ch ? 0x01 : 0) |
                 (previousTransparent != cell.transparent ? 0x02 : 0) | (previousFg != fg ? 0x04 : 0) |
                 (previousBg != bg ? 0x08 : 0);
-            char command = 'A' + changesBitMask;
+            char command = static_cast<char>('A' + changesBitMask);
 
             s << command;
 
