@@ -20,10 +20,6 @@ RUN apk update && \
         linux-headers \
         texinfo
 
-# unprivileged user
-RUN (addgroup -g $HOST_GID user || true) && \
-    (adduser -h /home/user -s /bin/bash -g $HOST_GID -u $HOST_UID -D user || true)
-
 # sysroot
 COPY sysroot-$ARCH.tar.gz /tmp/sysroot.tar.gz
 RUN mkdir /target-sysroot && \
@@ -66,5 +62,4 @@ RUN echo "export ARCH=\"$ARCH\"" >> /etc/profile.d/tmbasic.sh && \
 FROM scratch AS second-stage
 COPY --from=first-stage / /
 
-USER $HOST_UID
 ENTRYPOINT ["/bin/bash", "-l"]

@@ -45,14 +45,6 @@ RUN chmod +x /tmp/mingw.sh && \
 RUN apt-get remove --purge -y \
         file gcc-10 g++-10 zlib1g-dev libssl-dev libgmp-dev libmpfr-dev libmpc-dev libisl-dev python-lxml python-mako
 
-# unprivileged user
-RUN mkdir -p /code && \
-    (groupadd -g $HOST_GID user || true) && \
-    (useradd -r -u $HOST_UID -g $HOST_GID user || true) && \
-    chown $HOST_UID:$HOST_GID /code && \
-    mkdir -p /home/user && \
-    chown $HOST_UID:$HOST_GID /home/user
-
 # extra utilities
 RUN apt-get install -y \
         unzip \
@@ -97,5 +89,4 @@ RUN echo "export ARCH=\"$ARCH\"" >> /etc/profile.d/tmbasic.sh && \
 FROM scratch AS second-stage
 COPY --from=first-stage / /
 
-USER $HOST_UID
 ENTRYPOINT ["/bin/bash", "-l"]
