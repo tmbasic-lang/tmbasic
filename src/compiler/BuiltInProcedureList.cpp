@@ -34,10 +34,8 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("Asin", { "x" }, { number }, number, SystemCall::kAsin);
     addFunction("Atan", { "x" }, { number }, number, SystemCall::kAtan);
     addFunction("Atan2", { "y", "x" }, { number, number }, number, SystemCall::kAtan2);
-    addFunction("AvailableLocales", {}, {}, listOfString, SystemCall::kAvailableLocales);
-    addFunction("AvailableTimeZones", {}, {}, listOfString, SystemCall::kAvailableTimeZones);
     addFunction("Ceil", { "x" }, { number }, number, SystemCall::kCeil);
-    addFunction("Characters", { "this" }, { string }, listOfString, SystemCall::kCharacters1);
+    addFunction("Characters", { "this" }, { string }, listOfString, SystemCall::kCharacters);
     addFunction("Chr", { "input" }, { number }, string, SystemCall::kChr);
     addFunction("CodePoints", { "input" }, { string }, listOfNumber, SystemCall::kCodePoints);
     addFunction("CodeUnit", { "input" }, { string }, number, SystemCall::kCodeUnit1);
@@ -55,8 +53,8 @@ BuiltInProcedureList::BuiltInProcedureList() {
         "DateTimeFromParts", { "year", "month", "day", "hour", "minute", "second", "millisecond" },
         { number, number, number, number, number, number, number }, dateTime, SystemCall::kDateTimeFromParts);
     addFunction(
-        "DateTimeOffsetFromParts", { "year", "month", "day", "hour", "minute", "second", "millisecond", "timeZone" },
-        { number, number, number, number, number, number, number, timeZone }, dateTimeOffset,
+        "DateTimeOffsetFromParts", { "year", "month", "day", "hour", "minute", "second", "millisecond", "utcOffset" },
+        { number, number, number, number, number, number, number, timeSpan }, dateTimeOffset,
         SystemCall::kDateTimeOffsetFromParts);
     addFunction("Days", { "count" }, { number }, timeSpan, SystemCall::kDays);
     addSub("DeleteDirectory", { "path" }, { string }, SystemCall::kDeleteDirectory1);

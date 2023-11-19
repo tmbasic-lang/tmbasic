@@ -9,11 +9,12 @@ A mirror of third party library sources is available in a [requester-pays](https
 
 Component | License
 -- | --
+[abseil](https://abseil.io) | [Apache-2.0](https://github.com/electroly/tmbasic/blob/master/doc/licenses/abseil/LICENSE)
 [boost](https://www.boost.org/) | [BSL-1.0](https://github.com/electroly/tmbasic/blob/master/doc/licenses/boost/LICENSE_1_0.txt)
 [fmt](https://github.com/fmtlib/fmt) | [MIT](https://github.com/electroly/tmbasic/blob/master/doc/licenses/fmt/LICENSE.rst)
-[icu](http://site.icu-project.org/) | [ICU](https://github.com/electroly/tmbasic/blob/master/doc/licenses/icu/LICENSE)
 [immer](https://github.com/arximboldi/immer) | [BSL-1.0](https://github.com/electroly/tmbasic/blob/master/doc/licenses/immer/LICENSE)
 [libstdc++](https://gcc.gnu.org/onlinedocs/libstdc++/) | [GPL-3.0-only](https://github.com/electroly/tmbasic/blob/master/doc/licenses/gcc/GPL-3) WITH [GCC-exception-3.1](https://github.com/electroly/tmbasic/blob/master/doc/licenses/gcc/copyright)
+[libunistring][https://www.gnu.org/software/libunistring/manual/libunistring.html] | [LGPL-3.0-only](https://github.com/electroly/tmbasic/blob/master/doc/licenses/libunistring/COPYING.LIB)
 [mpdecimal](https://www.bytereef.org/mpdecimal/) | [BSD-2-Clause](https://github.com/electroly/tmbasic/blob/master/doc/licenses/mpdecimal/LICENSE.txt)
 [musl](https://musl.libc.org/) | [MIT](https://github.com/electroly/tmbasic/blob/master/doc/licenses/musl/COPYRIGHT)
 [ncurses](https://invisible-island.net/ncurses/) | [X11](https://github.com/electroly/tmbasic/blob/master/doc/licenses/ncurses/COPYING)

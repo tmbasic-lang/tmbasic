@@ -692,18 +692,16 @@ static void emitConvertExpression(const ConvertExpressionNode& expressionNode, P
     }
 
     if (srcKind == Kind::kDateTimeOffset) {
-        // A DateTimeOffset is a record where the first field is the DateTime.
-        state->recordGetValue(0);
-
         // DateTimeOffset -> Date
         if (dstKind == Kind::kDate) {
-            state->syscall(Opcode::kSystemCallV, SystemCall::kDateTimeToDate, 1, 0);
+            state->syscall(Opcode::kSystemCallV, SystemCall::kDateTimeOffsetToDate, 1, 0);
             return;
         }
 
         // DateTimeOffset -> DateTime
         if (dstKind == Kind::kDateTime) {
-            return;  // Good to go.
+            state->syscall(Opcode::kSystemCallV, SystemCall::kDateTimeOffsetToDateTime, 1, 0);
+            return;
         }
     }
 
@@ -1126,17 +1124,11 @@ static void emitDefaultValue(const TypeNode& type, ProcedureState* state) {
         case Kind::kBoolean:
         case Kind::kDate:
         case Kind::kDateTime:
+        case Kind::kDateTimeOffset:
         case Kind::kNumber:
         case Kind::kTimeSpan:
             // handled above already
             assert(false);
-            break;
-
-        // a DateTimeOffset is a record with two values
-        case Kind::kDateTimeOffset:
-            state->pushImmediateInt64(0);
-            state->pushImmediateInt64(0);
-            state->recordNew(2, 0);
             break;
 
         case Kind::kList:
@@ -1617,7 +1609,7 @@ static void emitPrint(const TypeNode& type, const Token& token, ProcedureState* 
             state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
             break;
         case Kind::kDateTimeOffset:
-            state->syscall(Opcode::kSystemCallO, SystemCall::kDateTimeOffsetToString, 0, 1);
+            state->syscall(Opcode::kSystemCallO, SystemCall::kDateTimeOffsetToString, 1, 0);
             state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
             break;
         case Kind::kTimeSpan:

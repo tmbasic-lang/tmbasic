@@ -1,21 +1,21 @@
 .procedure StringFromCodeUnits
 .category Strings
-.blurb Creates a string from a list of UTF-16 code units.
+.blurb Creates a string from a list of UTF-8 code units.
 .description
-Creates a string from a list of UTF-16 code units.
+Creates a string from a list of UTF-8 code units.
 To convert the string back into a list of code units, use the p[CodeUnits] function.
 
 Warning: Correct usage of this function requires deep Unicode knowledge.
 Consider using the p[Characters] and p[Concat] functions instead.
 .overload
 .parameter codeUnits: List of Number
-List of UTF-16 code units.
+List of UTF-8 code units.
 .return String
 String created from i[codeUnits].
 .example
 .example-code
-' The emoji 💎 in UTF-16 has two code units: 55357, 56462
-print StringFromCodeUnits([65, 55357, 56462])
+' The emoji 💎 in UTF-8 has four code units: 0xF0 0x9F 0x92 0x8E
+print StringFromCodeUnits([65, 240, 159, 146, 142])
 .example-output
 A💎
 .

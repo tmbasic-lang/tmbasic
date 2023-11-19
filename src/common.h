@@ -2,16 +2,22 @@
 #ifndef COMMON_H_
 #define COMMON_H_
 
-#define U_HIDE_DEPRECATED_API 1
-#include <unicode/brkiter.h>
-#include <unicode/calendar.h>
-#include <unicode/coll.h>
-#include <unicode/simpletz.h>
-#include <unicode/timezone.h>
-#include <unicode/utypes.h>
+// libunistring
+#include <unitypes.h>
+#include <unistr.h>
+#include <unigbrk.h>
+#include <uniwbrk.h>
+#include <unicase.h>
 
+// libabseil_time
+#include <absl/time/time.h>
+#include <absl/time/civil_time.h>
+#include <absl/time/clock.h>
+
+// mpdecimal
 #include <decimal.hh>
 
+// tvision
 #define Uses_MsgBox
 #define Uses_TApplication
 #define Uses_TBackground
@@ -53,11 +59,13 @@
 #include <tvision/tv.h>
 #include <tvision/help.h>
 
+// C standard library
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
 #include <ctime>
 
+// C++ standard library
 #include <algorithm>
 #include <array>
 #include <chrono>
@@ -83,10 +91,12 @@
 #include <variant>
 #include <vector>
 
+// boost
 #include <boost/algorithm/string.hpp>
 #include <boost/smart_ptr/local_shared_ptr.hpp>
 #include <boost/smart_ptr/make_local_shared.hpp>
 
+// immer
 #define IMMER_NO_FREE_LIST 1      // NOLINT
 #define IMMER_NO_THREAD_SAFETY 1  // NOLINT
 #include <immer/array.hpp>
@@ -96,10 +106,13 @@
 #include <immer/vector.hpp>
 #include <immer/vector_transient.hpp>
 
+// nameof
 #include <nameof.hpp>
 
+// fmt
 #include <fmt/format.h>
 
+// turbo
 #include <turbo/turbo.h>
 #include <turbo/scintilla/include/SciLexer.h>
 

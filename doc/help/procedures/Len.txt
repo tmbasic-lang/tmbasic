@@ -1,8 +1,8 @@
 .procedure Len
 .category Strings
-.blurb Returns the number of 16-bit Unicode code units in a t[String].
+.blurb Returns the number of bytes (UTF-8 code units) in a t[String].
 .description
-Returns the number of 16-bit Unicode code units in a t[String].
+Returns the number of bytes (UTF-8 code units) in a t[String].
 .overload
 .parameter this: String
 Any t[String] value.

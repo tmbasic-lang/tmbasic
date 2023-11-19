@@ -15,15 +15,12 @@ enum class SystemCall {
     kAsin,                          // (x as Number) as Number
     kAtan,                          // (x as Number) as Number
     kAtan2,                         // (y as Number, x as Number) as Number
-    kAvailableLocales,              // () as List of String
-    kAvailableTimeZones,            // () as List of String
     kBooleanAnd,                    // (x as Boolean, y as Boolean) as Boolean
     kBooleanNot,                    // (x as Boolean) as Boolean
     kBooleanOr,                     // (x as Boolean, y as Boolean) as Boolean
     kBooleanToString,               // (x as Boolean) as String
     kCeil,                          // (x as Number) as Number
-    kCharacters1,                   // (input as String) as List of String
-    kCharacters2,                   // (input as String, locale as String) as List of String
+    kCharacters,                    // (input as String) as List of String
     kChr,                           // (input as Number) as String
     kCodePoints,                    // (input as String) as List of Number
     kCodeUnit1,                     // (input as String) as Number
@@ -39,6 +36,8 @@ enum class SystemCall {
     kDateFromParts,                 // (year as Number, month as Number, day as Number) as Date
     kDateTimeFromParts,             // (year as Number, ...) as DateTime
     kDateTimeOffsetFromParts,       // (year as N ... timeZone as TimeZone) as DateTimeOffset
+    kDateTimeOffsetToDateTime,      // (dateTimeOffset as DateTimeOffset) as DateTime
+    kDateTimeOffsetToDate,          // (dateTimeOffset as DateTimeOffset) as Date
     kDateTimeOffsetToString,        // (dateTimeOffset as DateTimeOffset) as String
     kDateTimeToDate,                // (dateTime as DateTime) as Date
     kDateTimeToString,              // (dateTime as DateTime) as String
@@ -133,7 +132,7 @@ enum class SystemCall {
     kTotalMinutes,                  // (timeSpan as TimeSpan) as Number
     kTotalSeconds,                  // (timeSpan as TimeSpan) as Number
     kTrunc,                         // (x as Number) as Number
-    kUtcOffset,                     // (timeZone as TimeZone, dateTime as DateTime) as TimeSpan
+    kUtcOffsets,                    // (timeZone as TimeZone, dateTime as DateTime) as List of TimeSpan
     kValue,                         // (input as Optional T) as T
     kValueListAdd,                  // (lhs as ValueList, rhs as Value) as ValueList
     kValueListBuilderAdd,           // (builder as ValueListBuilder, value as Value)

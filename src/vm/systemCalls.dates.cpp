@@ -7,55 +7,125 @@
 
 namespace vm {
 
-static void systemCallAvailableTimeZones(const SystemCallInput& /*unused*/, SystemCallResult* result) {
-    auto status = U_ZERO_ERROR;
-    auto iter = std::unique_ptr<icu::StringEnumeration>(icu::TimeZone::createEnumeration(status));
-    if (U_FAILURE(status)) {
-        throw Error(ErrorCode::kInternalIcuError, "Failed to retrieve the time zone list from ICU.");
+static void validateYear(int64_t year) {
+    if (year < 0) {
+        throw Error(ErrorCode::kInvalidDateTime, "The year must be non-negative.");
     }
+}
 
-    auto objectListBuilder = ObjectListBuilder();
-    const char* item = nullptr;
-    while ((item = iter->next(nullptr, status)) != nullptr) {
-        objectListBuilder.items.push_back(boost::make_local_shared<String>(item, strlen(item)));
+static void validateMonth(int64_t month) {
+    if (month < 1 || month > 12) {
+        throw Error(ErrorCode::kInvalidDateTime, "The month must be between 1 and 12.");
     }
+}
 
-    result->returnedObject = boost::make_local_shared<ObjectList>(&objectListBuilder);
+static void validateDay(int64_t day) {
+    if (day < 1 || day > 31) {
+        throw Error(ErrorCode::kInvalidDateTime, "The day must be between 1 and 31.");
+    }
+}
+
+static void validateHour(int64_t hour) {
+    if (hour < 0 || hour > 23) {
+        throw Error(ErrorCode::kInvalidDateTime, "The hour must be between 0 and 23.");
+    }
+}
+
+static void validateMinute(int64_t minute) {
+    if (minute < 0 || minute > 59) {
+        throw Error(ErrorCode::kInvalidDateTime, "The minute must be between 0 and 59.");
+    }
+}
+
+static void validateSecond(int64_t second) {
+    if (second < 0 || second > 59) {
+        throw Error(ErrorCode::kInvalidDateTime, "The second must be between 0 and 59.");
+    }
+}
+
+static void validateMillisecond(int64_t millisecond) {
+    if (millisecond < 0 || millisecond > 999) {
+        throw Error(ErrorCode::kInvalidDateTime, "The millisecond must be between 0 and 999.");
+    }
 }
 
 void initSystemCallsDates() {
-    initSystemCall(SystemCall::kAvailableTimeZones, systemCallAvailableTimeZones);
-
     initSystemCall(SystemCall::kDateFromParts, [](const auto& input, auto* result) {
-        auto year = input.getValue(-3).getInt32();
-        auto month = input.getValue(-2).getInt32();
-        auto day = input.getValue(-1).getInt32();
-        result->returnedValue = newDate(year, month, day);
+        auto year = input.getValue(-3).getInt64();
+        validateYear(year);
+
+        auto month = input.getValue(-2).getInt64();
+        validateMonth(month);
+
+        auto day = input.getValue(-1).getInt64();
+        validateDay(day);
+
+        DateTimeParts parts{
+            static_cast<uint32_t>(year), static_cast<uint32_t>(month), static_cast<uint32_t>(day), 0, 0, 0, 0
+        };
+        result->returnedValue = convertDateTimePartsToValue(parts);
     });
 
     initSystemCall(SystemCall::kDateTimeFromParts, [](const auto& input, auto* result) {
-        auto year = input.getValue(-7).getInt32();
-        auto month = input.getValue(-6).getInt32();
-        auto day = input.getValue(-5).getInt32();
-        auto hour = input.getValue(-4).getInt32();
-        auto minute = input.getValue(-3).getInt32();
-        auto second = input.getValue(-2).getInt32();
-        auto millisecond = input.getValue(-1).getInt32();
-        result->returnedValue = newDateTime(year, month, day, hour, minute, second, millisecond);
+        auto year = input.getValue(-7).getInt64();
+        validateYear(year);
+
+        auto month = input.getValue(-6).getInt64();
+        validateMonth(month);
+
+        auto day = input.getValue(-5).getInt64();
+        validateDay(day);
+
+        auto hour = input.getValue(-4).getInt64();
+        validateHour(hour);
+
+        auto minute = input.getValue(-3).getInt64();
+        validateMinute(minute);
+
+        auto second = input.getValue(-2).getInt64();
+        validateSecond(second);
+
+        auto millisecond = input.getValue(-1).getInt64();
+        validateMillisecond(millisecond);
+
+        DateTimeParts parts{ static_cast<uint32_t>(year),       static_cast<uint32_t>(month),
+                             static_cast<uint32_t>(day),        static_cast<uint32_t>(hour),
+                             static_cast<uint32_t>(minute),     static_cast<uint32_t>(second),
+                             static_cast<uint32_t>(millisecond) };
+
+        result->returnedValue = convertDateTimePartsToValue(parts);
     });
 
     initSystemCall(SystemCall::kDateTimeOffsetFromParts, [](const auto& input, auto* result) {
-        auto year = input.getValue(-7).getInt32();
-        auto month = input.getValue(-6).getInt32();
-        auto day = input.getValue(-5).getInt32();
-        auto hour = input.getValue(-4).getInt32();
-        auto minute = input.getValue(-3).getInt32();
-        auto second = input.getValue(-2).getInt32();
-        auto millisecond = input.getValue(-1).getInt32();
-        const auto& timeZone = dynamic_cast<const TimeZone&>(input.getObject(-1));
-        auto dateTime = newDateTime(year, month, day, hour, minute, second, millisecond);
-        Value offset{ timeZone.getUtcOffset(dateTime.num) };
-        result->returnedObject = newDateTimeOffset(dateTime, offset);
+        auto year = input.getValue(-8).getInt64();
+        validateYear(year);
+
+        auto month = input.getValue(-7).getInt64();
+        validateMonth(month);
+
+        auto day = input.getValue(-6).getInt64();
+        validateDay(day);
+
+        auto hour = input.getValue(-5).getInt64();
+        validateHour(hour);
+
+        auto minute = input.getValue(-4).getInt64();
+        validateMinute(minute);
+
+        auto second = input.getValue(-3).getInt64();
+        validateSecond(second);
+
+        auto millisecond = input.getValue(-2).getInt64();
+        validateMillisecond(millisecond);
+
+        auto offsetMilliseconds = input.getValue(-1).getInt64();
+
+        DateTimeOffsetParts parts{ static_cast<uint32_t>(year),        static_cast<uint32_t>(month),
+                                   static_cast<uint32_t>(day),         static_cast<uint32_t>(hour),
+                                   static_cast<uint32_t>(minute),      static_cast<uint32_t>(second),
+                                   static_cast<uint32_t>(millisecond), offsetMilliseconds };
+
+        result->returnedValue = convertDateTimeOffsetPartsToValue(parts);
     });
 
     initSystemCall(SystemCall::kDateTimeToDate, [](const auto& input, auto* result) {
@@ -74,16 +144,26 @@ void initSystemCallsDates() {
     });
 
     initSystemCall(SystemCall::kDateTimeOffsetToString, [](const auto& input, auto* result) {
-        const auto& date = dynamic_cast<const Record&>(input.getObject(-1));
-        result->returnedObject = dateTimeOffsetToString(date);
+        const auto& dateTimeOffset = input.getValue(-1);
+        result->returnedObject = dateTimeOffsetToString(dateTimeOffset);
+    });
+
+    initSystemCall(SystemCall::kDateTimeOffsetToDateTime, [](const auto& input, auto* result) {
+        const auto& dateTimeOffset = input.getValue(-1);
+        result->returnedValue = dateTimeOffsetToDateTime(dateTimeOffset);
+    });
+
+    initSystemCall(SystemCall::kDateTimeOffsetToDate, [](const auto& input, auto* result) {
+        const auto& dateTimeOffset = input.getValue(-1);
+        result->returnedValue = dateTimeOffsetToDate(dateTimeOffset);
     });
 
     initSystemCall(SystemCall::kDays, [](const auto& input, auto* result) {
-        result->returnedValue.num = input.getValue(-1).num * U_MILLIS_PER_DAY;
+        result->returnedValue.num = input.getValue(-1).num * MSEC_PER_DAY;
     });
 
     initSystemCall(SystemCall::kHours, [](const auto& input, auto* result) {
-        result->returnedValue.num = input.getValue(-1).num * U_MILLIS_PER_HOUR;
+        result->returnedValue.num = input.getValue(-1).num * MSEC_PER_HOUR;
     });
 
     initSystemCall(SystemCall::kMilliseconds, [](const auto& input, auto* result) {
@@ -91,11 +171,11 @@ void initSystemCallsDates() {
     });
 
     initSystemCall(SystemCall::kMinutes, [](const auto& input, auto* result) {
-        result->returnedValue.num = input.getValue(-1).num * U_MILLIS_PER_MINUTE;
+        result->returnedValue.num = input.getValue(-1).num * MSEC_PER_MINUTE;
     });
 
     initSystemCall(SystemCall::kSeconds, [](const auto& input, auto* result) {
-        result->returnedValue.num = input.getValue(-1).num * U_MILLIS_PER_SECOND;
+        result->returnedValue.num = input.getValue(-1).num * MSEC_PER_SECOND;
     });
 
     initSystemCall(SystemCall::kTimeSpanToString, [](const auto& input, auto* result) {
@@ -104,27 +184,27 @@ void initSystemCallsDates() {
 
     initSystemCall(SystemCall::kTimeZoneToString, [](const auto& input, auto* result) {
         const auto& timeZone = dynamic_cast<const TimeZone&>(input.getObject(-1));
-        icu::UnicodeString name{};
-        timeZone.zone->getDisplayName(name);
-        result->returnedObject = boost::make_local_shared<String>(std::move(name));
+        result->returnedObject = boost::make_local_shared<String>(timeZone.zone->name());
     });
 
     initSystemCall(SystemCall::kTimeZoneFromName, [](const auto& input, auto* result) {
         const auto& name = dynamic_cast<const String&>(input.getObject(-1));
-        auto icuTimeZone = std::unique_ptr<icu::TimeZone>(icu::TimeZone::createTimeZone(name.value));
-        icu::UnicodeString nameString;
-        if ((icuTimeZone->getID(nameString) == UCAL_UNKNOWN_ZONE_ID) != 0) {
+
+        auto time_zone_ptr = std::make_unique<absl::TimeZone>();
+        auto success = absl::LoadTimeZone(name.value, time_zone_ptr.get());
+        if (!success) {
             throw Error(ErrorCode::kInvalidTimeZone, "The specified time zone was not found.");
         }
-        result->returnedObject = boost::make_local_shared<TimeZone>(std::move(icuTimeZone));
+
+        result->returnedObject = boost::make_local_shared<TimeZone>(std::move(time_zone_ptr));
     });
 
     initSystemCall(SystemCall::kTotalDays, [](const auto& input, auto* result) {
-        result->returnedValue.num = input.getValue(-1).num / U_MILLIS_PER_DAY;
+        result->returnedValue.num = input.getValue(-1).num / MSEC_PER_DAY;
     });
 
     initSystemCall(SystemCall::kTotalHours, [](const auto& input, auto* result) {
-        result->returnedValue.num = input.getValue(-1).num / U_MILLIS_PER_HOUR;
+        result->returnedValue.num = input.getValue(-1).num / MSEC_PER_HOUR;
     });
 
     initSystemCall(SystemCall::kTotalMilliseconds, [](const auto& input, auto* result) {
@@ -132,17 +212,23 @@ void initSystemCallsDates() {
     });
 
     initSystemCall(SystemCall::kTotalMinutes, [](const auto& input, auto* result) {
-        result->returnedValue.num = input.getValue(-1).num / U_MILLIS_PER_MINUTE;
+        result->returnedValue.num = input.getValue(-1).num / MSEC_PER_MINUTE;
     });
 
     initSystemCall(SystemCall::kTotalSeconds, [](const auto& input, auto* result) {
-        result->returnedValue.num = input.getValue(-1).num / U_MILLIS_PER_SECOND;
+        result->returnedValue.num = input.getValue(-1).num / MSEC_PER_SECOND;
     });
 
-    initSystemCall(SystemCall::kUtcOffset, [](const auto& input, auto* result) {
+    initSystemCall(SystemCall::kUtcOffsets, [](const auto& input, auto* result) {
         const auto& timeZone = dynamic_cast<const TimeZone&>(input.getObject(-1));
-        const auto& dateTime = input.getValue(-1);
-        result->returnedValue.num = timeZone.getUtcOffset(dateTime.num);
+        const auto& dateTimeValue = input.getValue(-1);
+        auto dateTimeParts = convertValueToDateTimeParts(dateTimeValue);
+        auto offsets = timeZone.getUtcOffsets(dateTimeParts);
+        ValueListBuilder builder{};
+        for (const auto& offset : offsets) {
+            builder.items.push_back(Value{ offset });
+        }
+        result->returnedObject = boost::make_local_shared<ValueList>(&builder);
     });
 }
 

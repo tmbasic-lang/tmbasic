@@ -2,29 +2,25 @@
 
 namespace vm {
 
-static const char* convertUint8ToInt8(const uint8_t* x) {
-    return reinterpret_cast<const char*>(x);  // NOLINT
-}
-
 String::String() : value() {}
 
-String::String(const std::string& utf8) : value(icu::UnicodeString::fromUTF8(utf8)) {}
+String::String(const std::string& utf8) : value(utf8) {}
 
-String::String(icu::UnicodeString utf16) : value(std::move(utf16)) {}
+String::String(const uint8_t* utf8, int length) : value(reinterpret_cast<const char*>(utf8), length) {}
 
-String::String(const uint8_t* utf8, int length)
-    : value(icu::UnicodeString::fromUTF8(icu::StringPiece(convertUint8ToInt8(utf8), length))) {}
+String::String(const char* utf8, int length) : value(utf8, length) {}
 
-String::String(const char* utf8, int length) : value(icu::UnicodeString::fromUTF8(icu::StringPiece(utf8, length))) {}
-
-String::String(const char* utf8) : value(icu::UnicodeString::fromUTF8(utf8)) {}
+String::String(const char* utf8) : value(utf8) {}
 
 ObjectType String::getObjectType() const {
     return ObjectType::kString;
 }
 
 size_t String::getHash() const {
-    return value.hashCode();
+    if (!_hash.has_value()) {
+        _hash = std::hash<std::string>{}(value);
+    }
+    return *_hash;
 }
 
 bool String::equals(const Object& other) const {
@@ -35,10 +31,8 @@ bool String::equals(const Object& other) const {
     return (value == otherString.value) != 0;
 }
 
-std::string String::toUtf8() const {
-    std::string str;
-    value.toUTF8String<std::string>(str);
-    return str;
+const uint8_t* String::getUnistring() const {
+    return reinterpret_cast<const uint8_t*>(value.c_str());
 }
 
 }  // namespace vm

@@ -114,6 +114,8 @@ function checkGcc {
 echo
 echo '# depsDownload.sh'
 
+checkGitHubCommit "ABSEIL" "https://github.com/abseil/abseil-cpp/commits.atom"
+
 # Build breaks on 2.38 and 2.39 and I don't know why, so let's pin to the last good version.
 #checkGnu "binutils-" "BINUTILS" "https://ftp.gnu.org/gnu/binutils/"
 echo "BINUTILS_VERSION=2.37"
@@ -123,8 +125,8 @@ checkGitHubRelease "CLI11" "https://github.com/CLIUtils/CLI11/releases.atom"
 checkGitHubRelease "CMAKE" "https://github.com/Kitware/CMake/releases.atom"
 checkGitHubRelease "FMT" "https://github.com/fmtlib/fmt/releases.atom"
 checkGitHubRelease "GOOGLETEST" "https://github.com/google/googletest/releases.atom"
-checkGitHubRelease "ICU" "https://github.com/unicode-org/icu/releases.atom"
 checkGitHubRelease "IMMER" "https://github.com/arximboldi/immer/releases.atom"
+checkGnu "libunistring-" "LIBUNISTRING" "https://ftp.gnu.org/gnu/libunistring/"
 checkGitHubRelease "LIBZIP" "https://github.com/nih-at/libzip/releases.atom"
 checkGitHubCommit "MICROTAR" "https://github.com/rxi/microtar/commits.atom"
 checkMpdecimal "MPDECIMAL" "https://www.bytereef.org/mpdecimal/download.html"

@@ -12,11 +12,15 @@ struct Value {
     inline explicit Value(double num) : num(util::doubleToDecimal(num)) {}
     inline explicit Value(int32_t num) : num(num) {}
     inline explicit Value(int64_t num) : num(num) {}
+    inline explicit Value(uint32_t num) : num(num) {}
+    inline explicit Value(uint64_t num) : num(num) {}
     inline std::string getString() const { return util::decimalToString(num); }
     inline bool getBoolean() const { return num != 0; }
     inline void setBoolean(bool value) { num = value ? 1 : 0; }
     inline int32_t getInt32() const { return num.floor().i32(); }
     inline int64_t getInt64() const { return num.floor().i64(); }
+    inline uint32_t getUint32() const { return num.floor().u32(); }
+    inline uint64_t getUint64() const { return num.floor().u64(); }
     inline double getDouble() const { return util::decimalToDouble(num); }
     inline void setDouble(double value) { num = util::doubleToDecimal(value); }
     inline bool operator==(const Value& rhs) const { return num == rhs.num; }

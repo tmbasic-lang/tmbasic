@@ -7,17 +7,19 @@ namespace vm {
 
 class String : public Object {
    public:
-    const icu::UnicodeString value;
+    const std::string value;  // UTF-8
     String();
     explicit String(const std::string& utf8);
-    explicit String(icu::UnicodeString utf16);
     String(const uint8_t* utf8, int length);
     String(const char* utf8, int length);
     explicit String(const char* utf8);
     ObjectType getObjectType() const override;
     size_t getHash() const override;
     bool equals(const Object& other) const override;
-    std::string toUtf8() const;
+    const uint8_t* getUnistring() const;
+
+   private:
+    mutable std::optional<size_t> _hash{};  // lazy
 };
 
 }  // namespace vm

@@ -7,11 +7,12 @@ The following components are included in the TMBASIC development environment and
 You must obey the licenses of these open source components when you share your compiled programs.
 
 ul@li@{tmbasic:license_tmbasic}@
+li@{abseil:license_abseil}@
 li@{boost:license_boost}@
 li@{fmt:license_fmt}@
-li@{icu:license_icu}@
 li@{immer:license_immer}@
 li@libstdc++ - {Part 1:license_libstdcxx1}, {Part 2:license_libstdcxx2}, {Part 3:license_libstdcxx3}@
+li@libunistring - {Part 1:license_libunistring_lgpl}, {Part 2:license_libunistring_gpl}@
 li@{mpdecimal:license_mpdecimal}@
 li@{musl:license_musl}@
 li@{ncurses:license_ncurses}@

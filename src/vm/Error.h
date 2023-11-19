@@ -21,11 +21,9 @@ enum class ErrorCode {
     kDirectoryNotEmpty = 107,   // ERR_DIRECTORY_NOT_EMPTY
     kInvalidPath = 108,         // ERR_INVALID_PATH
 
-    // ICU
-    kInternalIcuError = 200,   // ERR_INTERNAL_ICU_ERROR
-    kInvalidDateTime = 201,    // ERR_INVALID_DATETIME
-    kInvalidTimeZone = 202,    // ERR_INVALID_TIMEZONE
-    kInvalidLocaleName = 203,  // ERR_INVALID_LOCALE_NAME
+    // Strings
+    kInternalUnicodeError = 200,     // ERR_INTERNAL_UNICODE_ERROR
+    kInvalidUnicodeCodePoint = 201,  // ERR_INVALID_UNICODE_CODE_POINT
 
     // Collections
     kMapKeyNotFound = 300,         // ERR_MAP_KEY_NOT_FOUND
@@ -38,6 +36,10 @@ enum class ErrorCode {
     kFormNotFound = 400,        // ERR_FORM_NOT_FOUND
     kControlNotFound = 401,     // ERR_CONTROL_NOT_FOUND
     kInvalidControlType = 402,  // ERR_INVALID_CONTROL_TYPE
+
+    // Dates/times
+    kInvalidDateTime = 500,  // ERR_INVALID_DATETIME
+    kInvalidTimeZone = 501,  // ERR_INVALID_TIMEZONE
 };
 
 class Error : public std::runtime_error {

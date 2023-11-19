@@ -207,6 +207,7 @@ bool TypeNode::isValueType() const {
         case Kind::kBoolean:
         case Kind::kDate:
         case Kind::kDateTime:
+        case Kind::kDateTimeOffset:
         case Kind::kTimeSpan:
         case Kind::kForm:
         case Kind::kControl:

@@ -1,13 +1,14 @@
 # set by caller: $(ARCH) $(TARGET_OS) $(TARGET_PREFIX) $(NATIVE_PREFIX) $(TARGET_COMPILER_PREFIX) $(DOWNLOAD_DIR)
 # $NATIVE_PREFIX/bin should be in the $PATH
 
+ABSEIL_DIR=$(PWD)/abseil
 BINUTILS_DIR=$(PWD)/binutils
 BOOST_DIR=$(PWD)/boost
 CLI11_DIR=$(PWD)/cli11
 FMT_DIR=$(PWD)/fmt
 GOOGLETEST_DIR=$(PWD)/googletest
-ICU_DIR=$(PWD)/icu
 IMMER_DIR=$(PWD)/immer
+LIBUNISTRING_DIR=$(PWD)/libunistring
 LIBZIP_DIR=$(PWD)/libzip
 MICROTAR_DIR=$(PWD)/microtar
 MPDECIMAL_DIR=$(PWD)/mpdecimal
@@ -113,12 +114,13 @@ endif
 
 .PHONY: all
 all: \
+	$(ABSEIL_DIR)/install \
 	$(BOOST_DIR)/install \
 	$(CLI11_DIR)/install \
 	$(FMT_DIR)/install \
 	$(GOOGLETEST_DIR)/install \
-	$(ICU_DIR)/install \
 	$(IMMER_DIR)/install \
+	$(LIBUNISTRING_DIR)/install \
 	$(LIBZIP_DIR)/install \
 	$(MICROTAR_DIR)/install \
 	$(MPDECIMAL_DIR)/install \
@@ -283,70 +285,6 @@ $(GOOGLETEST_DIR)/install: $(GOOGLETEST_DIR)/download $(CMAKE_DIR)/install $(BIN
 			$(CMAKE_TOOLCHAIN_FLAG) && \
 		$(MAKE) && \
 		$(MAKE) install
-	touch $@
-
-
-
-# icu -----------------------------------------------------------------------------------------------------------------
-
-$(ICU_DIR)/download:
-	tar zxf $(DOWNLOAD_DIR)/icu-*.tar.gz
-	cp -f $(DOWNLOAD_DIR)/config.guess $(ICU_DIR)/source/config.guess
-	cp -f $(DOWNLOAD_DIR)/config.sub $(ICU_DIR)/source/config.sub
-	touch $@
-
-ifeq ($(TARGET_OS),mac)
-ICU_PROFILE=MacOSX
-ICU_CONFIGURE_FLAGS=--host=$(MACTRIPLE)
-else
-ICU_PROFILE=Linux/gcc
-ICU_CONFIGURE_FLAGS=
-endif
-
-ICU_BUILD_NATIVE=0
-ifeq ($(TARGET_OS),linux)
-ifeq ($(LINUX_DISTRO),ubuntu)
-ICU_BUILD_NATIVE=1
-endif
-endif
-ifneq ($(TARGET_OS),linux)
-ICU_BUILD_NATIVE=1
-endif
-
-$(ICU_DIR)/install-native: $(ICU_DIR)/download
-ifeq ($(ICU_BUILD_NATIVE),1)
-	cd $(ICU_DIR)/source && \
-		mkdir -p build-native && \
-		cd build-native && \
-		CFLAGS="$(CFLAGS)" \
-			CXXFLAGS="$(CFLAGS) -DU_USING_ICU_NAMESPACE=0 -DU_NO_DEFAULT_INCLUDE_UTF_HEADERS=1 -DU_HIDE_OBSOLETE_UTF_OLD_H=1 -std=c++17" \
-			../runConfigureICU "$(ICU_PROFILE)" --enable-static --disable-shared --disable-tests --disable-samples \
-			--with-data-packaging=static --prefix="$(NATIVE_PREFIX)" $(ICU_CONFIGURE_FLAGS)
-endif
-ifeq ($(TARGET_OS),mac)
-	cd $(ICU_DIR)/source && \
-		cp -f config/mh-darwin config/mh-unknown
-endif
-ifeq ($(ICU_BUILD_NATIVE),1)
-	cd $(ICU_DIR)/source/build-native && \
-		$(MAKE) && \
-		$(MAKE) install
-endif
-	touch $@
-
-$(ICU_DIR)/install: $(ICU_DIR)/install-native $(BINUTILS_DIR)/install
-ifeq ($(TARGET_OS),win)
-	cd $(ICU_DIR)/source && \
-		mkdir -p build-win && \
-		cd build-win && \
-		CXXFLAGS="-DU_USING_ICU_NAMESPACE=0 -DU_NO_DEFAULT_INCLUDE_UTF_HEADERS=1 -DU_HIDE_OBSOLETE_UTF_OLD_H=1 -std=c++17" \
-			LDFLAGS="-L$(ICU_DIR)/source/lib" \
-			../runConfigureICU "MinGW" --enable-static --enable-shared --disable-tests --disable-samples \
-			--with-data-packaging=static \
-			--host=$(ARCH)-w64-mingw32 --with-cross-build=$(ICU_DIR)/source/build-native --prefix="$(TARGET_PREFIX)" && \
-		$(MAKE) && \
-		$(MAKE) install
-endif
 	touch $@
 
 
@@ -636,3 +574,60 @@ $(CLI11_DIR)/download:
 
 $(CLI11_DIR)/install: $(CLI11_DIR)/download
 	cp -f $(CLI11_DIR)/CLI11.hpp $(TARGET_PREFIX)/include/
+
+
+
+# libunistring --------------------------------------------------------------------------------------------------------
+
+$(LIBUNISTRING_DIR)/download:
+	tar zxf $(DOWNLOAD_DIR)/libunistring-*.tar.gz
+	mv -f libunistring-*/ $(LIBUNISTRING_DIR)/
+	touch $@
+
+LIBUNISTRING_CONFIGURE_FLAGS=--enable-static --disable-shared --disable-threads
+
+$(LIBUNISTRING_DIR)/install: $(LIBUNISTRING_DIR)/download $(BINUTILS_DIR)/install
+ifeq ($(TARGET_OS),mac)
+	cd $(LIBUNISTRING_DIR) && \
+		CC="clang -arch $(MACARCH) -mmacosx-version-min=$(MACVER)" \
+			CXX="clang++ -arch $(MACARCH) -mmacosx-version-min=$(MACVER)" \
+			./configure --host=$(MACTRIPLE) "--prefix=$(TARGET_PREFIX)" $(LIBUNISTRING_CONFIGURE_FLAGS)
+endif
+ifeq ($(TARGET_OS),linux)
+	cd $(LIBUNISTRING_DIR) && \
+		CC="$(CC)" CXX="$(CXX)" LD="$(LD)" AR="$(AR)" \
+			./configure $(HOST_FLAG) --prefix=$(TARGET_PREFIX) $(LIBUNISTRING_CONFIGURE_FLAGS)
+endif
+ifeq ($(TARGET_OS),win)
+	cd $(LIBUNISTRING_DIR) && \
+		./configure $(HOST_FLAG) --prefix=$(TARGET_PREFIX) $(LIBUNISTRING_CONFIGURE_FLAGS)
+endif
+	cd $(LIBUNISTRING_DIR) && \
+		$(MAKE) && \
+		$(MAKE) install
+	touch $@
+
+
+
+# abseil --------------------------------------------------------------------------------------------------------------
+
+$(ABSEIL_DIR)/download:
+	tar zxf $(DOWNLOAD_DIR)/abseil-*.tar.gz
+	mv -f abseil-*/ $(ABSEIL_DIR)/
+	touch $@
+
+$(ABSEIL_DIR)/install: $(ABSEIL_DIR)/download $(CMAKE_DIR)/install $(BINUTILS_DIR)/install
+	cd $(ABSEIL_DIR) && \
+		mkdir -p build && \
+		cd build && \
+		cmake .. \
+			-DCMAKE_CXX_STANDARD=17 \
+			-DABSL_PROPAGATE_CXX_STD=ON \
+			$(CMAKE_FLAGS) \
+			-DCMAKE_PREFIX_PATH=$(TARGET_PREFIX) \
+			-DCMAKE_INSTALL_PREFIX=$(TARGET_PREFIX) \
+			-DCMAKE_BUILD_TYPE=Release \
+			$(CMAKE_TOOLCHAIN_FLAG) && \
+		$(MAKE) && \
+		$(MAKE) install
+	touch $@

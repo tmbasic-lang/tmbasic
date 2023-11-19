@@ -24,10 +24,8 @@ BuiltInConstantList::BuiltInConstantList()
     addError("ERR_PATH_IS_NOT_DIRECTORY", vm::ErrorCode::kPathIsNotDirectory);
     addError("ERR_DIRECTORY_NOT_EMPTY", vm::ErrorCode::kDirectoryNotEmpty);
     addError("ERR_INVALID_PATH", vm::ErrorCode::kInvalidPath);
-    addError("ERR_INTERNAL_ICU_ERROR", vm::ErrorCode::kInternalIcuError);
-    addError("ERR_INVALID_DATETIME", vm::ErrorCode::kInvalidDateTime);
-    addError("ERR_INVALID_TIMEZONE", vm::ErrorCode::kInvalidTimeZone);
-    addError("ERR_INVALID_LOCALE_NAME", vm::ErrorCode::kInvalidLocaleName);
+    addError("ERR_INTERNAL_UNICODE_ERROR", vm::ErrorCode::kInternalUnicodeError);
+    addError("ERR_INVALID_UNICODE_CODE_POINT", vm::ErrorCode::kInvalidUnicodeCodePoint);
     addError("ERR_MAP_KEY_NOT_FOUND", vm::ErrorCode::kMapKeyNotFound);
     addError("ERR_LIST_INDEX_OUT_OF_RANGE", vm::ErrorCode::kListIndexOutOfRange);
     addError("ERR_VALUE_NOT_PRESENT", vm::ErrorCode::kValueNotPresent);
@@ -36,6 +34,8 @@ BuiltInConstantList::BuiltInConstantList()
     addError("ERR_FORM_NOT_FOUND", vm::ErrorCode::kFormNotFound);
     addError("ERR_CONTROL_NOT_FOUND", vm::ErrorCode::kControlNotFound);
     addError("ERR_INVALID_CONTROL_TYPE", vm::ErrorCode::kInvalidControlType);
+    addError("ERR_INVALID_DATETIME", vm::ErrorCode::kInvalidDateTime);
+    addError("ERR_INVALID_TIMEZONE", vm::ErrorCode::kInvalidTimeZone);
     // end_errors
 }
 

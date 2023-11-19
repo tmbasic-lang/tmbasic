@@ -1,16 +1,17 @@
 #include "TimeZone.h"
 #include "util/decimal.h"
+#include "vm/date.h"
 
 namespace vm {
 
-TimeZone::TimeZone(std::unique_ptr<icu::TimeZone> zone) : zone(std::move(zone)) {}
+TimeZone::TimeZone(std::unique_ptr<absl::TimeZone> zone) : zone(std::move(zone)) {}
 
 ObjectType TimeZone::getObjectType() const {
     return ObjectType::kTimeZone;
 }
 
 size_t TimeZone::getHash() const {
-    return std::hash<int32_t>{}(zone->getRawOffset());
+    return std::hash<std::string>()(zone->name());
 }
 
 bool TimeZone::equals(const Object& other) const {
@@ -21,13 +22,34 @@ bool TimeZone::equals(const Object& other) const {
     return (*zone == *otherTz.zone) != 0;
 }
 
-decimal::Decimal TimeZone::getUtcOffset(const decimal::Decimal& dateTime) const {
-    UDate udate = dateTime.floor().i64();
-    int32_t rawOffset = 0;
-    int32_t dstOffset = 0;
-    auto icuError = U_ZERO_ERROR;
-    zone->getOffset(udate, 1, rawOffset, dstOffset, icuError);
-    return decimal::Decimal(rawOffset + dstOffset);
+std::vector<decimal::Decimal> TimeZone::getUtcOffsets(const DateTimeParts& dateTimeParts) const {
+    absl::CivilSecond civilSecond{ dateTimeParts.year, dateTimeParts.month,  dateTimeParts.day,
+                                   dateTimeParts.hour, dateTimeParts.minute, dateTimeParts.second };
+    auto timeInfo = zone->At(civilSecond);
+
+    // If this is the DST fallback hour, there is both a pre and post time. "pre" is always at least filled.
+    std::vector<absl::Time> times{};
+    times.push_back(timeInfo.pre);
+
+    // For the DST fallback, the time is ambiguous. It could be either of these, before or after the transition.
+    if (timeInfo.kind != absl::TimeZone::TimeInfo::REPEATED) {
+        times.push_back(timeInfo.post);
+    }
+
+    std::vector<decimal::Decimal> offsets{};
+
+    for (const auto& time : times) {
+        auto civilInfo = zone->At(time);
+
+        // Abseil says this access of .offset is "imprudent". Duly noted.
+        auto offsetSeconds = civilInfo.offset;
+
+        auto offsetMinutes = offsetSeconds / 60;
+        auto offsetDecimal = decimal::Decimal{ offsetMinutes };
+        offsets.push_back(offsetDecimal);
+    }
+
+    return offsets;
 }
 
 }  // namespace vm

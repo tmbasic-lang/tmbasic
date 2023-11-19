@@ -131,14 +131,16 @@ LICENSE_FILES=\
 	doc/licenses/nameof/LICENSE.txt \
 	doc/licenses/ncurses/COPYING \
 	doc/licenses/tvision/COPYRIGHT \
-	doc/licenses/icu/LICENSE \
 	doc/licenses/fmt/LICENSE.rst \
 	doc/licenses/scintilla/License.txt \
 	doc/licenses/turbo/COPYRIGHT \
 	doc/licenses/libzip/LICENSE \
 	doc/licenses/microtar/LICENSE \
 	doc/licenses/zlib/LICENSE.txt \
-	doc/licenses/cli11/LICENSE
+	doc/licenses/cli11/LICENSE \
+	doc/licenses/libunistring/COPYING.LIB \
+	doc/licenses/libunistring/COPYING \
+	doc/licenses/abseil/LICENSE
 LICENSE_DIAGRAM_TXT_TIMESTAMP_FILE=obj/doc-temp/diagrams-license/timestamp
 LICENSE_DIAGRAM_TXT_FILES=\
 	obj/doc-temp/diagrams-license/license_tmbasic.txt \
@@ -152,15 +154,16 @@ LICENSE_DIAGRAM_TXT_FILES=\
 	obj/doc-temp/diagrams-license/license_nameof.txt \
 	obj/doc-temp/diagrams-license/license_ncurses.txt \
 	obj/doc-temp/diagrams-license/license_tvision.txt \
-	obj/doc-temp/diagrams-license/license_icu.txt \
 	obj/doc-temp/diagrams-license/license_fmt.txt \
 	obj/doc-temp/diagrams-license/license_scintilla.txt \
 	obj/doc-temp/diagrams-license/license_turbo.txt \
 	obj/doc-temp/diagrams-license/license_libzip.txt \
 	obj/doc-temp/diagrams-license/license_microtar.txt \
 	obj/doc-temp/diagrams-license/license_zlib.txt \
-	obj/doc-temp/diagrams-license/license_cli11.txt
-	
+	obj/doc-temp/diagrams-license/license_cli11.txt \
+	obj/doc-temp/diagrams-license/license_libunistring_lgpl.txt \
+	obj/doc-temp/diagrams-license/license_libunistring_gpl.txt \
+	obj/doc-temp/diagrams-license/license_abseil.txt
 
 # icon resource
 ifeq ($(TARGET_OS),win)
@@ -311,19 +314,11 @@ endif
 # Linker flag to include libmpdec and libmpdec++ (mpdecimal).
 LDFLAGS += -lmpdec -lmpdec++
 
-# Linker flag to include ICU.
-ifeq ($(TARGET_OS),win)
-ifeq ($(ARCH),i686)
-LDFLAGS += -lsicuin -lsicuuc /usr/$(ARCH)-w64-mingw32/bin/libicudt.a
-else
-LDFLAGS += -lsicuin -lsicuuc /usr/$(ARCH)-w64-mingw32/bin/icudt.a
-endif
-else
-LDFLAGS += -licui18n -licuuc -licudata
-endif
-ifeq ($(TARGET_OS),linux)
-LDFLAGS += -ldl
-endif
+# Linker flag to include libunistring
+LDFLAGS += -lunistring
+
+# Linker flag to include libasbl_time
+LDFLAGS += -labsl_time -labsl_time_zone -labsl_int128
 
 # Linker flag to include libzip, microtar, zlib in tmbasic/test only (not runners).
 TMBASIC_LDFLAGS += -lzip -lmicrotar -lz
@@ -490,14 +485,14 @@ obj/resources/LICENSE.txt: $(LICENSE_FILES)
 	@echo === tmbasic license === >> $@
 	@cat LICENSE >> $@
 	@echo >> $@
+	@echo === abseil license === >> $@
+	@cat doc/licenses/abseil/LICENSE >> $@
+	@echo >> $@
 	@echo === boost license === >> $@
 	@cat doc/licenses/boost/LICENSE_1_0.txt >> $@
 	@echo >> $@
 	@echo === fmt license === >> $@
 	@cat doc/licenses/fmt/LICENSE.rst >> $@
-	@echo >> $@
-	@echo === icu license === >> $@
-	@cat doc/licenses/icu/LICENSE >> $@
 	@echo >> $@
 	@echo === immer license === >> $@
 	@cat doc/licenses/immer/LICENSE >> $@
@@ -505,6 +500,10 @@ obj/resources/LICENSE.txt: $(LICENSE_FILES)
 	@echo === libstdc++ license === >> $@
 	@cat doc/licenses/gcc/GPL-3 >> $@
 	@cat doc/licenses/gcc/copyright >> $@
+	@echo >> $@
+	@echo === libunistring license === >> $@
+	@cat doc/licenses/libunistring/COPYING.LIB >> $@
+	@cat doc/licenses/libunistring/COPYING >> $@
 	@echo >> $@
 	@echo === mpdecimal license === >> $@
 	@cat doc/licenses/mpdecimal/LICENSE.txt >> $@

@@ -29,7 +29,7 @@ h2[Data types]
 ul@
 li@t[Boolean] -- `true` / `false`.@
 li@t[Number] -- 128-bit decimal.@
-li@t[String] -- UTF-16 text.@
+li@t[String] -- UTF-8 text.@
 li@t[Date] -- Date without a time.@
 li@t[DateTime] -- Date and time, without a time zone.@
 li@t[DateTimeOffset] -- Record containing a `DateTime` and a `TimeSpan` representing the offset from UTC.@

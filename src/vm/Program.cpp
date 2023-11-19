@@ -32,7 +32,7 @@ class ProgramWriter {
 
     void writeString(const vm::String& obj) {
         const auto& str = dynamic_cast<const vm::String&>(obj);
-        auto utf8 = str.toUtf8();
+        auto utf8 = str.value;
         writeInt<uint32_t>(static_cast<uint32_t>(utf8.size()));
         vec.insert(vec.end(), utf8.begin(), utf8.end());
     }

@@ -37,7 +37,7 @@ void initSystemCallsForms() {
         auto* form = basicFormsStorage.forms.find(input.getValue(-1).getInt64());
         auto& title = dynamic_cast<String&>(input.getObject(-1));
         delete[] form->title;  // NOLINT(cppcoreguidelines-owning-memory)
-        form->title = newStr(title.toUtf8());
+        form->title = newStr(title.value);
     });
 
     initSystemCall(SystemCall::kAddControlToForm, [](const auto& input, auto* /*result*/) {

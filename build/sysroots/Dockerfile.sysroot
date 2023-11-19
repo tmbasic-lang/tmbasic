@@ -1,22 +1,6 @@
 FROM $IMAGE_ARCH/alpine:3.18 AS initial
 RUN apk update && apk upgrade && apk add clang linux-headers g++ musl-dev
 
-# Install ICU natively. I can get it to cross-compile but the resulting ICU doesn't have the locale data properly
-# loaded. That seems fixable but until then, doing it here will work.
-RUN apk add curl make
-RUN cd /tmp && \
-	curl -L https://github.com/unicode-org/icu/releases/download/release-72-1/icu4c-72_1-src.tgz | tar zx && \
-	curl -L -o icu/source/config.guess 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD' && \
-	curl -L -o icu/source/config.sub 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD' && \
-    mkdir -p icu/source/build && \
-    cd icu/source/build && \
-    CXXFLAGS="-DU_USING_ICU_NAMESPACE=0 -DU_NO_DEFAULT_INCLUDE_UTF_HEADERS=1 -DU_HIDE_OBSOLETE_UTF_OLD_H=1 -std=c++17" \
-        ../runConfigureICU "Linux/gcc" --enable-static --disable-shared --disable-tests --disable-samples \
-        --with-data-packaging=static && \
-    make -j$(nproc) && \
-    make install && \
-    rm -rf /tmp/icu
-
 # Delete anything we won't need when using this as a sysroot for cross-compilation.
 RUN rm -rf /usr/bin/* && rm -rf /usr/local/bin/* && rm -rf /bin/*
 

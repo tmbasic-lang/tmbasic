@@ -1,21 +1,32 @@
-.procedure UtcOffset
+.procedure UtcOffsets
 .category Dates and Times
 .blurb Calculates the difference between UTC and another time zone for a particular local time.
 .description
 Calculates the difference between UTC and another time zone for a particular local time.
+
+For nearly all times, this returns one offset.
+
+However, two offsets may be returned on the Daylight Saving Time autumn "fallback" transition hour.
+In the United States, clocks roll back by an hour at 2:00 AM.
+This means that the hour from 1:00 AM to 2:00 AM occurs twice in local time.
+
+If you ask this function for the UTC offset of 1:30 AM on that day, there are two possible UTC offsets: the one before the transition, and the one after.
+Both offsets will be returned by this function.
 .overload
 .parameter dateTime: DateTime
 The local time for which to calculate the UTC offset.
 .parameter timeZone: TimeZone
 The local time zone.
-.return TimeSpan
-A time span representing the time zone's offset from UTC.
+.return List of TimeSpan
+One or two time spans representing the time zone's offset from UTC.
 .example
 .example-code
 dim tz = TimeZoneFromName("America/New_York")
 dim dt = DateTimeFromParts(2021, 3, 13, 0, 0, 0, 0)
-dim offset = UtcOffset(dt, tz)
-print TotalHours(offset)
+dim offsets = UtcOffset(dt, tz)
+print Len(offsets)
+print TotalHours(offset(0))
 .example-output
+1
 -5
 .

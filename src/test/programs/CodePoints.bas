@@ -15,7 +15,7 @@ sub Main()
     print StringFromCodePoints([65, 128142])
 
     ' StringFromCodeUnits doc example
-    print StringFromCodeUnits([65, 55357, 56462])
+    print StringFromCodeUnits([65, 240, 159, 146, 142])
 end sub
 --output--
 1

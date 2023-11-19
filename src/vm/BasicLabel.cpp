@@ -23,7 +23,7 @@ boost::local_shared_ptr<String> BasicLabel::getBasicText() {
 }
 
 void BasicLabel::setText(const String& newText) {
-    auto str = newText.toUtf8();
+    auto str = newText.value;
     delete[] text;  // NOLINT(cppcoreguidelines-owning-memory)
     text = newStr(str.c_str());
 }

@@ -2,7 +2,7 @@
 .category Dates and Times
 .blurb Creates a t[DateTimeOffset] from individual date, time, and zone components.
 .description
-Creates a t[DateTimeOffset] for the specified year, month, day, hour, minute, second, millisecond, and zone.
+Creates a t[DateTimeOffset] for the specified year, month, day, hour, minute, second, millisecond, and UTC offset.
 .overload
 .parameter year: Number
 Four-digit year.
@@ -18,14 +18,13 @@ Minute (0-59).
 Second (0-59).
 .parameter millisecond: Number
 Millisecond (0-999).
-.parameter timeZone: TimeZone
-Time zone.
+.parameter utcOffset: TimeSpan
+Offset from UTC.
 .return DateTimeOffset
 A new t[DateTimeOffset].
 .example
 .example-code
-dim zone = TimeZoneFromName("America/Chicago")
-dim x = DateTimeOffsetFromParts(2021, 3, 12, 4, 30, 0, 0, zone)
+dim x = DateTimeOffsetFromParts(2021, 3, 12, 4, 30, 0, 0, Hours(-6))
 print x.DateTime
 print TotalHours(x.Offset)
 .example-output

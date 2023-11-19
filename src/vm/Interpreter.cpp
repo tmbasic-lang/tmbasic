@@ -1,5 +1,5 @@
 // uncomment to log execution to std::cerr
-// #define LOG_EXECUTION
+//#define LOG_EXECUTION
 
 #include "Interpreter.h"
 #include "CallFrame.h"
@@ -748,7 +748,7 @@ bool Interpreter::run(int maxCycles) {
                 auto code = *valueAt(valueStack, vsi, -1);
                 _private->hasError = true;
                 _private->errorCode = code;
-                _private->errorMessage = dynamic_cast<const String&>(message).toUtf8();
+                _private->errorMessage = dynamic_cast<const String&>(message).value;
                 popValue(valueStack, &vsi);
                 popObject(objectStack, &osi);
                 break;

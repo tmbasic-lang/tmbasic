@@ -1,5 +1,5 @@
 nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {License:license}@
 
-h1["icu" License]
+h1["libunistring" License - GPL]
 
-dia[license_icu]
+dia[license_libunistring_gpl]
