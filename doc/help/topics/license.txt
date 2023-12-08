@@ -13,6 +13,7 @@ li@{fmt:license_fmt}@
 li@{immer:license_immer}@
 li@libstdc++ - {Part 1:license_libstdcxx1}, {Part 2:license_libstdcxx2}, {Part 3:license_libstdcxx3}@
 li@libunistring - {Part 1:license_libunistring_lgpl}, {Part 2:license_libunistring_gpl}@
+li@{microtar:license_microtar}@
 li@{mpdecimal:license_mpdecimal}@
 li@{musl:license_musl}@
 li@{ncurses:license_ncurses}@
@@ -29,7 +30,6 @@ The following additional components are included in the TMBASIC development envi
 
 ul@li@{CLI11:license_cli11}@
 li@{libzip:license_libzip}@
-li@{microtar:license_microtar}@
 li@{nameof:license_nameof}@
 li@{zlib:license_zlib}@
 @

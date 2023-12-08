@@ -4,6 +4,7 @@
 #include "../compiler/TargetPlatform.h"
 #include "../compiler/compileProgram.h"
 #include "../util/console.h"
+#include "../vm/date.h"
 
 #include <CLI11.hpp>
 
@@ -58,6 +59,7 @@ static void publishProgram(const std::string& filename, const std::vector<std::s
 
 int main(int argc, char** argv) {
     util::setUtf8Locale();
+    vm::initializeTzdb();
 
     CLI::App cli{ "TMBASIC programming language" };
 

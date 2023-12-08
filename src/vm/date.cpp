@@ -2,8 +2,22 @@
 #include "Error.h"
 #include "RecordBuilder.h"
 #include "util/decimal.h"
+#include "vm/tar.h"
+
+// This is tzdb.tar, the contents of /usr/share/zoneinfo.
+extern char kResourceTzdb[];  // NOLINT(modernize-avoid-c-arrays)
+extern uint kResourceTzdb_len;
 
 namespace vm {
+
+static bool is_tzdb_initialized = false;
+
+void initializeTzdb() {
+    if (!is_tzdb_initialized) {
+        untar(kResourceTzdb, static_cast<size_t>(kResourceTzdb_len), absl::AddZoneInfoFile);
+        is_tzdb_initialized = true;
+    }
+}
 
 Value convertDateTimeOffsetPartsToValue(DateTimeOffsetParts parts) {
     // year (0 to 65535)       16 bits

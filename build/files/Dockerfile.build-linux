@@ -30,6 +30,7 @@ RUN mkdir /target-sysroot && \
 # tmbasic dependencies
 COPY cmake-toolchain-linux-$ARCH.cmake /tmp/
 COPY deps.mk /tmp/
+COPY mtar.c /tmp/mtar.c
 COPY deps.tar /tmp/
 RUN mkdir -p /tmp/downloads && \
     tar xf /tmp/deps.tar -C /tmp/downloads && \

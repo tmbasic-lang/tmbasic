@@ -1,9 +1,9 @@
 #include "Publisher.h"
 #include "compiler/makeExeFile.h"
 #include "compiler/gzip.h"
-#include "compiler/tar.h"
 #include "compiler/zip.h"
 #include "util/path.h"
+#include "vm/tar.h"
 
 namespace compiler {
 
@@ -40,11 +40,11 @@ std::string Publisher::publish(TargetPlatform platform) {
         };
         compiler::zip(archiveFilePath, entries);
     } else {
-        std::vector<compiler::TarEntry> entries{
-            compiler::TarEntry{ std::move(exeFilename), std::move(exeData), 0777 },
-            compiler::TarEntry{ licFilename, std::move(licData), 0664 },
+        std::vector<vm::TarEntry> entries{
+            vm::TarEntry{ std::move(exeFilename), std::move(exeData), 0777 },
+            vm::TarEntry{ licFilename, std::move(licData), 0664 },
         };
-        auto gz = compiler::gzip(compiler::tar(entries));
+        auto gz = compiler::gzip(vm::tar(entries));
         std::ofstream f{ archiveFilePath, std::ios::out | std::ios::binary };
         f.write(reinterpret_cast<const char*>(gz.data()), gz.size());
     }

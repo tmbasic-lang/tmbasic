@@ -1,16 +1,18 @@
 #include "../common.h"
 #include "compiler/gzip.h"
-#include "compiler/tar.h"
 #include "compiler/zip.h"
 #include "gtest/gtest.h"
+#include "vm/tar.h"
 #include "helpers.h"
+
+#include <microtar.h>
 
 using compiler::gunzip;
 using compiler::gzip;
-using compiler::tar;
-using compiler::TarEntry;
 using compiler::zip;
 using compiler::ZipEntry;
+using vm::tar;
+using vm::TarEntry;
 
 TEST(CompressionTest, Tar) {
     std::vector<TarEntry> entries{
@@ -43,4 +45,109 @@ TEST(CompressionTest, Zip) {
     stat(kZipFilePath.c_str(), &st);
     unlink(kZipFilePath.c_str());
     ASSERT_EQ(187, st.st_size);
+}
+
+TEST(MicrotarTest, Roundtrip) {
+    std::array<char, 5000> data = { 0 };
+    for (size_t i = 0; i < data.size(); i++) {
+        data[i] = static_cast<char>(i % 256);
+    }
+
+    // Write
+    {
+        mtar_t tar;
+
+        mtar_open(&tar, "test.tar", "w");
+
+        mtar_write_file_header(&tar, "test1.txt", data.size());
+        mtar_write_data(&tar, data.data(), data.size());
+
+        mtar_finalize(&tar);
+
+        mtar_close(&tar);
+    }
+
+    // Read
+    {
+        mtar_t tar;
+        mtar_header_t h;
+
+        mtar_open(&tar, "test.tar", "r");
+
+        while ((mtar_read_header(&tar, &h)) != MTAR_ENULLRECORD) {
+            std::vector<char> buf(h.size);
+            mtar_read_data(&tar, buf.data(), h.size);
+
+            // Verify buf vs. data
+            for (size_t i = 0; i < buf.size(); i++) {
+                ASSERT_EQ(data[i], buf[i]);
+            }
+
+            mtar_next(&tar);
+        }
+
+        mtar_close(&tar);
+    }
+
+    // Delete files
+    unlink("test1.txt");
+    unlink("test.tar");
+}
+
+// Use GNU tar to write an archive and then read it with microtar.
+TEST(MicrotarTest, RoundtripWithGnuTar) {
+    std::array<char, 5000> data = { 0 };
+    for (size_t i = 0; i < data.size(); i++) {
+        data[i] = static_cast<char>(i % 256);
+    }
+
+    // Create directory "Folder Name".
+    // Write "Folder Name/test.dat" using C++ idioms
+    {
+        mkdir("Folder Name", 0777);
+        std::ofstream f("Folder Name/test.dat", std::ios::binary);
+        f.write(data.data(), data.size());
+    }
+
+    // Make test.tar using system tar
+    {
+        std::string cmd = "tar -cf test.tar 'Folder Name'";
+        ASSERT_EQ(0, system(cmd.c_str()));
+    }
+
+    // Read test.tar using microtar
+    {
+        mtar_t tar;
+        mtar_header_t h;
+
+        mtar_open(&tar, "test.tar", "r");
+
+        while ((mtar_read_header(&tar, &h)) != MTAR_ENULLRECORD) {
+            std::vector<char> buf(h.size);
+            mtar_read_data(&tar, buf.data(), h.size);
+
+            if (strcmp(h.name, "Folder Name/") == 0) {
+                // Skip directory
+                mtar_next(&tar);
+                continue;
+            }
+
+            // Verify name
+            ASSERT_EQ(std::string{ "Folder Name/test.dat" }, std::string{ h.name });
+
+            // Verify buf vs. data
+            for (size_t i = 0; i < data.size(); i++) {
+                ASSERT_EQ(data[i], buf[i]);
+            }
+
+            mtar_next(&tar);
+        }
+
+        mtar_close(&tar);
+    }
+
+    // Delete files.
+    unlink("test.tar");
+    unlink("Folder Name/test.dat");
+    rmdir("Folder Name");
 }

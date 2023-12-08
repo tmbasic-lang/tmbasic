@@ -2,7 +2,7 @@
 
 #include "../common.h"
 
-namespace compiler {
+namespace vm {
 
 class TarEntry {
    public:
@@ -13,5 +13,9 @@ class TarEntry {
 };
 
 std::vector<uint8_t> tar(const std::vector<TarEntry>& entries);
+void untar(
+    const char* tarData,
+    size_t tarSize,
+    std::function<void(const char* name, const char* data, size_t length)> entryCallback);
 
-}  // namespace compiler
+}  // namespace vm

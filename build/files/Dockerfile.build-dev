@@ -47,6 +47,7 @@ RUN curl -L https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
 
 # tmbasic dependencies
 COPY deps.mk /tmp/deps.mk
+COPY mtar.c /tmp/mtar.c
 COPY deps.tar /tmp/
 
 # If you're trying to fix a failure here, comment everything below this point.

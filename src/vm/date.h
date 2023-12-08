@@ -28,6 +28,9 @@ class DateTimeOffsetParts : public DateTimeParts {
     int64_t utcOffsetMilliseconds;
 };
 
+// Initialization of zoneinfo data at startup.
+void initializeTzdb();
+
 // Low-level packing and unpacking.
 Value convertDateTimePartsToValue(DateTimeParts parts);
 DateTimeParts convertValueToDateTimeParts(Value value);

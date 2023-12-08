@@ -111,6 +111,16 @@ function checkGcc {
     echo "${varname}_VERSION=$version"
 }
 
+function checkTzdb {
+    # <td><a href="https://data.iana.org/time-zones/releases/tzdata2023c.tar.gz">tzdata2023c.tar.gz</a> (433.5kb)</td>
+    local varname=$1
+    local url=$2
+    local version=$(curl --silent $url \
+        | grep -o 'tzdata[0-9]\+[a-z]\+\.tar\.gz"' \
+        | sed 's/tzdata//; s/\.tar\.gz"//')
+    echo "${varname}_VERSION=$version"
+}
+
 echo
 echo '# depsDownload.sh'
 
@@ -120,6 +130,7 @@ checkGitHubCommit "ABSEIL" "https://github.com/abseil/abseil-cpp/commits.atom"
 #checkGnu "binutils-" "BINUTILS" "https://ftp.gnu.org/gnu/binutils/"
 echo "BINUTILS_VERSION=2.37"
 
+checkGitHubCommit "ABSEIL" "https://github.com/electroly/tmbasic-abseil-cpp/commits.atom"
 checkJfrog "BOOST" "https://boostorg.jfrog.io/artifactory/main/release/"
 checkGitHubRelease "CLI11" "https://github.com/CLIUtils/CLI11/releases.atom"
 checkGitHubRelease "CMAKE" "https://github.com/Kitware/CMake/releases.atom"
@@ -134,6 +145,7 @@ checkGitHubRelease "NAMEOF" "https://github.com/Neargye/nameof/releases.atom"
 checkNcurses "NCURSES" "https://invisible-mirror.net/ncurses/announce.html"
 checkGitHubCommit "TURBO" "https://github.com/magiblot/turbo/commits.atom"
 checkGitHubCommit "TVISION" "https://github.com/magiblot/tvision/commits.atom"
+checkTzdb "TZDB" "https://www.iana.org/time-zones"
 checkZlib "ZLIB" "https://zlib.net/"
 
 echo

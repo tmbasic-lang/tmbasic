@@ -61,6 +61,7 @@ $WINE_INSTALL
 # tmbasic dependencies
 COPY cmake-toolchain-win-$ARCH.cmake /tmp/
 COPY deps.mk /tmp/deps.mk
+COPY mtar.c /tmp/mtar.c
 COPY deps.tar /tmp/
 RUN mkdir -p /tmp/downloads && \
     tar xf /tmp/deps.tar -C /tmp/downloads && \

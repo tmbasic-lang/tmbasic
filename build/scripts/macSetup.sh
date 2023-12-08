@@ -36,6 +36,9 @@ mkdir -p tmp
 export PREFIX="$PWD"
 export PATH=$PREFIX/bin:$PATH
 
+# deps.mk looks for this in the parent above its own PWD.
+cp -f ../build/files/mtar.c .
+
 cd tmp
 export TARGET_OS=mac
 export TARGET_CC=clang

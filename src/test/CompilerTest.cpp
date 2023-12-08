@@ -8,6 +8,7 @@
 #include "vm/Procedure.h"
 #include "vm/Program.h"
 #include "vm/String.h"
+#include "vm/date.h"
 
 using compiler::TargetPlatform;
 using std::istringstream;
@@ -19,6 +20,8 @@ using std::vector;
 using vm::Interpreter;
 
 static void runCode(const string& basFile) {
+    vm::initializeTzdb();
+
     compiler::CompiledProgram program{};
 
     string inputSentinel = "--input--\n";

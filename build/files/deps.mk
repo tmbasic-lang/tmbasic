@@ -16,6 +16,7 @@ NAMEOF_DIR=$(PWD)/nameof
 NCURSES_DIR=$(PWD)/ncurses
 TURBO_DIR=$(PWD)/turbo
 TVISION_DIR=$(PWD)/tvision
+TZDB_DIR=$(PWD)/tzdb
 ZLIB_DIR=$(PWD)/zlib
 
 ifneq ($(ARCH),i686)
@@ -128,6 +129,7 @@ all: \
 	$(NCURSES_DIR)/install \
 	$(TURBO_DIR)/install \
 	$(TVISION_DIR)/install \
+	$(TZDB_DIR)/install \
 	$(ZLIB_DIR)/install
 
 
@@ -519,12 +521,19 @@ $(MICROTAR_DIR)/download:
 	mv -f microtar-*/ $(MICROTAR_DIR)/
 	touch $@
 
-$(MICROTAR_DIR)/install: $(MICROTAR_DIR)/download $(BINUTILS_DIR)/install
+$(MICROTAR_DIR)/install: $(MICROTAR_DIR)/install-native-mtar $(MICROTAR_DIR)/install-target-library
+
+$(MICROTAR_DIR)/install-target-library: $(MICROTAR_DIR)/download $(BINUTILS_DIR)/install
 	cd $(MICROTAR_DIR)/src && \
 		$(TARGET_CC) $(CFLAGS) -isystem "$(TARGET_PREFIX)/include" -c microtar.c && \
 		$(TARGET_AR) rcs libmicrotar.a microtar.o && \
 		mv libmicrotar.a $(TARGET_PREFIX)/lib/ && \
 		cp microtar.h $(TARGET_PREFIX)/include/
+	touch $@
+
+$(MICROTAR_DIR)/install-native-mtar: $(MICROTAR_DIR)/download $(BINUTILS_DIR)/install
+	cp $(MICROTAR_DIR)/src/microtar.h $(NATIVE_PREFIX)/include/
+	$(CC) -o $(NATIVE_PREFIX)/bin/mtar $(MICROTAR_DIR)/src/microtar.c $(PWD)/../mtar.c && \
 	touch $@
 
 
@@ -584,23 +593,23 @@ $(LIBUNISTRING_DIR)/download:
 	mv -f libunistring-*/ $(LIBUNISTRING_DIR)/
 	touch $@
 
-LIBUNISTRING_CONFIGURE_FLAGS=--enable-static --disable-shared --disable-threads
+LIBUNISTRING_CONFIGURE_FLAGS=--prefix=$(TARGET_PREFIX) --enable-static --disable-shared --disable-threads
 
 $(LIBUNISTRING_DIR)/install: $(LIBUNISTRING_DIR)/download $(BINUTILS_DIR)/install
 ifeq ($(TARGET_OS),mac)
 	cd $(LIBUNISTRING_DIR) && \
 		CC="clang -arch $(MACARCH) -mmacosx-version-min=$(MACVER)" \
 			CXX="clang++ -arch $(MACARCH) -mmacosx-version-min=$(MACVER)" \
-			./configure --host=$(MACTRIPLE) "--prefix=$(TARGET_PREFIX)" $(LIBUNISTRING_CONFIGURE_FLAGS)
+			./configure --host=$(MACTRIPLE) $(LIBUNISTRING_CONFIGURE_FLAGS)
 endif
 ifeq ($(TARGET_OS),linux)
 	cd $(LIBUNISTRING_DIR) && \
 		CC="$(CC)" CXX="$(CXX)" LD="$(LD)" AR="$(AR)" \
-			./configure $(HOST_FLAG) --prefix=$(TARGET_PREFIX) $(LIBUNISTRING_CONFIGURE_FLAGS)
+			./configure $(HOST_FLAG) $(LIBUNISTRING_CONFIGURE_FLAGS)
 endif
 ifeq ($(TARGET_OS),win)
 	cd $(LIBUNISTRING_DIR) && \
-		./configure $(HOST_FLAG) --prefix=$(TARGET_PREFIX) $(LIBUNISTRING_CONFIGURE_FLAGS)
+		./configure $(HOST_FLAG) $(LIBUNISTRING_CONFIGURE_FLAGS)
 endif
 	cd $(LIBUNISTRING_DIR) && \
 		$(MAKE) && \
@@ -613,7 +622,7 @@ endif
 
 $(ABSEIL_DIR)/download:
 	tar zxf $(DOWNLOAD_DIR)/abseil-*.tar.gz
-	mv -f abseil-*/ $(ABSEIL_DIR)/
+	mv -f tmbasic-abseil-*/ $(ABSEIL_DIR)/
 	touch $@
 
 $(ABSEIL_DIR)/install: $(ABSEIL_DIR)/download $(CMAKE_DIR)/install $(BINUTILS_DIR)/install
@@ -630,4 +639,26 @@ $(ABSEIL_DIR)/install: $(ABSEIL_DIR)/download $(CMAKE_DIR)/install $(BINUTILS_DI
 			$(CMAKE_TOOLCHAIN_FLAG) && \
 		$(MAKE) && \
 		$(MAKE) install
+	touch $@
+
+
+
+# tzdb ----------------------------------------------------------------------------------------------------------------
+
+$(TZDB_DIR)/download:
+	mkdir -p $(TZDB_DIR)/
+	tar zxf $(DOWNLOAD_DIR)/tzdata*.tar.gz -C $(TZDB_DIR)/
+	tar zxf $(DOWNLOAD_DIR)/tzcode*.tar.gz -C $(TZDB_DIR)/
+	touch $@
+
+$(TZDB_DIR)/install: $(TZDB_DIR)/download $(BINUTILS_DIR)/install $(MICROTAR_DIR)/install
+	cd $(TZDB_DIR) && \
+		mkdir -p build && \
+		$(MAKE) TOPDIR=build install
+	cd $(TZDB_DIR)/build/usr/share/zoneinfo && \
+		rm -f *.tab tzdata.zi && \
+		rm -rf build
+	mkdir -p $(TARGET_PREFIX)/share
+	cd $(TZDB_DIR)/build/usr/share/zoneinfo && \
+		find . -type f | xargs $(NATIVE_PREFIX)/bin/mtar $(TARGET_PREFIX)/share/tzdb.tar
 	touch $@

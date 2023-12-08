@@ -31,7 +31,7 @@ function downloadFile {
 }
 
 # don't update these versions by hand. instead, run scripts/depsCheck.sh
-ABSEIL_VERSION=f393335cb7410fc3a88f41dc5dd878c020213e0b
+ABSEIL_VERSION=57383901082bd5e3ad8bfe63b2c44897c9f05c27
 BINUTILS_VERSION=2.37
 BOOST_VERSION=1.83.0
 CLI11_VERSION=2.3.2
@@ -47,10 +47,11 @@ NAMEOF_VERSION=0.10.3
 NCURSES_VERSION=6.4
 TURBO_VERSION=5d7e794b511d0b4e2257e567f7df9f79d5f43be6
 TVISION_VERSION=e9fac379992815aaadcba99f55d8d34b7037a311
+TZDB_VERSION=2023c
 ZLIB_VERSION=1.3
 
-# https://github.com/abseil/abseil-cpp/archive/f393335cb7410fc3a88f41dc5dd878c020213e0b.tar.gz
-downloadFile "abseil-$ABSEIL_VERSION.tar.gz" "https://github.com/abseil/abseil-cpp/archive/$ABSEIL_VERSION.tar.gz"
+# https://github.com/electroly/tmbasic-abseil-cpp
+downloadFile "abseil-$ABSEIL_VERSION.tar.gz" "https://github.com/electroly/tmbasic-abseil-cpp/archive/$ABSEIL_VERSION.tar.gz"
 
 # https://ftp.gnu.org/gnu/binutils
 downloadFile "binutils-$BINUTILS_VERSION.tar.gz" "https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VERSION.tar.gz"
@@ -102,6 +103,10 @@ downloadFile "turbo-$TURBO_VERSION.tar.gz" "https://github.com/magiblot/turbo/ar
 
 # https://github.com/magiblot/tvision
 downloadFile "tvision-$TVISION_VERSION.tar.gz" "https://github.com/magiblot/tvision/archive/$TVISION_VERSION.tar.gz"
+
+# https://www.iana.org/time-zones
+downloadFile "tzdata-$TZDB_VERSION.tar.gz" "https://data.iana.org/time-zones/releases/tzdata$TZDB_VERSION.tar.gz"
+downloadFile "tzcode-$TZDB_VERSION.tar.gz" "https://data.iana.org/time-zones/releases/tzcode$TZDB_VERSION.tar.gz"
 
 # https://zlib.net
 downloadFile "zlib-$ZLIB_VERSION.tar.gz" "https://zlib.net/zlib-$ZLIB_VERSION.tar.gz"

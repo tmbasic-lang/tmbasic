@@ -320,8 +320,11 @@ LDFLAGS += -lunistring
 # Linker flag to include libasbl_time
 LDFLAGS += -labsl_time -labsl_time_zone -labsl_int128
 
-# Linker flag to include libzip, microtar, zlib in tmbasic/test only (not runners).
-TMBASIC_LDFLAGS += -lzip -lmicrotar -lz
+# Linker flag to include microtar
+LDFLAGS += -lmicrotar
+
+# Linker flag to include libzip, zlib in tmbasic/test only (not runners).
+TMBASIC_LDFLAGS += -lzip -lz
 
 # Linker flag to include libgtest (googletest).
 LIBGTEST_FLAG += -lgtest -lgtest_main
@@ -505,6 +508,9 @@ obj/resources/LICENSE.txt: $(LICENSE_FILES)
 	@cat doc/licenses/libunistring/COPYING.LIB >> $@
 	@cat doc/licenses/libunistring/COPYING >> $@
 	@echo >> $@
+	@echo === microtar license === >> $@
+	@cat doc/licenses/microtar/LICENSE >> $@
+	@echo >> $@
 	@echo === mpdecimal license === >> $@
 	@cat doc/licenses/mpdecimal/LICENSE.txt >> $@
 	@echo >> $@
@@ -617,6 +623,12 @@ obj/resources/help/helpfile.o: obj/resources/help/help.h32
 	@xxd -i $< | sed s/obj_resources_help_help_h32/kResourceHelp/g > obj/resources/help/kResourceHelp.cpp
 	@$(CXX) -o $@ $(CXXFLAGS) -c obj/resources/help/kResourceHelp.cpp
 
+obj/resources/tzdb.o: $(PREFIX)/share/tzdb.tar
+	@printf "%16s  %s\n" "c++" "$@"
+	@mkdir -p $(@D)
+	@cd "$(PREFIX)/share" && xxd -i tzdb.tar | sed s/tzdb_tar/kResourceTzdb/g > $(PWD)/obj/resources/kResourceTzdb.cpp
+	@$(CXX) -o $@ $(CXXFLAGS) -c obj/resources/kResourceTzdb.cpp
+
 $(ALL_PLATFORM_RUNNER_COMPRESSED_FILES): %: bin/runner.gz
 	@printf "%16s  %s\n" "runnerFile.sh" "$@"
 	@mkdir -p $(@D)
@@ -670,6 +682,7 @@ bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
 		obj/resources/help/helpfile.h \
 		obj/resources/help/help.h32 \
 		obj/resources/help/helpfile.o \
+		obj/resources/tzdb.o \
 		$(ALL_PLATFORM_RUNNER_OBJ_FILES) \
 		$(ICON_RES_OBJ_FILE)
 	@printf "%16s  %s\n" "c++" "$@"
@@ -683,6 +696,7 @@ bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
 		obj/vm.a \
 		obj/util.a \
 		obj/resources/help/helpfile.o \
+		obj/resources/tzdb.o \
 		$(ALL_PLATFORM_RUNNER_OBJ_FILES) \
 		$(ICON_RES_OBJ_FILE) \
 		$(TMBASIC_LDFLAGS) \
@@ -721,6 +735,7 @@ bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) \
 		obj/resources/help/helpfile.h \
 		obj/resources/help/help.h32 \
 		obj/resources/help/helpfile.o \
+		obj/resources/tzdb.o \
 		$(ALL_PLATFORM_RUNNER_OBJ_FILES)
 	@printf "%16s  %s\n" "c++" "$@"
 	@mkdir -p $(@D)
@@ -734,6 +749,7 @@ bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) \
 		obj/vm.a \
 		obj/util.a \
 		obj/resources/help/helpfile.o \
+		obj/resources/tzdb.o \
 		$(ALL_PLATFORM_RUNNER_OBJ_FILES) \
 		$(TMBASIC_LDFLAGS) \
 		$(LDFLAGS) \
@@ -768,6 +784,7 @@ bin/runner$(EXE_EXTENSION): obj/resources/pcode/pcode.o $(RUNNER_OBJ_FILES) obj/
 		obj/resources/pcode/pcode.o \
 		obj/vm.a \
 		obj/util.a \
+		obj/resources/tzdb.o \
 		$(LDFLAGS)
 	@$(STRIP) $@
 
