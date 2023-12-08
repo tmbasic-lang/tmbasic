@@ -16,7 +16,7 @@ TEST(DateTest, DateTimePartsRoundTrip) {
 }
 
 TEST(DateTest, DateTimeOffsetPartsRoundTrip) {
-    vm::DateTimeOffsetParts parts{ 2019, 12, 31, 23, 55, 59, 999, -6 * vm::MSEC_PER_HOUR };
+    vm::DateTimeOffsetParts parts{ { 2019, 12, 31, 23, 55, 59, 999 }, -6 * vm::MSEC_PER_HOUR };
     auto value = vm::convertDateTimeOffsetPartsToValue(parts);
     auto roundTripParts = vm::convertValueToDateTimeOffsetParts(value);
     ASSERT_EQ(parts.year, roundTripParts.year);
