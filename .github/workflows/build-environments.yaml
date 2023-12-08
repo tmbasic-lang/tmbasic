@@ -94,6 +94,10 @@ jobs:
           echo "Installing AWSCLI."
           brew install awscli
 
+          echo "Installing GNU sed."
+          brew install gnu-sed
+          export PATH="$(brew --prefix)/opt/gnu-sed/libexec/gnubin:$PATH"
+
           echo "Building environment."
           pushd build
           ./${{ matrix.platform }}.sh
