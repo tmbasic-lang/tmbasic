@@ -62,6 +62,7 @@ endif
 ifeq ($(LINUX_DISTRO),alpine)
 HOST_FLAG=--host=$(LINUX_TRIPLE)
 CMAKE_TOOLCHAIN_FLAG=-DCMAKE_TOOLCHAIN_FILE=/tmp/cmake-toolchain-linux-$(ARCH).cmake
+NATIVE_CC=clang
 CC=clang --target=$(LINUX_TRIPLE) --sysroot=/target-sysroot
 TARGET_CC=$(CC)
 CXX=clang++ --target=$(LINUX_TRIPLE) --sysroot=/target-sysroot
@@ -71,6 +72,7 @@ TARGET_AR=$(AR)
 RANLIB=$(LINUX_TRIPLE)-ranlib
 else
 CC=gcc
+NATIVE_CC=gcc
 TARGET_CC=$(CC)
 CXX=g++
 LD=ld
@@ -112,6 +114,8 @@ ifeq ($(TARGET_OS),win)
 CMAKE_TOOLCHAIN_FLAG=-DCMAKE_TOOLCHAIN_FILE=/tmp/cmake-toolchain-win-$(ARCH).cmake
 HOST_FLAG=--host=$(ARCH)-w64-mingw32
 endif
+
+NATIVE_CC ?= $(CC)
 
 .PHONY: all
 all: \
@@ -533,7 +537,7 @@ $(MICROTAR_DIR)/install-target-library: $(MICROTAR_DIR)/download $(BINUTILS_DIR)
 
 $(MICROTAR_DIR)/install-native-mtar: $(MICROTAR_DIR)/download $(BINUTILS_DIR)/install
 	cp $(MICROTAR_DIR)/src/microtar.h $(NATIVE_PREFIX)/include/
-	$(CC) -o $(NATIVE_PREFIX)/bin/mtar -isystem "$(NATIVE_PREFIX)/include" $(MICROTAR_DIR)/src/microtar.c $(PWD)/../mtar.c && \
+	$(NATIVE_CC) -o $(NATIVE_PREFIX)/bin/mtar -isystem "$(NATIVE_PREFIX)/include" $(MICROTAR_DIR)/src/microtar.c $(PWD)/../mtar.c && \
 	touch $@
 
 
