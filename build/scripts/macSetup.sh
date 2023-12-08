@@ -48,7 +48,7 @@ export TARGET_PREFIX="$PREFIX"
 
 # Build unless $NO_BUILD is non-empty.
 if [ -z "${NO_BUILD+x}" ]; then
-    gnumake -j6 -f ../../build/files/deps.mk
+    gnumake -j6 -f ../../build/files/deps.mk || gnumake -f ../../build/files/deps.mk
 fi
 
 cd ..

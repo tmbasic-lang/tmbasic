@@ -74,7 +74,7 @@ RUN mkdir -p /tmp/downloads && \
     export TARGET_CC=$ARCH-w64-mingw32-gcc \
     export TARGET_AR=$ARCH-w64-mingw32-ar \
     export DOWNLOAD_DIR=/tmp/downloads && \
-    make -j$(nproc) -f /tmp/deps.mk && \
+    (make -j$(nproc) -f /tmp/deps.mk || make -f /tmp/deps.mk) && \
     rm -rf /tmp/deps /tmp/deps.mk
 
 # environment
