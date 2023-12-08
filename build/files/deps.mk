@@ -533,7 +533,7 @@ $(MICROTAR_DIR)/install-target-library: $(MICROTAR_DIR)/download $(BINUTILS_DIR)
 
 $(MICROTAR_DIR)/install-native-mtar: $(MICROTAR_DIR)/download $(BINUTILS_DIR)/install
 	cp $(MICROTAR_DIR)/src/microtar.h $(NATIVE_PREFIX)/include/
-	$(CC) -o $(NATIVE_PREFIX)/bin/mtar $(MICROTAR_DIR)/src/microtar.c $(PWD)/../mtar.c && \
+	$(CC) -o $(NATIVE_PREFIX)/bin/mtar -isystem "$(NATIVE_PREFIX)/include" $(MICROTAR_DIR)/src/microtar.c $(PWD)/../mtar.c && \
 	touch $@
 
 
