@@ -9,7 +9,7 @@ class String : public Object {
    public:
     const std::string value;  // UTF-8
     String();
-    explicit String(const std::string& utf8);
+    explicit String(std::string utf8);
     String(const uint8_t* utf8, int length);
     String(const char* utf8, int length);
     explicit String(const char* utf8);

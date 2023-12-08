@@ -65,12 +65,13 @@ Value convertDateTimeOffsetPartsToValue(DateTimeOffsetParts parts) {
 }
 
 Value convertDateTimePartsToValue(DateTimeParts parts) {
-    DateTimeOffsetParts offsetParts{ parts.year,   parts.month,  parts.day,         parts.hour,
-                                     parts.minute, parts.second, parts.millisecond, 0 };
+    DateTimeOffsetParts offsetParts{
+        { parts.year, parts.month, parts.day, parts.hour, parts.minute, parts.second, parts.millisecond }, 0
+    };
     return convertDateTimeOffsetPartsToValue(offsetParts);
 }
 
-DateTimeOffsetParts convertValueToDateTimeOffsetParts(Value value) {
+DateTimeOffsetParts convertValueToDateTimeOffsetParts(const Value& value) {
     auto packed = value.getUint64();
 
     auto offsetMinutes = static_cast<int64_t>(packed & 0x7FF);
@@ -78,8 +79,9 @@ DateTimeOffsetParts convertValueToDateTimeOffsetParts(Value value) {
 
     auto offsetSign = packed & 0x1;
     packed >>= 1;
-    if (offsetSign != 0)
+    if (offsetSign != 0) {
         offsetMinutes = -offsetMinutes;
+    }
 
     auto millisecond = packed & 0x3FF;
     packed >>= 10;
@@ -101,13 +103,13 @@ DateTimeOffsetParts convertValueToDateTimeOffsetParts(Value value) {
 
     auto year = packed & 0xFFFF;
 
-    return DateTimeOffsetParts{ static_cast<uint32_t>(year),        static_cast<uint32_t>(month),
-                                static_cast<uint32_t>(day),         static_cast<uint32_t>(hour),
-                                static_cast<uint32_t>(minute),      static_cast<uint32_t>(second),
-                                static_cast<uint32_t>(millisecond), offsetMinutes * MSEC_PER_MINUTE };
+    return DateTimeOffsetParts{ { static_cast<uint32_t>(year), static_cast<uint32_t>(month), static_cast<uint32_t>(day),
+                                  static_cast<uint32_t>(hour), static_cast<uint32_t>(minute),
+                                  static_cast<uint32_t>(second), static_cast<uint32_t>(millisecond) },
+                                offsetMinutes * MSEC_PER_MINUTE };
 }
 
-DateTimeParts convertValueToDateTimeParts(Value value) {
+DateTimeParts convertValueToDateTimeParts(const Value& value) {
     auto parts = convertValueToDateTimeOffsetParts(value);
     return DateTimeParts{
         parts.year, parts.month, parts.day, parts.hour, parts.minute, parts.second, parts.millisecond

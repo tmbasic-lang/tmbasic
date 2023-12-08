@@ -64,13 +64,14 @@ void initSystemCallsStrings() {
         const auto& str = dynamic_cast<const String&>(input.getObject(-1));
 
         // Use u8_mbtouc to convert the UTF-8 string to a vector of code points.
-        auto utf8 = str.getUnistring();
+        const auto* utf8 = str.getUnistring();
         auto utf8Length = str.value.length();
         size_t currentIndex = 0;  // Track the index into the string
         ValueListBuilder valueListBuilder{};
 
         while (currentIndex < utf8Length) {
-            ucs4_t ch32;
+            ucs4_t ch32 = 0;
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
             auto length = u8_mbtouc(&ch32, &utf8[currentIndex], utf8Length - currentIndex);
             if (length < 0) {
                 throw Error(
@@ -206,7 +207,7 @@ void initSystemCallsStrings() {
         // Validate the UTF-8 string.
         auto str = ss.str();
         const auto* utf8 = reinterpret_cast<const uint8_t*>(str.c_str());
-        auto error = u8_check(utf8, str.length());
+        const auto* error = u8_check(utf8, str.length());
         if (error != nullptr) {
             // error is a pointer to the first invalid unit.
             throw Error(

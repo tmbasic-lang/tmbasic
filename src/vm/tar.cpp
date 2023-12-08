@@ -128,7 +128,7 @@ class InputTarArchive {
 void untar(
     const char* tarData,
     size_t tarSize,
-    std::function<void(const char* name, const char* data, size_t length)> entryCallback) {
+    const std::function<void(const char* name, const char* data, size_t length)>& entryCallback) {
     InputTarArchive archive{ tarData, tarSize };
     mtar_t mtar{};
     memset(&mtar, 0, sizeof(mtar_t));

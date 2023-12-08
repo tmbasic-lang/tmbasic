@@ -33,9 +33,9 @@ void initializeTzdb();
 
 // Low-level packing and unpacking.
 Value convertDateTimePartsToValue(DateTimeParts parts);
-DateTimeParts convertValueToDateTimeParts(Value value);
+DateTimeParts convertValueToDateTimeParts(const Value& value);
 Value convertDateTimeOffsetPartsToValue(DateTimeOffsetParts parts);
-DateTimeOffsetParts convertValueToDateTimeOffsetParts(Value value);
+DateTimeOffsetParts convertValueToDateTimeOffsetParts(const Value& value);
 
 // String formatting
 boost::local_shared_ptr<String> dateToString(const Value& date);

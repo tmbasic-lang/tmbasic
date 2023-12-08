@@ -4,7 +4,7 @@ namespace vm {
 
 String::String() : value() {}
 
-String::String(const std::string& utf8) : value(utf8) {}
+String::String(std::string utf8) : value(std::move(utf8)) {}
 
 String::String(const uint8_t* utf8, int length) : value(reinterpret_cast<const char*>(utf8), length) {}
 

@@ -120,10 +120,11 @@ void initSystemCallsDates() {
 
         auto offsetMilliseconds = input.getValue(-1).getInt64();
 
-        DateTimeOffsetParts parts{ static_cast<uint32_t>(year),        static_cast<uint32_t>(month),
-                                   static_cast<uint32_t>(day),         static_cast<uint32_t>(hour),
-                                   static_cast<uint32_t>(minute),      static_cast<uint32_t>(second),
-                                   static_cast<uint32_t>(millisecond), offsetMilliseconds };
+        DateTimeOffsetParts parts{ { static_cast<uint32_t>(year), static_cast<uint32_t>(month),
+                                     static_cast<uint32_t>(day), static_cast<uint32_t>(hour),
+                                     static_cast<uint32_t>(minute), static_cast<uint32_t>(second),
+                                     static_cast<uint32_t>(millisecond) },
+                                   offsetMilliseconds };
 
         result->returnedValue = convertDateTimeOffsetPartsToValue(parts);
     });
