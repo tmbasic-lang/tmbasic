@@ -701,7 +701,7 @@ obj/resources/pcode/pcode.o: %:
 	xxd -i obj/resources/pcode/pcode.dat | sed s/obj_resources_pcode_pcode_dat/kResourcePcode/g > obj/resources/pcode/pcode.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c obj/resources/pcode/pcode.cpp
 
-bin/runner$(EXE_EXTENSION): obj/resources/pcode/pcode.o $(RUNNER_OBJ_FILES) obj/util.a obj/vm.a
+bin/runner$(EXE_EXTENSION): obj/resources/pcode/pcode.o $(RUNNER_OBJ_FILES) obj/util.a obj/vm.a obj/resources/tzdb.o
 	@mkdir -p $(@D)
 	$(CXX) -o $@ $(CXXFLAGS) $(STATIC_FLAG) -include obj/common.h $(RUNNER_OBJ_FILES) obj/resources/pcode/pcode.o obj/vm.a obj/util.a obj/resources/tzdb.o $(LDFLAGS)
 	$(STRIP) $@
