@@ -380,33 +380,31 @@ endif
 
 .PHONY: release
 release:
-	@OPTFLAGS="-Os" EXTRADEFS="-DNDEBUG" STRIP_TMBASIC=1 $(MAKE) bin/tmbasic$(EXE_EXTENSION)
+	OPTFLAGS="-Os" EXTRADEFS="-DNDEBUG" STRIP_TMBASIC=1 $(MAKE) bin/tmbasic$(EXE_EXTENSION)
 
 .PHONY: clean
 clean:
-	@rm -rf bin obj valgrind.txt
+	rm -rf bin obj valgrind.txt
 
 .PHONY: run
 run:
-	@bin/tmbasic \
-		|| (printf "\r\nCrash detected! Resetting terminal in 5 seconds...\r\n" && sleep 5 && reset && echo "Eating input. Press Ctrl+D." && cat >/dev/null)
+	bin/tmbasic || (printf "\r\nCrash detected! Resetting terminal in 5 seconds...\r\n" && sleep 5 && reset && echo "Eating input. Press Ctrl+D." && cat >/dev/null)
 
 .PHONY: test
 test: bin/test$(EXE_EXTENSION)
-	@cd bin && $(TEST_CMD)
+	cd bin && $(TEST_CMD)
 
 .PHONY: valgrind
 valgrind: bin/tmbasic
-	@valgrind --leak-check=full --show-leak-kinds=all --undef-value-errors=no --log-file=valgrind.txt bin/tmbasic \
-		|| (printf "\r\nCrash detected! Resetting terminal in 5 seconds...\r\n" && sleep 5 && reset && echo "Eating input. Press Ctrl+D." && cat >/dev/null)
+	valgrind --leak-check=full --show-leak-kinds=all --undef-value-errors=no --log-file=valgrind.txt bin/tmbasic || (printf "\r\nCrash detected! Resetting terminal in 5 seconds...\r\n" && sleep 5 && reset && echo "Eating input. Press Ctrl+D." && cat >/dev/null)
 
 .PHONY: format
 format:
-	@find src/ -type f \( -iname \*.h -o -iname \*.cpp \) | xargs clang-format -i
+	find src/ -type f \( -iname \*.h -o -iname \*.cpp \) | xargs clang-format -i
 
 .PHONY: lint
 lint:
-	@cpplint --quiet --recursive --repository=src src
+	cpplint --quiet --recursive --repository=src src
 
 .PHONY: tidy
 tidy: $(TIDY_TARGETS)
@@ -414,7 +412,7 @@ tidy: $(TIDY_TARGETS)
 .PHONY: ghpages
 ghpages: obj/resources/help/help.txt bin/ghpages/index.html
 	@mkdir -p bin/ghpages
-	@cp obj/doc-html/* bin/ghpages/
+	cp obj/doc-html/* bin/ghpages/
 
 .PHONY: runner
 runner: bin/runner.gz
@@ -428,10 +426,9 @@ runner: bin/runner.gz
 # tidy ----------------------------------------------------------------------------------------------------------------
 
 $(TIDY_TARGETS): obj/tidy/%.tidy: src/%.cpp
-	@printf "%16s  %s\n" "clang-tidy" "$<"
 	@mkdir -p $(@D)
-	@clang-tidy $< --quiet --fix --extra-arg=-Wno-unknown-warning-option -- $(CXXFLAGS) -DCLANG_TIDY | tee $@
-	@touch $@
+	clang-tidy $< --quiet --fix --extra-arg=-Wno-unknown-warning-option -- $(CXXFLAGS) -DCLANG_TIDY | tee $@
+	touch $@
 
 
 
@@ -443,119 +440,104 @@ bin/ghpages/index.html: README.md \
 		doc/help/html/page-template-3.html \
 		$(FAVICON_OUT_FILES) \
 		$(PNG_OUT_FILES)
-	@printf "%16s  %s\n" "pandoc" "$@"
 	@mkdir -p $(@D)
-	@cat doc/help/html/page-template-1.html > $@
-	@echo -n "TMBASIC Programming Language" >> $@
-	@cat doc/help/html/page-template-2.html >> $@
-	@pandoc --from=markdown --to=html $< >> $@
-	@cat doc/help/html/page-template-3.html >> $@
-	@cat $@ | sed 's!https://tmbasic.com/!/!g' > $@-temp
-	@mv -f $@-temp $@
+	cat doc/help/html/page-template-1.html > $@
+	echo -n "TMBASIC Programming Language" >> $@
+	cat doc/help/html/page-template-2.html >> $@
+	pandoc --from=markdown --to=html $< >> $@
+	cat doc/help/html/page-template-3.html >> $@
+	cat $@ | sed 's!https://tmbasic.com/!/!g' > $@-temp
+	mv -f $@-temp $@
 
 $(FAVICON_OUT_FILES): bin/ghpages/%: doc/art/favicon/%
-	@printf "%16s  %s\n" "cp" "$@"
 	@mkdir -p $(@D)
-	@cp -f $< $@
+	cp -f $< $@
 
 $(PNG_OUT_FILES): bin/ghpages/%: doc/art/%
-	@printf "%16s  %s\n" "cp" "$@"
 	@mkdir -p $(@D)
-	@cp -f $< $@
+	cp -f $< $@
 
 
 
 # precompiled header --------------------------------------------------------------------------------------------------
 
 obj/common.h.gch: src/common.h
-	@printf "%16s  %s\n" "c++" "$@"
 	@mkdir -p $(@D)
-	@$(CXX) -o $@ $(CXXFLAGS) -x c++-header src/common.h
+	$(CXX) -o $@ $(CXXFLAGS) -x c++-header src/common.h
 
 
 
 # help ----------------------------------------------------------------------------------------------------------------
 
 obj/resources/LICENSE.o: obj/resources/LICENSE.txt
-	@printf "%16s  %s\n" "c++" "$@"
-	@xxd -i $< | sed s/obj_resources_LICENSE_txt/kLicense/g > obj/resources/LICENSE.cpp
-	@$(CXX) -o $@ $(CXXFLAGS) -c obj/resources/LICENSE.cpp
+	xxd -i $< | sed s/obj_resources_LICENSE_txt/kLicense/g > obj/resources/LICENSE.cpp
+	$(CXX) -o $@ $(CXXFLAGS) -c obj/resources/LICENSE.cpp
 
 obj/resources/LICENSE.txt: $(LICENSE_FILES)
-	@printf "%16s  %s\n" "cat" "$@"
 	@mkdir -p $(@D)
-	@rm -f $@
-	@echo === tmbasic license === >> $@
-	@cat LICENSE >> $@
-	@echo >> $@
-	@echo === abseil license === >> $@
-	@cat doc/licenses/abseil/LICENSE >> $@
-	@echo >> $@
-	@echo === boost license === >> $@
-	@cat doc/licenses/boost/LICENSE_1_0.txt >> $@
-	@echo >> $@
-	@echo === fmt license === >> $@
-	@cat doc/licenses/fmt/LICENSE.rst >> $@
-	@echo >> $@
-	@echo === immer license === >> $@
-	@cat doc/licenses/immer/LICENSE >> $@
-	@echo >> $@
-	@echo === libstdc++ license === >> $@
-	@cat doc/licenses/gcc/GPL-3 >> $@
-	@cat doc/licenses/gcc/copyright >> $@
-	@echo >> $@
-	@echo === libunistring license === >> $@
-	@cat doc/licenses/libunistring/COPYING.LIB >> $@
-	@cat doc/licenses/libunistring/COPYING >> $@
-	@echo >> $@
-	@echo === microtar license === >> $@
-	@cat doc/licenses/microtar/LICENSE >> $@
-	@echo >> $@
-	@echo === mpdecimal license === >> $@
-	@cat doc/licenses/mpdecimal/LICENSE.txt >> $@
-	@echo >> $@
-	@echo === musl license === >> $@
-	@cat doc/licenses/musl/COPYRIGHT >> $@
-	@echo >> $@
-	@echo === ncurses license === >> $@
-	@cat doc/licenses/ncurses/COPYING >> $@
-	@echo >> $@
-	@echo === turbo license === >> $@
-	@cat doc/licenses/turbo/COPYRIGHT >> $@
-	@echo >> $@
-	@echo === tvision license === >> $@
-	@cat doc/licenses/tvision/COPYRIGHT >> $@
-	@echo >> $@
-	@echo === scintilla license === >> $@
-	@cat doc/licenses/scintilla/License.txt >> $@
-	@echo >> $@
+	rm -f $@
+	echo === tmbasic license === >> $@
+	cat LICENSE >> $@
+	echo >> $@
+	echo === abseil license === >> $@
+	cat doc/licenses/abseil/LICENSE >> $@
+	echo >> $@
+	echo === boost license === >> $@
+	cat doc/licenses/boost/LICENSE_1_0.txt >> $@
+	echo >> $@
+	echo === fmt license === >> $@
+	cat doc/licenses/fmt/LICENSE.rst >> $@
+	echo >> $@
+	echo === immer license === >> $@
+	cat doc/licenses/immer/LICENSE >> $@
+	echo >> $@
+	echo === libstdc++ license === >> $@
+	cat doc/licenses/gcc/GPL-3 >> $@
+	cat doc/licenses/gcc/copyright >> $@
+	echo >> $@
+	echo === libunistring license === >> $@
+	cat doc/licenses/libunistring/COPYING.LIB >> $@
+	cat doc/licenses/libunistring/COPYING >> $@
+	echo >> $@
+	echo === microtar license === >> $@
+	cat doc/licenses/microtar/LICENSE >> $@
+	echo >> $@
+	echo === mpdecimal license === >> $@
+	cat doc/licenses/mpdecimal/LICENSE.txt >> $@
+	echo >> $@
+	echo === musl license === >> $@
+	cat doc/licenses/musl/COPYRIGHT >> $@
+	echo >> $@
+	echo === ncurses license === >> $@
+	cat doc/licenses/ncurses/COPYING >> $@
+	echo >> $@
+	echo === turbo license === >> $@
+	cat doc/licenses/turbo/COPYRIGHT >> $@
+	echo >> $@
+	echo === tvision license === >> $@
+	cat doc/licenses/tvision/COPYRIGHT >> $@
+	echo >> $@
+	echo === scintilla license === >> $@
+	cat doc/licenses/scintilla/License.txt >> $@
+	echo >> $@
 
 $(LICENSE_DIAGRAM_TXT_TIMESTAMP_FILE): $(LICENSE_FILES)
-	@printf "%16s  %s\n" "copyLicenses.sh" "$@"
 	@mkdir -p $(@D)
-	@build/scripts/copyLicenses.sh
-	@touch $@
+	build/scripts/copyLicenses.sh
+	touch $@
 
 $(LICENSE_DIAGRAM_TXT_FILES): $(LICENSE_DIAGRAM_TXT_TIMESTAMP_FILE)
 
 obj/buildDoc: src/buildDoc.cpp
-	@printf "%16s  %s\n" "$(BUILDCXX)" "$@"
 	@mkdir -p $(@D)
-	@$(BUILDCXX) \
-		-o $@ $< \
-		$(CXXFLAGS) \
-		-Wall \
-		-Werror \
-		-std=c++17 \
-		-lstdc++
+	$(BUILDCXX) -o $@ $< $(CXXFLAGS) -Wall -Werror -std=c++17 -lstdc++
 
 obj/resources/help/helpfile.h: obj/resources/help/help.txt
-	@printf "%16s  %s\n" "tvhc" "$@"
 	@mkdir -p obj/resources/help
 	@mkdir -p bin
-	@rm -f obj/resources/help/help.h32
-	@rm -f obj/resources/help/helpfile.h
-	@$(TVHC) obj/resources/help/help.txt obj/resources/help/help.h32 obj/resources/help/helpfile.h >/dev/null
+	rm -f obj/resources/help/help.h32
+	rm -f obj/resources/help/helpfile.h
+	$(TVHC) obj/resources/help/help.txt obj/resources/help/help.h32 obj/resources/help/helpfile.h >/dev/null
 
 obj/resources/help/help.h32: obj/resources/help/helpfile.h
 	@# noop
@@ -567,93 +549,75 @@ obj/resources/help/help.txt: $(DOC_FILES) $(TOPIC_SRC_FILES) $(PROCEDURES_SRC_FI
 		doc/help/html/page-template-1.html \
 		doc/help/html/page-template-2.html \
 		doc/help/html/page-template-3.html
-	@printf "%16s  %s\n" "buildDoc" "$@"
 	@mkdir -p $(@D)
-	@cd doc && ../obj/buildDoc
+	cd doc && ../obj/buildDoc
 
 
 
 # compiler ------------------------------------------------------------------------------------------------------------
 
 $(COMPILER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(UTIL_H_FILES) $(VM_H_FILES) $(COMPILER_H_FILES)
-	@printf "%16s  %s\n" "c++" "$@"
 	@mkdir -p $(@D)
-	@$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
+	$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
 
 obj/compiler.a: $(COMPILER_OBJ_FILES) obj/resources/LICENSE.o
-	@printf "%16s  %s\n" "ar" "$@"
 	@mkdir -p $(@D)
-	@$(AR) rcs $@ $(COMPILER_OBJ_FILES) obj/resources/LICENSE.o
+	$(AR) rcs $@ $(COMPILER_OBJ_FILES) obj/resources/LICENSE.o
 
 
 
 # util ----------------------------------------------------------------------------------------------------------------
 
 $(UTIL_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(UTIL_H_FILES)
-	@printf "%16s  %s\n" "c++" "$@"
 	@mkdir -p $(@D)
-	@$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
+	$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
 
 obj/util.a: $(UTIL_OBJ_FILES)
-	@printf "%16s  %s\n" "ar" "$@"
 	@mkdir -p $(@D)
-	@$(AR) rcs $@ $(UTIL_OBJ_FILES)
+	$(AR) rcs $@ $(UTIL_OBJ_FILES)
 
 
 
 # vm ------------------------------------------------------------------------------------------------------------------
 
 $(VM_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(VM_H_FILES)
-	@printf "%16s  %s\n" "c++" "$@"
 	@mkdir -p $(@D)
-	@$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
+	$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
 
 obj/vm.a: $(VM_OBJ_FILES)
-	@printf "%16s  %s\n" "ar" "$@"
 	@mkdir -p $(@D)
-	@$(AR) rcs $@ $(VM_OBJ_FILES)
+	$(AR) rcs $@ $(VM_OBJ_FILES)
 
 
 
 # resources -----------------------------------------------------------------------------------------------------------
 
 obj/resources/help/helpfile.o: obj/resources/help/help.h32
-	@printf "%16s  %s\n" "c++" "$@"
 	@mkdir -p $(@D)
-	@xxd -i $< | sed s/obj_resources_help_help_h32/kResourceHelp/g > obj/resources/help/kResourceHelp.cpp
-	@$(CXX) -o $@ $(CXXFLAGS) -c obj/resources/help/kResourceHelp.cpp
+	xxd -i $< | sed s/obj_resources_help_help_h32/kResourceHelp/g > obj/resources/help/kResourceHelp.cpp
+	$(CXX) -o $@ $(CXXFLAGS) -c obj/resources/help/kResourceHelp.cpp
 
 obj/resources/tzdb.o: $(PREFIX)/share/tzdb.tar
-	@printf "%16s  %s\n" "c++" "$@"
 	@mkdir -p $(@D)
-	@cd "$(PREFIX)/share" && xxd -i tzdb.tar | sed s/tzdb_tar/kResourceTzdb/g > $(PWD)/obj/resources/kResourceTzdb.cpp
-	@$(CXX) -o $@ $(CXXFLAGS) -c obj/resources/kResourceTzdb.cpp
+	cd "$(PREFIX)/share" && xxd -i tzdb.tar | sed s/tzdb_tar/kResourceTzdb/g > $(PWD)/obj/resources/kResourceTzdb.cpp
+	$(CXX) -o $@ $(CXXFLAGS) -c obj/resources/kResourceTzdb.cpp
 
 $(ALL_PLATFORM_RUNNER_COMPRESSED_FILES): %: bin/runner.gz
-	@printf "%16s  %s\n" "runnerFile.sh" "$@"
 	@mkdir -p $(@D)
-	@TARGET_OS=$(TARGET_OS) SHORT_ARCH=$(SHORT_ARCH) RUNNER_FILE=$@ build/scripts/runnerFile.sh
+	TARGET_OS=$(TARGET_OS) SHORT_ARCH=$(SHORT_ARCH) RUNNER_FILE=$@ build/scripts/runnerFile.sh
 
 # runnerRes.sh takes a ton of memory, so run these one at a time instead of in parallel
 obj/resources/runners/all: $(ALL_PLATFORM_RUNNER_COMPRESSED_FILES)
 	@mkdir -p $(@D)
-	@printf "%16s  %s\n" "runnerRes.sh" "obj/resources/runners/linux_arm64.gz.o"
-	@OBJ_FILE=obj/resources/runners/linux_arm64.gz.o CXX="$(CXX) $(CXXFLAGS)" build/scripts/runnerRes.sh
-	@printf "%16s  %s\n" "runnerRes.sh" "obj/resources/runners/linux_arm32.gz.o"
-	@OBJ_FILE=obj/resources/runners/linux_arm32.gz.o CXX="$(CXX) $(CXXFLAGS)" build/scripts/runnerRes.sh
-	@printf "%16s  %s\n" "runnerRes.sh" "obj/resources/runners/linux_x64.gz.o"
-	@OBJ_FILE=obj/resources/runners/linux_x64.gz.o CXX="$(CXX) $(CXXFLAGS)" build/scripts/runnerRes.sh
-	@printf "%16s  %s\n" "runnerRes.sh" "obj/resources/runners/linux_x86.gz.o"
-	@OBJ_FILE=obj/resources/runners/linux_x86.gz.o CXX="$(CXX) $(CXXFLAGS)" build/scripts/runnerRes.sh
-	@printf "%16s  %s\n" "runnerRes.sh" "obj/resources/runners/mac_x64.gz.o"
-	@OBJ_FILE=obj/resources/runners/mac_x64.gz.o CXX="$(CXX) $(CXXFLAGS)" build/scripts/runnerRes.sh
-	@printf "%16s  %s\n" "runnerRes.sh" "obj/resources/runners/mac_arm64.gz.o"
-	@OBJ_FILE=obj/resources/runners/mac_arm64.gz.o CXX="$(CXX) $(CXXFLAGS)" build/scripts/runnerRes.sh
-	@printf "%16s  %s\n" "runnerRes.sh" "obj/resources/runners/win_x64.gz.o"
-	@OBJ_FILE=obj/resources/runners/win_x64.gz.o CXX="$(CXX) $(CXXFLAGS)" build/scripts/runnerRes.sh
-	@printf "%16s  %s\n" "runnerRes.sh" "obj/resources/runners/win_x86.gz.o"
-	@OBJ_FILE=obj/resources/runners/win_x86.gz.o CXX="$(CXX) $(CXXFLAGS)" build/scripts/runnerRes.sh
-	@touch $@
+	OBJ_FILE=obj/resources/runners/linux_arm64.gz.o CXX="$(CXX) $(CXXFLAGS)" build/scripts/runnerRes.sh
+	OBJ_FILE=obj/resources/runners/linux_arm32.gz.o CXX="$(CXX) $(CXXFLAGS)" build/scripts/runnerRes.sh
+	OBJ_FILE=obj/resources/runners/linux_x64.gz.o CXX="$(CXX) $(CXXFLAGS)" build/scripts/runnerRes.sh
+	OBJ_FILE=obj/resources/runners/linux_x86.gz.o CXX="$(CXX) $(CXXFLAGS)" build/scripts/runnerRes.sh
+	OBJ_FILE=obj/resources/runners/mac_x64.gz.o CXX="$(CXX) $(CXXFLAGS)" build/scripts/runnerRes.sh
+	OBJ_FILE=obj/resources/runners/mac_arm64.gz.o CXX="$(CXX) $(CXXFLAGS)" build/scripts/runnerRes.sh
+	OBJ_FILE=obj/resources/runners/win_x64.gz.o CXX="$(CXX) $(CXXFLAGS)" build/scripts/runnerRes.sh
+	OBJ_FILE=obj/resources/runners/win_x86.gz.o CXX="$(CXX) $(CXXFLAGS)" build/scripts/runnerRes.sh
+	touch $@
 
 $(ALL_PLATFORM_RUNNER_OBJ_FILES): obj/resources/runners/%.o: obj/resources/runners/all
 	@mkdir -p $(@D)
@@ -670,9 +634,8 @@ $(TMBASIC_OBJ_FILES): obj/%.o: src/%.cpp \
 		$(UTIL_H_FILES) \
 		$(VM_H_FILES) \
 		$(TMBASIC_H_FILES)
-	@printf "%16s  %s\n" "c++" "$@"
 	@mkdir -p $(@D)
-	@$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
+	$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
 
 bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
 		obj/util.a \
@@ -685,31 +648,16 @@ bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
 		obj/resources/tzdb.o \
 		$(ALL_PLATFORM_RUNNER_OBJ_FILES) \
 		$(ICON_RES_OBJ_FILE)
-	@printf "%16s  %s\n" "c++" "$@"
 	@mkdir -p $(@D)
-	@$(CXX) \
-		-o $@ $(TMBASIC_OBJ_FILES) \
-		$(CXXFLAGS) \
-		$(STATIC_FLAG) \
-		-include obj/common.h \
-		obj/compiler.a \
-		obj/vm.a \
-		obj/util.a \
-		obj/resources/help/helpfile.o \
-		obj/resources/tzdb.o \
-		$(ALL_PLATFORM_RUNNER_OBJ_FILES) \
-		$(ICON_RES_OBJ_FILE) \
-		$(TMBASIC_LDFLAGS) \
-		$(LDFLAGS)
+	$(CXX) -o $@ $(TMBASIC_OBJ_FILES) $(CXXFLAGS) $(STATIC_FLAG) -include obj/common.h obj/compiler.a obj/vm.a obj/util.a obj/resources/help/helpfile.o obj/resources/tzdb.o $(ALL_PLATFORM_RUNNER_OBJ_FILES) $(ICON_RES_OBJ_FILE) $(TMBASIC_LDFLAGS) $(LDFLAGS)
 ifeq ($(STRIP_TMBASIC),1)
-	@$(STRIP) bin/tmbasic$(EXE_EXTENSION)
+	$(STRIP) bin/tmbasic$(EXE_EXTENSION)
 endif
 
 ifeq ($(TARGET_OS),win)
 obj/tmbasic/AppWin.res.o: src/tmbasic/AppWin.rc doc/art/favicon/favicon.ico
-	@printf "%16s  %s\n" "windres" "$@"
 	@mkdir -p $(@D)
-	@$(WINDRES) $< -o $@
+	$(WINDRES) $< -o $@
 endif
 
 
@@ -723,9 +671,8 @@ $(TEST_OBJ_FILES): obj/%.o: src/%.cpp \
 		$(COMPILER_H_FILES) \
 		$(UTIL_H_FILES) \
 		$(VM_H_FILES)
-	@printf "%16s  %s\n" "c++" "$@"
 	@mkdir -p $(@D)
-	@$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
+	$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
 
 bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) \
 		obj/util.a \
@@ -737,60 +684,30 @@ bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) \
 		obj/resources/help/helpfile.o \
 		obj/resources/tzdb.o \
 		$(ALL_PLATFORM_RUNNER_OBJ_FILES)
-	@printf "%16s  %s\n" "c++" "$@"
 	@mkdir -p $(@D)
-	@$(CXX) \
-		-o $@ \
-		$(CXXFLAGS) \
-		$(STATIC_FLAG) \
-		-include obj/common.h \
-		$(TEST_OBJ_FILES) \
-		obj/compiler.a \
-		obj/vm.a \
-		obj/util.a \
-		obj/resources/help/helpfile.o \
-		obj/resources/tzdb.o \
-		$(ALL_PLATFORM_RUNNER_OBJ_FILES) \
-		$(TMBASIC_LDFLAGS) \
-		$(LDFLAGS) \
-		$(LIBGTEST_FLAG) \
-		-lpthread
+	$(CXX) -o $@ $(CXXFLAGS) $(STATIC_FLAG) -include obj/common.h $(TEST_OBJ_FILES) obj/compiler.a obj/vm.a obj/util.a obj/resources/help/helpfile.o obj/resources/tzdb.o $(ALL_PLATFORM_RUNNER_OBJ_FILES) $(TMBASIC_LDFLAGS) $(LDFLAGS) $(LIBGTEST_FLAG) -lpthread
 
 
 
 # runner (this platform) ----------------------------------------------------------------------------------------------
 
 $(RUNNER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(UTIL_H_FILES) $(VM_H_FILES) $(RUNNER_H_FILES)
-	@printf "%16s  %s\n" "c++" "$@"
 	@mkdir -p $(@D)
-	@$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
+	$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
 
 obj/resources/pcode/pcode.o: %:
-	@printf "%16s  %s\n" "c++" "$@"
 	@mkdir -p $(@D)
-	@head -c 1048576 /dev/zero | tr '\0' 'T' > obj/resources/pcode/pcode.dat
-	@xxd -i obj/resources/pcode/pcode.dat | sed s/obj_resources_pcode_pcode_dat/kResourcePcode/g > obj/resources/pcode/pcode.cpp
-	@$(CXX) $(CXXFLAGS) -o $@ -c obj/resources/pcode/pcode.cpp
+	head -c 1048576 /dev/zero | tr '\0' 'T' > obj/resources/pcode/pcode.dat
+	xxd -i obj/resources/pcode/pcode.dat | sed s/obj_resources_pcode_pcode_dat/kResourcePcode/g > obj/resources/pcode/pcode.cpp
+	$(CXX) $(CXXFLAGS) -o $@ -c obj/resources/pcode/pcode.cpp
 
 bin/runner$(EXE_EXTENSION): obj/resources/pcode/pcode.o $(RUNNER_OBJ_FILES) obj/util.a obj/vm.a
-	@printf "%16s  %s\n" "c++" "$@"
 	@mkdir -p $(@D)
-	@$(CXX) \
-		-o $@ \
-		$(CXXFLAGS) \
-		$(STATIC_FLAG) \
-		-include obj/common.h \
-		$(RUNNER_OBJ_FILES) \
-		obj/resources/pcode/pcode.o \
-		obj/vm.a \
-		obj/util.a \
-		obj/resources/tzdb.o \
-		$(LDFLAGS)
-	@$(STRIP) $@
+	$(CXX) -o $@ $(CXXFLAGS) $(STATIC_FLAG) -include obj/common.h $(RUNNER_OBJ_FILES) obj/resources/pcode/pcode.o obj/vm.a obj/util.a obj/resources/tzdb.o $(LDFLAGS)
+	$(STRIP) $@
 
 bin/runner.gz: bin/runner$(EXE_EXTENSION)
-	@printf "%16s  %s\n" "gzip" "$@"
 	@mkdir -p $(@D)
-	@rm -f $@
-	@cat $< | gzip -k -1 > $@
-	@[ -e "$@" ] && touch $@
+	rm -f $@
+	cat $< | gzip -k -1 > $@
+	[ -e "$@" ] && touch $@
