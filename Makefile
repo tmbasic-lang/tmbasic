@@ -208,7 +208,7 @@ endif
 # TEST_CMD: We run our unit test executable in "make test". For the Windows target, we use Wine since we cross-compile
 # from Linux. This command is executed from the "bin" directory.
 ifeq ($(TARGET_OS),win)
-TEST_CMD=WINEPATH=/usr/$(ARCH)-w64-mingw32/bin wine64 test.exe
+TEST_CMD=mkdir -p /tmp/tmbasic-wine && HOME=/tmp/tmbasic-wine WINEPATH=/usr/$(ARCH)-w64-mingw32/bin wine64 test.exe
 else
 TEST_CMD=./test
 endif
