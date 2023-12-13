@@ -104,7 +104,11 @@ TEST(MicrotarTest, RoundtripWithGnuTar) {
     // Create directory "Folder Name".
     // Write "Folder Name/test.dat" using C++ idioms
     {
+#ifdef _WIN32
+        mkdir("Folder Name");
+#else
         mkdir("Folder Name", 0777);
+#endif
         std::ofstream f("Folder Name/test.dat", std::ios::binary);
         f.write(data.data(), data.size());
     }

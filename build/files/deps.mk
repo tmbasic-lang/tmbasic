@@ -665,4 +665,5 @@ $(TZDB_DIR)/install: $(TZDB_DIR)/download $(BINUTILS_DIR)/install $(MICROTAR_DIR
 	mkdir -p $(TARGET_PREFIX)/share
 	cd $(TZDB_DIR)/build/usr/share/zoneinfo && \
 		find . -type f | xargs $(NATIVE_PREFIX)/bin/mtar $(TARGET_PREFIX)/share/tzdb.tar
+	ls -l $(TARGET_PREFIX)/share/tzdb.tar
 	touch $@
