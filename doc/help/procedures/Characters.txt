@@ -38,7 +38,6 @@ Any text value.
 .parameter locale: String
 The locale to use.
 This is either a language code like `en` or a combination of language and region like `en_US`.
-Use the p[AvailableLocales] function to retrieve the list of all possible locales.
 .return List of String
 A list of the characters (grapheme clusters) in i[this].
 .example
