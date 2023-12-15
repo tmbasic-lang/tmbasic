@@ -43,6 +43,15 @@ std::string decimalToString(const Decimal& x) {
     return len == str.size() ? str : str.substr(0, len);
 }
 
+struct ieee754_double {
+    unsigned int mantissa1 : 32;
+    unsigned int mantissa0 : 20;
+    unsigned int exponent : 11;
+    unsigned int negative : 1;
+};
+
+static_assert(sizeof(double) == sizeof(ieee754_double), "Our definition of ieee754_double is wrong.");
+
 Decimal doubleToDecimal(double x) {
     if (std::isnan(x)) {
         mpd_uint128_triple_t nanTriple{};
@@ -51,21 +60,21 @@ Decimal doubleToDecimal(double x) {
     }
 
     ieee754_double decomposed{};
-    decomposed.d = x;
+    std::memcpy(&decomposed, &x, sizeof(double));
 
     if (std::isinf(x)) {
         mpd_uint128_triple_t infTriple{};
         infTriple.tag = MPD_TRIPLE_INF;
-        infTriple.sign = decomposed.ieee.negative;
+        infTriple.sign = decomposed.negative;
         return Decimal(infTriple);
     }
 
-    int64_t binaryExponent = decomposed.ieee.exponent;
-    binaryExponent -= IEEE754_DOUBLE_BIAS;
+    int64_t binaryExponent = decomposed.exponent;
+    binaryExponent -= 0x3ff;  // IEEE 754 double bias
 
-    uint64_t mantissa = decomposed.ieee.mantissa0;
+    uint64_t mantissa = decomposed.mantissa0;
     mantissa <<= 32;
-    mantissa |= decomposed.ieee.mantissa1;
+    mantissa |= decomposed.mantissa1;
 
     Decimal fractionNumerator = mantissa;
 
@@ -77,9 +86,9 @@ Decimal doubleToDecimal(double x) {
     Decimal magnitude = 2;
     magnitude = magnitude.pow(binaryExponent);
 
-    Decimal sign = decomposed.ieee.negative == 0U ? 1 : -1;
+    Decimal sign = decomposed.negative == 0U ? 1 : -1;
 
-    if (mantissa == 0 && decomposed.ieee.exponent == 0U) {
+    if (mantissa == 0 && decomposed.exponent == 0U) {
         return sign * fraction * magnitude;
     }
     return sign * (fraction + 1) * magnitude;

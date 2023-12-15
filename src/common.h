@@ -148,17 +148,4 @@ inline void debugLog(std::function<void(std::ofstream* stream)> x) {
 }
 #endif
 
-// ieee754.h not available everywhere
-union ieee754_double {
-    double d;
-    struct {
-        unsigned int mantissa1 : 32;
-        unsigned int mantissa0 : 20;
-        unsigned int exponent : 11;
-        unsigned int negative : 1;
-    } ieee;
-};
-
-#define IEEE754_DOUBLE_BIAS 0x3ff
-
 #endif  // COMMON_H_
