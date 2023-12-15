@@ -93,6 +93,7 @@ class InputTarArchive {
         if (archive->index + size > archive->size) {
             return MTAR_EREADFAIL;
         }
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
         memcpy(data, &archive->data[archive->index], size);
         archive->index += size;
         return MTAR_ESUCCESS;

@@ -426,9 +426,10 @@ runner: bin/runner.gz
 # tidy ----------------------------------------------------------------------------------------------------------------
 
 $(TIDY_TARGETS): obj/tidy/%.tidy: src/%.cpp
+	@echo "$<"
 	@mkdir -p $(@D)
-	clang-tidy $< --quiet --fix --extra-arg=-Wno-unknown-warning-option -- $(CXXFLAGS) -DCLANG_TIDY | tee $@
-	touch $@
+	@clang-tidy $< --quiet --fix --extra-arg=-Wno-unknown-warning-option -- $(CXXFLAGS) -DCLANG_TIDY | tee $@
+	@touch $@
 
 
 
