@@ -97,6 +97,7 @@ enum class SystemCall {
     kObjectOptionalNewPresent,      // (input as Object) as ObjectOptional
     kObjectToObjectMapNew,          // () as ObjectToObjectMap
     kObjectToValueMapNew,           // () as ObjectToValueMap
+    kParseNumber,                   // (input as String) as Number
     kPathCombine,                   // (parts as List of String) as String
     kPathDirectoryName,             // (path as String) as String
     kPathExtension,                 // (path as String) as String

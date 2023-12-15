@@ -158,6 +158,15 @@ void initSystemCallsStrings() {
 #endif
     });
 
+    initSystemCall(SystemCall::kParseNumber, [](const auto& input, auto* result) {
+        const auto& str = dynamic_cast<const String&>(input.getObject(-1));
+        auto num = util::parseDecimalString(str.value);
+        if (num.isnan()) {
+            throw Error(ErrorCode::kInvalidNumberFormat, fmt::format("Invalid number: {}", str.value));
+        }
+        result->returnedValue.num = num;
+    });
+
     initSystemCall(SystemCall::kPrintString, [](const auto& input, auto* /*result*/) {
         *input.consoleOutputStream << dynamic_cast<const String&>(input.getObject(-1)).value;
     });

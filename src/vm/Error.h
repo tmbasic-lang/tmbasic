@@ -24,6 +24,7 @@ enum class ErrorCode {
     // Strings
     kInternalUnicodeError = 200,     // ERR_INTERNAL_UNICODE_ERROR
     kInvalidUnicodeCodePoint = 201,  // ERR_INVALID_UNICODE_CODE_POINT
+    kInvalidNumberFormat = 202,      // ERR_INVALID_NUMBER_FORMAT
 
     // Collections
     kMapKeyNotFound = 300,         // ERR_MAP_KEY_NOT_FOUND

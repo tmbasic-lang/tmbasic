@@ -1,0 +1,21 @@
+.procedure ParseNumber
+.category Strings
+.blurb Converts a t[String] to a t[Number].
+.description
+Converts a t[String] to a t[Number].
+The string must contain a valid number, otherwise an error is thrown.
+.overload
+.parameter text: String
+A string containing a number, like "123".
+.return Number
+The number represented by the string, like 123.
+.errors
+ERR_INVALID_NUMBER_FORMAT
+.example
+.example-code
+dim num as Number
+num = ParseNumber("-123.40")
+print (num * 2)
+.example-output
+-246.8
+.

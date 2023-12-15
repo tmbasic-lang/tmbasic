@@ -26,6 +26,7 @@ BuiltInConstantList::BuiltInConstantList()
     addError("ERR_INVALID_PATH", vm::ErrorCode::kInvalidPath);
     addError("ERR_INTERNAL_UNICODE_ERROR", vm::ErrorCode::kInternalUnicodeError);
     addError("ERR_INVALID_UNICODE_CODE_POINT", vm::ErrorCode::kInvalidUnicodeCodePoint);
+    addError("ERR_INVALID_NUMBER_FORMAT", vm::ErrorCode::kInvalidNumberFormat);
     addError("ERR_MAP_KEY_NOT_FOUND", vm::ErrorCode::kMapKeyNotFound);
     addError("ERR_LIST_INDEX_OUT_OF_RANGE", vm::ErrorCode::kListIndexOutOfRange);
     addError("ERR_VALUE_NOT_PRESENT", vm::ErrorCode::kValueNotPresent);
