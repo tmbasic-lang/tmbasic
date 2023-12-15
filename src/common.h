@@ -97,7 +97,6 @@
 #include <boost/smart_ptr/make_local_shared.hpp>
 
 // immer
-#define IMMER_NO_FREE_LIST 1      // NOLINT
 #define IMMER_NO_THREAD_SAFETY 1  // NOLINT
 #include <immer/array.hpp>
 #include <immer/array_transient.hpp>
