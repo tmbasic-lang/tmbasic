@@ -451,18 +451,60 @@ static void emitBinaryExpression(const BinaryExpressionNode& expressionNode, Pro
             }
             state->syscall(Opcode::kSystemCallV, systemCall, 2, 0);
         } else if (lhsType->kind == Kind::kList && rhsType->kind == Kind::kList) {
-            switch (binarySuffix->binaryOperator) {
-                case BinaryOperator::kAdd:
-                    if (lhsType->listItemType->isValueType()) {
-                        state->syscall(Opcode::kSystemCallO, SystemCall::kValueListConcat, 0, 2);
-                    } else {
-                        state->syscall(Opcode::kSystemCallO, SystemCall::kObjectListConcat, 0, 2);
-                    }
-                    break;
-                default:
-                    throw CompilerException(
-                        CompilerErrorCode::kInternal, "Internal error. Unimplemented binary operator.",
-                        expressionNode.token);
+            // Careful! Just because these are both lists doesn't mean they are the same kind of list.
+
+            // Example 1: Here we CONCAT two lists together.
+            //   dim a as List of Number
+            //   dim b as List of Number
+            //   a = a + b
+
+            // Example 2: Here we APPEND a single item to a list of lists.
+            //   dim a as List of List of Number
+            //   dim b as List of Number
+            //   a = a + b
+
+            // We need to handle both situations here.
+
+            auto lhsEqualsRhs = lhsType->equals(*rhsType);                      // concat
+            auto rhsIsItemTypeOfLhs = lhsType->listItemType->equals(*rhsType);  // append
+
+            // Must be exactly one of these two situations. Type checking should have caught this already.
+            if (lhsEqualsRhs == rhsIsItemTypeOfLhs) {
+                throw CompilerException(
+                    CompilerErrorCode::kInternal, "Internal error. Unexpected operand types to + operator.",
+                    expressionNode.token);
+            }
+
+            if (lhsEqualsRhs) {
+                // Concat (example 1).
+                switch (binarySuffix->binaryOperator) {
+                    case BinaryOperator::kAdd:
+                        if (lhsType->listItemType->isValueType()) {
+                            state->syscall(Opcode::kSystemCallO, SystemCall::kValueListConcat, 0, 2);
+                        } else {
+                            state->syscall(Opcode::kSystemCallO, SystemCall::kObjectListConcat, 0, 2);
+                        }
+                        break;
+                    default:
+                        throw CompilerException(
+                            CompilerErrorCode::kInternal, "Internal error. Unimplemented binary operator.",
+                            expressionNode.token);
+                }
+            } else {
+                // Append (example 2).
+                switch (binarySuffix->binaryOperator) {
+                    case BinaryOperator::kAdd:
+                        if (lhsType->listItemType->isValueType()) {
+                            state->syscall(Opcode::kSystemCallO, SystemCall::kValueListAdd, 1, 1);
+                        } else {
+                            state->syscall(Opcode::kSystemCallO, SystemCall::kObjectListAdd, 0, 2);
+                        }
+                        break;
+                    default:
+                        throw CompilerException(
+                            CompilerErrorCode::kInternal, "Internal error. Unimplemented binary operator.",
+                            expressionNode.token);
+                }
             }
         } else if (lhsType->kind == Kind::kList && rhsType->kind != Kind::kList) {
             assert(binarySuffix->binaryOperator == BinaryOperator::kAdd);
