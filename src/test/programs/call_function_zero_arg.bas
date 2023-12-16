@@ -1,6 +1,6 @@
 #procedure
 sub Main()
-    print Foo
+    print Foo()
 end sub
 #procedure
 function Foo() as Number

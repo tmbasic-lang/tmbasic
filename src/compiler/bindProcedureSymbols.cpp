@@ -8,7 +8,7 @@ SymbolScope::SymbolScope() = default;
 SymbolScope::SymbolScope(const CompiledProgram& program) {
     for (const auto& globalVariable : program.globalVariables) {
         auto node = std::make_unique<GlobalVariableNode>(globalVariable->lowercaseName);
-        auto result = addSymbol(node.get());
+        auto result = addSymbol(node.get(), SymbolType::kVariable);
         assert(result == AddSymbolResult::kSuccess);
         (void)result;  // avoid unused variable error in release builds
     }
@@ -16,11 +16,13 @@ SymbolScope::SymbolScope(const CompiledProgram& program) {
 
 SymbolScope::SymbolScope(const SymbolScope* parentScope) : _parentScope(parentScope) {}
 
-const Node* SymbolScope::lookup(const std::string& lowercaseName) {
+const Node* SymbolScope::lookup(const std::string& lowercaseName, SymbolType symbolType) {
     const auto* scope = this;
     while (scope != nullptr) {
-        auto found = scope->_symbolDeclarations.find(lowercaseName);
-        if (found == scope->_symbolDeclarations.end()) {
+        const auto& declarations =
+            symbolType == SymbolType::kVariable ? scope->_variableDeclarations : scope->_procedureDeclarations;
+        auto found = declarations.find(lowercaseName);
+        if (found == declarations.end()) {
             scope = scope->_parentScope;
         } else {
             return found->second;
@@ -29,24 +31,25 @@ const Node* SymbolScope::lookup(const std::string& lowercaseName) {
     return nullptr;
 }
 
-AddSymbolResult SymbolScope::addSymbol(Node* symbolDeclaration) {
+AddSymbolResult SymbolScope::addSymbol(Node* symbolDeclaration, SymbolType symbolType) {
     auto optionalName = symbolDeclaration->getSymbolDeclaration();
     if (!optionalName.has_value()) {
         return AddSymbolResult::kNoSymbolDeclaration;
     }
 
     auto lowercaseName = boost::to_lower_copy(*optionalName);
-    const auto* existingSymbolDeclaration = lookup(lowercaseName);
+    const auto* existingSymbolDeclaration = lookup(lowercaseName, symbolType);
     if (existingSymbolDeclaration != nullptr) {
         return AddSymbolResult::kDuplicateName;
     }
-    _symbolDeclarations.insert(std::make_pair(lowercaseName, symbolDeclaration));
+    auto& declarations = symbolType == SymbolType::kVariable ? _variableDeclarations : _procedureDeclarations;
+    declarations.insert(std::make_pair(lowercaseName, symbolDeclaration));
     return AddSymbolResult::kSuccess;
 }
 
 static void bindSymbol(Node* node, SymbolScope* parentScope, SymbolScope* childScope) {
     auto* symbolScope = node->isSymbolVisibleToSiblingStatements() ? parentScope : childScope;
-    auto result = symbolScope->addSymbol(node);
+    auto result = symbolScope->addSymbol(node, SymbolType::kVariable);
     assert(result != AddSymbolResult::kNoSymbolDeclaration);
     if (result == AddSymbolResult::kDuplicateName) {
         std::ostringstream s;
@@ -61,7 +64,7 @@ static void bindExpressionSymbols(ExpressionNode* node, SymbolScope* scope) {
     if (node->isSymbolReference()) {
         auto* symbolRef = dynamic_cast<SymbolReferenceExpressionNode*>(node);
         auto lowercaseName = boost::to_lower_copy(symbolRef->name);
-        const auto* symbolDeclaration = scope->lookup(lowercaseName);
+        const auto* symbolDeclaration = scope->lookup(lowercaseName, SymbolType::kVariable);
         if (symbolDeclaration != nullptr) {
             symbolRef->boundSymbolDeclaration = symbolDeclaration;
         } else {
@@ -123,7 +126,7 @@ void bindProcedureSymbols(SymbolScope* scope, ProcedureNode* procedure) {
     SymbolScope procedureScope{ scope };
 
     for (const auto& parameter : procedure->parameters) {
-        auto result = procedureScope.addSymbol(parameter.get());
+        auto result = procedureScope.addSymbol(parameter.get(), SymbolType::kVariable);
         assert(result != AddSymbolResult::kNoSymbolDeclaration);
         if (result == AddSymbolResult::kDuplicateName) {
             std::ostringstream s;

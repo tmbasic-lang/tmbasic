@@ -4,7 +4,7 @@ sub Main()
     try
         dim y = Value(x)
     catch
-        print ErrorCode  ' kValueNotPresent 302
+        print ErrorCode()  ' kValueNotPresent 302
     end try
 end sub
 --output--

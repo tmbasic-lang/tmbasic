@@ -12,8 +12,8 @@ The message of the last error to be thrown.
 try
     throw 5, "hello"
 catch
-    print ErrorCode
-    print ErrorMessage
+    print ErrorCode()
+    print ErrorMessage()
 end try
 .example-output
 5

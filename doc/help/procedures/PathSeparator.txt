@@ -19,7 +19,7 @@ Path separator character.
 .example
 .example-code
 ' the output will depend on your operating system
-dim x = "A" + PathSeparator + "B"
+dim x = "A" + PathSeparator() + "B"
 print x
 .example-output
 A/B

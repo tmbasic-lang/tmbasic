@@ -1,6 +1,6 @@
 #procedure
 sub Main()
-    dim c = NewLabel
+    dim c = NewLabel()
     SetControlBounds c, 1, 2, 3, 4
     dim r = ControlBounds(c)
     print r.Left

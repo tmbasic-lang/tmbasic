@@ -138,19 +138,19 @@ void compileProcedures(const SourceProgram& sourceProgram, CompiledProgram* comp
 
     // add symbols to the global scope for built-in constants
     for (auto& builtInConstant : builtInConstants.constants) {
-        globalSymbolScope.addSymbol(builtInConstant.second.get());
+        globalSymbolScope.addSymbol(builtInConstant.second.get(), SymbolType::kVariable);
     }
 
     // add symbols to the global scope for built-in procedures
     for (auto& builtInProcedureGroup : builtInProcedures.map) {
         for (auto& builtInProcedure : *builtInProcedureGroup.second) {
-            globalSymbolScope.addSymbol(builtInProcedure.get());
+            globalSymbolScope.addSymbol(builtInProcedure.get(), SymbolType::kProcedure);
         }
     }
 
     // add symbols to the global scope for user-defined constants and global variables
     for (auto& compiledGlobalVariable : compiledProgram->globalVariables) {
-        globalSymbolScope.addSymbol(compiledGlobalVariable->dimOrConstStatementNode.get());
+        globalSymbolScope.addSymbol(compiledGlobalVariable->dimOrConstStatementNode.get(), SymbolType::kVariable);
     }
 
     assignProcedureIndices(sourceProgram, compiledProgram);
@@ -186,7 +186,7 @@ void compileProcedures(const SourceProgram& sourceProgram, CompiledProgram* comp
 
     // add symbols to the global scope for user procedures
     for (auto& compiledProcedure : compiledProgram->procedures) {
-        globalSymbolScope.addSymbol(compiledProcedure->procedureNode.get());
+        globalSymbolScope.addSymbol(compiledProcedure->procedureNode.get(), SymbolType::kProcedure);
     }
 
     // compile each procedure

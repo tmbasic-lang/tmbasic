@@ -10,7 +10,7 @@ On Windows, this is a carriage return and line feed, or `Chr(13) + Chr(10)`.
 End-of-line string.
 .example
 .example-code
-dim x = "A" + NewLine + "B"
+dim x = "A" + NewLine() + "B"
 print x
 .example-output
 A

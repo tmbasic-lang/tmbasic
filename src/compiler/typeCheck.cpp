@@ -639,20 +639,16 @@ static void typeCheckNotExpression(NotExpressionNode* expressionNode, TypeCheckS
     expressionNode->evaluatedType = operandType;
 }
 
-static void typeCheckSymbolReferenceExpression(SymbolReferenceExpressionNode* expressionNode, TypeCheckState* state) {
+static void typeCheckSymbolReferenceExpression(SymbolReferenceExpressionNode* expressionNode) {
     const auto* decl = expressionNode->boundSymbolDeclaration;
     assert(decl != nullptr);
     assert(decl->getSymbolDeclaration().has_value());
 
-    // this could be a call to a function with no parameters
-    const auto* procedureNode = dynamic_cast<const ProcedureNode*>(decl);
-    if (procedureNode != nullptr) {
-        std::vector<std::unique_ptr<ExpressionNode>> arguments{};
-        typeCheckCall(expressionNode, expressionNode->name, &arguments, state, true);
-        return;
-    }
+    // We don't support calling a parameterless function with no parentheses.
+    // Let's just double-check that the binder didn't try to do it anyway.
+    assert(dynamic_cast<const ProcedureNode*>(decl) == nullptr);
 
-    // nope, it must be a regular variable declaration
+    // It must be a regular variable declaration
     auto type = decl->getSymbolDeclarationType();
     assert(type != nullptr);
     expressionNode->evaluatedType = std::move(type);
@@ -676,7 +672,7 @@ void typeCheckExpression(ExpressionNode* expressionNode, TypeCheckState* state) 
             typeCheckNotExpression(dynamic_cast<NotExpressionNode*>(expressionNode), state);
             break;
         case ExpressionType::kSymbolReference:
-            typeCheckSymbolReferenceExpression(dynamic_cast<SymbolReferenceExpressionNode*>(expressionNode), state);
+            typeCheckSymbolReferenceExpression(dynamic_cast<SymbolReferenceExpressionNode*>(expressionNode));
             break;
         case ExpressionType::kFunctionCall:
             typeCheckFunctionCallExpression(dynamic_cast<FunctionCallExpressionNode*>(expressionNode), state);

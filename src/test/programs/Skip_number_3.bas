@@ -6,7 +6,7 @@ sub Main()
         print Len(y)
         print y(0)
     catch
-        print ErrorCode
+        print ErrorCode()
     end try
 end sub
 --output--

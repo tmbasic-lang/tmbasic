@@ -4,7 +4,7 @@ sub Main()
     try
         foo(100) = 999
     catch
-        if ErrorCode = ERR_LIST_INDEX_OUT_OF_RANGE then
+        if ErrorCode() = ERR_LIST_INDEX_OUT_OF_RANGE then
             print "ERR_LIST_INDEX_OUT_OF_RANGE"
         else
             print "some other error"

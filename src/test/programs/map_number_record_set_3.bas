@@ -4,7 +4,7 @@ sub Main()
     try
         foo(5).a = 999
     catch
-        if ErrorCode = ERR_MAP_KEY_NOT_FOUND then
+        if ErrorCode() = ERR_MAP_KEY_NOT_FOUND then
             print "ERR_MAP_KEY_NOT_FOUND"
         else
             print "some other error"

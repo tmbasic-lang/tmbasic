@@ -4,7 +4,7 @@ sub Main()
         dim foo as Map from String to String
         print foo("abc")
     catch
-        if ErrorCode = ERR_MAP_KEY_NOT_FOUND then
+        if ErrorCode() = ERR_MAP_KEY_NOT_FOUND then
             print "ERR_MAP_KEY_NOT_FOUND"
         else
             print "some other error"

@@ -1,6 +1,6 @@
 #procedure
 sub Main()
-    dim ps = PathSeparator
+    dim ps = PathSeparator()
     dim path = "C:" + ps + "test" + ps + "file.txt"
     
     dim actualDirName = PathDirectoryName(path)

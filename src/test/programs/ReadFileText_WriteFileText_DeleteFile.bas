@@ -14,10 +14,10 @@ sub Main()
     try
         print ReadFileText("this_file_does_not_exist")
     catch
-        if ErrorCode = ERR_FILE_NOT_FOUND then
+        if ErrorCode() = ERR_FILE_NOT_FOUND then
             print "1 ok"
         else
-            print "1 "; ErrorCode; " "; ErrorMessage
+            print "1 "; ErrorCode(); " "; ErrorMessage()
         end if
     end try
 
@@ -25,10 +25,10 @@ sub Main()
     try
         print ReadFileText("/this_directory_does_not_exist/this_file_does_not_exist")
     catch
-        if ErrorCode = ERR_FILE_NOT_FOUND then
+        if ErrorCode() = ERR_FILE_NOT_FOUND then
             print "2 ok"
         else
-            print "2 "; ErrorCode; " "; ErrorMessage
+            print "2 "; ErrorCode(); " "; ErrorMessage()
         end if
     end try
 
@@ -36,10 +36,10 @@ sub Main()
     try
         WriteFileText "/missing/dir/tmbasic-test", "asdf"
     catch
-        if ErrorCode = ERR_FILE_NOT_FOUND then
+        if ErrorCode() = ERR_FILE_NOT_FOUND then
             print "3 ok"
         else
-            print "3 "; ErrorCode; " "; ErrorMessage
+            print "3 "; ErrorCode(); " "; ErrorMessage()
         end if
     end try
 
@@ -48,13 +48,13 @@ sub Main()
     try
         WriteFileText "testdir", "asdf"
     catch
-        if ErrorCode = ERR_PATH_IS_DIRECTORY then
+        if ErrorCode() = ERR_PATH_IS_DIRECTORY then
             print "4 ok"
-        else if ErrorCode = ERR_ACCESS_DENIED then
+        else if ErrorCode() = ERR_ACCESS_DENIED then
             ' on Windows we get access denied
             print "4 ok"
         else
-            print "4 "; ErrorCode; " "; ErrorMessage
+            print "4 "; ErrorCode(); " "; ErrorMessage()
         end if
     end try
     DeleteDirectory "testdir"

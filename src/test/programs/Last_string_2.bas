@@ -4,7 +4,7 @@ sub Main()
     try
         dim y = Last(x)
     catch
-        print ErrorCode
+        print ErrorCode()
     end try
 end sub
 --output--

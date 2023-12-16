@@ -3,7 +3,7 @@ sub Main()
     try
         dim x = ListFill("A", -1)
     catch
-        print ErrorCode
+        print ErrorCode()
     end try
 end sub
 --output--

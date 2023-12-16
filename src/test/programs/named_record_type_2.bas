@@ -9,7 +9,7 @@ function Foo() as MyRecord
 end function
 #procedure
 sub Main()
-    dim x = Foo
+    dim x = Foo()
     print x.a
     print x.b
 end sub

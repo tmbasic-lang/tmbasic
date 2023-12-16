@@ -4,7 +4,7 @@ sub Main()
     try
         dim y = Mid(x, 50, 50)
     catch
-        print ErrorCode
+        print ErrorCode()
     end try
 end sub
 --output--

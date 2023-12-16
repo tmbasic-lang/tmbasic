@@ -1,6 +1,6 @@
 #procedure
 sub Main()
-    dim path = "dir-test" + PathSeparator
+    dim path = "dir-test" + PathSeparator()
     try
         DeleteDirectory path, true
     catch
@@ -16,10 +16,10 @@ sub Main()
         DeleteDirectory path
         print "bad"
     catch
-        if ErrorCode = ERR_DIRECTORY_NOT_EMPTY then
+        if ErrorCode() = ERR_DIRECTORY_NOT_EMPTY then
             print "2 ERR_DIRECTORY_NOT_EMPTY"
         else
-            print "2 "; ErrorCode; ", "; ErrorMessage
+            print "2 "; ErrorCode(); " "; ErrorMessage()
         end if
     end try
 
@@ -28,10 +28,10 @@ sub Main()
         DeleteDirectory path, false
         print "bad"
     catch
-        if ErrorCode = ERR_DIRECTORY_NOT_EMPTY then
+        if ErrorCode() = ERR_DIRECTORY_NOT_EMPTY then
             print "3 ERR_DIRECTORY_NOT_EMPTY"
         else
-            print "3 "; ErrorCode; ", "; ErrorMessage
+            print "3 "; ErrorCode(); " "; ErrorMessage()
         end if
     end try
 
@@ -45,10 +45,10 @@ sub Main()
         WriteFileText PathCombine([path, "test.txt"]), "asdf"
         print "bad"
     catch
-        if ErrorCode = ERR_FILE_NOT_FOUND then
+        if ErrorCode() = ERR_FILE_NOT_FOUND then
             print "4 ERR_FILE_NOT_FOUND"
         else
-            print "4 "; ErrorCode; ", "; ErrorMessage
+            print "4 "; ErrorCode(); " "; ErrorMessage()
         end if
     end try
 
