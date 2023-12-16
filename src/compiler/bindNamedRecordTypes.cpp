@@ -87,6 +87,11 @@ class NamedRecordTypeBinder {
             default:
                 break;
         }
+
+        statementNode->visitBodies([this](BodyNode* bodyNode) {
+            bindBody(bodyNode);
+            return true;
+        });
     }
 
     void bindBody(BodyNode* bodyNode) {
