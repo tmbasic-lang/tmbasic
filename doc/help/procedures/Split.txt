@@ -1,0 +1,27 @@
+.procedure Split
+.category Strings
+.blurb Splits a delimited string into a list of strings.
+.description
+Splits a delimited string into a list of strings.
+
+Often the input string is comma-separated, but any delimiter can be used.
+.overload
+.parameter input: String
+A string containing a series of items, like `"a,b,c"`.
+.parameter separator: String
+The character(s) that separate the items, like `","`.
+.return List of String
+A list of strings, like `["a", "b", "c"]`.
+.errors
+ERR_INVALID_ARGUMENT
+.example
+.example-code
+dim x = Split("a,b,c", ",")
+print x(0)
+print x(1)
+print x(2)
+.example-output
+a
+b
+c
+.

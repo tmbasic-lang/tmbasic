@@ -243,6 +243,29 @@ void initSystemCallsStrings() {
         const auto& str = dynamic_cast<const String&>(input.getObject(-1)).value;
         result->returnedValue.num = str.length();
     });
+
+    initSystemCall(SystemCall::kStringSplit, [](const auto& input, auto* result) {
+        const auto& str = dynamic_cast<const String&>(input.getObject(-2));
+        const auto& separator = dynamic_cast<const String&>(input.getObject(-1));
+
+        if (separator.value.length() == 0) {
+            throw Error(ErrorCode::kInvalidArgument, "Separator cannot be empty.");
+        }
+
+        ObjectListBuilder builder{};
+
+        std::string token;
+        size_t startPos = 0, endPos = 0;
+
+        while ((endPos = str.value.find(separator.value, startPos)) != std::string::npos) {
+            token = str.value.substr(startPos, endPos - startPos);
+            builder.items.push_back(boost::make_local_shared<String>(token));
+            startPos = endPos + separator.value.length();
+        }
+
+        builder.items.push_back(boost::make_local_shared<String>(str.value.substr(startPos)));
+        result->returnedObject = boost::make_local_shared<ObjectList>(&builder);
+    });
 }
 
 }  // namespace vm

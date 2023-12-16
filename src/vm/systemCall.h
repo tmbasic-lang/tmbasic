@@ -123,6 +123,7 @@ enum class SystemCall {
     kStringFromCodePoints,          // (codePoints as List of Number) as String
     kStringFromCodeUnits,           // (codeUnits as List of Number) as String
     kStringLen,                     // (input as String) as Number
+    kStringSplit,                   // (input as String, separator as String) as List of String
     kTan,                           // (x as Number) as Number
     kTimeSpanToString,              // (timeSpan as TimeSpan) as String
     kTimeZoneFromName,              // (name as String) as TimeZone

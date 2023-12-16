@@ -106,6 +106,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addSub("SetFormTitle", { "form", "title" }, { form, string }, SystemCall::kSetFormTitle);
     addFunction("Sin", { "x" }, { number }, number, SystemCall::kSin);
     addFunction("Skip", { "list", "count" }, { listGeneric, number }, listOfGeneric1, SystemCall::kListSkip);
+    addFunction("Split", { "input", "separator" }, { string, string }, listOfString, SystemCall::kStringSplit);
     addFunction("Sqr", { "x" }, { number }, number, SystemCall::kSqr);
     addFunction("StringFromCodePoints", { "codePoints" }, { listOfNumber }, string, SystemCall::kStringFromCodePoints);
     addFunction("StringFromCodeUnits", { "codeUnits" }, { listOfNumber }, string, SystemCall::kStringFromCodeUnits);
