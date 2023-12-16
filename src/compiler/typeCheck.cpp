@@ -538,8 +538,6 @@ static void typeCheckFunctionCallExpression(FunctionCallExpressionNode* expressi
 static void typeCheckDottedExpression(DottedExpressionNode* expressionNode, TypeCheckState* state) {
     typeCheckExpression(expressionNode->base.get(), state);
     auto baseType = expressionNode->base->evaluatedType;
-    auto* baseSymbolRef = dynamic_cast<SymbolReferenceExpressionNode*>(expressionNode->base.get());
-    auto isFirstSuffix = true;
 
     for (auto& usageSuffix : expressionNode->dottedSuffixes) {
         if (usageSuffix->isFieldAccess()) {
@@ -574,69 +572,56 @@ static void typeCheckDottedExpression(DottedExpressionNode* expressionNode, Type
             usageSuffix->boundParameterNode = typeField;
             baseType = typeField->type;
             usageSuffix->evaluatedType = baseType;
-        } else if (usageSuffix->isIndexOrCall()) {
-            if (isFirstSuffix && baseSymbolRef->boundSymbolDeclaration != nullptr &&
-                baseSymbolRef->boundSymbolDeclaration->getMemberType() == MemberType::kProcedure) {
-                // this is a function call
-                typeCheckCall(
-                    usageSuffix.get(), baseSymbolRef->name, &usageSuffix->collectionIndexOrCallArgs, state, true);
-                assert(usageSuffix->evaluatedType != nullptr);
+        } else if (usageSuffix->isIndex()) {
+            if (usageSuffix->collectionIndex.size() != 1) {
+                throw CompilerException(
+                    CompilerErrorCode::kInvalidListIndex,
+                    fmt::format(
+                        "The parentheses here look like a List or Map index, but there are {} comma-separated "
+                        "expressions inside these parentheses instead of 1.",
+                        usageSuffix->collectionIndex.size()),
+                    usageSuffix->token);
+            }
 
-                // set baseType to the return type of the function
-                baseType = usageSuffix->evaluatedType;
-            } else {
-                if (usageSuffix->collectionIndexOrCallArgs.size() != 1) {
-                    throw CompilerException(
-                        CompilerErrorCode::kInvalidListIndex,
-                        fmt::format(
-                            "The parentheses here look like a List or Map index, but there are {} comma-separated "
-                            "expressions inside these parentheses instead of 1.",
-                            usageSuffix->collectionIndexOrCallArgs.size()),
-                        usageSuffix->token);
-                }
+            if (baseType->kind != Kind::kList && baseType->kind != Kind::kMap) {
+                throw CompilerException(
+                    CompilerErrorCode::kTypeMismatch,
+                    fmt::format(
+                        "The base of an index expression must be a List or Map type, but this is a {}.",
+                        baseType->toString()),
+                    baseType->token);
+            }
 
-                if (baseType->kind != Kind::kList && baseType->kind != Kind::kMap) {
+            auto& collectionIndex = usageSuffix->collectionIndex.at(0);
+
+            typeCheckExpression(collectionIndex.get(), state);
+            if (baseType->kind == Kind::kList) {
+                if (collectionIndex->evaluatedType->kind != Kind::kNumber) {
                     throw CompilerException(
                         CompilerErrorCode::kTypeMismatch,
                         fmt::format(
-                            "The base of an index expression must be a List or Map type, but this is a {}.",
-                            baseType->toString()),
-                        baseType->token);
+                            "The list index must be a Number, but this is a {}.",
+                            collectionIndex->evaluatedType->toString()),
+                        collectionIndex->token);
                 }
-
-                auto& collectionIndex = usageSuffix->collectionIndexOrCallArgs.at(0);
-
-                typeCheckExpression(collectionIndex.get(), state);
-                if (baseType->kind == Kind::kList) {
-                    if (collectionIndex->evaluatedType->kind != Kind::kNumber) {
-                        throw CompilerException(
-                            CompilerErrorCode::kTypeMismatch,
-                            fmt::format(
-                                "The list index must be a Number, but this is a {}.",
-                                collectionIndex->evaluatedType->toString()),
-                            collectionIndex->token);
-                    }
-                    baseType = baseType->listItemType;
-                } else if (baseType->kind == Kind::kMap) {
-                    assert(baseType->mapKeyType != nullptr);
-                    if (!collectionIndex->evaluatedType->equals(*baseType->mapKeyType)) {
-                        throw CompilerException(
-                            CompilerErrorCode::kTypeMismatch,
-                            fmt::format(
-                                "The map key must be a {}, but this is a {}.", baseType->mapKeyType->toString(),
-                                collectionIndex->evaluatedType->toString()),
-                            collectionIndex->token);
-                    }
-                    baseType = baseType->mapValueType;
+                baseType = baseType->listItemType;
+            } else if (baseType->kind == Kind::kMap) {
+                assert(baseType->mapKeyType != nullptr);
+                if (!collectionIndex->evaluatedType->equals(*baseType->mapKeyType)) {
+                    throw CompilerException(
+                        CompilerErrorCode::kTypeMismatch,
+                        fmt::format(
+                            "The map key must be a {}, but this is a {}.", baseType->mapKeyType->toString(),
+                            collectionIndex->evaluatedType->toString()),
+                        collectionIndex->token);
                 }
+                baseType = baseType->mapValueType;
             }
 
             usageSuffix->evaluatedType = baseType;
         } else {
             assert(false);
         }
-
-        isFirstSuffix = false;
     }
 
     expressionNode->evaluatedType = baseType;

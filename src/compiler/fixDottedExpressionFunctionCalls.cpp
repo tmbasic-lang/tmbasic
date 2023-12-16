@@ -79,8 +79,7 @@ class DottedExpressionFunctionCallFixer {
         auto suffix = std::move(dotted->dottedSuffixes.at(0));
         dotted->dottedSuffixes.erase(dotted->dottedSuffixes.begin());
         dotted->base = std::make_unique<FunctionCallExpressionNode>(
-            std::move(symbolReference->name), std::move(suffix->collectionIndexOrCallArgs),
-            std::move(symbolReference->token));
+            std::move(symbolReference->name), std::move(suffix->collectionIndex), std::move(symbolReference->token));
     }
 };
 

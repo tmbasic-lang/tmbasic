@@ -824,14 +824,13 @@ static void emitDottedExpression(const DottedExpressionNode& expressionNode, Pro
                     "Internal error. Dotted suffix has neither fieldValueIndex nor fieldObjectIndex set.",
                     expressionNode.token);
             }
-        } else if (dottedSuffix->isIndexOrCall()) {
-            // We know it's an index and not a call.
-            if (dottedSuffix->collectionIndexOrCallArgs.size() != 1) {
+        } else if (dottedSuffix->isIndex()) {
+            if (dottedSuffix->collectionIndex.size() != 1) {
                 throw CompilerException(
                     CompilerErrorCode::kTooManyIndexArguments,
                     "Collection access should have exactly one index argument.", expressionNode.token);
             }
-            emitExpression(*dottedSuffix->collectionIndexOrCallArgs.at(0), state);
+            emitExpression(*dottedSuffix->collectionIndex.at(0), state);
             if (baseType->kind == Kind::kList) {
                 if (baseType->listItemType->isValueType()) {
                     state->syscall(Opcode::kSystemCallV, SystemCall::kValueListGet, 1, 1);
@@ -938,9 +937,9 @@ static void emitAssignToDottedExpression(
 
     // We need to know:
     // - How many suffixes
-    // - How many value arguments (call arguments or collection indexes)
-    // - How many object arguments (call arguments or collection indexes)
-    // In an expression like "Foo.MyList(1).MyMap(2).Field.Bar(myString)" there are 4 suffixes, 2 value arguments, and
+    // - How many value arguments (collection indexes)
+    // - How many object arguments (collection indexes)
+    // In an expression like "Foo.MyList(1).MyMap(2).Field.Bar(myInt)" there are 4 suffixes, 2 value arguments, and
     // 1 object argument. We will evaluate the arguments as we go, so they're on the stack in the order they appear in
     // the suffixes. kDottedExpressionSetValue/Object will consume them.
 
@@ -948,11 +947,11 @@ static void emitAssignToDottedExpression(
     auto numValueArgs = 0;
     auto numObjectArgs = 0;
     for (const auto& dottedSuffix : expressionNode.dottedSuffixes) {
-        if (!dottedSuffix->isIndexOrCall()) {
+        if (!dottedSuffix->isIndex()) {
             continue;
         }
-        assert(dottedSuffix->collectionIndexOrCallArgs.size() == 1);
-        const auto& arg = dottedSuffix->collectionIndexOrCallArgs.at(0);
+        assert(dottedSuffix->collectionIndex.size() == 1);
+        const auto& arg = dottedSuffix->collectionIndex.at(0);
         assert(arg->evaluatedType != nullptr);
         if (arg->evaluatedType->isValueType()) {
             numValueArgs++;
@@ -985,10 +984,9 @@ static void emitAssignToDottedExpression(
                 (!suffixIsValue && bound->fieldObjectIndex.has_value()));
             auto index = suffixIsValue ? *bound->fieldValueIndex : *bound->fieldObjectIndex;
             state->dottedExpressionDottedSuffix(suffixIsValue, index);
-        } else if (dottedSuffix->isIndexOrCall()) {
-            // It's an index, not a call.
-            assert(dottedSuffix->collectionIndexOrCallArgs.size() == 1);
-            const auto& arg = *dottedSuffix->collectionIndexOrCallArgs.at(0);
+        } else if (dottedSuffix->isIndex()) {
+            assert(dottedSuffix->collectionIndex.size() == 1);
+            const auto& arg = *dottedSuffix->collectionIndex.at(0);
             assert(arg.evaluatedType != nullptr);
             if (arg.evaluatedType->isValueType()) {
                 state->dottedExpressionValueKeySuffix(suffixIsValue);

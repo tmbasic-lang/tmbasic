@@ -73,7 +73,7 @@ static void bindExpressionSymbols(ExpressionNode* node, SymbolScope* scope) {
         auto& dotted = dynamic_cast<DottedExpressionNode&>(*node);
         bindExpressionSymbols(dotted.base.get(), scope);
         for (auto& suffix : dotted.dottedSuffixes) {
-            for (auto& collectionIndexOrCallArg : suffix->collectionIndexOrCallArgs) {
+            for (auto& collectionIndexOrCallArg : suffix->collectionIndex) {
                 bindExpressionSymbols(collectionIndexOrCallArg.get(), scope);
             }
         }

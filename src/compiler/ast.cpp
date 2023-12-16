@@ -442,9 +442,9 @@ DottedExpressionSuffixNode::DottedExpressionSuffixNode(std::string aName, Token 
     : Node(std::move(token)), name(std::move(aName)), nameLowercase(boost::to_lower_copy(*name)) {}
 
 DottedExpressionSuffixNode::DottedExpressionSuffixNode(
-    std::vector<std::unique_ptr<ExpressionNode>> collectionIndexOrCallArgs,
+    std::vector<std::unique_ptr<ExpressionNode>> collectionIndex,
     Token token)
-    : Node(std::move(token)), collectionIndexOrCallArgs(std::move(collectionIndexOrCallArgs)) {}
+    : Node(std::move(token)), collectionIndex(std::move(collectionIndex)) {}
 
 void DottedExpressionSuffixNode::dump(std::ostream& s, int n) const {
     DUMP_TYPE(DottedExpressionSuffixNode);
@@ -452,13 +452,13 @@ void DottedExpressionSuffixNode::dump(std::ostream& s, int n) const {
         auto dottedName = fmt::format(".{}", *name);
         DUMP_VAR(dottedName);
     }
-    for (const auto& collectionIndexOrCallArg : collectionIndexOrCallArgs) {
+    for (const auto& collectionIndexOrCallArg : collectionIndex) {
         DUMP_VAR_NODE(collectionIndexOrCallArg);
     }
 }
 
 bool DottedExpressionSuffixNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
-    for (const auto& x : collectionIndexOrCallArgs) {
+    for (const auto& x : collectionIndex) {
         if (!visitChildExpression(rootsOnly, x.get(), func)) {
             return false;
         }

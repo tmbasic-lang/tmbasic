@@ -220,10 +220,10 @@ class ConvertExpressionNode : public ExpressionNode {
 
 class DottedExpressionSuffixNode : public Node {
    public:
-    // it will be either a .name or a collection index/function call
+    // it will be either a .name or a collection index
     std::optional<std::string> name{};
     std::optional<std::string> nameLowercase{};
-    std::vector<std::unique_ptr<ExpressionNode>> collectionIndexOrCallArgs{};
+    std::vector<std::unique_ptr<ExpressionNode>> collectionIndex{};
 
     // set by type checker
     ParameterNode* boundParameterNode{};
@@ -231,11 +231,11 @@ class DottedExpressionSuffixNode : public Node {
     std::optional<int> fieldObjectIndex{};
 
     DottedExpressionSuffixNode(std::string name, Token token);
-    DottedExpressionSuffixNode(std::vector<std::unique_ptr<ExpressionNode>> collectionIndexOrCallArgs, Token token);
+    DottedExpressionSuffixNode(std::vector<std::unique_ptr<ExpressionNode>> collectionIndex, Token token);
     void dump(std::ostream& s, int n) const override;
     bool visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const override;
     inline bool isFieldAccess() { return name.has_value(); }
-    inline bool isIndexOrCall() { return !name.has_value(); }
+    inline bool isIndex() { return !name.has_value(); }
 };
 
 class DottedExpressionNode : public ExpressionNode {
