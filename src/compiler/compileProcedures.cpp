@@ -97,7 +97,6 @@ static void assignArgumentIndices(ProcedureNode* procedure) {
 
 // We do pass 1 on all procedures before proceeding to pass 2.
 static void compileProcedurePass1(
-    const SourceProgram& sourceProgram,
     CompiledProgram* compiledProgram,
     CompiledProcedure* compiledProcedure,
     SymbolScope* globalSymbolScope,
@@ -114,7 +113,6 @@ static void compileProcedurePass2(
     const SourceProgram& sourceProgram,
     CompiledProgram* compiledProgram,
     CompiledProcedure* compiledProcedure,
-    SymbolScope* globalSymbolScope,
     const BuiltInProcedureList& builtInProcedures) {
     auto* procedureNode = compiledProcedure->procedureNode.get();
     typeCheck(procedureNode, sourceProgram, compiledProgram, builtInProcedures);
@@ -202,13 +200,11 @@ void compileProcedures(const SourceProgram& sourceProgram, CompiledProgram* comp
 
     // compile each procedure - two passes
     for (auto& compiledProcedure : compiledProgram->procedures) {
-        compileProcedurePass1(
-            sourceProgram, compiledProgram, compiledProcedure.get(), &globalSymbolScope, builtInProcedures);
+        compileProcedurePass1(compiledProgram, compiledProcedure.get(), &globalSymbolScope, builtInProcedures);
     }
 
     for (auto& compiledProcedure : compiledProgram->procedures) {
-        compileProcedurePass2(
-            sourceProgram, compiledProgram, compiledProcedure.get(), &globalSymbolScope, builtInProcedures);
+        compileProcedurePass2(sourceProgram, compiledProgram, compiledProcedure.get(), builtInProcedures);
     }
 
     compiledProgram->vmProgram.startupProcedureIndex = *mainProcedureIndex;

@@ -561,26 +561,25 @@ static void typeCheckDottedExpression(DottedExpressionNode* expressionNode, Type
             }
 
             if (typeField == nullptr) {
-                if (baseType->fields.size() == 0) {
+                if (baseType->fields.empty()) {
                     throw CompilerException(
                         CompilerErrorCode::kFieldNotFound,
                         fmt::format(
                             "The field \"{}\" does not exist. The type \"{}\" does not have any fields.",
                             *usageSuffix->name, baseType->toString()),
                         usageSuffix->token);
-                } else {
-                    std::string fields;
-                    for (const auto& field : baseType->fields) {
-                        fields += field->name + ", ";
-                    }
-                    fields = fields.substr(0, fields.size() - 2);  // Remove the trailing comma and space
-                    throw CompilerException(
-                        CompilerErrorCode::kFieldNotFound,
-                        fmt::format(
-                            "The type \"{}\" does not have a field named \"{}\". Available fields: {}.",
-                            baseType->toString(), *usageSuffix->name, fields),
-                        usageSuffix->token);
                 }
+                std::string fields;
+                for (const auto& field : baseType->fields) {
+                    fields += field->name + ", ";
+                }
+                fields = fields.substr(0, fields.size() - 2);  // Remove the trailing comma and space
+                throw CompilerException(
+                    CompilerErrorCode::kFieldNotFound,
+                    fmt::format(
+                        "The type \"{}\" does not have a field named \"{}\". Available fields: {}.",
+                        baseType->toString(), *usageSuffix->name, fields),
+                    usageSuffix->token);
             }
 
             assert(typeField->fieldValueIndex.has_value() || typeField->fieldObjectIndex.has_value());
