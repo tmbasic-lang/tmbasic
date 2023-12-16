@@ -1,8 +1,9 @@
-#include "systemCall.h"
-#include "BasicForm.h"
-#include "BasicFormsStorage.h"
-#include "Error.h"
-#include "String.h"
+#include "vm/systemCall.h"
+#include "vm/BasicForm.h"
+#include "vm/BasicFormsStorage.h"
+#include "vm/Error.h"
+#include "vm/castObject.h"
+#include "vm/String.h"
 #include "util/WindowPtr.h"
 
 namespace vm {
@@ -35,7 +36,7 @@ void initSystemCallsForms() {
 
     initSystemCall(SystemCall::kSetFormTitle, [](const auto& input, auto* /*result*/) {
         auto* form = basicFormsStorage.forms.find(input.getValue(-1).getInt64());
-        auto& title = dynamic_cast<String&>(input.getObject(-1));
+        auto& title = castString(input.getObject(-1));
         delete[] form->title;  // NOLINT(cppcoreguidelines-owning-memory)
         form->title = newStr(title.value);
     });

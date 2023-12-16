@@ -1,4 +1,5 @@
 #include "Optional.h"
+#include "castObject.h"
 
 namespace vm {
 
@@ -18,7 +19,7 @@ bool ValueOptional::equals(const Object& other) const {
     if (other.getObjectType() != ObjectType::kValueOptional) {
         return false;
     }
-    const auto& otherOptional = dynamic_cast<const ValueOptional&>(other);
+    const auto& otherOptional = castValueOptional(other);
     return item.has_value() == otherOptional.item.has_value() &&
         (item.has_value() ? *item == *otherOptional.item : true);
 }
@@ -39,7 +40,7 @@ bool ObjectOptional::equals(const Object& other) const {
     if (other.getObjectType() != ObjectType::kObjectOptional) {
         return false;
     }
-    const auto& otherOptional = dynamic_cast<const ObjectOptional&>(other);
+    const auto& otherOptional = castObjectOptional(other);
     return item.has_value() == otherOptional.item.has_value() &&
         (item.has_value() ? (*item)->equals(**otherOptional.item) : true);
 }

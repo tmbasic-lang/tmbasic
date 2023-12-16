@@ -1,9 +1,10 @@
-#include "systemCall.h"
-#include "Error.h"
-#include "List.h"
-#include "String.h"
-#include "TimeZone.h"
-#include "date.h"
+#include "vm/systemCall.h"
+#include "vm/castObject.h"
+#include "vm/date.h"
+#include "vm/Error.h"
+#include "vm/List.h"
+#include "vm/String.h"
+#include "vm/TimeZone.h"
 
 namespace vm {
 
@@ -184,12 +185,12 @@ void initSystemCallsDates() {
     });
 
     initSystemCall(SystemCall::kTimeZoneToString, [](const auto& input, auto* result) {
-        const auto& timeZone = dynamic_cast<const TimeZone&>(input.getObject(-1));
+        const auto& timeZone = castTimeZone(input.getObject(-1));
         result->returnedObject = boost::make_local_shared<String>(timeZone.zone->name());
     });
 
     initSystemCall(SystemCall::kTimeZoneFromName, [](const auto& input, auto* result) {
-        const auto& name = dynamic_cast<const String&>(input.getObject(-1));
+        const auto& name = castString(input.getObject(-1));
 
         auto time_zone_ptr = std::make_unique<absl::TimeZone>();
         auto success = absl::LoadTimeZone(name.value, time_zone_ptr.get());
@@ -221,7 +222,7 @@ void initSystemCallsDates() {
     });
 
     initSystemCall(SystemCall::kUtcOffsets, [](const auto& input, auto* result) {
-        const auto& timeZone = dynamic_cast<const TimeZone&>(input.getObject(-1));
+        const auto& timeZone = castTimeZone(input.getObject(-1));
         const auto& dateTimeValue = input.getValue(-1);
         auto dateTimeParts = convertValueToDateTimeParts(dateTimeValue);
         auto offsets = timeZone.getUtcOffsets(dateTimeParts);

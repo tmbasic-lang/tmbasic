@@ -1,4 +1,5 @@
 #include "Record.h"
+#include "castObject.h"
 
 namespace vm {
 
@@ -31,7 +32,7 @@ bool Record::equals(const Object& other) const {
     if (other.getObjectType() != ObjectType::kRecord) {
         return false;
     }
-    const auto& otherRecord = dynamic_cast<const Record&>(other);
+    const auto& otherRecord = castRecord(other);
     if (values.size() != otherRecord.values.size() || objects.size() != otherRecord.objects.size()) {
         return false;
     }

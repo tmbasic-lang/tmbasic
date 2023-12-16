@@ -1,25 +1,26 @@
 #include "systemCall.h"
-#include "Error.h"
-#include "Optional.h"
+#include "vm/Error.h"
+#include "vm/Optional.h"
+#include "vm/castObject.h"
 
 namespace vm {
 
 static std::pair<const ValueOptional*, const ObjectOptional*> valueOrObjectOptional(const Object& object) {
-    const auto* valueOptional = dynamic_cast<const ValueOptional*>(&object);
-    if (valueOptional != nullptr) {
-        return { valueOptional, nullptr };
+    auto type = object.getObjectType();
+
+    if (type == ObjectType::kValueOptional) {
+        return { &castValueOptional(object), nullptr };
     }
 
-    const auto* objectOptional = dynamic_cast<const ObjectOptional*>(&object);
-    if (objectOptional != nullptr) {
-        return { nullptr, objectOptional };
+    if (type == ObjectType::kObjectOptional) {
+        return { nullptr, &castObjectOptional(object) };
     }
 
     throw Error(
         ErrorCode::kInternalTypeConfusion,
         fmt::format(
-            "Internal type confusion error. Target is neither {} nor {}.", NAMEOF_TYPE(ValueOptional),
-            NAMEOF_TYPE(ObjectOptional)));
+            "Internal type confusion error. Target is neither {} nor {}. Actual: {}", NAMEOF_TYPE(ValueOptional),
+            NAMEOF_TYPE(ObjectOptional), NAMEOF_ENUM(type)));
 }
 
 void initSystemCallsOptionals() {

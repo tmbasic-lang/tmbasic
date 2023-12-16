@@ -1,19 +1,20 @@
 #include "systemCall.h"
-#include "Error.h"
-#include "List.h"
-#include "String.h"
+#include "vm/Error.h"
+#include "vm/List.h"
+#include "vm/String.h"
+#include "vm/castObject.h"
 
 namespace vm {
 
 static std::pair<const ValueList*, const ObjectList*> valueOrObjectList(const Object& object) {
-    const auto* valueList = dynamic_cast<const ValueList*>(&object);
-    if (valueList != nullptr) {
-        return { valueList, nullptr };
+    auto type = object.getObjectType();
+
+    if (type == ObjectType::kValueList) {
+        return { &castValueList(object), nullptr };
     }
 
-    const auto* objectList = dynamic_cast<const ObjectList*>(&object);
-    if (objectList != nullptr) {
-        return { nullptr, objectList };
+    if (type == ObjectType::kObjectList) {
+        return { nullptr, &castObjectList(object) };
     }
 
     throw Error(
@@ -174,7 +175,7 @@ void initSystemCallsLists() {
         SystemCall::kListTake, [](const auto& input, auto* result) { systemCallListSkipOrTake(input, result, false); });
 
     initSystemCall(SystemCall::kObjectListAdd, [](const auto& input, auto* result) {
-        const auto& objectList = dynamic_cast<const ObjectList&>(input.getObject(-2));
+        const auto& objectList = castObjectList(input.getObject(-2));
         const auto& object = input.getObjectPtr(-1);
         result->returnedObject = boost::make_local_shared<ObjectList>(objectList, true, objectList.size(), object);
     });
@@ -184,7 +185,7 @@ void initSystemCallsLists() {
     });
 
     initSystemCall(SystemCall::kObjectListBuilderAdd, [](const auto& input, auto* /*result*/) {
-        auto& builder = dynamic_cast<ObjectListBuilder&>(input.getObject(-2));
+        auto& builder = castObjectListBuilder(input.getObject(-2));
         auto obj = input.getObjectPtr(-1);
         assert(obj->getObjectType() != ObjectType::kObjectListBuilder);
         assert(obj->getObjectType() != ObjectType::kValueListBuilder);
@@ -192,13 +193,13 @@ void initSystemCallsLists() {
     });
 
     initSystemCall(SystemCall::kObjectListBuilderEnd, [](const auto& input, auto* result) {
-        auto& builder = dynamic_cast<ObjectListBuilder&>(input.getObject(-1));
+        auto& builder = castObjectListBuilder(input.getObject(-1));
         result->returnedObject = boost::make_local_shared<ObjectList>(&builder);
     });
 
     initSystemCall(SystemCall::kObjectListConcat, [](const auto& input, auto* result) {
-        const auto& lhs = dynamic_cast<const ObjectList&>(input.getObject(-2));
-        const auto& rhs = dynamic_cast<const ObjectList&>(input.getObject(-1));
+        const auto& lhs = castObjectList(input.getObject(-2));
+        const auto& rhs = castObjectList(input.getObject(-1));
         ObjectListBuilder builder{ lhs.items.transient() };
         for (const auto& item : rhs.items) {
             builder.items.push_back(item);
@@ -207,21 +208,21 @@ void initSystemCallsLists() {
     });
 
     initSystemCall(SystemCall::kObjectListGet, [](const auto& input, auto* result) {
-        const auto& objectList = dynamic_cast<const ObjectList&>(input.getObject(-1));
+        const auto& objectList = castObjectList(input.getObject(-1));
         const auto& index = input.getValue(-1).getInt64();
         result->returnedObject = objectList.items.at(index);
         assert(result->returnedObject != nullptr);
     });
 
     initSystemCall(SystemCall::kObjectListSet, [](const auto& input, auto* result) {
-        const auto& objectList = dynamic_cast<const ObjectList&>(input.getObject(-2));
+        const auto& objectList = castObjectList(input.getObject(-2));
         const auto& index = static_cast<size_t>(input.getValue(-1).getInt64());
         const auto& element = input.getObjectPtr(-1);
         result->returnedObject = boost::make_local_shared<ObjectList>(objectList, /* insert */ false, index, element);
     });
 
     initSystemCall(SystemCall::kValueListAdd, [](const auto& input, auto* result) {
-        const auto& valueList = dynamic_cast<const ValueList&>(input.getObject(-1));
+        const auto& valueList = castValueList(input.getObject(-1));
         const auto& value = input.getValue(-1);
         result->returnedObject = boost::make_local_shared<ValueList>(valueList, true, valueList.size(), value);
     });
@@ -231,18 +232,18 @@ void initSystemCallsLists() {
     });
 
     initSystemCall(SystemCall::kValueListBuilderAdd, [](const auto& input, auto* /*result*/) {
-        auto& builder = dynamic_cast<ValueListBuilder&>(input.getObject(-2));
+        auto& builder = castValueListBuilder(input.getObject(-2));
         builder.items.push_back(input.getValue(-1));
     });
 
     initSystemCall(SystemCall::kValueListBuilderEnd, [](const auto& input, auto* result) {
-        auto& builder = dynamic_cast<ValueListBuilder&>(input.getObject(-1));
+        auto& builder = castValueListBuilder(input.getObject(-1));
         result->returnedObject = boost::make_local_shared<ValueList>(&builder);
     });
 
     initSystemCall(SystemCall::kValueListConcat, [](const auto& input, auto* result) {
-        const auto& lhs = dynamic_cast<const ValueList&>(input.getObject(-2));
-        const auto& rhs = dynamic_cast<const ValueList&>(input.getObject(-1));
+        const auto& lhs = castValueList(input.getObject(-2));
+        const auto& rhs = castValueList(input.getObject(-1));
         ValueListBuilder builder{ lhs.items.transient() };
         for (const auto& item : rhs.items) {
             builder.items.push_back(item);
@@ -251,13 +252,13 @@ void initSystemCallsLists() {
     });
 
     initSystemCall(SystemCall::kValueListGet, [](const auto& input, auto* result) {
-        const auto& valueList = dynamic_cast<const ValueList&>(input.getObject(-1));
+        const auto& valueList = castValueList(input.getObject(-1));
         const auto& index = input.getValue(-1).getInt64();
         result->returnedValue = valueList.items.at(index);
     });
 
     initSystemCall(SystemCall::kValueListSet, [](const auto& input, auto* result) {
-        const auto& valueList = dynamic_cast<const ValueList&>(input.getObject(-1));
+        const auto& valueList = castValueList(input.getObject(-1));
         const auto& index = static_cast<size_t>(input.getValue(-2).getInt64());
         const auto& value = input.getValue(-1);
         result->returnedObject = boost::make_local_shared<ValueList>(valueList, /* insert */ false, index, value);

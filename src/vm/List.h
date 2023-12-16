@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../common.h"
-#include "compiler/ast.h"
 #include "vm/Object.h"
 #include "vm/Value.h"
 
@@ -54,7 +53,7 @@ class List : public ListBase {
         if (other.getObjectType() != K) {
             return false;
         }
-        auto& otherList = static_cast<const List<TElement, K, TListBuilder>&>(other);
+        auto& otherList = dynamic_cast<const List<TElement, K, TListBuilder>&>(other);
         if (items.size() != otherList.items.size()) {
             return false;
         }

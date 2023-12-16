@@ -1,11 +1,12 @@
-#include "systemCall.h"
-#include "BasicFormsStorage.h"
-#include "BasicLabel.h"
-#include "Error.h"
-#include "Record.h"
-#include "RecordBuilder.h"
-#include "String.h"
+#include "vm/systemCall.h"
 #include "util/WindowPtr.h"
+#include "vm/BasicFormsStorage.h"
+#include "vm/BasicLabel.h"
+#include "vm/castObject.h"
+#include "vm/Error.h"
+#include "vm/Record.h"
+#include "vm/RecordBuilder.h"
+#include "vm/String.h"
 
 namespace vm {
 
@@ -31,7 +32,7 @@ void initSystemCallsControls() {
 
     initSystemCall(SystemCall::kSetControlText, [](const auto& input, auto* /*result*/) {
         auto* control = basicFormsStorage.controls.find(input.getValue(-1).getInt64());
-        auto& text = dynamic_cast<String&>(input.getObject(-1));
+        auto& text = castString(input.getObject(-1));
 
         auto* label = dynamic_cast<BasicLabel*>(control);
         if (label != nullptr) {

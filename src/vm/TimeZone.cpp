@@ -1,5 +1,6 @@
-#include "TimeZone.h"
+#include "vm/TimeZone.h"
 #include "util/decimal.h"
+#include "vm/castObject.h"
 #include "vm/date.h"
 
 namespace vm {
@@ -18,7 +19,7 @@ bool TimeZone::equals(const Object& other) const {
     if (other.getObjectType() != ObjectType::kTimeZone) {
         return false;
     }
-    const auto& otherTz = dynamic_cast<const TimeZone&>(other);
+    const auto& otherTz = castTimeZone(other);
     return (*zone == *otherTz.zone) != 0;
 }
 

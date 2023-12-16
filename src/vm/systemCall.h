@@ -1,10 +1,13 @@
 #pragma once
 
 #include "../common.h"
-#include "Interpreter.h"
-#include "Object.h"
-#include "Value.h"
-#include "constants.h"
+#include "vm/Error.h"
+#include "vm/Interpreter.h"
+#include "vm/Object.h"
+#include "vm/Value.h"
+#include "vm/String.h"
+#include "vm/List.h"
+#include "vm/constants.h"
 
 namespace vm {
 
@@ -164,6 +167,7 @@ class SystemCallInput {
     std::ostream* consoleOutputStream;
     const Value& errorCode;
     const std::string& errorMessage;
+
     SystemCallInput(
         Interpreter* interpreter,
         std::array<Value, kValueStackSize>* valueStack,
@@ -174,11 +178,13 @@ class SystemCallInput {
         std::ostream* consoleOutputStream,
         const Value& errorCode,
         const std::string& errorMessage);
+
     inline Value& getValue(const int vsiOffset) const {
         assert(vsiOffset < 0);
         assert(valueStackIndex + vsiOffset >= 0);
         return valueStack->at(valueStackIndex + vsiOffset);
     }
+
     inline Object& getObject(const int osiOffset) const {
         assert(osiOffset < 0);
         assert(objectStackIndex + osiOffset >= 0);
@@ -186,6 +192,7 @@ class SystemCallInput {
         assert(ptr != nullptr);
         return *ptr;
     }
+
     inline boost::local_shared_ptr<Object> getObjectPtr(const int osiOffset) const {
         return objectStack->at(objectStackIndex + osiOffset);
     }

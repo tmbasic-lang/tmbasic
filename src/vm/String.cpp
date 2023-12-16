@@ -1,4 +1,5 @@
 #include "String.h"
+#include "castObject.h"
 
 namespace vm {
 
@@ -27,7 +28,7 @@ bool String::equals(const Object& other) const {
     if (other.getObjectType() != ObjectType::kString) {
         return false;
     }
-    const auto& otherString = dynamic_cast<const String&>(other);
+    const auto& otherString = castString(other);
     return (value == otherString.value) != 0;
 }
 

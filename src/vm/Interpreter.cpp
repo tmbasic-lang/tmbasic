@@ -1,23 +1,24 @@
 // uncomment to log execution to std::cerr
 // #define LOG_EXECUTION
 
-#include "Interpreter.h"
-#include "CallFrame.h"
-#include "Error.h"
-#include "List.h"
-#include "List.h"
-#include "Map.h"
-#include "Object.h"
-#include "Opcode.h"
-#include "Optional.h"
-#include "Record.h"
-#include "RecordBuilder.h"
-#include "String.h"
-#include "constants.h"
-#include "date.h"
-#include "systemCall.h"
+#include "vm/Interpreter.h"
 #include "util/cast.h"
 #include "util/decimal.h"
+#include "vm/CallFrame.h"
+#include "vm/castObject.h"
+#include "vm/constants.h"
+#include "vm/date.h"
+#include "vm/Error.h"
+#include "vm/List.h"
+#include "vm/List.h"
+#include "vm/Map.h"
+#include "vm/Object.h"
+#include "vm/Opcode.h"
+#include "vm/Optional.h"
+#include "vm/Record.h"
+#include "vm/RecordBuilder.h"
+#include "vm/String.h"
+#include "vm/systemCall.h"
 
 namespace vm {
 
@@ -177,7 +178,7 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
                 throw std::runtime_error("Expected assignment target to be a value.");
             }
             auto valueFieldIndex = readInt<uint16_t>(state->instructions, state->instructionIndex);
-            auto& baseRecord = dynamic_cast<Record&>(*base);
+            auto& baseRecord = castRecord(*base);
             return boost::make_local_shared<Record>(baseRecord, valueFieldIndex, state->sourceValue);
         }
 
@@ -187,7 +188,7 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
                 throw std::runtime_error("Expected assignment target to be a record.");
             }
             auto objectFieldIndex = readInt<uint16_t>(state->instructions, state->instructionIndex);
-            auto& baseRecord = dynamic_cast<Record&>(*base);
+            auto& baseRecord = castRecord(*base);
 
             if (remainingSuffixes == 1) {
                 // We are assigning to this object field.
@@ -217,7 +218,7 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
             if (baseType == ObjectType::kValueList) {
                 // We are assigning to this value list element.
                 auto index = indexOrKeyValue.getInt64();
-                auto& baseValueList = dynamic_cast<ValueList&>(*base);
+                auto& baseValueList = castValueList(*base);
                 if (indexOrKeyValue.num < 0 || indexOrKeyValue.num >= baseValueList.size()) {
                     state->error = true;
                     state->errorMessage = "List index out of range.";
@@ -230,7 +231,7 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
 
             if (baseType == ObjectType::kValueToValueMap) {
                 // We are assigning to this value map element.
-                auto& baseMap = dynamic_cast<ValueToValueMap&>(*base);
+                auto& baseMap = castValueToValueMap(*base);
                 return boost::make_local_shared<ValueToValueMap>(baseMap, indexOrKeyValue, state->sourceValue);
             }
 
@@ -241,7 +242,7 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
             // Value index/key + object element
             auto indexOrKeyValue = *valueAt(&state->p->valueStack, *state->valueStackIndex, nextKeyValueOffset++);
             if (baseType == ObjectType::kObjectList) {
-                auto& baseObjectList = dynamic_cast<ObjectList&>(*base);
+                auto& baseObjectList = castObjectList(*base);
                 if (indexOrKeyValue.num < 0 || indexOrKeyValue.num >= baseObjectList.size()) {
                     state->error = true;
                     state->errorMessage = "List index out of range.";
@@ -268,7 +269,7 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
             }
 
             if (baseType == ObjectType::kValueToObjectMap) {
-                auto& baseMap = dynamic_cast<ValueToObjectMap&>(*base);
+                auto& baseMap = castValueToObjectMap(*base);
                 if (remainingSuffixes == 1) {
                     // We are assigning to this value-object map element.
                     if (state->isAssigningValue) {
@@ -308,7 +309,7 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
             auto keyObject = *objectAt(&state->p->objectStack, *state->objectStackIndex, nextKeyObjectOffset++);
 
             // We are assigning to this object-value map element.
-            auto& baseMap = dynamic_cast<ObjectToValueMap&>(*base);
+            auto& baseMap = castObjectToValueMap(*base);
             return boost::make_local_shared<ObjectToValueMap>(baseMap, keyObject, state->sourceValue);
         }
 
@@ -320,7 +321,7 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
 
             auto keyObject = *objectAt(&state->p->objectStack, *state->objectStackIndex, nextKeyObjectOffset++);
 
-            auto& baseMap = dynamic_cast<ObjectToObjectMap&>(*base);
+            auto& baseMap = castObjectToObjectMap(*base);
             if (remainingSuffixes == 1) {
                 // We are assigning to this object-object map element.
                 if (state->isAssigningValue) {
@@ -748,7 +749,7 @@ bool Interpreter::run(int maxCycles) {
                 auto code = *valueAt(valueStack, vsi, -1);
                 _private->hasError = true;
                 _private->errorCode = code;
-                _private->errorMessage = dynamic_cast<const String&>(message).value;
+                _private->errorMessage = castString(message).value;
                 popValue(valueStack, &vsi);
                 popObject(objectStack, &osi);
                 break;
@@ -803,7 +804,7 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kRecordGetValue: {
                 auto index = readInt<uint16_t>(instructions, &instructionIndex);
-                auto& record = dynamic_cast<Record&>(**objectAt(objectStack, osi, -1));
+                auto& record = castRecord(**objectAt(objectStack, osi, -1));
                 auto val = record.values.at(index);
                 popObject(objectStack, &osi);
                 pushValue(valueStack, &vsi, val);
@@ -812,7 +813,7 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kRecordGetObject: {
                 auto index = readInt<uint16_t>(instructions, &instructionIndex);
-                auto& record = dynamic_cast<Record&>(**objectAt(objectStack, osi, -1));
+                auto& record = castRecord(**objectAt(objectStack, osi, -1));
                 auto obj = record.objects.at(index);
                 popObject(objectStack, &osi);
                 pushObject(objectStack, &osi, std::move(obj));
@@ -821,7 +822,7 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kRecordSetValue: {
                 auto index = readInt<uint16_t>(instructions, &instructionIndex);
-                auto& record = dynamic_cast<Record&>(**objectAt(objectStack, osi, -1));
+                auto& record = castRecord(**objectAt(objectStack, osi, -1));
                 auto& newValue = *valueAt(valueStack, vsi, -1);
                 auto newRecord = boost::make_local_shared<Record>(record, index, newValue);
                 popObject(objectStack, &osi);  // pop record
@@ -832,7 +833,7 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kRecordSetObject: {
                 auto index = readInt<uint16_t>(instructions, &instructionIndex);
-                auto& record = dynamic_cast<Record&>(**objectAt(objectStack, osi, -2));
+                auto& record = castRecord(**objectAt(objectStack, osi, -2));
                 auto& newObject = *objectAt(objectStack, osi, -1);
                 auto newRecord = boost::make_local_shared<Record>(record, index, newObject);
                 popObject(objectStack, &osi);  // pop record
@@ -890,7 +891,7 @@ bool Interpreter::run(int maxCycles) {
                 // Input value stack: (none)
                 // Output object stack: element
                 // Output value stack: success
-                auto& map = dynamic_cast<ObjectToObjectMap&>(**objectAt(objectStack, osi, -2));
+                auto& map = castObjectToObjectMap(**objectAt(objectStack, osi, -2));
                 auto& key = *objectAt(objectStack, osi, -1);
                 const auto* elementWeak = map.pairs.find(key);
                 auto element = elementWeak != nullptr ? *elementWeak : nullptr;  // take reference
@@ -906,7 +907,7 @@ bool Interpreter::run(int maxCycles) {
                 // Input value stack: (none)
                 // Output object stack: (none)
                 // Output value stack: element, success
-                auto& map = dynamic_cast<ObjectToValueMap&>(**objectAt(objectStack, osi, -2));
+                auto& map = castObjectToValueMap(**objectAt(objectStack, osi, -2));
                 auto& key = *objectAt(objectStack, osi, -1);
                 const auto* elementWeak = map.pairs.find(key);
                 auto element = elementWeak != nullptr ? *elementWeak : Value{ 0 };  // copy
@@ -922,7 +923,7 @@ bool Interpreter::run(int maxCycles) {
                 // Input value stack: key (-1)
                 // Output object stack: element
                 // Output value stack: success
-                auto& map = dynamic_cast<ValueToObjectMap&>(**objectAt(objectStack, osi, -1));
+                auto& map = castValueToObjectMap(**objectAt(objectStack, osi, -1));
                 auto key = *valueAt(valueStack, vsi, -1);
                 const auto* elementWeak = map.pairs.find(key);
                 auto element = elementWeak != nullptr ? *elementWeak : nullptr;  // take reference
@@ -938,7 +939,7 @@ bool Interpreter::run(int maxCycles) {
                 // Input value stack: key (-1)
                 // Output object stack: (none)
                 // Output value stack: element, success
-                auto& map = dynamic_cast<ValueToValueMap&>(**objectAt(objectStack, osi, -1));
+                auto& map = castValueToValueMap(**objectAt(objectStack, osi, -1));
                 auto key = *valueAt(valueStack, vsi, -1);
                 const auto* elementWeak = map.pairs.find(key);
                 auto element = elementWeak != nullptr ? *elementWeak : Value{ 0 };  // copy
