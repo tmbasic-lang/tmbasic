@@ -425,9 +425,10 @@ void ProgramWindow::setState(uint16_t aState, bool enable) {
 }
 
 static void compilerErrorMessageBox(const compiler::CompilerException& ex) {
+    // Some extra newlines at the end seem to be necessary to avoid the last line getting cut off.
     messageBox(
         fmt::format(
-            "Error in \"{}\"\nLn {}, Col {}\n{}", ex.token.sourceMember->identifier, ex.token.lineIndex + 1,
+            "Error in \"{}\"\nLn {}, Col {}\n{}\n\n\n", ex.token.sourceMember->identifier, ex.token.lineIndex + 1,
             ex.token.columnIndex + 1, ex.message),
         mfError | mfOKButton);
 }
