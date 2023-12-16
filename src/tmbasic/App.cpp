@@ -299,19 +299,20 @@ class AppPrivate {
             height = deskTop->size.y - 2;
         }
 
-        auto maxX = deskTop->size.x - width;
-        auto maxY = deskTop->size.y - height;
+        auto maxX = deskTop->size.x - width + 2;
+        auto maxY = deskTop->size.y - height + 1;
 
         auto x = newWindowX % maxX;
         auto y = newWindowY % maxY;
 
-        if (x < 1) {
-            x = 1;
+        if (x < 0) {
+            x = 0;
         }
-        if (y < 1) {
-            y = 1;
+        if (y < 0) {
+            y = 0;
         }
 
+        // Set us up for next time.
         newWindowX = x + 2;
         newWindowY = y + 1;
 
@@ -538,7 +539,7 @@ class AppPrivate {
             e.window->select();
         } else {
             auto editor = createEditor(member);
-            auto* window = new CodeEditorWindow(getNewWindowRect(75, 20), std::move(editor), member, []() -> void {
+            auto* window = new CodeEditorWindow(getNewWindowRect(89, 20), std::move(editor), member, []() -> void {
                 // onUpdated
                 auto* programWindow = findProgramWindow();
                 if (programWindow != nullptr) {
