@@ -95,7 +95,8 @@ static void assignArgumentIndices(ProcedureNode* procedure) {
     }
 }
 
-static void compileProcedure(
+// We do pass 1 on all procedures before proceeding to pass 2.
+static void compileProcedurePass1(
     const SourceProgram& sourceProgram,
     CompiledProgram* compiledProgram,
     CompiledProcedure* compiledProcedure,
@@ -106,6 +107,16 @@ static void compileProcedure(
     bindProcedureSymbols(globalSymbolScope, procedureNode);
     bindYieldStatements(procedureNode);
     bindNamedRecordTypes(procedureNode, *compiledProgram);
+}
+
+// Pass 2 happens after pass 1 is complete for all procedures.
+static void compileProcedurePass2(
+    const SourceProgram& sourceProgram,
+    CompiledProgram* compiledProgram,
+    CompiledProcedure* compiledProcedure,
+    SymbolScope* globalSymbolScope,
+    const BuiltInProcedureList& builtInProcedures) {
+    auto* procedureNode = compiledProcedure->procedureNode.get();
     typeCheck(procedureNode, sourceProgram, compiledProgram, builtInProcedures);
     int numLocalValues = 0;
     int numLocalObjects = 0;
@@ -189,9 +200,14 @@ void compileProcedures(const SourceProgram& sourceProgram, CompiledProgram* comp
         globalSymbolScope.addSymbol(compiledProcedure->procedureNode.get(), SymbolType::kProcedure);
     }
 
-    // compile each procedure
+    // compile each procedure - two passes
     for (auto& compiledProcedure : compiledProgram->procedures) {
-        compileProcedure(
+        compileProcedurePass1(
+            sourceProgram, compiledProgram, compiledProcedure.get(), &globalSymbolScope, builtInProcedures);
+    }
+
+    for (auto& compiledProcedure : compiledProgram->procedures) {
+        compileProcedurePass2(
             sourceProgram, compiledProgram, compiledProcedure.get(), &globalSymbolScope, builtInProcedures);
     }
 
