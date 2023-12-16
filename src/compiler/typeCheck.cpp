@@ -7,16 +7,21 @@ namespace compiler {
 
 class TypeCheckState {
    public:
+    const ProcedureNode& procedureNode;
     const SourceProgram& sourceProgram;
     CompiledProgram* compiledProgram;
     const BuiltInProcedureList& builtInProcedures;
     boost::local_shared_ptr<TypeNode> typeBoolean{ boost::make_local_shared<TypeNode>(Kind::kBoolean, Token{}) };
     boost::local_shared_ptr<TypeNode> typeNumber{ boost::make_local_shared<TypeNode>(Kind::kNumber, Token{}) };
     TypeCheckState(
+        const ProcedureNode& procedureNode,
         const SourceProgram& sourceProgram,
         CompiledProgram* compiledProgram,
         const BuiltInProcedureList& builtInProcedures)
-        : sourceProgram(sourceProgram), compiledProgram(compiledProgram), builtInProcedures(builtInProcedures) {}
+        : procedureNode(procedureNode),
+          sourceProgram(sourceProgram),
+          compiledProgram(compiledProgram),
+          builtInProcedures(builtInProcedures) {}
 };
 
 static void typeCheckExpression(ExpressionNode* expressionNode, TypeCheckState* state);
@@ -82,16 +87,8 @@ static void replaceImplicitArgumentTypeConversionsWithExplicit(
         // Copy the token first, before we move from arguments[i]
         auto token = arguments->at(i)->token;
 
-        // Conversion from T -> Optional T.
-        if (parameterType->kind == Kind::kOptional && argumentType.equals(*parameterType->optionalValueType)) {
-            auto convertExpression =
-                std::make_unique<ConvertExpressionNode>(std::move(arguments->at(i)), parameterType, token);
-            convertExpression->evaluatedType = parameterType;
-            arguments->at(i) = std::move(convertExpression);
-            continue;
-        }
-
-        // Concrete->Generic doesn't require a conversion.
+        // Concrete->Generic must not be converted because a ConvertExpressionNode can't convert to a generic type.
+        // This isn't just for performance; these early continues are required for correctness.
         if (parameterType->kind == Kind::kAny) {
             continue;
         }
@@ -108,10 +105,12 @@ static void replaceImplicitArgumentTypeConversionsWithExplicit(
             continue;
         }
 
-        // Make sure we don't miss any conversions.
-        throw CompilerException(
-            CompilerErrorCode::kInternal,
-            "Internal error. Type checking for this implicit type conversion is not implemented.", token);
+        // Any other conversion requires us to insert an "X as Y" convert expression.
+        // After the type check phase ends, all implicit conversions have been replaced with explicit ones.
+        auto convertExpression =
+            std::make_unique<ConvertExpressionNode>(std::move(arguments->at(i)), parameterType, token);
+        convertExpression->evaluatedType = parameterType;
+        arguments->at(i) = std::move(convertExpression);
     }
 }
 
@@ -482,7 +481,10 @@ static void typeCheckConvertExpression(ConvertExpressionNode* expressionNode, Ty
         if (srcType.fields.size() != dstType.fields.size()) {
             throw CompilerException(
                 CompilerErrorCode::kInvalidTypeConversion,
-                "This type conversion is not allowed because the target type has a different number of fields.",
+                fmt::format(
+                    "This type conversion is not allowed because the target type has {} field(s) but the source type "
+                    "has {} field(s). The number of fields must match.",
+                    dstType.fields.size(), srcType.fields.size()),
                 expressionNode->token);
         }
 
@@ -494,14 +496,22 @@ static void typeCheckConvertExpression(ConvertExpressionNode* expressionNode, Ty
             if (srcField.nameLowercase != dstField.nameLowercase) {
                 throw CompilerException(
                     CompilerErrorCode::kInvalidTypeConversion,
-                    "This type conversion is not allowed because the target type does not have the same field names.",
+                    fmt::format(
+                        "This type conversion is not allowed because the source and target types have different field "
+                        "names. The field at index {} is named \"{}\" in the source type but \"{}\" in the target "
+                        "type.",
+                        i, srcField.name, dstField.name),
                     expressionNode->token);
             }
 
             if (!srcField.type->equals(*dstField.type)) {
                 throw CompilerException(
                     CompilerErrorCode::kInvalidTypeConversion,
-                    "This type conversion is not allowed because the target type does not have the same field types.",
+                    fmt::format(
+                        "This type conversion is not allowed because the source and target type have different field "
+                        "types. The field \"{}\" has type \"{}\" in the source type but type \"{}\" in the target "
+                        "type.",
+                        srcField.name, srcField.type->toString(), dstField.type->toString()),
                     expressionNode->token);
             }
         }
@@ -1127,6 +1137,51 @@ static void typeCheckOnStatement(OnStatementNode* statementNode, TypeCheckState*
     }
 }
 
+static void typeCheckReturnStatement(ReturnStatementNode* statementNode, TypeCheckState* state) {
+    // The return expression has been type checked, but we need to ensure it matches the procedure's return type.
+    const auto& expectedType = state->procedureNode.returnType;
+
+    if (statementNode->expression == nullptr) {
+        // This is a bare "return" statement which must be inside a subroutine.
+        if (expectedType != nullptr) {
+            throw CompilerException(
+                CompilerErrorCode::kInvalidReturn,
+                fmt::format("This function expects to return a value of type {}.", expectedType->toString()),
+                statementNode->token);
+        }
+    } else {
+        // This is a "return x" statement which must be inside a function.
+        if (expectedType == nullptr) {
+            throw CompilerException(
+                CompilerErrorCode::kInvalidReturn, "A subroutine cannot return a value.", statementNode->token);
+        }
+
+        const auto* actualType = statementNode->expression->evaluatedType.get();
+        assert(actualType != nullptr);
+
+        if (!expectedType->isImplicitlyAssignableFrom(*actualType)) {
+            throw CompilerException(
+                CompilerErrorCode::kTypeMismatch,
+                fmt::format(
+                    "The return type of this function is {}, but the \"return\" statement expression is of type {}.",
+                    expectedType->toString(), actualType->toString()),
+                statementNode->token);
+        }
+
+        // MARKER: This function concerns implicit type conversions. Search for this line to find others.
+        if (!expectedType->equals(*actualType)) {
+            // actualType and expectedType aren't equal but an implicit conversion exists.
+            // Convert the implicit conversion to an explicit conversion.
+            // After the type check phase ends, all implicit conversions have been replaced with explicit ones.
+            auto token = statementNode->expression->token;
+            auto convertExpression =
+                std::make_unique<ConvertExpressionNode>(std::move(statementNode->expression), expectedType, token);
+            convertExpression->evaluatedType = expectedType;
+            statementNode->expression = std::move(convertExpression);
+        }
+    }
+}
+
 static void typeCheckBody(BodyNode* bodyNode, TypeCheckState* state) {
     for (auto& statementNode : bodyNode->statements) {
         statementNode->visitExpressions(true, [state](ExpressionNode* expressionNode) -> bool {
@@ -1188,6 +1243,10 @@ static void typeCheckBody(BodyNode* bodyNode, TypeCheckState* state) {
                 typeCheckOnStatement(dynamic_cast<OnStatementNode*>(statementNode.get()), state);
                 break;
 
+            case StatementType::kReturn:
+                typeCheckReturnStatement(dynamic_cast<ReturnStatementNode*>(statementNode.get()), state);
+                break;
+
             default:
                 // do nothing
                 break;
@@ -1219,7 +1278,7 @@ void typeCheck(
     const SourceProgram& sourceProgram,
     CompiledProgram* compiledProgram,
     const BuiltInProcedureList& builtInProcedures) {
-    TypeCheckState state{ sourceProgram, compiledProgram, builtInProcedures };
+    TypeCheckState state{ *procedureNode, sourceProgram, compiledProgram, builtInProcedures };
     return typeCheckBody(procedureNode->body.get(), &state);
 }
 

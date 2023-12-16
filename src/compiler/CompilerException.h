@@ -35,6 +35,7 @@ enum class CompilerErrorCode {
     kFieldNotFound,
     kTooManyIndexArguments,
     kInvalidTypeConversion,
+    kInvalidReturn,
 };
 
 class CompilerException : public std::exception {
