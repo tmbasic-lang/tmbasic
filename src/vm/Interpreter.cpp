@@ -1,5 +1,5 @@
 // uncomment to log execution to std::cerr
-//#define LOG_EXECUTION
+// #define LOG_EXECUTION
 
 #include "Interpreter.h"
 #include "CallFrame.h"

@@ -255,7 +255,8 @@ void initSystemCallsStrings() {
         ObjectListBuilder builder{};
 
         std::string token;
-        size_t startPos = 0, endPos = 0;
+        size_t startPos = 0;
+        size_t endPos = 0;
 
         while ((endPos = str.value.find(separator.value, startPos)) != std::string::npos) {
             token = str.value.substr(startPos, endPos - startPos);
