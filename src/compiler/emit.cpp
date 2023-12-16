@@ -805,6 +805,7 @@ static void emitDottedExpression(const DottedExpressionNode& expressionNode, Pro
         return;
     }
 
+    // As we traverse the suffixes, we will update baseType.
     auto* baseType = expressionNode.base->evaluatedType.get();
     emitExpression(*expressionNode.base, state);
 
@@ -837,6 +838,7 @@ static void emitDottedExpression(const DottedExpressionNode& expressionNode, Pro
                 } else {
                     state->syscall(Opcode::kSystemCallO, SystemCall::kObjectListGet, 1, 1);
                 }
+                baseType = baseType->listItemType.get();
             } else if (baseType->kind == Kind::kMap) {
                 assert(baseType->mapKeyType != nullptr);
                 assert(baseType->mapValueType != nullptr);
@@ -860,6 +862,7 @@ static void emitDottedExpression(const DottedExpressionNode& expressionNode, Pro
                 state->setErrorMapKeyNotFound();
                 state->returnOrBranchIfError();
                 state->label(continueLabel);
+                baseType = baseType->mapValueType.get();
             } else {
                 throw std::runtime_error("not impl");
             }
