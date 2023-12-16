@@ -150,6 +150,11 @@ void initSystemCallsStrings() {
         result->returnedObject = boost::make_local_shared<String>(line);
     });
 
+    initSystemCall(SystemCall::kIsDigit, [](const auto& input, auto* result) {
+        const auto& str = dynamic_cast<const String&>(input.getObject(-1));
+        result->returnedValue.setBoolean(str.value.length() >= 1 && std::isdigit(str.value.at(0)));
+    });
+
     initSystemCall(SystemCall::kNewLine, [](const auto& /*input*/, auto* result) {
 #ifdef _WIN32
         result->returnedObject = boost::make_local_shared<String>("\r\n", 2);

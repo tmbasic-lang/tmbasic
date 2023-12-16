@@ -1,0 +1,26 @@
+.procedure IsDigit
+.category Strings
+.blurb Checks whether the first character of a string is a digit.
+.description
+Checks whether the first character of a string is a digit.
+
+If the input string is empty, this function returns false.
+.overload
+.parameter text: String
+A string possibly containing a digit, like "1".
+.return Number
+True if the first character of the string is a digit, false otherwise.
+.example
+.example-code
+print IsDigit("1")
+print IsDigit("a")
+print IsDigit("")
+print IsDigit("1a")
+print IsDigit("a1")
+.example-output
+true
+false
+false
+true
+false
+.

@@ -56,6 +56,7 @@ enum class SystemCall {
     kHasValue,                      // (input as Optional Any) as Boolean
     kHours,                         // (count as Number) as TimeSpan
     kInputString,                   // () as String
+    kIsDigit,                       // (input as String) as Boolean
     kListDirectories,               // (path as String) as List of String
     kListFiles,                     // (path as String) as List of String
     kListFillO,                     // (value as TObject, count as Number) as List of TObject

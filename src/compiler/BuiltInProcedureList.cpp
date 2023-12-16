@@ -69,6 +69,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("FormTitle", { "form" }, { form }, string, SystemCall::kFormTitle);
     addFunction("HasValue", { "this" }, { optionalGeneric }, boolean, SystemCall::kHasValue);
     addFunction("Hours", { "count" }, { number }, timeSpan, SystemCall::kHours);
+    addFunction("IsDigit", { "input" }, { string }, boolean, SystemCall::kIsDigit);
     addFunction("Last", { "list" }, { listGeneric }, generic1, SystemCall::kListLast);
     addFunction("Len", { "input" }, { listGeneric }, number, SystemCall::kListLen);
     addFunction("Len", { "input" }, { string }, number, SystemCall::kStringLen);
