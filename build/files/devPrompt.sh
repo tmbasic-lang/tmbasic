@@ -1,4 +1,18 @@
 #!/bin/bash
+
+function make_colorized() {
+    clear
+    make | {
+        counter=1
+
+        while IFS= read -r line; do
+            echo -e "\033[47;30m[${counter}]\033[0m"
+            echo $line
+            ((counter++))
+        done
+    }
+}
+
 while true
 do
     echo
@@ -10,17 +24,7 @@ do
     echo
     if [ "$x" == "m" ]
     then
-        clear
-        make | {
-            counter=1
-
-            while IFS= read -r line; do
-                echo -e "\033[47;30m[${counter}]\033[0m"
-                echo $line
-                ((counter++))
-            done
-        }
-
+        make_colorized
     elif [ "$x" == "r" ] 
     then
         TERM=xterm-256color COLORTERM=truecolor make run
@@ -45,6 +49,7 @@ do
         if [ -f "test_filter" ]; then
             export GTEST_FILTER=$(cat test_filter)
         fi
+        make_colorized
         make test
     elif [ "$x" == "F" ]
     then
