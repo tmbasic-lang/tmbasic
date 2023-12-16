@@ -11,25 +11,16 @@ do
     if [ "$x" == "m" ]
     then
         clear
-        # Colorize the output.
         make | {
-            colors=(91 92 93 94 95 96 97)  # Array of bright color codes
-            color_index=0                  # Index to keep track of the current color
+            counter=1
 
             while IFS= read -r line; do
-                # Get the current color
-                color=${colors[color_index]}
-
-                # Print the line with the current color and reset the color afterwards
-                echo -e "\033[${color}m${line}\033[0m"
-
-                # Print a blank line for spacing
-                echo
-
-                # Move to the next color, cycling back to the start if necessary
-                ((color_index = (color_index + 1) % ${#colors[@]}))
+                echo -e "\033[47;30m[${counter}]\033[0m"
+                echo $line
+                ((counter++))
             done
         }
+
     elif [ "$x" == "r" ] 
     then
         TERM=xterm-256color COLORTERM=truecolor make run
