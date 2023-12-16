@@ -388,7 +388,7 @@ clean:
 
 .PHONY: run
 run:
-	bin/tmbasic || (printf "\r\nCrash detected! Resetting terminal in 5 seconds...\r\n" && sleep 5 && reset && echo "Eating input. Press Ctrl+D." && cat >/dev/null)
+	cd bin && ./tmbasic || (printf "\r\nCrash detected! Resetting terminal in 5 seconds...\r\n" && sleep 5 && reset && echo "Eating input. Press Ctrl+D." && cat >/dev/null)
 
 .PHONY: test
 test: bin/test$(EXE_EXTENSION)
