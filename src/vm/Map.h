@@ -7,6 +7,38 @@
 
 namespace vm {
 
+template <typename TKey, typename TValue, ObjectType K, typename TKeyHash, typename TKeyEqual>
+class MapBuilder : public Object {
+   public:
+    immer::map_transient<TKey, TValue, TKeyHash, TKeyEqual> pairs;
+    MapBuilder() {}
+    explicit MapBuilder(immer::map_transient<TKey, TValue> pairs) : pairs(std::move(pairs)) {}
+    ObjectType getObjectType() const override { return K; }
+    std::size_t getHash() const override { return 0; }
+    bool equals(const Object& other) const override { return false; }
+};
+
+using ValueToValueMapBuilder =
+    MapBuilder<Value, Value, ObjectType::kValueToValueMapBuilder, std::hash<Value>, std::equal_to<Value>>;
+using ValueToObjectMapBuilder = MapBuilder<
+    Value,
+    boost::local_shared_ptr<Object>,
+    ObjectType::kValueToObjectMapBuilder,
+    std::hash<Value>,
+    std::equal_to<Value>>;
+using ObjectToValueMapBuilder = MapBuilder<
+    boost::local_shared_ptr<Object>,
+    Value,
+    ObjectType::kObjectToValueMapBuilder,
+    std::hash<boost::local_shared_ptr<Object>>,
+    ObjectReferenceCompare>;
+using ObjectToObjectMapBuilder = MapBuilder<
+    boost::local_shared_ptr<Object>,
+    boost::local_shared_ptr<Object>,
+    ObjectType::kObjectToObjectMapBuilder,
+    std::hash<boost::local_shared_ptr<Object>>,
+    ObjectReferenceCompare>;
+
 template <
     typename TKey,
     typename TValue,
@@ -17,41 +49,33 @@ template <
     typename TKeyEqual,
     typename TValuePointerCompare,
     typename TValueListBuilder,
-    typename TValueList>
+    typename TValueList,
+    typename TMapBuilder>
 class Map : public Object {
    public:
+    using Self =
+        Map<TKey,
+            TValue,
+            K,
+            TKeyListBuilder,
+            TKeyList,
+            TKeyHash,
+            TKeyEqual,
+            TValuePointerCompare,
+            TValueListBuilder,
+            TValueList,
+            TMapBuilder>;
+
     const immer::map<TKey, TValue, TKeyHash, TKeyEqual> pairs = {};
 
+    // TODO: shouldn't need default Map constructor now that we have MapBuilder
     Map() = default;
 
-    Map(const Map<
-            TKey,
-            TValue,
-            K,
-            TKeyListBuilder,
-            TKeyList,
-            TKeyHash,
-            TKeyEqual,
-            TValuePointerCompare,
-            TValueListBuilder,
-            TValueList>& source,
-        TKey newKey,
-        TValue newValue)
-        : pairs(std::move(source.pairs.set(newKey, newValue))) {}
+    explicit Map(TMapBuilder* builder) : pairs(std::move(builder->pairs.persistent())) {}
 
-    Map(const Map<
-            TKey,
-            TValue,
-            K,
-            TKeyListBuilder,
-            TKeyList,
-            TKeyHash,
-            TKeyEqual,
-            TValuePointerCompare,
-            TValueListBuilder,
-            TValueList>& source,
-        TKey removeKey)
-        : pairs(std::move(source.pairs.erase(removeKey))) {}
+    Map(const Self& source, TKey newKey, TValue newValue) : pairs(std::move(source.pairs.set(newKey, newValue))) {}
+
+    Map(const Self& source, TKey removeKey) : pairs(std::move(source.pairs.erase(removeKey))) {}
 
     ObjectType getObjectType() const override { return K; }
 
@@ -61,9 +85,7 @@ class Map : public Object {
         if (other.getObjectType() != K) {
             return false;
         }
-        auto& otherMap = static_cast<const Map<
-            TKey, TValue, K, TKeyListBuilder, TKeyList, TKeyHash, TKeyEqual, TValuePointerCompare, TValueListBuilder,
-            TValueList>&>(other);
+        auto& otherMap = static_cast<const Self&>(other);
         if (pairs.size() != otherMap.pairs.size()) {
             return false;
         }
@@ -107,7 +129,8 @@ using ValueToValueMap =
         std::equal_to<Value>,
         ValuePointerCompare,
         ValueListBuilder,
-        ValueList>;
+        ValueList,
+        ValueToValueMapBuilder>;
 
 using ValueToObjectMap =
     Map<Value,
@@ -119,7 +142,8 @@ using ValueToObjectMap =
         std::equal_to<Value>,
         ObjectPointerCompare,
         ObjectListBuilder,
-        ObjectList>;
+        ObjectList,
+        ValueToObjectMapBuilder>;
 
 using ObjectToValueMap =
     Map<boost::local_shared_ptr<Object>,
@@ -131,7 +155,8 @@ using ObjectToValueMap =
         ObjectReferenceCompare,
         ValuePointerCompare,
         ValueListBuilder,
-        ValueList>;
+        ValueList,
+        ObjectToValueMapBuilder>;
 
 using ObjectToObjectMap =
     Map<boost::local_shared_ptr<Object>,
@@ -143,6 +168,7 @@ using ObjectToObjectMap =
         ObjectReferenceCompare,
         ObjectPointerCompare,
         ObjectListBuilder,
-        ObjectList>;
+        ObjectList,
+        ObjectToObjectMapBuilder>;
 
 }  // namespace vm

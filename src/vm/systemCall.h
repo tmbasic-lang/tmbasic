@@ -104,8 +104,14 @@ enum class SystemCall {
     kObjectOptionalNewPresent,      // (input as Object) as ObjectOptional
     kObjectToObjectMapNew,          // () as ObjectToObjectMap
     kObjectToObjectMapSet,          // (input as ObjectToObjectMap, key as Object, value as Object) as ObjectToObjectMap
+    kObjectToObjectMapBuilderAdd,   // (builder as ObjectToObjectMapBuilder, key as Object, value as Object)
+    kObjectToObjectMapBuilderEnd,   // (builder as ObjectToObjectMapBuilder) as ObjectToObjectMap
+    kObjectToObjectMapBuilderNew,   // () as ObjectToObjectMapBuilder
     kObjectToValueMapNew,           // () as ObjectToValueMap
     kObjectToValueMapSet,           // (input as ObjectToValueMap, key as Object, value as Value) as ObjectToValueMap
+    kObjectToValueMapBuilderAdd,    // (builder as ObjectToValueMapBuilder, key as Object, value as Value)
+    kObjectToValueMapBuilderEnd,    // (builder as ObjectToValueMapBuilder) as ObjectToValueMap
+    kObjectToValueMapBuilderNew,    // () as ObjectToValueMapBuilder
     kParseNumber,                   // (input as String) as Number
     kPathCombine,                   // (parts as List of String) as String
     kPathDirectoryName,             // (path as String) as String
@@ -157,8 +163,14 @@ enum class SystemCall {
     kValueOptionalNewPresent,       // (input as Value) as ValueOptional
     kValueToObjectMapNew,           // () as ValueToObjectMap
     kValueToObjectMapSet,           // (input as ValueToObjectMap, key as Value, value as Object) as ValueToObjectMap
+    kValueToObjectMapBuilderAdd,    // (builder as ValueToObjectMapBuilder, key as Value, value as Object)
+    kValueToObjectMapBuilderEnd,    // (builder as ValueToObjectMapBuilder) as ValueToObjectMap
+    kValueToObjectMapBuilderNew,    // () as ValueToObjectMapBuilder
     kValueToValueMapNew,            // () as ValueToValueMap
     kValueToValueMapSet,            // (input as ValueToValueMap, key as Value, value as Value) as ValueToValueMap
+    kValueToValueMapBuilderAdd,     // (builder as ValueToValueMapBuilder, key as Value, value as Value)
+    kValueToValueMapBuilderEnd,     // (builder as ValueToValueMapBuilder) as ValueToValueMap
+    kValueToValueMapBuilderNew,     // () as ValueToValueMapBuilder
     kWriteFileBytes,                // (filePath as String, bytes as List of Number)
     kWriteFileLines,                // (filePath as String, lines as List of String)
     kWriteFileText,                 // (filePath as String, text as String)
