@@ -106,6 +106,7 @@
 #include <immer/vector_transient.hpp>
 
 // nameof
+#define NAMEOF_ENUM_RANGE_MAX 256 // our biggest enum is SystemCall
 #include <nameof.hpp>
 
 // fmt

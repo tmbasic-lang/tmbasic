@@ -11,6 +11,7 @@
 
 namespace vm {
 
+// This enum is big enough that it requires NAMEOF_ENUM_RANGE_MAX to be increased.
 enum class SystemCall {
     kAbs,                           // (x as Number) as Number
     kAcos,                          // (x as Number) as Number

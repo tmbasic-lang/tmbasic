@@ -440,7 +440,9 @@ bool Interpreter::run(int maxCycles) {
             case Opcode::kSystemCallVO: {
                 int16_t syscallIndex{};
                 memcpy(&syscallIndex, &instructions->at(instructionIndex + 1), sizeof(int16_t));
-                std::cerr << " " << NAMEOF_ENUM(static_cast<SystemCall>(syscallIndex));
+                auto syscall = static_cast<SystemCall>(syscallIndex);
+                // If you're getting unknown here, check NAMEOF_ENUM_RANGE_MAX.
+                std::cerr << " [" << NAMEOF_ENUM_OR(syscall, "unknown!") << "]";
                 break;
             }
 
@@ -888,6 +890,7 @@ bool Interpreter::run(int maxCycles) {
                 break;
             }
 
+            // TODO: these MapTryGet opcodes should be system calls instead.
             case Opcode::kObjectToObjectMapTryGet: {
                 // Input object stack: map (-2), key (-1)
                 // Input value stack: (none)
@@ -959,9 +962,8 @@ bool Interpreter::run(int maxCycles) {
                 break;
             }
 
-            case Opcode::kSetEventHandler: {
-                break;
-            }
+            case Opcode::kSetEventHandler:
+                throw std::runtime_error("not impl");
 
             default:
                 throw std::runtime_error(fmt::format("Unknown opcode {}", static_cast<int>(opcode)));
