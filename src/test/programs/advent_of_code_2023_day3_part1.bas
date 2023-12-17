@@ -1,9 +1,3 @@
-#type
-type Position
-    row as Number
-    col as Number
-end type
-
 #global
 ' Two extra for the buffer we add on either side.
 const kWidth = 142
