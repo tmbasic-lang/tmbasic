@@ -232,7 +232,7 @@ void initSystemCallsLists() {
     });
 
     initSystemCall(SystemCall::kValueListBuilderAdd, [](const auto& input, auto* /*result*/) {
-        auto& builder = castValueListBuilder(input.getObject(-2));
+        auto& builder = castValueListBuilder(input.getObject(-1));
         builder.items.push_back(input.getValue(-1));
     });
 
