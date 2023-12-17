@@ -689,6 +689,8 @@ bool Interpreter::run(int maxCycles) {
                                                  objectStack,
                                                  vsi,
                                                  osi,
+                                                 numVals,
+                                                 numObjs,
                                                  _private->consoleInputStream,
                                                  _private->consoleOutputStream,
                                                  _private->errorCode,

@@ -163,6 +163,8 @@ class SystemCallInput {
     std::array<boost::local_shared_ptr<Object>, kObjectStackSize>* objectStack;
     int valueStackIndex;
     int objectStackIndex;
+    int numValueArguments;
+    int numObjectArguments;
     std::istream* consoleInputStream;
     std::ostream* consoleOutputStream;
     const Value& errorCode;
@@ -174,6 +176,8 @@ class SystemCallInput {
         std::array<boost::local_shared_ptr<Object>, kObjectStackSize>* objectStack,
         int valueStackIndex,
         int objectStackIndex,
+        int numValueArguments,
+        int numObjectArguments,
         std::istream* consoleInputStream,
         std::ostream* consoleOutputStream,
         const Value& errorCode,
