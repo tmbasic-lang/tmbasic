@@ -8,7 +8,7 @@ If the input string is empty, this function returns false.
 .overload
 .parameter text: String
 A string possibly containing a digit, like "1".
-.return Number
+.return Boolean
 True if the first character of the string is a digit, false otherwise.
 .example
 .example-code
