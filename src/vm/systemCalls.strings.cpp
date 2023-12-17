@@ -250,6 +250,26 @@ void initSystemCallsStrings() {
         result->returnedValue.num = str.length();
     });
 
+    initSystemCall(SystemCall::kStringReplace, [](const auto& input, auto* result) {
+        const auto& haystack = castString(input.getObject(-3));
+        const auto& needle = castString(input.getObject(-2));
+        const auto& replacement = castString(input.getObject(-1));
+
+        if (needle.value.length() == 0) {
+            throw Error(ErrorCode::kInvalidArgument, "Needle cannot be empty.");
+        }
+
+        std::string s{ haystack.value };
+
+        size_t pos = 0;
+        while ((pos = s.find(needle.value, pos)) != std::string::npos) {
+            s.replace(pos, needle.value.length(), replacement.value);
+            pos += replacement.value.length();
+        }
+
+        result->returnedObject = boost::make_local_shared<String>(std::move(s));
+    });
+
     initSystemCall(SystemCall::kStringSplit, [](const auto& input, auto* result) {
         const auto& str = castString(input.getObject(-2));
         const auto& separator = castString(input.getObject(-1));

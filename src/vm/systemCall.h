@@ -131,6 +131,7 @@ enum class SystemCall {
     kStringFromCodePoints,          // (codePoints as List of Number) as String
     kStringFromCodeUnits,           // (codeUnits as List of Number) as String
     kStringLen,                     // (input as String) as Number
+    kStringReplace,                 // (haystack as String, needle as String, replacement as String) as String
     kStringSplit,                   // (input as String, separator as String) as List of String
     kTan,                           // (x as Number) as Number
     kTimeSpanToString,              // (timeSpan as TimeSpan) as String

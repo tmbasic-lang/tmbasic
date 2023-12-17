@@ -1,0 +1,30 @@
+.procedure Replace
+.category Strings
+.blurb Replaces all occurrences of a search phase in a string with a replacement phrase.
+.description
+Replaces all occurrences of a search phase in a string with a replacement phrase.
+.overload
+.parameter haystack: String
+The input string to make replacements in.
+.parameter needle: String
+The string to find in i[haystack]. Must not be the empty string.
+.parameter replacement: String
+The string to replace i[needle] with.
+.return String
+The i[haystack] string with all occurrences of i[needle] replaced with i[replacement].
+.errors
+ERR_INVALID_ARGUMENT
+.example
+.example-code
+print "1:"; Replace("aaa", "a", "bb")
+print "2:"; Replace("aaa", "aa", "bb")
+print "3:"; Replace("", "a", "b")
+print "4:"; Replace("aaa", "a", "aa")
+print "5:"; Replace("aaaa", "aa", "a")
+.example-output
+1:bbbbbb
+2:bba
+3:
+4:aaaaaa
+5:aa
+.

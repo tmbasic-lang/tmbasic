@@ -105,6 +105,9 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("ReadFileBytes", { "filePath" }, { string }, listOfNumber, SystemCall::kReadFileBytes);
     addFunction("ReadFileLines", { "filePath" }, { string }, listOfString, SystemCall::kReadFileLines);
     addFunction("ReadFileText", { "filePath" }, { string }, string, SystemCall::kReadFileText);
+    addFunction(
+        "Replace", { "haystack", "needle", "replacement" }, { string, string, string }, string,
+        SystemCall::kStringReplace);
     addFunction("Round", { "x" }, { number }, number, SystemCall::kRound);
     addSub("RunForm", { "form" }, { form }, SystemCall::kRunForm);
     addFunction("Seconds", { "count" }, { number }, timeSpan, SystemCall::kSeconds);
