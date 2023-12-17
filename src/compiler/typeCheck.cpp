@@ -41,6 +41,40 @@ static bool doCallArgumentTypesMatchProcedureParameters(
         auto& argumentType = arguments.at(i)->evaluatedType;
         assert(argumentType != nullptr);
 
+        if (parameterType->kind == Kind::kGeneric1 || parameterType->kind == Kind::kGeneric2) {
+            // Substitute the appropriate generic type from the first argument of this function.
+            // For example, ContainsKey(map as Map from Any to Any, key as Generic1) as Boolean
+            const auto& firstArgumentType = arguments.at(0)->evaluatedType;
+            switch (firstArgumentType->kind) {
+                case Kind::kList:
+                    if (parameterType->kind == Kind::kGeneric1) {
+                        parameterType = firstArgumentType->listItemType;
+                    } else {
+                        throw CompilerException(
+                            CompilerErrorCode::kInternal,
+                            "Internal error. This built-in procedure has a Generic2 parameter type but its first "
+                            "parameter is a List.",
+                            Token{});
+                    }
+                    break;
+
+                case Kind::kMap:
+                    if (parameterType->kind == Kind::kGeneric1) {
+                        parameterType = firstArgumentType->mapKeyType;
+                    } else {
+                        parameterType = firstArgumentType->mapValueType;
+                    }
+                    break;
+
+                default:
+                    throw CompilerException(
+                        CompilerErrorCode::kInternal,
+                        "Internal error. This built-in procedure has a Generic1 or Generic2 parameter type but the "
+                        "first parameter type is not supported.",
+                        Token{});
+            }
+        }
+
         if (!parameterType->isImplicitlyAssignableFrom(*argumentType)) {
             return false;
         }

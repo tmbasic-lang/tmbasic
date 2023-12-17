@@ -1114,6 +1114,8 @@ static void emitDimListStatement(const DimListStatementNode& statementNode, Proc
     assert(listType->kind == Kind::kList);
     assert(listType->listItemType != nullptr);
     auto isValueList = listType->listItemType->isValueType();
+
+    // We have a local variable slot (at 'index') for the final list, but we will first use it to hold the builder.
     auto index = *statementNode.localObjectIndex;
     if (isValueList) {
         state->syscall(Opcode::kSystemCallO, SystemCall::kValueListBuilderNew, 0, 0);
@@ -1122,26 +1124,54 @@ static void emitDimListStatement(const DimListStatementNode& statementNode, Proc
         state->syscall(Opcode::kSystemCallO, SystemCall::kObjectListBuilderNew, 0, 0);
         state->setLocalObject(index);
     }
+
+    // Yield statements in the body will write to the builder.
     emitBody(*statementNode.body, state);
+
+    // Finalize the builder, which returns the final list on the stack.
     state->pushLocalObject(index);
     if (isValueList) {
         state->syscall(Opcode::kSystemCallO, SystemCall::kValueListBuilderEnd, 0, 1);
     } else {
         state->syscall(Opcode::kSystemCallO, SystemCall::kObjectListBuilderEnd, 0, 1);
     }
+
+    // Now write the final list to the local variable slot.
     state->setLocalObject(index);
 }
 
-static void emitDimMapStatement(const DimMapStatementNode& /*statementNode*/, ProcedureState* /*state*/) {
-    throw std::runtime_error("not impl");
+static void emitDimMapStatement(const DimMapStatementNode& statementNode, ProcedureState* state) {
+    const auto& mapType = statementNode.evaluatedType;
+    assert(mapType != nullptr);
+    assert(mapType->kind == Kind::kMap);
+    assert(mapType->mapKeyType != nullptr);
+    assert(mapType->mapValueType != nullptr);
+    auto isValueFrom = mapType->mapKeyType->isValueType();
+    auto isValueTo = mapType->mapValueType->isValueType();
+
+    // We have a local variable slot (at 'index') for the map.
+    auto index = *statementNode.localObjectIndex;
+
+    // There is no special map builder object. Start with a blank map.
+    auto mapNewSystemCall = isValueFrom
+        ? (isValueTo ? SystemCall::kValueToValueMapNew : SystemCall::kValueToObjectMapNew)
+        : (isValueTo ? SystemCall::kObjectToValueMapNew : SystemCall::kObjectToObjectMapNew);
+    state->syscall(Opcode::kSystemCallO, mapNewSystemCall, 0, 0);
+    state->setLocalObject(index);
+
+    // Yield statements in the body will overwrite the local variable slot with newer maps.
+    emitBody(*statementNode.body, state);
 }
 
 static void emitYieldStatement(const YieldStatementNode& statementNode, ProcedureState* state) {
     assert(statementNode.boundCollectionDeclaration->localObjectIndex.has_value());
+
+    // First two arguments to the next system call below.
     state->pushLocalObject(statementNode.boundCollectionDeclaration->localObjectIndex.value());
+    emitExpression(*statementNode.expression, state);
+
     if (statementNode.toExpression == nullptr) {
         // List
-        emitExpression(*statementNode.expression, state);
         if (statementNode.expression->evaluatedType->isValueType()) {
             state->syscall(Opcode::kSystemCall, SystemCall::kValueListBuilderAdd, 1, 1);
         } else {
@@ -1149,7 +1179,26 @@ static void emitYieldStatement(const YieldStatementNode& statementNode, Procedur
         }
     } else {
         // Map
-        throw std::runtime_error("not impl");
+        emitExpression(*statementNode.toExpression, state);  // Third system call argument.
+
+        const auto isValueFrom = statementNode.expression->evaluatedType->isValueType();
+        const auto isValueTo = statementNode.toExpression->evaluatedType->isValueType();
+
+        if (isValueFrom) {
+            if (isValueTo) {
+                state->syscall(Opcode::kSystemCallO, SystemCall::kValueToValueMapSet, 2, 1);
+            } else {
+                state->syscall(Opcode::kSystemCallO, SystemCall::kValueToObjectMapSet, 1, 2);
+            }
+        } else {
+            if (isValueTo) {
+                state->syscall(Opcode::kSystemCallO, SystemCall::kObjectToValueMapSet, 1, 2);
+            } else {
+                state->syscall(Opcode::kSystemCallO, SystemCall::kObjectToObjectMapSet, 0, 3);
+            }
+        }
+
+        state->setLocalObject(statementNode.boundCollectionDeclaration->localObjectIndex.value());
     }
 }
 

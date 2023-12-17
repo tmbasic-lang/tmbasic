@@ -14,6 +14,7 @@ struct Value {
     inline explicit Value(int64_t num) : num(num) {}
     inline explicit Value(uint32_t num) : num(num) {}
     inline explicit Value(uint64_t num) : num(num) {}
+    inline explicit Value(bool x) : num(x ? 1 : 0) {}
     inline std::string getString() const { return util::decimalToString(num); }
     inline bool getBoolean() const { return num != 0; }
     inline void setBoolean(bool value) { num = value ? 1 : 0; }

@@ -21,8 +21,11 @@ BuiltInProcedureList::BuiltInProcedureList() {
     auto optionalGeneric = boost::make_local_shared<TypeNode>(Kind::kOptional, Token{}, any);
     auto generic1 = boost::make_local_shared<TypeNode>(Kind::kGeneric1, Token{});
     auto listOfGeneric1 = boost::make_local_shared<TypeNode>(Kind::kList, Token{}, generic1);
+    auto mapAnyToAny = boost::make_local_shared<TypeNode>(Kind::kMap, Token{}, any, any);
+
     auto form = boost::make_local_shared<TypeNode>(Kind::kForm, Token{});
     auto control = boost::make_local_shared<TypeNode>(Kind::kControl, Token{});
+
     auto rectangle = boost::make_local_shared<TypeNode>(Kind::kRecord, Token{}, "Rectangle");
     if (!findBuiltInRecordType("rectangle", &rectangle->fields)) {
         throw std::runtime_error("Built-in record type Rectangle not found");
@@ -43,6 +46,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("CodeUnits", { "input" }, { string }, listOfNumber, SystemCall::kCodeUnits);
     addFunction("Concat", { "strings" }, { listOfString }, string, SystemCall::kConcat1);
     addFunction("Concat", { "strings", "separator" }, { listOfString, string }, string, SystemCall::kConcat2);
+    addFunction("ContainsKey", { "map", "key" }, { mapAnyToAny, generic1 }, boolean, SystemCall::kMapContainsKey);
     addFunction("ControlBounds", { "control" }, { control }, rectangle, SystemCall::kControlBounds);
     addFunction("ControlText", { "control" }, { control }, string, SystemCall::kControlText);
     addFunction("Cos", { "x" }, { number }, number, SystemCall::kCos);

@@ -72,6 +72,7 @@ enum class SystemCall {
     kListTake,                      // (input as List of T, count as Number) as List of T
     kLog,                           // (x as Number) as Number
     kLog10,                         // (x as Number) as Number
+    kMapContainsKey,                // (input as Map from K to V, key as K) as Boolean
     kMilliseconds,                  // (count as Number) as TimeSpan
     kMinutes,                       // (count as Number) as TimeSpan
     kNewForm,                       // () as Form
@@ -100,7 +101,9 @@ enum class SystemCall {
     kObjectOptionalNewMissing,      // () as ObjectOptional
     kObjectOptionalNewPresent,      // (input as Object) as ObjectOptional
     kObjectToObjectMapNew,          // () as ObjectToObjectMap
+    kObjectToObjectMapSet,          // (input as ObjectToObjectMap, key as Object, value as Object) as ObjectToObjectMap
     kObjectToValueMapNew,           // () as ObjectToValueMap
+    kObjectToValueMapSet,           // (input as ObjectToValueMap, key as Object, value as Value) as ObjectToValueMap
     kParseNumber,                   // (input as String) as Number
     kPathCombine,                   // (parts as List of String) as String
     kPathDirectoryName,             // (path as String) as String
@@ -150,7 +153,9 @@ enum class SystemCall {
     kValueOptionalNewMissing,       // () as ValueOptional
     kValueOptionalNewPresent,       // (input as Value) as ValueOptional
     kValueToObjectMapNew,           // () as ValueToObjectMap
+    kValueToObjectMapSet,           // (input as ValueToObjectMap, key as Value, value as Object) as ValueToObjectMap
     kValueToValueMapNew,            // () as ValueToValueMap
+    kValueToValueMapSet,            // (input as ValueToValueMap, key as Value, value as Value) as ValueToValueMap
     kWriteFileBytes,                // (filePath as String, bytes as List of Number)
     kWriteFileLines,                // (filePath as String, lines as List of String)
     kWriteFileText,                 // (filePath as String, text as String)

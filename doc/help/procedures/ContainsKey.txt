@@ -1,0 +1,24 @@
+.procedure ContainsKey
+.category Maps
+.blurb Checks whether a map contains a given key.
+.description
+Checks whether a map contains a given key.
+.overload
+.parameter map: Map from T1 to T2
+Any kind of map.
+.parameter key: T1
+The key to check for.
+.return Boolean
+True if the map contains the key, false otherwise.
+.example
+.example-code
+dim map myMap
+    yield "aaa" to "111"
+    yield "bbb" to "222"
+end dim
+print ContainsKey("aaa")
+print ContainsKey("ccc")
+.example-output
+true
+false
+.
