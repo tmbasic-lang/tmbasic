@@ -945,63 +945,7 @@ static void typeCheckSelectCaseStatement(SelectCaseStatementNode* statementNode)
 }
 
 static void typeCheckYieldStatement(YieldStatementNode* statementNode) {
-    auto isListYield = statementNode->toExpression == nullptr;
-    auto isMapYield = !isListYield;
     assert(statementNode->boundCollectionDeclaration != nullptr);
-    auto* procedure = dynamic_cast<ProcedureNode*>(statementNode->boundCollectionDeclaration);
-
-    if (procedure != nullptr) {
-        if (procedure->returnType == nullptr) {
-            throw CompilerException(
-                CompilerErrorCode::kYieldInSubroutine,
-                "A subroutine cannot contain a \"yield\" statement. It must be a function that returns a List or Map.",
-                statementNode->boundCollectionDeclaration->token);
-        }
-        if (procedure->returnType->kind != Kind::kList && procedure->returnType->kind != Kind::kMap) {
-            throw CompilerException(
-                CompilerErrorCode::kTypeMismatch,
-                fmt::format(
-                    "This function returns type {}, but the \"yield\" statement requires a List or Map return type.",
-                    procedure->returnType->toString()),
-                statementNode->boundCollectionDeclaration->token);
-        }
-        auto* collectionType = procedure->returnType.get();
-        assert(collectionType != nullptr);
-
-        if (collectionType->kind == Kind::kList && !isListYield) {
-            throw CompilerException(
-                CompilerErrorCode::kTypeMismatch,
-                fmt::format(
-                    "This \"yield ... to ...\" statement syntax is for building Map collections. However, this "
-                    "collection is a {}.",
-                    collectionType->toString()),
-                statementNode->token);
-        }
-
-        if (collectionType->kind == Kind::kMap && !isMapYield) {
-            throw CompilerException(
-                CompilerErrorCode::kTypeMismatch,
-                fmt::format(
-                    "This \"yield\" statement syntax is for building Map collections. However, this collection is a "
-                    "{}.",
-                    collectionType->toString()),
-                statementNode->token);
-        }
-
-        if (collectionType->kind == Kind::kList) {
-            auto& procedureItemType = procedure->returnType->listItemType;
-            if (!procedureItemType->equals(*statementNode->expression->evaluatedType)) {
-                throw CompilerException(
-                    CompilerErrorCode::kTypeMismatch,
-                    fmt::format(
-                        "The expression in this \"yield\" statement must be of type {}, but it is type {}.",
-                        procedureItemType->toString(), statementNode->expression->evaluatedType->toString()),
-                    statementNode->expression->token);
-            }
-        } else {
-            throw std::runtime_error("not impl");
-        }
-    }
 }
 
 static void typeCheckDimListStatement(DimListStatementNode* statementNode) {
