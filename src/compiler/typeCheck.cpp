@@ -273,8 +273,32 @@ static void typeCheckCall(
                             break;
                         }
 
+                        case Kind::kOptional: {
+                            auto optionalValueTypeKind = builtInProcedure->returnType->optionalValueType->kind;
+                            if (optionalValueTypeKind == Kind::kGeneric1) {
+                                callNode->evaluatedType =
+                                    boost::make_local_shared<TypeNode>(Kind::kOptional, Token{}, std::move(concrete1));
+                            } else if (optionalValueTypeKind == Kind::kGeneric2) {
+                                callNode->evaluatedType =
+                                    boost::make_local_shared<TypeNode>(Kind::kOptional, Token{}, std::move(concrete2));
+                            } else {
+                                throw CompilerException(
+                                    CompilerErrorCode::kInternal,
+                                    "Internal error. Built-in procedure has return type of \"Optional\" with an "
+                                    "invalid type parameter.",
+                                    callNode->token);
+                            }
+                            break;
+                        }
+
                         default:
-                            throw std::runtime_error("not impl");
+                            throw CompilerException(
+                                CompilerErrorCode::kInternal,
+                                fmt::format(
+                                    "Internal error. Built-in procedure has return type of {} which is not "
+                                    "implemented.",
+                                    builtInProcedure->returnType->toString()),
+                                callNode->token);
                     }
 
                 } else {

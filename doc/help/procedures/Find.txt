@@ -1,0 +1,29 @@
+.procedure Find
+.category Maps
+.blurb Checks whether a map contains a given key, and returns the corresponding value if so.
+.description
+Checks whether a map contains a given key, and returns the corresponding value if so.
+
+Use the returned t[Optional] with p[HasValue] and p[Value].
+.overload
+.parameter map: Map from T1 to T2
+Any kind of map.
+.parameter key: T1
+The key to look up.
+.return Optional T2
+The value corresponding to the key, if it exists. Otherwise, an empty t[Optional] is returned.
+.example
+.example-code
+dim map foo
+    yield 1 to "a"
+    yield 3 to "b"
+end dim
+dim a = Find(foo, 1)
+print "HasValue(a)="; HasValue(a)
+print "Value(a)="; Value(a)
+dim b = Find(foo, 2)
+print "HasValue(b)="; HasValue(b)
+.example-output
+true
+false
+.

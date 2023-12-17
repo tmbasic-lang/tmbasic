@@ -8,20 +8,24 @@ namespace compiler {
 BuiltInProcedureList::BuiltInProcedureList() {
     auto any = boost::make_local_shared<TypeNode>(Kind::kAny, Token{});
     auto boolean = boost::make_local_shared<TypeNode>(Kind::kBoolean, Token{});
-    auto number = boost::make_local_shared<TypeNode>(Kind::kNumber, Token{});
-    auto string = boost::make_local_shared<TypeNode>(Kind::kString, Token{});
     auto date = boost::make_local_shared<TypeNode>(Kind::kDate, Token{});
     auto dateTime = boost::make_local_shared<TypeNode>(Kind::kDateTime, Token{});
     auto dateTimeOffset = boost::make_local_shared<TypeNode>(Kind::kDateTimeOffset, Token{});
+    auto number = boost::make_local_shared<TypeNode>(Kind::kNumber, Token{});
+    auto string = boost::make_local_shared<TypeNode>(Kind::kString, Token{});
     auto timeSpan = boost::make_local_shared<TypeNode>(Kind::kTimeSpan, Token{});
     auto timeZone = boost::make_local_shared<TypeNode>(Kind::kTimeZone, Token{});
-    auto listOfString = boost::make_local_shared<TypeNode>(Kind::kList, Token{}, string);
-    auto listOfNumber = boost::make_local_shared<TypeNode>(Kind::kList, Token{}, number);
-    auto listGeneric = boost::make_local_shared<TypeNode>(Kind::kList, Token{}, any);
-    auto optionalGeneric = boost::make_local_shared<TypeNode>(Kind::kOptional, Token{}, any);
+
     auto generic1 = boost::make_local_shared<TypeNode>(Kind::kGeneric1, Token{});
+    auto generic2 = boost::make_local_shared<TypeNode>(Kind::kGeneric2, Token{});
+
+    auto listOfAny = boost::make_local_shared<TypeNode>(Kind::kList, Token{}, any);
     auto listOfGeneric1 = boost::make_local_shared<TypeNode>(Kind::kList, Token{}, generic1);
-    auto mapAnyToAny = boost::make_local_shared<TypeNode>(Kind::kMap, Token{}, any, any);
+    auto listOfNumber = boost::make_local_shared<TypeNode>(Kind::kList, Token{}, number);
+    auto listOfString = boost::make_local_shared<TypeNode>(Kind::kList, Token{}, string);
+    auto mapFromAnyToAny = boost::make_local_shared<TypeNode>(Kind::kMap, Token{}, any, any);
+    auto optionalAny = boost::make_local_shared<TypeNode>(Kind::kOptional, Token{}, any);
+    auto optionalGeneric2 = boost::make_local_shared<TypeNode>(Kind::kOptional, Token{}, generic2);
 
     auto form = boost::make_local_shared<TypeNode>(Kind::kForm, Token{});
     auto control = boost::make_local_shared<TypeNode>(Kind::kControl, Token{});
@@ -46,7 +50,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("CodeUnits", { "input" }, { string }, listOfNumber, SystemCall::kCodeUnits);
     addFunction("Concat", { "strings" }, { listOfString }, string, SystemCall::kConcat1);
     addFunction("Concat", { "strings", "separator" }, { listOfString, string }, string, SystemCall::kConcat2);
-    addFunction("ContainsKey", { "map", "key" }, { mapAnyToAny, generic1 }, boolean, SystemCall::kMapContainsKey);
+    addFunction("ContainsKey", { "map", "key" }, { mapFromAnyToAny, generic1 }, boolean, SystemCall::kMapContainsKey);
     addFunction("ControlBounds", { "control" }, { control }, rectangle, SystemCall::kControlBounds);
     addFunction("ControlText", { "control" }, { control }, string, SystemCall::kControlText);
     addFunction("Cos", { "x" }, { number }, number, SystemCall::kCos);
@@ -68,14 +72,15 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("ErrorMessage", {}, {}, string, SystemCall::kErrorMessage);
     addFunction("Exp", { "x" }, { number }, number, SystemCall::kExp);
     addFunction("FileExists", { "filePath" }, { string }, boolean, SystemCall::kFileExists);
-    addFunction("First", { "list" }, { listGeneric }, generic1, SystemCall::kListFirst);
+    addFunction("Find", { "map", "key" }, { mapFromAnyToAny, generic1 }, optionalGeneric2, SystemCall::kMapFind);
+    addFunction("First", { "list" }, { listOfAny }, generic1, SystemCall::kListFirst);
     addFunction("Floor", { "x" }, { number }, number, SystemCall::kFloor);
     addFunction("FormTitle", { "form" }, { form }, string, SystemCall::kFormTitle);
-    addFunction("HasValue", { "this" }, { optionalGeneric }, boolean, SystemCall::kHasValue);
+    addFunction("HasValue", { "this" }, { optionalAny }, boolean, SystemCall::kHasValue);
     addFunction("Hours", { "count" }, { number }, timeSpan, SystemCall::kHours);
     addFunction("IsDigit", { "input" }, { string }, boolean, SystemCall::kIsDigit);
-    addFunction("Last", { "list" }, { listGeneric }, generic1, SystemCall::kListLast);
-    addFunction("Len", { "input" }, { listGeneric }, number, SystemCall::kListLen);
+    addFunction("Last", { "list" }, { listOfAny }, generic1, SystemCall::kListLast);
+    addFunction("Len", { "input" }, { listOfAny }, number, SystemCall::kListLen);
     addFunction("Len", { "input" }, { string }, number, SystemCall::kStringLen);
     addFunction("ListDirectories", { "path" }, { string }, listOfString, SystemCall::kListDirectories);
     addFunction("ListFiles", { "path" }, { string }, listOfString, SystemCall::kListFiles);
@@ -83,7 +88,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("Log", { "x" }, { number }, number, SystemCall::kLog);
     addFunction("Log10", { "x" }, { number }, number, SystemCall::kLog10);
     addFunction(
-        "Mid", { "list", "start", "count" }, { listGeneric, number, number }, listOfGeneric1, SystemCall::kListMid);
+        "Mid", { "list", "start", "count" }, { listOfAny, number, number }, listOfGeneric1, SystemCall::kListMid);
     addFunction("Milliseconds", { "count" }, { number }, timeSpan, SystemCall::kMilliseconds);
     addFunction("Minutes", { "count" }, { number }, timeSpan, SystemCall::kMinutes);
     addFunction("NewForm", {}, {}, form, SystemCall::kNewForm);
@@ -110,12 +115,12 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addSub("SetControlText", { "control", "text" }, { control, string }, SystemCall::kSetControlText);
     addSub("SetFormTitle", { "form", "title" }, { form, string }, SystemCall::kSetFormTitle);
     addFunction("Sin", { "x" }, { number }, number, SystemCall::kSin);
-    addFunction("Skip", { "list", "count" }, { listGeneric, number }, listOfGeneric1, SystemCall::kListSkip);
+    addFunction("Skip", { "list", "count" }, { listOfAny, number }, listOfGeneric1, SystemCall::kListSkip);
     addFunction("Split", { "input", "separator" }, { string, string }, listOfString, SystemCall::kStringSplit);
     addFunction("Sqr", { "x" }, { number }, number, SystemCall::kSqr);
     addFunction("StringFromCodePoints", { "codePoints" }, { listOfNumber }, string, SystemCall::kStringFromCodePoints);
     addFunction("StringFromCodeUnits", { "codeUnits" }, { listOfNumber }, string, SystemCall::kStringFromCodeUnits);
-    addFunction("Take", { "list", "count" }, { listGeneric, number }, listOfGeneric1, SystemCall::kListTake);
+    addFunction("Take", { "list", "count" }, { listOfAny, number }, listOfGeneric1, SystemCall::kListTake);
     addFunction("Tan", { "x" }, { number }, number, SystemCall::kTan);
     addFunction("TimeZoneFromName", { "name" }, { string }, timeZone, SystemCall::kTimeZoneFromName);
     addFunction("TotalDays", { "timeSpan" }, { timeSpan }, number, SystemCall::kTotalDays);
@@ -124,7 +129,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("TotalMinutes", { "timeSpan" }, { timeSpan }, number, SystemCall::kTotalMinutes);
     addFunction("TotalSeconds", { "timeSpan" }, { timeSpan }, number, SystemCall::kTotalSeconds);
     addFunction("Trunc", { "x" }, { number }, number, SystemCall::kTrunc);
-    addFunction("Value", { "this" }, { optionalGeneric }, generic1, SystemCall::kValue);
+    addFunction("Value", { "this" }, { optionalAny }, generic1, SystemCall::kValue);
     addSub("WriteFileBytes", { "filePath", "bytes" }, { string, listOfNumber }, SystemCall::kWriteFileBytes);
     addSub("WriteFileLines", { "filePath", "lines" }, { string, listOfString }, SystemCall::kWriteFileLines);
     addSub("WriteFileText", { "filePath", "text" }, { string, string }, SystemCall::kWriteFileText);

@@ -38,7 +38,7 @@ li@i[Procedures:]
 {Files:procedures_files} │
 {Lists:procedures_lists} │
 {Maps:procedures_maps} │
-{Math:procedures_math} │s
+{Math:procedures_math} │
 {Optionals:procedures_optionals} │
 {Strings:procedures_strings}@
 

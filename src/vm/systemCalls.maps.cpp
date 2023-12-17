@@ -66,31 +66,99 @@ void initSystemCallsMaps() {
                 const auto& map = castObjectToObjectMap(mapObject);
                 const auto* found = map.pairs.find(key);
                 result->returnedValue = Value{ found != nullptr };
-            } break;
+                break;
+            }
 
             case ObjectType::kObjectToValueMap: {
                 const auto& key = input.getObjectPtr(-1);
                 const auto& map = castObjectToValueMap(mapObject);
                 const auto* found = map.pairs.find(key);
                 result->returnedValue = Value{ found != nullptr };
-            } break;
+                break;
+            }
 
             case ObjectType::kValueToObjectMap: {
                 const auto& key = input.getValue(-1);
                 const auto& map = castValueToObjectMap(mapObject);
                 const auto* found = map.pairs.find(key);
                 result->returnedValue = Value{ found != nullptr };
-            } break;
+                break;
+            }
 
             case ObjectType::kValueToValueMap: {
                 const auto& key = input.getValue(-1);
                 const auto& map = castValueToValueMap(mapObject);
                 const auto* found = map.pairs.find(key);
                 result->returnedValue = Value{ found != nullptr };
-            } break;
+                break;
+            }
 
             default:
-                throw Error(ErrorCode::kInternalTypeConfusion, "ContainsKey parameter isn't a map.");
+                throw Error(ErrorCode::kInternalTypeConfusion, "ContainsKey: first parameter isn't a map.");
+        }
+    });
+
+    initSystemCall(SystemCall::kMapFind, [](const auto& input, auto* result) {
+        // This could be any of the following signatures and we have to detect which it is:
+        // 2 objects - Find(ObjectToObjectMap map, Object key) as Optional Object
+        // 2 objects - Find(ObjectToValueMap map, Object key) as Optional Value
+        // 1 object, 1 value - Find(ValueToObjectMap map, Value key) as Optional Object
+        // 1 object, 1 value - Find(ValueToValueMap map, Value key) as Optional Value
+
+        const auto isValueKey = input.numValueArguments > 0;
+        const auto& mapObject = input.getObject(isValueKey ? -1 : -2);
+
+        switch (mapObject.getObjectType()) {
+            case ObjectType::kObjectToObjectMap: {
+                const auto& key = input.getObjectPtr(-1);
+                const auto& map = castObjectToObjectMap(mapObject);
+                const auto* found = map.pairs.find(key);
+                if (found == nullptr) {
+                    result->returnedObject = boost::make_local_shared<ObjectOptional>();
+                } else {
+                    result->returnedObject = boost::make_local_shared<ObjectOptional>(*found);
+                }
+                break;
+            }
+
+            case ObjectType::kObjectToValueMap: {
+                const auto& key = input.getObjectPtr(-1);
+                const auto& map = castObjectToValueMap(mapObject);
+                const auto* found = map.pairs.find(key);
+                if (found == nullptr) {
+                    result->returnedObject = boost::make_local_shared<ValueOptional>();
+                } else {
+                    result->returnedObject = boost::make_local_shared<ValueOptional>(*found);
+                }
+                break;
+            }
+
+            case ObjectType::kValueToObjectMap: {
+                const auto& key = input.getValue(-1);
+                const auto& map = castValueToObjectMap(mapObject);
+                const auto* found = map.pairs.find(key);
+                if (found == nullptr) {
+                    result->returnedObject = boost::make_local_shared<ObjectOptional>();
+                } else {
+                    result->returnedObject = boost::make_local_shared<ObjectOptional>(*found);
+                }
+                break;
+            }
+
+            case ObjectType::kValueToValueMap: {
+                const auto& key = input.getValue(-1);
+                const auto& map = castValueToValueMap(mapObject);
+                const auto* found = map.pairs.find(key);
+                if (found == nullptr) {
+                    result->returnedObject = boost::make_local_shared<ValueOptional>();
+                } else {
+                    result->returnedObject = boost::make_local_shared<ValueOptional>(*found);
+                }
+                break;
+            }
+
+            default:
+                throw Error(ErrorCode::kInternalTypeConfusion, "ContainsKey: first parameter isn't a map.");
         }
     });
 }

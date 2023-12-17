@@ -338,8 +338,12 @@ std::string TypeNode::toString() const {
             return "Form";
         case Kind::kControl:
             return "Control";
+        case Kind::kGeneric1:
+            return "T1";
+        case Kind::kGeneric2:
+            return "T2";
         default:
-            throw std::runtime_error("not impl");
+            throw std::runtime_error(fmt::format("toString() not implemented for kind {}", NAMEOF_ENUM(kind)));
     }
 }
 
