@@ -476,51 +476,51 @@ obj/resources/LICENSE.o: obj/resources/LICENSE.txt
 
 obj/resources/LICENSE.txt: $(LICENSE_FILES)
 	@mkdir -p $(@D)
-	rm -f $@
-	echo === tmbasic license === >> $@
-	cat LICENSE >> $@
-	echo >> $@
-	echo === abseil license === >> $@
-	cat doc/licenses/abseil/LICENSE >> $@
-	echo >> $@
-	echo === boost license === >> $@
-	cat doc/licenses/boost/LICENSE_1_0.txt >> $@
-	echo >> $@
-	echo === fmt license === >> $@
-	cat doc/licenses/fmt/LICENSE.rst >> $@
-	echo >> $@
-	echo === immer license === >> $@
-	cat doc/licenses/immer/LICENSE >> $@
-	echo >> $@
-	echo === libstdc++ license === >> $@
-	cat doc/licenses/gcc/GPL-3 >> $@
-	cat doc/licenses/gcc/copyright >> $@
-	echo >> $@
-	echo === libunistring license === >> $@
-	cat doc/licenses/libunistring/COPYING.LIB >> $@
-	cat doc/licenses/libunistring/COPYING >> $@
-	echo >> $@
-	echo === microtar license === >> $@
-	cat doc/licenses/microtar/LICENSE >> $@
-	echo >> $@
-	echo === mpdecimal license === >> $@
-	cat doc/licenses/mpdecimal/LICENSE.txt >> $@
-	echo >> $@
-	echo === musl license === >> $@
-	cat doc/licenses/musl/COPYRIGHT >> $@
-	echo >> $@
-	echo === ncurses license === >> $@
-	cat doc/licenses/ncurses/COPYING >> $@
-	echo >> $@
-	echo === turbo license === >> $@
-	cat doc/licenses/turbo/COPYRIGHT >> $@
-	echo >> $@
-	echo === tvision license === >> $@
-	cat doc/licenses/tvision/COPYRIGHT >> $@
-	echo >> $@
-	echo === scintilla license === >> $@
-	cat doc/licenses/scintilla/License.txt >> $@
-	echo >> $@
+	@rm -f $@
+	@echo === tmbasic license === >> $@
+	@cat LICENSE >> $@
+	@echo >> $@
+	@echo === abseil license === >> $@
+	@cat doc/licenses/abseil/LICENSE >> $@
+	@echo >> $@
+	@echo === boost license === >> $@
+	@cat doc/licenses/boost/LICENSE_1_0.txt >> $@
+	@echo >> $@
+	@echo === fmt license === >> $@
+	@cat doc/licenses/fmt/LICENSE.rst >> $@
+	@echo >> $@
+	@echo === immer license === >> $@
+	@cat doc/licenses/immer/LICENSE >> $@
+	@echo >> $@
+	@echo === libstdc++ license === >> $@
+	@cat doc/licenses/gcc/GPL-3 >> $@
+	@cat doc/licenses/gcc/copyright >> $@
+	@echo >> $@
+	@echo === libunistring license === >> $@
+	@cat doc/licenses/libunistring/COPYING.LIB >> $@
+	@cat doc/licenses/libunistring/COPYING >> $@
+	@echo >> $@
+	@echo === microtar license === >> $@
+	@cat doc/licenses/microtar/LICENSE >> $@
+	@echo >> $@
+	@echo === mpdecimal license === >> $@
+	@cat doc/licenses/mpdecimal/LICENSE.txt >> $@
+	@echo >> $@
+	@echo === musl license === >> $@
+	@cat doc/licenses/musl/COPYRIGHT >> $@
+	@echo >> $@
+	@echo === ncurses license === >> $@
+	@cat doc/licenses/ncurses/COPYING >> $@
+	@echo >> $@
+	@echo === turbo license === >> $@
+	@cat doc/licenses/turbo/COPYRIGHT >> $@
+	@echo >> $@
+	@echo === tvision license === >> $@
+	@cat doc/licenses/tvision/COPYRIGHT >> $@
+	@echo >> $@
+	@echo === scintilla license === >> $@
+	@cat doc/licenses/scintilla/License.txt >> $@
+	@echo >> $@
 
 $(LICENSE_DIAGRAM_TXT_TIMESTAMP_FILE): $(LICENSE_FILES)
 	@mkdir -p $(@D)
