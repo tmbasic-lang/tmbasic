@@ -64,11 +64,11 @@ void initSystemCallsSets() {
         const auto& setObject = input.getObject(-1);
         switch (setObject.getObjectType()) {
             case ObjectType::kValueSet:
-                result->returnedValue = Value{ castValueSet(setObject).keys.size() };
+                result->returnedValue = Value{ static_cast<uint64_t>(castValueSet(setObject).keys.size()) };
                 break;
 
             case ObjectType::kObjectSet:
-                result->returnedValue = Value{ castObjectSet(setObject).keys.size() };
+                result->returnedValue = Value{ static_cast<uint64_t>(castObjectSet(setObject).keys.size()) };
                 break;
 
             default:
