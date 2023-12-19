@@ -34,7 +34,7 @@ li@CaseValue ::= Expression ("to" Expression)?@
 li@DeclarationStatement ::= DimStatement | ConstStatement@
 li@TryStatement ::= "try" "\n" Body "catch" "\n" Body "end" "try"@
 li@DimStatement ::= "dim" "shared"? identifier ("as" Type | "=" Expression) "\n"@
-li@DimCollectionStatement ::= "dim" ("list" | "map") identifier "\n" Body "end" "dim" "\n"@
+li@DimCollectionStatement ::= "dim" ("list" | "map" | "set") identifier "\n" Body "end" "dim" "\n"@
 li@ConstStatement ::= "const" identifier "=" LiteralValue "\n"@
 li@YieldStatement ::= "yield" Expression ("to" Expression)? "\n"@
 li@ReturnStatement ::= "return" Expression? "\n"@
@@ -82,11 +82,12 @@ li@LiteralValue ::= boolean | number | string@
 h2[Type Signatures]
 
 ul@
-li@Type ::= PrimitiveType | RecordType | ListType | MapType | OptionalType | NamedType@
+li@Type ::= PrimitiveType | RecordType | ListType | MapType | SetType | OptionalType | NamedType@
 li@PrimitiveType ::= "boolean" | "number" | "string" | "date" | "datetime" | "datetimeoffset" | "timespan" | "timezone"@
 li@RecordType ::= "record" "(" ParameterList ")"@
 li@ListType ::= "list" "of" TypeWithParentheses@
 li@MapType ::= "map" "from" TypeWithParentheses "to" TypeWithParentheses@
+li@SetType ::= "set" "of" TypeWithParentheses@
 li@OptionalType ::= "optional" TypeWithParentheses@
 li@TypeWithParentheses ::= "(" Type ")" | Type@
 li@NamedType ::= identifier@

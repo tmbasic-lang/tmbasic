@@ -9,9 +9,9 @@ namespace vm {
 template <typename TElement, ObjectType K>
 class ListBuilder : public Object {
    public:
-    immer::vector_transient<TElement> items;
+    immer::flex_vector_transient<TElement> items;
     ListBuilder() {}
-    explicit ListBuilder(immer::vector_transient<TElement> items) : items(std::move(items)) {}
+    explicit ListBuilder(immer::flex_vector_transient<TElement> items) : items(std::move(items)) {}
     ObjectType getObjectType() const override { return K; }
     std::size_t getHash() const override { return 0; }
     bool equals(const Object& other) const override { return false; }
@@ -28,15 +28,17 @@ class ListBase : public Object {
 template <typename TElement, ObjectType K, typename TListBuilder>
 class List : public ListBase {
    public:
-    const immer::vector<TElement> items = {};
+    const immer::flex_vector<TElement> items = {};
+
+    explicit List(const immer::flex_vector<TElement>& items) : items(items) {}
 
     explicit List(TListBuilder* builder) : items(std::move(builder->items.persistent())) {}
 
     List(const List<TElement, K, TListBuilder>& source, size_t removeIndex)
-        : items(std::move(removeAt(source.items, removeIndex))) {}
+        : items(removeAt(source.items, removeIndex)) {}
 
     List(const List<TElement, K, TListBuilder>& source, bool insert, size_t index, TElement newElement)
-        : items(std::move(insertOrSetAt(source.items, insert, index, newElement))) {}
+        : items(insertOrSetAt(source.items, insert, index, newElement)) {}
 
     ObjectType getObjectType() const override { return K; }
 
@@ -70,28 +72,22 @@ class List : public ListBase {
     size_t size() const override { return items.size(); }
 
    private:
-    static immer::vector<TElement> removeAt(const immer::vector<TElement>& source, size_t removeIndex) {
-        auto t = source.take(removeIndex).transient();
-        for (size_t i = removeIndex + 1; i < source.size(); i++) {
-            t.push_back(source[i]);
-        }
-        return t.persistent();
+    static immer::flex_vector<TElement> removeAt(const immer::flex_vector<TElement>& source, size_t removeIndex) {
+        return source.erase(removeIndex);
     }
 
-    static immer::vector<TElement> insertOrSetAt(
-        const immer::vector<TElement>& source,
+    static immer::flex_vector<TElement> insertOrSetAt(
+        const immer::flex_vector<TElement>& source,
         bool insert,
         size_t index,
         TElement newElement) {
+        if (!insert) {
+            return source.set(index, newElement);
+        }
         if (insert && index == source.size()) {
             return source.push_back(newElement);
         }
-        auto t = source.take(index).transient();
-        t.push_back(newElement);
-        for (size_t i = insert ? index : index + 1; i < source.size(); i++) {
-            t.push_back(source[i]);
-        }
-        return t.persistent();
+        return source.insert(index, newElement);
     }
 };
 

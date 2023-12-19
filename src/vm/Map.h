@@ -20,18 +20,21 @@ class MapBuilder : public Object {
 
 using ValueToValueMapBuilder =
     MapBuilder<Value, Value, ObjectType::kValueToValueMapBuilder, std::hash<Value>, std::equal_to<Value>>;
+
 using ValueToObjectMapBuilder = MapBuilder<
     Value,
     boost::local_shared_ptr<Object>,
     ObjectType::kValueToObjectMapBuilder,
     std::hash<Value>,
     std::equal_to<Value>>;
+
 using ObjectToValueMapBuilder = MapBuilder<
     boost::local_shared_ptr<Object>,
     Value,
     ObjectType::kObjectToValueMapBuilder,
     std::hash<boost::local_shared_ptr<Object>>,
     ObjectReferenceCompare>;
+
 using ObjectToObjectMapBuilder = MapBuilder<
     boost::local_shared_ptr<Object>,
     boost::local_shared_ptr<Object>,
@@ -68,14 +71,13 @@ class Map : public Object {
 
     const immer::map<TKey, TValue, TKeyHash, TKeyEqual> pairs = {};
 
-    // TODO: shouldn't need default Map constructor now that we have MapBuilder
     Map() = default;
 
-    explicit Map(TMapBuilder* builder) : pairs(std::move(builder->pairs.persistent())) {}
+    explicit Map(TMapBuilder* builder) : pairs(builder->pairs.persistent()) {}
 
-    Map(const Self& source, TKey newKey, TValue newValue) : pairs(std::move(source.pairs.set(newKey, newValue))) {}
+    Map(const Self& source, TKey newKey, TValue newValue) : pairs(source.pairs.set(newKey, newValue)) {}
 
-    Map(const Self& source, TKey removeKey) : pairs(std::move(source.pairs.erase(removeKey))) {}
+    Map(const Self& source, TKey removeKey) : pairs(source.pairs.erase(removeKey)) {}
 
     ObjectType getObjectType() const override { return K; }
 

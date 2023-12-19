@@ -28,6 +28,10 @@ class NamedRecordTypeBinder {
             bindType(typeNode->mapValueType.get());
         }
 
+        if (typeNode->setKeyType != nullptr) {
+            bindType(typeNode->setKeyType.get());
+        }
+
         if (typeNode->optionalValueType != nullptr) {
             bindType(typeNode->optionalValueType.get());
         }

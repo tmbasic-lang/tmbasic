@@ -6,10 +6,17 @@ namespace vm {
 
 enum class ObjectType {
     kString = 1,
+    kProcedureReference,
+    kTimeZone,
+    kRecord,
+
+    // List
     kValueList,
     kValueListBuilder,
     kObjectList,
     kObjectListBuilder,
+
+    // Map
     kValueToValueMap,
     kValueToValueMapBuilder,
     kValueToObjectMap,
@@ -18,11 +25,16 @@ enum class ObjectType {
     kObjectToValueMapBuilder,
     kObjectToObjectMap,
     kObjectToObjectMapBuilder,
-    kRecord,
-    kProcedureReference,
+
+    // Set
+    kValueSet,
+    kValueSetBuilder,
+    kObjectSet,
+    kObjectSetBuilder,
+
+    // Optional
     kValueOptional,
     kObjectOptional,
-    kTimeZone,
 };
 
 }  // namespace vm

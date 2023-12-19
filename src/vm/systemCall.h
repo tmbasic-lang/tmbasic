@@ -74,7 +74,7 @@ enum class SystemCall {
     kLog,                           // (x as Number) as Number
     kLog10,                         // (x as Number) as Number
     kMapContainsKey,                // (input as Map from K to V, key as K) as Boolean
-    kMapFind,                       // (input as Map from K to V, key as K) as Optional V
+    kMapFind,                       // (input as Map from K to V, key as K) as Optional V/
     kMilliseconds,                  // (count as Number) as TimeSpan
     kMinutes,                       // (count as Number) as TimeSpan
     kNewForm,                       // () as Form
@@ -99,9 +99,17 @@ enum class SystemCall {
     kObjectListBuilderNew,          // () as ObjectListBuilder
     kObjectListConcat,              // (lhs as ObjectList, rhs as ObjectList) as ObjectList
     kObjectListGet,                 // (input as ObjectList, index as Number) as Object
+    kObjectListRemove,              // (input as ObjectList, item as Object) as ObjectList
     kObjectListSet,                 // (input as ObjectList, index as Number, value as Object) as ObjectList
     kObjectOptionalNewMissing,      // () as ObjectOptional
     kObjectOptionalNewPresent,      // (input as Object) as ObjectOptional
+    kObjectSetAdd,                  // (lhs as ObjectSet, rhs as Object) as ObjectSet
+    kObjectSetBuilderAdd,           // (builder as ObjectSetBuilder, Object as Object)
+    kObjectSetBuilderEnd,           // (builder as ObjectSetBuilder) as ObjectSet
+    kObjectSetBuilderNew,           // () as ObjectSetBuilder
+    kObjectSetNew,                  // () as ObjectSet
+    kObjectSetRemove,               // (lhs as ObjectSet, rhs as Object) as ObjectSet
+    kObjectSetUnion,                // (lhs as Set of T, rhs as Set of T) as Set of T
     kObjectToObjectMapNew,          // () as ObjectToObjectMap
     kObjectToObjectMapSet,          // (input as ObjectToObjectMap, key as Object, value as Object) as ObjectToObjectMap
     kObjectToObjectMapBuilderAdd,   // (builder as ObjectToObjectMapBuilder, key as Object, value as Object)
@@ -127,10 +135,13 @@ enum class SystemCall {
     kRound,                         // (x as Number) as Number
     kRunForm,                       // (form as Form)
     kSeconds,                       // (count as Number) as TimeSpan
+    kSetContains,                   // (input as Set of T, value as T) as Boolean
     kSetControlBounds1,             // (control as Control, bounds as Rectangle)
     kSetControlBounds2,             // (control as Control, left as Num, top as Num, width as Num, height as Num)
     kSetControlText,                // (control as Control, text as String)
     kSetFormTitle,                  // (form as Form, title as String)
+    kSetLen,                        // (input as Set of T) as Number
+    kSetValues,                     // (input as Set of T) as List of T
     kSin,                           // (x as Number) as Number
     kSqr,                           // (x as Number) as Number
     kStringConcat,                  // (lhs as String, rhs as String) as String
@@ -158,9 +169,17 @@ enum class SystemCall {
     kValueListBuilderNew,           // () as ValueListBuilder
     kValueListConcat,               // (lhs as ValueList, rhs as ValueList) as ValueList
     kValueListGet,                  // (input as ValueList, index as Number) as Value
+    kValueListRemove,               // (input as ValueList, item as Value) as ValueList
     kValueListSet,                  // (input as ValueList, index as Number, value as Value) as ValueList
     kValueOptionalNewMissing,       // () as ValueOptional
     kValueOptionalNewPresent,       // (input as Value) as ValueOptional
+    kValueSetAdd,                   // (lhs as ValueSet, rhs as Value) as ValueSet
+    kValueSetBuilderAdd,            // (builder as ValueSetBuilder, value as Value)
+    kValueSetBuilderEnd,            // (builder as ValueSetBuilder) as ValueSet
+    kValueSetBuilderNew,            // () as ValueSetBuilder
+    kValueSetNew,                   // () as ValueSet
+    kValueSetRemove,                // (lhs as ValueSet, rhs as Value) as ValueSet
+    kValueSetUnion,                 // (lhs as Set of T, rhs as Set of T) as Set of T
     kValueToObjectMapNew,           // () as ValueToObjectMap
     kValueToObjectMapSet,           // (input as ValueToObjectMap, key as Value, value as Object) as ValueToObjectMap
     kValueToObjectMapBuilderAdd,    // (builder as ValueToObjectMapBuilder, key as Value, value as Object)

@@ -147,6 +147,7 @@ int StatementNode::getTempLocalObjectCount() const {
 TypeNode::TypeNode(Kind kind, Token token) : Node(std::move(token)), kind(kind) {
     assert(kind != Kind::kList);
     assert(kind != Kind::kMap);
+    assert(kind != Kind::kSet);
     assert(kind != Kind::kOptional);
     assert(kind != Kind::kRecord);
 }
@@ -156,14 +157,22 @@ TypeNode::TypeNode(Kind kind, Token token, std::string recordName)
     assert(kind == Kind::kRecord);
 }
 
-TypeNode::TypeNode(Kind kind, Token token, boost::local_shared_ptr<TypeNode> optionalValueTypeOrListItemType)
+TypeNode::TypeNode(
+    Kind kind,
+    Token token,
+    boost::local_shared_ptr<TypeNode> optionalValueTypeOrListItemTypeOrSetKeyType)
     : Node(std::move(token)),
       kind(kind),
       listItemType(
-          kind == Kind::kList ? std::move(optionalValueTypeOrListItemType) : boost::local_shared_ptr<TypeNode>()),
+          kind == Kind::kList ? std::move(optionalValueTypeOrListItemTypeOrSetKeyType)
+                              : boost::local_shared_ptr<TypeNode>()),
       optionalValueType(
-          kind == Kind::kOptional ? std::move(optionalValueTypeOrListItemType) : boost::local_shared_ptr<TypeNode>()) {
-    assert(kind == Kind::kOptional || kind == Kind::kList);
+          kind == Kind::kOptional ? std::move(optionalValueTypeOrListItemTypeOrSetKeyType)
+                                  : boost::local_shared_ptr<TypeNode>()),
+      setKeyType(
+          kind == Kind::kSet ? std::move(optionalValueTypeOrListItemTypeOrSetKeyType)
+                             : boost::local_shared_ptr<TypeNode>()) {
+    assert(kind == Kind::kOptional || kind == Kind::kList || kind == Kind::kSet);
 }
 
 TypeNode::TypeNode(
@@ -197,6 +206,7 @@ void TypeNode::dump(std::ostream& s, int n) const {
     DUMP_VAR_NODES(fields);
     DUMP_VAR_NODE(listItemType);
     DUMP_VAR_NODE(mapKeyType);
+    DUMP_VAR_NODE(setKeyType);
     DUMP_VAR_NODE(mapValueType);
     DUMP_VAR_NODE(optionalValueType);
 }
@@ -242,7 +252,13 @@ bool TypeNode::equals(const TypeNode& target) const {
             return listItemType->equals(*target.listItemType);
 
         case Kind::kMap:
+            assert(target.mapKeyType != nullptr);
+            assert(target.mapValueType != nullptr);
             return mapKeyType->equals(*target.mapKeyType) && mapValueType->equals(*target.mapValueType);
+
+        case Kind::kSet:
+            assert(target.setKeyType != nullptr);
+            return setKeyType->equals(*target.setKeyType);
 
         case Kind::kRecord:
             if (recordName.has_value() != target.recordName.has_value()) {
@@ -272,7 +288,7 @@ bool TypeNode::equals(const TypeNode& target) const {
 bool TypeNode::isImplicitlyAssignableFrom(const TypeNode& source) const {
     // MARKER: This function concerns implicit type conversions. Search for this line to find others.
 
-    // Target may be generic: Any, List of Any, Map of Any to Any, Optional Any.
+    // Target may be generic: Any, List of Any, Map of Any to Any, Optional Any, Set of Any.
     if (kind == Kind::kAny) {
         return true;
     }
@@ -284,6 +300,9 @@ bool TypeNode::isImplicitlyAssignableFrom(const TypeNode& source) const {
         return true;
     }
     if (kind == Kind::kOptional && source.kind == Kind::kOptional && optionalValueType->kind == Kind::kAny) {
+        return true;
+    }
+    if (kind == Kind::kSet && source.kind == Kind::kSet && setKeyType->kind == Kind::kAny) {
         return true;
     }
 
@@ -317,6 +336,8 @@ std::string TypeNode::toString() const {
             return fmt::format("List of {}", listItemType->toString());
         case Kind::kMap:
             return fmt::format("Map from {} to {}", mapKeyType->toString(), mapValueType->toString());
+        case Kind::kSet:
+            return fmt::format("Set of {}", setKeyType->toString());
         case Kind::kRecord:
             if (recordName.has_value()) {
                 return *recordName;
@@ -362,6 +383,10 @@ bool TypeNode::isGeneric() const {
             assert(mapKeyType != nullptr);
             assert(mapValueType != nullptr);
             return mapKeyType->isGeneric() || mapValueType->isGeneric();
+
+        case Kind::kSet:
+            assert(setKeyType != nullptr);
+            return setKeyType->isGeneric();
 
         case Kind::kOptional:
             assert(optionalValueType != nullptr);
@@ -824,6 +849,40 @@ std::vector<YieldStatementNode*>* DimMapStatementNode::getYieldStatementNodesLis
     return &yieldStatements;
 }
 
+DimSetStatementNode::DimSetStatementNode(std::string name, std::unique_ptr<BodyNode> body, Token token)
+    : StatementNode(std::move(token)), name(std::move(name)), body(std::move(body)) {}
+
+void DimSetStatementNode::dump(std::ostream& s, int n) const {
+    DUMP_TYPE(DimSetStatementNode);
+    DUMP_VAR(name);
+    DUMP_VAR_NODE(body);
+}
+
+bool DimSetStatementNode::visitBodies(const VisitBodyFunc& func) const {
+    return func(body.get());
+}
+
+StatementType DimSetStatementNode::getStatementType() const {
+    return StatementType::kDimSet;
+}
+
+std::optional<std::string> DimSetStatementNode::getSymbolDeclaration() const {
+    return name;
+}
+
+boost::local_shared_ptr<TypeNode> DimSetStatementNode::getSymbolDeclarationType() const {
+    assert(evaluatedType != nullptr);
+    return evaluatedType;
+}
+
+bool DimSetStatementNode::isSymbolVisibleToSiblingStatements() const {
+    return true;
+}
+
+std::vector<YieldStatementNode*>* DimSetStatementNode::getYieldStatementNodesList() {
+    return &yieldStatements;
+}
+
 DimStatementNode::DimStatementNode(std::string name, boost::local_shared_ptr<TypeNode> type, Token token, bool shared)
     : StatementNode(std::move(token)),
       name(std::move(name)),
@@ -944,7 +1003,8 @@ StatementType ForEachStatementNode::getStatementType() const {
 
 boost::local_shared_ptr<TypeNode> ForEachStatementNode::getSymbolDeclarationType() const {
     auto listType = haystack->evaluatedType;
-    assert(listType->listItemType);
+    assert(listType != nullptr);
+    assert(listType->listItemType != nullptr);
     return listType->listItemType;
 }
 

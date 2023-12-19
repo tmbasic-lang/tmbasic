@@ -26,6 +26,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     auto mapFromAnyToAny = boost::make_local_shared<TypeNode>(Kind::kMap, Token{}, any, any);
     auto optionalAny = boost::make_local_shared<TypeNode>(Kind::kOptional, Token{}, any);
     auto optionalGeneric2 = boost::make_local_shared<TypeNode>(Kind::kOptional, Token{}, generic2);
+    auto setOfAny = boost::make_local_shared<TypeNode>(Kind::kSet, Token{}, any);
 
     auto form = boost::make_local_shared<TypeNode>(Kind::kForm, Token{});
     auto control = boost::make_local_shared<TypeNode>(Kind::kControl, Token{});
@@ -50,6 +51,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("CodeUnits", { "input" }, { string }, listOfNumber, SystemCall::kCodeUnits);
     addFunction("Concat", { "strings" }, { listOfString }, string, SystemCall::kConcat1);
     addFunction("Concat", { "strings", "separator" }, { listOfString, string }, string, SystemCall::kConcat2);
+    addFunction("Contains", { "set", "key" }, { setOfAny, generic1 }, boolean, SystemCall::kSetContains);
     addFunction("ContainsKey", { "map", "key" }, { mapFromAnyToAny, generic1 }, boolean, SystemCall::kMapContainsKey);
     addFunction("ControlBounds", { "control" }, { control }, rectangle, SystemCall::kControlBounds);
     addFunction("ControlText", { "control" }, { control }, string, SystemCall::kControlText);
@@ -81,6 +83,8 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("IsDigit", { "input" }, { string }, boolean, SystemCall::kIsDigit);
     addFunction("Last", { "list" }, { listOfAny }, generic1, SystemCall::kListLast);
     addFunction("Len", { "input" }, { listOfAny }, number, SystemCall::kListLen);
+    // TODO: kMapLen
+    addFunction("Len", { "input" }, { setOfAny }, number, SystemCall::kSetLen);
     addFunction("Len", { "input" }, { string }, number, SystemCall::kStringLen);
     addFunction("ListDirectories", { "path" }, { string }, listOfString, SystemCall::kListDirectories);
     addFunction("ListFiles", { "path" }, { string }, listOfString, SystemCall::kListFiles);
@@ -133,6 +137,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("TotalSeconds", { "timeSpan" }, { timeSpan }, number, SystemCall::kTotalSeconds);
     addFunction("Trunc", { "x" }, { number }, number, SystemCall::kTrunc);
     addFunction("Value", { "this" }, { optionalAny }, generic1, SystemCall::kValue);
+    addFunction("Values", { "set" }, { setOfAny }, listOfGeneric1, SystemCall::kSetValues);
     addSub("WriteFileBytes", { "filePath", "bytes" }, { string, listOfNumber }, SystemCall::kWriteFileBytes);
     addSub("WriteFileLines", { "filePath", "lines" }, { string, listOfString }, SystemCall::kWriteFileLines);
     addSub("WriteFileText", { "filePath", "text" }, { string, string }, SystemCall::kWriteFileText);

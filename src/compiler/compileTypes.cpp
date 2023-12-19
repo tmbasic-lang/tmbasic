@@ -71,6 +71,10 @@ static void checkFieldType(const TypeNode& fieldTypeNode, const CompiledProgram&
     } else if (fieldTypeNode.kind == Kind::kMap) {
         checkFieldType(*fieldTypeNode.mapKeyType, compiledProgram);
         checkFieldType(*fieldTypeNode.mapValueType, compiledProgram);
+    } else if (fieldTypeNode.kind == Kind::kSet) {
+        checkFieldType(*fieldTypeNode.setKeyType, compiledProgram);
+    } else if (fieldTypeNode.kind == Kind::kOptional) {
+        checkFieldType(*fieldTypeNode.optionalValueType, compiledProgram);
     }
 }
 

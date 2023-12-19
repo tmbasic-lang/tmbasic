@@ -59,6 +59,7 @@ void initSystemCallsLists();
 void initSystemCallsMaps();
 void initSystemCallsNumbers();
 void initSystemCallsOptionals();
+void initSystemCallsSets();
 void initSystemCallsStrings();
 
 void initSystemCalls() {
@@ -74,6 +75,7 @@ void initSystemCalls() {
     initSystemCallsMaps();
     initSystemCallsNumbers();
     initSystemCallsOptionals();
+    initSystemCallsSets();
     initSystemCallsStrings();
 
     initSystemCall(SystemCall::kBooleanAnd, [](const auto& input, auto* result) {

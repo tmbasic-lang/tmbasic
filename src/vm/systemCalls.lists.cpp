@@ -214,6 +214,19 @@ void initSystemCallsLists() {
         assert(result->returnedObject != nullptr);
     });
 
+    initSystemCall(SystemCall::kObjectListRemove, [](const auto& input, auto* result) {
+        auto items = castObjectList(input.getObject(-1)).items;
+        const auto& item = input.getObject(-1);
+
+        for (size_t i = items.size(); i > 0; i--) {
+            if (items.at(i - 1)->equals(item)) {
+                items = items.erase(i - 1);
+            }
+        }
+
+        result->returnedObject = boost::make_local_shared<ObjectList>(std::move(items));
+    });
+
     initSystemCall(SystemCall::kObjectListSet, [](const auto& input, auto* result) {
         const auto& objectList = castObjectList(input.getObject(-2));
         const auto& index = static_cast<size_t>(input.getValue(-1).getInt64());
@@ -255,6 +268,19 @@ void initSystemCallsLists() {
         const auto& valueList = castValueList(input.getObject(-1));
         const auto& index = input.getValue(-1).getInt64();
         result->returnedValue = valueList.items.at(index);
+    });
+
+    initSystemCall(SystemCall::kValueListRemove, [](const auto& input, auto* result) {
+        auto items = castValueList(input.getObject(-1)).items;
+        const auto& item = input.getValue(-1);
+
+        for (size_t i = items.size(); i > 0; i--) {
+            if (items.at(i - 1) == item) {
+                items = items.erase(i - 1);
+            }
+        }
+
+        result->returnedObject = boost::make_local_shared<ValueList>(std::move(items));
     });
 
     initSystemCall(SystemCall::kValueListSet, [](const auto& input, auto* result) {

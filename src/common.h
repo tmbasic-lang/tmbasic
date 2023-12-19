@@ -102,8 +102,10 @@
 #include <immer/array_transient.hpp>
 #include <immer/map.hpp>
 #include <immer/map_transient.hpp>
-#include <immer/vector.hpp>
-#include <immer/vector_transient.hpp>
+#include <immer/set.hpp>
+#include <immer/set_transient.hpp>
+#include <immer/flex_vector.hpp>
+#include <immer/flex_vector_transient.hpp>
 
 // nameof
 #define NAMEOF_ENUM_RANGE_MAX 256  // our biggest enum is SystemCall

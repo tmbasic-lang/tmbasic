@@ -471,7 +471,7 @@ static void emitBinaryExpression(const BinaryExpressionNode& expressionNode, Pro
             // Must be exactly one of these two situations. Type checking should have caught this already.
             if (lhsEqualsRhs == rhsIsItemTypeOfLhs) {
                 throw CompilerException(
-                    CompilerErrorCode::kInternal, "Internal error. Unexpected operand types to + operator.",
+                    CompilerErrorCode::kInternal, "Internal error. Unexpected operand types to binary operator.",
                     expressionNode.token);
             }
 
@@ -486,9 +486,7 @@ static void emitBinaryExpression(const BinaryExpressionNode& expressionNode, Pro
                         }
                         break;
                     default:
-                        throw CompilerException(
-                            CompilerErrorCode::kInternal, "Internal error. Unimplemented binary operator.",
-                            expressionNode.token);
+                        throw std::runtime_error("not impl");
                 }
             } else {
                 // Append (example 2).
@@ -500,18 +498,87 @@ static void emitBinaryExpression(const BinaryExpressionNode& expressionNode, Pro
                             state->syscall(Opcode::kSystemCallO, SystemCall::kObjectListAdd, 0, 2);
                         }
                         break;
+                    case BinaryOperator::kSubtract:
+                        if (lhsType->listItemType->isValueType()) {
+                            state->syscall(Opcode::kSystemCallO, SystemCall::kValueListRemove, 1, 1);
+                        } else {
+                            state->syscall(Opcode::kSystemCallO, SystemCall::kObjectListRemove, 0, 2);
+                        }
+                        break;
                     default:
-                        throw CompilerException(
-                            CompilerErrorCode::kInternal, "Internal error. Unimplemented binary operator.",
-                            expressionNode.token);
+                        throw std::runtime_error("not impl");
                 }
             }
         } else if (lhsType->kind == Kind::kList && rhsType->kind != Kind::kList) {
-            assert(binarySuffix->binaryOperator == BinaryOperator::kAdd);
-            if (lhsType->listItemType->isValueType()) {
-                state->syscall(Opcode::kSystemCallO, SystemCall::kValueListAdd, 1, 1);
+            if (binarySuffix->binaryOperator == BinaryOperator::kAdd) {
+                if (lhsType->listItemType->isValueType()) {
+                    state->syscall(Opcode::kSystemCallO, SystemCall::kValueListAdd, 1, 1);
+                } else {
+                    state->syscall(Opcode::kSystemCallO, SystemCall::kObjectListAdd, 0, 2);
+                }
+            } else if (binarySuffix->binaryOperator == BinaryOperator::kSubtract) {
+                if (lhsType->listItemType->isValueType()) {
+                    state->syscall(Opcode::kSystemCallO, SystemCall::kValueListRemove, 1, 1);
+                } else {
+                    state->syscall(Opcode::kSystemCallO, SystemCall::kObjectListRemove, 0, 2);
+                }
             } else {
-                state->syscall(Opcode::kSystemCallO, SystemCall::kObjectListAdd, 0, 2);
+                throw std::runtime_error("not impl");
+            }
+        } else if (lhsType->kind == Kind::kSet && rhsType->kind == Kind::kSet) {
+            // The warning in the List + List case above applies here too.
+            auto lhsEqualsRhs = lhsType->equals(*rhsType);                    // concat
+            auto rhsIsItemTypeOfLhs = lhsType->setKeyType->equals(*rhsType);  // append
+
+            // Must be exactly one of these two situations. Type checking should have caught this already.
+            if (lhsEqualsRhs == rhsIsItemTypeOfLhs) {
+                throw CompilerException(
+                    CompilerErrorCode::kInternal, "Internal error. Unexpected operand types to binary operator.",
+                    expressionNode.token);
+            }
+
+            if (lhsEqualsRhs) {
+                // Concat (example 1).
+                switch (binarySuffix->binaryOperator) {
+                    case BinaryOperator::kAdd:
+                        if (lhsType->setKeyType->isValueType()) {
+                            state->syscall(Opcode::kSystemCallO, SystemCall::kValueSetUnion, 0, 2);
+                        } else {
+                            state->syscall(Opcode::kSystemCallO, SystemCall::kObjectSetUnion, 0, 2);
+                        }
+                        break;
+                    default:
+                        throw std::runtime_error("not impl");
+                }
+            } else {
+                // Append (example 2).
+                switch (binarySuffix->binaryOperator) {
+                    case BinaryOperator::kAdd:
+                        if (lhsType->setKeyType->isValueType()) {
+                            state->syscall(Opcode::kSystemCallO, SystemCall::kValueSetAdd, 1, 1);
+                        } else {
+                            state->syscall(Opcode::kSystemCallO, SystemCall::kObjectSetAdd, 0, 2);
+                        }
+                        break;
+                    default:
+                        throw std::runtime_error("not impl");
+                }
+            }
+        } else if (lhsType->kind == Kind::kSet && rhsType->kind != Kind::kSet) {
+            if (binarySuffix->binaryOperator == BinaryOperator::kAdd) {
+                if (lhsType->setKeyType->isValueType()) {
+                    state->syscall(Opcode::kSystemCallO, SystemCall::kValueSetAdd, 1, 1);
+                } else {
+                    state->syscall(Opcode::kSystemCallO, SystemCall::kObjectSetAdd, 0, 2);
+                }
+            } else if (binarySuffix->binaryOperator == BinaryOperator::kSubtract) {
+                if (lhsType->setKeyType->isValueType()) {
+                    state->syscall(Opcode::kSystemCallO, SystemCall::kValueSetRemove, 1, 1);
+                } else {
+                    state->syscall(Opcode::kSystemCallO, SystemCall::kObjectSetRemove, 0, 2);
+                }
+            } else {
+                throw std::runtime_error("not impl");
             }
         } else {
             throw std::runtime_error("not impl");
@@ -759,7 +826,11 @@ static void emitConvertExpression(const ConvertExpressionNode& expressionNode, P
 
     throw CompilerException(
         CompilerErrorCode::kInternal,
-        "Internal error. Code generation for this implicit type conversion is not implemented.", expressionNode.token);
+        fmt::format(
+            "Internal error. Code generation for this implicit type conversion is not implemented. Source: {}, "
+            "Destination: {}.",
+            NAMEOF_ENUM(srcKind), NAMEOF_ENUM(dstKind)),
+        expressionNode.token);
 }
 
 static void emitFunctionCallExpression(const FunctionCallExpressionNode& expressionNode, ProcedureState* state) {
@@ -1133,6 +1204,31 @@ static void emitDimListStatement(const DimListStatementNode& statementNode, Proc
     state->setLocalObject(index);
 }
 
+static void emitDimSetStatement(const DimSetStatementNode& statementNode, ProcedureState* state) {
+    const auto& setType = statementNode.evaluatedType;
+    assert(setType != nullptr);
+    assert(setType->kind == Kind::kSet);
+    assert(setType->setKeyType != nullptr);
+    auto isValueSet = setType->setKeyType->isValueType();
+
+    // We have a local variable slot (at 'index') for the final set, but we will first use it to hold the builder.
+    auto index = *statementNode.localObjectIndex;
+    state->syscall(
+        Opcode::kSystemCallO, isValueSet ? SystemCall::kValueSetBuilderNew : SystemCall::kObjectSetBuilderNew, 0, 0);
+    state->setLocalObject(index);
+
+    // Yield statements in the body will write to the builder.
+    emitBody(*statementNode.body, state);
+
+    // Finalize the builder, which returns the final set on the stack.
+    state->pushLocalObject(index);
+    state->syscall(
+        Opcode::kSystemCallO, isValueSet ? SystemCall::kValueSetBuilderEnd : SystemCall::kObjectSetBuilderEnd, 0, 1);
+
+    // Now write the final set to the local variable slot.
+    state->setLocalObject(index);
+}
+
 static void emitDimMapStatement(const DimMapStatementNode& statementNode, ProcedureState* state) {
     const auto& mapType = statementNode.evaluatedType;
     assert(mapType != nullptr);
@@ -1174,11 +1270,23 @@ static void emitYieldStatement(const YieldStatementNode& statementNode, Procedur
     emitExpression(*statementNode.expression, state);
 
     if (statementNode.toExpression == nullptr) {
-        // List
-        if (statementNode.expression->evaluatedType->isValueType()) {
-            state->syscall(Opcode::kSystemCall, SystemCall::kValueListBuilderAdd, 1, 1);
+        // List or Set
+        auto collectionType = statementNode.boundCollectionDeclaration->evaluatedType;
+        assert(collectionType != nullptr);
+        if (collectionType->kind == Kind::kList) {
+            if (statementNode.expression->evaluatedType->isValueType()) {
+                state->syscall(Opcode::kSystemCall, SystemCall::kValueListBuilderAdd, 1, 1);
+            } else {
+                state->syscall(Opcode::kSystemCall, SystemCall::kObjectListBuilderAdd, 0, 2);
+            }
+        } else if (collectionType->kind == Kind::kSet) {
+            if (statementNode.expression->evaluatedType->isValueType()) {
+                state->syscall(Opcode::kSystemCall, SystemCall::kValueSetBuilderAdd, 1, 1);
+            } else {
+                state->syscall(Opcode::kSystemCall, SystemCall::kObjectSetBuilderAdd, 0, 2);
+            }
         } else {
-            state->syscall(Opcode::kSystemCall, SystemCall::kObjectListBuilderAdd, 0, 2);
+            assert(false);
         }
     } else {
         // Map
@@ -1246,6 +1354,18 @@ static void emitDefaultValue(const TypeNode& type, ProcedureState* state) {
                 systemCallNumber = SystemCall::kObjectToValueMapNew;
             } else if (keyO && valueO) {
                 systemCallNumber = SystemCall::kObjectToObjectMapNew;
+            }
+            state->syscall(Opcode::kSystemCallO, systemCallNumber, 0, 0);
+            break;
+        }
+
+        case Kind::kSet: {
+            auto keyV = type.setKeyType->isValueType();
+            SystemCall systemCallNumber{};
+            if (keyV) {
+                systemCallNumber = SystemCall::kValueSetNew;
+            } else {
+                systemCallNumber = SystemCall::kObjectSetNew;
             }
             state->syscall(Opcode::kSystemCallO, systemCallNumber, 0, 0);
             break;
@@ -1832,6 +1952,9 @@ static void emitInputStatement(const InputStatementNode& statementNode, Procedur
             break;
         case StatementType::kDimMap:
             emitDimMapStatement(dynamic_cast<const DimMapStatementNode&>(statementNode), state);
+            break;
+        case StatementType::kDimSet:
+            emitDimSetStatement(dynamic_cast<const DimSetStatementNode&>(statementNode), state);
             break;
         case StatementType::kDim:
             emitDimStatement(dynamic_cast<const DimStatementNode&>(statementNode), state);

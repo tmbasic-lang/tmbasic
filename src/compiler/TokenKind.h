@@ -87,6 +87,7 @@ enum class TokenKind {
     kRethrow,
     kReturn,
     kSelect,
+    kSet,
     kShared,
     kStep,
     kSub,

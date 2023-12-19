@@ -440,6 +440,23 @@ class MapTypeProduction : public Production {
     }
 };
 
+class SetTypeProduction : public Production {
+   public:
+    explicit SetTypeProduction(const Production* typeWithParentheses)
+        : Production(
+              NAMEOF_TYPE(SetTypeProduction),
+              {
+                  term(TokenKind::kSet),
+                  cut(),
+                  term(TokenKind::kOf),
+                  capture(0, prod(typeWithParentheses)),
+              }) {}
+
+    std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
+        return nodeBox<TypeNode>(Kind::kSet, firstToken, captureSingleNode<TypeNode>(std::move(captures->at(0))));
+    }
+};
+
 class ListTypeProduction : public Production {
    public:
     explicit ListTypeProduction(const Production* typeWithParentheses)
@@ -553,6 +570,7 @@ class TypeProduction : public Production {
         const Production* recordType,
         const Production* listType,
         const Production* mapType,
+        const Production* setType,
         const Production* optionalType,
         const Production* namedType) {
         listTerm = list({
@@ -563,6 +581,7 @@ class TypeProduction : public Production {
                     prod(recordType),
                     prod(listType),
                     prod(mapType),
+                    prod(setType),
                     prod(optionalType),
                     prod(namedType),
                 })),
@@ -1427,6 +1446,7 @@ class DimCollectionStatementProduction : public Production {
                       oneOf({
                           term(TokenKind::kList),
                           term(TokenKind::kMap),
+                          term(TokenKind::kSet),
                       })),
                   capture(1, term(TokenKind::kIdentifier)),
                   term(TokenKind::kEndOfLine),
@@ -1445,6 +1465,11 @@ class DimCollectionStatementProduction : public Production {
                 break;
             case TokenKind::kMap:
                 return nodeBox<DimMapStatementNode>(
+                    captureTokenText(std::move(captures->at(1))),
+                    captureSingleNode<BodyNode>(std::move(captures->at(2))), firstToken);
+                break;
+            case TokenKind::kSet:
+                return nodeBox<DimSetStatementNode>(
                     captureTokenText(std::move(captures->at(1))),
                     captureSingleNode<BodyNode>(std::move(captures->at(2))), firstToken);
                 break;
@@ -2007,10 +2032,11 @@ class ProductionCollection {
         auto* typeWithParentheses = add<TypeWithParenthesesProduction>(type);
         auto* optionalType = add<OptionalTypeProduction>(typeWithParentheses);
         auto* mapType = add<MapTypeProduction>(typeWithParentheses);
+        auto* setType = add<SetTypeProduction>(typeWithParentheses);
         auto* listType = add<ListTypeProduction>(typeWithParentheses);
         auto* recordType = add<RecordTypeProduction>(parameterList);
         auto* primitiveType = add<PrimitiveTypeProduction>();
-        type->init(primitiveType, recordType, listType, mapType, optionalType, namedType);
+        type->init(primitiveType, recordType, listType, mapType, setType, optionalType, namedType);
         auto* literalValue = add<LiteralValueProduction>();
         auto* literalRecordField = add<LiteralRecordFieldProduction>(expression);
         auto* literalRecordFieldList = add<LiteralRecordFieldListProduction>(literalRecordField);

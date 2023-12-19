@@ -74,6 +74,7 @@ enum class Kind {
     kString,
     kList,
     kMap,
+    kSet,
     kRecord,
     kOptional,
     kForm,
@@ -104,17 +105,29 @@ class ParameterNode : public Node {
 class TypeNode : public Node {
    public:
     Kind kind;
-    std::optional<std::string> recordName;  // kind = kRecord (named)
-    std::vector<boost::local_shared_ptr<ParameterNode>>
-        fields;  // kind = kRecord (anonymous), will be filled for named types by bindNamedRecordTypes
-    // nullable type parameters
-    boost::local_shared_ptr<TypeNode> listItemType;       // kind = kList, null for generic
-    boost::local_shared_ptr<TypeNode> mapKeyType;         // kind = kMap
-    boost::local_shared_ptr<TypeNode> mapValueType;       // kind = kMap
-    boost::local_shared_ptr<TypeNode> optionalValueType;  // kind = kOptional
+
+    // kind = kRecord (named)
+    std::optional<std::string> recordName;
+
+    // kind = kRecord (anonymous), and will be filled for named types by bindNamedRecordTypes.
+    std::vector<boost::local_shared_ptr<ParameterNode>> fields;
+
+    // kind = kList
+    boost::local_shared_ptr<TypeNode> listItemType;
+
+    // kind = kMap
+    boost::local_shared_ptr<TypeNode> mapKeyType;
+    boost::local_shared_ptr<TypeNode> mapValueType;
+
+    // kind = kOptional
+    boost::local_shared_ptr<TypeNode> optionalValueType;
+
+    // kind = kSet
+    boost::local_shared_ptr<TypeNode> setKeyType;
+
     TypeNode(Kind kind, Token token);
     TypeNode(Kind kind, Token token, std::string recordName);
-    TypeNode(Kind kind, Token token, boost::local_shared_ptr<TypeNode> optionalValueTypeOrListItemType);
+    TypeNode(Kind kind, Token token, boost::local_shared_ptr<TypeNode> optionalValueTypeOrListItemTypeOrSetKeyType);
     TypeNode(
         Kind kind,
         Token token,
@@ -252,6 +265,7 @@ class DottedExpressionNode : public ExpressionNode {
 };
 
 // fixDottedExpressionFunctionCalls() creates this node to be the base of DottedExpressionNodes.
+// typeCheckForEachStatement() creates it to convert a Set to a List by calling Values().
 class FunctionCallExpressionNode : public ExpressionNode {
    public:
     std::string name;
@@ -346,6 +360,7 @@ enum class StatementType {
     kContinue,
     kDimList,
     kDimMap,
+    kDimSet,
     kDim,
     kDo,
     kExit,
@@ -486,6 +501,24 @@ class DimMapStatementNode : public StatementNode {
     std::vector<YieldStatementNode*>* getYieldStatementNodesList() override;
 
     DimMapStatementNode(std::string name, std::unique_ptr<BodyNode> body, Token token);
+    void dump(std::ostream& s, int n) const override;
+    bool visitBodies(const VisitBodyFunc& func) const override;
+    StatementType getStatementType() const override;
+    std::optional<std::string> getSymbolDeclaration() const override;
+    boost::local_shared_ptr<TypeNode> getSymbolDeclarationType() const override;
+    bool isSymbolVisibleToSiblingStatements() const override;
+};
+
+class DimSetStatementNode : public StatementNode {
+   public:
+    std::string name;
+    std::unique_ptr<BodyNode> body;
+
+    // added by bindYieldStatements
+    std::vector<YieldStatementNode*> yieldStatements;
+    std::vector<YieldStatementNode*>* getYieldStatementNodesList() override;
+
+    DimSetStatementNode(std::string name, std::unique_ptr<BodyNode> body, Token token);
     void dump(std::ostream& s, int n) const override;
     bool visitBodies(const VisitBodyFunc& func) const override;
     StatementType getStatementType() const override;

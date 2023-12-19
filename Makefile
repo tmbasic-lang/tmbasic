@@ -202,6 +202,9 @@ LD=$(LINUX_TRIPLE)-ld
 AR=$(LINUX_TRIPLE)-ar
 RANLIB=$(LINUX_TRIPLE)-ranlib
 STRIP=$(LINUX_TRIPLE)-strip
+else
+# dev container
+CXX += -fdiagnostics-color=always
 endif
 endif
 
@@ -384,7 +387,7 @@ release:
 
 .PHONY: clean
 clean:
-	rm -rf bin obj valgrind.txt
+	@rm -rf bin obj valgrind.txt
 
 .PHONY: run
 run:
@@ -525,7 +528,7 @@ obj/resources/LICENSE.txt: $(LICENSE_FILES)
 $(LICENSE_DIAGRAM_TXT_TIMESTAMP_FILE): $(LICENSE_FILES)
 	@mkdir -p $(@D)
 	build/scripts/copyLicenses.sh
-	touch $@
+	@touch $@
 
 $(LICENSE_DIAGRAM_TXT_FILES): $(LICENSE_DIAGRAM_TXT_TIMESTAMP_FILE)
 
@@ -536,8 +539,8 @@ obj/buildDoc: src/buildDoc.cpp
 obj/resources/help/helpfile.h: obj/resources/help/help.txt
 	@mkdir -p obj/resources/help
 	@mkdir -p bin
-	rm -f obj/resources/help/help.h32
-	rm -f obj/resources/help/helpfile.h
+	@rm -f obj/resources/help/help.h32
+	@rm -f obj/resources/help/helpfile.h
 	$(TVHC) obj/resources/help/help.txt obj/resources/help/help.h32 obj/resources/help/helpfile.h >/dev/null
 
 obj/resources/help/help.h32: obj/resources/help/helpfile.h
@@ -618,7 +621,7 @@ obj/resources/runners/all: $(ALL_PLATFORM_RUNNER_COMPRESSED_FILES)
 	OBJ_FILE=obj/resources/runners/mac_arm64.gz.o CXX="$(CXX) $(CXXFLAGS)" build/scripts/runnerRes.sh
 	OBJ_FILE=obj/resources/runners/win_x64.gz.o CXX="$(CXX) $(CXXFLAGS)" build/scripts/runnerRes.sh
 	OBJ_FILE=obj/resources/runners/win_x86.gz.o CXX="$(CXX) $(CXXFLAGS)" build/scripts/runnerRes.sh
-	touch $@
+	@touch $@
 
 $(ALL_PLATFORM_RUNNER_OBJ_FILES): obj/resources/runners/%.o: obj/resources/runners/all
 	@mkdir -p $(@D)
@@ -709,6 +712,6 @@ bin/runner$(EXE_EXTENSION): obj/resources/pcode/pcode.o $(RUNNER_OBJ_FILES) obj/
 
 bin/runner.gz: bin/runner$(EXE_EXTENSION)
 	@mkdir -p $(@D)
-	rm -f $@
+	@rm -f $@
 	cat $< | gzip -k -1 > $@
-	[ -e "$@" ] && touch $@
+	@[ -e "$@" ] && touch $@

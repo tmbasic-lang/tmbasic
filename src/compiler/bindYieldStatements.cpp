@@ -12,18 +12,19 @@ static void bindYieldStatementsInBody(BodyNode* body, Node* target, bool insideD
             if (!insideDimCollection) {
                 throw CompilerException(
                     CompilerErrorCode::kYieldOutsideDimCollection,
-                    "Yield must be inside a \"dim list\" or \"dim map\" block.", statement->token);
+                    "Yield must be inside a \"dim list\", \"dim map\", or \"dim set\" block.", statement->token);
             }
 
             auto& yieldNode = dynamic_cast<YieldStatementNode&>(*statement);
 
-            auto isYieldList = yieldNode.toExpression == nullptr;
-            auto isYieldMap = !isYieldList;
+            auto isYieldListOrSet = yieldNode.toExpression == nullptr;
+            auto isYieldMap = yieldNode.toExpression != nullptr;
 
             auto isDimList = dynamic_cast<DimListStatementNode*>(target) != nullptr;
             auto isDimMap = dynamic_cast<DimMapStatementNode*>(target) != nullptr;
+            auto isDimSet = dynamic_cast<DimSetStatementNode*>(target) != nullptr;
 
-            if (isDimList && !isYieldList) {
+            if (isDimList && !isYieldListOrSet) {
                 throw CompilerException(
                     CompilerErrorCode::kInvalidYieldType,
                     "Inside \"dim list\" blocks, \"yield\" must take a single value.", statement->token);
@@ -33,6 +34,12 @@ static void bindYieldStatementsInBody(BodyNode* body, Node* target, bool insideD
                 throw CompilerException(
                     CompilerErrorCode::kInvalidYieldType,
                     "Inside \"dim map\" blocks, \"yield\" must take a key and a value.", statement->token);
+            }
+
+            if (isDimSet && !isYieldListOrSet) {
+                throw CompilerException(
+                    CompilerErrorCode::kInvalidYieldType,
+                    "Inside \"dim set\" blocks, \"yield\" must take a single value.", statement->token);
             }
 
             yieldNode.boundCollectionDeclaration = target;
@@ -45,6 +52,10 @@ static void bindYieldStatementsInBody(BodyNode* body, Node* target, bool insideD
             auto* dimMapNode = dynamic_cast<DimMapStatementNode*>(statement.get());
             assert(dimMapNode != nullptr);
             bindYieldStatementsInBody(dimMapNode->body.get(), dimMapNode, true);
+        } else if (statementType == StatementType::kDimSet) {
+            auto* dimSetNode = dynamic_cast<DimSetStatementNode*>(statement.get());
+            assert(dimSetNode != nullptr);
+            bindYieldStatementsInBody(dimSetNode->body.get(), dimSetNode, true);
         } else {
             statement->visitBodies([target, insideDimCollection](auto* body) -> bool {
                 bindYieldStatementsInBody(body, target, insideDimCollection);

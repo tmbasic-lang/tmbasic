@@ -66,6 +66,18 @@ static bool doCallArgumentTypesMatchProcedureParameters(
                     }
                     break;
 
+                case Kind::kSet:
+                    if (parameterType->kind == Kind::kGeneric1) {
+                        parameterType = firstArgumentType->setKeyType;
+                    } else {
+                        throw CompilerException(
+                            CompilerErrorCode::kInternal,
+                            "Internal error. This built-in procedure has a Generic2 parameter type but its first "
+                            "parameter is a Set.",
+                            Token{});
+                    }
+                    break;
+
                 default:
                     throw CompilerException(
                         CompilerErrorCode::kInternal,
@@ -136,6 +148,10 @@ static void replaceImplicitArgumentTypeConversionsWithExplicit(
         }
         if (parameterType->kind == Kind::kOptional && argumentType.kind == Kind::kOptional &&
             parameterType->optionalValueType->kind == Kind::kAny) {
+            continue;
+        }
+        if (parameterType->kind == Kind::kSet && argumentType.kind == Kind::kSet &&
+            parameterType->setKeyType->kind == Kind::kAny) {
             continue;
         }
 
@@ -220,6 +236,10 @@ static void typeCheckCall(
                             assert(concrete1 != nullptr);
                             assert(concrete2 != nullptr);
                             break;
+                        case Kind::kSet:
+                            concrete1 = argType->setKeyType;
+                            assert(concrete1 != nullptr);
+                            break;
                         case Kind::kOptional:
                             concrete1 = argType->optionalValueType;
                             assert(concrete1 != nullptr);
@@ -286,6 +306,37 @@ static void typeCheckCall(
                                     CompilerErrorCode::kInternal,
                                     "Internal error. Built-in procedure has return type of \"Optional\" with an "
                                     "invalid type parameter.",
+                                    callNode->token);
+                            }
+                            break;
+                        }
+
+                        case Kind::kMap: {
+                            auto mapKeyTypeKind = builtInProcedure->returnType->mapKeyType->kind;
+                            auto mapValueTypeKind = builtInProcedure->returnType->mapValueType->kind;
+                            if (mapKeyTypeKind == Kind::kGeneric1 && mapValueTypeKind == Kind::kGeneric2) {
+                                callNode->evaluatedType = boost::make_local_shared<TypeNode>(
+                                    Kind::kMap, Token{}, std::move(concrete1), std::move(concrete2));
+                            } else {
+                                throw CompilerException(
+                                    CompilerErrorCode::kInternal,
+                                    "Internal error. Built-in procedure has return type of \"Map\" with an invalid "
+                                    "type parameter.",
+                                    callNode->token);
+                            }
+                            break;
+                        }
+
+                        case Kind::kSet: {
+                            auto setKeyTypeKind = builtInProcedure->returnType->setKeyType->kind;
+                            if (setKeyTypeKind == Kind::kGeneric1) {
+                                callNode->evaluatedType =
+                                    boost::make_local_shared<TypeNode>(Kind::kSet, Token{}, std::move(concrete1));
+                            } else {
+                                throw CompilerException(
+                                    CompilerErrorCode::kInternal,
+                                    "Internal error. Built-in procedure has return type of \"Set\" with an invalid "
+                                    "type parameter.",
                                     callNode->token);
                             }
                             break;
@@ -401,13 +452,20 @@ static void typeCheckBinaryExpression(BinaryExpressionNode* expressionNode, Type
             }
 
             case BinaryOperator::kAdd:
+                if (lhsType->kind == Kind::kString && rhsType->kind == Kind::kString) {
+                    suffix->evaluatedType = lhsType;
+                    break;
+                }
+                // fall through
+
+            case BinaryOperator::kSubtract:
                 if (lhsType->kind == Kind::kNumber && rhsType->kind == Kind::kNumber) {
                     suffix->evaluatedType = lhsType;
-                } else if (lhsType->kind == Kind::kString && rhsType->kind == Kind::kString) {
-                    suffix->evaluatedType = lhsType;
                 } else if (lhsType->kind == Kind::kList && rhsType->equals(*lhsType->listItemType)) {
+                    // (List of T) + (T)
                     suffix->evaluatedType = lhsType;
                 } else if (lhsType->kind == Kind::kList && rhsType->kind == Kind::kList) {
+                    // (List of T) + (List of T)
                     if (lhsType->listItemType->equals(*rhsType->listItemType)) {
                         suffix->evaluatedType = lhsType;
                     } else {
@@ -419,17 +477,32 @@ static void typeCheckBinaryExpression(BinaryExpressionNode* expressionNode, Type
                                 lhsType->listItemType->toString(), rhsType->listItemType->toString()),
                             suffix->token);
                     }
+                } else if (lhsType->kind == Kind::kSet && rhsType->equals(*lhsType->setKeyType)) {
+                    // (Set of T) + (T)
+                    suffix->evaluatedType = lhsType;
+                } else if (lhsType->kind == Kind::kSet && rhsType->kind == Kind::kSet) {
+                    // (Set of T) + (Set of T)
+                    if (lhsType->setKeyType->equals(*rhsType->setKeyType)) {
+                        suffix->evaluatedType = lhsType;
+                    } else {
+                        throw CompilerException(
+                            CompilerErrorCode::kTypeMismatch,
+                            fmt::format(
+                                "These sets cannot be combined because the set on the left is type {} and the set on "
+                                "the right is type {}. The types must match.",
+                                lhsType->setKeyType->toString(), rhsType->setKeyType->toString()),
+                            suffix->token);
+                    }
                 } else {
                     throw CompilerException(
                         CompilerErrorCode::kTypeMismatch,
                         fmt::format(
-                            "The types {} and {} are not valid operands for the \"+\" operator.", lhsType->toString(),
-                            rhsType->toString()),
+                            "The types {} and {} are not valid operands for the \"{}\" operator.", lhsType->toString(),
+                            rhsType->toString(), getOperatorText(suffix->binaryOperator)),
                         suffix->token);
                 }
                 break;
 
-            case BinaryOperator::kSubtract:
             case BinaryOperator::kMultiply:
             case BinaryOperator::kDivide:
             case BinaryOperator::kModulus:
@@ -897,12 +970,28 @@ static void typeCheckForStatement(ForStatementNode* statementNode) {
 }
 
 static void typeCheckForEachStatement(ForEachStatementNode* statementNode) {
-    // haystack must be a List
     assert(statementNode->haystack->evaluatedType != nullptr);
-    if (statementNode->haystack->evaluatedType->kind != Kind::kList) {
-        throw CompilerException(
-            CompilerErrorCode::kTypeMismatch, "The collection argument of a \"for each\" statement must be a List.",
-            statementNode->haystack->token);
+    const auto& haystackType = statementNode->haystack->evaluatedType;
+    switch (haystackType->kind) {
+        case Kind::kList:
+            break;
+
+        case Kind::kSet: {
+            // For Each doesn't work natively with sets. We can use the Values() function to convert to a list.
+            std::vector<std::unique_ptr<ExpressionNode>> args{};
+            auto token = statementNode->haystack->token;
+            args.push_back(std::move(statementNode->haystack));
+            auto callNode = std::make_unique<FunctionCallExpressionNode>("Values", std::move(args), token);
+            callNode->evaluatedType = boost::make_local_shared<TypeNode>(Kind::kList, token, haystackType->setKeyType);
+            callNode->systemCall = vm::SystemCall::kSetValues;
+            statementNode->haystack = std::move(callNode);
+            break;
+        }
+
+        default:
+            throw CompilerException(
+                CompilerErrorCode::kTypeMismatch, "The collection argument of a \"for each\" statement must be a List.",
+                statementNode->haystack->token);
     }
 }
 
@@ -1034,6 +1123,36 @@ static void typeCheckDimListStatement(DimListStatementNode* statementNode) {
     // the dim list's type is thus List of firstType
     auto typeToken = firstType->token;
     statementNode->evaluatedType = boost::make_local_shared<TypeNode>(Kind::kList, typeToken, firstType);
+}
+
+static void typeCheckDimSetStatement(DimSetStatementNode* statementNode) {
+    // there must be at least one yield statement
+    auto& yields = *statementNode->getYieldStatementNodesList();
+    if (yields.empty()) {
+        throw CompilerException(
+            CompilerErrorCode::kNoYieldsInDimCollection,
+            "A \"dim set\" block must contain at least one \"yield\" statement.", statementNode->token);
+    }
+
+    // all yields must be of the same type
+    auto& firstType = yields.at(0)->expression->evaluatedType;
+    assert(firstType != nullptr);
+    for (auto& yieldNode : yields) {
+        auto* yieldType = yieldNode->expression->evaluatedType.get();
+        if (!yieldType->equals(*firstType)) {
+            throw CompilerException(
+                CompilerErrorCode::kTypeMismatch,
+                fmt::format(
+                    "All \"yield\" statements in a \"dim set\" block must be of the same type. This block has "
+                    "\"yield\" statements of the incompatible types {} and {}.",
+                    firstType->toString(), yieldType->toString()),
+                yieldNode->token);
+        }
+    }
+
+    // the dim set's type is thus Set of firstType
+    auto typeToken = firstType->token;
+    statementNode->evaluatedType = boost::make_local_shared<TypeNode>(Kind::kSet, typeToken, firstType);
 }
 
 static void typeCheckDimMapStatement(DimMapStatementNode* statementNode) {
@@ -1267,6 +1386,10 @@ static void typeCheckBody(BodyNode* bodyNode, TypeCheckState* state) {
 
             case StatementType::kDimMap:
                 typeCheckDimMapStatement(dynamic_cast<DimMapStatementNode*>(statementNode.get()));
+                break;
+
+            case StatementType::kDimSet:
+                typeCheckDimSetStatement(dynamic_cast<DimSetStatementNode*>(statementNode.get()));
                 break;
 
             default:
