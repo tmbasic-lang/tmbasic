@@ -12,7 +12,7 @@ void initSystemCallsSets() {
         result->returnedObject = boost::make_local_shared<ObjectSet>(set, true, key);
     });
 
-    initSystemCall(SystemCall::kObjectSetBuilderAdd, [](const auto& input, auto* result) {
+    initSystemCall(SystemCall::kObjectSetBuilderAdd, [](const auto& input, auto* /*result*/) {
         auto& builder = castObjectSetBuilder(input.getObject(-2));
         const auto& key = input.getObjectPtr(-1);
         builder.keys.insert(key);
@@ -98,7 +98,7 @@ void initSystemCallsSets() {
         result->returnedObject = boost::make_local_shared<ValueSet>(set, true, key);
     });
 
-    initSystemCall(SystemCall::kValueSetBuilderAdd, [](const auto& input, auto* result) {
+    initSystemCall(SystemCall::kValueSetBuilderAdd, [](const auto& input, auto* /*result*/) {
         auto& builder = castValueSetBuilder(input.getObject(-1));
         const auto& key = input.getValue(-1);
         builder.keys.insert(key);

@@ -21,7 +21,7 @@ void initSystemCallsMaps() {
         result->returnedObject = boost::make_local_shared<ObjectToObjectMapBuilder>();
     });
 
-    initSystemCall(SystemCall::kObjectToObjectMapBuilderAdd, [](const auto& input, auto* result) {
+    initSystemCall(SystemCall::kObjectToObjectMapBuilderAdd, [](const auto& input, auto* /*result*/) {
         auto& builder = castObjectToObjectMapBuilder(input.getObject(-3));
         const auto& from = input.getObjectPtr(-2);
         const auto& to = input.getObjectPtr(-1);
@@ -48,7 +48,7 @@ void initSystemCallsMaps() {
         result->returnedObject = boost::make_local_shared<ObjectToValueMapBuilder>();
     });
 
-    initSystemCall(SystemCall::kObjectToValueMapBuilderAdd, [](const auto& input, auto* result) {
+    initSystemCall(SystemCall::kObjectToValueMapBuilderAdd, [](const auto& input, auto* /*result*/) {
         auto& builder = castObjectToValueMapBuilder(input.getObject(-2));
         const auto& from = input.getObjectPtr(-1);
         const auto& to = input.getValue(-1);
@@ -75,7 +75,7 @@ void initSystemCallsMaps() {
         result->returnedObject = boost::make_local_shared<ValueToObjectMapBuilder>();
     });
 
-    initSystemCall(SystemCall::kValueToObjectMapBuilderAdd, [](const auto& input, auto* result) {
+    initSystemCall(SystemCall::kValueToObjectMapBuilderAdd, [](const auto& input, auto* /*result*/) {
         auto& builder = castValueToObjectMapBuilder(input.getObject(-2));
         const auto& from = input.getValue(-1);
         const auto& to = input.getObjectPtr(-1);
@@ -102,7 +102,7 @@ void initSystemCallsMaps() {
         result->returnedObject = boost::make_local_shared<ValueToValueMapBuilder>();
     });
 
-    initSystemCall(SystemCall::kValueToValueMapBuilderAdd, [](const auto& input, auto* result) {
+    initSystemCall(SystemCall::kValueToValueMapBuilderAdd, [](const auto& input, auto* /*result*/) {
         auto& builder = castValueToValueMapBuilder(input.getObject(-1));
         const auto& from = input.getValue(-2);
         const auto& to = input.getValue(-1);
