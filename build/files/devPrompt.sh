@@ -2,15 +2,24 @@
 
 function make_colorized() {
     clear
-    make | {
+    # Create a file descriptor 3 for stderr
+    exec 3>&1
+    make 2> >(while IFS= read -r line; do
+                  echo "$line" >&3  # Pass stderr to the console
+                  if [[ "$line" == *"error:"* ]]; then
+                      return
+                  fi
+              done) | {
         counter=1
-
         while IFS= read -r line; do
-            echo -e "\033[47;30m[${counter}]\033[0m"
-            echo $line
+            # Colorize and number each line from stdout
+            echo
+            echo -e "\033[47;30m ${counter} \033[0m $line"
             ((counter++))
         done
     }
+    # Close the extra file descriptor
+    exec 3>&-
 }
 
 while true
