@@ -193,6 +193,9 @@ enum class SystemCall {
     kWriteFileBytes,                // (filePath as String, bytes as List of Number)
     kWriteFileLines,                // (filePath as String, lines as List of String)
     kWriteFileText,                 // (filePath as String, text as String)
+
+    // Not a real system call. Used to get the number of system calls.
+    kMaxSystemCall,
 };
 
 class SystemCallInput {

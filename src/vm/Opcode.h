@@ -112,6 +112,9 @@ enum class Opcode {
 
     // minimal support for callbacks
     kSetEventHandler,  // <4b procedureIndex, 2b event> in: target obj
+
+    // Not a real opcode. Used to get the number of opcodes.
+    kMaxOpcode,
 };
 
 }  // namespace vm

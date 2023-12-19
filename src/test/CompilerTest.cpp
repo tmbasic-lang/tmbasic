@@ -87,6 +87,8 @@ static void runCode(const string& basFile) {
 
     auto actualOutput = consoleOutputStream.str();
     ASSERT_EQ(expectedOutput, actualOutput);
+
+    Interpreter::printDebugTimings();
 }
 
 static void run(string dir, string filenameWithoutExtension) {

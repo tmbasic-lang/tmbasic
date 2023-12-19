@@ -1,6 +1,9 @@
 // uncomment to log execution to std::cerr
 // #define LOG_EXECUTION
 
+// uncomment to profile execution times to std::cerr
+// #define LOG_PERFORMANCE
+
 #include "vm/Interpreter.h"
 #include "util/cast.h"
 #include "util/decimal.h"
@@ -416,6 +419,63 @@ static void setDottedExpression(SetDottedExpressionState* state) {
     pushObject(&state->p->objectStack, osi, std::move(updatedBaseObject));
 }
 
+#ifdef LOG_PERFORMANCE
+static std::array<long, static_cast<size_t>(Opcode::kMaxOpcode)> totalNanosecondsPerOpcode{};
+static std::array<int, static_cast<size_t>(Opcode::kMaxOpcode)> totalCallsPerOpcode{};
+static std::array<long, static_cast<size_t>(SystemCall::kMaxSystemCall)> totalNanosecondsPerSystemCall{};
+static std::array<int, static_cast<size_t>(SystemCall::kMaxSystemCall)> totalCallsPerSystemCall{};
+
+void Interpreter::printDebugTimings() {
+    std::cerr << "Opcode timings:" << std::endl;
+    std::vector<std::pair<Opcode, long>> opcodeTimings;
+    for (auto i = 0; i < static_cast<int>(Opcode::kMaxOpcode); i++) {
+        auto opcode = static_cast<Opcode>(i);
+        auto totalNanoseconds = totalNanosecondsPerOpcode.at(i);
+        auto totalCalls = totalCallsPerOpcode.at(i);
+        if (totalCalls == 0) {
+            continue;
+        }
+        opcodeTimings.push_back({ opcode, totalNanoseconds });
+    }
+    std::sort(
+        opcodeTimings.begin(), opcodeTimings.end(), [](const auto& a, const auto& b) { return a.second > b.second; });
+    for (const auto& timing : opcodeTimings) {
+        auto opcode = timing.first;
+        auto totalNanoseconds = timing.second;
+        auto totalMilliseconds = totalNanoseconds / 1000000;
+        auto totalCalls = totalCallsPerOpcode.at(static_cast<int>(opcode));
+        std::cerr << std::setw(30) << NAMEOF_ENUM(opcode) << " │ " << std::setw(10) << totalMilliseconds << " ms │ "
+                  << std::setw(10) << totalCalls << " calls │ " << std::setw(10) << (totalNanoseconds / totalCalls)
+                  << " ns/call" << std::endl;
+    }
+
+    std::cerr << "System call timings:" << std::endl;
+    std::vector<std::pair<SystemCall, long>> syscallTimings;
+    for (auto i = 0; i < static_cast<int>(SystemCall::kMaxSystemCall); i++) {
+        auto syscall = static_cast<SystemCall>(i);
+        auto totalNanoseconds = totalNanosecondsPerSystemCall.at(i);
+        auto totalCalls = totalCallsPerSystemCall.at(i);
+        if (totalCalls == 0) {
+            continue;
+        }
+        syscallTimings.push_back({ syscall, totalNanoseconds });
+    }
+    std::sort(
+        syscallTimings.begin(), syscallTimings.end(), [](const auto& a, const auto& b) { return a.second > b.second; });
+    for (const auto& timing : syscallTimings) {
+        auto syscall = timing.first;
+        auto totalNanoseconds = timing.second;
+        auto totalMilliseconds = totalNanoseconds / 1000000;
+        auto totalCalls = totalCallsPerSystemCall.at(static_cast<int>(syscall));
+        std::cerr << std::setw(30) << NAMEOF_ENUM(syscall) << " │ " << std::setw(10) << totalMilliseconds << " ms │ "
+                  << std::setw(10) << totalCalls << " calls │ " << std::setw(10) << (totalNanoseconds / totalCalls)
+                  << " ns/call" << std::endl;
+    }
+}
+#else
+void Interpreter::printDebugTimings() {}
+#endif
+
 bool Interpreter::run(int maxCycles) {
     const auto& procedures = _private->program->procedures;
     const auto* procedure = _private->procedure;
@@ -426,9 +486,32 @@ bool Interpreter::run(int maxCycles) {
     auto* valueStack = &_private->valueStack;
     auto* objectStack = &_private->objectStack;
 
+#ifdef LOG_PERFORMANCE
+    timespec prevTime{};
+    clock_gettime(CLOCK_MONOTONIC, &prevTime);
+#endif
+
     for (int cycle = 0; cycle < maxCycles; cycle++) {
         assert(instructions != nullptr);
         auto opcode = static_cast<Opcode>(instructions->at(instructionIndex));
+
+#if defined(LOG_EXECUTION) || defined(LOG_PERFORMANCE)
+        SystemCall syscall{};
+        switch (opcode) {
+            case Opcode::kSystemCall:
+            case Opcode::kSystemCallO:
+            case Opcode::kSystemCallV:
+            case Opcode::kSystemCallVO: {
+                int16_t syscallIndex{};
+                memcpy(&syscallIndex, &instructions->at(instructionIndex + 1), sizeof(int16_t));
+                syscall = static_cast<SystemCall>(syscallIndex);
+                break;
+            }
+
+            default:
+                break;
+        }
+#endif
 
 #ifdef LOG_EXECUTION
         std::cerr << "cycle " << std::setw(5) << cycle << " │ pc " << std::setw(5) << instructionIndex << " │ "
@@ -438,9 +521,6 @@ bool Interpreter::run(int maxCycles) {
             case Opcode::kSystemCallO:
             case Opcode::kSystemCallV:
             case Opcode::kSystemCallVO: {
-                int16_t syscallIndex{};
-                memcpy(&syscallIndex, &instructions->at(instructionIndex + 1), sizeof(int16_t));
-                auto syscall = static_cast<SystemCall>(syscallIndex);
                 // If you're getting unknown here, check NAMEOF_ENUM_RANGE_MAX.
                 std::cerr << " [" << NAMEOF_ENUM_OR(syscall, "unknown!") << "]";
                 break;
@@ -968,6 +1048,31 @@ bool Interpreter::run(int maxCycles) {
             default:
                 throw std::runtime_error(fmt::format("Unknown opcode {}", static_cast<int>(opcode)));
         }
+
+#ifdef LOG_PERFORMANCE
+        timespec currentTime{};
+        clock_gettime(CLOCK_MONOTONIC, &currentTime);
+        auto nanoseconds =
+            (currentTime.tv_sec - prevTime.tv_sec) * 1000000000L + (currentTime.tv_nsec - prevTime.tv_nsec);
+        prevTime = currentTime;
+
+        totalNanosecondsPerOpcode.at(static_cast<size_t>(opcode)) += nanoseconds;
+        totalCallsPerOpcode.at(static_cast<size_t>(opcode))++;
+
+        switch (opcode) {
+            case Opcode::kSystemCall:
+            case Opcode::kSystemCallO:
+            case Opcode::kSystemCallV:
+            case Opcode::kSystemCallVO: {
+                totalNanosecondsPerSystemCall.at(static_cast<size_t>(syscall)) += nanoseconds;
+                totalCallsPerSystemCall.at(static_cast<size_t>(syscall))++;
+                break;
+            }
+
+            default:
+                break;
+        }
+#endif
     }
 
     // write state back to memory for the next run call

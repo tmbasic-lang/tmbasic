@@ -19,6 +19,7 @@ class Interpreter {
     void init(int procedureIndex);
     bool run(int maxCycles);
     std::optional<InterpreterError> getError() const;
+    static void printDebugTimings();
 
    private:
     class InterpreterPrivate* _private;
