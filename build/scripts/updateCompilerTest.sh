@@ -4,11 +4,12 @@
 
 grep -v "^COMPILER_TEST" src/test/CompilerTest.cpp > /tmp/CompilerTest.cpp
 
-ls src/test/programs \
+pushd src/test/programs
+find -type f \
     | grep "\.bas$" \
-    | xargs -n 1 basename \
-    | sed "s/\.bas//g" \
-    | awk '{ print "COMPILER_TEST(" $1 ")" }' \
+    | sed "s/\.bas//g; s:./::; s:/: :g" \
+    | awk '{ print "COMPILER_TEST(" $1 ", " $2 ")" }' \
     >> /tmp/CompilerTest.cpp
+popd
 
 mv -f /tmp/CompilerTest.cpp src/test/CompilerTest.cpp
