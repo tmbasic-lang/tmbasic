@@ -127,13 +127,13 @@ static bool checkTryStatement(TryStatementNode* tryStatement) {
                 return false;
 
             case StatementType::kIf:
-                if (checkIfStatement(&dynamic_cast<IfStatementNode&>(*statement))) {
+                if (checkIfStatement(dynamic_cast<IfStatementNode*>(statement.get()))) {
                     return true;
                 }
                 break;
 
             case StatementType::kDo: {
-                if (checkDoStatement(&dynamic_cast<DoStatementNode&>(*statement))) {
+                if (checkDoStatement(dynamic_cast<DoStatementNode*>(statement.get()))) {
                     return true;
                 }
                 break;
@@ -147,31 +147,31 @@ static bool checkTryStatement(TryStatementNode* tryStatement) {
                 break;
 
             case StatementType::kDimList:
-                if (checkDimListStatement(&dynamic_cast<DimListStatementNode&>(*statement))) {
+                if (checkDimListStatement(dynamic_cast<DimListStatementNode*>(statement.get()))) {
                     return true;
                 }
                 break;
 
             case StatementType::kDimMap:
-                if (checkDimMapStatement(&dynamic_cast<DimMapStatementNode&>(*statement))) {
+                if (checkDimMapStatement(dynamic_cast<DimMapStatementNode*>(statement.get()))) {
                     return true;
                 }
                 break;
 
             case StatementType::kDimSet:
-                if (checkDimSetStatement(&dynamic_cast<DimSetStatementNode&>(*statement))) {
+                if (checkDimSetStatement(dynamic_cast<DimSetStatementNode*>(statement.get()))) {
                     return true;
                 }
                 break;
 
             case StatementType::kSelectCase:
-                if (checkSelectCaseStatement(&dynamic_cast<SelectCaseStatementNode&>(*statement))) {
+                if (checkSelectCaseStatement(dynamic_cast<SelectCaseStatementNode*>(statement.get()))) {
                     return true;
                 }
                 break;
 
             case StatementType::kTry:
-                if (checkTryStatement(&dynamic_cast<TryStatementNode&>(*statement))) {
+                if (checkTryStatement(dynamic_cast<TryStatementNode*>(statement.get()))) {
                     return true;
                 }
                 break;

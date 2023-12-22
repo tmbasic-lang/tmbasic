@@ -185,12 +185,12 @@ void initSystemCallsDates() {
     });
 
     initSystemCall(SystemCall::kTimeZoneToString, [](const auto& input, auto* result) {
-        const auto& timeZone = castTimeZone(input.getObject(-1));
+        const auto& timeZone = *castTimeZone(input.getObject(-1));
         result->returnedObject = boost::make_local_shared<String>(timeZone.zone->name());
     });
 
     initSystemCall(SystemCall::kTimeZoneFromName, [](const auto& input, auto* result) {
-        const auto& name = castString(input.getObject(-1));
+        const auto& name = *castString(input.getObject(-1));
 
         auto time_zone_ptr = std::make_unique<absl::TimeZone>();
         auto success = absl::LoadTimeZone(name.value, time_zone_ptr.get());
@@ -222,7 +222,7 @@ void initSystemCallsDates() {
     });
 
     initSystemCall(SystemCall::kUtcOffsets, [](const auto& input, auto* result) {
-        const auto& timeZone = castTimeZone(input.getObject(-1));
+        const auto& timeZone = *castTimeZone(input.getObject(-1));
         const auto& dateTimeValue = input.getValue(-1);
         auto dateTimeParts = convertValueToDateTimeParts(dateTimeValue);
         auto offsets = timeZone.getUtcOffsets(dateTimeParts);

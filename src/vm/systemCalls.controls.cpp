@@ -32,7 +32,7 @@ void initSystemCallsControls() {
 
     initSystemCall(SystemCall::kSetControlText, [](const auto& input, auto* /*result*/) {
         auto* control = basicFormsStorage.controls.find(input.getValue(-1).getInt64());
-        auto& text = castString(input.getObject(-1));
+        auto& text = *castString(input.getObject(-1));
 
         auto* label = dynamic_cast<BasicLabel*>(control);
         if (label != nullptr) {
@@ -51,7 +51,7 @@ void initSystemCallsControls() {
 
     initSystemCall(SystemCall::kSetControlBounds1, [](const auto& input, auto* /*result*/) {
         auto* control = basicFormsStorage.controls.find(input.getValue(-1).getInt64());
-        const auto& rect = dynamic_cast<const Record&>(input.getObject(-1));
+        const auto& rect = dynamic_cast<const Record&>(*input.getObject(-1));
         control->setBounds(newTRect(
             rect.values.at(0).getInt32(), rect.values.at(1).getInt32(), rect.values.at(2).getInt32(),
             rect.values.at(3).getInt32()));

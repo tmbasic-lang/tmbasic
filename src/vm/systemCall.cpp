@@ -116,7 +116,7 @@ void initSystemCalls() {
     });
 
     initSystemCall(SystemCall::kObjectEquals, [](const auto& input, auto* result) {
-        result->returnedValue.num = input.getObject(-2).equals(input.getObject(-1)) ? 1 : 0;
+        result->returnedValue.num = input.getObject(-2)->equals(*input.getObject(-1)) ? 1 : 0;
     });
 
     _systemCallsInitialized = true;

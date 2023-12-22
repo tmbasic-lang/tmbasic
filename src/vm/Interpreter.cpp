@@ -13,7 +13,6 @@
 #include "vm/date.h"
 #include "vm/Error.h"
 #include "vm/List.h"
-#include "vm/List.h"
 #include "vm/Map.h"
 #include "vm/Object.h"
 #include "vm/Opcode.h"
@@ -181,7 +180,7 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
                 throw std::runtime_error("Expected assignment target to be a value.");
             }
             auto valueFieldIndex = readInt<uint16_t>(state->instructions, state->instructionIndex);
-            auto& baseRecord = castRecord(*base);
+            const auto& baseRecord = castRecord(*base);
             return boost::make_local_shared<Record>(baseRecord, valueFieldIndex, state->sourceValue);
         }
 
@@ -191,7 +190,7 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
                 throw std::runtime_error("Expected assignment target to be a record.");
             }
             auto objectFieldIndex = readInt<uint16_t>(state->instructions, state->instructionIndex);
-            auto& baseRecord = castRecord(*base);
+            const auto& baseRecord = castRecord(*base);
 
             if (remainingSuffixes == 1) {
                 // We are assigning to this object field.
@@ -221,7 +220,7 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
             if (baseType == ObjectType::kValueList) {
                 // We are assigning to this value list element.
                 auto index = indexOrKeyValue.getInt64();
-                auto& baseValueList = castValueList(*base);
+                const auto& baseValueList = castValueList(*base);
                 if (indexOrKeyValue.num < 0 || indexOrKeyValue.num >= baseValueList.size()) {
                     state->error = true;
                     state->errorMessage = "List index out of range.";
@@ -234,7 +233,7 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
 
             if (baseType == ObjectType::kValueToValueMap) {
                 // We are assigning to this value map element.
-                auto& baseMap = castValueToValueMap(*base);
+                const auto& baseMap = castValueToValueMap(*base);
                 return boost::make_local_shared<ValueToValueMap>(baseMap, indexOrKeyValue, state->sourceValue);
             }
 
@@ -245,7 +244,7 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
             // Value index/key + object element
             auto indexOrKeyValue = *valueAt(&state->p->valueStack, *state->valueStackIndex, nextKeyValueOffset++);
             if (baseType == ObjectType::kObjectList) {
-                auto& baseObjectList = castObjectList(*base);
+                const auto& baseObjectList = castObjectList(*base);
                 if (indexOrKeyValue.num < 0 || indexOrKeyValue.num >= baseObjectList.size()) {
                     state->error = true;
                     state->errorMessage = "List index out of range.";
@@ -272,7 +271,7 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
             }
 
             if (baseType == ObjectType::kValueToObjectMap) {
-                auto& baseMap = castValueToObjectMap(*base);
+                const auto& baseMap = castValueToObjectMap(*base);
                 if (remainingSuffixes == 1) {
                     // We are assigning to this value-object map element.
                     if (state->isAssigningValue) {
@@ -312,7 +311,7 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
             auto keyObject = *objectAt(&state->p->objectStack, *state->objectStackIndex, nextKeyObjectOffset++);
 
             // We are assigning to this object-value map element.
-            auto& baseMap = castObjectToValueMap(*base);
+            const auto& baseMap = castObjectToValueMap(*base);
             return boost::make_local_shared<ObjectToValueMap>(baseMap, keyObject, state->sourceValue);
         }
 
@@ -324,7 +323,7 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
 
             auto keyObject = *objectAt(&state->p->objectStack, *state->objectStackIndex, nextKeyObjectOffset++);
 
-            auto& baseMap = castObjectToObjectMap(*base);
+            const auto& baseMap = castObjectToObjectMap(*base);
             if (remainingSuffixes == 1) {
                 // We are assigning to this object-object map element.
                 if (state->isAssigningValue) {
@@ -420,14 +419,14 @@ static void setDottedExpression(SetDottedExpressionState* state) {
 }
 
 #ifdef LOG_PERFORMANCE
-static std::array<long, static_cast<size_t>(Opcode::kMaxOpcode)> totalNanosecondsPerOpcode{};
+static std::array<int64_t, static_cast<size_t>(Opcode::kMaxOpcode)> totalNanosecondsPerOpcode{};
 static std::array<int, static_cast<size_t>(Opcode::kMaxOpcode)> totalCallsPerOpcode{};
-static std::array<long, static_cast<size_t>(SystemCall::kMaxSystemCall)> totalNanosecondsPerSystemCall{};
+static std::array<int64_t, static_cast<size_t>(SystemCall::kMaxSystemCall)> totalNanosecondsPerSystemCall{};
 static std::array<int, static_cast<size_t>(SystemCall::kMaxSystemCall)> totalCallsPerSystemCall{};
 
 void Interpreter::printDebugTimings() {
     std::cerr << "Opcode timings:" << std::endl;
-    std::vector<std::pair<Opcode, long>> opcodeTimings;
+    std::vector<std::pair<Opcode, int64_t>> opcodeTimings;
     for (auto i = 0; i < static_cast<int>(Opcode::kMaxOpcode); i++) {
         auto opcode = static_cast<Opcode>(i);
         auto totalNanoseconds = totalNanosecondsPerOpcode.at(i);
@@ -450,7 +449,7 @@ void Interpreter::printDebugTimings() {
     }
 
     std::cerr << "System call timings:" << std::endl;
-    std::vector<std::pair<SystemCall, long>> syscallTimings;
+    std::vector<std::pair<SystemCall, int64_t>> syscallTimings;
     for (auto i = 0; i < static_cast<int>(SystemCall::kMaxSystemCall); i++) {
         auto syscall = static_cast<SystemCall>(i);
         auto totalNanoseconds = totalNanosecondsPerSystemCall.at(i);
@@ -888,7 +887,7 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kRecordGetValue: {
                 auto index = readInt<uint16_t>(instructions, &instructionIndex);
-                auto& record = castRecord(**objectAt(objectStack, osi, -1));
+                const auto& record = castRecord(**objectAt(objectStack, osi, -1));
                 auto val = record.values.at(index);
                 popObject(objectStack, &osi);
                 pushValue(valueStack, &vsi, val);
@@ -897,7 +896,7 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kRecordGetObject: {
                 auto index = readInt<uint16_t>(instructions, &instructionIndex);
-                auto& record = castRecord(**objectAt(objectStack, osi, -1));
+                const auto& record = castRecord(**objectAt(objectStack, osi, -1));
                 auto obj = record.objects.at(index);
                 popObject(objectStack, &osi);
                 pushObject(objectStack, &osi, std::move(obj));
@@ -906,7 +905,7 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kRecordSetValue: {
                 auto index = readInt<uint16_t>(instructions, &instructionIndex);
-                auto& record = castRecord(**objectAt(objectStack, osi, -1));
+                const auto& record = castRecord(**objectAt(objectStack, osi, -1));
                 auto& newValue = *valueAt(valueStack, vsi, -1);
                 auto newRecord = boost::make_local_shared<Record>(record, index, newValue);
                 popObject(objectStack, &osi);  // pop record
@@ -917,7 +916,7 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kRecordSetObject: {
                 auto index = readInt<uint16_t>(instructions, &instructionIndex);
-                auto& record = castRecord(**objectAt(objectStack, osi, -2));
+                const auto& record = castRecord(**objectAt(objectStack, osi, -2));
                 auto& newObject = *objectAt(objectStack, osi, -1);
                 auto newRecord = boost::make_local_shared<Record>(record, index, newObject);
                 popObject(objectStack, &osi);  // pop record
@@ -976,7 +975,7 @@ bool Interpreter::run(int maxCycles) {
                 // Input value stack: (none)
                 // Output object stack: element
                 // Output value stack: success
-                auto& map = castObjectToObjectMap(**objectAt(objectStack, osi, -2));
+                const auto& map = castObjectToObjectMap(**objectAt(objectStack, osi, -2));
                 auto& key = *objectAt(objectStack, osi, -1);
                 const auto* elementWeak = map.pairs.find(key);
                 auto element = elementWeak != nullptr ? *elementWeak : nullptr;  // take reference
@@ -992,7 +991,7 @@ bool Interpreter::run(int maxCycles) {
                 // Input value stack: (none)
                 // Output object stack: (none)
                 // Output value stack: element, success
-                auto& map = castObjectToValueMap(**objectAt(objectStack, osi, -2));
+                const auto& map = castObjectToValueMap(**objectAt(objectStack, osi, -2));
                 auto& key = *objectAt(objectStack, osi, -1);
                 const auto* elementWeak = map.pairs.find(key);
                 auto element = elementWeak != nullptr ? *elementWeak : Value{ 0 };  // copy
@@ -1008,7 +1007,7 @@ bool Interpreter::run(int maxCycles) {
                 // Input value stack: key (-1)
                 // Output object stack: element
                 // Output value stack: success
-                auto& map = castValueToObjectMap(**objectAt(objectStack, osi, -1));
+                const auto& map = castValueToObjectMap(**objectAt(objectStack, osi, -1));
                 auto key = *valueAt(valueStack, vsi, -1);
                 const auto* elementWeak = map.pairs.find(key);
                 auto element = elementWeak != nullptr ? *elementWeak : nullptr;  // take reference
@@ -1024,7 +1023,7 @@ bool Interpreter::run(int maxCycles) {
                 // Input value stack: key (-1)
                 // Output object stack: (none)
                 // Output value stack: element, success
-                auto& map = castValueToValueMap(**objectAt(objectStack, osi, -1));
+                const auto& map = castValueToValueMap(**objectAt(objectStack, osi, -1));
                 auto key = *valueAt(valueStack, vsi, -1);
                 const auto* elementWeak = map.pairs.find(key);
                 auto element = elementWeak != nullptr ? *elementWeak : Value{ 0 };  // copy

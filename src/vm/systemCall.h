@@ -225,18 +225,18 @@ class SystemCallInput {
         const Value& errorCode,
         const std::string& errorMessage);
 
-    inline Value& getValue(const int vsiOffset) const {
+    inline const Value& getValue(const int vsiOffset) const {
         assert(vsiOffset < 0);
         assert(valueStackIndex + vsiOffset >= 0);
         return valueStack->at(valueStackIndex + vsiOffset);
     }
 
-    inline Object& getObject(const int osiOffset) const {
+    inline Object* getObject(const int osiOffset) const {
         assert(osiOffset < 0);
         assert(objectStackIndex + osiOffset >= 0);
         const auto& ptr = objectStack->at(objectStackIndex + osiOffset);
         assert(ptr != nullptr);
-        return *ptr;
+        return ptr.get();
     }
 
     inline boost::local_shared_ptr<Object> getObjectPtr(const int osiOffset) const {

@@ -14,7 +14,7 @@ void initSystemCallsStrings() {
     });
 
     initSystemCall(SystemCall::kCharacters, [](const auto& input, auto* result) {
-        const auto& str = castString(input.getObject(-1));
+        const auto& str = *castString(input.getObject(-1));
 
         std::vector<char> graphemeBreaks(str.value.size() + 1);
         u8_grapheme_breaks(str.getUnistring(), str.value.size(), graphemeBreaks.data());
@@ -62,7 +62,7 @@ void initSystemCallsStrings() {
     });
 
     initSystemCall(SystemCall::kCodePoints, [](const auto& input, auto* result) {
-        const auto& str = castString(input.getObject(-1));
+        const auto& str = *castString(input.getObject(-1));
 
         // Use u8_mbtouc to convert the UTF-8 string to a vector of code points.
         const auto* utf8 = str.getUnistring();
@@ -87,7 +87,7 @@ void initSystemCallsStrings() {
     });
 
     initSystemCall(SystemCall::kCodeUnit1, [](const auto& input, auto* result) {
-        const auto& str = castString(input.getObject(-1));
+        const auto& str = *castString(input.getObject(-1));
         if (str.value.length() == 0) {
             result->returnedValue.num = 0;
             return;
@@ -97,7 +97,7 @@ void initSystemCallsStrings() {
     });
 
     initSystemCall(SystemCall::kCodeUnit2, [](const auto& input, auto* result) {
-        const auto& str = castString(input.getObject(-1));
+        const auto& str = *castString(input.getObject(-1));
         const auto& index = input.getValue(-1).getInt64();
         if (index < 0 || index >= static_cast<int64_t>(str.value.length())) {
             result->returnedValue.num = 0;
@@ -108,7 +108,7 @@ void initSystemCallsStrings() {
     });
 
     initSystemCall(SystemCall::kCodeUnits, [](const auto& input, auto* result) {
-        const auto& str = castString(input.getObject(-1));
+        const auto& str = *castString(input.getObject(-1));
         ValueListBuilder b{};
         size_t numCodeUnits = str.value.length();
         for (size_t i = 0; i < numCodeUnits; i++) {
@@ -118,7 +118,7 @@ void initSystemCallsStrings() {
     });
 
     initSystemCall(SystemCall::kConcat1, [](const auto& input, auto* result) {
-        const auto& objectList = castObjectList(input.getObject(-1));
+        const auto& objectList = *castObjectList(input.getObject(-1));
 
         std::ostringstream ss{};
         for (const auto& object : objectList.items) {
@@ -129,8 +129,8 @@ void initSystemCallsStrings() {
     });
 
     initSystemCall(SystemCall::kConcat2, [](const auto& input, auto* result) {
-        const auto& objectList = castObjectList(input.getObject(-2));
-        const auto& separator = castString(input.getObject(-1));
+        const auto& objectList = *castObjectList(input.getObject(-2));
+        const auto& separator = *castString(input.getObject(-1));
 
         std::ostringstream ss{};
         bool first = true;
@@ -152,7 +152,7 @@ void initSystemCallsStrings() {
     });
 
     initSystemCall(SystemCall::kIsDigit, [](const auto& input, auto* result) {
-        const auto& str = castString(input.getObject(-1));
+        const auto& str = *castString(input.getObject(-1));
         result->returnedValue.setBoolean(str.value.length() >= 1 && std::isdigit(str.value.at(0)));
     });
 
@@ -165,7 +165,7 @@ void initSystemCallsStrings() {
     });
 
     initSystemCall(SystemCall::kParseNumber, [](const auto& input, auto* result) {
-        const auto& str = castString(input.getObject(-1));
+        const auto& str = *castString(input.getObject(-1));
         auto num = util::parseDecimalString(str.value);
         if (num.isnan()) {
             throw Error(ErrorCode::kInvalidNumberFormat, fmt::format("Invalid number: {}", str.value));
@@ -174,11 +174,11 @@ void initSystemCallsStrings() {
     });
 
     initSystemCall(SystemCall::kPrintString, [](const auto& input, auto* /*result*/) {
-        *input.consoleOutputStream << castString(input.getObject(-1)).value;
+        *input.consoleOutputStream << castString(input.getObject(-1))->value;
     });
 
     initSystemCall(SystemCall::kStringFromCodePoints, [](const auto& input, auto* result) {
-        const auto& valueList = castValueList(input.getObject(-1));
+        const auto& valueList = *castValueList(input.getObject(-1));
         std::ostringstream ss{};
         std::array<uint8_t, 6> utf8{};
 
@@ -202,7 +202,7 @@ void initSystemCallsStrings() {
     });
 
     initSystemCall(SystemCall::kStringFromCodeUnits, [](const auto& input, auto* result) {
-        const auto& valueList = castValueList(input.getObject(-1));
+        const auto& valueList = *castValueList(input.getObject(-1));
 
         std::ostringstream ss{};
         int i = 0;
@@ -234,26 +234,26 @@ void initSystemCallsStrings() {
     });
 
     initSystemCall(SystemCall::kStringConcat, [](const auto& input, auto* result) {
-        const auto& lhs = castString(input.getObject(-2));
-        const auto& rhs = castString(input.getObject(-1));
+        const auto& lhs = *castString(input.getObject(-2));
+        const auto& rhs = *castString(input.getObject(-1));
         result->returnedObject = boost::make_local_shared<String>(lhs.value + rhs.value);
     });
 
     initSystemCall(SystemCall::kStringEquals, [](const auto& input, auto* result) {
-        const auto& lhs = castString(input.getObject(-2));
-        const auto& rhs = castString(input.getObject(-1));
+        const auto& lhs = *castString(input.getObject(-2));
+        const auto& rhs = *castString(input.getObject(-1));
         result->returnedValue.setBoolean(lhs.equals(rhs));
     });
 
     initSystemCall(SystemCall::kStringLen, [](const auto& input, auto* result) {
-        const auto& str = castString(input.getObject(-1)).value;
+        const auto& str = castString(input.getObject(-1))->value;
         result->returnedValue.num = str.length();
     });
 
     initSystemCall(SystemCall::kStringReplace, [](const auto& input, auto* result) {
-        const auto& haystack = castString(input.getObject(-3));
-        const auto& needle = castString(input.getObject(-2));
-        const auto& replacement = castString(input.getObject(-1));
+        const auto& haystack = *castString(input.getObject(-3));
+        const auto& needle = *castString(input.getObject(-2));
+        const auto& replacement = *castString(input.getObject(-1));
 
         if (needle.value.length() == 0) {
             throw Error(ErrorCode::kInvalidArgument, "Needle cannot be empty.");
@@ -271,8 +271,8 @@ void initSystemCallsStrings() {
     });
 
     initSystemCall(SystemCall::kStringSplit, [](const auto& input, auto* result) {
-        const auto& str = castString(input.getObject(-2));
-        const auto& separator = castString(input.getObject(-1));
+        const auto& str = *castString(input.getObject(-2));
+        const auto& separator = *castString(input.getObject(-1));
 
         if (separator.value.length() == 0) {
             throw Error(ErrorCode::kInvalidArgument, "Separator cannot be empty.");

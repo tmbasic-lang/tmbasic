@@ -36,7 +36,7 @@ void initSystemCallsForms() {
 
     initSystemCall(SystemCall::kSetFormTitle, [](const auto& input, auto* /*result*/) {
         auto* form = basicFormsStorage.forms.find(input.getValue(-1).getInt64());
-        auto& title = castString(input.getObject(-1));
+        auto& title = *castString(input.getObject(-1));
         delete[] form->title;  // NOLINT(cppcoreguidelines-owning-memory)
         form->title = newStr(title.value);
     });

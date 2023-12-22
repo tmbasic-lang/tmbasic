@@ -5,15 +5,15 @@
 
 namespace vm {
 
-static std::pair<const ValueOptional*, const ObjectOptional*> valueOrObjectOptional(const Object& object) {
-    auto type = object.getObjectType();
+static std::pair<ValueOptional*, ObjectOptional*> valueOrObjectOptional(Object* object) {
+    auto type = object->getObjectType();
 
     if (type == ObjectType::kValueOptional) {
-        return { &castValueOptional(object), nullptr };
+        return { castValueOptional(object), nullptr };
     }
 
     if (type == ObjectType::kObjectOptional) {
-        return { nullptr, &castObjectOptional(object) };
+        return { nullptr, castObjectOptional(object) };
     }
 
     throw Error(

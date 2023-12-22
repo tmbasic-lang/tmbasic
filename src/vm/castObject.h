@@ -17,17 +17,20 @@ namespace vm {
 // In debug builds, it provides additional information on bad casts.
 
 template <typename TObject>
-inline TObject& castObject(Object& obj, ObjectType objectType) {
+inline TObject* castObject(Object* obj, ObjectType objectType) {
 #ifdef NDEBUG
     (void)objectType;
+    return reinterpret_cast<TObject*>(obj);
 #else
-    if (obj.getObjectType() != objectType) {
+    if (obj->getObjectType() != objectType) {
         std::cerr << "Internal type confusion. Expected: " << NAMEOF_ENUM(objectType)
-                  << ". Actual: " << NAMEOF_ENUM(obj.getObjectType()) << "." << std::endl;
+                  << ". Actual: " << NAMEOF_ENUM(obj->getObjectType()) << "." << std::endl;
     }
-#endif
 
-    return dynamic_cast<TObject&>(obj);
+    auto* casted = dynamic_cast<TObject*>(obj);
+    assert(casted != nullptr);
+    return casted;
+#endif
 }
 
 template <typename TObject>
@@ -45,7 +48,7 @@ inline const TObject& castObject(const Object& obj, ObjectType objectType) {
 }
 
 #define DEFINE_CAST_FUNCTION(TYPE)                                                                  \
-    inline TYPE& cast##TYPE(vm::Object& obj) { return castObject<TYPE>(obj, ObjectType::k##TYPE); } \
+    inline TYPE* cast##TYPE(vm::Object* obj) { return castObject<TYPE>(obj, ObjectType::k##TYPE); } \
     inline const TYPE& cast##TYPE(const vm::Object& obj) { return castObject<TYPE>(obj, ObjectType::k##TYPE); }
 
 DEFINE_CAST_FUNCTION(ObjectList)

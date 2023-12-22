@@ -11,7 +11,7 @@ void initSystemCallsMaps() {
     });
 
     initSystemCall(SystemCall::kObjectToObjectMapSet, [](const auto& input, auto* result) {
-        const auto& map = castObjectToObjectMap(input.getObject(-3));
+        const auto& map = *castObjectToObjectMap(input.getObject(-3));
         const auto& from = input.getObjectPtr(-2);
         const auto& to = input.getObjectPtr(-1);
         result->returnedObject = boost::make_local_shared<ObjectToObjectMap>(map, from, to);
@@ -22,14 +22,14 @@ void initSystemCallsMaps() {
     });
 
     initSystemCall(SystemCall::kObjectToObjectMapBuilderAdd, [](const auto& input, auto* /*result*/) {
-        auto& builder = castObjectToObjectMapBuilder(input.getObject(-3));
+        auto& builder = *castObjectToObjectMapBuilder(input.getObject(-3));
         const auto& from = input.getObjectPtr(-2);
         const auto& to = input.getObjectPtr(-1);
         builder.pairs.set(from, to);
     });
 
     initSystemCall(SystemCall::kObjectToObjectMapBuilderEnd, [](const auto& input, auto* result) {
-        auto& builder = castObjectToObjectMapBuilder(input.getObject(-1));
+        auto& builder = *castObjectToObjectMapBuilder(input.getObject(-1));
         result->returnedObject = boost::make_local_shared<ObjectToObjectMap>(&builder);
     });
 
@@ -38,7 +38,7 @@ void initSystemCallsMaps() {
     });
 
     initSystemCall(SystemCall::kObjectToValueMapSet, [](const auto& input, auto* result) {
-        const auto& map = castObjectToValueMap(input.getObject(-2));
+        const auto& map = *castObjectToValueMap(input.getObject(-2));
         const auto& from = input.getObjectPtr(-1);
         const auto& to = input.getValue(-1);
         result->returnedObject = boost::make_local_shared<ObjectToValueMap>(map, from, to);
@@ -49,14 +49,14 @@ void initSystemCallsMaps() {
     });
 
     initSystemCall(SystemCall::kObjectToValueMapBuilderAdd, [](const auto& input, auto* /*result*/) {
-        auto& builder = castObjectToValueMapBuilder(input.getObject(-2));
+        auto& builder = *castObjectToValueMapBuilder(input.getObject(-2));
         const auto& from = input.getObjectPtr(-1);
         const auto& to = input.getValue(-1);
         builder.pairs.set(from, to);
     });
 
     initSystemCall(SystemCall::kObjectToValueMapBuilderEnd, [](const auto& input, auto* result) {
-        auto& builder = castObjectToValueMapBuilder(input.getObject(-1));
+        auto& builder = *castObjectToValueMapBuilder(input.getObject(-1));
         result->returnedObject = boost::make_local_shared<ObjectToValueMap>(&builder);
     });
 
@@ -65,7 +65,7 @@ void initSystemCallsMaps() {
     });
 
     initSystemCall(SystemCall::kValueToObjectMapSet, [](const auto& input, auto* result) {
-        const auto& map = castValueToObjectMap(input.getObject(-2));
+        const auto& map = *castValueToObjectMap(input.getObject(-2));
         const auto& from = input.getValue(-1);
         const auto& to = input.getObjectPtr(-1);
         result->returnedObject = boost::make_local_shared<ValueToObjectMap>(map, from, to);
@@ -76,14 +76,14 @@ void initSystemCallsMaps() {
     });
 
     initSystemCall(SystemCall::kValueToObjectMapBuilderAdd, [](const auto& input, auto* /*result*/) {
-        auto& builder = castValueToObjectMapBuilder(input.getObject(-2));
+        auto& builder = *castValueToObjectMapBuilder(input.getObject(-2));
         const auto& from = input.getValue(-1);
         const auto& to = input.getObjectPtr(-1);
         builder.pairs.set(from, to);
     });
 
     initSystemCall(SystemCall::kValueToObjectMapBuilderEnd, [](const auto& input, auto* result) {
-        auto& builder = castValueToObjectMapBuilder(input.getObject(-1));
+        auto& builder = *castValueToObjectMapBuilder(input.getObject(-1));
         result->returnedObject = boost::make_local_shared<ValueToObjectMap>(&builder);
     });
 
@@ -92,7 +92,7 @@ void initSystemCallsMaps() {
     });
 
     initSystemCall(SystemCall::kValueToValueMapSet, [](const auto& input, auto* result) {
-        const auto& map = castValueToValueMap(input.getObject(-1));
+        const auto& map = *castValueToValueMap(input.getObject(-1));
         const auto& from = input.getValue(-2);
         const auto& to = input.getValue(-1);
         result->returnedObject = boost::make_local_shared<ValueToValueMap>(map, from, to);
@@ -103,14 +103,14 @@ void initSystemCallsMaps() {
     });
 
     initSystemCall(SystemCall::kValueToValueMapBuilderAdd, [](const auto& input, auto* /*result*/) {
-        auto& builder = castValueToValueMapBuilder(input.getObject(-1));
+        auto& builder = *castValueToValueMapBuilder(input.getObject(-1));
         const auto& from = input.getValue(-2);
         const auto& to = input.getValue(-1);
         builder.pairs.set(from, to);
     });
 
     initSystemCall(SystemCall::kValueToValueMapBuilderEnd, [](const auto& input, auto* result) {
-        auto& builder = castValueToValueMapBuilder(input.getObject(-1));
+        auto& builder = *castValueToValueMapBuilder(input.getObject(-1));
         result->returnedObject = boost::make_local_shared<ValueToValueMap>(&builder);
     });
 
@@ -122,7 +122,7 @@ void initSystemCallsMaps() {
         // 1 object, 1 value - ContainsKey(ValueToValueMap map, Value key) as Boolean
 
         const auto isValueKey = input.numValueArguments > 0;
-        const auto& mapObject = input.getObject(isValueKey ? -1 : -2);
+        const auto& mapObject = *input.getObject(isValueKey ? -1 : -2);
 
         switch (mapObject.getObjectType()) {
             case ObjectType::kObjectToObjectMap: {
@@ -170,7 +170,7 @@ void initSystemCallsMaps() {
         // 1 object, 1 value - Find(ValueToValueMap map, Value key) as Optional Value
 
         const auto isValueKey = input.numValueArguments > 0;
-        const auto& mapObject = input.getObject(isValueKey ? -1 : -2);
+        const auto& mapObject = *input.getObject(isValueKey ? -1 : -2);
 
         switch (mapObject.getObjectType()) {
             case ObjectType::kObjectToObjectMap: {
