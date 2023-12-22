@@ -1,15 +1,16 @@
-#include "compileProcedures.h"
-#include "BuiltInConstantList.h"
-#include "BuiltInProcedureList.h"
-#include "CompilerException.h"
-#include "bindNamedRecordTypes.h"
-#include "bindProcedureSymbols.h"
-#include "bindYieldStatements.h"
-#include "emit.h"
-#include "fixDottedExpressionFunctionCalls.h"
-#include "parse.h"
-#include "tokenize.h"
-#include "typeCheck.h"
+#include "compiler/compileProcedures.h"
+#include "compiler/bindNamedRecordTypes.h"
+#include "compiler/bindProcedureSymbols.h"
+#include "compiler/bindYieldStatements.h"
+#include "compiler/BuiltInConstantList.h"
+#include "compiler/BuiltInProcedureList.h"
+#include "compiler/checkMissingReturns.h"
+#include "compiler/CompilerException.h"
+#include "compiler/emit.h"
+#include "compiler/fixDottedExpressionFunctionCalls.h"
+#include "compiler/parse.h"
+#include "compiler/tokenize.h"
+#include "compiler/typeCheck.h"
 #include "util/cast.h"
 #include "vm/Opcode.h"
 
@@ -102,6 +103,7 @@ static void compileProcedurePass1(
     SymbolScope* globalSymbolScope,
     const BuiltInProcedureList& builtInProcedures) {
     auto* procedureNode = compiledProcedure->procedureNode.get();
+    checkMissingReturns(procedureNode);
     fixDottedExpressionFunctionCalls(procedureNode, builtInProcedures, *compiledProgram);
     bindProcedureSymbols(globalSymbolScope, procedureNode);
     bindYieldStatements(procedureNode);
@@ -120,9 +122,8 @@ static void compileProcedurePass2(
     int numLocalObjects = 0;
     assignLocalVariableIndices(procedureNode, &numLocalValues, &numLocalObjects);
     assignArgumentIndices(procedureNode);
-    auto pcode = emit(*procedureNode, numLocalValues, numLocalObjects, compiledProgram);
     auto vmProcedure = std::make_unique<vm::Procedure>();
-    vmProcedure->instructions = std::move(pcode);
+    vmProcedure->instructions = emit(*procedureNode, numLocalValues, numLocalObjects, compiledProgram);
     compiledProgram->vmProgram.procedures.push_back(std::move(vmProcedure));
 }
 

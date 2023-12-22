@@ -8,6 +8,7 @@ pushd src/test/programs
 find -type f \
     | grep "\.bas$" \
     | sed "s/\.bas//g; s:./::; s:/: :g" \
+    | sort \
     | awk '{ print "COMPILER_TEST(" $1 ", " $2 ")" }' \
     >> /tmp/CompilerTest.cpp
 popd

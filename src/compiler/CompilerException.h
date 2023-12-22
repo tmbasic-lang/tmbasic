@@ -37,6 +37,7 @@ enum class CompilerErrorCode {
     kTooManyIndexArguments,
     kInvalidTypeConversion,
     kInvalidReturn,
+    kControlReachesEndOfFunction,
 };
 
 class CompilerException : public std::exception {
