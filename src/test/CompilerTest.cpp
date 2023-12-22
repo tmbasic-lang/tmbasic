@@ -59,6 +59,7 @@ static void runCode(const string& basFile) {
     compiler::SourceProgram sourceProgram{};
     sourceProgram.loadFromContent(source);
     bool compileSuccess = false;
+    std::optional<std::string> errorMessage{};
     try {
         compiler::compileProgram(sourceProgram, &program);
         compileSuccess = true;
@@ -69,6 +70,7 @@ static void runCode(const string& basFile) {
                                                                  : ex.token.sourceMember->identifier)
                             << "\n"
                             << (ex.token.lineIndex + 1) << ":" << (ex.token.columnIndex + 1) << "\n";
+        errorMessage = ex.message;
     }
 
     if (compileSuccess) {
@@ -86,6 +88,13 @@ static void runCode(const string& basFile) {
     }
 
     auto actualOutput = consoleOutputStream.str();
+
+    // If we're about to fail, then also print the error message.
+    // It's likely that this message is more useful than the assert failure message.
+    if (actualOutput != expectedOutput && errorMessage.has_value()) {
+        std::cerr << "Error message:\n" << *errorMessage << "\n\n";
+    }
+
     ASSERT_EQ(expectedOutput, actualOutput);
 
     Interpreter::printDebugTimings();
@@ -363,6 +372,7 @@ COMPILER_TEST(records, anonymous_to_named_record_conversion_inside_foreach)
 COMPILER_TEST(records, anonymous_to_named_record_conversion_inside_if)
 COMPILER_TEST(records, anonymous_to_named_record_conversion_inside_while)
 COMPILER_TEST(records, anonymous_to_named_record_conversion_outside_block)
+COMPILER_TEST(records, list_of_named_record_explicit_conversion)
 COMPILER_TEST(records, named_record_type_1)
 COMPILER_TEST(records, named_record_type_2)
 COMPILER_TEST(records, record_default)

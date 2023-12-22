@@ -123,4 +123,8 @@ void bindNamedRecordTypes(ProcedureNode* procedureNode, const CompiledProgram& c
     NamedRecordTypeBinder{ compiledProgram }.bindProcedure(procedureNode);
 }
 
+void bindNamedRecordTypes(TypeNode* typeNode, const CompiledProgram& compiledProgram) {
+    NamedRecordTypeBinder{ compiledProgram }.bindType(typeNode);
+}
+
 }  // namespace compiler

@@ -7,5 +7,6 @@
 namespace compiler {
 
 void bindNamedRecordTypes(ProcedureNode* procedureNode, const CompiledProgram& compiledProgram);
+void bindNamedRecordTypes(TypeNode* typeNode, const CompiledProgram& compiledProgram);
 
 }  // namespace compiler

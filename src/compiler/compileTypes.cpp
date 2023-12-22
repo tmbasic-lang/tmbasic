@@ -1,8 +1,9 @@
-#include "compileTypes.h"
-#include "CompilerException.h"
-#include "ast.h"
-#include "parse.h"
-#include "tokenize.h"
+#include "compiler/compileTypes.h"
+#include "compiler/ast.h"
+#include "compiler/bindNamedRecordTypes.h"
+#include "compiler/CompilerException.h"
+#include "compiler/parse.h"
+#include "compiler/tokenize.h"
 #include "util/cast.h"
 
 namespace compiler {
@@ -82,6 +83,7 @@ static void checkFieldTypes(size_t sourceMemberIndex, CompiledProgram* compiledP
     auto* compiledUserType = compiledProgram->userTypesBySourceMemberIndex.find(sourceMemberIndex)->second;
     for (auto& field : compiledUserType->fields) {
         checkFieldType(*field->parameterNode->type, *compiledProgram);
+        bindNamedRecordTypes(field->parameterNode->type.get(), *compiledProgram);
     }
 }
 
