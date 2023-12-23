@@ -1,0 +1,24 @@
+.procedure Contains
+.category Sets
+.blurb Checks whether a set contains a given key.
+.description
+Checks whether a set contains a given key.
+.overload
+.parameter set: Set of T
+Any kind of set.
+.parameter key: T
+The key to check for.
+.return Boolean
+True if the set contains the key, false otherwise.
+.example
+.example-code
+dim set mySet
+    yield "aaa"
+    yield "bbb"
+end dim
+print Contains(mySet, "aaa")
+print Contains(mySet, "ccc")
+.example-output
+true
+false
+.

@@ -40,6 +40,7 @@ li@i[Procedures:]
 {Maps:procedures_maps} │
 {Math:procedures_math} │
 {Optionals:procedures_optionals} │
+{Sets:procedures_sets} │
 {Strings:procedures_strings}@
 
 li@i[Simple types:]
@@ -58,7 +59,8 @@ li@i[Date and time types:]
 
 li@i[Collection types:]
 {`List`:type_list} │
-{`Map`:type_map}@
+{`Map`:type_map} │
+{`Set`:type_set}@
 
 li@{Constants:builtin_constants}@
 
