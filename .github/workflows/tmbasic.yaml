@@ -192,7 +192,7 @@ jobs:
           ./${{ matrix.platform }}.sh -c "make release"
           popd
 
-          export VERSION=$(awk -F= '{ if ($1 == "version") print $2 }' version.ini)
+          export VERSION=$(awk -F= '{ if ($1 == "version") print $2 }' build/version.ini)
 
           pushd bin
           if [ "${{ matrix.format }}" = "zip" ]; then
@@ -262,7 +262,7 @@ jobs:
           ./${{ matrix.platform }}.sh -c "make release"
           popd
 
-          export VERSION=$(awk -F= '{ if ($1 == "version") print $2 }' version.ini)
+          export VERSION=$(awk -F= '{ if ($1 == "version") print $2 }' build/version.ini)
 
           pushd bin
           zip -9 tmbasic-${{ matrix.platform }}-$VERSION.zip tmbasic
