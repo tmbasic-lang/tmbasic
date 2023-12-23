@@ -14,23 +14,7 @@ end type
 #procedure
 sub Main()
     dim data = ParseFile()
-    dim minFinalNum as Optional Number
-    for each seed in data.seeds
-        dim num = seed
-        for each mapRanges in data.maps
-            for each mapRange in mapRanges
-                if num >= mapRange.srcStart and num < mapRange.srcStart + mapRange.length then
-                    num = mapRange.dstStart + num - mapRange.srcStart
-                    exit for
-                end if
-            next
-        next
-
-        if not HasValue(minFinalNum) or num < Value(minFinalNum) then
-            minFinalNum = num
-        end if
-    next
-    print Value(minFinalNum)
+    Part1 data
 end sub
 
 #procedure
@@ -71,6 +55,27 @@ function ParseMap(lines as List of String, i as Number) as Record (ranges as Lis
     return { ranges: ranges, index: i }
     ' index is the blank line after the map
 end function
+
+#procedure
+sub Part1(data as InputData)
+    dim minFinalNum as Optional Number
+    for each seed in data.seeds
+        dim num = seed
+        for each mapRanges in data.maps
+            for each mapRange in mapRanges
+                if num >= mapRange.srcStart and num < mapRange.srcStart + mapRange.length then
+                    num = mapRange.dstStart + num - mapRange.srcStart
+                    exit for
+                end if
+            next
+        next
+
+        if not HasValue(minFinalNum) or num < Value(minFinalNum) then
+            minFinalNum = num
+        end if
+    next
+    print Value(minFinalNum)
+end sub
 
 --output--
 157211394
