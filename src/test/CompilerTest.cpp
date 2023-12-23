@@ -74,16 +74,20 @@ static void runCode(const string& basFile) {
     }
 
     if (compileSuccess) {
-        auto interpreter = make_unique<Interpreter>(&program.vmProgram, &consoleInputStream, &consoleOutputStream);
-        interpreter->init(program.vmProgram.startupProcedureIndex);
-        while (interpreter->run(10000)) {
-        }
+        try {
+            auto interpreter = make_unique<Interpreter>(&program.vmProgram, &consoleInputStream, &consoleOutputStream);
+            interpreter->init(program.vmProgram.startupProcedureIndex);
+            while (interpreter->run(10000)) {
+            }
 
-        auto error = interpreter->getError();
-        if (error.has_value()) {
-            consoleOutputStream << "Error" << std::endl
-                                << error->code.getString() << std::endl
-                                << error->message << std::endl;
+            auto error = interpreter->getError();
+            if (error.has_value()) {
+                consoleOutputStream << "Error" << std::endl
+                                    << error->code.getString() << std::endl
+                                    << error->message << std::endl;
+            }
+        } catch (std::exception& ex) {
+            consoleOutputStream << "Uncaught runtime error\n" << ex.what() << "\n";
         }
     }
 
@@ -445,3 +449,6 @@ COMPILER_TEST(strings, Split_2)
 COMPILER_TEST(strings, StringFromCodeUnits)
 COMPILER_TEST(strings, crlf)
 COMPILER_TEST(strings, string_concat)
+COMPILER_TEST(variables, if_scopes)
+COMPILER_TEST(variables, nested_scopes)
+COMPILER_TEST(variables, try_scopes)

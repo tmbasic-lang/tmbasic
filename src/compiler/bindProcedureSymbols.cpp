@@ -110,8 +110,10 @@ static void bindStatementSymbols(StatementNode* node, SymbolScope* scope) {
     });
 
     // does it have sub-statements?
+    // each body gets its own scope.
     node->visitBodies([&subScope](BodyNode* body) -> bool {
-        bindBodySymbols(body, &subScope);
+        auto subSubScope = SymbolScope(subScope);
+        bindBodySymbols(body, &subSubScope);
         return true;
     });
 }
