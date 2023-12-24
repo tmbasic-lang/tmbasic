@@ -396,7 +396,7 @@ run:
 
 .PHONY: test
 test: bin/test$(EXE_EXTENSION)
-	cd bin && $(TEST_CMD)
+	cd bin && $(TEST_CMD) --gtest_shuffle
 
 .PHONY: valgrind
 valgrind: bin/tmbasic
