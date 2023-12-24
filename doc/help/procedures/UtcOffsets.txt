@@ -23,7 +23,7 @@ One or two time spans representing the time zone's offset from UTC.
 .example-code
 dim tz = TimeZoneFromName("America/New_York")
 dim dt = DateTimeFromParts(2021, 3, 13, 0, 0, 0, 0)
-dim offsets = UtcOffset(dt, tz)
+dim offsets = UtcOffsets(dt, tz)
 print Len(offsets)
 print TotalHours(offset(0))
 .example-output

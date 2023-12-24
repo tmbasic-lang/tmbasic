@@ -9,7 +9,7 @@ pre@
 ┌─ Supported features ─────────────────────────────────────────────────┐
 │  √ Statically typed (vs. dynamic)        √ if, for, for each, while  │
 │  √ Nominal type system (vs. structural)  √ print, input              │
-│  √ Exception-based error handling        √ Text-based UI library     │
+│  √ Exception-based error handling                                    │
 └──────────────────────────────────────────────────────────────────────┘
 
 ┌─ Unsupported QBASIC features ─┐   ┌─ Unsupported VB features ────────┐
@@ -19,10 +19,6 @@ pre@
 │  No type suffixes, like $     │   │  No interop with C/C++           │
 └───────────────────────────────┘   └──────────────────────────────────┘
 @
-
-TMBASIC has a visual designer for text user interface (TUI) forms and controls, enabling rapid application development.
-Forms and controls may also be constructed dynamically in BASIC code as needed.
-Simpler apps may use simple `print` / `input` calls instead of a full TUI.
 
 h2[Data types]
 
@@ -37,6 +33,7 @@ li@t[TimeZone] -- Offset from UTC and daylight saving time schedule.@
 li@t[TimeSpan] -- Period of time.@
 li@t[List of T] -- Generic dynamic-sized array with element type `T`. Example: `List of Number`. Literals look like: `[0, 1, 2]`.@
 li@t[Map from K to V] -- Generic dynamic-sized dictionary with key type `K` and value type `V`. Example: `Map from Number to String`.@
+li@t[Set of T] -- Generic dynamic-sized set containing unique elements of type `T`. Example: `Set of Number`.@
 li@t[Optional T] -- Wrapper for type `T` indicating that the value may or may not be present. Example: `Optional Number`.@
 li@t[Record (...)] -- Anonymous record type, containing zero or more named fields. Example: `Record (foo as Number, bar as String)`. Literals look like `{{foo: 1, bar: "hi"}`.@
 li@Named record types. These are defined using `type` ... `end type` blocks.@
@@ -50,7 +47,7 @@ Internally, TMBASIC uses immutable data structures to make this efficient.
 
 h2[Sample code]
 
-h3[`if` ... `then` ... `else` ... `end if`]
+h3[`if` statements]
 
 code@
 sub FizzBuzz(n as Number)
@@ -75,7 +72,7 @@ sub Main()
 end sub
 @
 
-h3[Build a list efficiently with `yield`]
+h3[Build a list efficiently with `dim list`]
 
 code@
 function Fibonacci(count as Number) as List of Number
@@ -83,15 +80,19 @@ function Fibonacci(count as Number) as List of Number
     dim a = 0
     dim b = 1
 
-    ' Use "yield" to build the list to be returned.
-    yield a
-    yield b
-    for i = 3 to count
-        dim c = a + b
-        yield c
-        a = b
-        b = c
-    next
+    ' Use "dim list" and "yield" to build the list to be returned.
+    dim list numbers
+        yield a
+        yield b
+        for i = 3 to count
+            dim c = a + b
+            yield c
+            a = b
+            b = c
+        next
+    end dim
+
+    return numbers
 end function
 
 sub Main()

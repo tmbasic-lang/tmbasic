@@ -16,8 +16,6 @@ code@
 The function p[Len] returns 3 for this text because there are three code units.
 However, there are only two grapheme clusters: `n` and `é`.
 The p[Characters] function returns `["n", "é"]` for this text.
-
-By default, p[Characters] uses the `en_US` locale unless a i[locale] is specified.
 .overload
 .parameter this: String
 Any text value.
@@ -29,23 +27,6 @@ dim s = "n" + "e" + Chr(769)
 dim x = Characters(s)
 print Len(x(0))  ' x(0) is one code unit: "n"
 print Len(x(1))  ' x(1) is two code units: "e" + Chr(769)
-.example-output
-1
-2
-.overload
-.parameter this: String
-Any text value.
-.parameter locale: String
-The locale to use.
-This is either a language code like `en` or a combination of language and region like `en_US`.
-.return List of String
-A list of the characters (grapheme clusters) in i[this].
-.example
-.example-code
-dim s = "n" + "e" + Chr(769)
-dim x = Characters(s, "fr_FR")
-print Len(x(0))  ' one code unit: "n"
-print Len(x(1))  ' two code unit: "e" + Chr(769)
 .example-output
 1
 2

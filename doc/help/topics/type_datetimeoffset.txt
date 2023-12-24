@@ -6,16 +6,6 @@ t[DateTimeOffset] contains the time zone information that t[DateTime] lacks.
 This type is best for representing a specific moment of time in the past or the near future.
 Use the p[DateTimeOffsetFromParts] function to create a t[DateTimeOffset] value.
 
-code@
-type DateTimeOffset
-    dateTime as DateTime
-    offset as TimeSpan
-end type
-@
-
-`dateTime` is the local time.
-`offset` is how far ahead or behind Coordinated Universal Time (UTC) this local time is.
-
 For moments of time in the distant future, more care is required because time zones can change.
 There are two scenarios to consider:
 
