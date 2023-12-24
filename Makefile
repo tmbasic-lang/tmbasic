@@ -384,7 +384,7 @@ endif
 
 .PHONY: release
 release:
-	OPTFLAGS="-Os" EXTRADEFS="-DNDEBUG" STRIP_TMBASIC=1 $(MAKE) bin/tmbasic$(EXE_EXTENSION) bin/test$(EXE_EXTENSION)
+	OPTFLAGS="-O3" EXTRADEFS="-DNDEBUG" STRIP_TMBASIC=1 $(MAKE) bin/tmbasic$(EXE_EXTENSION) bin/test$(EXE_EXTENSION)
 
 .PHONY: clean
 clean:
@@ -404,7 +404,7 @@ valgrind: bin/tmbasic
 
 .PHONE: callgrind
 callgrind:
-	OPTFLAGS="-Os -g" EXTRADEFS="-DNDEBUG" $(MAKE) bin/test$(EXE_EXTENSION)
+	OPTFLAGS="-O3 -g" EXTRADEFS="-DNDEBUG" $(MAKE) bin/test$(EXE_EXTENSION)
 	rm -f /code/callgrind.out /code/callgrind.txt
 	cd bin && valgrind --tool=callgrind --dump-instr=yes --trace-jump=yes --callgrind-out-file=/code/callgrind.out ./test
 	callgrind_annotate --include=/code/src --auto=yes /code/callgrind.out > /code/callgrind.txt
