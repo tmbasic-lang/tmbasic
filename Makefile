@@ -384,7 +384,7 @@ endif
 
 .PHONY: release
 release:
-	OPTFLAGS="-Os" EXTRADEFS="-DNDEBUG" STRIP_TMBASIC=1 $(MAKE) bin/tmbasic$(EXE_EXTENSION)
+	OPTFLAGS="-Os" EXTRADEFS="-DNDEBUG" STRIP_TMBASIC=1 $(MAKE) bin/tmbasic$(EXE_EXTENSION) bin/test$(EXE_EXTENSION)
 
 .PHONY: clean
 clean:
@@ -396,7 +396,7 @@ run:
 
 .PHONY: test
 test: bin/test$(EXE_EXTENSION)
-	cd bin && $(TEST_CMD) --gtest_brief=1
+	cd bin && $(TEST_CMD)
 
 .PHONY: valgrind
 valgrind: bin/tmbasic

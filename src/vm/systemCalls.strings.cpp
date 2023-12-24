@@ -29,12 +29,13 @@ void initSystemCallsStrings() {
         if (fastPath) {
             ObjectListBuilder objectListBuilder{};
             for (size_t i = 0; i < str.value.length(); i++) {
-                objectListBuilder.items.push_back(boost::make_local_shared<String>(str.value.substr(i, 1)));
+                objectListBuilder.items.push_back(boost::make_local_shared<String>(std::string{ str.value[i] }));
             }
             result->returnedObject = boost::make_local_shared<ObjectList>(&objectListBuilder);
             return;
         }
 
+        // Slow path using libunistring.
         std::vector<char> graphemeBreaks(str.value.size() + 1);
         u8_grapheme_breaks(str.getUnistring(), str.value.size(), graphemeBreaks.data());
 
@@ -42,22 +43,22 @@ void initSystemCallsStrings() {
         assert(graphemeBreaks[0] == 1);
 
         ObjectListBuilder objectListBuilder{};
-        std::ostringstream currentGraphemeCluster{};
+        std::string currentGraphemeCluster{};
 
         for (size_t i = 0; i < str.value.length(); i++) {
             // Build grapheme clusters based on break points.
             if (graphemeBreaks.at(i) == 1) {
                 if (i > 0) {
-                    objectListBuilder.items.push_back(boost::make_local_shared<String>(currentGraphemeCluster.str()));
+                    objectListBuilder.items.push_back(boost::make_local_shared<String>(currentGraphemeCluster));
                 }
                 currentGraphemeCluster = {};
             }
 
-            currentGraphemeCluster << str.value.at(i);
+            currentGraphemeCluster += str.value.at(i);
         }
 
         // Add remaining grapheme cluster.
-        objectListBuilder.items.push_back(boost::make_local_shared<String>(currentGraphemeCluster.str()));
+        objectListBuilder.items.push_back(boost::make_local_shared<String>(currentGraphemeCluster));
 
         result->returnedObject = boost::make_local_shared<ObjectList>(&objectListBuilder);
     });
@@ -139,12 +140,13 @@ void initSystemCallsStrings() {
     initSystemCall(SystemCall::kConcat1, [](const auto& input, auto* result) {
         const auto& objectList = *castObjectList(input.getObject(-1));
 
-        std::ostringstream ss{};
+        // Appending to std::string is faster than std::ostringstream here in my testing.
+        std::string ss{};
         for (const auto& object : objectList.items) {
-            ss << castString(*object).value;
+            ss += castString(*object).value;
         }
 
-        result->returnedObject = boost::make_local_shared<String>(ss.str());
+        result->returnedObject = boost::make_local_shared<String>(ss);
     });
 
     initSystemCall(SystemCall::kConcat2, [](const auto& input, auto* result) {

@@ -57,23 +57,28 @@ void initSystemCallsNumbers() {
     });
 
     initSystemCall(SystemCall::kNumberEquals, [](const auto& input, auto* result) {
-        result->returnedValue.num = input.getValue(-2).num == input.getValue(-1).num ? 1 : 0;
+        result->returnedValue.num =
+            input.getValue(-2).num == input.getValue(-1).num ? util::kDecimalOne : util::kDecimalZero;
     });
 
     initSystemCall(SystemCall::kNumberGreaterThan, [](const auto& input, auto* result) {
-        result->returnedValue.num = input.getValue(-2).num > input.getValue(-1).num ? 1 : 0;
+        result->returnedValue.num =
+            input.getValue(-2).num > input.getValue(-1).num ? util::kDecimalOne : util::kDecimalZero;
     });
 
     initSystemCall(SystemCall::kNumberGreaterThanEquals, [](const auto& input, auto* result) {
-        result->returnedValue.num = input.getValue(-2).num >= input.getValue(-1).num ? 1 : 0;
+        result->returnedValue.num =
+            input.getValue(-2).num >= input.getValue(-1).num ? util::kDecimalOne : util::kDecimalZero;
     });
 
     initSystemCall(SystemCall::kNumberLessThan, [](const auto& input, auto* result) {
-        result->returnedValue.num = input.getValue(-2).num < input.getValue(-1).num ? 1 : 0;
+        result->returnedValue.num =
+            input.getValue(-2).num < input.getValue(-1).num ? util::kDecimalOne : util::kDecimalZero;
     });
 
     initSystemCall(SystemCall::kNumberLessThanEquals, [](const auto& input, auto* result) {
-        result->returnedValue.num = input.getValue(-2).num <= input.getValue(-1).num ? 1 : 0;
+        result->returnedValue.num =
+            input.getValue(-2).num <= input.getValue(-1).num ? util::kDecimalOne : util::kDecimalZero;
     });
 
     initSystemCall(SystemCall::kNumberModulus, [](const auto& input, auto* result) {
@@ -85,7 +90,8 @@ void initSystemCallsNumbers() {
     });
 
     initSystemCall(SystemCall::kNumberNotEquals, [](const auto& input, auto* result) {
-        result->returnedValue.num = input.getValue(-2).num != input.getValue(-1).num ? 1 : 0;
+        result->returnedValue.num =
+            input.getValue(-2).num != input.getValue(-1).num ? util::kDecimalOne : util::kDecimalZero;
     });
 
     initSystemCall(SystemCall::kNumberSubtract, [](const auto& input, auto* result) {
