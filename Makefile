@@ -374,6 +374,7 @@ help: versions
 	@echo "make clean         Delete build outputs"
 ifeq ($(LINUX_DISTRO),ubuntu)
 	@echo "make valgrind      Run TMBASIC with valgrind"
+	@echo "make callgrind     Run tests with callgrind"
 	@echo "make format        Reformat code"
 	@echo "make lint          Check code with cpplint"
 	@echo "make tidy          Check code with clang-tidy"
@@ -400,6 +401,14 @@ test: bin/test$(EXE_EXTENSION)
 .PHONY: valgrind
 valgrind: bin/tmbasic
 	valgrind --leak-check=full --show-leak-kinds=all --undef-value-errors=no --log-file=valgrind.txt bin/tmbasic || (printf "\r\nCrash detected! Resetting terminal in 5 seconds...\r\n" && sleep 5 && reset && echo "Eating input. Press Ctrl+D." && cat >/dev/null)
+
+.PHONE: callgrind
+callgrind:
+	OPTFLAGS="-Os -g" EXTRADEFS="-DNDEBUG" $(MAKE) bin/test$(EXE_EXTENSION)
+	cd bin \
+		&& valgrind --tool=callgrind --dump-instr=yes --trace-jump=yes --callgrind-out-file=/tmp/callgrind.out ./test \
+		&& callgrind_annotate --include=/code/src --auto=yes /tmp/callgrind.out > /tmp/callgrind.txt && \
+		less /tmp/callgrind.txt
 
 .PHONY: format
 format:
