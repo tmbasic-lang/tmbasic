@@ -14,10 +14,10 @@ struct Value {
     inline explicit Value(int64_t num) : num(num) {}
     inline explicit Value(uint32_t num) : num(num) {}
     inline explicit Value(uint64_t num) : num(num) {}
-    inline explicit Value(bool x) : num(x ? 1 : 0) {}
+    inline explicit Value(bool x) : num(x ? util::kDecimalOne : util::kDecimalZero) {}
     inline std::string getString() const { return util::decimalToString(num); }
-    inline bool getBoolean() const { return num != 0; }
-    inline void setBoolean(bool value) { num = value ? 1 : 0; }
+    inline bool getBoolean() const { return !num.iszero(); }
+    inline void setBoolean(bool value) { num = value ? util::kDecimalOne : util::kDecimalZero; }
     inline int32_t getInt32() const { return num.floor().i32(); }
     inline int64_t getInt64() const { return num.floor().i64(); }
     inline uint32_t getUint32() const { return num.floor().u32(); }

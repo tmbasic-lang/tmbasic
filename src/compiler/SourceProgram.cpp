@@ -25,6 +25,8 @@ void SourceMember::setSource(std::string newSource) {
     updateDisplayName();
 }
 
+static std::regex updateDisplayNameRegex("^[^ ]+ ([^( ]+)[ ]*(:?\\(.*)?$", std::regex::optimize);
+
 void SourceMember::updateDisplayName() {
     std::istringstream stream(source);
     std::string line;
@@ -32,9 +34,8 @@ void SourceMember::updateDisplayName() {
         if (!isBlankOrComment(line)) {
             displayName = line;
 
-            std::regex r("^[^ ]+ ([^( ]+)[ ]*(:?\\(.*)?$");
             std::smatch match;
-            if (std::regex_search(displayName, match, r)) {
+            if (std::regex_search(displayName, match, updateDisplayNameRegex)) {
                 identifier = match[1].str();
             } else {
                 identifier = displayName;

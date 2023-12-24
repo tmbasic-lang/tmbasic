@@ -4,6 +4,9 @@ using decimal::Decimal;
 
 namespace util {
 
+const decimal::Decimal kDecimalZero{ 0 };
+const decimal::Decimal kDecimalOne{ 1 };
+
 size_t getDecimalHash(const Decimal& x) {
     auto triple = x.as_uint128_triple();
     size_t hash = 17;

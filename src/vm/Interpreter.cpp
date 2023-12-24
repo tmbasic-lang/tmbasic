@@ -27,12 +27,14 @@ namespace vm {
 template <typename TInt>
 static TInt readInt(const std::vector<uint8_t>* vec, size_t* index) {
     TInt value = 0;
-    memcpy(&value, &vec->at(*index), sizeof(TInt));
+    // Don't take the performance hit of at() when reading bytecode.
+    memcpy(&value, &(*vec)[*index], sizeof(TInt));
     *index += sizeof(TInt);
     return value;
 }
 
 static void pushValue(std::array<Value, kValueStackSize>* valueStack, int* vsi, const Value& value) {
+    // Take the performance hit of at() to detect stack overflows cleanly.
     valueStack->at(*vsi) = value;
     (*vsi)++;
 }
@@ -41,31 +43,37 @@ static void pushObject(
     std::array<boost::local_shared_ptr<Object>, kObjectStackSize>* objectStack,
     int* osi,
     boost::local_shared_ptr<Object>&& obj) {
+    // Take the performance hit of at() to detect stack overflows cleanly.
     objectStack->at(*osi) = std::move(obj);
     (*osi)++;
 }
 
-static void popValue(std::array<Value, kValueStackSize>* valueStack, int* vsi) {
+static void popValue(int* vsi) {
     assert(*vsi > 0);
     (*vsi)--;
-    valueStack->at(*vsi) = {};
+    // For performance, we will not clear out the popped value. It makes no difference to memory usage.
 }
 
 static void popObject(std::array<boost::local_shared_ptr<Object>, kObjectStackSize>* objectStack, int* osi) {
     assert(*osi > 0);
     (*osi)--;
-    objectStack->at(*osi) = {};
+    // It would be slightly faster not to clear out the popped pointer, but that leads to extra memory usage when large
+    // objects are held onto because the last reference here was not cleared.
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
+    (*objectStack)[*osi] = {};
 }
 
 static Value* valueAt(std::array<Value, kValueStackSize>* valueStack, int vsi, int offset) {
-    return &valueStack->at(vsi + offset);
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
+    return &(*valueStack)[vsi + offset];
 }
 
 static boost::local_shared_ptr<Object>* objectAt(
     std::array<boost::local_shared_ptr<Object>, kObjectStackSize>* objectStack,
     int osi,
     int offset) {
-    return &objectStack->at(osi + offset);
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
+    return &(*objectStack)[osi + offset];
 }
 
 class InterpreterPrivate {
@@ -96,7 +104,7 @@ class InterpreterPrivate {
         assert(!callStack.empty());
         auto& callFrame = callStack.top();
         while (*vsi > callFrame.vsiArgsStart) {
-            popValue(&valueStack, vsi);
+            popValue(vsi);
         }
         while (*osi > callFrame.osiArgsStart) {
             popObject(&objectStack, osi);
@@ -401,7 +409,7 @@ static void setDottedExpression(SetDottedExpressionState* state) {
 
     // Pop the index/keys.
     for (auto i = 0; i < numKeyValues; i++) {
-        popValue(&state->p->valueStack, vsi);
+        popValue(vsi);
     }
     for (auto i = 0; i < numKeyObjects; i++) {
         popObject(&state->p->objectStack, osi);
@@ -409,7 +417,7 @@ static void setDottedExpression(SetDottedExpressionState* state) {
 
     // Pop the source value or object.
     if (state->isAssigningValue) {
-        popValue(&state->p->valueStack, vsi);
+        popValue(vsi);
     } else {
         popObject(&state->p->objectStack, osi);
     }
@@ -492,7 +500,8 @@ bool Interpreter::run(int maxCycles) {
 
     for (int cycle = 0; cycle < maxCycles; cycle++) {
         assert(instructions != nullptr);
-        auto opcode = static_cast<Opcode>(instructions->at(instructionIndex));
+
+        auto opcode = static_cast<Opcode>((*instructions)[instructionIndex]);
 
 #if defined(LOG_EXECUTION) || defined(LOG_PERFORMANCE)
         SystemCall syscall{};
@@ -563,7 +572,7 @@ bool Interpreter::run(int maxCycles) {
             }
 
             case Opcode::kPopValue: {
-                popValue(valueStack, &vsi);
+                popValue(&vsi);
                 break;
             }
 
@@ -625,7 +634,7 @@ bool Interpreter::run(int maxCycles) {
             case Opcode::kSetArgumentValue: {
                 auto argIndex = readInt<uint8_t>(instructions, &instructionIndex);
                 auto value = *valueAt(valueStack, vsi, -1);
-                popValue(valueStack, &vsi);
+                popValue(&vsi);
                 auto& frame = _private->callStack.top();
                 valueStack->at(frame.vsiArgsStart + argIndex) = value;
                 break;
@@ -658,7 +667,7 @@ bool Interpreter::run(int maxCycles) {
                 auto dst = readInt<uint16_t>(instructions, &instructionIndex);
                 auto* val = valueAt(valueStack, vsi, -1);
                 _private->program->globalValues.at(dst) = std::move(*val);
-                popValue(valueStack, &vsi);
+                popValue(&vsi);
                 break;
             }
 
@@ -692,7 +701,7 @@ bool Interpreter::run(int maxCycles) {
                 auto val = *valueAt(valueStack, vsi, -1);
                 auto& callFrame = _private->callStack.top();
                 valueStack->at(callFrame.vsiLocalsStart + dst) = std::move(val);
-                popValue(valueStack, &vsi);
+                popValue(&vsi);
                 break;
             }
 
@@ -724,7 +733,7 @@ bool Interpreter::run(int maxCycles) {
                 if (val->getBoolean()) {
                     instructionIndex = jumpTarget;
                 }
-                popValue(valueStack, &vsi);
+                popValue(&vsi);
                 break;
             }
 
@@ -734,7 +743,7 @@ bool Interpreter::run(int maxCycles) {
                 if (!val->getBoolean()) {
                     instructionIndex = jumpTarget;
                 }
-                popValue(valueStack, &vsi);
+                popValue(&vsi);
                 break;
             }
 
@@ -778,7 +787,7 @@ bool Interpreter::run(int maxCycles) {
                                                  _private->errorMessage };
                 auto result = systemCall(static_cast<SystemCall>(syscallIndex), systemCallInput);
                 for (auto i = 0; i < numVals; i++) {
-                    popValue(valueStack, &vsi);
+                    popValue(&vsi);
                 }
                 for (auto i = 0; i < numObjs; i++) {
                     popObject(objectStack, &osi);
@@ -833,7 +842,7 @@ bool Interpreter::run(int maxCycles) {
                 _private->hasError = true;
                 _private->errorCode = code;
                 _private->errorMessage = castString(message).value;
-                popValue(valueStack, &vsi);
+                popValue(&vsi);
                 popObject(objectStack, &osi);
                 break;
             }
@@ -874,7 +883,7 @@ bool Interpreter::run(int maxCycles) {
                 for (int i = static_cast<int>(numVals) - 1; i >= 0; i--) {
                     auto val = *valueAt(valueStack, vsi, -1);
                     recordBuilder.values.set(i, std::move(val));
-                    popValue(valueStack, &vsi);
+                    popValue(&vsi);
                 }
                 for (int i = static_cast<int>(numObjs) - 1; i >= 0; i--) {
                     auto obj = *objectAt(objectStack, osi, -1);
@@ -909,7 +918,7 @@ bool Interpreter::run(int maxCycles) {
                 auto& newValue = *valueAt(valueStack, vsi, -1);
                 auto newRecord = boost::make_local_shared<Record>(record, index, newValue);
                 popObject(objectStack, &osi);  // pop record
-                popValue(valueStack, &vsi);    // pop newValue
+                popValue(&vsi);                // pop newValue
                 pushObject(objectStack, &osi, std::move(newRecord));
                 break;
             }
@@ -932,7 +941,7 @@ bool Interpreter::run(int maxCycles) {
                     valueListBuilder.items.push_back(std::move(*valueAt(valueStack, vsi, -1 - i)));
                 }
                 for (int i = 0; i < numVals; i++) {
-                    popValue(valueStack, &vsi);
+                    popValue(&vsi);
                 }
                 pushObject(objectStack, &osi, boost::make_local_shared<ValueList>(&valueListBuilder));
                 break;
@@ -1012,7 +1021,7 @@ bool Interpreter::run(int maxCycles) {
                 const auto* elementWeak = map.pairs.find(key);
                 auto element = elementWeak != nullptr ? *elementWeak : nullptr;  // take reference
                 popObject(objectStack, &osi);
-                popValue(valueStack, &vsi);
+                popValue(&vsi);
                 pushObject(objectStack, &osi, std::move(element));
                 pushValue(valueStack, &vsi, Value{ elementWeak == nullptr ? 0 : 1 });
                 break;
@@ -1028,7 +1037,7 @@ bool Interpreter::run(int maxCycles) {
                 const auto* elementWeak = map.pairs.find(key);
                 auto element = elementWeak != nullptr ? *elementWeak : Value{ 0 };  // copy
                 popObject(objectStack, &osi);
-                popValue(valueStack, &vsi);
+                popValue(&vsi);
                 pushValue(valueStack, &vsi, element);
                 pushValue(valueStack, &vsi, Value{ elementWeak == nullptr ? 0 : 1 });
                 break;

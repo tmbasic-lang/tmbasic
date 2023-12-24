@@ -6,6 +6,7 @@
 /build/files/deps.tar
 /build/files/sysroot-*
 /build/sysroots/sysroot-*
+/callgrind*
 /dist/
 /mac-arm64/
 /mac-x64/

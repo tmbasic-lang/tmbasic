@@ -96,7 +96,7 @@ void initSystemCalls() {
         const auto& limit = input.getValue(-2).num;
         const auto& step = input.getValue(-1).num;
         bool condition{};
-        if (step >= 0) {
+        if (step.sign() > 0 || step.iszero()) {
             condition = counter > limit;
         } else {
             condition = counter < limit;

@@ -25,11 +25,9 @@ inline TObject* castObject(Object* obj, ObjectType objectType) {
     if (obj->getObjectType() != objectType) {
         std::cerr << "Internal type confusion. Expected: " << NAMEOF_ENUM(objectType)
                   << ". Actual: " << NAMEOF_ENUM(obj->getObjectType()) << "." << std::endl;
+        assert(false);
     }
-
-    auto* casted = dynamic_cast<TObject*>(obj);
-    assert(casted != nullptr);
-    return casted;
+    return reinterpret_cast<TObject*>(obj);
 #endif
 }
 
@@ -42,8 +40,9 @@ inline const TObject& castObject(const Object& obj, ObjectType objectType) {
     if (obj.getObjectType() != objectType) {
         std::cerr << "Internal type confusion. Expected: " << NAMEOF_ENUM(objectType)
                   << ". Actual: " << NAMEOF_ENUM(obj.getObjectType()) << "." << std::endl;
+        assert(false);
     }
-    return dynamic_cast<const TObject&>(obj);
+    return reinterpret_cast<const TObject&>(obj);
 #endif
 }
 

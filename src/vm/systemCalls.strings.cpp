@@ -16,6 +16,25 @@ void initSystemCallsStrings() {
     initSystemCall(SystemCall::kCharacters, [](const auto& input, auto* result) {
         const auto& str = *castString(input.getObject(-1));
 
+        // Fast path if the whole string is ASCII.
+        auto fastPath = true;
+        for (size_t i = 0; i < str.value.length(); i++) {
+            char ch = str.value[i];
+            if (ch != 9 && (ch < 32 || ch > 126)) {
+                fastPath = false;
+                break;
+            }
+        }
+
+        if (fastPath) {
+            ObjectListBuilder objectListBuilder{};
+            for (size_t i = 0; i < str.value.length(); i++) {
+                objectListBuilder.items.push_back(boost::make_local_shared<String>(str.value.substr(i, 1)));
+            }
+            result->returnedObject = boost::make_local_shared<ObjectList>(&objectListBuilder);
+            return;
+        }
+
         std::vector<char> graphemeBreaks(str.value.size() + 1);
         u8_grapheme_breaks(str.getUnistring(), str.value.size(), graphemeBreaks.data());
 

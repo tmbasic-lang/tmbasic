@@ -405,10 +405,9 @@ valgrind: bin/tmbasic
 .PHONE: callgrind
 callgrind:
 	OPTFLAGS="-Os -g" EXTRADEFS="-DNDEBUG" $(MAKE) bin/test$(EXE_EXTENSION)
-	cd bin \
-		&& valgrind --tool=callgrind --dump-instr=yes --trace-jump=yes --callgrind-out-file=/tmp/callgrind.out ./test \
-		&& callgrind_annotate --include=/code/src --auto=yes /tmp/callgrind.out > /tmp/callgrind.txt && \
-		less /tmp/callgrind.txt
+	rm -f /code/callgrind.out /code/callgrind.txt
+	cd bin && valgrind --tool=callgrind --dump-instr=yes --trace-jump=yes --callgrind-out-file=/code/callgrind.out ./test
+	callgrind_annotate --include=/code/src --auto=yes /code/callgrind.out > /code/callgrind.txt
 
 .PHONY: format
 format:
