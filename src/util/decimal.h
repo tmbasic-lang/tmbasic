@@ -4,8 +4,10 @@
 
 namespace util {
 
+extern const decimal::Decimal kDecimalNegativeOne;
 extern const decimal::Decimal kDecimalZero;
 extern const decimal::Decimal kDecimalOne;
+extern const decimal::Decimal kDecimalTwo;
 
 size_t getDecimalHash(const decimal::Decimal& x);
 decimal::Decimal parseDecimalString(const std::string& str);

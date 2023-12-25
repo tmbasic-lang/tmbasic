@@ -4,8 +4,11 @@ using decimal::Decimal;
 
 namespace util {
 
+const decimal::Decimal kDecimalNegativeOne{ -1 };
 const decimal::Decimal kDecimalZero{ 0 };
 const decimal::Decimal kDecimalOne{ 1 };
+const decimal::Decimal kDecimalTwo{ 2 };
+const decimal::Decimal kDecimalDoubleMantissaDenominator{ 1ULL << 52 };
 
 size_t getDecimalHash(const Decimal& x) {
     auto triple = x.as_uint128_triple();
@@ -46,15 +49,6 @@ std::string decimalToString(const Decimal& x) {
     return len == str.size() ? str : str.substr(0, len);
 }
 
-struct ieee754_double {
-    unsigned int mantissa1 : 32;
-    unsigned int mantissa0 : 20;
-    unsigned int exponent : 11;
-    unsigned int negative : 1;
-};
-
-static_assert(sizeof(double) == sizeof(ieee754_double), "Our definition of ieee754_double is wrong.");
-
 Decimal doubleToDecimal(double x) {
     if (std::isnan(x)) {
         mpd_uint128_triple_t nanTriple{};
@@ -62,39 +56,42 @@ Decimal doubleToDecimal(double x) {
         return Decimal(nanTriple);
     }
 
-    ieee754_double decomposed{};
-    std::memcpy(&decomposed, &x, sizeof(double));
+    // Decompose double using bit manipulation
+    uint64_t bits;
+    std::memcpy(&bits, &x, sizeof(double));
+    uint32_t negative = (bits >> 63) & 1U;
+    uint32_t exponent = (bits >> 52) & 0x7FFU;
+    uint64_t mantissa = bits & 0xFFFFFFFFFFFFFU;
 
     if (std::isinf(x)) {
         mpd_uint128_triple_t infTriple{};
         infTriple.tag = MPD_TRIPLE_INF;
-        infTriple.sign = decomposed.negative;
+        infTriple.sign = negative;
         return Decimal(infTriple);
     }
 
-    int64_t binaryExponent = decomposed.exponent;
+    int64_t binaryExponent = exponent;
     binaryExponent -= 0x3ff;  // IEEE 754 double bias
 
-    uint64_t mantissa = decomposed.mantissa0;
-    mantissa <<= 32;
-    mantissa |= decomposed.mantissa1;
+    // Decimal fractionNumerator = mantissa;
 
-    Decimal fractionNumerator = mantissa;
-
-    Decimal fractionDenominator = 2;
-    fractionDenominator = fractionDenominator.pow(52);
-
-    Decimal fraction = fractionNumerator / fractionDenominator;
+    Decimal fraction = mantissa / kDecimalDoubleMantissaDenominator;
 
     Decimal magnitude = 2;
+    auto isSubnormal = exponent == 0U;
+    if (isSubnormal) {
+        // Subnormal number
+        binaryExponent = -0x3fe;
+    }
     magnitude = magnitude.pow(binaryExponent);
 
-    Decimal sign = decomposed.negative == 0U ? 1 : -1;
+    Decimal sign = negative == 0U ? 1 : -1;
 
-    if (mantissa == 0 && decomposed.exponent == 0U) {
-        return sign * fraction * magnitude;
+    if (exponent == 0U && mantissa == 0U) {
+        return kDecimalZero;
     }
-    return sign * (fraction + 1) * magnitude;
+
+    return sign * (isSubnormal ? fraction : (fraction + 1)) * magnitude;
 }
 
 double decimalToDouble(const Decimal& x) {

@@ -24,6 +24,8 @@ sub Main()
     print Tan(0)
     if Abs(Tan(PI)) < 0.00001 then
         print "close enough to 0"
+    else
+        print Abs(Tan(PI))
     end if
 
     print "Acos, Asin, Atan, Atan2"
