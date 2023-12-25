@@ -175,7 +175,6 @@ ProgramWindow::ProgramWindow(
     ts.enableCmd(cmSave);
     ts.enableCmd(cmSaveAs);
     ts.enableCmd(kCmdProgramAddItem);
-    ts.enableCmd(kCmdProgramImportItem);
     ts.enableCmd(kCmdProgramRun);
     ts.enableCmd(kCmdProgramCheckForErrors);
     ts.enableCmd(kCmdProgramPublish);
@@ -380,7 +379,6 @@ void ProgramWindow::close() {
         ts.enableCmd(cmSave);
         ts.enableCmd(cmSaveAs);
         ts.enableCmd(kCmdProgramAddItem);
-        ts.enableCmd(kCmdProgramImportItem);
         ts.enableCmd(kCmdProgramRun);
         ts.enableCmd(kCmdProgramCheckForErrors);
         ts.enableCmd(kCmdProgramPublish);

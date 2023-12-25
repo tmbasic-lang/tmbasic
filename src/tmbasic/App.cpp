@@ -84,7 +84,6 @@ class AppPrivate {
 
         auto& programMenu = *new TSubMenu("~P~rogram", kbAltP) +
             *new TMenuItem("~N~ew item...", kCmdProgramAddItem, kbNoKey) +
-            *new TMenuItem("~I~mport from .BAS...", kCmdProgramImportItem, kbNoKey) + newLine() +
             *new TMenuItem("~R~un", kCmdProgramRun, kbCtrlR, hcNoContext, "Ctrl+R") + newLine() +
             *new TMenuItem("~C~heck for errors", kCmdProgramCheckForErrors, kbCtrlE, hcNoContext, "Ctrl+E") +
             *new TMenuItem("~P~ublish", kCmdProgramPublish, kbNoKey, hcNoContext);
@@ -123,7 +122,6 @@ class AppPrivate {
 
         auto& programWindowStatusDef = *new TStatusDef(hcide_programWindow, hcide_programWindow) +
             *new TStatusItem("~F1~ New item", kbF1, kCmdProgramAddItem) +
-            *new TStatusItem("~F2~ Import from .BAS", kbF2, kCmdProgramImportItem) +
             *new TStatusItem("~Ctrl+D~ Delete item", kbCtrlD, cmClear);
         programWindowStatusDef.next = &designerWindowStatusDef;
 
@@ -665,7 +663,6 @@ App::App(int /*argc*/, char** /*argv*/)
     ts.enableCmd(kCmdPicturePasteOk);
     ts.enableCmd(kCmdPicturePasteCancel);
     ts.enableCmd(kCmdProgramAddItem);
-    ts.enableCmd(kCmdProgramImportItem);
     ts.enableCmd(kCmdProgramRun);
     ts.enableCmd(kCmdProgramCheckForErrors);
     ts.enableCmd(kCmdProgramPublish);
