@@ -181,6 +181,7 @@ static std::vector<std::unique_ptr<T>> captureNodeArray(std::unique_ptr<Box> box
 
 template <typename T>
 static std::unique_ptr<T> captureSingleNode(std::unique_ptr<Box> box) {
+    assert(box != nullptr);
     assert(box->type == BoxType::kNode);
     auto nodeBox = dynamic_cast_move<NodeBox>(std::move(box));
     return dynamic_cast_move<T>(nodeBox->value());
@@ -1613,7 +1614,11 @@ class ElseIfProduction : public Production {
 
 class IfStatementProduction : public Production {
    public:
-    IfStatementProduction(const Production* expression, const Production* body, const Production* elseIf)
+    IfStatementProduction(
+        const Production* expression,
+        const Production* body,
+        const Production* elseIf,
+        const Production* statement)
         : Production(
               NAMEOF_TYPE(IfStatementProduction),
               {
@@ -1621,25 +1626,48 @@ class IfStatementProduction : public Production {
                   cut(),
                   capture(0, prod(expression)),
                   term(TokenKind::kThen),
-                  term(TokenKind::kEndOfLine),
-                  capture(1, prod(body)),
-                  zeroOrMore({
-                      capture(2, prod(elseIf)),
+                  oneOf({
+                      list({
+                          // Multi-line If.
+                          term(TokenKind::kEndOfLine),
+                          capture(1, prod(body)),
+                          zeroOrMore({
+                              capture(2, prod(elseIf)),
+                          }),
+                          optional({
+                              term(TokenKind::kElse),
+                              term(TokenKind::kEndOfLine),
+                              capture(3, prod(body)),
+                          }),
+                          term(TokenKind::kEnd),
+                          term(TokenKind::kIf),
+                          term(TokenKind::kEndOfLine),
+                      }),
+                      list({
+                          // Single-line If.
+                          capture(4, prod(statement)),
+                      }),
                   }),
-                  optional({
-                      term(TokenKind::kElse),
-                      term(TokenKind::kEndOfLine),
-                      capture(3, prod(body)),
-                  }),
-                  term(TokenKind::kEnd),
-                  term(TokenKind::kIf),
-                  term(TokenKind::kEndOfLine),
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
+        auto body = captureSingleNodeOrNull<BodyNode>(std::move(captures->at(1)));
+
+        if (body == nullptr) {
+            // Single-line If. Create a BodyNode containing the single statement.
+            std::vector<std::unique_ptr<StatementNode>> statements{};
+            auto statement = captureSingleNode<StatementNode>(std::move(captures->at(4)));
+            statements.push_back(std::move(statement));
+            body = std::make_unique<BodyNode>(std::move(statements), firstToken);
+
+            return nodeBox<IfStatementNode>(
+                captureSingleNode<ExpressionNode>(std::move(captures->at(0))), std::move(body),
+                std::vector<std::unique_ptr<ElseIfNode>>{}, nullptr, firstToken);
+        }
+
+        // Multi-line If.
         return nodeBox<IfStatementNode>(
-            captureSingleNode<ExpressionNode>(std::move(captures->at(0))),
-            captureSingleNode<BodyNode>(std::move(captures->at(1))),
+            captureSingleNode<ExpressionNode>(std::move(captures->at(0))), std::move(body),
             captureNodeArray<ElseIfNode>(std::move(captures->at(2))),
             captureSingleNodeOrNull<BodyNode>(std::move(captures->at(3))), firstToken);
     }
@@ -2083,7 +2111,7 @@ class ProductionCollection {
         auto* selectCaseStatement = add<SelectCaseStatementProduction>(expression, case_);
         auto* doStatement = add<DoStatementProduction>(expression, body);
         auto* elseIf = add<ElseIfProduction>(expression, body);
-        auto* ifStatement = add<IfStatementProduction>(expression, body, elseIf);
+        auto* ifStatement = add<IfStatementProduction>(expression, body, elseIf, statement);
         auto* whileStatement = add<WhileStatementProduction>(expression, body);
         auto* forEachStatement = add<ForEachStatementProduction>(expression, body);
         auto* forStep = add<ForStepProduction>(expression);
