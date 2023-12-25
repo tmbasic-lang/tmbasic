@@ -1,3 +1,40 @@
 nav@{TMBASIC Documentation:doc}@
 
 h1[`try` Statement]
+
+`try` ... `catch` ... `end try` blocks are how errors are handled in TMBASIC.
+Errors are raised using the {`throw`:statement_throw} statement.
+If an error is raised inside a `try` block, then program execution will jump to the `catch` block in order to handle the error.
+You can display the error to the user or take some other corrective action like retrying.
+Use {`rethrow`:statement_rethrow} in your `catch` block to re-raise an error that you want to pass up to the calling code.
+
+h2[Syntax]
+
+code@
+try
+    <TRY-STATEMENTS>
+catch
+    <CATCH-STATEMENTS>
+end try
+@
+
+ul@
+li@`<TRY-STATEMENTS>` is the code to execute that may potentially fail with an error.@
+li@`<CATCH-STATEMENTS>` is the code to execute if an error is raised inside the `try` block. It will not be executed if the `try` block executes successfully.@
+@
+
+h2[Usage]
+
+The following example is contrived to show both the "thrower" and "catcher" sides of a raised error.
+The message string provided to the `throw` statement can be retrieved from the p[ErrorMessage] function inside your `catch` block.
+The p[ErrorCode] function can be used to retrieve the error code, which is optional for your own `throw` statements but is always available for TMBASIC-generated errors.
+
+code@
+try
+    throw 1234, "This is an error!"
+catch
+    print ErrorCode(); ": "; ErrorMessage()
+end try
+@
+
+In real code, the `throw` statement will be inside a function or subroutine, and the `catch` block will be in the calling code.

@@ -1,3 +1,49 @@
 nav@{TMBASIC Documentation:doc}@
 
 h1[`select case` Statement]
+
+`select case` is a code flow mechanism that allows you to choose one of several different code paths based on the value of a variable or expression.
+
+A common use case is handling menu options.
+The user enters a menu option, and the program executes the requested section of code.
+A `select case` can be used to choose the correct code path based on the input.
+
+h2[Syntax]
+
+code@
+select case <INPUT>
+    case <VALUE>
+        <STATEMENTS>
+    case <VALUE>, <VALUE>, ...
+        <STATEMENTS>
+    case <VALUE> to <VALUE>
+        <STATEMENTS>
+    case else
+        <STATEMENTS>
+end select
+@
+
+ul@
+li@`<INPUT>` is the value used to determine which code path to take. Commonly, it is a t[Number], but any type works.@
+li@`<VALUE>` is matched against `<INPUT>`. If the value matches, then that code path is taken.@
+li@`<STATEMENTS>` is the code to execute if the value matches.@
+@
+
+If a `case else` block is provided, then it will be executed if no other `case` matches.
+
+h2[Usage]
+
+This example shows the flexibility of specifying case values.
+
+code@
+for i = -1 to 6
+    select case i
+        case -1 to 1, 4 to 5
+            print i; ": -1 to 1, 4 to 5"
+        case 2 to 3
+            print i; ": 2 to 3"
+        case else
+            print i; ": else"
+    end select
+next
+@

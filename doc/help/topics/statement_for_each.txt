@@ -1,3 +1,43 @@
 nav@{TMBASIC Documentation:doc}@
 
 h1[`for each` Statement]
+
+A `for each` loop lets you run a section of code for each element in a t[List] or t[Set].
+
+h2[Syntax]
+
+code@
+for each <NEEDLE> in <HAYSTACK>
+    <BODY>
+next
+@
+
+ul@
+li@`<NEEDLE>` is the name of a new loop variable that will hold the current element of the t[List] or t[Set] as the loop runs.@
+li@`<HAYSTACK>` is the name of the t[List] or t[Set] to loop through.@
+li@`<BODY>` is the code to run for each element in the t[List] or t[Set].@
+@
+
+h2[Usage]
+
+The following example prints each of three items (1, 2, 3) in a list.
+
+code@
+dim myList = [1, 2, 3]
+for each num in myList
+    print num
+next
+@
+
+The `exit for` statement can be used to exit a `for each` loop early, before reaching the end of the collection.
+This example prints only the first two items in the list, because the `exit for` statement exits the loop when the loop variable `num` is 2.
+
+code@
+dim myList = [1, 2, 3]
+for each num in myList
+    print num
+    if num = 2 then
+        exit for
+    end if
+next
+@

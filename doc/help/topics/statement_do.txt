@@ -6,6 +6,8 @@ A `do` loop is one way to repeat a section of code more than once.
 After each time the loop is executed, the condition is checked.
 If the condition is `true`, then the loop body starts over from the top.
 
+Because the condition is checked after the loop body, a `do` loop will always execute at least once.
+
 h2[Syntax]
 
 code@

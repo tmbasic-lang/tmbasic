@@ -1,3 +1,41 @@
 nav@{TMBASIC Documentation:doc}@
 
 h1[`while` Statement]
+
+A `while` loop is a way to repeat a section of code until a condition stops being true.
+The condition is checked at the start of each loop; when it is false, the loop ends.
+
+Because the condition is checked before the loop body, the loop body will not be executed if the condition is already false when the loop starts.
+
+h2[Syntax]
+
+code@
+while <CONDITION>
+    <BODY>
+wend
+@
+
+ul@
+li@`<CONDITION>` is any t[Boolean] expression to be checked before each run through the loop.@
+li@`<BODY>` is the code to execute repeatedly.@
+@
+
+h2[Usage]
+
+The following example asks the user to enter 3 positive numbers.
+If the user enters a negative number, they are allowed to retry.
+We don't know how many total tries it will take the user, but the `while` loop continues until we get all 3.
+
+code@
+dim count = 0
+while count < 3
+    dim num as Number
+    print "Enter a positive number: ";
+    input num
+    if num >= 0 then
+        count = count + 1
+    else
+        print "Positive numbers only. Please try again."
+    end if
+wend
+@

@@ -1,3 +1,46 @@
 nav@{TMBASIC Documentation:doc}@
 
 h1[`for` Statement]
+
+A `for` loop lets you run a section of code a specific number of times.
+The loop variable counts up or down with each execution of the loop.
+The loop body is repeatedly executed until the loop variable reaches the end number.
+
+h2[Syntax]
+
+code@
+for <VARIABLE> = <START> to <END> [step <AMOUNT>]
+    <BODY>
+next
+@
+
+ul@
+li@`<VARIABLE>` is the name of a new loop variable to count up or down.@
+li@`<START>` is the first number to start with.@
+li@`<END>` is the last number to end with. The loop exits after the loop variable passes this number.@
+li@`<AMOUNT>` is the amount to add to the loop variable each time the loop body is executed. If not specified, the default is 1. It can be negative to count down.@
+@
+
+h2[Usage]
+
+The following example loops 10 times and prints the loop variable at each iteration.
+
+code@
+sub Main()
+    for i = 1 to 10
+        print i
+    next
+end sub
+@
+
+The `exit for` statement can be used to exit a loop before reaching the end number.
+This example prints the numbers 1 to 4, because the `exit for` statement exits the loop when the loop variable `i` is 5.
+
+code@
+for i = 1 to 10
+    if i = 5 then
+        exit for
+    end if
+    print i
+next
+@

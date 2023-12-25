@@ -1,3 +1,34 @@
 nav@{TMBASIC Documentation:doc}@
 
 h1[`rethrow` Statement]
+
+`rethrow` statements let you re-raise an error that has been caught in a {`catch`:statement_try} block.
+The `rethrow` statement must be inside a `catch` block.
+
+h2[Syntax]
+
+code@
+try
+    ...
+catch
+    ...
+    rethrow
+end try
+@
+
+h2[Usage]
+
+Use `rethrow` if you want to handle some errors but not others.
+Commonly, you may want to check the p[ErrorCode] and handle specific error codes and `rethrow` the rest.
+
+code@
+try
+    ...
+catch
+    if ErrorCode() = ERR_FILE_NOT_FOUND then
+        print "File not found!"
+    else
+        rethrow
+    end if
+end try
+@
