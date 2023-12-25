@@ -5,4 +5,4 @@ end sub
 --output--
 Error
 202
-Invalid number: asdf
+"asdf" is not a number.

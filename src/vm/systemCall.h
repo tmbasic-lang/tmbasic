@@ -59,6 +59,7 @@ enum class SystemCall {
     kFormTitle,                     // (form as Form) as String
     kHasValue,                      // (input as Optional Any) as Boolean
     kHours,                         // (count as Number) as TimeSpan
+    kInputNumber,                   // () as Number
     kInputString,                   // () as String
     kIsDigit,                       // (input as String) as Boolean
     kListDirectories,               // (path as String) as List of String

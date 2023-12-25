@@ -1928,7 +1928,20 @@ static void emitInputStatement(const InputStatementNode& statementNode, Procedur
             "The target of an \"input\" statement must be the name of a variable, not a more complicated expression.",
             statementNode.target->token);
     }
-    state->syscall(Opcode::kSystemCallO, SystemCall::kInputString, 0, 0);
+
+    assert(targetSymbolReference->evaluatedType != nullptr);
+    auto isString = targetSymbolReference->evaluatedType->kind == Kind::kString;
+    auto isNumber = targetSymbolReference->evaluatedType->kind == Kind::kNumber;
+
+    if (isString) {
+        state->syscall(Opcode::kSystemCallO, SystemCall::kInputString, 0, 0);
+    } else if (isNumber) {
+        state->syscall(Opcode::kSystemCallV, SystemCall::kInputNumber, 0, 0);
+    } else {
+        // Type checker should have caught this.
+        throw CompilerException(CompilerErrorCode::kInternal, "Internal error. Unsupported type.", statementNode.token);
+    }
+
     assert(targetSymbolReference->boundSymbolDeclaration != nullptr);
     emitSymbolReference(*targetSymbolReference->boundSymbolDeclaration, state, true);
 }

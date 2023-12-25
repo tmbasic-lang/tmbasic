@@ -166,6 +166,16 @@ void initSystemCallsStrings() {
         result->returnedObject = boost::make_local_shared<String>(ss.str());
     });
 
+    initSystemCall(SystemCall::kInputNumber, [](const auto& input, auto* result) {
+        std::string line;
+        std::getline(*input.consoleInputStream, line);
+        auto num = util::parseDecimalString(line);
+        if (num.isnan()) {
+            throw Error(ErrorCode::kInvalidNumberFormat, fmt::format("\"{}\" is not a number.", line));
+        }
+        result->returnedValue.num = num;
+    });
+
     initSystemCall(SystemCall::kInputString, [](const auto& input, auto* result) {
         std::string line;
         std::getline(*input.consoleInputStream, line);
@@ -189,7 +199,7 @@ void initSystemCallsStrings() {
         const auto& str = *castString(input.getObject(-1));
         auto num = util::parseDecimalString(str.value);
         if (num.isnan()) {
-            throw Error(ErrorCode::kInvalidNumberFormat, fmt::format("Invalid number: {}", str.value));
+            throw Error(ErrorCode::kInvalidNumberFormat, fmt::format("\"{}\" is not a number.", str.value));
         }
         result->returnedValue.num = num;
     });

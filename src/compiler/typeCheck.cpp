@@ -1303,6 +1303,16 @@ static void typeCheckReturnStatement(ReturnStatementNode* statementNode, TypeChe
     }
 }
 
+static void typeCheckInputStatement(InputStatementNode* statementNode) {
+    assert(statementNode->target->evaluatedType != nullptr);
+    auto& targetType = *statementNode->target->evaluatedType;
+    if (targetType.kind != Kind::kString && targetType.kind != Kind::kNumber) {
+        throw CompilerException(
+            CompilerErrorCode::kTypeMismatch, "The target of an \"input\" statement must be a String or Number.",
+            statementNode->target->token);
+    }
+}
+
 static void typeCheckBody(BodyNode* bodyNode, TypeCheckState* state) {
     for (auto& statementNode : bodyNode->statements) {
         statementNode->visitExpressions(true, [state](ExpressionNode* expressionNode) -> bool {
@@ -1368,9 +1378,25 @@ static void typeCheckBody(BodyNode* bodyNode, TypeCheckState* state) {
                 typeCheckReturnStatement(dynamic_cast<ReturnStatementNode*>(statementNode.get()), state);
                 break;
 
-            default:
-                // do nothing
+            case StatementType::kDimList:
+            case StatementType::kDimMap:
+            case StatementType::kDimSet:
+                // These are handled below in a separate switch statement.
                 break;
+
+            case StatementType::kContinue:
+            case StatementType::kExit:
+            case StatementType::kPrint:
+            case StatementType::kRethrow:
+            case StatementType::kTry:
+                // No special type checking needed for these. There's nothing you can do that isn't accepted.
+                break;
+
+            case StatementType::kInput:
+                typeCheckInputStatement(dynamic_cast<InputStatementNode*>(statementNode.get()));
+                break;
+
+                // Don't add a default block to this switch. We want the compiler to warn us on unhandled cases.
         }
 
         statementNode->visitBodies([state](BodyNode* innerBodyNode) -> bool {
