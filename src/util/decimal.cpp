@@ -57,7 +57,7 @@ Decimal doubleToDecimal(double x) {
     }
 
     // Decompose double using bit manipulation
-    uint64_t bits;
+    uint64_t bits = 0;
     std::memcpy(&bits, &x, sizeof(double));
     uint32_t negative = (bits >> 63) & 1U;
     uint32_t exponent = (bits >> 52) & 0x7FFU;
