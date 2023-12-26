@@ -18,6 +18,7 @@ li@i[Commands:]
 {`const`:statement_const} │
 {`continue`:statement_continue} │
 {`dim`:statement_dim} │
+{`dim list`, `dim map`, `dim set`:statement_dim_collection} │
 {`exit`:statement_exit} │
 {`input`:statement_input} │
 {`print`:statement_print} │

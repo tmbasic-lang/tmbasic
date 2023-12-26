@@ -9,6 +9,8 @@ If a type is provided, then a default initial value is chosen for that type.
 
 Use {`const`:statement_const} to declare a constant that cannot be changed.
 
+Use {`dim list`, `dim map`, and `dim set`:statement_dim_collection} to efficiently build the contents of a collection at the same time as declaring it.
+
 h2[Syntax]
 
 code@

@@ -1,3 +1,25 @@
 nav@{TMBASIC Documentation:doc}@
 
 h1[`return` Statement]
+
+A function is a procedure that returns a value to its caller.
+In a function, the `return` statement provides the return value and exits the function.
+Every function must ultimately return a value in all code paths.
+
+A subroutine is a procedure that does not return a value.
+In a subroutine, the `return` statement just exits the function and does not provide a return value.
+It's not necessary for a subroutine to contain a `return` call, but it can be used to exit the subroutine early.
+
+h2[Syntax]
+
+This example demonstrates a function that calculates a simple math formula and returns the result.
+
+code@
+function Squared(x as Number) as Number
+    return x * x
+end function
+
+sub Main()
+    print Squared(2)  ' prints 4
+end sub
+@

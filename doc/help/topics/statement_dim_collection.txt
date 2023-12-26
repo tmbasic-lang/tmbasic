@@ -1,0 +1,50 @@
+nav@{TMBASIC Documentation:doc}@
+
+h1[`dim list`, `dim map`, and `dim set` Statements]
+
+This is a modified version of the {`dim` statement:statement_dim} that allows you to populate a collection at the same time that you declare it.
+In addition to being faster for the computer, it's less typing than other ways to build up a collection.
+
+This form of `dim` contains an arbitrary code block that builds up the collection.
+Use {`yield`:statement_yield} to add items to the collection.
+
+h2[Syntax]
+
+code@
+dim list <VARIABLE>
+    ...
+    yield <VALUE>
+    ...
+end dim
+
+dim map <VARIABLE>
+    ...
+    yield <KEY> to <VALUE>
+    ...
+end dim
+
+dim set <VARIABLE>
+    ...
+    yield <VALUE>
+    ...
+end dim
+@
+
+ul@
+li@`<VARIABLE>` is the name of the new variable to be declared.@
+li@`<KEY>` (maps only) is the key to be used in the map entry.@
+li@`<VALUE>` is the value to be used in the collection entry.@
+@
+
+h2[Usage]
+
+This example builds a list of the numbers from 1 to 10.
+The type of `myList` is implicitly `List of Number`.
+
+code@
+dim list myList
+    for i = 1 to 10
+        yield i
+    next
+end dim
+@

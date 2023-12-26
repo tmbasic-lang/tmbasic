@@ -1,3 +1,25 @@
 nav@{TMBASIC Documentation:doc}@
 
 h1[`Optional` Type]
+
+Normally, a variable is required to have a value.
+For instance, a variable of type t[Number] will always contain some number, by default zero.
+Sometimes it is useful to have a variable that may or may not have a value.
+
+code@
+dim a as Number    ' default value is zero
+print a            ' prints 0
+
+dim b as Optional Number
+print HasValue(b)  ' prints false
+b = 5
+print HasValue(b)  ' prints true
+print Value(b)     ' prints 5
+@
+
+This example demonstrates the usage of an `Optional` type.
+Declare a variable with {`dim`:statement_dim} and include the keyword `Optional` before the type.
+
+The variable will initially contain no value.
+Use p[HasValue] to check whether an `Optional` variable contains a value.
+If it does, usa p[Value] to retrieve the value.

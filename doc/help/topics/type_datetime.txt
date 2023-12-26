@@ -1,3 +1,7 @@
 nav@{TMBASIC Documentation:doc}@
 
 h1[`DateTime` Type]
+
+A `DateTime` is a calendar date and a local time without any time zone information.
+
+Use the p[DateTimeFromParts] function to construct a `DateTime`.

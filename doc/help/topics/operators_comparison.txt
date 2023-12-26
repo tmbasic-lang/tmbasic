@@ -1,3 +1,14 @@
 nav@{TMBASIC Documentation:doc}@
 
 h1[Comparison Operators]
+
+TMBASIC offers a variety of binary operators that compare two values and return a t[Boolean] value.
+
+code@
+=    Equal to
+<>   Not equal to
+<    Less than
+<=   Less than or equal to
+>    Greater than
+>=   Greater than or equal to
+@

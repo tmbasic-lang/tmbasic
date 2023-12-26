@@ -1,3 +1,14 @@
 nav@{TMBASIC Documentation:doc}@
 
 h1[Algebraic Operators]
+
+TMBASIC supports a standard set of algebraic operators on t[Number] values.
+
+code@
++    Addition
+-    Subtraction
+*    Multiplication
+/    Division
+mod  Modulus
+^    Power (exponentiation)
+@

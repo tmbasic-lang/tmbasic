@@ -1,3 +1,8 @@
 nav@{TMBASIC Documentation:doc}@
 
 h1[`yield` Statement]
+
+The `yield` statement is used inside a {`dim list`, `dim map`, or `dim set` block:statement_dim_collection}.
+Each `yield` adds one entry to the collection.
+
+See the documentation for {`dim list`, `dim map`, and `dim set` block:statement_dim_collection} for more information.

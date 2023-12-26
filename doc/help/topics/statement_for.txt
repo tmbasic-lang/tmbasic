@@ -26,11 +26,9 @@ h2[Usage]
 The following example loops 10 times and prints the loop variable at each iteration.
 
 code@
-sub Main()
-    for i = 1 to 10
-        print i
-    next
-end sub
+for i = 1 to 10
+    print i
+next
 @
 
 The `exit for` statement can be used to exit a loop before reaching the end number.

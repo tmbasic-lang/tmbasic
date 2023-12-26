@@ -1,3 +1,7 @@
 nav@{TMBASIC Documentation:doc}@
 
 h1[`Date` Type]
+
+A `Date` is a calendar date without any time information.
+
+Use the p[DateFromParts] function to construct a `Date`.

@@ -1,3 +1,42 @@
 nav@{TMBASIC Documentation:doc}@
 
 h1[`Record` Type]
+
+A record is a group of fields treated as a single unit.
+For example, a record for a person might have fields for the person's name, age, and address.
+A record for a book might have fields for the book's title, author, and ISBN number.
+
+You could store these fields in separate variables, but storing them together in a record makes it possible to pass them around as a unit.
+Putting records into a t[List] is a common way to store tabular data.
+
+code@
+' Anonymous record
+dim <VARIABLE> as Record (<FIELD> as <TYPE>, ...)
+
+' Named record
+type <TYPE-NAME>
+    <FIELD> as <TYPE>
+    ...
+end type
+@
+
+You can give a name to a record type by using a `type` block.
+List the fields one per line.
+
+Using the `Record (...)` syntax, records can be passed around without needing to define a type with a name.
+
+code@
+' Literal anonymous record
+dim x = {{ foo: 1, bar: 2 }
+
+' To get a named record, cast from a literal anonymous record to the named type.
+dim x = {{ foo: 1, bar: 2 } as MyRecord
+@
+
+This literal syntax is a convenient and efficient way to construct records.
+
+code@
+print x.foo
+@
+
+Access fields using the `.` operator.

@@ -1,3 +1,14 @@
 nav@{TMBASIC Documentation:doc}@
 
 h1[Logical Operators]
+
+t[Boolean] logic is used to make decisions from multiple conditions.
+These operators take t[Boolean] operands and produce a t[Boolean] result.
+
+ul@
+li@`x and y`: `true` if both x and y are `true`.@
+li@`x or y`: `true` if either x or y is `true`.@
+li@`not x`: `true` if x is `false`.@
+@
+
+See the documentation for the t[Boolean] type for more information.

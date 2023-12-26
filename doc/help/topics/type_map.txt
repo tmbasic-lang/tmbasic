@@ -1,3 +1,30 @@
 nav@{TMBASIC Documentation:doc}@
 
 h1[`Map` Type]
+
+A `Map` is like a dictionary.
+By looking up a key, you can find the value associated with it.
+
+code@
+dim <VARIABLE> as Map from <KEY-TYPE> to <VALUE-TYPE>
+@
+
+If you have keys of type `Number` corresponding to values of type `String`, then a map of those pairings would be `Map from Number to String`.
+
+code@
+dim x as Map from Number to Number
+x(111) = 999
+print x(111)  ' prints 999
+@
+
+Use parentheses to set or retrieve values in a list by passing in the corresponding key.
+
+code@
+dim map myMap
+    for i = 1 to 10
+        yield i to 2 * i
+    next
+end dim
+@
+
+If you need to build up a map, use {`dim map`:statement_dim_collection} rather than repeatedly appending to the list.

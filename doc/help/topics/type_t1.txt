@@ -1,3 +1,6 @@
 nav@{TMBASIC Documentation:doc}@
 
-h1[Generic Placeholder Type `T`]
+h1[Generic Placeholder Type `T1`]
+
+This type is used as a placeholder in generic types in this documentation.
+In actual code `T1` would be replaced with a real type.

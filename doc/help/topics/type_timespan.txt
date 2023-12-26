@@ -1,3 +1,10 @@
 nav@{TMBASIC Documentation:doc}@
 
 h1[`TimeSpan` Type]
+
+`TimeSpan` represents a duration of time with millisecond precision.
+
+Use the functions p[Milliseconds], p[Seconds], p[Minutes], p[Hours], or p[Days] to create a `TimeSpan`.
+
+Use the functions p[TotalMilliseconds], p[TotalSeconds], p[TotalMinutes], p[TotalHours], or p[TotalDays]
+to retrieve the duration in the desired time units.

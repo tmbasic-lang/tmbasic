@@ -1,3 +1,9 @@
 nav@{TMBASIC Documentation:doc}@
 
 h1[`TimeZone` Type]
+
+The `TimeZone` type is used to represent a time zone for use with the t[DateTimeOffset] type.
+
+Use p[TimeZoneFromName] to look up a time zone from a name like `America/New_York`.
+
+Use p[UtcOffsets] to get the UTC offset for a given local time, and use it to create a t[DateTimeOffset] with p[DateTimeOffsetFromParts].

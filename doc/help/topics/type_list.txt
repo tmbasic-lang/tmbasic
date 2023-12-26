@@ -1,3 +1,53 @@
 nav@{TMBASIC Documentation:doc}@
 
 h1[`List` Type]
+
+A `List` is an ordered array of values of a single specified type.
+
+code@
+dim <VARIABLE> as List of <TYPE>
+@
+
+If you have items of type `String`, then a list of those items would be `List of String`.
+
+code@
+dim <VARIABLE> = [ <ITEM>, ... ]
+@
+
+The literal syntax for lists matches that of JavaScript and other common languages.
+Surround a comma-separated list of items with square brackets to create a list.
+
+code@
+dim x = [ ... ]
+print x(0)
+@
+
+Lists are zero-indexed, meaning that the first item in a list is at index 0.
+Use parentheses to access items in a list by passing in the index of the item you want.
+
+code@
+dim x = [ 1, 2, 3 ]
+dim y = [ 4, 5, 6 ]
+dim z = x + y + 7
+@
+
+Lists can be concatenated with the `+` operator.
+The `+` operator can also append individual items to a list.
+
+code@
+dim list myList
+    for i = 1 to 10
+        yield i
+    next
+end dim
+@
+
+If you need to build up a list, use {`dim list`:statement_dim_collection} rather than repeatedly appending to the list.
+
+code@
+for each x in myList
+    print x
+next
+@
+
+Use {`for each`:statement_for_each} to iterate over the items in a list.

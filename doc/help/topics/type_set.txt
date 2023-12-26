@@ -1,3 +1,19 @@
 nav@{TMBASIC Documentation:doc}@
 
 h1[`Set` Type]
+
+A `Set` is a collection of unique values.
+If you add a value to a `Set` that already contains that value, the `Set` will not change.
+
+code@
+dim <VARIABLE> as Set of <TYPE>
+@
+
+If you have values of type `Number`, then a set of unique numbers would be `Set of Number`.
+
+code@
+dim x as Map of Number
+x = x + 999
+x = x + 999  ' already added; this has no effect
+print Contains(x, 999)  ' prints true
+@
