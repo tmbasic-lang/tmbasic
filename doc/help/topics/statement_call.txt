@@ -1,3 +1,31 @@
 nav@{TMBASIC Documentation:doc}@
 
 h1[Subroutine Call Statement]
+
+Subroutines are procedures that do not return a value (as opposed to functions which do).
+They perform actions.
+
+p[CreateDirectory] is an example of a built-in subroutine.
+You can define your own subroutines as well.
+
+h2[Syntax]
+
+code@
+<NAME>
+<NAME> <ARGUMENTS>
+@
+
+ul@
+li@<NAME> is the name of the subroutine to call.@
+li@<ARGUMENTS> are the comma-separated values to pass into the subroutine.@
+@
+
+This syntax is similar to function calls, except that no parentheses are needed around the argument list.
+
+h2[Usage]
+
+The following example calls the built-in p[CreateDirectory] subroutine.
+
+code@
+CreateDirectory "my_dir"
+@

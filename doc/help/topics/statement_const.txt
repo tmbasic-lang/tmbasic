@@ -1,3 +1,27 @@
 nav@{TMBASIC Documentation:doc}@
 
 h1[`const` Statement]
+
+`const` declares a variable that cannot be changed.
+It cannot be assigned to, so an initial value must be provided when declaring the constant.
+
+Use {`dim`:statement_dim} to declare a variable that can be changed.
+
+h2[Syntax]
+
+code@
+const <VARIABLE> = <VALUE>
+@
+
+ul@
+li@`<VARIABLE>` is the name of the new constant to declare.@
+li@`<VALUE>` is the constant value. It cannot be changed after declaration.@
+@
+
+h2[Usage]
+
+The following simple example declares a constant for Tau, which is double Pi.
+
+code@
+const TAU = 6.28318
+@

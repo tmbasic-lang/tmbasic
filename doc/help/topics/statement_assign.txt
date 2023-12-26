@@ -1,3 +1,31 @@
 nav@{TMBASIC Documentation:doc}@
 
 h1[Assignment (`=`) Statement]
+
+An assignment statement is how you put a value into a variable.
+The variable must have been previously declared with a {`dim` statement:statement_dim}.
+
+The new value must match the type of the variable.
+It overwrites any existing value.
+
+h2[Syntax]
+
+code@
+<VARIABLE> = <VALUE>
+@
+
+ul@
+li@`<VARIABLE>` is the name of the existing variable to assign to.@
+li@`<VALUE>` is the new value to put into the variable.@
+@
+
+h2[Usage]
+
+The following trivial example shows the basic usage.
+
+code@
+dim myVariable = 5
+print myVariable  ' initially 5
+myVariable = 6    ' replace the old value with 6
+print myVariable  ' now it is 6
+@

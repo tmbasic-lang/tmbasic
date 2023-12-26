@@ -1,3 +1,27 @@
 nav@{TMBASIC Documentation:doc}@
 
 h1[`continue` Statement]
+
+The `continue` statement works inside of a loop such as {`for`:statement_for}.
+It causes the loop to jump to the next iteration, skipping any remaining statements in the loop body.
+It is invalid outside of a loop body.
+
+h2[Syntax]
+
+code@
+continue
+@
+
+There are no arguments.
+Typically, you would use an {`if`:statement_if} statement to decide whether to continue or not.
+
+h2[Usage]
+
+The following example prints each number from 1 to 10 except 5.
+
+code@
+for i = 1 to 10
+  if i = 5 then continue
+  print i
+next
+@

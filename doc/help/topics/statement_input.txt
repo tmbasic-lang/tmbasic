@@ -4,8 +4,12 @@ h1[`input` Statement]
 
 h2[Syntax]
 
-pre@
-"input" ───► identifier ───► EOL
+code@
+input <VARIABLE>
+@
+
+ul@
+li@`<VARIABLE>` is the name of a t[String] or t[Number] variable to store the user's input.@
 @
 
 h2[Usage]
@@ -35,17 +39,4 @@ pre@
 ╚═══════════════════╝   ╚═══════════════════╝   ╚═══════════════════╝
 The computer displays    The user types the      The user hits Enter.
   the prompt "Name?"        name "Alice"        The computer responds.
-@
-
-h2[Data type conversion]
-
-The `input` statement will automatically convert to data types besides t[String].
-
-code@
-sub Main()
-    print "Age? ";
-    dim age as Number
-    input age
-    print "You are "; age; " years old."
-end sub
 @

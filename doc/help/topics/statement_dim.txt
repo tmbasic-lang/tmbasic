@@ -1,3 +1,31 @@
 nav@{TMBASIC Documentation:doc}@
 
 h1[`dim` Statement]
+
+`dim` declares a new variable.
+The variable has a name and either a type or an initial value.
+If an initial value is provided, then the type is inferred from that value.
+If a type is provided, then a default initial value is chosen for that type.
+
+Use {`const`:statement_const} to declare a constant that cannot be changed.
+
+h2[Syntax]
+
+code@
+dim <VARIABLE> as <TYPE>
+dim <VARIABLE> = <VALUE>
+@
+
+ul@
+li@`<VARIABLE>` is the name of the new variable to declare.@
+li@`<TYPE>` is the type of variable, like t[Number] or t[String].@
+li@`<VALUE>` is the initial value.@
+@
+
+h2[Usage]
+
+The following simple example declares a new variable named `x`. The initial value is 5, and so the type of the variable is t[Number].
+
+code@
+dim myVariable = 5
+@

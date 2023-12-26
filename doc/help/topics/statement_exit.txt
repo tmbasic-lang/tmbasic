@@ -1,3 +1,29 @@
 nav@{TMBASIC Documentation:doc}@
 
 h1[`exit` Statement]
+
+The `exit do`, `exit for`, and `exit while` statements work inside of their respective loops.
+It causes the loop to exit immediately, and execution continues with the next statement following the loop.
+
+h2[Syntax]
+
+code@
+exit do
+exit for
+exit while
+@
+
+There are no arguments.
+Typically, you would use an {`if`:statement_if} statement to decide whether to exit or not.
+
+h2[Usage]
+
+The following example reads lines of input from the user until they enter a blank line.
+
+code@
+while true
+    dim line as String
+    input line
+    if Len(line) = 0 then exit while
+wend
+@
