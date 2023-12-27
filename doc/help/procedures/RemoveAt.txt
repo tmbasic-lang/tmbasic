@@ -1,0 +1,44 @@
+.procedure RemoveAt
+.category Lists
+.blurb Removes one or more elements from a t[List].
+.description
+Creates a new t[List] by removing one or more elements from an existing t[List].
+.overload
+.parameter list: List of T
+The existing list from which to remove an element.
+.parameter index: Number
+The zero-based index of the element to remove.
+.return List of T
+A new t[List] with the specified element removed.
+.errors
+ERR_LIST_INDEX_OUT_OF_RANGE
+.example
+.example-code
+dim x = [1, 2, 3]
+dim y = RemoveAt(x, 1)
+print Len(y)
+print y(0)
+print y(1)
+.example-output
+2
+1
+3
+.overload
+.parameter list: List of T
+The existing list from which to remove elements.
+.parameter indices: List of Number
+The zero-based indices of the elements to remove.
+.return List of T
+A new t[List] with the specified elements removed.
+.errors
+ERR_LIST_INDEX_OUT_OF_RANGE
+.example
+.example-code
+dim x = [1, 2, 3]
+dim y = RemoveAt(x, [0, 1])
+print Len(y)
+print y(0)
+.example-output
+1
+3
+.

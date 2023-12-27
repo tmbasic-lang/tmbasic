@@ -110,6 +110,20 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("ReadFileLines", { "filePath" }, { string }, listOfString, SystemCall::kReadFileLines);
     addFunction("ReadFileText", { "filePath" }, { string }, string, SystemCall::kReadFileText);
     addFunction(
+        "RemoveAt",
+        {
+            "list",
+            "index",
+        },
+        { listOfAny, number }, listOfGeneric1, SystemCall::kListRemoveAt1);
+    addFunction(
+        "RemoveAt",
+        {
+            "list",
+            "indices",
+        },
+        { listOfAny, listOfNumber }, listOfGeneric1, SystemCall::kListRemoveAt2);
+    addFunction(
         "Replace", { "haystack", "needle", "replacement" }, { string, string, string }, string,
         SystemCall::kStringReplace);
     addFunction("Round", { "x" }, { number }, number, SystemCall::kRound);

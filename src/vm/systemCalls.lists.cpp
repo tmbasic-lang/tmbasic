@@ -122,6 +122,39 @@ static void systemCallListSkipOrTake(const SystemCallInput& input, SystemCallRes
     }
 }
 
+template <typename TList>
+static boost::local_shared_ptr<TList> removeAtSingle(const TList& list, int64_t index) {
+    if (index < 0 || static_cast<size_t>(index) >= list.items.size()) {
+        throw Error(ErrorCode::kListIndexOutOfRange, "Index out of range.");
+    }
+    return boost::make_local_shared<TList>(list, index);
+}
+
+template <typename TList>
+static boost::local_shared_ptr<TList> removeAtMultiple(const TList& list, const ValueList& indices) {
+    std::vector<int64_t> sortedIndices{};
+    for (const auto& index : indices.items) {
+        sortedIndices.push_back(index.getInt64());
+    }
+
+    // Sort the indices in descending order.
+    std::sort(sortedIndices.begin(), sortedIndices.end(), std::greater<int64_t>{});
+
+    // Remove duplicate indices.
+    sortedIndices.erase(std::unique(sortedIndices.begin(), sortedIndices.end()), sortedIndices.end());
+
+    auto vec = list.items;
+
+    for (auto index : sortedIndices) {
+        if (index < 0 || static_cast<size_t>(index) >= list.items.size()) {
+            throw Error(ErrorCode::kListIndexOutOfRange, "Index out of range.");
+        }
+        vec = vec.erase(static_cast<size_t>(index));
+    }
+
+    return boost::make_local_shared<TList>(vec);
+}
+
 void initSystemCallsLists() {
     initSystemCall(SystemCall::kListFillO, [](const auto& input, auto* result) {
         const auto& object = input.getObjectPtr(-1);
@@ -169,8 +202,47 @@ void initSystemCallsLists() {
 
     initSystemCall(SystemCall::kListMid, [](const auto& input, auto* result) { systemCallListMid(input, result); });
 
+    initSystemCall(SystemCall::kListRemoveAt1, [](const auto& input, auto* result) {
+        const auto& listObject = input.getObject(-1);
+        auto index = input.getValue(-1).getInt64();
+
+        switch (listObject->getObjectType()) {
+            case ObjectType::kObjectList:
+                result->returnedObject = removeAtSingle<ObjectList>(*castObjectList(listObject), index);
+                break;
+
+            case ObjectType::kValueList:
+                result->returnedObject = removeAtSingle<ValueList>(*castValueList(listObject), index);
+                break;
+
+            default:
+                assert(false);
+                break;
+        }
+    });
+
+    initSystemCall(SystemCall::kListRemoveAt2, [](const auto& input, auto* result) {
+        const auto& listObject = input.getObject(-2);
+        auto indicesList = castValueList(input.getObject(-1));
+
+        switch (listObject->getObjectType()) {
+            case ObjectType::kObjectList:
+                result->returnedObject = removeAtMultiple<ObjectList>(*castObjectList(listObject), *indicesList);
+                break;
+
+            case ObjectType::kValueList:
+                result->returnedObject = removeAtMultiple<ValueList>(*castValueList(listObject), *indicesList);
+                break;
+
+            default:
+                assert(false);
+                break;
+        }
+    });
+
     initSystemCall(
         SystemCall::kListSkip, [](const auto& input, auto* result) { systemCallListSkipOrTake(input, result, true); });
+
     initSystemCall(
         SystemCall::kListTake, [](const auto& input, auto* result) { systemCallListSkipOrTake(input, result, false); });
 
