@@ -1,0 +1,39 @@
+.procedure Day
+.category Dates and Times
+.blurb Returns the day component of a date.
+.description
+Returns the day component of a date.
+.overload
+.parameter date: Date
+The time to extract the day component from.
+.return Number
+The day component of the date.
+.example
+.example-code
+dim x = DateFromParts(2021, 3, 12)
+print Day(x)
+.example-output
+12
+.overload
+.parameter dateTime: DateTime
+The time to extract the day component from.
+.return Number
+The day component of the date.
+.example
+.example-code
+dim x = DateTimeFromParts(2021, 3, 12, 14, 30, 59, 488)
+print Day(x)
+.example-output
+12
+.overload
+.parameter dateTimeOffset: DateTimeOffset
+The time to extract the day component from.
+.return Number
+The day component of the date.
+.example
+.example-code
+dim x = DateTimeOffsetFromParts(2021, 3, 12, 4, 30, 59, 488, Days(-4))
+print Day(x)
+.example-output
+12
+.

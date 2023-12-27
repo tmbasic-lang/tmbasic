@@ -1,0 +1,39 @@
+.procedure Year
+.category Dates and Times
+.blurb Returns the year component of a date.
+.description
+Returns the year component of a date.
+.overload
+.parameter date: Date
+The time to extract the year component from.
+.return Number
+The year component of the date.
+.example
+.example-code
+dim x = DateFromParts(2021, 3, 12)
+print Year(x)
+.example-output
+2021
+.overload
+.parameter dateTime: DateTime
+The time to extract the year component from.
+.return Number
+The year component of the date.
+.example
+.example-code
+dim x = DateTimeFromParts(2021, 3, 12, 14, 30, 59, 488)
+print Year(x)
+.example-output
+2021
+.overload
+.parameter dateTimeOffset: DateTimeOffset
+The time to extract the year component from.
+.return Number
+The year component of the date.
+.example
+.example-code
+dim x = DateTimeOffsetFromParts(2021, 3, 12, 4, 30, 59, 488, Years(-4))
+print Year(x)
+.example-output
+2021
+.

@@ -1,0 +1,28 @@
+.procedure Second
+.category Dates and Times
+.blurb Returns the second component of a time.
+.description
+Returns the second component of a time.
+.overload
+.parameter dateTime: DateTime
+The time to extract the second component from.
+.return Number
+The second component of the time.
+.example
+.example-code
+dim x = DateTimeFromParts(2021, 3, 12, 14, 30, 59, 488)
+print Second(x)
+.example-output
+59
+.overload
+.parameter dateTimeOffset: DateTimeOffset
+The time to extract the second component from.
+.return Number
+The second component of the time.
+.example
+.example-code
+dim x = DateTimeOffsetFromParts(2021, 3, 12, 4, 30, 59, 488, Hours(-4))
+print Second(x)
+.example-output
+59
+.

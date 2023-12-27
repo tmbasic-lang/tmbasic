@@ -39,10 +39,17 @@ enum class SystemCall {
     kCreateDirectory,               // (path as String) as Boolean
     kDateFromParts,                 // (year as Number, month as Number, day as Number) as Date
     kDateTimeFromParts,             // (year as Number, ...) as DateTime
+    kDateTimeOffsetDay,             // (dateTimeOffset as DateTimeOffset) as Number
     kDateTimeOffsetFromParts,       // (year as N ... timeZone as TimeZone) as DateTimeOffset
-    kDateTimeOffsetToDateTime,      // (dateTimeOffset as DateTimeOffset) as DateTime
+    kDateTimeOffsetHour,            // (dateTimeOffset as DateTimeOffset) as Number
+    kDateTimeOffsetMillisecond,     // (dateTimeOffset as DateTimeOffset) as Number
+    kDateTimeOffsetMinute,          // (dateTimeOffset as DateTimeOffset) as Number
+    kDateTimeOffsetMonth,           // (dateTimeOffset as DateTimeOffset) as Number
+    kDateTimeOffsetSecond,          // (dateTimeOffset as DateTimeOffset) as Number
     kDateTimeOffsetToDate,          // (dateTimeOffset as DateTimeOffset) as Date
+    kDateTimeOffsetToDateTime,      // (dateTimeOffset as DateTimeOffset) as DateTime
     kDateTimeOffsetToString,        // (dateTimeOffset as DateTimeOffset) as String
+    kDateTimeOffsetYear,            // (dateTimeOffset as DateTimeOffset) as Number
     kDateTimeToDate,                // (dateTime as DateTime) as Date
     kDateTimeToString,              // (dateTime as DateTime) as String
     kDateToString,                  // (date as Date) as String

@@ -1,0 +1,28 @@
+.procedure Millisecond
+.category Dates and Times
+.blurb Returns the millisecond component of a time.
+.description
+Returns the millisecond component of a time.
+.overload
+.parameter dateTime: DateTime
+The time to extract the millisecond component from.
+.return Number
+The millisecond component of the time.
+.example
+.example-code
+dim x = DateTimeFromParts(2021, 3, 12, 14, 30, 59, 488)
+print Millisecond(x)
+.example-output
+488
+.overload
+.parameter dateTimeOffset: DateTimeOffset
+The time to extract the millisecond component from.
+.return Number
+The millisecond component of the time.
+.example
+.example-code
+dim x = DateTimeOffsetFromParts(2021, 3, 12, 4, 30, 59, 488, Hours(-4))
+print Millisecond(x)
+.example-output
+488
+.

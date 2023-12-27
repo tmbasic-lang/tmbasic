@@ -97,6 +97,12 @@ void initSystemCallsDates() {
         result->returnedValue = convertDateTimePartsToValue(parts);
     });
 
+    initSystemCall(SystemCall::kDateTimeOffsetDay, [](const auto& input, auto* result) {
+        const auto& dateValue = input.getValue(-1);
+        auto parts = vm::convertValueToDateTimeOffsetParts(dateValue);
+        result->returnedValue = Value{ parts.day };
+    });
+
     initSystemCall(SystemCall::kDateTimeOffsetFromParts, [](const auto& input, auto* result) {
         auto year = input.getValue(-8).getInt64();
         validateYear(year);
@@ -130,6 +136,36 @@ void initSystemCallsDates() {
         result->returnedValue = convertDateTimeOffsetPartsToValue(parts);
     });
 
+    initSystemCall(SystemCall::kDateTimeOffsetHour, [](const auto& input, auto* result) {
+        const auto& dateValue = input.getValue(-1);
+        auto parts = vm::convertValueToDateTimeOffsetParts(dateValue);
+        result->returnedValue = Value{ parts.hour };
+    });
+
+    initSystemCall(SystemCall::kDateTimeOffsetMillisecond, [](const auto& input, auto* result) {
+        const auto& dateValue = input.getValue(-1);
+        auto parts = vm::convertValueToDateTimeOffsetParts(dateValue);
+        result->returnedValue = Value{ parts.millisecond };
+    });
+
+    initSystemCall(SystemCall::kDateTimeOffsetMinute, [](const auto& input, auto* result) {
+        const auto& dateValue = input.getValue(-1);
+        auto parts = vm::convertValueToDateTimeOffsetParts(dateValue);
+        result->returnedValue = Value{ parts.minute };
+    });
+
+    initSystemCall(SystemCall::kDateTimeOffsetMonth, [](const auto& input, auto* result) {
+        const auto& dateValue = input.getValue(-1);
+        auto parts = vm::convertValueToDateTimeOffsetParts(dateValue);
+        result->returnedValue = Value{ parts.month };
+    });
+
+    initSystemCall(SystemCall::kDateTimeOffsetSecond, [](const auto& input, auto* result) {
+        const auto& dateValue = input.getValue(-1);
+        auto parts = vm::convertValueToDateTimeOffsetParts(dateValue);
+        result->returnedValue = Value{ parts.second };
+    });
+
     initSystemCall(SystemCall::kDateTimeToDate, [](const auto& input, auto* result) {
         const auto& dateTime = input.getValue(-1);
         result->returnedValue = dateTimeToDate(dateTime);
@@ -148,6 +184,12 @@ void initSystemCallsDates() {
     initSystemCall(SystemCall::kDateTimeOffsetToString, [](const auto& input, auto* result) {
         const auto& dateTimeOffset = input.getValue(-1);
         result->returnedObject = dateTimeOffsetToString(dateTimeOffset);
+    });
+
+    initSystemCall(SystemCall::kDateTimeOffsetYear, [](const auto& input, auto* result) {
+        const auto& dateValue = input.getValue(-1);
+        auto parts = vm::convertValueToDateTimeOffsetParts(dateValue);
+        result->returnedValue = Value{ parts.year };
     });
 
     initSystemCall(SystemCall::kDateTimeOffsetToDateTime, [](const auto& input, auto* result) {

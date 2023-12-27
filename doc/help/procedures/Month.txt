@@ -1,0 +1,39 @@
+.procedure Month
+.category Dates and Times
+.blurb Returns the month component of a date.
+.description
+Returns the month component of a date.
+.overload
+.parameter date: Date
+The time to extract the month component from.
+.return Number
+The month component of the date.
+.example
+.example-code
+dim x = DateFromParts(2021, 3, 12)
+print Month(x)
+.example-output
+3
+.overload
+.parameter dateTime: DateTime
+The time to extract the month component from.
+.return Number
+The month component of the date.
+.example
+.example-code
+dim x = DateTimeFromParts(2021, 3, 12, 14, 30, 59, 488)
+print Month(x)
+.example-output
+3
+.overload
+.parameter dateTimeOffset: DateTimeOffset
+The time to extract the month component from.
+.return Number
+The month component of the date.
+.example
+.example-code
+dim x = DateTimeOffsetFromParts(2021, 3, 12, 4, 30, 59, 488, Months(-4))
+print Month(x)
+.example-output
+3
+.

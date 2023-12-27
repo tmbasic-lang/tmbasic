@@ -66,6 +66,9 @@ BuiltInProcedureList::BuiltInProcedureList() {
         "DateTimeOffsetFromParts", { "year", "month", "day", "hour", "minute", "second", "millisecond", "utcOffset" },
         { number, number, number, number, number, number, number, timeSpan }, dateTimeOffset,
         SystemCall::kDateTimeOffsetFromParts);
+    addFunction("Day", { "input" }, { date }, number, SystemCall::kDateTimeOffsetDay);
+    addFunction("Day", { "input" }, { dateTime }, number, SystemCall::kDateTimeOffsetDay);
+    addFunction("Day", { "input" }, { dateTimeOffset }, number, SystemCall::kDateTimeOffsetDay);
     addFunction("Days", { "count" }, { number }, timeSpan, SystemCall::kDays);
     addSub("DeleteDirectory", { "path" }, { string }, SystemCall::kDeleteDirectory1);
     addSub("DeleteDirectory", { "path", "recursive" }, { string, boolean }, SystemCall::kDeleteDirectory2);
@@ -79,6 +82,8 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("Floor", { "x" }, { number }, number, SystemCall::kFloor);
     addFunction("FormTitle", { "form" }, { form }, string, SystemCall::kFormTitle);
     addFunction("HasValue", { "this" }, { optionalAny }, boolean, SystemCall::kHasValue);
+    addFunction("Hour", { "input" }, { dateTime }, number, SystemCall::kDateTimeOffsetHour);
+    addFunction("Hour", { "input" }, { dateTimeOffset }, number, SystemCall::kDateTimeOffsetHour);
     addFunction("Hours", { "count" }, { number }, timeSpan, SystemCall::kHours);
     addFunction("IsDigit", { "input" }, { string }, boolean, SystemCall::kIsDigit);
     addFunction("Last", { "list" }, { listOfAny }, generic1, SystemCall::kListLast);
@@ -93,8 +98,15 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("Log10", { "x" }, { number }, number, SystemCall::kLog10);
     addFunction(
         "Mid", { "list", "start", "count" }, { listOfAny, number, number }, listOfGeneric1, SystemCall::kListMid);
+    addFunction("Millisecond", { "input" }, { dateTime }, number, SystemCall::kDateTimeOffsetMillisecond);
+    addFunction("Millisecond", { "input" }, { dateTimeOffset }, number, SystemCall::kDateTimeOffsetMillisecond);
     addFunction("Milliseconds", { "count" }, { number }, timeSpan, SystemCall::kMilliseconds);
+    addFunction("Minute", { "input" }, { dateTime }, number, SystemCall::kDateTimeOffsetMinute);
+    addFunction("Minute", { "input" }, { dateTimeOffset }, number, SystemCall::kDateTimeOffsetMinute);
     addFunction("Minutes", { "count" }, { number }, timeSpan, SystemCall::kMinutes);
+    addFunction("Month", { "input" }, { date }, number, SystemCall::kDateTimeOffsetMonth);
+    addFunction("Month", { "input" }, { dateTime }, number, SystemCall::kDateTimeOffsetMonth);
+    addFunction("Month", { "input" }, { dateTimeOffset }, number, SystemCall::kDateTimeOffsetMonth);
     addFunction("NewForm", {}, {}, form, SystemCall::kNewForm);
     addFunction("NewLabel", {}, {}, control, SystemCall::kNewLabel);
     addFunction("NewLine", {}, {}, string, SystemCall::kNewLine);
@@ -128,6 +140,8 @@ BuiltInProcedureList::BuiltInProcedureList() {
         SystemCall::kStringReplace);
     addFunction("Round", { "x" }, { number }, number, SystemCall::kRound);
     addSub("RunForm", { "form" }, { form }, SystemCall::kRunForm);
+    addFunction("Second", { "input" }, { dateTime }, number, SystemCall::kDateTimeOffsetSecond);
+    addFunction("Second", { "input" }, { dateTimeOffset }, number, SystemCall::kDateTimeOffsetSecond);
     addFunction("Seconds", { "count" }, { number }, timeSpan, SystemCall::kSeconds);
     addSub("SetControlBounds", { "control", "bounds" }, { control, rectangle }, SystemCall::kSetControlBounds1);
     addSub(
@@ -155,6 +169,9 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addSub("WriteFileBytes", { "filePath", "bytes" }, { string, listOfNumber }, SystemCall::kWriteFileBytes);
     addSub("WriteFileLines", { "filePath", "lines" }, { string, listOfString }, SystemCall::kWriteFileLines);
     addSub("WriteFileText", { "filePath", "text" }, { string, string }, SystemCall::kWriteFileText);
+    addFunction("Year", { "input" }, { date }, number, SystemCall::kDateTimeOffsetYear);
+    addFunction("Year", { "input" }, { dateTime }, number, SystemCall::kDateTimeOffsetYear);
+    addFunction("Year", { "input" }, { dateTimeOffset }, number, SystemCall::kDateTimeOffsetYear);
 }
 
 const std::vector<std::unique_ptr<ProcedureNode>>& BuiltInProcedureList::get(const std::string& name) const {

@@ -1,0 +1,28 @@
+.procedure Minute
+.category Dates and Times
+.blurb Returns the minute component of a time.
+.description
+Returns the minute component of a time.
+.overload
+.parameter dateTime: DateTime
+The time to extract the minute component from.
+.return Number
+The minute component of the time.
+.example
+.example-code
+dim x = DateTimeFromParts(2021, 3, 12, 14, 30, 59, 488)
+print Minute(x)
+.example-output
+30
+.overload
+.parameter dateTimeOffset: DateTimeOffset
+The time to extract the minute component from.
+.return Number
+The minute component of the time.
+.example
+.example-code
+dim x = DateTimeOffsetFromParts(2021, 3, 12, 4, 30, 59, 488, Hours(-4))
+print Minute(x)
+.example-output
+30
+.
