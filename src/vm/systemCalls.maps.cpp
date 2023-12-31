@@ -222,7 +222,91 @@ void initSystemCallsMaps() {
             }
 
             default:
-                throw Error(ErrorCode::kInternalTypeConfusion, "ContainsKey: first parameter isn't a map.");
+                throw Error(ErrorCode::kInternalTypeConfusion, "Find: first parameter isn't a map.");
+        }
+    });
+
+    initSystemCall(SystemCall::kMapObjectKeys, [](const auto& input, auto* result) {
+        const auto& mapObject = *input.getObject(-1);
+
+        switch (mapObject.getObjectType()) {
+            case ObjectType::kObjectToObjectMap: {
+                const auto& map = castObjectToObjectMap(mapObject);
+                result->returnedObject = map.keys();
+                break;
+            }
+
+            case ObjectType::kObjectToValueMap: {
+                const auto& map = castObjectToValueMap(mapObject);
+                result->returnedObject = map.keys();
+                break;
+            }
+
+            default:
+                throw Error(ErrorCode::kInternalTypeConfusion, "Keys: parameter isn't a map.");
+        }
+    });
+
+    initSystemCall(SystemCall::kMapValueKeys, [](const auto& input, auto* result) {
+        const auto& mapObject = *input.getObject(-1);
+
+        switch (mapObject.getObjectType()) {
+            case ObjectType::kValueToObjectMap: {
+                const auto& map = castValueToObjectMap(mapObject);
+                result->returnedObject = map.keys();
+                break;
+            }
+
+            case ObjectType::kValueToValueMap: {
+                const auto& map = castValueToValueMap(mapObject);
+                result->returnedObject = map.keys();
+                break;
+            }
+
+            default:
+                throw Error(ErrorCode::kInternalTypeConfusion, "Keys: parameter isn't a map.");
+        }
+    });
+
+    initSystemCall(SystemCall::kMapObjectValues, [](const auto& input, auto* result) {
+        const auto& mapObject = *input.getObject(-1);
+
+        switch (mapObject.getObjectType()) {
+            case ObjectType::kObjectToObjectMap: {
+                const auto& map = castObjectToObjectMap(mapObject);
+                result->returnedObject = map.values();
+                break;
+            }
+
+            case ObjectType::kValueToObjectMap: {
+                const auto& map = castValueToObjectMap(mapObject);
+                result->returnedObject = map.values();
+                break;
+            }
+
+            default:
+                throw Error(ErrorCode::kInternalTypeConfusion, "Values: parameter isn't a map.");
+        }
+    });
+
+    initSystemCall(SystemCall::kMapValueValues, [](const auto& input, auto* result) {
+        const auto& mapObject = *input.getObject(-1);
+
+        switch (mapObject.getObjectType()) {
+            case ObjectType::kObjectToValueMap: {
+                const auto& map = castObjectToValueMap(mapObject);
+                result->returnedObject = map.values();
+                break;
+            }
+
+            case ObjectType::kValueToValueMap: {
+                const auto& map = castValueToValueMap(mapObject);
+                result->returnedObject = map.values();
+                break;
+            }
+
+            default:
+                throw Error(ErrorCode::kInternalTypeConfusion, "Values: parameter isn't a map.");
         }
     });
 }

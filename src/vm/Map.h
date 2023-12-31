@@ -4,6 +4,8 @@
 #include "vm/List.h"
 #include "vm/Object.h"
 #include "vm/Value.h"
+#include "vm/RecordBuilder.h"
+#include "vm/Record.h"
 
 namespace vm {
 
@@ -118,6 +120,20 @@ class Map : public Object {
             builder.items.push_back(pair.second);
         }
         return boost::make_local_shared<TValueList>(&builder);
+    }
+
+    boost::local_shared_ptr<Record> keysAndValues() const {
+        TKeyListBuilder keysBuilder;
+        TValueListBuilder valuesBuilder;
+        for (auto& pair : pairs) {
+            keysBuilder.items.push_back(pair.first);
+            valuesBuilder.items.push_back(pair.second);
+        }
+
+        RecordBuilder builder{ 0, 2 };
+        builder.objects.push_back(boost::make_local_shared<TKeyList>(&keysBuilder));
+        builder.objects.push_back(boost::make_local_shared<TValueList>(&valuesBuilder));
+        return boost::make_local_shared<Record>(&builder);
     }
 };
 

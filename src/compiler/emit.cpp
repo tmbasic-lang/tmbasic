@@ -93,9 +93,25 @@ class ProcedureState {
     void popValue() { op(Opcode::kPopValue); }
     void popObject() { op(Opcode::kPopObject); }
     void duplicateValue() { op(Opcode::kDuplicateValue); }
+    void duplicateValues(uint8_t count) {
+        op(Opcode::kDuplicateValues);
+        emitInt<uint8_t>(count);
+    }
     void duplicateObject() { op(Opcode::kDuplicateObject); }
+    void duplicateObjects(uint8_t count) {
+        op(Opcode::kDuplicateObjects);
+        emitInt<uint8_t>(count);
+    }
     void swapValues() { op(Opcode::kSwapValues); }
     void swapObjects() { op(Opcode::kSwapObjects); }
+    void copyValue(uint8_t index) {
+        op(Opcode::kCopyValue);
+        emitInt<uint8_t>(index);
+    }
+    void copyObject(uint8_t index) {
+        op(Opcode::kCopyObject);
+        emitInt<uint8_t>(index);
+    }
 
     void initLocals(uint16_t numVals, uint16_t numObjs) {
         op(Opcode::kInitLocals);
@@ -1803,43 +1819,292 @@ static void emitDoStatement(const DoStatementNode& statementNode, ProcedureState
 }
 
 static void emitPrint(const TypeNode& type, const Token& token, ProcedureState* state) {
-    // object/value must already be on the stack
+    // Object/value must already be on the stack and will be consumed.
     switch (type.kind) {
         case Kind::kBoolean:
             state->syscall(Opcode::kSystemCallO, SystemCall::kBooleanToString, 1, 0);
             state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
             break;
+
         case Kind::kNumber:
             state->syscall(Opcode::kSystemCallO, SystemCall::kNumberToString, 1, 0);
             state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
             break;
+
         case Kind::kDate:
             state->syscall(Opcode::kSystemCallO, SystemCall::kDateToString, 1, 0);
             state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
             break;
+
         case Kind::kDateTime:
             state->syscall(Opcode::kSystemCallO, SystemCall::kDateTimeToString, 1, 0);
             state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
             break;
+
         case Kind::kDateTimeOffset:
             state->syscall(Opcode::kSystemCallO, SystemCall::kDateTimeOffsetToString, 1, 0);
             state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
             break;
+
         case Kind::kTimeSpan:
             state->syscall(Opcode::kSystemCallO, SystemCall::kTimeSpanToString, 1, 0);
             state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
             break;
+
         case Kind::kTimeZone:
             state->syscall(Opcode::kSystemCallO, SystemCall::kTimeZoneToString, 0, 1);
             state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
             break;
+
         case Kind::kString:
             state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
             break;
-        case Kind::kList:
-            throw std::runtime_error("not impl");
-        case Kind::kMap:
-            throw std::runtime_error("not impl");
+
+        case Kind::kList: {
+            // ---- O: list [0] | V: [0]
+
+            state->pushImmediateUtf8("[");
+            // ---- O: list string [0] | V: [0]
+            state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
+            // ---- O: list [0] | V: [0]
+
+            state->duplicateObject();
+            // ---- O: list list [0] | V: [0]
+            state->syscall(Opcode::kSystemCallV, SystemCall::kListLen, 0, 1);
+            // ---- O: list [0] | V: length [0]
+
+            state->pushImmediateInt64(0);  // current index, starts at 0
+            // ---- O: list [0] | V: length index [0]
+
+            // Top of loop.
+            auto topLabel = state->labelId();
+            auto endLabel = state->labelId();
+            state->label(topLabel);
+
+            // Is the loop finished?
+            // ---- O: list [0] | V: length index [0]
+            state->duplicateValues(2);
+            // ---- O: list [0] | V: length index length index [0]
+            state->syscall(Opcode::kSystemCallV, SystemCall::kNumberLessThanEquals, 2, 0);
+            // ---- O: list [0] | V: length index bool [0]
+            state->branchIfTrue(endLabel);
+            // ---- O: list [0] | V: length index [0]
+
+            // Print the comma if this is not the first loop iteration.
+            state->duplicateValue();
+            // ---- O: list [0] | V: length index index [0]
+            state->pushImmediateInt64(0);
+            // ---- O: list [0] | V: length index index 0 [0]
+            auto afterCommaLabel = state->labelId();
+            state->syscall(Opcode::kSystemCallV, SystemCall::kNumberEquals, 2, 0);
+            // ---- O: list [0] | V: length index bool [0]
+            state->branchIfTrue(afterCommaLabel);
+            // ---- O: list [0] | V: length index [0]
+            state->pushImmediateUtf8(", ");
+            // ---- O: list string [0] | V: length index [0]
+            state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
+            // ---- O: list [0] | V: length index [0]
+            state->label(afterCommaLabel);
+
+            // Print the list element.
+            state->duplicateObject();
+            // ---- O: list list [0] | V: length index [0]
+            state->duplicateValue();
+            // ---- O: list list [0] | V: length index index [0]
+            if (type.listItemType->isValueType()) {
+                state->syscall(Opcode::kSystemCallV, SystemCall::kValueListGet, 1, 1);
+                // ---- O: list [0] | V: length index item [0]
+            } else {
+                state->syscall(Opcode::kSystemCallO, SystemCall::kObjectListGet, 1, 1);
+                // ---- O: list item [0] | V: length index [0]
+            }
+            emitPrint(*type.listItemType, token, state);
+            // ---- O: list [0] | V: length index [0]
+
+            // Increment the index.
+            state->pushImmediateInt64(1);
+            // ---- O: list [0] | V: length index 1 [0]
+            state->syscall(Opcode::kSystemCallV, SystemCall::kNumberAdd, 2, 0);
+            // ---- O: list [0] | V: length index [0]
+
+            // Jump to next loop iteration.
+            state->jump(topLabel);
+
+            // End of loop.
+            state->label(endLabel);
+            // ---- O: list [0] | V: length index [0]
+            state->popValue();
+            // ---- O: list [0] | V: length [0]
+            state->popValue();
+            // ---- O: list [0] | V: [0]
+            state->pushImmediateUtf8("]");
+            // ---- O: list string [0] | V: [0]
+            state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
+            // ---- O: list [0] | V: [0]
+            state->popObject();
+            // ---- O: [0] | V: [0]
+            break;
+        }
+
+        case Kind::kMap: {
+            // ---- O: map [0] | V: [0]
+            auto isFromValue = type.mapKeyType->isValueType();
+            auto isToValue = type.mapValueType->isValueType();
+
+            state->pushImmediateUtf8("Map {");
+            // ---- O: map string [0] | V: [0]
+            state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
+            // ---- O: map [0] | V: [0]
+
+            // Get an ObjectList or ValueList of the keys.
+            state->duplicateObject();
+            // ---- O: map map [0] | V: [0]
+            state->syscall(
+                Opcode::kSystemCallO, isFromValue ? SystemCall::kMapValueKeys : SystemCall::kMapObjectKeys, 0, 1);
+            // ---- O: map list [0] | V: [0]
+
+            // Get the number of keys.
+            state->duplicateObject();
+            // ---- O: map list list [0] | V: [0]
+            state->syscall(Opcode::kSystemCallV, SystemCall::kListLen, 0, 1);
+            // ---- O: map list [0] | V: length [0]
+
+            state->pushImmediateInt64(0);  // current index, starts at 0
+            // ---- O: map list [0] | V: length index [0]
+
+            // Top of loop.
+            auto topLabel = state->labelId();
+            auto endLabel = state->labelId();
+            state->label(topLabel);
+
+            // Is the loop finished?
+            // ---- O: map list [0] | V: length index [0]
+            state->duplicateValues(2);
+            // ---- O: map list [0] | V: length index length index [0]
+            state->syscall(Opcode::kSystemCallV, SystemCall::kNumberLessThanEquals, 2, 0);
+            // ---- O: map list [0] | V: length index bool [0]
+            state->branchIfTrue(endLabel);
+            // ---- O: map list [0] | V: length index [0]
+
+            // Print the comma if this is not the first loop iteration.
+            state->duplicateValue();
+            // ---- O: map list [0] | V: length index index [0]
+            state->pushImmediateInt64(0);
+            // ---- O: map list [0] | V: length index index 0 [0]
+            auto afterCommaLabel = state->labelId();
+            state->syscall(Opcode::kSystemCallV, SystemCall::kNumberEquals, 2, 0);
+            // ---- O: map list [0] | V: length index bool [0]
+            state->branchIfTrue(afterCommaLabel);
+            // ---- O: map list [0] | V: length index [0]
+            state->pushImmediateUtf8(", ");
+            // ---- O: map list string [0] | V: length index [0]
+            state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
+            // ---- O: map list [0] | V: length index [0]
+            state->label(afterCommaLabel);
+
+            // Print the key.
+            state->duplicateObject();
+            // ---- O: map list list [0] | V: length index [0]
+            state->duplicateValue();
+            // ---- O: map list list [0] | V: length index index [0]
+            if (isFromValue) {
+                state->syscall(Opcode::kSystemCallV, SystemCall::kValueListGet, 1, 1);
+                // ---- O: map list [0] | V: length index key [0]
+                state->duplicateValue();
+                // ---- O: map list [0] | V: length index key key [0]
+            } else {
+                state->syscall(Opcode::kSystemCallO, SystemCall::kObjectListGet, 1, 1);
+                // ---- O: map list key [0] | V: length index [0]
+                state->duplicateObject();
+                // ---- O: map list key key [0] | V: length index [0]
+            }
+            emitPrint(*type.mapKeyType, token, state);
+            // ---- O: map list key* [0] | V: length index key* [0]
+            // * key is either a value or an object but not both.
+
+            // Print the colon.
+            state->pushImmediateUtf8(": ");
+            // ---- O: map list key* string [0] | V: length index key* [0]
+            state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
+            // ---- O: map list key* [0] | V: length index key* [0]
+
+            // Print the value.
+            if (isFromValue) {
+                // ---- O: map list [0] | V: length index key [0]
+                state->copyObject(2);
+                // ---- O: map list map [0] | V: length index key [0]
+                if (isToValue) {
+                    state->valueToValueMapTryGet();
+                    // ---- O: map list [0] | V: length index value success [0]
+                } else {
+                    state->valueToObjectMapTryGet();
+                    // ---- O: map list value [0] | V: length index success [0]
+                }
+            } else {
+                // ---- O: map list key [0] | V: length index [0]
+                state->copyObject(3);
+                // ---- O: map list key map [0] | V: length index [0]
+                state->swapObjects();
+                // ---- O: map list map key [0] | V: length index [0]
+                if (isToValue) {
+                    state->objectToValueMapTryGet();
+                    // ---- O: map list [0] | V: length index value success [0]
+                } else {
+                    state->objectToObjectMapTryGet();
+                    // ---- O: map list value [0] | V: length index success [0]
+                }
+            }
+            // ---- O: map list value* [0] | V: length index value* success [0]
+            // * value is either a value or an object but not both.
+            state->popValue();  // Discard 'success'; we know it succeeded.
+            // ---- O: map list value* [0] | V: length index value* [0]
+            emitPrint(*type.mapValueType, token, state);
+            // ---- O: map list [0] | V: length index [0]
+
+            // Increment the index.
+            state->pushImmediateInt64(1);
+            // ---- O: map list [0] | V: length index 1 [0]
+            state->syscall(Opcode::kSystemCallV, SystemCall::kNumberAdd, 2, 0);
+            // ---- O: map list [0] | V: length index [0]
+
+            // Jump to next loop iteration.
+            state->jump(topLabel);
+
+            // End of loop.
+            state->label(endLabel);
+            // ---- O: map list [0] | V: length index [0]
+            state->popObject();
+            state->popObject();
+            state->popValue();
+            state->popValue();
+            // ---- O: [0] | V: [0]
+
+            state->pushImmediateUtf8("}");
+            // ---- O: string [0] | V: [0]
+            state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
+            // ---- O: [0] | V: [0]
+            break;
+        }
+
+        case Kind::kSet: {
+            // ---- O: set [0] | V: [0]
+
+            state->pushImmediateUtf8("Set ");
+            // ---- O: set string [0] | V: [0]
+            state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
+            // ---- O: set [0] | V: [0]
+
+            // Convert to a list.
+            state->syscall(Opcode::kSystemCallO, SystemCall::kSetValues, 0, 1);
+            // ---- O: list [0] | V: [0]
+
+            // Print the list. We'll have to construct the type List of T from our type Set of T.
+            TypeNode listType{ Kind::kList, type.token, type.setKeyType };
+            emitPrint(listType, token, state);
+            // ---- O: [0] | V: [0]
+            break;
+        }
+
         case Kind::kRecord: {
             state->pushImmediateUtf8("{ ");
             state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
@@ -1897,8 +2162,21 @@ static void emitPrint(const TypeNode& type, const Token& token, ProcedureState* 
             state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
             break;
         }
-        case Kind::kOptional:
-            throw std::runtime_error("not impl");
+
+        case Kind::kOptional: {
+            auto hasNoValueLabel = state->labelId();
+            state->syscall(Opcode::kSystemCallV, SystemCall::kHasValue, 0, 1);
+            state->branchIfFalse(hasNoValueLabel);
+            if (type.optionalValueType->isValueType()) {
+                state->syscall(Opcode::kSystemCallV, SystemCall::kValue, 0, 1);
+            } else {
+                state->syscall(Opcode::kSystemCallO, SystemCall::kValue, 0, 1);
+            }
+            emitPrint(*type.optionalValueType, token, state);
+            state->label(hasNoValueLabel);
+            break;
+        }
+
         default:
             throw CompilerException(CompilerErrorCode::kInternal, "Internal error. Unknown type.", token);
     }

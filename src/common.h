@@ -2,13 +2,6 @@
 #ifndef COMMON_H_
 #define COMMON_H_
 
-// libunistring
-#include <unitypes.h>
-#include <unistr.h>
-#include <unigbrk.h>
-#include <uniwbrk.h>
-#include <unicase.h>
-
 // libabseil_time
 #include <absl/time/time.h>
 #include <absl/time/civil_time.h>
@@ -59,38 +52,6 @@
 #include <tvision/tv.h>
 #include <tvision/help.h>
 
-// C standard library
-#include <cmath>
-#include <cstdint>
-#include <cstdlib>
-#include <ctime>
-
-// C++ standard library
-#include <algorithm>
-#include <array>
-#include <chrono>
-#include <codecvt>
-#include <exception>
-#include <filesystem>
-#include <fstream>
-#include <initializer_list>
-#include <iomanip>
-#include <ios>
-#include <iostream>
-#include <list>
-#include <memory>
-#include <optional>
-#include <ratio>
-#include <regex>
-#include <sstream>
-#include <stack>
-#include <string>
-#include <string_view>
-#include <unordered_map>
-#include <utility>
-#include <variant>
-#include <vector>
-
 // boost
 #include <boost/algorithm/string.hpp>
 #include <boost/smart_ptr/local_shared_ptr.hpp>
@@ -117,6 +78,45 @@
 // turbo
 #include <turbo/turbo.h>
 #include <turbo/scintilla/include/SciLexer.h>
+
+// C standard library
+#include <cmath>
+#include <cstdint>
+#include <cstdlib>
+#include <ctime>
+
+// libunistring - must be AFTER cstdint, otherwise it will define its own integer typedefs.
+#include <unitypes.h>
+#include <unistr.h>
+#include <unigbrk.h>
+#include <uniwbrk.h>
+#include <unicase.h>
+
+// C++ standard library
+#include <algorithm>
+#include <array>
+#include <chrono>
+#include <codecvt>
+#include <exception>
+#include <filesystem>
+#include <fstream>
+#include <initializer_list>
+#include <iomanip>
+#include <ios>
+#include <iostream>
+#include <list>
+#include <memory>
+#include <optional>
+#include <ratio>
+#include <regex>
+#include <sstream>
+#include <stack>
+#include <string>
+#include <string_view>
+#include <unordered_map>
+#include <utility>
+#include <variant>
+#include <vector>
 
 #ifdef _WIN32
 #include <windows.h>

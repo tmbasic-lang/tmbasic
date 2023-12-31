@@ -31,10 +31,14 @@ enum class Opcode {
     kPushImmediateUtf8,    // <u32 length, utf8 string> pusho string
     kPopValue,             // popv;
     kPopObject,            // popo;
-    kDuplicateValue,
-    kDuplicateObject,
-    kSwapValues,   // swap top two values
-    kSwapObjects,  // swap top two objects
+    kDuplicateValue,       //
+    kDuplicateValues,      // <u8 count>
+    kDuplicateObject,      //
+    kDuplicateObjects,     // <u8 count>
+    kSwapValues,           // swap top two values
+    kSwapObjects,          // swap top two objects
+    kCopyValue,            // <u8 abs(index)> push a value from the stack
+    kCopyObject,           // <u8 abs(index)> push an object from the stack
 
     // variables
     kInitLocals,          // <u16 numVals, u16 numObjs>

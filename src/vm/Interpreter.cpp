@@ -586,9 +586,38 @@ bool Interpreter::run(int maxCycles) {
                 break;
             }
 
+            case Opcode::kDuplicateValues: {
+                auto count = readInt<uint8_t>(instructions, &instructionIndex);
+
+                // if count is 1, then firstIndex is -1.
+                // if count is 2, then firstIndex is -2.
+                // etc.
+                auto firstIndex = vsi - count;
+
+                for (auto i = 0; i < count; i++) {
+                    pushValue(valueStack, &vsi, valueStack->at(firstIndex + i));
+                }
+                break;
+            }
+
             case Opcode::kDuplicateObject: {
                 auto obj = objectStack->at(osi - 1);
                 pushObject(objectStack, &osi, std::move(obj));
+                break;
+            }
+
+            case Opcode::kDuplicateObjects: {
+                auto count = readInt<uint8_t>(instructions, &instructionIndex);
+
+                // if count is 1, then firstIndex is -1.
+                // if count is 2, then firstIndex is -2.
+                // etc.
+                auto firstIndex = osi - count;
+
+                for (auto i = 0; i < count; i++) {
+                    auto obj = objectStack->at(firstIndex + i);
+                    pushObject(objectStack, &osi, std::move(obj));
+                }
                 break;
             }
 
@@ -599,6 +628,19 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kSwapObjects: {
                 std::swap(objectStack->at(osi - 1), objectStack->at(osi - 2));
+                break;
+            }
+
+            case Opcode::kCopyValue: {
+                auto valueIndex = -readInt<uint8_t>(instructions, &instructionIndex);
+                pushValue(valueStack, &vsi, valueStack->at(vsi + valueIndex));
+                break;
+            }
+
+            case Opcode::kCopyObject: {
+                auto objectIndex = -readInt<uint8_t>(instructions, &instructionIndex);
+                auto object = objectStack->at(osi + objectIndex);
+                pushObject(objectStack, &osi, std::move(object));
                 break;
             }
 
@@ -978,7 +1020,6 @@ bool Interpreter::run(int maxCycles) {
                 break;
             }
 
-            // TODO: these MapTryGet opcodes should be system calls instead.
             case Opcode::kObjectToObjectMapTryGet: {
                 // Input object stack: map (-2), key (-1)
                 // Input value stack: (none)

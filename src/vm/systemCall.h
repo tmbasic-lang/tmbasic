@@ -84,7 +84,11 @@ enum class SystemCall {
     kLog,                           // (x as Number) as Number
     kLog10,                         // (x as Number) as Number
     kMapContainsKey,                // (input as Map from K to V, key as K) as Boolean
-    kMapFind,                       // (input as Map from K to V, key as K) as Optional V/
+    kMapFind,                       // (input as Map from K to V, key as K) as Optional V
+    kMapObjectKeys,                 // (input as Map from K to V) as List of K
+    kMapObjectValues,               // (input as Map from K to V) as List of V
+    kMapValueKeys,                  // (input as Map from K to V) as List of K
+    kMapValueValues,                // (input as Map from K to V) as List of V
     kMilliseconds,                  // (count as Number) as TimeSpan
     kMinutes,                       // (count as Number) as TimeSpan
     kNewForm,                       // () as Form
