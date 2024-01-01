@@ -122,8 +122,9 @@ static bool checkTryStatement(TryStatementNode* tryStatement) {
 
             case StatementType::kExit:
                 // Control can leave this body via this Exit statement so no need to look further.
-                // TODO: this isn't enough. consider a For containing an If containing an Exit For,
-                // and then a seemingly unconditional return at the end. the Exit must taint the loop.
+                // Note: this isn't enough by itself; when checking the Do loop itself, we scan for any Exit Do.
+                // Consider a For containing an If containing an Exit For, and then a seemingly unconditional return
+                // at the end. The Exit must taint the loop.
                 return false;
 
             case StatementType::kIf:
