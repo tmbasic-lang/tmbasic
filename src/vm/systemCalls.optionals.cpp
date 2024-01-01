@@ -23,49 +23,47 @@ static std::pair<ValueOptional*, ObjectOptional*> valueOrObjectOptional(Object* 
             NAMEOF_TYPE(ObjectOptional), NAMEOF_ENUM(type)));
 }
 
-void initSystemCallsOptionals() {
-    initSystemCall(SystemCall::kHasValue, [](const auto& input, auto* result) {
-        const auto valueOrObject = valueOrObjectOptional(input.getObject(-1));
-        const auto* valueOptional = valueOrObject.first;
-        const auto* objectOptional = valueOrObject.second;
+void systemCallHasValue(const SystemCallInput& input, SystemCallResult* result) {
+    const auto valueOrObject = valueOrObjectOptional(input.getObject(-1));
+    const auto* valueOptional = valueOrObject.first;
+    const auto* objectOptional = valueOrObject.second;
 
-        result->returnedValue.setBoolean(
-            valueOptional != nullptr ? valueOptional->item.has_value() : objectOptional->item.has_value());
-    });
+    result->returnedValue.setBoolean(
+        valueOptional != nullptr ? valueOptional->item.has_value() : objectOptional->item.has_value());
+}
 
-    initSystemCall(SystemCall::kObjectOptionalNewMissing, [](const auto& /*input*/, auto* result) {
-        result->returnedObject = boost::make_local_shared<ObjectOptional>();
-    });
+void systemCallObjectOptionalNewMissing(const SystemCallInput& /*input*/, SystemCallResult* result) {
+    result->returnedObject = boost::make_local_shared<ObjectOptional>();
+}
 
-    initSystemCall(SystemCall::kObjectOptionalNewPresent, [](const auto& input, auto* result) {
-        result->returnedObject = boost::make_local_shared<ObjectOptional>(input.getObjectPtr(-1));
-    });
+void systemCallObjectOptionalNewPresent(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedObject = boost::make_local_shared<ObjectOptional>(input.getObjectPtr(-1));
+}
 
-    initSystemCall(SystemCall::kValueOptionalNewMissing, [](const auto& /*input*/, auto* result) {
-        result->returnedObject = boost::make_local_shared<ValueOptional>();
-    });
+void systemCallValueOptionalNewMissing(const SystemCallInput& /*input*/, SystemCallResult* result) {
+    result->returnedObject = boost::make_local_shared<ValueOptional>();
+}
 
-    initSystemCall(SystemCall::kValueOptionalNewPresent, [](const auto& input, auto* result) {
-        result->returnedObject = boost::make_local_shared<ValueOptional>(input.getValue(-1));
-    });
+void systemCallValueOptionalNewPresent(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedObject = boost::make_local_shared<ValueOptional>(input.getValue(-1));
+}
 
-    initSystemCall(SystemCall::kValue, [](const auto& input, auto* result) {
-        const auto valueOrObject = valueOrObjectOptional(input.getObject(-1));
-        const auto* valueOptional = valueOrObject.first;
-        const auto* objectOptional = valueOrObject.second;
+void systemCallValue(const SystemCallInput& input, SystemCallResult* result) {
+    const auto valueOrObject = valueOrObjectOptional(input.getObject(-1));
+    const auto* valueOptional = valueOrObject.first;
+    const auto* objectOptional = valueOrObject.second;
 
-        if (valueOptional != nullptr) {
-            if (!valueOptional->item.has_value()) {
-                throw Error(ErrorCode::kValueNotPresent, "Optional value is not present.");
-            }
-            result->returnedValue = *valueOptional->item;
-        } else {
-            if (!objectOptional->item.has_value()) {
-                throw Error(ErrorCode::kValueNotPresent, "Optional value is not present.");
-            }
-            result->returnedObject = *objectOptional->item;
+    if (valueOptional != nullptr) {
+        if (!valueOptional->item.has_value()) {
+            throw Error(ErrorCode::kValueNotPresent, "Optional value is not present.");
         }
-    });
+        result->returnedValue = *valueOptional->item;
+    } else {
+        if (!objectOptional->item.has_value()) {
+            throw Error(ErrorCode::kValueNotPresent, "Optional value is not present.");
+        }
+        result->returnedObject = *objectOptional->item;
+    }
 }
 
 }  // namespace vm

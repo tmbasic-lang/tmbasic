@@ -50,230 +50,227 @@ static void validateMillisecond(int64_t millisecond) {
     }
 }
 
-void initSystemCallsDates() {
-    initSystemCall(SystemCall::kDateFromParts, [](const auto& input, auto* result) {
-        auto year = input.getValue(-3).getInt64();
-        validateYear(year);
+void systemCallDateFromParts(const SystemCallInput& input, SystemCallResult* result) {
+    auto year = input.getValue(-3).getInt64();
+    validateYear(year);
 
-        auto month = input.getValue(-2).getInt64();
-        validateMonth(month);
+    auto month = input.getValue(-2).getInt64();
+    validateMonth(month);
 
-        auto day = input.getValue(-1).getInt64();
-        validateDay(day);
+    auto day = input.getValue(-1).getInt64();
+    validateDay(day);
 
-        DateTimeParts parts{
-            static_cast<uint32_t>(year), static_cast<uint32_t>(month), static_cast<uint32_t>(day), 0, 0, 0, 0
-        };
-        result->returnedValue = convertDateTimePartsToValue(parts);
-    });
+    DateTimeParts parts{
+        static_cast<uint32_t>(year), static_cast<uint32_t>(month), static_cast<uint32_t>(day), 0, 0, 0, 0
+    };
+    result->returnedValue = convertDateTimePartsToValue(parts);
+}
 
-    initSystemCall(SystemCall::kDateTimeFromParts, [](const auto& input, auto* result) {
-        auto year = input.getValue(-7).getInt64();
-        validateYear(year);
+void systemCallDateTimeFromParts(const SystemCallInput& input, SystemCallResult* result) {
+    auto year = input.getValue(-7).getInt64();
+    validateYear(year);
 
-        auto month = input.getValue(-6).getInt64();
-        validateMonth(month);
+    auto month = input.getValue(-6).getInt64();
+    validateMonth(month);
 
-        auto day = input.getValue(-5).getInt64();
-        validateDay(day);
+    auto day = input.getValue(-5).getInt64();
+    validateDay(day);
 
-        auto hour = input.getValue(-4).getInt64();
-        validateHour(hour);
+    auto hour = input.getValue(-4).getInt64();
+    validateHour(hour);
 
-        auto minute = input.getValue(-3).getInt64();
-        validateMinute(minute);
+    auto minute = input.getValue(-3).getInt64();
+    validateMinute(minute);
 
-        auto second = input.getValue(-2).getInt64();
-        validateSecond(second);
+    auto second = input.getValue(-2).getInt64();
+    validateSecond(second);
 
-        auto millisecond = input.getValue(-1).getInt64();
-        validateMillisecond(millisecond);
+    auto millisecond = input.getValue(-1).getInt64();
+    validateMillisecond(millisecond);
 
-        DateTimeParts parts{ static_cast<uint32_t>(year),       static_cast<uint32_t>(month),
-                             static_cast<uint32_t>(day),        static_cast<uint32_t>(hour),
-                             static_cast<uint32_t>(minute),     static_cast<uint32_t>(second),
-                             static_cast<uint32_t>(millisecond) };
+    DateTimeParts parts{ static_cast<uint32_t>(year),       static_cast<uint32_t>(month),
+                         static_cast<uint32_t>(day),        static_cast<uint32_t>(hour),
+                         static_cast<uint32_t>(minute),     static_cast<uint32_t>(second),
+                         static_cast<uint32_t>(millisecond) };
 
-        result->returnedValue = convertDateTimePartsToValue(parts);
-    });
+    result->returnedValue = convertDateTimePartsToValue(parts);
+}
 
-    initSystemCall(SystemCall::kDateTimeOffsetDay, [](const auto& input, auto* result) {
-        const auto& dateValue = input.getValue(-1);
-        auto parts = vm::convertValueToDateTimeOffsetParts(dateValue);
-        result->returnedValue = Value{ parts.day };
-    });
+void systemCallDateTimeOffsetDay(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& dateValue = input.getValue(-1);
+    auto parts = vm::convertValueToDateTimeOffsetParts(dateValue);
+    result->returnedValue = Value{ parts.day };
+}
 
-    initSystemCall(SystemCall::kDateTimeOffsetFromParts, [](const auto& input, auto* result) {
-        auto year = input.getValue(-8).getInt64();
-        validateYear(year);
+void systemCallDateTimeOffsetFromParts(const SystemCallInput& input, SystemCallResult* result) {
+    auto year = input.getValue(-8).getInt64();
+    validateYear(year);
 
-        auto month = input.getValue(-7).getInt64();
-        validateMonth(month);
+    auto month = input.getValue(-7).getInt64();
+    validateMonth(month);
 
-        auto day = input.getValue(-6).getInt64();
-        validateDay(day);
+    auto day = input.getValue(-6).getInt64();
+    validateDay(day);
 
-        auto hour = input.getValue(-5).getInt64();
-        validateHour(hour);
+    auto hour = input.getValue(-5).getInt64();
+    validateHour(hour);
 
-        auto minute = input.getValue(-4).getInt64();
-        validateMinute(minute);
+    auto minute = input.getValue(-4).getInt64();
+    validateMinute(minute);
 
-        auto second = input.getValue(-3).getInt64();
-        validateSecond(second);
+    auto second = input.getValue(-3).getInt64();
+    validateSecond(second);
 
-        auto millisecond = input.getValue(-2).getInt64();
-        validateMillisecond(millisecond);
+    auto millisecond = input.getValue(-2).getInt64();
+    validateMillisecond(millisecond);
 
-        auto offsetMilliseconds = input.getValue(-1).getInt64();
+    auto offsetMilliseconds = input.getValue(-1).getInt64();
 
-        DateTimeOffsetParts parts{ { static_cast<uint32_t>(year), static_cast<uint32_t>(month),
-                                     static_cast<uint32_t>(day), static_cast<uint32_t>(hour),
-                                     static_cast<uint32_t>(minute), static_cast<uint32_t>(second),
-                                     static_cast<uint32_t>(millisecond) },
-                                   offsetMilliseconds };
+    DateTimeOffsetParts parts{ { static_cast<uint32_t>(year), static_cast<uint32_t>(month), static_cast<uint32_t>(day),
+                                 static_cast<uint32_t>(hour), static_cast<uint32_t>(minute),
+                                 static_cast<uint32_t>(second), static_cast<uint32_t>(millisecond) },
+                               offsetMilliseconds };
 
-        result->returnedValue = convertDateTimeOffsetPartsToValue(parts);
-    });
+    result->returnedValue = convertDateTimeOffsetPartsToValue(parts);
+}
 
-    initSystemCall(SystemCall::kDateTimeOffsetHour, [](const auto& input, auto* result) {
-        const auto& dateValue = input.getValue(-1);
-        auto parts = vm::convertValueToDateTimeOffsetParts(dateValue);
-        result->returnedValue = Value{ parts.hour };
-    });
+void systemCallDateTimeOffsetHour(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& dateValue = input.getValue(-1);
+    auto parts = vm::convertValueToDateTimeOffsetParts(dateValue);
+    result->returnedValue = Value{ parts.hour };
+}
 
-    initSystemCall(SystemCall::kDateTimeOffsetMillisecond, [](const auto& input, auto* result) {
-        const auto& dateValue = input.getValue(-1);
-        auto parts = vm::convertValueToDateTimeOffsetParts(dateValue);
-        result->returnedValue = Value{ parts.millisecond };
-    });
+void systemCallDateTimeOffsetMillisecond(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& dateValue = input.getValue(-1);
+    auto parts = vm::convertValueToDateTimeOffsetParts(dateValue);
+    result->returnedValue = Value{ parts.millisecond };
+}
 
-    initSystemCall(SystemCall::kDateTimeOffsetMinute, [](const auto& input, auto* result) {
-        const auto& dateValue = input.getValue(-1);
-        auto parts = vm::convertValueToDateTimeOffsetParts(dateValue);
-        result->returnedValue = Value{ parts.minute };
-    });
+void systemCallDateTimeOffsetMinute(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& dateValue = input.getValue(-1);
+    auto parts = vm::convertValueToDateTimeOffsetParts(dateValue);
+    result->returnedValue = Value{ parts.minute };
+}
 
-    initSystemCall(SystemCall::kDateTimeOffsetMonth, [](const auto& input, auto* result) {
-        const auto& dateValue = input.getValue(-1);
-        auto parts = vm::convertValueToDateTimeOffsetParts(dateValue);
-        result->returnedValue = Value{ parts.month };
-    });
+void systemCallDateTimeOffsetMonth(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& dateValue = input.getValue(-1);
+    auto parts = vm::convertValueToDateTimeOffsetParts(dateValue);
+    result->returnedValue = Value{ parts.month };
+}
 
-    initSystemCall(SystemCall::kDateTimeOffsetSecond, [](const auto& input, auto* result) {
-        const auto& dateValue = input.getValue(-1);
-        auto parts = vm::convertValueToDateTimeOffsetParts(dateValue);
-        result->returnedValue = Value{ parts.second };
-    });
+void systemCallDateTimeOffsetSecond(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& dateValue = input.getValue(-1);
+    auto parts = vm::convertValueToDateTimeOffsetParts(dateValue);
+    result->returnedValue = Value{ parts.second };
+}
 
-    initSystemCall(SystemCall::kDateTimeToDate, [](const auto& input, auto* result) {
-        const auto& dateTime = input.getValue(-1);
-        result->returnedValue = dateTimeToDate(dateTime);
-    });
+void systemCallDateTimeToDate(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& dateTime = input.getValue(-1);
+    result->returnedValue = dateTimeToDate(dateTime);
+}
 
-    initSystemCall(SystemCall::kDateToString, [](const auto& input, auto* result) {
-        const auto& date = input.getValue(-1);
-        result->returnedObject = dateToString(date);
-    });
+void systemCallDateToString(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& date = input.getValue(-1);
+    result->returnedObject = dateToString(date);
+}
 
-    initSystemCall(SystemCall::kDateTimeToString, [](const auto& input, auto* result) {
-        const auto& dateTime = input.getValue(-1);
-        result->returnedObject = dateTimeToString(dateTime);
-    });
+void systemCallDateTimeToString(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& dateTime = input.getValue(-1);
+    result->returnedObject = dateTimeToString(dateTime);
+}
 
-    initSystemCall(SystemCall::kDateTimeOffsetToString, [](const auto& input, auto* result) {
-        const auto& dateTimeOffset = input.getValue(-1);
-        result->returnedObject = dateTimeOffsetToString(dateTimeOffset);
-    });
+void systemCallDateTimeOffsetToString(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& dateTimeOffset = input.getValue(-1);
+    result->returnedObject = dateTimeOffsetToString(dateTimeOffset);
+}
 
-    initSystemCall(SystemCall::kDateTimeOffsetYear, [](const auto& input, auto* result) {
-        const auto& dateValue = input.getValue(-1);
-        auto parts = vm::convertValueToDateTimeOffsetParts(dateValue);
-        result->returnedValue = Value{ parts.year };
-    });
+void systemCallDateTimeOffsetYear(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& dateValue = input.getValue(-1);
+    auto parts = vm::convertValueToDateTimeOffsetParts(dateValue);
+    result->returnedValue = Value{ parts.year };
+}
 
-    initSystemCall(SystemCall::kDateTimeOffsetToDateTime, [](const auto& input, auto* result) {
-        const auto& dateTimeOffset = input.getValue(-1);
-        result->returnedValue = dateTimeOffsetToDateTime(dateTimeOffset);
-    });
+void systemCallDateTimeOffsetToDateTime(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& dateTimeOffset = input.getValue(-1);
+    result->returnedValue = dateTimeOffsetToDateTime(dateTimeOffset);
+}
 
-    initSystemCall(SystemCall::kDateTimeOffsetToDate, [](const auto& input, auto* result) {
-        const auto& dateTimeOffset = input.getValue(-1);
-        result->returnedValue = dateTimeOffsetToDate(dateTimeOffset);
-    });
+void systemCallDateTimeOffsetToDate(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& dateTimeOffset = input.getValue(-1);
+    result->returnedValue = dateTimeOffsetToDate(dateTimeOffset);
+}
 
-    initSystemCall(SystemCall::kDays, [](const auto& input, auto* result) {
-        result->returnedValue.num = input.getValue(-1).num * MSEC_PER_DAY;
-    });
+void systemCallDays(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedValue.num = input.getValue(-1).num * MSEC_PER_DAY;
+}
 
-    initSystemCall(SystemCall::kHours, [](const auto& input, auto* result) {
-        result->returnedValue.num = input.getValue(-1).num * MSEC_PER_HOUR;
-    });
+void systemCallHours(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedValue.num = input.getValue(-1).num * MSEC_PER_HOUR;
+}
 
-    initSystemCall(SystemCall::kMilliseconds, [](const auto& input, auto* result) {
-        result->returnedValue = input.getValue(-1);  // already in milliseconds!
-    });
+void systemCallMilliseconds(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedValue = input.getValue(-1);  // already in milliseconds!
+}
 
-    initSystemCall(SystemCall::kMinutes, [](const auto& input, auto* result) {
-        result->returnedValue.num = input.getValue(-1).num * MSEC_PER_MINUTE;
-    });
+void systemCallMinutes(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedValue.num = input.getValue(-1).num * MSEC_PER_MINUTE;
+}
 
-    initSystemCall(SystemCall::kSeconds, [](const auto& input, auto* result) {
-        result->returnedValue.num = input.getValue(-1).num * MSEC_PER_SECOND;
-    });
+void systemCallSeconds(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedValue.num = input.getValue(-1).num * MSEC_PER_SECOND;
+}
 
-    initSystemCall(SystemCall::kTimeSpanToString, [](const auto& input, auto* result) {
-        result->returnedObject = timeSpanToString(input.getValue(-1));
-    });
+void systemCallTimeSpanToString(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedObject = timeSpanToString(input.getValue(-1));
+}
 
-    initSystemCall(SystemCall::kTimeZoneToString, [](const auto& input, auto* result) {
-        const auto& timeZone = *castTimeZone(input.getObject(-1));
-        result->returnedObject = boost::make_local_shared<String>(timeZone.zone->name());
-    });
+void systemCallTimeZoneToString(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& timeZone = *castTimeZone(input.getObject(-1));
+    result->returnedObject = boost::make_local_shared<String>(timeZone.zone->name());
+}
 
-    initSystemCall(SystemCall::kTimeZoneFromName, [](const auto& input, auto* result) {
-        const auto& name = *castString(input.getObject(-1));
+void systemCallTimeZoneFromName(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& name = *castString(input.getObject(-1));
 
-        auto time_zone_ptr = std::make_unique<absl::TimeZone>();
-        auto success = absl::LoadTimeZone(name.value, time_zone_ptr.get());
-        if (!success) {
-            throw Error(ErrorCode::kInvalidTimeZone, "The specified time zone was not found.");
-        }
+    auto time_zone_ptr = std::make_unique<absl::TimeZone>();
+    auto success = absl::LoadTimeZone(name.value, time_zone_ptr.get());
+    if (!success) {
+        throw Error(ErrorCode::kInvalidTimeZone, "The specified time zone was not found.");
+    }
 
-        result->returnedObject = boost::make_local_shared<TimeZone>(std::move(time_zone_ptr));
-    });
+    result->returnedObject = boost::make_local_shared<TimeZone>(std::move(time_zone_ptr));
+}
 
-    initSystemCall(SystemCall::kTotalDays, [](const auto& input, auto* result) {
-        result->returnedValue.num = input.getValue(-1).num / MSEC_PER_DAY;
-    });
+void systemCallTotalDays(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedValue.num = input.getValue(-1).num / MSEC_PER_DAY;
+}
 
-    initSystemCall(SystemCall::kTotalHours, [](const auto& input, auto* result) {
-        result->returnedValue.num = input.getValue(-1).num / MSEC_PER_HOUR;
-    });
+void systemCallTotalHours(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedValue.num = input.getValue(-1).num / MSEC_PER_HOUR;
+}
 
-    initSystemCall(SystemCall::kTotalMilliseconds, [](const auto& input, auto* result) {
-        result->returnedValue = input.getValue(-1);  // already in milliseconds!
-    });
+void systemCallTotalMilliseconds(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedValue = input.getValue(-1);  // already in milliseconds!
+}
 
-    initSystemCall(SystemCall::kTotalMinutes, [](const auto& input, auto* result) {
-        result->returnedValue.num = input.getValue(-1).num / MSEC_PER_MINUTE;
-    });
+void systemCallTotalMinutes(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedValue.num = input.getValue(-1).num / MSEC_PER_MINUTE;
+}
 
-    initSystemCall(SystemCall::kTotalSeconds, [](const auto& input, auto* result) {
-        result->returnedValue.num = input.getValue(-1).num / MSEC_PER_SECOND;
-    });
+void systemCallTotalSeconds(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedValue.num = input.getValue(-1).num / MSEC_PER_SECOND;
+}
 
-    initSystemCall(SystemCall::kUtcOffsets, [](const auto& input, auto* result) {
-        const auto& timeZone = *castTimeZone(input.getObject(-1));
-        const auto& dateTimeValue = input.getValue(-1);
-        auto dateTimeParts = convertValueToDateTimeParts(dateTimeValue);
-        auto offsets = timeZone.getUtcOffsets(dateTimeParts);
-        ValueListBuilder builder{};
-        for (const auto& offset : offsets) {
-            builder.items.push_back(Value{ offset });
-        }
-        result->returnedObject = boost::make_local_shared<ValueList>(&builder);
-    });
+void systemCallUtcOffsets(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& timeZone = *castTimeZone(input.getObject(-1));
+    const auto& dateTimeValue = input.getValue(-1);
+    auto dateTimeParts = convertValueToDateTimeParts(dateTimeValue);
+    auto offsets = timeZone.getUtcOffsets(dateTimeParts);
+    ValueListBuilder builder{};
+    for (const auto& offset : offsets) {
+        builder.items.push_back(Value{ offset });
+    }
+    result->returnedObject = boost::make_local_shared<ValueList>(&builder);
 }
 
 }  // namespace vm

@@ -269,7 +269,6 @@ class SystemCallResult {
 
 typedef void (*SystemCallFunc)(const SystemCallInput&, SystemCallResult*);
 
-void initSystemCalls();
 void initSystemCall(SystemCall which, SystemCallFunc func);
 SystemCallResult systemCall(SystemCall which, const SystemCallInput& input);
 std::optional<SystemCall> getDualGenericSystemCall(SystemCall call);

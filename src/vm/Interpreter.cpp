@@ -20,6 +20,7 @@
 #include "vm/Record.h"
 #include "vm/RecordBuilder.h"
 #include "vm/String.h"
+#include "vm/initSystemCalls.h"
 #include "vm/systemCall.h"
 
 namespace vm {

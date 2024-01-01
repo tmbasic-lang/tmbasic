@@ -13,7 +13,6 @@
 
 namespace vm {
 
-static bool _systemCallsInitialized = false;
 static std::vector<SystemCallFunc> _systemCalls;
 
 SystemCallInput::SystemCallInput(
@@ -50,85 +49,64 @@ void initSystemCall(SystemCall which, SystemCallFunc func) {
     _systemCalls.at(index) = func;
 }
 
-// Defined in systemCalls.*.cpp
-void initSystemCallsControls();
-void initSystemCallsDates();
-void initSystemCallsFiles();
-void initSystemCallsForms();
-void initSystemCallsLists();
-void initSystemCallsMaps();
-void initSystemCallsNumbers();
-void initSystemCallsOptionals();
-void initSystemCallsSets();
-void initSystemCallsStrings();
+void systemCallBooleanAnd(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedValue.setBoolean(input.getValue(-2).getBoolean() && input.getValue(-1).getBoolean());
+}
 
-void initSystemCalls() {
-    if (_systemCallsInitialized) {
-        return;
+void systemCallBooleanNot(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedValue.setBoolean(!input.getValue(-1).getBoolean());
+}
+
+void systemCallBooleanOr(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedValue.setBoolean(input.getValue(-2).getBoolean() || input.getValue(-1).getBoolean());
+}
+
+void systemCallCounterIsPastLimit(const SystemCallInput& input, SystemCallResult* result) {
+    // used with 'for' loops
+    const auto& counter = input.getValue(-3).num;
+    const auto& limit = input.getValue(-2).num;
+    const auto& step = input.getValue(-1).num;
+    bool condition{};
+    if (step.sign() > 0 || step.iszero()) {
+        condition = counter > limit;
+    } else {
+        condition = counter < limit;
     }
+    result->returnedValue.setBoolean(condition);
+}
 
-    initSystemCallsControls();
-    initSystemCallsDates();
-    initSystemCallsFiles();
-    initSystemCallsForms();
-    initSystemCallsLists();
-    initSystemCallsMaps();
-    initSystemCallsNumbers();
-    initSystemCallsOptionals();
-    initSystemCallsSets();
-    initSystemCallsStrings();
+void systemCallErrorCode(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedValue = input.errorCode;
+}
 
-    initSystemCall(SystemCall::kBooleanAnd, [](const auto& input, auto* result) {
-        result->returnedValue.setBoolean(input.getValue(-2).getBoolean() && input.getValue(-1).getBoolean());
-    });
+void systemCallErrorMessage(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedObject = boost::make_local_shared<String>(input.errorMessage);
+}
 
-    initSystemCall(SystemCall::kBooleanNot, [](const auto& input, auto* result) {
-        result->returnedValue.setBoolean(!input.getValue(-1).getBoolean());
-    });
+void systemCallFlushConsoleOutput(const SystemCallInput& input, SystemCallResult* /*result*/) {
+    input.consoleOutputStream->flush();
+}
 
-    initSystemCall(SystemCall::kBooleanOr, [](const auto& input, auto* result) {
-        result->returnedValue.setBoolean(input.getValue(-2).getBoolean() || input.getValue(-1).getBoolean());
-    });
-
-    initSystemCall(SystemCall::kCounterIsPastLimit, [](const auto& input, auto* result) {
-        // used with 'for' loops
-        const auto& counter = input.getValue(-3).num;
-        const auto& limit = input.getValue(-2).num;
-        const auto& step = input.getValue(-1).num;
-        bool condition{};
-        if (step.sign() > 0 || step.iszero()) {
-            condition = counter > limit;
-        } else {
-            condition = counter < limit;
-        }
-        result->returnedValue.setBoolean(condition);
-    });
-
-    initSystemCall(
-        SystemCall::kErrorCode, [](const auto& input, auto* result) { result->returnedValue = input.errorCode; });
-
-    initSystemCall(SystemCall::kErrorMessage, [](const auto& input, auto* result) {
-        result->returnedObject = boost::make_local_shared<String>(input.errorMessage);
-    });
-
-    initSystemCall(SystemCall::kFlushConsoleOutput, [](const auto& input, auto* /*result*/) {
-        input.consoleOutputStream->flush();
-    });
-
-    initSystemCall(SystemCall::kObjectEquals, [](const auto& input, auto* result) {
-        result->returnedValue.num =
-            input.getObject(-2)->equals(*input.getObject(-1)) ? util::kDecimalOne : util::kDecimalZero;
-    });
-
-    _systemCallsInitialized = true;
+void systemCallObjectEquals(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedValue.num =
+        input.getObject(-2)->equals(*input.getObject(-1)) ? util::kDecimalOne : util::kDecimalZero;
 }
 
 SystemCallResult systemCall(SystemCall which, const SystemCallInput& input) {
     SystemCallResult result;
 
+    auto index = static_cast<size_t>(which);
+#ifdef NDEBUG
+    auto& func = _systemCalls[index];
+#else
+    auto& func = _systemCalls.at(index);
+    if (func == nullptr) {
+        throw std::runtime_error(fmt::format("System call not implemented: {}", NAMEOF_ENUM(which)));
+    }
+#endif
+
     try {
-        auto index = static_cast<size_t>(which);
-        _systemCalls.at(index)(input, &result);
+        func(input, &result);
     } catch (Error& ex) {
         result.hasError = true;
         result.errorCode = static_cast<int>(ex.code);
