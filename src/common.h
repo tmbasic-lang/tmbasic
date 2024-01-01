@@ -79,18 +79,18 @@
 #include <turbo/turbo.h>
 #include <turbo/scintilla/include/SciLexer.h>
 
-// C standard library
-#include <cmath>
-#include <cstdint>
-#include <cstdlib>
-#include <ctime>
-
-// libunistring - must be AFTER cstdint, otherwise it will define its own integer typedefs.
+// libunistring
 #include <unitypes.h>
 #include <unistr.h>
 #include <unigbrk.h>
 #include <uniwbrk.h>
 #include <unicase.h>
+
+// C standard library
+#include <cmath>
+#include <cstdint>
+#include <cstdlib>
+#include <ctime>
 
 // C++ standard library
 #include <algorithm>
