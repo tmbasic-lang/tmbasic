@@ -80,6 +80,7 @@ void systemCallLog(const SystemCallInput&, SystemCallResult*);
 void systemCallLog10(const SystemCallInput&, SystemCallResult*);
 void systemCallMapContainsKey(const SystemCallInput&, SystemCallResult*);
 void systemCallMapFind(const SystemCallInput&, SystemCallResult*);
+void systemCallMapLen(const SystemCallInput&, SystemCallResult*);
 void systemCallMapObjectKeys(const SystemCallInput&, SystemCallResult*);
 void systemCallMapObjectValues(const SystemCallInput&, SystemCallResult*);
 void systemCallMapValueKeys(const SystemCallInput&, SystemCallResult*);
@@ -279,6 +280,7 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kLog10, systemCallLog10);
     initSystemCall(SystemCall::kMapContainsKey, systemCallMapContainsKey);
     initSystemCall(SystemCall::kMapFind, systemCallMapFind);
+    initSystemCall(SystemCall::kMapLen, systemCallMapLen);
     initSystemCall(SystemCall::kMapObjectKeys, systemCallMapObjectKeys);
     initSystemCall(SystemCall::kMapObjectValues, systemCallMapObjectValues);
     initSystemCall(SystemCall::kMapValueKeys, systemCallMapValueKeys);

@@ -88,7 +88,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("IsDigit", { "input" }, { string }, boolean, SystemCall::kIsDigit);
     addFunction("Last", { "list" }, { listOfAny }, generic1, SystemCall::kListLast);
     addFunction("Len", { "input" }, { listOfAny }, number, SystemCall::kListLen);
-    // TODO: kMapLen
+    addFunction("Len", { "input" }, { mapFromAnyToAny }, number, SystemCall::kMapLen);
     addFunction("Len", { "input" }, { setOfAny }, number, SystemCall::kSetLen);
     addFunction("Len", { "input" }, { string }, number, SystemCall::kStringLen);
     addFunction("ListDirectories", { "path" }, { string }, listOfString, SystemCall::kListDirectories);

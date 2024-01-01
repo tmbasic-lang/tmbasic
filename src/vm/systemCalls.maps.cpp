@@ -225,6 +225,39 @@ void systemCallMapFind(const SystemCallInput& input, SystemCallResult* result) {
     }
 }
 
+void systemCallMapLen(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& mapObject = *input.getObject(-1);
+
+    switch (mapObject.getObjectType()) {
+        case ObjectType::kObjectToObjectMap: {
+            const auto& map = castObjectToObjectMap(mapObject);
+            result->returnedValue = Value{ map.pairs.size() };
+            break;
+        }
+
+        case ObjectType::kObjectToValueMap: {
+            const auto& map = castObjectToValueMap(mapObject);
+            result->returnedValue = Value{ map.pairs.size() };
+            break;
+        }
+
+        case ObjectType::kValueToObjectMap: {
+            const auto& map = castValueToObjectMap(mapObject);
+            result->returnedValue = Value{ map.pairs.size() };
+            break;
+        }
+
+        case ObjectType::kValueToValueMap: {
+            const auto& map = castValueToValueMap(mapObject);
+            result->returnedValue = Value{ map.pairs.size() };
+            break;
+        }
+
+        default:
+            throw Error(ErrorCode::kInternalTypeConfusion, "Len: parameter isn't a map.");
+    }
+}
+
 void systemCallMapObjectKeys(const SystemCallInput& input, SystemCallResult* result) {
     const auto& mapObject = *input.getObject(-1);
 
