@@ -112,7 +112,7 @@ void systemCallCodeUnit1(const SystemCallInput& input, SystemCallResult* result)
         return;
     }
     auto codeUnit = str.value.at(0);
-    result->returnedValue.num = codeUnit == 0xFFFF ? 0 : codeUnit;
+    result->returnedValue.num = static_cast<int>(codeUnit);
 }
 
 void systemCallCodeUnit2(const SystemCallInput& input, SystemCallResult* result) {
@@ -123,7 +123,7 @@ void systemCallCodeUnit2(const SystemCallInput& input, SystemCallResult* result)
         return;
     }
     auto codeUnit = str.value.at(index);
-    result->returnedValue.num = codeUnit == 0xFFFF ? 0 : codeUnit;
+    result->returnedValue.num = static_cast<int>(codeUnit);
 }
 
 void systemCallCodeUnits(const SystemCallInput& input, SystemCallResult* result) {
