@@ -2,7 +2,7 @@
 #ifndef COMMON_H_
 #define COMMON_H_
 
-// libunistring
+// libunistring - must be included first for some reason relating to the integer size typedefs.
 #include <unitypes.h>
 #include <unistr.h>
 #include <unigbrk.h>
