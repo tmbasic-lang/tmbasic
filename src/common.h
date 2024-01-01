@@ -2,6 +2,13 @@
 #ifndef COMMON_H_
 #define COMMON_H_
 
+// libunistring
+#include <unitypes.h>
+#include <unistr.h>
+#include <unigbrk.h>
+#include <uniwbrk.h>
+#include <unicase.h>
+
 // libabseil_time
 #include <absl/time/time.h>
 #include <absl/time/civil_time.h>
@@ -78,13 +85,6 @@
 // turbo
 #include <turbo/turbo.h>
 #include <turbo/scintilla/include/SciLexer.h>
-
-// libunistring
-#include <unitypes.h>
-#include <unistr.h>
-#include <unigbrk.h>
-#include <uniwbrk.h>
-#include <unicase.h>
 
 // C standard library
 #include <cmath>
