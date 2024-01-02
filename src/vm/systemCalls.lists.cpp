@@ -220,7 +220,7 @@ void systemCallListRemoveAt1(const SystemCallInput& input, SystemCallResult* res
 
 void systemCallListRemoveAt2(const SystemCallInput& input, SystemCallResult* result) {
     const auto& listObject = input.getObject(-2);
-    auto indicesList = castValueList(input.getObject(-1));
+    auto* indicesList = castValueList(input.getObject(-1));
 
     switch (listObject->getObjectType()) {
         case ObjectType::kObjectList:

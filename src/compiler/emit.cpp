@@ -596,6 +596,40 @@ static void emitBinaryExpression(const BinaryExpressionNode& expressionNode, Pro
             } else {
                 throw std::runtime_error("not impl");
             }
+        } else if (lhsType->kind == Kind::kMap && lhsType->equals(*rhsType)) {
+            auto isFromValue = lhsType->mapKeyType->isValueType();
+            auto isToValue = lhsType->mapValueType->isValueType();
+            if (binarySuffix->binaryOperator == BinaryOperator::kAdd) {
+                if (isFromValue) {
+                    if (isToValue) {
+                        state->syscall(Opcode::kSystemCallO, SystemCall::kValueToValueMapUnion, 0, 2);
+                    } else {
+                        state->syscall(Opcode::kSystemCallO, SystemCall::kValueToObjectMapUnion, 0, 2);
+                    }
+                } else {
+                    if (isToValue) {
+                        state->syscall(Opcode::kSystemCallO, SystemCall::kObjectToValueMapUnion, 0, 2);
+                    } else {
+                        state->syscall(Opcode::kSystemCallO, SystemCall::kObjectToObjectMapUnion, 0, 2);
+                    }
+                }
+            } else if (binarySuffix->binaryOperator == BinaryOperator::kSubtract) {
+                if (isFromValue) {
+                    if (isToValue) {
+                        state->syscall(Opcode::kSystemCallO, SystemCall::kValueToValueMapExcept, 0, 2);
+                    } else {
+                        state->syscall(Opcode::kSystemCallO, SystemCall::kValueToObjectMapExcept, 0, 2);
+                    }
+                } else {
+                    if (isToValue) {
+                        state->syscall(Opcode::kSystemCallO, SystemCall::kObjectToValueMapExcept, 0, 2);
+                    } else {
+                        state->syscall(Opcode::kSystemCallO, SystemCall::kObjectToObjectMapExcept, 0, 2);
+                    }
+                }
+            } else {
+                throw std::runtime_error("not impl");
+            }
         } else {
             throw std::runtime_error("not impl");
         }

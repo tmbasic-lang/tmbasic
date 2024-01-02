@@ -342,4 +342,52 @@ void systemCallMapValueValues(const SystemCallInput& input, SystemCallResult* re
     }
 }
 
+void systemCallValueToValueMapUnion(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& map1 = castValueToValueMap(input.getObject(-2));
+    const auto& map2 = castValueToValueMap(input.getObject(-1));
+    result->returnedObject = map1->unionWith(*map2);
+}
+
+void systemCallValueToValueMapExcept(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& map1 = castValueToValueMap(input.getObject(-2));
+    const auto& map2 = castValueToValueMap(input.getObject(-1));
+    result->returnedObject = map1->except(*map2);
+}
+
+void systemCallValueToObjectMapUnion(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& map1 = castValueToObjectMap(input.getObject(-2));
+    const auto& map2 = castValueToObjectMap(input.getObject(-1));
+    result->returnedObject = map1->unionWith(*map2);
+}
+
+void systemCallValueToObjectMapExcept(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& map1 = castValueToObjectMap(input.getObject(-2));
+    const auto& map2 = castValueToObjectMap(input.getObject(-1));
+    result->returnedObject = map1->except(*map2);
+}
+
+void systemCallObjectToValueMapUnion(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& map1 = castObjectToValueMap(input.getObject(-2));
+    const auto& map2 = castObjectToValueMap(input.getObject(-1));
+    result->returnedObject = map1->unionWith(*map2);
+}
+
+void systemCallObjectToValueMapExcept(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& map1 = castObjectToValueMap(input.getObject(-2));
+    const auto& map2 = castObjectToValueMap(input.getObject(-1));
+    result->returnedObject = map1->except(*map2);
+}
+
+void systemCallObjectToObjectMapUnion(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& map1 = castObjectToObjectMap(input.getObject(-2));
+    const auto& map2 = castObjectToObjectMap(input.getObject(-1));
+    result->returnedObject = map1->unionWith(*map2);
+}
+
+void systemCallObjectToObjectMapExcept(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& map1 = castObjectToObjectMap(input.getObject(-2));
+    const auto& map2 = castObjectToObjectMap(input.getObject(-1));
+    result->returnedObject = map1->except(*map2);
+}
+
 }  // namespace vm

@@ -125,16 +125,20 @@ enum class SystemCall {
     kObjectSetNew,                  // () as ObjectSet
     kObjectSetRemove,               // (lhs as ObjectSet, rhs as Object) as ObjectSet
     kObjectSetUnion,                // (lhs as Set of T, rhs as Set of T) as Set of T
-    kObjectToObjectMapNew,          // () as ObjectToObjectMap
-    kObjectToObjectMapSet,          // (input as ObjectToObjectMap, key as Object, value as Object) as ObjectToObjectMap
     kObjectToObjectMapBuilderAdd,   // (builder as ObjectToObjectMapBuilder, key as Object, value as Object)
     kObjectToObjectMapBuilderEnd,   // (builder as ObjectToObjectMapBuilder) as ObjectToObjectMap
     kObjectToObjectMapBuilderNew,   // () as ObjectToObjectMapBuilder
-    kObjectToValueMapNew,           // () as ObjectToValueMap
-    kObjectToValueMapSet,           // (input as ObjectToValueMap, key as Object, value as Value) as ObjectToValueMap
+    kObjectToObjectMapExcept,       // (lhs as ObjectToObjectMap, rhs as ObjectToObjectMap) as ObjectToObjectMap
+    kObjectToObjectMapNew,          // () as ObjectToObjectMap
+    kObjectToObjectMapSet,          // (input as ObjectToObjectMap, key as Object, value as Object) as ObjectToObjectMap
+    kObjectToObjectMapUnion,        // (lhs as ObjectToObjectMap, rhs as ObjectToObjectMap) as ObjectToObjectMap
     kObjectToValueMapBuilderAdd,    // (builder as ObjectToValueMapBuilder, key as Object, value as Value)
     kObjectToValueMapBuilderEnd,    // (builder as ObjectToValueMapBuilder) as ObjectToValueMap
     kObjectToValueMapBuilderNew,    // () as ObjectToValueMapBuilder
+    kObjectToValueMapExcept,        // (lhs as ObjectToValueMap, rhs as ObjectToValueMap) as ObjectToValueMap
+    kObjectToValueMapNew,           // () as ObjectToValueMap
+    kObjectToValueMapSet,           // (input as ObjectToValueMap, key as Object, value as Value) as ObjectToValueMap
+    kObjectToValueMapUnion,         // (lhs as ObjectToValueMap, rhs as ObjectToValueMap) as ObjectToValueMap
     kParseNumber,                   // (input as String) as Number
     kPathCombine,                   // (parts as List of String) as String
     kPathDirectoryName,             // (path as String) as String
@@ -195,16 +199,20 @@ enum class SystemCall {
     kValueSetNew,                   // () as ValueSet
     kValueSetRemove,                // (lhs as ValueSet, rhs as Value) as ValueSet
     kValueSetUnion,                 // (lhs as Set of T, rhs as Set of T) as Set of T
-    kValueToObjectMapNew,           // () as ValueToObjectMap
-    kValueToObjectMapSet,           // (input as ValueToObjectMap, key as Value, value as Object) as ValueToObjectMap
     kValueToObjectMapBuilderAdd,    // (builder as ValueToObjectMapBuilder, key as Value, value as Object)
     kValueToObjectMapBuilderEnd,    // (builder as ValueToObjectMapBuilder) as ValueToObjectMap
     kValueToObjectMapBuilderNew,    // () as ValueToObjectMapBuilder
-    kValueToValueMapNew,            // () as ValueToValueMap
-    kValueToValueMapSet,            // (input as ValueToValueMap, key as Value, value as Value) as ValueToValueMap
+    kValueToObjectMapExcept,        // (lhs as ValueToObjectMap, rhs as ValueToObjectMap) as ValueToObjectMap
+    kValueToObjectMapNew,           // () as ValueToObjectMap
+    kValueToObjectMapSet,           // (input as ValueToObjectMap, key as Value, value as Object) as ValueToObjectMap
+    kValueToObjectMapUnion,         // (lhs as ValueToObjectMap, rhs as ValueToObjectMap) as ValueToObjectMap
     kValueToValueMapBuilderAdd,     // (builder as ValueToValueMapBuilder, key as Value, value as Value)
     kValueToValueMapBuilderEnd,     // (builder as ValueToValueMapBuilder) as ValueToValueMap
     kValueToValueMapBuilderNew,     // () as ValueToValueMapBuilder
+    kValueToValueMapExcept,         // (lhs as ValueToValueMap, rhs as ValueToValueMap) as ValueToValueMap
+    kValueToValueMapNew,            // () as ValueToValueMap
+    kValueToValueMapSet,            // (input as ValueToValueMap, key as Value, value as Value) as ValueToValueMap
+    kValueToValueMapUnion,          // (lhs as ValueToValueMap, rhs as ValueToValueMap) as ValueToValueMap
     kWriteFileBytes,                // (filePath as String, bytes as List of Number)
     kWriteFileLines,                // (filePath as String, lines as List of String)
     kWriteFileText,                 // (filePath as String, text as String)

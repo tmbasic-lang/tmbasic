@@ -460,39 +460,23 @@ static void typeCheckBinaryExpression(BinaryExpressionNode* expressionNode, Type
 
             case BinaryOperator::kSubtract:
                 if (lhsType->kind == Kind::kNumber && rhsType->kind == Kind::kNumber) {
+                    // Number + Number
                     suffix->evaluatedType = lhsType;
                 } else if (lhsType->kind == Kind::kList && rhsType->equals(*lhsType->listItemType)) {
                     // (List of T) + (T)
                     suffix->evaluatedType = lhsType;
-                } else if (lhsType->kind == Kind::kList && rhsType->kind == Kind::kList) {
+                } else if (lhsType->kind == Kind::kList && lhsType->equals(*rhsType)) {
                     // (List of T) + (List of T)
-                    if (lhsType->listItemType->equals(*rhsType->listItemType)) {
-                        suffix->evaluatedType = lhsType;
-                    } else {
-                        throw CompilerException(
-                            CompilerErrorCode::kTypeMismatch,
-                            fmt::format(
-                                "These lists cannot be combined because the list on the left is type {} and the list "
-                                "on the right is type {}. The types must match.",
-                                lhsType->listItemType->toString(), rhsType->listItemType->toString()),
-                            suffix->token);
-                    }
+                    suffix->evaluatedType = lhsType;
                 } else if (lhsType->kind == Kind::kSet && rhsType->equals(*lhsType->setKeyType)) {
                     // (Set of T) + (T)
                     suffix->evaluatedType = lhsType;
-                } else if (lhsType->kind == Kind::kSet && rhsType->kind == Kind::kSet) {
+                } else if (lhsType->kind == Kind::kSet && lhsType->equals(*rhsType)) {
                     // (Set of T) + (Set of T)
-                    if (lhsType->setKeyType->equals(*rhsType->setKeyType)) {
-                        suffix->evaluatedType = lhsType;
-                    } else {
-                        throw CompilerException(
-                            CompilerErrorCode::kTypeMismatch,
-                            fmt::format(
-                                "These sets cannot be combined because the set on the left is type {} and the set on "
-                                "the right is type {}. The types must match.",
-                                lhsType->setKeyType->toString(), rhsType->setKeyType->toString()),
-                            suffix->token);
-                    }
+                    suffix->evaluatedType = lhsType;
+                } else if (lhsType->kind == Kind::kMap && lhsType->equals(*rhsType)) {
+                    // (Map from T1 to T2) + (Map from T1 to T2)
+                    suffix->evaluatedType = lhsType;
                 } else {
                     throw CompilerException(
                         CompilerErrorCode::kTypeMismatch,

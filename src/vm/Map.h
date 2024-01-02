@@ -71,11 +71,15 @@ class Map : public Object {
             TValueList,
             TMapBuilder>;
 
-    const immer::map<TKey, TValue, TKeyHash, TKeyEqual> pairs = {};
+    using Pairs = immer::map<TKey, TValue, TKeyHash, TKeyEqual>;
+
+    const Pairs pairs = {};
 
     Map() = default;
 
     explicit Map(TMapBuilder* builder) : pairs(builder->pairs.persistent()) {}
+
+    explicit Map(Pairs pairs) : pairs(std::move(pairs)) {}
 
     Map(const Self& source, TKey newKey, TValue newValue) : pairs(source.pairs.set(newKey, newValue)) {}
 
@@ -134,6 +138,22 @@ class Map : public Object {
         builder.objects.push_back(boost::make_local_shared<TKeyList>(&keysBuilder));
         builder.objects.push_back(boost::make_local_shared<TValueList>(&valuesBuilder));
         return boost::make_local_shared<Record>(&builder);
+    }
+
+    boost::local_shared_ptr<Self> unionWith(const Self& other) {
+        auto builder = pairs.transient();
+        for (auto& pair : other.pairs) {
+            builder.set(pair.first, pair.second);
+        }
+        return boost::make_local_shared<Self>(builder.persistent());
+    }
+
+    boost::local_shared_ptr<Self> except(const Self& other) {
+        auto builder = pairs.transient();
+        for (auto& pair : other.pairs) {
+            builder.erase(pair.first);
+        }
+        return boost::make_local_shared<Self>(builder.persistent());
     }
 };
 

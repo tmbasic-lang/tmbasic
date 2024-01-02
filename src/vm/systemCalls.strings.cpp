@@ -17,8 +17,7 @@ void systemCallCharacters(const SystemCallInput& input, SystemCallResult* result
 
     // Fast path if the whole string is ASCII.
     auto fastPath = true;
-    for (size_t i = 0; i < str.value.length(); i++) {
-        char ch = str.value[i];
+    for (char ch : str.value) {
         if (ch != 9 && (ch < 32 || ch > 126)) {
             fastPath = false;
             break;
@@ -27,8 +26,8 @@ void systemCallCharacters(const SystemCallInput& input, SystemCallResult* result
 
     if (fastPath) {
         ObjectListBuilder objectListBuilder{};
-        for (size_t i = 0; i < str.value.length(); i++) {
-            objectListBuilder.items.push_back(boost::make_local_shared<String>(std::string{ str.value[i] }));
+        for (char ch : str.value) {
+            objectListBuilder.items.push_back(boost::make_local_shared<String>(std::string{ ch }));
         }
         result->returnedObject = boost::make_local_shared<ObjectList>(&objectListBuilder);
         return;
