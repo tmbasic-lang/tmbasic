@@ -1,9 +1,7 @@
-#procedure
 function Foo() as Number
     return "hello"
 end function
 
-#procedure
 sub Main()
     print Foo()
 end sub

@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim x = ["Hello ", "world", "!"]
     print Concat(x)

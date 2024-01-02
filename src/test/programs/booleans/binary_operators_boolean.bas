@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     print "and"
     print true and true

@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim list foo
         yield 5

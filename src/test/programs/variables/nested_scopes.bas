@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim a = 1
     if true then

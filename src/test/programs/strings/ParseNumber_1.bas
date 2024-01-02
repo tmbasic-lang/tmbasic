@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     ' Establish that it returns a Number.
     dim a as Number

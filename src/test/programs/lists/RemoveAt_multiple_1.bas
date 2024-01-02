@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim x = [1, 2, 3]
     dim y = RemoveAt(x, [0, 2])

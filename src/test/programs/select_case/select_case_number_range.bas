@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     for i = -1 to 6
         select case i

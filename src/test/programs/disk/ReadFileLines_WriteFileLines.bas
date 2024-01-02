@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim path = "./tmbasic-temp"
     WriteFileText path, "A" + NewLine() + "B" + NewLine()

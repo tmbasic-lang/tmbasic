@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     ' CodeUnit1
     dim x = Chr(65)

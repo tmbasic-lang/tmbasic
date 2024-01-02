@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     ' https://projecteuler.net/problem=4
     dim largestPalindrome = 0
@@ -17,7 +16,6 @@ sub Main()
     print largestPalindrome
 end sub
 
-#procedure
 function IsPalindrome(bytes as List of Number) as Boolean
     dim length = Len(bytes)
     for i = 0 to length / 2 - 1

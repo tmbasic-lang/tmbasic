@@ -1,8 +1,6 @@
-#type
 type Foo
     z as Number
 end type
-#procedure
 sub Main()
     dim bar = { z: 5 } as Foo
     dim baz = bar as record (a as Number)

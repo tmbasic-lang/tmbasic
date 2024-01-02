@@ -1,6 +1,4 @@
-#global
 dim x = [{ foo: 111 }]
-#procedure
 sub Main()
     x(0).foo = 999
     print x(0).foo

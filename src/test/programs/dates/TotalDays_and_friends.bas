@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim x = Hours(36)
     print TotalDays(x)

@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim x = { a: { b: 1, c: 2 }, d: 3 }
     print x.a.b

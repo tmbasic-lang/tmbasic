@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim name as String
     input name

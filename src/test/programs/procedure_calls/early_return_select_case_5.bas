@@ -1,9 +1,7 @@
-#procedure
 sub Main()
     print Foo(123)
 end sub
 
-#procedure
 function Foo(x as Number) as Number
     select case x
         case 1

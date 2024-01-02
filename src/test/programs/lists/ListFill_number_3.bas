@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     try
         dim x = ListFill(123, -1)

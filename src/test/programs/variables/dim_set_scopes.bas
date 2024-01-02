@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim set foo
         dim a = 0

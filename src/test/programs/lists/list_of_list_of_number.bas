@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim foo as List of List of Number
     foo = [ [ 1234 ] ]

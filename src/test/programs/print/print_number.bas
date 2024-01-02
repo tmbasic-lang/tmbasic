@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     print 5; -6.1
     dim a = 7

@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim x = [1]
     x(0) = 2

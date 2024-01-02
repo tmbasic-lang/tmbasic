@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim x = { left: 1, top: 2, width: 3, height: 4 } as Rectangle
     print x.left

@@ -1,9 +1,7 @@
-#procedure
 sub Main()
     print Foo(123)
 end sub
 
-#procedure
 function Foo(x as Number) as Number
     do
         ' This inner loop is a red herring. It doesn't matter what happens in this loop...

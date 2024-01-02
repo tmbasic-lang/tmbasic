@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     print Ceil(5.7)
     print Ceil(3.0)

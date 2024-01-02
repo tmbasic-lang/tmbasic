@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim x as Record (foo as Number, bar as String)
     print x.foo

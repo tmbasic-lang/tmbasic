@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     ' https://projecteuler.net/problem=3
     dim n = 600851475143

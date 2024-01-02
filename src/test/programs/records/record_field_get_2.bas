@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim y = { baz: 3 }
     dim x = { foo: y, bar: 2 }

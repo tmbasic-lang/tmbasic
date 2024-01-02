@@ -1,9 +1,7 @@
-#procedure
 sub Main()
     print Foo(123)
 end sub
 
-#procedure
 function Foo(x as Number) as Number
     try
         throw 999, "blah"

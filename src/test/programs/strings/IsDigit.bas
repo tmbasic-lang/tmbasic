@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     print IsDigit("1")
     print IsDigit("a")

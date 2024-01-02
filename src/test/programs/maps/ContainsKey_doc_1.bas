@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim map myMap
         yield "aaa" to "111"

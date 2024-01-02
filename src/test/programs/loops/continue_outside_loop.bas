@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     continue for
 end sub

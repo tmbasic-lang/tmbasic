@@ -1,6 +1,4 @@
-#global
 dim x as String
-#procedure
 sub Main()
     print x
     x = "hello"

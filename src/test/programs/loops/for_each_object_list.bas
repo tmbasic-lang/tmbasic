@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim objects = ["A", "B", "C"]
     for each o in objects

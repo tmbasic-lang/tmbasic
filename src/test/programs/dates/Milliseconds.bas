@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     print Milliseconds(1.5)
 end sub

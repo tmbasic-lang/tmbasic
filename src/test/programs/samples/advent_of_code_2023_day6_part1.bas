@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim raceTimes = [47, 98, 66, 98]
     dim raceRecords = [400, 1213, 1011, 1540]
@@ -12,7 +11,6 @@ sub Main()
     print totalWays
 end sub
 
-#procedure
 function CountWaysToWin(time as Number, rec as Number) as Number
     dim count = 0
     for holdTime = 0 to time - 1

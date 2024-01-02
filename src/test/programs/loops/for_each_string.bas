@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     for each o in "hello"
         print o

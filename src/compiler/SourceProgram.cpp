@@ -87,8 +87,7 @@ static void loadEndCurrentBlock(
         for (auto& line : *currentBlock) {
             s << line << "\n";
         }
-        members->push_back(std::make_unique<SourceMember>(
-            currentMemberType, boost::trim_copy(boost::replace_all_copy(s.str(), "##", "#")) + "\n", 0, 0));
+        members->push_back(std::make_unique<SourceMember>(currentMemberType, boost::trim_copy(s.str()) + "\n", 0, 0));
         currentBlock->clear();
     }
 }
@@ -106,6 +105,23 @@ void SourceProgram::load(const std::string& filePath) {
     loadFromContent(s.str());
 }
 
+static void eatLinesUntilEnd(
+    std::istringstream* stream,
+    std::vector<std::string>* currentBlock,
+    const std::string& endPhrase) {
+    std::string line;
+    while (std::getline(*stream, line)) {
+        currentBlock->push_back(line);
+
+        // The end phrase is case insensitive.
+        auto lc = boost::to_lower_copy(line);
+
+        if (lc.find(endPhrase) == 0) {
+            return;
+        }
+    }
+}
+
 void SourceProgram::loadFromContent(const std::string& content) {
     // If this has Windows CRLF line endings, convert it to Unix LF line endings.
     if (content.find("\r\n") != std::string::npos) {
@@ -121,62 +137,50 @@ void SourceProgram::loadFromContent(const std::string& content) {
     std::string line;
 
     while (std::getline(file, line)) {
-        auto isBlockDone = false;
-        SourceMemberType memberType;  // set this when setting isBlockDone=true
+        currentBlock.push_back(line);
 
-        if (line.find("#design") == 0) {
-            memberType = SourceMemberType::kDesign;
-            isBlockDone = true;
-        } else if (line.find("#global") == 0) {
-            memberType = SourceMemberType::kGlobal;
-            isBlockDone = true;
-        } else if (line.find("#picture") == 0) {
-            memberType = SourceMemberType::kPicture;
-            isBlockDone = true;
-        } else if (line.find("#procedure") == 0) {
-            memberType = SourceMemberType::kProcedure;
-            isBlockDone = true;
-        } else if (line.find("#type") == 0) {
-            memberType = SourceMemberType::kType;
-            isBlockDone = true;
-        }
+        // These keywords are case insensitive.
+        auto lc = boost::to_lower_copy(line);
 
-        if (isBlockDone) {
+        // Detect the type of block by the starting keyword.
+        // There can be comment lines above this.
+        if (lc.find("design") == 0) {
+            currentMemberType = SourceMemberType::kDesign;
+            eatLinesUntilEnd(&file, &currentBlock, "end design");
             loadEndCurrentBlock(&currentBlock, &members, currentMemberType);
-            currentMemberType = memberType;
-        } else {
-            currentBlock.push_back(line);
+        } else if (lc.find("dim") == 0 || line.find("const") == 0) {
+            currentMemberType = SourceMemberType::kGlobal;
+            loadEndCurrentBlock(&currentBlock, &members, currentMemberType);
+        } else if (lc.find("picture") == 0) {
+            currentMemberType = SourceMemberType::kPicture;
+            eatLinesUntilEnd(&file, &currentBlock, "end picture");
+            loadEndCurrentBlock(&currentBlock, &members, currentMemberType);
+        } else if (lc.find("sub") == 0) {
+            currentMemberType = SourceMemberType::kProcedure;
+            eatLinesUntilEnd(&file, &currentBlock, "end sub");
+            loadEndCurrentBlock(&currentBlock, &members, currentMemberType);
+        } else if (lc.find("function") == 0) {
+            currentMemberType = SourceMemberType::kProcedure;
+            eatLinesUntilEnd(&file, &currentBlock, "end function");
+            loadEndCurrentBlock(&currentBlock, &members, currentMemberType);
+        } else if (lc.find("type") == 0) {
+            currentMemberType = SourceMemberType::kType;
+            eatLinesUntilEnd(&file, &currentBlock, "end type");
+            loadEndCurrentBlock(&currentBlock, &members, currentMemberType);
         }
     }
 
-    loadEndCurrentBlock(&currentBlock, &members, currentMemberType);
+    // If there's anything in currentBlock, it's lines at the end that didn't include the start of a block.
+    // We will just discard those lines.
+    // Conveniently, when opening our own test programs, these discarded lines are the expected output that is invalid
+    // TMBASIC code anyway.
 }
 
 void SourceProgram::save(const std::string& filePath) const {
     auto stream = std::ofstream(filePath);
 
     for (const auto* member : sortMembers(this)) {
-        switch (member->memberType) {
-            case SourceMemberType::kDesign:
-                stream << "#design";
-                break;
-            case SourceMemberType::kGlobal:
-                stream << "#global";
-                break;
-            case SourceMemberType::kPicture:
-                stream << "#picture";
-                break;
-            case SourceMemberType::kProcedure:
-                stream << "#procedure";
-                break;
-            case SourceMemberType::kType:
-                stream << "#type";
-                break;
-            default:
-                assert(false);
-                break;
-        }
-        stream << "\n" << boost::trim_copy(boost::replace_all_copy(member->source, "#", "##")) << "\n\n";
+        stream << boost::trim_copy(member->source) << "\n\n";
     }
 }
 

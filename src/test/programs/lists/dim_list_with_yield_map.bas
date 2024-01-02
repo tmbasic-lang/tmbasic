@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim list x
         yield 5 to 6

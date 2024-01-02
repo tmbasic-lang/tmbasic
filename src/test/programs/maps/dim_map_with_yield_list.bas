@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim map x
         yield 5

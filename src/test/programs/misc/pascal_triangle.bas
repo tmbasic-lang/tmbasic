@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     const NUM_ROWS = 22
     dim row = [0]

@@ -1,23 +1,19 @@
-#type
 type MapRange
     dstStart as Number
     srcStart as Number
     length as Number
 end type
 
-#type
 type InputData
     seeds as List of Number
     maps as List of List of MapRange
 end type
 
-#procedure
 sub Main()
     dim data = ParseFile()
     Part1 data
 end sub
 
-#procedure
 function ParseFile() as InputData
     dim lines = ReadFileLines("../src/test/files/advent_of_code_2023_day5_input.txt")
     dim seeds = ParseSeeds(lines(0))
@@ -32,7 +28,6 @@ function ParseFile() as InputData
     return { seeds: seeds, maps: maps } as InputData
 end function
 
-#procedure
 function ParseSeeds(line as String) as List of Number
     dim parts = Split(line, " ")
     dim list seeds
@@ -43,7 +38,6 @@ function ParseSeeds(line as String) as List of Number
     return seeds
 end function
 
-#procedure
 function ParseMap(lines as List of String, i as Number) as Record (ranges as List of MapRange, index as Number)
     dim list ranges
         while Len(lines(i)) > 0
@@ -56,7 +50,6 @@ function ParseMap(lines as List of String, i as Number) as Record (ranges as Lis
     ' index is the blank line after the map
 end function
 
-#procedure
 sub Part1(data as InputData)
     dim minFinalNum as Optional Number
     for each seed in data.seeds

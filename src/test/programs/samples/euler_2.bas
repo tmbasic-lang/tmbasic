@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     ' https://projecteuler.net/problem=2
     dim sum = 0

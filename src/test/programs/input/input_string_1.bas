@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim n as String
     input n

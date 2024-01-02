@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     try
         throw 5, "hello"

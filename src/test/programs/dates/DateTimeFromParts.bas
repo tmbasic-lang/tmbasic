@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     print DateTimeFromParts(1776, 7, 4, 5, 15, 30, 450)
 end sub

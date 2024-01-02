@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim x = [1, 2, 3, 4, 5]
     dim y = Mid(x, 1, 3)

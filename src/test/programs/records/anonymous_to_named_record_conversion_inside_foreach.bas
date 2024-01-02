@@ -1,9 +1,7 @@
-#type
 type Bar
     baz as Number
 end type
 
-#procedure
 sub Main()
     dim aaa as List of Number
     for each bbb in aaa

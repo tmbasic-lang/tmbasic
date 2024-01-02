@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim x = 2
     select case x

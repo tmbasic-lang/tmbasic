@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     print Seconds(1.5)
 end sub

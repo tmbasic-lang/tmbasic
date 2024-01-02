@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     print Hours(1.5)
 end sub

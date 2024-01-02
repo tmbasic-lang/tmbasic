@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     print Replace("aaa", "", "bb")
 end sub

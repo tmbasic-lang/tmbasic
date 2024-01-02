@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     DeleteFile "myfile.txt"
     print FileExists("myfile.txt")

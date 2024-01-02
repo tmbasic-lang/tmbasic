@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim foo as Set of Number
     foo = foo + 5

@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim y = ["A"]
     y(0) = "B"

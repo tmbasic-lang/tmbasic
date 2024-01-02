@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim sumOfSquares = 0
     dim sum = 0

@@ -1,6 +1,4 @@
-#global
 const MYCONST = 123
-#procedure
 sub Main()
     MYCONST = 20
 end sub

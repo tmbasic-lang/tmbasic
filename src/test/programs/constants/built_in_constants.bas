@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     print "PI="; PI
     print "EULER="; EULER

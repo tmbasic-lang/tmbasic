@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     print "1:"; Replace("aaa", "a", "bb")
     print "2:"; Replace("aaa", "aa", "bb")

@@ -1,4 +1,3 @@
-#procedure
 function Foo() as Number
     ' At runtime this would return. However, we aren't smart enough to know at runtime that
     ' while true will execute the loop body at least once.
@@ -7,7 +6,6 @@ function Foo() as Number
     wend
 end function
 
-#procedure
 sub Main()
 end sub
 

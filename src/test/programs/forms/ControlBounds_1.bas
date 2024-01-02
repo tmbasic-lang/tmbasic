@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim c = NewLabel()
     SetControlBounds c, 1, 2, 3, 4

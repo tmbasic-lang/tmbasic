@@ -1,8 +1,6 @@
-#procedure
 function Foo() as Number
 end function
 
-#procedure
 sub Main()
 end sub
 

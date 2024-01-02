@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     print ParseNumber("asdf")
 end sub

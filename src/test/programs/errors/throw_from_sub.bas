@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     try
         Foo
@@ -6,7 +5,6 @@ sub Main()
         print "caught"
     end try
 end sub
-#procedure
 sub Foo()
     throw ""
 end sub

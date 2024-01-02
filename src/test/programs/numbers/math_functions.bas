@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     print "^"
     print 2^8+1

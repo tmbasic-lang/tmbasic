@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     ' U+0301 Combining Acute Accent
     dim s = "n" + "e" + Chr(769)

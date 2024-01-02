@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     print DateFromParts(1776, 7, 4)
 end sub

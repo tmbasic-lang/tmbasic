@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim x = 5
     dim y = x as Optional Number

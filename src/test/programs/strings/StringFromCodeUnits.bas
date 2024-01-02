@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim poopEmoji = "💩"  ' U+1F4A, four code units
     dim poopCodeUnits = CodeUnits(poopEmoji)

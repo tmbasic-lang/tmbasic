@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim x = ["A", "B", "C", "D", "E"]
     dim y = Mid(x, 1, 3)

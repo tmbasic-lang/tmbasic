@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim x as Optional String
     if not HasValue(x) then

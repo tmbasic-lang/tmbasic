@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     print true
     print false

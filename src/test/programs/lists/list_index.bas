@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim a = [100, 200, 300]
     print a(2)

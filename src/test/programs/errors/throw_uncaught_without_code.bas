@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     throw "hello"
 end sub

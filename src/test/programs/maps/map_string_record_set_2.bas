@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim foo as Map from String to Record(a as Number, b as Number)
     foo("abc") = {a: 111, b: 222}

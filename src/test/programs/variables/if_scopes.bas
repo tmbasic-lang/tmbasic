@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     if true then
         dim a = 1

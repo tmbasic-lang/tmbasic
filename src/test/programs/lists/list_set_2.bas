@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim foo = [111, 222, 333]
     try

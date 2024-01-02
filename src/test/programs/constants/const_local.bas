@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     const NUM_CONST = 123
     print NUM_CONST

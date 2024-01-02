@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim foo as Set of String
     foo = foo + "a"

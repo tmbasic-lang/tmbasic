@@ -1,8 +1,6 @@
-#procedure
 sub Main()
 end sub
 
-#procedure
 sub Foo()
     return 1
 end sub

@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim x as Optional Number
     x = 1

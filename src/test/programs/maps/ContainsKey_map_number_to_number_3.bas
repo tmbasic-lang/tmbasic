@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim foo as Map from Number to Number
     print ContainsKey(foo, "a")

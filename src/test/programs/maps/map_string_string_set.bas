@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim foo as Map from String to String
     foo("abc") = "def"

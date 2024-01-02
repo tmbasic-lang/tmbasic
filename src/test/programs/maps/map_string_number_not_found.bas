@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     try
         dim foo as Map from String to Number

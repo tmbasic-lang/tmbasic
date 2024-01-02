@@ -1,4 +1,3 @@
-#procedure
 function Part1(line as List of String) as Number
     dim firstDigit as Optional String
     dim lastDigit as String
@@ -15,7 +14,6 @@ function Part1(line as List of String) as Number
     return ParseNumber(Value(firstDigit) + lastDigit)
 end function
 
-#procedure
 function Part2(lineChs as List of String) as Number
     dim firstDigit as Optional Number
     dim lastDigit as Number
@@ -33,7 +31,6 @@ function Part2(lineChs as List of String) as Number
     return 10 * Value(firstDigit) + lastDigit
 end function
 
-#procedure
 sub Main()
     dim lines = ReadFileLines("../src/test/files/advent_of_code_2023_day1_input.txt")
     dim sum1 = 0
@@ -47,25 +44,21 @@ sub Main()
     print sum2
 end sub
 
-#procedure
 function Range(chars as List of String, offset as Number, length as Number) as String
     dim subchars = Mid(chars, offset, length)
     return Concat(subchars)
 end function
 
-#procedure
 function Match(chars as List of String, offset as Number, target as String) as Boolean
     dim substr = Range(chars, offset, Len(target))
     return substr = target
 end function
 
-#procedure
 function IsDigit(ch as String) as Boolean
     dim asc = CodeUnit(ch)
     return asc >= 48 and asc <= 57
 end function
 
-#procedure
 function GetDigit(chs as List of String, i as Number) as Number
     dim ch = chs(i)
     dim asc = CodeUnit(ch)

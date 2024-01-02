@@ -1,4 +1,3 @@
-#procedure
 ' comment
 sub Main()
     print "hi"

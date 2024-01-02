@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim x = { foo: 1, bar: "A" }
     print x.foo

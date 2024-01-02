@@ -1,8 +1,6 @@
-#global
 ' Two extra for the buffer we add on either side.
 const kWidth = 142
 
-#procedure
 sub Part1(grid as List of List of Number)
     dim sum = 0
 
@@ -48,7 +46,6 @@ sub Part1(grid as List of List of Number)
     print sum
 end sub
 
-#procedure
 sub Main()
     dim lines = ReadFileLines("../src/test/files/advent_of_code_2023_day3_input.txt")
     dim grid = [ListFill(46, kWidth)]
@@ -61,7 +58,6 @@ sub Main()
     Part1 grid
 end sub
 
-#procedure
 function IsPunctuationInRange(grid as List of List of Number, minRow as Number, minCol as Number, maxRow as Number, maxCol as Number) as Boolean
     for row = minRow to maxRow
         for col = minCol to maxCol

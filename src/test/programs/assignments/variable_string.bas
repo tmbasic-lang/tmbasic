@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim x = "hi"
     print x

@@ -1,23 +1,19 @@
-#type
 type MapRange
     srcMin as Number
     srcMax as Number
     dstMin as Number
 end type
 
-#type
 type InputData
     seeds as List of Number
     maps as List of List of MapRange
 end type
 
-#type
 type SeedRange
     min as Number
     max as Number
 end type
 
-#procedure
 sub Main()
     dim data = ParseFile()
     dim list seedRanges
@@ -45,7 +41,6 @@ sub Main()
     print Value(minStart)
 end sub
 
-#procedure
 function Subdivide(seedRanges as List of SeedRange, mapRanges as List of MapRange) as List of SeedRange
     dim list newSeedRanges
         for each seedRange in seedRanges
@@ -57,7 +52,6 @@ function Subdivide(seedRanges as List of SeedRange, mapRanges as List of MapRang
     return newSeedRanges
 end function
 
-#procedure
 function Subdivide(seedRange as SeedRange, mapRanges as List of MapRange) as List of SeedRange
     ' If any of the mapRange min or max is within the seedRange, then subdivide and recurse.
     for each mapRange in mapRanges
@@ -80,7 +74,6 @@ function Subdivide(seedRange as SeedRange, mapRanges as List of MapRange) as Lis
     return [seedRange]
 end function
 
-#procedure
 function Part2Step(seedRange as SeedRange, mapRanges as List of MapRange) as SeedRange
     for each mapRange in mapRanges
         ' Thanks to Subdivide() we know that the seedRange is either entirely inside or entirely outside the mapRange.
@@ -95,7 +88,6 @@ function Part2Step(seedRange as SeedRange, mapRanges as List of MapRange) as See
     return seedRange
 end function
 
-#procedure
 function ParseFile() as InputData
     dim lines = ReadFileLines("../src/test/files/advent_of_code_2023_day5_input.txt")
     dim seeds = ParseSeeds(lines(0))
@@ -110,7 +102,6 @@ function ParseFile() as InputData
     return { seeds: seeds, maps: maps } as InputData
 end function
 
-#procedure
 function ParseSeeds(line as String) as List of Number
     dim parts = Split(line, " ")
     dim list seeds
@@ -121,7 +112,6 @@ function ParseSeeds(line as String) as List of Number
     return seeds
 end function
 
-#procedure
 function ParseMap(lines as List of String, i as Number) as Record (ranges as List of MapRange, index as Number)
     dim list ranges
         while Len(lines(i)) > 0

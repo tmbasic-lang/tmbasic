@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     if 5 > 10 then
         print "5>10"

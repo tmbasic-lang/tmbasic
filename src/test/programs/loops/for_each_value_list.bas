@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim values = [1, 2, 3]
     for each v in values

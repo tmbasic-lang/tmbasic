@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     try
         dim a = 1

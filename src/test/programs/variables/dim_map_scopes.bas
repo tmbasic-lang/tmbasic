@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim map foo
         dim a = 0

@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim a as List of Number
     print Len(a)

@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim a = true
     print not a

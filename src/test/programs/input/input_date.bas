@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim a as Date
     input a

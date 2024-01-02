@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim x as Set of Number
     x = x + 6

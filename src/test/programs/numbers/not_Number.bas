@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     print not 5
 end sub

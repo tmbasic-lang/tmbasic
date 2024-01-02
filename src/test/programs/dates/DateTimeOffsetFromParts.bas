@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim offset = Hours(-6)
     dim x = DateTimeOffsetFromParts(2021, 3, 12, 4, 30, 0, 0, offset)

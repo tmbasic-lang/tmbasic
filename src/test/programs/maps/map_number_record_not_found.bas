@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     try
         dim foo as Map from Number to Record(a as Number, b as Number)

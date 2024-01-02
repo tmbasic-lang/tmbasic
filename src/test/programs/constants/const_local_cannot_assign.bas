@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     const MYCONST = 10
     MYCONST = 20

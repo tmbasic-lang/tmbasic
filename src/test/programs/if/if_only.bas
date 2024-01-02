@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim a = 5
     if a = 5 then

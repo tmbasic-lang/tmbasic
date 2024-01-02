@@ -1,15 +1,12 @@
-#type
 type Gear
     num as Number
     row as Number
     col as Number
 end type
 
-#global
 ' Two extra for the buffer we add on either side.
 const kWidth = 142
 
-#procedure
 sub Part2(grid as List of List of Number)
     dim sum = 0
 
@@ -81,7 +78,6 @@ sub Part2(grid as List of List of Number)
     print sum
 end sub
 
-#procedure
 sub Main()
     dim lines = ReadFileLines("../src/test/files/advent_of_code_2023_day3_input.txt")
     dim list grid
@@ -95,7 +91,6 @@ sub Main()
     Part2 grid
 end sub
 
-#procedure
 function GetGearsInRange(num as Number, grid as List of List of Number, minRow as Number, minCol as Number, maxRow as Number, maxCol as Number) as List of Gear
     dim list gears
         for row = minRow to maxRow

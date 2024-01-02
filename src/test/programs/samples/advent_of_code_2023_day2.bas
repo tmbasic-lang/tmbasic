@@ -1,11 +1,9 @@
-#type
 type Round
     red as Number
     green as Number
     blue as Number
 end type
 
-#procedure
 function ParseRounds(parts as List of String) as List of Round
     ' Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
     dim rounds as List of Round
@@ -37,7 +35,6 @@ function ParseRounds(parts as List of String) as List of Round
     return rounds
 end function
 
-#procedure
 function ParseGameNumber(part as String) as Number
     ' part is like "1:"
     dim partCodeUnits = CodeUnits(part)
@@ -45,7 +42,6 @@ function ParseGameNumber(part as String) as Number
     return ParseNumber(StringFromCodeUnits(truncatedCodeUnits))
 end function
 
-#procedure
 function Part1(gameNumber as Number, rounds as List of Round) as Number
     for each r in rounds
         if r.red > 12 or r.green > 13 or r.blue > 14 then
@@ -55,7 +51,6 @@ function Part1(gameNumber as Number, rounds as List of Round) as Number
     return gameNumber
 end function
 
-#procedure
 function Part2(gameNumber as Number, rounds as List of Round) as Number
     dim maxRed = 0
     dim maxGreen = 0
@@ -74,7 +69,6 @@ function Part2(gameNumber as Number, rounds as List of Round) as Number
     return maxRed * maxGreen * maxBlue
 end function
 
-#procedure
 sub Main()
     dim lines = ReadFileLines("../src/test/files/advent_of_code_2023_day2_input.txt")
     dim sum1 = 0

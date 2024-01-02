@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim xs = Split("a,b,c", ",")
     print Len(xs)

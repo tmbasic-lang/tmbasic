@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     do
         print 1

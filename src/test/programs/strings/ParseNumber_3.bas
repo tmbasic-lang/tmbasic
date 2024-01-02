@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim num as Number
     num = ParseNumber("-123.40")

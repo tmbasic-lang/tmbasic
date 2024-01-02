@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim map foo
         yield "a" to 2

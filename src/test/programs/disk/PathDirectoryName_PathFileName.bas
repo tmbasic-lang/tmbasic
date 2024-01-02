@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim ps = PathSeparator()
     dim path = "C:" + ps + "test" + ps + "file.txt"

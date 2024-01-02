@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     WriteFileBytes "myfile.dat", [65, 66, 67]
     print ReadFileText("myfile.dat")

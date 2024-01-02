@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim a = 5 as String
     print a

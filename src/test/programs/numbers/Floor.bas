@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     print Floor(5.7)
     print Floor(3.0)

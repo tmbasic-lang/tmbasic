@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     print DateTimeOffsetFromParts(2019, 2, 9, 14, 30, 59, 488, Hours(-4))
 end sub

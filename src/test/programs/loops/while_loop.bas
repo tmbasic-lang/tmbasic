@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim x = 1
     while x <= 3

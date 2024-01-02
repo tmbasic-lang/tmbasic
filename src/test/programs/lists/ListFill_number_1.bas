@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim x = ListFill(123, 3)
     print Len(x)

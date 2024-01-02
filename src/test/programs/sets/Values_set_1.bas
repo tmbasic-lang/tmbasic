@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim foo as Set of Number
     dim bar as List of Number

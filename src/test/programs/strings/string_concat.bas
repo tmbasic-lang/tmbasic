@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     print "a" + "b"
 end sub

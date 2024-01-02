@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim primeCount = 0
     dim num = 1
@@ -15,7 +14,6 @@ sub Main()
     print num
 end sub
 
-#procedure
 function IsPrime(n as Number) as Boolean
     if n <= 1 then
         return false

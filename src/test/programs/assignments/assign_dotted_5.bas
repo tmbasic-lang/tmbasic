@@ -1,6 +1,4 @@
-#global
 dim x as List of Record(foo as Number)
-#procedure
 sub Main()
     print Len(x)
     x = [{ foo: 111 }]

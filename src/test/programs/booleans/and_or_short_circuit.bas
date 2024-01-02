@@ -1,9 +1,7 @@
-#procedure
 function AlwaysThrows() as Boolean
     print "should not have called this!"
     throw 1, "error"
 end function
-#procedure
 sub Main()
     if true or AlwaysThrows() then
         print "1 good"

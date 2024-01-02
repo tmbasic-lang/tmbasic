@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim x as Map from Number to Number
     x(5) = 6

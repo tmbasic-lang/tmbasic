@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim a as String
     dim b as String

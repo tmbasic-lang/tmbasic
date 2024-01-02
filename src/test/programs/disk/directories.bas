@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim path = "dir-test" + PathSeparator()
     try

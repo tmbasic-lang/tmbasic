@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     ' deleting a file that already doesn't exist is not an error
     DeleteFile "this_file_does_not_exist"

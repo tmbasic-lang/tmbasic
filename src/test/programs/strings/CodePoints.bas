@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim x = CodePoints("💩")
     print Len(x)

@@ -1,4 +1,3 @@
-#procedure
 sub Main()
     dim x = CodeUnits("ABC")
     print x(0)
