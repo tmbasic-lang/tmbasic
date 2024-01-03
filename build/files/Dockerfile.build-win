@@ -1,4 +1,4 @@
-FROM ubuntu:20.04 AS first-stage
+FROM ubuntu:22.04 AS first-stage
 
 # mingw - build steps adapted from https://github.com/mmozeiko/docker-mingw-w64/blob/master/Dockerfile
 RUN apt-get update -y && \
@@ -18,20 +18,16 @@ RUN apt-get update -y && \
         libgmp-dev \
         libgmp10 \
         libisl-dev \
-        libisl22 \
         libmpc-dev \
-        libmpc3 \
         libmpfr-dev \
-        libmpfr6 \
         libssl-dev \
-        libssl1.1 \
         make \
         meson \
         ninja-build \
         patch \
-        python \
-        python-lxml \
-        python-mako \
+        python3 \
+        python3-lxml \
+        python3-mako \
         texinfo \
         xz-utils \
         yasm \
@@ -43,7 +39,7 @@ COPY mingw.sh /tmp/mingw.sh
 RUN chmod +x /tmp/mingw.sh && \
     ARCH="$ARCH" LIB3264="$LIB3264" /tmp/mingw.sh
 RUN apt-get remove --purge -y \
-        file gcc-10 g++-10 zlib1g-dev libssl-dev libgmp-dev libmpfr-dev libmpc-dev libisl-dev python-lxml python-mako
+        file gcc-10 g++-10 zlib1g-dev libssl-dev libgmp-dev libmpfr-dev libmpc-dev libisl-dev python3-lxml python3-mako
 
 # extra utilities
 RUN apt-get install -y \
