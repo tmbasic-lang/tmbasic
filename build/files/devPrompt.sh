@@ -1,10 +1,11 @@
 #!/bin/bash
 
 function make_colorized() {
+    ccache --zero-stats
     clear
     # Create a file descriptor 3 for stderr
     exec 3>&1
-    make 2> >(while IFS= read -r line; do
+    time make 2> >(while IFS= read -r line; do
                   echo "$line" >&3  # Pass stderr to the console
                   if [[ "$line" == *"error:"* ]]; then
                       return
@@ -20,6 +21,7 @@ function make_colorized() {
     }
     # Close the extra file descriptor
     exec 3>&-
+    ccache --show-stats | sed 's/          / /g' | grep -E "^cache (hit rate|size)"
 }
 
 while true

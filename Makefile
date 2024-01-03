@@ -203,8 +203,9 @@ AR=$(LINUX_TRIPLE)-ar
 RANLIB=$(LINUX_TRIPLE)-ranlib
 STRIP=$(LINUX_TRIPLE)-strip
 else
-# dev container
-CXX += -fdiagnostics-color=always
+# ubuntu dev container
+CC=ccache gcc -fdiagnostics-color=always
+CXX=ccache g++ -fdiagnostics-color=always
 endif
 endif
 
