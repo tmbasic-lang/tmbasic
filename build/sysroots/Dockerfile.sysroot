@@ -1,4 +1,4 @@
-FROM $IMAGE_ARCH/alpine:3.18 AS initial
+FROM $IMAGE_ARCH/alpine:3.19 AS initial
 RUN apk update && apk upgrade && apk add clang linux-headers g++ musl-dev
 
 # Delete anything we won't need when using this as a sysroot for cross-compilation.
