@@ -21,7 +21,7 @@ function make_colorized() {
     }
     # Close the extra file descriptor
     exec 3>&-
-    ccache --show-stats | sed 's/          / /g' | grep -E "^cache (hit rate|size)"
+    ccache --show-stats | awk 'BEGIN { RS = "\n\n" } { print $0; exit }'
 }
 
 while true
