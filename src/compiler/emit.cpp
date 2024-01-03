@@ -564,7 +564,12 @@ static void emitBinaryExpression(const BinaryExpressionNode& expressionNode, Pro
                         }
                         break;
                     default:
-                        throw std::runtime_error("not impl");
+                        if (lhsType->setKeyType->isValueType()) {
+                            state->syscall(Opcode::kSystemCallO, SystemCall::kValueSetExcept, 0, 2);
+                        } else {
+                            state->syscall(Opcode::kSystemCallO, SystemCall::kObjectSetExcept, 0, 2);
+                        }
+                        break;
                 }
             } else {
                 // Append (example 2).
@@ -577,7 +582,12 @@ static void emitBinaryExpression(const BinaryExpressionNode& expressionNode, Pro
                         }
                         break;
                     default:
-                        throw std::runtime_error("not impl");
+                        if (lhsType->setKeyType->isValueType()) {
+                            state->syscall(Opcode::kSystemCallO, SystemCall::kValueSetRemove, 1, 1);
+                        } else {
+                            state->syscall(Opcode::kSystemCallO, SystemCall::kObjectSetRemove, 0, 2);
+                        }
+                        break;
                 }
             }
         } else if (lhsType->kind == Kind::kSet && rhsType->kind != Kind::kSet) {

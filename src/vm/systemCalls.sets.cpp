@@ -37,9 +37,15 @@ void systemCallObjectSetRemove(const SystemCallInput& input, SystemCallResult* r
 }
 
 void systemCallObjectSetUnion(const SystemCallInput& input, SystemCallResult* result) {
-    const auto& lhsObject = input.getObject(-2);
-    const auto& rhsObject = input.getObject(-1);
-    result->returnedObject = boost::make_local_shared<ObjectSet>(*castObjectSet(lhsObject), *castObjectSet(rhsObject));
+    const auto* lhs = castObjectSet(input.getObject(-2));
+    const auto* rhs = castObjectSet(input.getObject(-1));
+    result->returnedObject = lhs->unionWith(*rhs);
+}
+
+void systemCallObjectSetExcept(const SystemCallInput& input, SystemCallResult* result) {
+    const auto* lhs = castObjectSet(input.getObject(-2));
+    const auto* rhs = castObjectSet(input.getObject(-1));
+    result->returnedObject = lhs->except(*rhs);
 }
 
 void systemCallSetContains(const SystemCallInput& input, SystemCallResult* result) {
@@ -122,9 +128,15 @@ void systemCallValueSetRemove(const SystemCallInput& input, SystemCallResult* re
 }
 
 void systemCallValueSetUnion(const SystemCallInput& input, SystemCallResult* result) {
-    const auto& lhsObject = input.getObject(-2);
-    const auto& rhsObject = input.getObject(-1);
-    result->returnedObject = boost::make_local_shared<ValueSet>(*castValueSet(lhsObject), *castValueSet(rhsObject));
+    const auto* lhs = castValueSet(input.getObject(-2));
+    const auto* rhs = castValueSet(input.getObject(-1));
+    result->returnedObject = lhs->unionWith(*rhs);
+}
+
+void systemCallValueSetExcept(const SystemCallInput& input, SystemCallResult* result) {
+    const auto* lhs = castValueSet(input.getObject(-2));
+    const auto* rhs = castValueSet(input.getObject(-1));
+    result->returnedObject = lhs->except(*rhs);
 }
 
 }  // namespace vm

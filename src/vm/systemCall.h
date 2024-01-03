@@ -122,6 +122,7 @@ enum class SystemCall {
     kObjectSetBuilderAdd,           // (builder as ObjectSetBuilder, Object as Object)
     kObjectSetBuilderEnd,           // (builder as ObjectSetBuilder) as ObjectSet
     kObjectSetBuilderNew,           // () as ObjectSetBuilder
+    kObjectSetExcept,               // (lhs as ObjectSet, rhs as ObjectSet) as ObjectSet
     kObjectSetNew,                  // () as ObjectSet
     kObjectSetRemove,               // (lhs as ObjectSet, rhs as Object) as ObjectSet
     kObjectSetUnion,                // (lhs as Set of T, rhs as Set of T) as Set of T
@@ -196,6 +197,7 @@ enum class SystemCall {
     kValueSetBuilderAdd,            // (builder as ValueSetBuilder, value as Value)
     kValueSetBuilderEnd,            // (builder as ValueSetBuilder) as ValueSet
     kValueSetBuilderNew,            // () as ValueSetBuilder
+    kValueSetExcept,                // (lhs as ValueSet, rhs as ValueSet) as ValueSet
     kValueSetNew,                   // () as ValueSet
     kValueSetRemove,                // (lhs as ValueSet, rhs as Value) as ValueSet
     kValueSetUnion,                 // (lhs as Set of T, rhs as Set of T) as Set of T

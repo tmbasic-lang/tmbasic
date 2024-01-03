@@ -38,24 +38,15 @@ class Set : public Object {
    public:
     using Self = Set<TKey, K, TKeyListBuilder, TKeyList, TKeyHash, TKeyEqual, TSetBuilder>;
 
-    const immer::set<TKey, TKeyHash, TKeyEqual> keys = {};
+    using Keys = immer::set<TKey, TKeyHash, TKeyEqual>;
+
+    const Keys keys = {};
 
     Set() = default;
 
     explicit Set(TSetBuilder* builder) : keys(builder->keys.persistent()) {}
 
-    static immer::set<TKey, TKeyHash, TKeyEqual> unionSets(const Self& a, const Self& b) {
-        TSetBuilder builder;
-        for (const auto& key : a.keys) {
-            builder.keys.insert(key);
-        }
-        for (const auto& key : b.keys) {
-            builder.keys.insert(key);
-        }
-        return builder.keys.persistent();
-    }
-
-    Set(const Self& a, const Self& b) : keys(unionSets(a, b)) {}
+    explicit Set(Keys keys) : keys(std::move(keys)) {}
 
     Set(const Self& source, bool insert, TKey key) : keys(insert ? source.keys.insert(key) : source.keys.erase(key)) {}
 
@@ -85,6 +76,22 @@ class Set : public Object {
             builder.items.push_back(key);
         }
         return boost::make_local_shared<TKeyList>(&builder);
+    }
+
+    boost::local_shared_ptr<Self> unionWith(const Self& other) const {
+        auto builder = keys.transient();
+        for (auto& key : other.keys) {
+            builder.insert(key);
+        }
+        return boost::make_local_shared<Self>(builder.persistent());
+    }
+
+    boost::local_shared_ptr<Self> except(const Self& other) const {
+        auto builder = keys.transient();
+        for (auto& key : other.keys) {
+            builder.erase(key);
+        }
+        return boost::make_local_shared<Self>(builder.persistent());
     }
 };
 

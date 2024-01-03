@@ -140,7 +140,7 @@ class Map : public Object {
         return boost::make_local_shared<Record>(&builder);
     }
 
-    boost::local_shared_ptr<Self> unionWith(const Self& other) {
+    boost::local_shared_ptr<Self> unionWith(const Self& other) const {
         auto builder = pairs.transient();
         for (auto& pair : other.pairs) {
             builder.set(pair.first, pair.second);
@@ -148,7 +148,7 @@ class Map : public Object {
         return boost::make_local_shared<Self>(builder.persistent());
     }
 
-    boost::local_shared_ptr<Self> except(const Self& other) {
+    boost::local_shared_ptr<Self> except(const Self& other) const {
         auto builder = pairs.transient();
         for (auto& pair : other.pairs) {
             builder.erase(pair.first);
