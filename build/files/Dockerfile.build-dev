@@ -2,6 +2,7 @@ FROM ubuntu:20.04
 
 RUN apt-get update -y && \
     apt-get upgrade -y && \
+    yes | unminimize && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
         apt-transport-https \
         ccache \
