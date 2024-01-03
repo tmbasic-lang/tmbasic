@@ -148,7 +148,7 @@ $(BINUTILS_DIR)/download:
 $(BINUTILS_DIR)/install: $(BINUTILS_DIR)/download
 ifeq ($(TARGET_OS),linux)
 	cd $(BINUTILS_DIR) && \
-	    ./configure --target=$(LINUX_TRIPLE) && \
+	    ./configure --target=$(LINUX_TRIPLE) --enable-gprofng=no && \
 	    $(MAKE) && \
 	    $(MAKE) install
 endif

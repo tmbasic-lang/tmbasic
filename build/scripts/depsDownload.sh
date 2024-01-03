@@ -32,7 +32,7 @@ function downloadFile {
 
 # don't update these versions by hand. instead, run scripts/depsCheck.sh
 ABSEIL_VERSION=57383901082bd5e3ad8bfe63b2c44897c9f05c27
-BINUTILS_VERSION=2.37
+BINUTILS_VERSION=2.41
 BOOST_VERSION=1.84.0
 CLI11_VERSION=2.3.2
 CMAKE_VERSION=3.28.1
