@@ -124,13 +124,12 @@ function checkTzdb {
 echo
 echo '# depsDownload.sh'
 
-checkGitHubCommit "ABSEIL" "https://github.com/abseil/abseil-cpp/commits.atom"
+checkGitHubCommit "ABSEIL" "https://github.com/electroly/tmbasic-abseil-cpp/commits.atom"
 
 # Build breaks on 2.38 and 2.39 and I don't know why, so let's pin to the last good version.
 #checkGnu "binutils-" "BINUTILS" "https://ftp.gnu.org/gnu/binutils/"
 echo "BINUTILS_VERSION=2.37"
 
-checkGitHubCommit "ABSEIL" "https://github.com/electroly/tmbasic-abseil-cpp/commits.atom"
 checkJfrog "BOOST" "https://boostorg.jfrog.io/artifactory/main/release/"
 checkGitHubRelease "CLI11" "https://github.com/CLIUtils/CLI11/releases.atom"
 checkGitHubRelease "CMAKE" "https://github.com/Kitware/CMake/releases.atom"
