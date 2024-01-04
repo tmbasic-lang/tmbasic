@@ -34,17 +34,21 @@ Experienced programmers will find it familiar and productive after a brief glanc
 Declare variables with `dim`, providing either an explicit type or an initial value.
 The simple types are:
 
-- `Number` &mdash; [128-bit decimal](https://en.wikipedia.org/wiki/Decimal128_floating-point_format)
+- `Number` &mdash; [128-bit decimal floating-point](https://en.wikipedia.org/wiki/Decimal128_floating-point_format)
 - `String` &mdash; [UTF-8 text](https://en.wikipedia.org/wiki/UTF-8)
 - `Boolean` &mdash; `true` or `false`
 
 <br><pre class="taste">
 <i>dim</i> myList <b>= [1, 2, 3]</b>
-<i>dim</i> combinedList <b>=</b> myList <b>+ [4, 5, 6] + 7</b>
-
+<i>dim</i> combinedList <b>=</b> myList <b>+ [4, 5, 6] + 7</b><br>
 <i>dim</i> myMap <i>as Map from Number to String</i>
 myMap<b>(123) =</b> <strong>"hello"</strong>
-<i>print</i> ContainsKey<b>(</b>myMap<b>, 123)</b>  <u>' true</u>
+<i>print</i> ContainsKey<b>(</b>myMap<b>, 123)</b>  <u>' true</u><br>
+<i>dim set</i> mySet
+&nbsp;&nbsp;&nbsp;&nbsp;<i>for</i> i <b>= 1</b> <i>to</i> <b>100</b> <i>step</i> <b>2</b>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>yield</i> i
+&nbsp;&nbsp;&nbsp;&nbsp;<i>next</i>
+<i>end dim</i>
 </pre>
 
 The collection types are:
@@ -53,16 +57,10 @@ The collection types are:
 - `Map from T1 to T2` &mdash; A dictionary with keys of type `T1` and values of type `T2`.
 - `Set of T` &mdash; A group of unique values of type `T`.
 
-<br><pre class="taste">
-<i>dim list</i> myList
-    <i>for</i> i <b>= 1</b> <i>to</i> <b>100</b> <i>step</i> <b>2</b>
-        <i>yield</i> i
-    <i>next</i>
-<i>end dim</i>
-</pre>
+Use `dim list`, `dim map`, and `dim set` to build collections efficiently.
+Each `yield` statement adds an element to the collection.
 
-Use `dim list`, `dim map`, and `dim set` to efficiently build collections.
-Each `yield` statement adds an item to the collection.
+These collection types are [generic](https://en.wikipedia.org/wiki/Generic_programming), but you can't define your own generic types.
 
 <br><pre class="taste">
 <i>dim</i> d <b>=</b> DateFromParts<b>(2021, 3, 12)</b>
@@ -82,10 +80,9 @@ The date and time types are:
 
 <br><pre class="taste">
 <i>type</i> ExampleRecord
-    foo <i>as</i> Number
-    bar <i>as</i> String
-<i>end type</i>
-
+&nbsp;&nbsp;&nbsp;&nbsp;foo <i>as</i> Number
+&nbsp;&nbsp;&nbsp;&nbsp;bar <i>as</i> String
+<i>end type</i><br>
 <i>dim</i> myAnonymousRecord1 <i>as Record</i> <b>(</b>foo <i>as Number</i><b>,</b> bar <i>as String</i><b>)</b>
 <i>dim</i> myAnonymousRecord2 <b>= {</b> foo<b>: 100,</b> bar<b>:</b> <strong>"hello"</strong> <b>}</b>
 <i>dim</i> myNamedRecord <b>=</b> myAnonymousRecord2 <i>as</i> ExampleRecord
@@ -107,11 +104,10 @@ Assigning to a variable or passing to a function always makes a copy of the valu
 
 <br><pre class="taste">
 <i>sub</i> Main<b>()</b>
-    <i>print</i> Squared<b>(5)</b>
-<i>end sub</i>
-
+&nbsp;&nbsp;&nbsp;&nbsp;<i>print</i> Squared<b>(5)</b>
+<i>end sub</i><br>
 <i>function</i> Squared<b>(</b>x <i>as Number</i><b>)</b> <i>as Number</i>
-    <i>return</i> x <i>*</i> x
+&nbsp;&nbsp;&nbsp;&nbsp;<i>return</i> x <i>*</i> x
 <i>end function</i>
 </pre>
 
