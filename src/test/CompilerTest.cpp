@@ -19,40 +19,12 @@ using std::string;
 using std::vector;
 using vm::Interpreter;
 
-static void runCode(const string& basFile) {
-    vm::initializeTzdb();
-
+static void runCodeCore(
+    const std::string& input,
+    const std::string& source,
+    const std::string& expectedOutput,
+    const std::string& extraInfo) {
     compiler::CompiledProgram program{};
-
-    string inputSentinel = "--input--\n";
-    auto inputStart = basFile.find(inputSentinel);
-
-    string outputSentinel = "--output--\n";
-    auto outputStart = basFile.find(outputSentinel);
-
-    string input;
-    if (inputStart != string::npos) {
-        if (outputStart == string::npos) {
-            input = basFile.substr(inputStart + inputSentinel.size());
-        } else {
-            input = basFile.substr(inputStart + inputSentinel.size(), outputStart - inputStart - inputSentinel.size());
-        }
-    }
-
-    string expectedOutput;
-    if (outputStart != string::npos) {
-        expectedOutput = basFile.substr(outputStart + outputSentinel.size());
-    }
-
-    string source;
-    if (inputStart != string::npos) {
-        source = basFile.substr(0, inputStart);
-    } else if (outputStart != string::npos) {
-        source = basFile.substr(0, outputStart);
-    } else {
-        source = basFile;
-    }
-
     istringstream consoleInputStream{ input };
     ostringstream consoleOutputStream{};
 
@@ -99,9 +71,116 @@ static void runCode(const string& basFile) {
         std::cerr << "Error message:\n" << *errorMessage << "\n\n";
     }
 
-    ASSERT_EQ(expectedOutput, actualOutput);
+    if (extraInfo.empty()) {
+        ASSERT_EQ(expectedOutput, actualOutput);
+    } else {
+        ASSERT_EQ(expectedOutput, actualOutput) << extraInfo;
+    }
 
     Interpreter::printDebugTimings();
+}
+
+static std::vector<std::vector<std::string>> parseCases(const std::string& input) {
+    // input is like:
+    // 1|foo|bar
+    // 2|baz|qux
+    // No quoting. The vertical bar will never be in the parameter values.
+    // We will produce:
+    // [ [ "1", "foo", "bar" ], [ "2", "baz", "qux" ] ]
+
+    std::vector<std::vector<std::string>> result{};
+    std::vector<std::string> currentRow{};
+    std::string currentCell{};
+    for (auto c : input) {
+        if (c == '|') {
+            currentRow.push_back(currentCell);
+            currentCell = "";
+        } else if (c == '\n') {
+            currentRow.push_back(currentCell);
+            currentCell = "";
+            result.push_back(currentRow);
+            currentRow = {};
+        } else {
+            currentCell += c;
+        }
+    }
+
+    if (!currentCell.empty()) {
+        currentRow.push_back(currentCell);
+    }
+
+    if (!currentRow.empty()) {
+        result.push_back(currentRow);
+    }
+
+    return result;
+}
+
+static void runCode(const string& basFile) {
+    vm::initializeTzdb();
+
+    std::vector<size_t> sectionStarts{};
+
+    string inputSentinel = "--input--\n";
+    auto inputStart = basFile.find(inputSentinel);
+    if (inputStart != string::npos) {
+        sectionStarts.push_back(inputStart);
+    }
+
+    string outputSentinel = "--output--\n";
+    auto outputStart = basFile.find(outputSentinel);
+    if (outputStart != string::npos) {
+        sectionStarts.push_back(outputStart);
+    }
+
+    string casesSentinel = "--cases--\n";
+    auto casesStart = basFile.find(casesSentinel);
+    if (casesStart != string::npos) {
+        sectionStarts.push_back(casesStart);
+    }
+
+    std::sort(sectionStarts.begin(), sectionStarts.end());
+
+    string input, expectedOutput, cases;
+    for (size_t i = 0; i < sectionStarts.size(); i++) {
+        auto start = sectionStarts.at(i);
+        auto next = (i + 1 < sectionStarts.size()) ? sectionStarts.at(i + 1) : basFile.size();
+        auto section = basFile.substr(start, next - start);
+
+        // Remove the sentinel line at the beginning.
+        section = section.substr(section.find('\n') + 1);
+
+        if (start == inputStart) {
+            input = section;
+        } else if (start == outputStart) {
+            expectedOutput = section;
+        } else if (start == casesStart) {
+            cases = section;
+        }
+    }
+
+    string source;
+    if (sectionStarts.size() > 0) {
+        source = basFile.substr(0, sectionStarts.at(0));
+    } else {
+        source = basFile;
+    }
+
+    auto casesList = parseCases(cases);
+    if (casesList.empty()) {
+        runCodeCore(input, source, expectedOutput, "");
+    } else {
+        for (auto& p : casesList) {
+            auto substitutedSource = source;
+            auto substitutedOutput = expectedOutput;
+            for (size_t i = 0; i < p.size(); i++) {
+                auto placeholder = fmt::format("${}", i);
+                boost::replace_all(substitutedSource, placeholder, p.at(i));
+                boost::replace_all(substitutedOutput, placeholder, p.at(i));
+            }
+            runCodeCore(input, substitutedSource, substitutedOutput, fmt::format("↑ Case {} ↑", p.at(0)));
+        }
+    }
 }
 
 static void run(string dir, string filenameWithoutExtension) {
@@ -123,8 +202,10 @@ TEST(CompilerTest, CrLfLineEndings) {
 }
 
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
-#define COMPILER_TEST(dir, file) \
-    TEST(CompilerTest, dir##__##file) { run(#dir, #file); }
+#define COMPILER_TEST(dir, file)        \
+    TEST(CompilerTest, dir##__##file) { \
+        run(#dir, #file);               \
+    }
 
 // Regenerate with: build/scripts/updateCompilerTest.sh
 //--- auto-generated code below ---
@@ -369,6 +450,7 @@ COMPILER_TEST(optionals, convert_number_as_optional)
 COMPILER_TEST(optionals, optional_assign)
 COMPILER_TEST(optionals, optional_parameter)
 COMPILER_TEST(print, print)
+COMPILER_TEST(print, print_all_types)
 COMPILER_TEST(print, print_number)
 COMPILER_TEST(procedure_calls, call_function_one_arg)
 COMPILER_TEST(procedure_calls, call_function_two_arg)
