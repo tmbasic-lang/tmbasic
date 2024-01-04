@@ -46,9 +46,13 @@ inline const TObject& castObject(const Object& obj, ObjectType objectType) {
 #endif
 }
 
-#define DEFINE_CAST_FUNCTION(TYPE)                                                                  \
-    inline TYPE* cast##TYPE(vm::Object* obj) { return castObject<TYPE>(obj, ObjectType::k##TYPE); } \
-    inline const TYPE& cast##TYPE(const vm::Object& obj) { return castObject<TYPE>(obj, ObjectType::k##TYPE); }
+#define DEFINE_CAST_FUNCTION(TYPE)                         \
+    inline TYPE* cast##TYPE(vm::Object* obj) {             \
+        return castObject<TYPE>(obj, ObjectType::k##TYPE); \
+    }                                                      \
+    inline const TYPE& cast##TYPE(const vm::Object& obj) { \
+        return castObject<TYPE>(obj, ObjectType::k##TYPE); \
+    }
 
 DEFINE_CAST_FUNCTION(ObjectList)
 DEFINE_CAST_FUNCTION(ObjectListBuilder)
