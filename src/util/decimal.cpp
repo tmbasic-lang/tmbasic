@@ -73,8 +73,6 @@ Decimal doubleToDecimal(double x) {
     int64_t binaryExponent = exponent;
     binaryExponent -= 0x3ff;  // IEEE 754 double bias
 
-    // Decimal fractionNumerator = mantissa;
-
     Decimal fraction = mantissa / kDecimalDoubleMantissaDenominator;
 
     Decimal magnitude = 2;
