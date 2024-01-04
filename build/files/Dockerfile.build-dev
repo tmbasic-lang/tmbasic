@@ -10,6 +10,8 @@ RUN apt-get update -y && \
         git \
         language-pack-en \
         make \
+        man \
+        manpages \
         nodejs \
         npm \
         pandoc \
