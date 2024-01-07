@@ -1,6 +1,6 @@
-# Building from Source
+# Contributing to TMBASIC
 
-<!-- update the table of contents with: doctoc --github building-from-source.md -->
+<!-- update the table of contents with: doctoc --github CONTRIBUTING.md -->
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
@@ -8,6 +8,8 @@
 - [Build for Linux and Windows](#build-for-linux-and-windows)
 - [Build for macOS](#build-for-macos)
 - [Use Visual Studio Code for development and debugging](#use-visual-studio-code-for-development-and-debugging)
+- [Take screenshots for the website](#take-screenshots-for-the-website)
+- [Update third party dependencies](#update-third-party-dependencies)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -46,12 +48,14 @@ Linux and Windows builds must be produced on a Linux build machine. Ubuntu Linux
     This will create a development build for Linux suitable for debugging.
     This build of TMBASIC will be unable to produce executables for other platforms because it does not contain the necessary builds of the interpreter.
 
-    Use one of the `linux-*.sh` or `win-*.sh` scripts instead of `dev.sh` to produce a build for a particular target platform. The `linux-*.sh` scripts require [AWSCLI](https://aws.amazon.com/cli/) to be installed and configured in order to download Linux system root images from the `tmbasic` bucket.
+    Use one of the `linux-*.sh` or `win-*.sh` scripts instead of `dev.sh` to produce a build for a particular target platform.
 
 1. Type `exit` to leave the build environment.
 
 ## Build for macOS
-1. Install Xcode (version 12 or higher).
+1. Install Xcode (version 12 or higher) and AWSCLI v2.
+
+1. `aws configure` -- enter your AWS credentials. You need this to access the requester-pays S3 bucket `tmbasic` which contains premade build environments.
 
 1. Start the build environment and compile:
 
@@ -75,8 +79,32 @@ Linux and Windows builds must be produced on a Linux build machine. Ubuntu Linux
 If your Docker engine is running on another machine, modify the above steps:
 1. Install the `ms-vscode-remote.remote-ssh` extension too.
 1. Download the [Docker client EXE](https://github.com/StefanScherer/docker-cli-builder/releases) and stick it somewhere on your `PATH`.
-1. On the remote Linux machine, run `sudo systemctl edit --full docker.service` and edit the `ExecStart` line to add `-H tcp://0.0.0.0:2375`. Example: `ExecStart=/usr/bin/dockerd -H fd:// -H tcp://0.0.0.0:2375 --containerd=/run/containerd/containerd.sock`. Then `sudo systemctl restart docker.service`.
-1. On the local Windows machine, add the system environment variable `DOCKER_HOST` set to the hostname of the target machine.
-1. Test with `docker image ls` on the local machine.
-1. Start `build/dev.sh` on the remote machine.
+1. Start `dev.sh` on the remote machine.
+1. In VSCode, press Ctrl+Shift+P and run the "Remote-SSH: Connect to host..." command to connect to the remote machine.
 1. Continue with the original steps.
+
+## Take screenshots for the website
+SVG screenshots would have been nice, but they get garbled in some browsers (Chrome on Android). Instead, we will just take regular PNG screenshots.
+
+- Windows 10 at 175% scaling
+- PuTTY
+- Terminal size: 80x24
+- Window > Appearance
+    - Cursor appearance: Underline
+    - Font: Consolas 14pt
+    - Font quality: Antialiased
+- Window > Colours > ANSI Cyan: 58, 150, 221
+
+Crop to the console area including the one pixel black outline. Post-process with:
+
+```
+pngcrush -brute -reduce -ow screenshot.png
+```
+
+## Update third party dependencies
+
+1. In `build/`, run `scripts/depsCheck.sh`. Update `build/scripts/depsDownload.sh` and `build/files/mingw.sh`.
+1. In `build/`, run `scripts/depsDownload.sh` to pull the latest version of each dep.
+1. In `build/downloads/`, `rm sysroot-* ; aws s3 sync . s3://tmbasic/deps/ --acl public-read --size-only`
+1. Commit as "Update deps".
+1. Check for new Alpine releases. Search for `alpine:` to find the Dockerfiles to update. Commit as "Update Alpine".
