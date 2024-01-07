@@ -55,6 +55,12 @@ static void popValue(int* vsi) {
     // For performance, we will not clear out the popped value. It makes no difference to memory usage.
 }
 
+static void popValues(int* vsi, int count) {
+    assert(*vsi >= count);
+    (*vsi) -= count;
+    // For performance, we will not clear out the popped values. It makes no difference to memory usage.
+}
+
 static void popObject(std::array<boost::local_shared_ptr<Object>, kObjectStackSize>* objectStack, int* osi) {
     assert(*osi > 0);
     (*osi)--;
@@ -409,9 +415,7 @@ static void setDottedExpression(SetDottedExpressionState* state) {
     *state->instructionIndex = endInstructionIndex;
 
     // Pop the index/keys.
-    for (auto i = 0; i < numKeyValues; i++) {
-        popValue(vsi);
-    }
+    popValues(vsi, numKeyValues);
     for (auto i = 0; i < numKeyObjects; i++) {
         popObject(&state->p->objectStack, osi);
     }
@@ -829,9 +833,7 @@ bool Interpreter::run(int maxCycles) {
                                                  _private->errorCode,
                                                  _private->errorMessage };
                 auto result = systemCall(static_cast<SystemCall>(syscallIndex), systemCallInput);
-                for (auto i = 0; i < numVals; i++) {
-                    popValue(&vsi);
-                }
+                popValues(&vsi, numVals);
                 for (auto i = 0; i < numObjs; i++) {
                     popObject(objectStack, &osi);
                 }
