@@ -80,8 +80,8 @@ The date and time types are:
 
 <br><pre class="taste">
 <i>type</i> ExampleRecord
-&nbsp;&nbsp;&nbsp;&nbsp;foo <i>as</i> Number
-&nbsp;&nbsp;&nbsp;&nbsp;bar <i>as</i> String
+&nbsp;&nbsp;&nbsp;&nbsp;foo <i>as Number</i>
+&nbsp;&nbsp;&nbsp;&nbsp;bar <i>as String</i>
 <i>end type</i><br>
 <i>dim</i> myAnonymousRecord1 <i>as Record</i> <b>(</b>foo <i>as Number</i><b>,</b> bar <i>as String</i><b>)</b>
 <i>dim</i> myAnonymousRecord2 <b>= {</b> foo<b>: 100,</b> bar<b>:</b> <strong>"hello"</strong> <b>}</b>
