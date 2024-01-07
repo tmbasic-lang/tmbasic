@@ -131,7 +131,7 @@ Interpreter::~Interpreter() {
     delete _private;
 }
 
-void Interpreter::init(int procedureIndex) {
+void Interpreter::init(size_t procedureIndex) {
     _private->callStack = {};
     _private->procedure = _private->program->procedures.at(procedureIndex).get();
     _private->valueStackIndex = 0;

@@ -16,7 +16,7 @@ class Interpreter {
    public:
     Interpreter(Program* program, std::istream* consoleInputStream, std::ostream* consoleOutputStream);
     ~Interpreter();
-    void init(int procedureIndex);
+    void init(size_t procedureIndex);
     bool run(int maxCycles);
     std::optional<InterpreterError> getError() const;
     static void printDebugTimings();

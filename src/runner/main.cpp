@@ -4,8 +4,8 @@
 #include "vm/Program.h"
 #include "vm/date.h"
 
-extern uint8_t kResourcePcode[];  // NOLINT(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
-extern uint kResourcePcode_len;
+extern const uint8_t kResourcePcode[];  // NOLINT(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
+extern const uint kResourcePcode_len;
 
 int main(int /*argc*/, const char* /*argv*/[]) {
     util::setUtf8Locale();

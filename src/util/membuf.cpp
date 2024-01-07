@@ -8,7 +8,7 @@ membuf::membuf(char* begin, char* end) {
 
 std::streambuf::pos_type membuf::seekoff(off_type off, std::ios_base::seekdir dir, std::ios_base::openmode /*which*/) {
     if (dir == std::ios_base::cur) {
-        gbump(off);
+        gbump(static_cast<int>(off));
     } else if (dir == std::ios_base::end) {
         setg(eback(), egptr() + off, egptr());  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     } else if (dir == std::ios_base::beg) {
@@ -18,7 +18,7 @@ std::streambuf::pos_type membuf::seekoff(off_type off, std::ios_base::seekdir di
 }
 
 std::streambuf::pos_type membuf::seekpos(pos_type sp, std::ios_base::openmode which) {
-    return seekoff(sp - pos_type(off_type(0)), std::ios_base::beg, which);
+    return seekoff(sp - pos_type(static_cast<off_type>(0)), std::ios_base::beg, which);
 }
 
 MemoryIopstream::MemoryIopstream(char* begin, char* end) : _membuf(std::make_unique<membuf>(begin, end)) {

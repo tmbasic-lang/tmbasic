@@ -39,7 +39,7 @@ class BuiltInRecordTypesList {
     }
 };
 
-static BuiltInRecordTypesList builtInRecordTypesList;
+static const BuiltInRecordTypesList builtInRecordTypesList;
 
 bool findBuiltInRecordType(
     const std::string& lowercaseName,

@@ -24,10 +24,10 @@ class Term {
    public:
     TermType type;
     std::vector<Term> subTerms;
-    const Production* production;  // when type = kNonTerminal
-    TokenKind tokenKind;           // when type = kTerminal
-    int captureId;                 // when type = kCapture
-    explicit Term(TermType type) : type(type), production(nullptr), tokenKind(TokenKind::kError), captureId(-1) {}
+    const Production* production{ nullptr };   // when type = kNonTerminal
+    TokenKind tokenKind{ TokenKind::kError };  // when type = kTerminal
+    int captureId{ -1 };                       // when type = kCapture
+    explicit Term(TermType type) : type(type) {}
 };
 
 enum class BoxType { kNode, kToken };
@@ -42,10 +42,10 @@ class Box {
     Box& operator=(Box&&) = delete;
     virtual ~Box() = 0;
     virtual size_t count() = 0;
-    virtual void removeAt(size_t index) = 0;
+    virtual void removeAt(ptrdiff_t index) = 0;
 };
 
-typedef std::array<std::unique_ptr<Box>, kNumCaptures> CaptureArray;
+using CaptureArray = std::array<std::unique_ptr<Box>, kNumCaptures>;
 
 Box::~Box() = default;
 
@@ -55,7 +55,7 @@ class NodeBox : public Box {
 
     NodeBox() : Box(BoxType::kNode) {}
     size_t count() override { return values.size(); }
-    void removeAt(size_t index) override { values.erase(values.begin() + index); }
+    void removeAt(ptrdiff_t index) override { values.erase(values.begin() + index); }
     void append(NodeBox* other) {
         for (auto& node : other->values) {
             values.push_back(std::move(node));
@@ -75,7 +75,7 @@ class TokenBox : public Box {
 
     TokenBox() : Box(BoxType::kToken) {}
     size_t count() override { return values.size(); }
-    void removeAt(size_t index) override { values.erase(values.begin() + index); }
+    void removeAt(ptrdiff_t index) override { values.erase(values.begin() + index); }
     void append(const TokenBox& other) {
         for (const auto& node : other.values) {
             values.push_back(node);
@@ -83,7 +83,7 @@ class TokenBox : public Box {
     }
     Token value() const {
         if (values.empty()) {
-            return Token();
+            return {};
         }
         return values.at(0);
     }
@@ -521,7 +521,7 @@ class PrimitiveTypeProduction : public Production {
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
-        Kind k;
+        auto k = Kind::kBoolean;
         switch (captureTokenKind(std::move(captures->at(0)))) {
             case TokenKind::kBoolean:
                 k = Kind::kBoolean;
@@ -555,7 +555,6 @@ class PrimitiveTypeProduction : public Production {
                 break;
             default:
                 assert(false);
-                k = Kind::kBoolean;
                 break;
         }
         return nodeBox<TypeNode>(k, firstToken);
@@ -1236,7 +1235,7 @@ class ExitStatementProduction : public Production {
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
-        LoopType scope;
+        LoopType scope{};
         switch (captureTokenKind(std::move(captures->at(0)))) {
             case TokenKind::kDo:
                 scope = LoopType::kDo;
@@ -1249,7 +1248,6 @@ class ExitStatementProduction : public Production {
                 break;
             default:
                 assert(false);
-                scope = {};
                 break;
         }
         return nodeBox<ExitStatementNode>(scope, firstToken);
@@ -1274,7 +1272,7 @@ class ContinueStatementProduction : public Production {
               }) {}
 
     std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
-        LoopType scope;
+        LoopType scope{};
         switch (captureTokenKind(std::move(captures->at(0)))) {
             case TokenKind::kDo:
                 scope = LoopType::kDo;
@@ -1287,7 +1285,6 @@ class ContinueStatementProduction : public Production {
                 break;
             default:
                 assert(false);
-                scope = {};
                 break;
         }
         return nodeBox<ContinueStatementNode>(scope, firstToken);
@@ -2146,18 +2143,19 @@ class ProductionCollection {
     }
 };
 
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 static ProductionCollection _productionCollection;
 
 class InputState {
    public:
     const SourceMember* sourceMember;
     const std::vector<Token>& tokens;
-    size_t tokenIndex;
+    size_t tokenIndex{ 0 };
 
     InputState(const std::vector<Token>& tokens, const SourceMember* sourceMember)
         : sourceMember(sourceMember),
           tokens(tokens),
-          tokenIndex(0),
+
           _endOfFileToken(Token(-1, 0, TokenKind::kEndOfFile, "", sourceMember)) {}
 
     const Token& currentToken() {
@@ -2186,7 +2184,7 @@ class ProductionState {
         std::array<int, kNumCaptures> counts{};
         for (auto i = 0; i < kNumCaptures; i++) {
             if (captures.at(i)) {
-                counts.at(i) = captures.at(i)->count();
+                counts.at(i) = static_cast<int>(captures.at(i)->count());
             } else {
                 counts.at(i) = 0;
             }
@@ -2208,13 +2206,13 @@ class Checkpoint {
     }
 
    private:
-    const int _tokenIndex;
+    const size_t _tokenIndex;
     const std::array<int, kNumCaptures> _captureCounts;
 
     static void trimCaptures(Box* box, size_t desiredCount) {
         if (box != nullptr) {
             while (box->count() > desiredCount) {
-                box->removeAt(box->count() - 1);
+                box->removeAt(static_cast<ptrdiff_t>(box->count()) - 1);
             }
         }
     }
@@ -2293,7 +2291,7 @@ static Token peekToken(const InputState* inputState) {
     if (inputState->tokenIndex < inputState->tokens.size()) {
         return inputState->tokens.at(inputState->tokenIndex);
     }
-    return Token(-1, 0, TokenKind::kEndOfFile, "", inputState->sourceMember);
+    return { -1, 0, TokenKind::kEndOfFile, "", inputState->sourceMember };
 }
 
 static void acceptToken(InputState* inputState) {
@@ -2680,7 +2678,7 @@ static ParserResult parseRootProduction(
     if (result->isMatch) {
         if (inputState.tokenIndex < inputState.tokens.size()) {
             // the code is good but there is unparsed junk left over
-            return ParserResult("This token was unexpected.", inputState.tokens.at(inputState.tokenIndex));
+            return { "This token was unexpected.", inputState.tokens.at(inputState.tokenIndex) };
         }
         auto root = captureSingleNode<Node>(std::move(result->box));
 #ifdef DUMP_AST
@@ -2688,7 +2686,7 @@ static ParserResult parseRootProduction(
 #endif
         return ParserResult(std::move(root));
     }
-    return ParserResult("This token was unexpected.", inputState.tokens.at(inputState.tokenIndex));
+    return { "This token was unexpected.", inputState.tokens.at(inputState.tokenIndex) };
 }
 
 ParserResult parse(
@@ -2701,7 +2699,7 @@ ParserResult parse(
         case ParserRootProduction::kProgram:
             return parseRootProduction(sourceMember, *_productionCollection.programProduction, tokens);
         default:
-            return ParserResult("Invalid root production.", Token(0, 0, TokenKind::kError, "", sourceMember));
+            return { "Invalid root production.", Token(0, 0, TokenKind::kError, "", sourceMember) };
     }
 }
 

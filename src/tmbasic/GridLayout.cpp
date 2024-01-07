@@ -96,7 +96,7 @@ void GridLayout::calculateRowHeights(std::vector<int>* finalRowHeights) {
             // auto size based on contents
             auto maxContentHeight = 0;
             for (size_t columnIndex = 0; columnIndex < _columnWidths.size(); columnIndex++) {
-                auto tableView = getCell(rowIndex, columnIndex);
+                auto tableView = getCell(static_cast<int>(rowIndex), static_cast<int>(columnIndex));
                 if (tableView.item.rowLayout.has_value()) {
                     auto& flow = *tableView.item.rowLayout;
                     maxContentHeight = max(maxContentHeight, flow.getSize().y);
@@ -121,7 +121,7 @@ void GridLayout::calculateColumnWidths(std::vector<int>* finalColumnWidths) {
             // auto size based on contents
             auto maxContentWidth = 0;
             for (size_t rowIndex = 0; rowIndex < _rowHeights.size(); rowIndex++) {
-                auto tableView = getCell(rowIndex, columnIndex);
+                auto tableView = getCell(static_cast<int>(rowIndex), static_cast<int>(columnIndex));
                 if (tableView.item.rowLayout.has_value()) {
                     auto& flow = *tableView.item.rowLayout;
                     maxContentWidth = max(maxContentWidth, flow.getSize().x);
@@ -160,7 +160,7 @@ TPoint GridLayout::apply(TGroup* group, TPoint upperLeft) {
 
         for (size_t columnIndex = 0; columnIndex < numColumns; columnIndex++) {
             auto width = columnWidths[columnIndex] - _columnSpacing;
-            auto tableView = getCell(rowIndex, columnIndex);
+            auto tableView = getCell(static_cast<int>(rowIndex), static_cast<int>(columnIndex));
             if (tableView.item.rowLayout.has_value()) {
                 auto& flow = *tableView.item.rowLayout;
                 flow.addTo(group, x, x + width - 1, y);

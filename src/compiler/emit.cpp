@@ -21,7 +21,7 @@ class JumpFixup {
     int labelId{};
 };
 
-typedef JumpFixup Label;
+using Label = JumpFixup;
 
 class LoopFrame {
    public:

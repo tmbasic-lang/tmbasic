@@ -39,6 +39,8 @@ static constexpr std::array<const char*, 256> _cp437toUtf8 = {
     "≥", "≤", "⌠", "⌡", "÷",  "≈", "°", "∙", "·", "√", "ⁿ", "²", "■",  ""
 };
 
+// Remember the scroll position between dialog instances.
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 static int _unicodeTableScrollTop = 0;
 
 class Cp437Table : public TView {
@@ -51,12 +53,12 @@ class Cp437Table : public TView {
         TDrawBuffer buf;
         TColorAttr color{ 0x30 };
 
-        for (ushort y = 0; y <= size.y - 1; y++) {
+        for (uint16_t y = 0; y <= size.y - 1; y++) {
             buf.moveChar(0, ' ', color, static_cast<int16_t>(size.x));
-            for (ushort x = 0; x <= size.x - 1; x++) {
-                buf.moveChar(x, static_cast<ushort>(32 * y + x), color, static_cast<ushort>(1));
+            for (uint16_t x = 0; x <= size.x - 1; x++) {
+                buf.moveChar(x, static_cast<char>(32 * y + x), color, static_cast<uint16_t>(1));
             }
-            writeLine(0, y, static_cast<int16_t>(size.x), static_cast<ushort>(1), buf);
+            writeLine(0, static_cast<int16_t>(y), static_cast<int16_t>(size.x), static_cast<uint16_t>(1), buf);
         }
         showCursor();
     }
@@ -108,7 +110,7 @@ class UnicodeTable : public TView {
                     buf.moveStr(x, getSymbol(i), color, static_cast<ushort>(1));
                 }
             }
-            writeLine(0, y, static_cast<int16_t>(size.x), static_cast<ushort>(1), buf);
+            writeLine(0, static_cast<int16_t>(y), static_cast<int16_t>(size.x), static_cast<ushort>(1), buf);
         }
         showCursor();
     }

@@ -155,11 +155,11 @@ static void compileGlobal(const SourceMember& sourceMember, CompiledProgram* com
     }
 
     if (compiledGlobalVariable->isValue) {
-        compiledGlobalVariable->index = compiledProgram->vmProgram.globalValues.size();
+        compiledGlobalVariable->index = static_cast<int>(compiledProgram->vmProgram.globalValues.size());
         compiledProgram->vmProgram.globalValues.push_back(initialValue);
         parserResult.node->globalValueIndex = compiledGlobalVariable->index;
     } else {
-        compiledGlobalVariable->index = compiledProgram->vmProgram.globalObjects.size();
+        compiledGlobalVariable->index = static_cast<int>(compiledProgram->vmProgram.globalObjects.size());
         compiledProgram->vmProgram.globalObjects.push_back(std::move(initialObject));
         parserResult.node->globalObjectIndex = compiledGlobalVariable->index;
     }

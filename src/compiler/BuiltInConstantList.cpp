@@ -1,8 +1,6 @@
 #include "BuiltInConstantList.h"
 #include "../vm/constants.h"
 
-using decimal::Decimal;
-
 namespace compiler {
 
 BuiltInConstantList::BuiltInConstantList()

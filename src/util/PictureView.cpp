@@ -201,7 +201,7 @@ void PictureView::draw() {
             }
             b.moveStr(x, cell->ch, cell->colorAttr);
         }
-        writeLine(0, y, static_cast<int16_t>(size.x), 1, b);
+        writeLine(0, static_cast<int16_t>(y), static_cast<int16_t>(size.x), 1, b);
     }
 }
 

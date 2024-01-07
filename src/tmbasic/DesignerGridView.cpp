@@ -2,7 +2,7 @@
 
 namespace tmbasic {
 
-static std::array<char, 2> kDesignerGridViewPalette = { 0x01, 0x0D };
+static const std::array<char, 2> kDesignerGridViewPalette = { 0x01, 0x0D };
 
 DesignerGridView::DesignerGridView(const TRect& bounds) : TView(bounds) {}
 

@@ -45,6 +45,7 @@ class ClipboardText {
 // we store a copy of this here because the system clipboard only contains the text characters, but we want to preserve
 // colors when copy/pasting within our own app. so track the last copy that we make, and upon pasting, if the system
 // clipboard matches this text, then we use these colors.
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 static ClipboardText _clipboardText{};
 
 class CanvasViewMouseEventArgs {
@@ -94,7 +95,7 @@ class CanvasView : public TView {
         auto viewX = pictureXToView(pictureX);
         auto viewY = pictureYToView(pictureY);
         if (viewX >= 0 && viewX < size.x && viewY >= 0 && viewY < size.y) {
-            writeLine(viewX, viewY, 1, 1, b);
+            writeLine(static_cast<int16_t>(viewX), static_cast<int16_t>(viewY), 1, 1, b);
         }
     }
 
@@ -164,7 +165,9 @@ class CanvasView : public TView {
             }
 
             if (maxViewX >= minViewX) {
-                writeLine(minViewX, viewY, static_cast<int16_t>(maxViewX - minViewX + 1), 1, b);
+                writeLine(
+                    static_cast<int16_t>(minViewX), static_cast<int16_t>(viewY),
+                    static_cast<int16_t>(maxViewX - minViewX + 1), 1, b);
             }
         }
     }
@@ -318,7 +321,7 @@ class PictureOptionsDialog : public TDialog {
    public:
     int selectedWidth = -1;
     int selectedHeight = -1;
-    std::string selectedName = "";
+    std::string selectedName;
 
     explicit PictureOptionsDialog(Picture* picture)
         : TDialog(TRect(0, 0, 0, 0), "Picture Options"),

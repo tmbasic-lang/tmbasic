@@ -140,8 +140,8 @@ void Program::deserialize(const std::vector<uint8_t>& pcode) {
                 auto numBytes = reader.readInt<uint32_t>();
                 auto procedure = std::make_unique<vm::Procedure>();
                 procedure->instructions.insert(
-                    procedure->instructions.end(), reader.vec.begin() + reader.offset,
-                    reader.vec.begin() + reader.offset + numBytes);
+                    procedure->instructions.end(), reader.vec.begin() + static_cast<ptrdiff_t>(reader.offset),
+                    reader.vec.begin() + static_cast<ptrdiff_t>(reader.offset + numBytes));
                 reader.offset += numBytes;
                 procedures.push_back(std::move(procedure));
                 break;

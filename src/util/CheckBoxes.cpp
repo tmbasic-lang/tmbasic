@@ -22,7 +22,7 @@ static TRect getSize(const std::vector<std::string>& labels) {
         height++;
     }
 
-    return TRect(0, 0, width + 7, height);
+    return { 0, 0, width + 7, height };
 }
 
 CheckBoxes::CheckBoxes(const std::vector<std::string>& labels)

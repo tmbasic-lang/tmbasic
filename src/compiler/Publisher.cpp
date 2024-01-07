@@ -46,7 +46,7 @@ std::string Publisher::publish(TargetPlatform platform) {
         };
         auto gz = compiler::gzip(vm::tar(entries));
         std::ofstream f{ archiveFilePath, std::ios::out | std::ios::binary };
-        f.write(reinterpret_cast<const char*>(gz.data()), gz.size());
+        f.write(reinterpret_cast<const char*>(gz.data()), static_cast<std::streamsize>(gz.size()));
     }
     return archiveFilePath;
 }

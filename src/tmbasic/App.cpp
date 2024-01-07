@@ -32,10 +32,13 @@ using util::WindowPtr;
 
 namespace tmbasic {
 
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 std::array<char, 9> App::helpWindowPalette = {};
 
 // these are used to pass stuff from initMenuBar()/initStatusLine() to the App constructor
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 static PictureWindowStatusItems _newestPictureWindowStatusItems;
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 TStatusItem* App::insertColorDialogHelpStatusItem;
 
 class Background : public TBackground {
@@ -314,7 +317,7 @@ class AppPrivate {
         newWindowX = x + 2;
         newWindowY = y + 1;
 
-        return TRect(x, y, x + width, y + height);
+        return { x, y, x + width, y + height };
     }
 
     static ProgramWindow* findProgramWindow() {
@@ -472,7 +475,7 @@ class AppPrivate {
     static TRect centeredRect(int width, int height) {
         auto x = (TApplication::deskTop->size.x - width) / 2;
         auto y = (TApplication::deskTop->size.y - height) / 2;
-        return TRect(x, y, x + width, y + height);
+        return { x, y, x + width, y + height };
     }
 
     void showNewProgramWindow(std::optional<std::string> filePath) {
@@ -702,7 +705,7 @@ static char getPaletteColor(const char* palette, size_t index) {
 }
 
 static void updatePalette(std::array<char, 256>* appPalette, size_t appPaletteIndex, uint8_t mask, uint8_t newValue) {
-    appPalette->at(appPaletteIndex - 1) = (appPalette->at(appPaletteIndex - 1) & ~mask) | newValue;
+    appPalette->at(appPaletteIndex - 1) = static_cast<char>((appPalette->at(appPaletteIndex - 1) & ~mask) | newValue);
 }
 
 static void updatePalette(
@@ -713,7 +716,7 @@ static void updatePalette(
     uint8_t newValue) {
     auto appIndex = static_cast<size_t>(
         windowPalette[windowPaletteIndex - 1]);  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-    appPalette->at(appIndex - 1) = (appPalette->at(appIndex - 1) & ~mask) | newValue;
+    appPalette->at(appIndex - 1) = static_cast<char>((appPalette->at(appIndex - 1) & ~mask) | newValue);
 }
 
 TPalette& App::getPalette() const {
@@ -766,7 +769,7 @@ TPalette& App::getPalette() const {
         // and then provide it in a place where our custom HelpWindow subclass can read it.
         for (size_t i = 0x80; i <= 0x87; i++) {
             auto color = getPaletteColor(cpAppColor, i);
-            helpWindowPalette.at(i - 0x80) = 0x80 | color;
+            helpWindowPalette.at(i - 0x80) = static_cast<char>(0x80 | color);
         }
 
         isInitialized = true;
@@ -793,7 +796,7 @@ void App::openHelpTopic(uint16_t topic) {
         } else if (width < 40) {
             width = 40;
         }
-        auto height = deskTop->size.y * 0.8;
+        auto height = deskTop->size.y * 8 / 10;
         if (height > 35) {
             height = 35;
         } else if (height < 10) {

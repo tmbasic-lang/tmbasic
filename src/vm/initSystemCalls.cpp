@@ -6,6 +6,7 @@
 
 namespace vm {
 
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 static bool _systemCallsInitialized = false;
 
 void systemCallAbs(const SystemCallInput&, SystemCallResult*);

@@ -25,7 +25,7 @@ void SourceMember::setSource(std::string newSource) {
     updateDisplayName();
 }
 
-static std::regex updateDisplayNameRegex("^[^ ]+ ([^( ]+)[ ]*(:?\\(.*)?$", std::regex::optimize);
+static const std::regex updateDisplayNameRegex("^[^ ]+ ([^( ]+)[ ]*(:?\\(.*)?$", std::regex::optimize);
 
 void SourceMember::updateDisplayName() {
     std::istringstream stream(source);

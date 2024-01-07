@@ -39,7 +39,7 @@ static void removeComments(std::vector<Token>* tokens) {
 }
 
 static void removeBlankLines(std::vector<Token>* tokens) {
-    for (auto i = tokens->size() - 1; i >= 1; i--) {
+    for (int64_t i = static_cast<int64_t>(tokens->size()) - 1; i >= 1; i--) {
         if (tokens->at(i).type == TokenKind::kEndOfLine && tokens->at(i - 1).type == TokenKind::kEndOfLine) {
             tokens->erase(tokens->begin() + i);
         }

@@ -8,36 +8,36 @@ using std::string;
 using std::vector;
 
 // linux_arm32
-extern uint8_t kResource_runner_linux_arm32_gz[];  // NOLINT(modernize-avoid-c-arrays)
-extern uint kResource_runner_linux_arm32_gz_len;
+extern const uint8_t kResource_runner_linux_arm32_gz[];  // NOLINT(modernize-avoid-c-arrays)
+extern const uint kResource_runner_linux_arm32_gz_len;
 
 // linux_arm64
-extern uint8_t kResource_runner_linux_arm64_gz[];  // NOLINT(modernize-avoid-c-arrays)
-extern uint kResource_runner_linux_arm64_gz_len;
+extern const uint8_t kResource_runner_linux_arm64_gz[];  // NOLINT(modernize-avoid-c-arrays)
+extern const uint kResource_runner_linux_arm64_gz_len;
 
 // linux_x86
-extern uint8_t kResource_runner_linux_x86_gz[];  // NOLINT(modernize-avoid-c-arrays)
-extern uint kResource_runner_linux_x86_gz_len;
+extern const uint8_t kResource_runner_linux_x86_gz[];  // NOLINT(modernize-avoid-c-arrays)
+extern const uint kResource_runner_linux_x86_gz_len;
 
 // linux_x64
-extern uint8_t kResource_runner_linux_x64_gz[];  // NOLINT(modernize-avoid-c-arrays)
-extern uint kResource_runner_linux_x64_gz_len;
+extern const uint8_t kResource_runner_linux_x64_gz[];  // NOLINT(modernize-avoid-c-arrays)
+extern const uint kResource_runner_linux_x64_gz_len;
 
 // mac_x64
-extern uint8_t kResource_runner_mac_x64_gz[];  // NOLINT(modernize-avoid-c-arrays)
-extern uint kResource_runner_mac_x64_gz_len;
+extern const uint8_t kResource_runner_mac_x64_gz[];  // NOLINT(modernize-avoid-c-arrays)
+extern const uint kResource_runner_mac_x64_gz_len;
 
 // mac_arm64
-extern uint8_t kResource_runner_mac_arm64_gz[];  // NOLINT(modernize-avoid-c-arrays)
-extern uint kResource_runner_mac_arm64_gz_len;
+extern const uint8_t kResource_runner_mac_arm64_gz[];  // NOLINT(modernize-avoid-c-arrays)
+extern const uint kResource_runner_mac_arm64_gz_len;
 
 // win_x86
-extern uint8_t kResource_runner_win_x86_gz[];  // NOLINT(modernize-avoid-c-arrays)
-extern uint kResource_runner_win_x86_gz_len;
+extern const uint8_t kResource_runner_win_x86_gz[];  // NOLINT(modernize-avoid-c-arrays)
+extern const uint kResource_runner_win_x86_gz_len;
 
 // win_x64
-extern uint8_t kResource_runner_win_x64_gz[];  // NOLINT(modernize-avoid-c-arrays)
-extern uint kResource_runner_win_x64_gz_len;
+extern const uint8_t kResource_runner_win_x64_gz[];  // NOLINT(modernize-avoid-c-arrays)
+extern const uint kResource_runner_win_x64_gz_len;
 
 namespace compiler {
 
@@ -124,7 +124,7 @@ vector<uint8_t> readRunnerFile() {
     runnerFile.seekg(0, ios::end);
     runnerBinary.resize(runnerFile.tellg());
     runnerFile.seekg(0, ios::beg);
-    runnerFile.read(reinterpret_cast<char*>(runnerBinary.data()), runnerBinary.size());
+    runnerFile.read(reinterpret_cast<char*>(runnerBinary.data()), static_cast<std::streamsize>(runnerBinary.size()));
     runnerFile.close();
     return runnerBinary;
 }

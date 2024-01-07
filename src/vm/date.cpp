@@ -5,17 +5,18 @@
 #include "vm/tar.h"
 
 // This is tzdb.tar, the contents of /usr/share/zoneinfo.
-extern char kResourceTzdb[];  // NOLINT(modernize-avoid-c-arrays)
-extern uint kResourceTzdb_len;
+extern const char kResourceTzdb[];  // NOLINT(modernize-avoid-c-arrays)
+extern const uint kResourceTzdb_len;
 
 namespace vm {
 
-static bool is_tzdb_initialized = false;
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
+static bool _isTzdbInitialized = false;
 
 void initializeTzdb() {
-    if (!is_tzdb_initialized) {
+    if (!_isTzdbInitialized) {
         untar(kResourceTzdb, static_cast<size_t>(kResourceTzdb_len), absl::AddZoneInfoFile);
-        is_tzdb_initialized = true;
+        _isTzdbInitialized = true;
     }
 }
 

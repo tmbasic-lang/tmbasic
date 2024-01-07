@@ -301,7 +301,7 @@ class PaletteView : public TView {
                 const auto& color = colors.at(y * width + x);
                 b.moveChar(x, static_cast<char>(219), TColorAttr{ color, color }, 1);
             }
-            writeLine(0, static_cast<int16_t>(y), width, 1, b);
+            writeLine(0, static_cast<int16_t>(y), static_cast<int16_t>(width), 1, b);
         }
     }
 
@@ -477,7 +477,7 @@ void InsertColorDialog::handleEvent(TEvent& event) {
         }
     } else if (event.what == evCommand && event.message.command == cmHelp) {
         didClickHelp = true;
-        message(this, evCommand, cmCancel, nullptr);
+        message(this, static_cast<uint16_t>(evCommand), cmCancel, nullptr);
         clearEvent(event);
     } else if (event.what == evBroadcast && event.message.command == kCmdTimerTick) {
         try {

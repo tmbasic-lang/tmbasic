@@ -5,7 +5,7 @@ namespace tmbasic {
 // this is intended to be a list of characters that are universally supported.
 // this is mostly constrained by Windows conhost and Linux xterm.
 // manually sorted: 1.) punctuation, 2.) super/subscripts, 3.) letters
-static std::vector<std::string> _symbols{
+static const std::vector<std::string> _symbols{
     "┌",
     "┬",
     "┐",

@@ -124,7 +124,7 @@ class CodeEditorWindowPrivate {
             auto bufParam = reinterpret_cast<sptr_t>(buffer.data());
             size_t i = 0;
             do {
-                window->editor.callScintilla(SCI_SETTARGETRANGE, i, i + writeSize);
+                window->editor.callScintilla(SCI_SETTARGETRANGE, i, static_cast<sptr_t>(i + writeSize));
                 window->editor.callScintilla(SCI_GETTARGETTEXT, 0U, bufParam);
                 s << std::string_view(buffer.data(), writeSize);
                 i += writeSize;
@@ -212,8 +212,8 @@ class CodeEditorWindowPrivate {
             member->setSource(std::move(newSource));
             onEdited();
         }
-        member->selectionStart = window->editor.callScintilla(SCI_GETSELECTIONSTART, 0U, 0U);
-        member->selectionEnd = window->editor.callScintilla(SCI_GETSELECTIONEND, 0U, 0U);
+        member->selectionStart = static_cast<int>(window->editor.callScintilla(SCI_GETSELECTIONSTART, 0, 0));
+        member->selectionEnd = static_cast<int>(window->editor.callScintilla(SCI_GETSELECTIONEND, 0, 0));
     }
 };
 

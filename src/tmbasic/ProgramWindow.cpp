@@ -33,7 +33,6 @@ using compiler::SourceMemberType;
 using compiler::SourceProgram;
 using util::DialogPtr;
 using util::Label;
-using util::ListViewer;
 using util::ViewPtr;
 using util::WindowPtr;
 using vm::Program;
@@ -72,12 +71,12 @@ class SourceMembersListBox : public util::ListViewer {
                                                       : lhs->identifier < rhs->identifier;
         });
 
-        setRange(_items.size());
+        setRange(static_cast<int16_t>(_items.size()));
 
         focused = 0;
         for (size_t i = 0; i < _items.size(); i++) {
             if (_items.at(i) == selectedMember) {
-                focused = i;
+                focused = static_cast<int16_t>(i);
                 break;
             }
         }
@@ -169,8 +168,6 @@ ProgramWindow::ProgramWindow(
     : TWindow(r, "Untitled - Program", wnNoNumber),
       TWindowInit(initFrame),
       _private(new ProgramWindowPrivate(this, std::move(sourceProgram), std::move(openMember), std::move(filePath))) {
-    setState(sfShadow, false);
-
     TCommandSet ts;
     ts.enableCmd(cmSave);
     ts.enableCmd(cmSaveAs);

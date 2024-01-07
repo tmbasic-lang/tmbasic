@@ -13,6 +13,7 @@
 
 namespace vm {
 
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 static std::vector<SystemCallFunc> _systemCalls;
 
 SystemCallInput::SystemCallInput(

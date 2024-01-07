@@ -1,7 +1,7 @@
 #include "TargetPlatform.h"
 
-extern char kLicense[];  // NOLINT(modernize-avoid-c-arrays)
-extern uint kLicense_len;
+extern const char kLicense[];  // NOLINT(modernize-avoid-c-arrays)
+extern const uint kLicense_len;
 
 namespace compiler {
 

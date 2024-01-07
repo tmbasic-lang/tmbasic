@@ -108,9 +108,9 @@ double decimalToDouble(const Decimal& x) {
             return std::numeric_limits<double>::signaling_NaN();
 
         case MPD_TRIPLE_NORMAL: {
-            double hi = triple.hi;
-            double lo = triple.lo;
-            double exp = triple.exp;
+            auto hi = static_cast<double>(triple.hi);
+            auto lo = static_cast<double>(triple.lo);
+            auto exp = static_cast<double>(triple.exp);
             return (triple.sign == 0 ? 1 : -1) * (hi * pow(2, 64) + lo) * pow(10, exp);
             break;
         }

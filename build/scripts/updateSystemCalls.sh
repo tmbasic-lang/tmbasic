@@ -13,6 +13,7 @@ echo '#include "vm/systemCall.h"' >> $OUTFILE
 echo >> $OUTFILE
 echo 'namespace vm {' >> $OUTFILE
 echo >> $OUTFILE
+echo '// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)' >> $OUTFILE
 echo 'static bool _systemCallsInitialized = false;' >> $OUTFILE
 echo >> $OUTFILE
 echo $SYSTEM_CALLS | awk 'BEGIN { RS = " " } { print "void systemCall" $1 "(const SystemCallInput&, SystemCallResult*);" }' >> $OUTFILE

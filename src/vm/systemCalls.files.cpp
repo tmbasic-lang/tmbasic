@@ -120,16 +120,19 @@ void systemCallListFiles(const SystemCallInput& input, SystemCallResult* result)
 // (filePath as String) as List of Number
 void systemCallReadFileBytes(const SystemCallInput& input, SystemCallResult* result) {
     auto filePath = castString(input.getObject(-1))->value;
-    std::ifstream stream{ filePath };
-    stream.seekg(0, std::ios::end);
+    std::ifstream stream{ filePath, std::ios::binary };
     if (stream.fail()) {
         throw Error::fromFileErrno(errno, filePath);
     }
 
-    std::vector<char> bytes(stream.tellg());
-    stream.seekg(0, std::ios::beg);
-    stream.read(bytes.data(), bytes.size());
-    if (stream.fail()) {
+    constexpr std::size_t chunkSize = 16 * 1024;  // 16KB
+    std::vector<char> buffer(chunkSize);
+    std::vector<char> bytes;
+    while (!stream.eof()) {
+        stream.read(buffer.data(), chunkSize);
+        bytes.insert(bytes.end(), buffer.begin(), buffer.begin() + stream.gcount());
+    }
+    if (!stream.eof()) {
         throw Error::fromFileErrno(errno, filePath);
     }
 
@@ -189,7 +192,15 @@ void systemCallWriteFileBytes(const SystemCallInput& input, SystemCallResult* /*
     if (stream.fail()) {
         throw Error::fromFileErrno(errno, filePath);
     }
-    stream.write(bytes.data(), bytes.size());
+    constexpr size_t kChunkSize = 16 * 1024;  // 16KB
+    for (size_t i = 0; i < bytes.size(); i += kChunkSize) {
+        size_t remainingBytes = bytes.size() - i;
+        size_t chunkBytes = std::min(kChunkSize, remainingBytes);
+        stream.write(&bytes.at(i), static_cast<std::streamsize>(chunkBytes));
+        if (stream.fail()) {
+            throw Error::fromFileErrno(errno, filePath);
+        }
+    }
 }
 
 // (filePath as String, lines as List of String)

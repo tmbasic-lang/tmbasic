@@ -5,8 +5,8 @@ using util::decimalToString;
 
 namespace compiler {
 
-static std::string indent(int n) {
-    return std::string(n, ' ');
+static std::string indent(size_t n) {
+    return std::string(n, ' ');  // NOLINT(modernize-return-braced-init-list)
 }
 
 static std::string stripNamespace(std::string_view sv) {
@@ -77,7 +77,7 @@ MemberType Node::getMemberType() const {
 }
 
 std::optional<std::string> Node::getSymbolDeclaration() const {
-    return std::optional<std::string>();
+    return {};
 }
 
 boost::local_shared_ptr<TypeNode> Node::getSymbolDeclarationType() const {
@@ -487,12 +487,9 @@ void DottedExpressionSuffixNode::dump(std::ostream& s, int n) const {
 }
 
 bool DottedExpressionSuffixNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
-    for (const auto& x : collectionIndex) {
-        if (!visitChildExpression(rootsOnly, x.get(), func)) {
-            return false;
-        }
-    }
-    return true;
+    return std::all_of(collectionIndex.begin(), collectionIndex.end(), [&](const auto& x) {
+        return visitChildExpression(rootsOnly, x.get(), func);
+    });
 }
 
 DottedExpressionNode::DottedExpressionNode(
@@ -536,12 +533,8 @@ void FunctionCallExpressionNode::dump(std::ostream& s, int n) const {
 }
 
 bool FunctionCallExpressionNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
-    for (const auto& x : args) {
-        if (!visitChildExpression(rootsOnly, x.get(), func)) {
-            return false;
-        }
-    }
-    return true;
+    return std::all_of(
+        args.begin(), args.end(), [&](const auto& x) { return visitChildExpression(rootsOnly, x.get(), func); });
 }
 
 ExpressionType FunctionCallExpressionNode::getExpressionType() const {
@@ -559,12 +552,9 @@ void LiteralArrayExpressionNode::dump(std::ostream& s, int n) const {
 }
 
 bool LiteralArrayExpressionNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
-    for (const auto& x : elements) {
-        if (!visitChildExpression(rootsOnly, x.get(), func)) {
-            return false;
-        }
-    }
-    return true;
+    return std::all_of(elements.begin(), elements.end(), [&](const auto& x) {
+        return visitChildExpression(rootsOnly, x.get(), func);
+    });
 }
 
 ConstValueExpressionType LiteralArrayExpressionNode::getConstValueExpressionType() const {
@@ -719,12 +709,9 @@ void CallStatementNode::dump(std::ostream& s, int n) const {
 }
 
 bool CallStatementNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
-    for (const auto& x : arguments) {
-        if (!visitChildExpression(rootsOnly, x.get(), func)) {
-            return false;
-        }
-    }
-    return true;
+    return std::all_of(arguments.begin(), arguments.end(), [&](const auto& x) {
+        return visitChildExpression(rootsOnly, x.get(), func);
+    });
 }
 
 StatementType CallStatementNode::getStatementType() const {
@@ -887,7 +874,7 @@ DimStatementNode::DimStatementNode(std::string name, boost::local_shared_ptr<Typ
     : StatementNode(std::move(token)),
       name(std::move(name)),
       type(std::move(type)),
-      value(std::unique_ptr<ExpressionNode>()),
+
       shared(shared) {}
 
 DimStatementNode::DimStatementNode(std::string name, std::unique_ptr<ExpressionNode> value, Token token, bool shared)
@@ -1387,12 +1374,9 @@ void PrintStatementNode::dump(std::ostream& s, int n) const {
 }
 
 bool PrintStatementNode::visitExpressions(bool rootsOnly, const VisitExpressionFunc& func) const {
-    for (const auto& x : expressions) {
-        if (!visitChildExpression(rootsOnly, x.get(), func)) {
-            return false;
-        }
-    }
-    return true;
+    return std::all_of(expressions.begin(), expressions.end(), [&](const auto& x) {
+        return visitChildExpression(rootsOnly, x.get(), func);
+    });
 }
 
 StatementType PrintStatementNode::getStatementType() const {

@@ -300,7 +300,7 @@ static string processHtml(string str) {
 static void writeHtmlPage(const string& topic, const string& text, const string& htmlPageTemplate) {
     smatch match;
     if (!regex_search(text, match, regex(R"(h1\[([^\]]+)\])"))) {
-        throw runtime_error(string("Cannot find h1 tag in topic: " + topic));
+        throw runtime_error(string{ "Cannot find h1 tag in topic: " } + topic);
     }
     auto title = match[1].str();
     auto html = htmlPageTemplate;

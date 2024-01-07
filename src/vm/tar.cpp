@@ -24,8 +24,8 @@ class OutputTarArchive {
     static int write(mtar_t* tar, const void* data, unsigned size) {
         const auto* writeBytes = reinterpret_cast<const uint8_t*>(data);
         auto* archive = reinterpret_cast<OutputTarArchive*>(tar->stream);
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-        archive->bytes.insert(archive->bytes.begin() + archive->index, writeBytes, &writeBytes[size]);
+        archive->bytes.insert(  // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+            archive->bytes.begin() + static_cast<ptrdiff_t>(archive->index), writeBytes, &writeBytes[size]);
         archive->index += size;
         return MTAR_ESUCCESS;
     }
