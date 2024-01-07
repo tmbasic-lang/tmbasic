@@ -49,18 +49,22 @@ void initSystemCall(SystemCall which, SystemCallFunc func) {
     _systemCalls.at(index) = func;
 }
 
+// (x as Boolean, y as Boolean) as Boolean
 void systemCallBooleanAnd(const SystemCallInput& input, SystemCallResult* result) {
     result->returnedValue.setBoolean(input.getValue(-2).getBoolean() && input.getValue(-1).getBoolean());
 }
 
+// (x as Boolean) as Boolean
 void systemCallBooleanNot(const SystemCallInput& input, SystemCallResult* result) {
     result->returnedValue.setBoolean(!input.getValue(-1).getBoolean());
 }
 
+// (x as Boolean, y as Boolean) as Boolean
 void systemCallBooleanOr(const SystemCallInput& input, SystemCallResult* result) {
     result->returnedValue.setBoolean(input.getValue(-2).getBoolean() || input.getValue(-1).getBoolean());
 }
 
+// (counter as N, limit as N, step as N) as Boolean
 void systemCallCounterIsPastLimit(const SystemCallInput& input, SystemCallResult* result) {
     // used with 'for' loops
     const auto& counter = input.getValue(-3).num;
@@ -75,18 +79,22 @@ void systemCallCounterIsPastLimit(const SystemCallInput& input, SystemCallResult
     result->returnedValue.setBoolean(condition);
 }
 
+// () as Number
 void systemCallErrorCode(const SystemCallInput& input, SystemCallResult* result) {
     result->returnedValue = input.errorCode;
 }
 
+// () as String
 void systemCallErrorMessage(const SystemCallInput& input, SystemCallResult* result) {
     result->returnedObject = boost::make_local_shared<String>(input.errorMessage);
 }
 
+// ()
 void systemCallFlushConsoleOutput(const SystemCallInput& input, SystemCallResult* /*result*/) {
     input.consoleOutputStream->flush();
 }
 
+// (lhs as Object, rhs as Object) as Boolean
 void systemCallObjectEquals(const SystemCallInput& input, SystemCallResult* result) {
     result->returnedValue.num =
         input.getObject(-2)->equals(*input.getObject(-1)) ? util::kDecimalOne : util::kDecimalZero;

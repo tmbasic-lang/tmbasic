@@ -23,6 +23,7 @@ static std::pair<ValueOptional*, ObjectOptional*> valueOrObjectOptional(Object* 
             NAMEOF_TYPE(ObjectOptional), NAMEOF_ENUM(type)));
 }
 
+// (input as Optional Any) as Boolean
 void systemCallHasValue(const SystemCallInput& input, SystemCallResult* result) {
     const auto valueOrObject = valueOrObjectOptional(input.getObject(-1));
     const auto* valueOptional = valueOrObject.first;
@@ -32,22 +33,27 @@ void systemCallHasValue(const SystemCallInput& input, SystemCallResult* result) 
         valueOptional != nullptr ? valueOptional->item.has_value() : objectOptional->item.has_value());
 }
 
+// () as ObjectOptional
 void systemCallObjectOptionalNewMissing(const SystemCallInput& /*input*/, SystemCallResult* result) {
     result->returnedObject = boost::make_local_shared<ObjectOptional>();
 }
 
+// (input as Object) as ObjectOptional
 void systemCallObjectOptionalNewPresent(const SystemCallInput& input, SystemCallResult* result) {
     result->returnedObject = boost::make_local_shared<ObjectOptional>(input.getObjectPtr(-1));
 }
 
+ // () as ValueOptional
 void systemCallValueOptionalNewMissing(const SystemCallInput& /*input*/, SystemCallResult* result) {
     result->returnedObject = boost::make_local_shared<ValueOptional>();
 }
 
+// (input as Value) as ValueOptional
 void systemCallValueOptionalNewPresent(const SystemCallInput& input, SystemCallResult* result) {
     result->returnedObject = boost::make_local_shared<ValueOptional>(input.getValue(-1));
 }
 
+// (input as Optional T) as T
 void systemCallValue(const SystemCallInput& input, SystemCallResult* result) {
     const auto valueOrObject = valueOrObjectOptional(input.getObject(-1));
     const auto* valueOptional = valueOrObject.first;

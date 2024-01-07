@@ -8,22 +8,26 @@
 
 namespace vm {
 
+// (path as String) as Boolean
 void systemCallCreateDirectory(const SystemCallInput& input, SystemCallResult* /*result*/) {
     const auto& path = castString(input.getObject(-1))->value;
     vm::createDirectory(path);
 }
 
+// (path as String)
 void systemCallDeleteDirectory1(const SystemCallInput& input, SystemCallResult* /*result*/) {
     const auto& path = castString(input.getObject(-1))->value;
     vm::deleteDirectory(path, false);
 }
 
+// (path as String, recursive as Boolean)
 void systemCallDeleteDirectory2(const SystemCallInput& input, SystemCallResult* /*result*/) {
     const auto& path = castString(input.getObject(-1))->value;
     auto recursive = input.getValue(-1).getBoolean();
     vm::deleteDirectory(path, recursive);
 }
 
+// (filePath as String)
 void systemCallDeleteFile(const SystemCallInput& input, SystemCallResult* /*result*/) {
     const auto& path = castString(input.getObject(-1));
     auto pathStr = path->value;
@@ -37,11 +41,13 @@ void systemCallDeleteFile(const SystemCallInput& input, SystemCallResult* /*resu
     }
 }
 
+// (filePath as String) as Boolean
 void systemCallFileExists(const SystemCallInput& input, SystemCallResult* result) {
     auto path = castString(input.getObject(-1))->value;
     result->returnedValue.setBoolean(access(path.c_str(), F_OK) == 0);
 }
 
+// (parts as List of String) as String
 void systemCallPathCombine(const SystemCallInput& input, SystemCallResult* result) {
     const auto& list = *castObjectList(input.getObject(-1));
     if (list.items.empty()) {
@@ -56,26 +62,31 @@ void systemCallPathCombine(const SystemCallInput& input, SystemCallResult* resul
     result->returnedObject = boost::make_local_shared<String>(path);
 }
 
+// (path as String) as String
 void systemCallPathDirectoryName(const SystemCallInput& input, SystemCallResult* result) {
     auto path = castString(input.getObject(-1))->value;
     result->returnedObject = boost::make_local_shared<String>(util::getDirectoryName(path));
 }
 
+// (path as String) as String
 void systemCallPathExtension(const SystemCallInput& input, SystemCallResult* result) {
     auto path = castString(input.getObject(-1))->value;
     result->returnedObject = boost::make_local_shared<String>(util::getExtension(path));
 }
 
+// (path as String) as String
 void systemCallPathFileName(const SystemCallInput& input, SystemCallResult* result) {
     auto path = castString(input.getObject(-1))->value;
     result->returnedObject = boost::make_local_shared<String>(util::getFileName(path));
 }
 
+// (path as String) as String
 void systemCallPathFileNameWithoutExtension(const SystemCallInput& input, SystemCallResult* result) {
     auto path = castString(input.getObject(-1))->value;
     result->returnedObject = boost::make_local_shared<String>(util::getFileNameWithoutExtension(path));
 }
 
+// () as String
 void systemCallPathSeparator(const SystemCallInput& /*input*/, SystemCallResult* result) {
 #ifdef _WIN32
     result->returnedObject = boost::make_local_shared<String>("\\", 1);
@@ -84,6 +95,7 @@ void systemCallPathSeparator(const SystemCallInput& /*input*/, SystemCallResult*
 #endif
 }
 
+// (path as String) as List of String
 void systemCallListDirectories(const SystemCallInput& input, SystemCallResult* result) {
     auto path = castString(input.getObject(-1))->value;
     auto vec = listDirectories(path);
@@ -94,6 +106,7 @@ void systemCallListDirectories(const SystemCallInput& input, SystemCallResult* r
     result->returnedObject = boost::make_local_shared<ObjectList>(&builder);
 }
 
+// (path as String) as List of String
 void systemCallListFiles(const SystemCallInput& input, SystemCallResult* result) {
     auto path = castString(input.getObject(-1))->value;
     auto vec = listFiles(path);
@@ -104,6 +117,7 @@ void systemCallListFiles(const SystemCallInput& input, SystemCallResult* result)
     result->returnedObject = boost::make_local_shared<ObjectList>(&builder);
 }
 
+// (filePath as String) as List of Number
 void systemCallReadFileBytes(const SystemCallInput& input, SystemCallResult* result) {
     auto filePath = castString(input.getObject(-1))->value;
     std::ifstream stream{ filePath };
@@ -126,6 +140,7 @@ void systemCallReadFileBytes(const SystemCallInput& input, SystemCallResult* res
     result->returnedObject = boost::make_local_shared<ValueList>(&vlb);
 }
 
+// (filePath as String) as List of String
 void systemCallReadFileLines(const SystemCallInput& input, SystemCallResult* result) {
     auto filePath = castString(input.getObject(-1))->value;
     std::ifstream stream{ filePath };
@@ -146,6 +161,7 @@ void systemCallReadFileLines(const SystemCallInput& input, SystemCallResult* res
     result->returnedObject = boost::make_local_shared<ObjectList>(&builder);
 }
 
+// (filePath as String) as String
 void systemCallReadFileText(const SystemCallInput& input, SystemCallResult* result) {
     auto filePath = castString(input.getObject(-1))->value;
     std::ifstream stream{ filePath };
@@ -160,6 +176,7 @@ void systemCallReadFileText(const SystemCallInput& input, SystemCallResult* resu
     result->returnedObject = boost::make_local_shared<String>(ss.str());
 }
 
+// (filePath as String, bytes as List of Number)
 void systemCallWriteFileBytes(const SystemCallInput& input, SystemCallResult* /*result*/) {
     const auto& filePath = castString(input.getObject(-2))->value;
     const auto& bytesValueList = *castValueList(input.getObject(-1));
@@ -175,6 +192,7 @@ void systemCallWriteFileBytes(const SystemCallInput& input, SystemCallResult* /*
     stream.write(bytes.data(), bytes.size());
 }
 
+// (filePath as String, lines as List of String)
 void systemCallWriteFileLines(const SystemCallInput& input, SystemCallResult* /*result*/) {
     const auto& filePath = castString(input.getObject(-2))->value;
     const auto& lines = *castObjectList(input.getObject(-1));
@@ -190,6 +208,7 @@ void systemCallWriteFileLines(const SystemCallInput& input, SystemCallResult* /*
     }
 }
 
+// (filePath as String, text as String)
 void systemCallWriteFileText(const SystemCallInput& input, SystemCallResult* /*result*/) {
     const auto& filePath = castString(input.getObject(-2))->value;
     const auto& text = castString(input.getObject(-1));

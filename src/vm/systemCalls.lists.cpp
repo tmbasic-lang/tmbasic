@@ -113,6 +113,7 @@ static boost::local_shared_ptr<TList> removeAtMultiple(const TList& list, const 
     return boost::make_local_shared<TList>(vec);
 }
 
+// (input as List of T, start as Number, count as Number) as List of T
 void systemCallListMid(const SystemCallInput& input, SystemCallResult* result) {
     // If the requested count is greater than the number of items in the list, don't throw an error, just return as many
     // items as there are.
@@ -155,6 +156,7 @@ void systemCallListMid(const SystemCallInput& input, SystemCallResult* result) {
     }
 }
 
+// (value as TObject, count as Number) as List of TObject
 void systemCallListFillO(const SystemCallInput& input, SystemCallResult* result) {
     const auto& object = input.getObjectPtr(-1);
 
@@ -171,6 +173,7 @@ void systemCallListFillO(const SystemCallInput& input, SystemCallResult* result)
     result->returnedObject = boost::make_local_shared<ObjectList>(&builder);
 }
 
+// (value as TValue, count as Number) as List of TValue
 void systemCallListFillV(const SystemCallInput& input, SystemCallResult* result) {
     const auto& value = input.getValue(-2);
 
@@ -187,18 +190,22 @@ void systemCallListFillV(const SystemCallInput& input, SystemCallResult* result)
     result->returnedObject = boost::make_local_shared<ValueList>(&builder);
 }
 
+// (list as List of T) as T
 void systemCallListFirst(const SystemCallInput& input, SystemCallResult* result) {
     listFirstOrLast(input, result, true);
 }
 
+// (list as List of T) as T
 void systemCallListLast(const SystemCallInput& input, SystemCallResult* result) {
     listFirstOrLast(input, result, false);
 }
 
+// (input as List of T) as Number
 void systemCallListLen(const SystemCallInput& input, SystemCallResult* result) {
     result->returnedValue.num = dynamic_cast<const ListBase&>(*input.getObject(-1)).size();
 }
 
+// (collection as List of T, index as Number) as List of T
 void systemCallListRemoveAt1(const SystemCallInput& input, SystemCallResult* result) {
     const auto& listObject = input.getObject(-1);
     auto index = input.getValue(-1).getInt64();
@@ -218,6 +225,7 @@ void systemCallListRemoveAt1(const SystemCallInput& input, SystemCallResult* res
     }
 }
 
+// (collection as List of T, indices as List of Number) as List of T
 void systemCallListRemoveAt2(const SystemCallInput& input, SystemCallResult* result) {
     const auto& listObject = input.getObject(-2);
     auto* indicesList = castValueList(input.getObject(-1));
@@ -237,24 +245,29 @@ void systemCallListRemoveAt2(const SystemCallInput& input, SystemCallResult* res
     }
 }
 
+// (input as List of T, count as Number) as List of T
 void systemCallListSkip(const SystemCallInput& input, SystemCallResult* result) {
     listSkipOrTake(input, result, true);
 }
 
+// (input as List of T, count as Number) as List of T
 void systemCallListTake(const SystemCallInput& input, SystemCallResult* result) {
     listSkipOrTake(input, result, false);
 }
 
+// (lhs as ObjectList, rhs as Object) as ObjectList
 void systemCallObjectListAdd(const SystemCallInput& input, SystemCallResult* result) {
     const auto& objectList = *castObjectList(input.getObject(-2));
     const auto& object = input.getObjectPtr(-1);
     result->returnedObject = boost::make_local_shared<ObjectList>(objectList, true, objectList.size(), object);
 }
 
+// () as ObjectListBuilder
 void systemCallObjectListBuilderNew(const SystemCallInput& /*input*/, SystemCallResult* result) {
     result->returnedObject = boost::make_local_shared<ObjectListBuilder>();
 }
 
+// (builder as ObjectListBuilder, Object as Object)
 void systemCallObjectListBuilderAdd(const SystemCallInput& input, SystemCallResult* /*result*/) {
     auto& builder = *castObjectListBuilder(input.getObject(-2));
     auto obj = input.getObjectPtr(-1);
@@ -263,11 +276,13 @@ void systemCallObjectListBuilderAdd(const SystemCallInput& input, SystemCallResu
     builder.items.push_back(std::move(obj));
 }
 
+// (builder as ObjectListBuilder) as ObjectList
 void systemCallObjectListBuilderEnd(const SystemCallInput& input, SystemCallResult* result) {
     auto& builder = *castObjectListBuilder(input.getObject(-1));
     result->returnedObject = boost::make_local_shared<ObjectList>(&builder);
 }
 
+// (lhs as ObjectList, rhs as ObjectList) as ObjectList
 void systemCallObjectListConcat(const SystemCallInput& input, SystemCallResult* result) {
     const auto& lhs = *castObjectList(input.getObject(-2));
     const auto& rhs = *castObjectList(input.getObject(-1));
@@ -278,6 +293,7 @@ void systemCallObjectListConcat(const SystemCallInput& input, SystemCallResult* 
     result->returnedObject = boost::make_local_shared<ObjectList>(&builder);
 }
 
+// (input as ObjectList, index as Number) as Object
 void systemCallObjectListGet(const SystemCallInput& input, SystemCallResult* result) {
     const auto& objectList = *castObjectList(input.getObject(-1));
     const auto& index = input.getValue(-1).getInt64();
@@ -285,6 +301,7 @@ void systemCallObjectListGet(const SystemCallInput& input, SystemCallResult* res
     assert(result->returnedObject != nullptr);
 }
 
+// (input as ObjectList, item as Object) as ObjectList
 void systemCallObjectListRemove(const SystemCallInput& input, SystemCallResult* result) {
     auto items = castObjectList(input.getObject(-1))->items;
     const auto& item = *input.getObject(-1);
@@ -298,6 +315,7 @@ void systemCallObjectListRemove(const SystemCallInput& input, SystemCallResult* 
     result->returnedObject = boost::make_local_shared<ObjectList>(std::move(items));
 }
 
+ // (input as ObjectList, index as Number, value as Object) as ObjectList
 void systemCallObjectListSet(const SystemCallInput& input, SystemCallResult* result) {
     const auto& objectList = *castObjectList(input.getObject(-2));
     const auto& index = static_cast<size_t>(input.getValue(-1).getInt64());
@@ -305,26 +323,31 @@ void systemCallObjectListSet(const SystemCallInput& input, SystemCallResult* res
     result->returnedObject = boost::make_local_shared<ObjectList>(objectList, /* insert */ false, index, element);
 }
 
+// (lhs as ValueList, rhs as Value) as ValueList
 void systemCallValueListAdd(const SystemCallInput& input, SystemCallResult* result) {
     const auto& valueList = *castValueList(input.getObject(-1));
     const auto& value = input.getValue(-1);
     result->returnedObject = boost::make_local_shared<ValueList>(valueList, true, valueList.size(), value);
 }
 
+// () as ValueListBuilder
 void systemCallValueListBuilderNew(const SystemCallInput& /*input*/, SystemCallResult* result) {
     result->returnedObject = boost::make_local_shared<ValueListBuilder>();
 }
 
+// (builder as ValueListBuilder, value as Value)
 void systemCallValueListBuilderAdd(const SystemCallInput& input, SystemCallResult* /*result*/) {
     auto& builder = *castValueListBuilder(input.getObject(-1));
     builder.items.push_back(input.getValue(-1));
 }
 
+// (builder as ValueListBuilder) as ValueList
 void systemCallValueListBuilderEnd(const SystemCallInput& input, SystemCallResult* result) {
     auto& builder = *castValueListBuilder(input.getObject(-1));
     result->returnedObject = boost::make_local_shared<ValueList>(&builder);
 }
 
+// (lhs as ValueList, rhs as ValueList) as ValueList
 void systemCallValueListConcat(const SystemCallInput& input, SystemCallResult* result) {
     const auto& lhs = *castValueList(input.getObject(-2));
     const auto& rhs = *castValueList(input.getObject(-1));
@@ -335,12 +358,14 @@ void systemCallValueListConcat(const SystemCallInput& input, SystemCallResult* r
     result->returnedObject = boost::make_local_shared<ValueList>(&builder);
 }
 
+// (input as ValueList, index as Number) as Value
 void systemCallValueListGet(const SystemCallInput& input, SystemCallResult* result) {
     const auto& valueList = *castValueList(input.getObject(-1));
     const auto& index = input.getValue(-1).getInt64();
     result->returnedValue = valueList.items.at(index);
 }
 
+// (input as ValueList, item as Value) as ValueList
 void systemCallValueListRemove(const SystemCallInput& input, SystemCallResult* result) {
     auto items = castValueList(input.getObject(-1))->items;
     const auto& item = input.getValue(-1);
@@ -354,6 +379,7 @@ void systemCallValueListRemove(const SystemCallInput& input, SystemCallResult* r
     result->returnedObject = boost::make_local_shared<ValueList>(std::move(items));
 }
 
+// (input as ValueList, index as Number, value as Value) as ValueList
 void systemCallValueListSet(const SystemCallInput& input, SystemCallResult* result) {
     const auto& valueList = *castValueList(input.getObject(-1));
     const auto& index = static_cast<size_t>(input.getValue(-2).getInt64());

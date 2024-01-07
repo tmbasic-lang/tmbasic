@@ -23,10 +23,12 @@ static TRect newTRect(int left, int top, int width, int height) {
     return TRect{ left, top, left + width, top + height };
 }
 
+// () as Control
 void systemCallNewLabel(const SystemCallInput& input, SystemCallResult* result) {
     result->returnedValue.num = BasicLabel::newLabel(input.interpreter);
 }
 
+// (control as Control) as String
 void systemCallControlText(const SystemCallInput& input, SystemCallResult* result) {
     auto* control = basicFormsStorage.controls.find(input.getValue(-1).getInt64());
 
@@ -39,6 +41,7 @@ void systemCallControlText(const SystemCallInput& input, SystemCallResult* resul
     throw Error(ErrorCode::kInvalidControlType, "ControlText does not support this type of control.");
 }
 
+// (control as Control, text as String)
 void systemCallSetControlText(const SystemCallInput& input, SystemCallResult* /*result*/) {
     auto* control = basicFormsStorage.controls.find(input.getValue(-1).getInt64());
     auto& text = *castString(input.getObject(-1));
@@ -52,12 +55,14 @@ void systemCallSetControlText(const SystemCallInput& input, SystemCallResult* /*
     throw Error(ErrorCode::kInvalidControlType, "SetControlText does not support this type of control.");
 }
 
+// (control as Control) as Rectangle
 void systemCallControlBounds(const SystemCallInput& input, SystemCallResult* result) {
     auto* control = basicFormsStorage.controls.find(input.getValue(-1).getInt64());
     auto tvRect = control->getBounds();
     result->returnedObject = newRectangle(tvRect.a.x, tvRect.a.y, tvRect.b.x - tvRect.a.x, tvRect.b.y - tvRect.a.y);
 }
 
+// (control as Control, bounds as Rectangle)
 void systemCallSetControlBounds1(const SystemCallInput& input, SystemCallResult* /*result*/) {
     auto* control = basicFormsStorage.controls.find(input.getValue(-1).getInt64());
     const auto& rect = dynamic_cast<const Record&>(*input.getObject(-1));
@@ -69,6 +74,7 @@ void systemCallSetControlBounds1(const SystemCallInput& input, SystemCallResult*
     }
 }
 
+// (control as Control, left as Num, top as Num, width as Num, height as Num)
 void systemCallSetControlBounds2(const SystemCallInput& input, SystemCallResult* /*result*/) {
     auto* control = basicFormsStorage.controls.find(input.getValue(-5).getInt64());
     control->setBounds(newTRect(

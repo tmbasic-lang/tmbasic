@@ -5,10 +5,12 @@
 
 namespace vm {
 
+// () as ObjectToObjectMap
 void systemCallObjectToObjectMapNew(const SystemCallInput& /*input*/, SystemCallResult* result) {
     result->returnedObject = boost::make_local_shared<ObjectToObjectMap>();
 }
 
+// (input as ObjectToObjectMap, key as Object, value as Object) as ObjectToObjectMap
 void systemCallObjectToObjectMapSet(const SystemCallInput& input, SystemCallResult* result) {
     const auto& map = *castObjectToObjectMap(input.getObject(-3));
     const auto& from = input.getObjectPtr(-2);
@@ -16,10 +18,12 @@ void systemCallObjectToObjectMapSet(const SystemCallInput& input, SystemCallResu
     result->returnedObject = boost::make_local_shared<ObjectToObjectMap>(map, from, to);
 }
 
+// () as ObjectToObjectMapBuilder
 void systemCallObjectToObjectMapBuilderNew(const SystemCallInput& /*input*/, SystemCallResult* result) {
     result->returnedObject = boost::make_local_shared<ObjectToObjectMapBuilder>();
 }
 
+// (builder as ObjectToObjectMapBuilder, key as Object, value as Object)
 void systemCallObjectToObjectMapBuilderAdd(const SystemCallInput& input, SystemCallResult* /*result*/) {
     auto& builder = *castObjectToObjectMapBuilder(input.getObject(-3));
     const auto& from = input.getObjectPtr(-2);
@@ -27,15 +31,18 @@ void systemCallObjectToObjectMapBuilderAdd(const SystemCallInput& input, SystemC
     builder.pairs.set(from, to);
 }
 
+// (builder as ObjectToObjectMapBuilder) as ObjectToObjectMap
 void systemCallObjectToObjectMapBuilderEnd(const SystemCallInput& input, SystemCallResult* result) {
     auto& builder = *castObjectToObjectMapBuilder(input.getObject(-1));
     result->returnedObject = boost::make_local_shared<ObjectToObjectMap>(&builder);
 }
 
+// () as ObjectToValueMap
 void systemCallObjectToValueMapNew(const SystemCallInput& /*input*/, SystemCallResult* result) {
     result->returnedObject = boost::make_local_shared<ObjectToValueMap>();
 }
 
+// (input as ObjectToValueMap, key as Object, value as Value) as ObjectToValueMap
 void systemCallObjectToValueMapSet(const SystemCallInput& input, SystemCallResult* result) {
     const auto& map = *castObjectToValueMap(input.getObject(-2));
     const auto& from = input.getObjectPtr(-1);
@@ -43,10 +50,12 @@ void systemCallObjectToValueMapSet(const SystemCallInput& input, SystemCallResul
     result->returnedObject = boost::make_local_shared<ObjectToValueMap>(map, from, to);
 }
 
+// () as ObjectToValueMapBuilder
 void systemCallObjectToValueMapBuilderNew(const SystemCallInput& /*input*/, SystemCallResult* result) {
     result->returnedObject = boost::make_local_shared<ObjectToValueMapBuilder>();
 }
 
+// (builder as ObjectToValueMapBuilder, key as Object, value as Value)
 void systemCallObjectToValueMapBuilderAdd(const SystemCallInput& input, SystemCallResult* /*result*/) {
     auto& builder = *castObjectToValueMapBuilder(input.getObject(-2));
     const auto& from = input.getObjectPtr(-1);
@@ -54,15 +63,18 @@ void systemCallObjectToValueMapBuilderAdd(const SystemCallInput& input, SystemCa
     builder.pairs.set(from, to);
 }
 
+// (builder as ObjectToValueMapBuilder) as ObjectToValueMap
 void systemCallObjectToValueMapBuilderEnd(const SystemCallInput& input, SystemCallResult* result) {
     auto& builder = *castObjectToValueMapBuilder(input.getObject(-1));
     result->returnedObject = boost::make_local_shared<ObjectToValueMap>(&builder);
 }
 
+// () as ValueToObjectMap
 void systemCallValueToObjectMapNew(const SystemCallInput& /*input*/, SystemCallResult* result) {
     result->returnedObject = boost::make_local_shared<ValueToObjectMap>();
 }
 
+// (input as ValueToObjectMap, key as Value, value as Object) as ValueToObjectMap
 void systemCallValueToObjectMapSet(const SystemCallInput& input, SystemCallResult* result) {
     const auto& map = *castValueToObjectMap(input.getObject(-2));
     const auto& from = input.getValue(-1);
@@ -70,10 +82,12 @@ void systemCallValueToObjectMapSet(const SystemCallInput& input, SystemCallResul
     result->returnedObject = boost::make_local_shared<ValueToObjectMap>(map, from, to);
 }
 
+// () as ValueToObjectMapBuilder
 void systemCallValueToObjectMapBuilderNew(const SystemCallInput& /*input*/, SystemCallResult* result) {
     result->returnedObject = boost::make_local_shared<ValueToObjectMapBuilder>();
 }
 
+// (builder as ValueToObjectMapBuilder, key as Value, value as Object)
 void systemCallValueToObjectMapBuilderAdd(const SystemCallInput& input, SystemCallResult* /*result*/) {
     auto& builder = *castValueToObjectMapBuilder(input.getObject(-2));
     const auto& from = input.getValue(-1);
@@ -81,15 +95,18 @@ void systemCallValueToObjectMapBuilderAdd(const SystemCallInput& input, SystemCa
     builder.pairs.set(from, to);
 }
 
+// (builder as ValueToObjectMapBuilder) as ValueToObjectMap
 void systemCallValueToObjectMapBuilderEnd(const SystemCallInput& input, SystemCallResult* result) {
     auto& builder = *castValueToObjectMapBuilder(input.getObject(-1));
     result->returnedObject = boost::make_local_shared<ValueToObjectMap>(&builder);
 }
 
+// () as ValueToValueMap
 void systemCallValueToValueMapNew(const SystemCallInput& /*input*/, SystemCallResult* result) {
     result->returnedObject = boost::make_local_shared<ValueToValueMap>();
 }
 
+// (input as ValueToValueMap, key as Value, value as Value) as ValueToValueMap
 void systemCallValueToValueMapSet(const SystemCallInput& input, SystemCallResult* result) {
     const auto& map = *castValueToValueMap(input.getObject(-1));
     const auto& from = input.getValue(-2);
@@ -97,10 +114,12 @@ void systemCallValueToValueMapSet(const SystemCallInput& input, SystemCallResult
     result->returnedObject = boost::make_local_shared<ValueToValueMap>(map, from, to);
 }
 
+// () as ValueToValueMapBuilder
 void systemCallValueToValueMapBuilderNew(const SystemCallInput& /*input*/, SystemCallResult* result) {
     result->returnedObject = boost::make_local_shared<ValueToValueMapBuilder>();
 }
 
+// (builder as ValueToValueMapBuilder, key as Value, value as Value)
 void systemCallValueToValueMapBuilderAdd(const SystemCallInput& input, SystemCallResult* /*result*/) {
     auto& builder = *castValueToValueMapBuilder(input.getObject(-1));
     const auto& from = input.getValue(-2);
@@ -108,11 +127,13 @@ void systemCallValueToValueMapBuilderAdd(const SystemCallInput& input, SystemCal
     builder.pairs.set(from, to);
 }
 
+// (builder as ValueToValueMapBuilder) as ValueToValueMap
 void systemCallValueToValueMapBuilderEnd(const SystemCallInput& input, SystemCallResult* result) {
     auto& builder = *castValueToValueMapBuilder(input.getObject(-1));
     result->returnedObject = boost::make_local_shared<ValueToValueMap>(&builder);
 }
 
+// (input as Map from K to V, key as K) as Boolean
 void systemCallMapContainsKey(const SystemCallInput& input, SystemCallResult* result) {
     // This could be any of the following signatures and we have to detect which it is:
     // 2 objects - ContainsKey(ObjectToObjectMap map, Object key) as Boolean
@@ -161,6 +182,7 @@ void systemCallMapContainsKey(const SystemCallInput& input, SystemCallResult* re
     }
 }
 
+// (input as Map from K to V, key as K) as Optional V
 void systemCallMapFind(const SystemCallInput& input, SystemCallResult* result) {
     // This could be any of the following signatures and we have to detect which it is:
     // 2 objects - Find(ObjectToObjectMap map, Object key) as Optional Object
@@ -225,6 +247,7 @@ void systemCallMapFind(const SystemCallInput& input, SystemCallResult* result) {
     }
 }
 
+// (input as Map from K to V) as Number
 void systemCallMapLen(const SystemCallInput& input, SystemCallResult* result) {
     const auto& mapObject = *input.getObject(-1);
 
@@ -258,6 +281,7 @@ void systemCallMapLen(const SystemCallInput& input, SystemCallResult* result) {
     }
 }
 
+// (input as Map from K to V) as List of K
 void systemCallMapObjectKeys(const SystemCallInput& input, SystemCallResult* result) {
     const auto& mapObject = *input.getObject(-1);
 
@@ -279,6 +303,7 @@ void systemCallMapObjectKeys(const SystemCallInput& input, SystemCallResult* res
     }
 }
 
+// (input as Map from K to V) as List of K
 void systemCallMapValueKeys(const SystemCallInput& input, SystemCallResult* result) {
     const auto& mapObject = *input.getObject(-1);
 
@@ -300,6 +325,7 @@ void systemCallMapValueKeys(const SystemCallInput& input, SystemCallResult* resu
     }
 }
 
+// (input as Map from K to V) as List of V
 void systemCallMapObjectValues(const SystemCallInput& input, SystemCallResult* result) {
     const auto& mapObject = *input.getObject(-1);
 
@@ -321,6 +347,7 @@ void systemCallMapObjectValues(const SystemCallInput& input, SystemCallResult* r
     }
 }
 
+// (input as Map from K to V) as List of V
 void systemCallMapValueValues(const SystemCallInput& input, SystemCallResult* result) {
     const auto& mapObject = *input.getObject(-1);
 
@@ -342,48 +369,56 @@ void systemCallMapValueValues(const SystemCallInput& input, SystemCallResult* re
     }
 }
 
+// (lhs as ValueToValueMap, rhs as ValueToValueMap) as ValueToValueMap
 void systemCallValueToValueMapUnion(const SystemCallInput& input, SystemCallResult* result) {
     const auto& map1 = castValueToValueMap(input.getObject(-2));
     const auto& map2 = castValueToValueMap(input.getObject(-1));
     result->returnedObject = map1->unionWith(*map2);
 }
 
+// (lhs as ValueToValueMap, rhs as ValueToValueMap) as ValueToValueMap
 void systemCallValueToValueMapExcept(const SystemCallInput& input, SystemCallResult* result) {
     const auto& map1 = castValueToValueMap(input.getObject(-2));
     const auto& map2 = castValueToValueMap(input.getObject(-1));
     result->returnedObject = map1->except(*map2);
 }
 
+// (lhs as ValueToObjectMap, rhs as ValueToObjectMap) as ValueToObjectMap
 void systemCallValueToObjectMapUnion(const SystemCallInput& input, SystemCallResult* result) {
     const auto& map1 = castValueToObjectMap(input.getObject(-2));
     const auto& map2 = castValueToObjectMap(input.getObject(-1));
     result->returnedObject = map1->unionWith(*map2);
 }
 
+// (lhs as ValueToObjectMap, rhs as ValueToObjectMap) as ValueToObjectMap
 void systemCallValueToObjectMapExcept(const SystemCallInput& input, SystemCallResult* result) {
     const auto& map1 = castValueToObjectMap(input.getObject(-2));
     const auto& map2 = castValueToObjectMap(input.getObject(-1));
     result->returnedObject = map1->except(*map2);
 }
 
+// (lhs as ObjectToValueMap, rhs as ObjectToValueMap) as ObjectToValueMap
 void systemCallObjectToValueMapUnion(const SystemCallInput& input, SystemCallResult* result) {
     const auto& map1 = castObjectToValueMap(input.getObject(-2));
     const auto& map2 = castObjectToValueMap(input.getObject(-1));
     result->returnedObject = map1->unionWith(*map2);
 }
 
+// (lhs as ObjectToValueMap, rhs as ObjectToValueMap) as ObjectToValueMap
 void systemCallObjectToValueMapExcept(const SystemCallInput& input, SystemCallResult* result) {
     const auto& map1 = castObjectToValueMap(input.getObject(-2));
     const auto& map2 = castObjectToValueMap(input.getObject(-1));
     result->returnedObject = map1->except(*map2);
 }
 
+// (lhs as ObjectToObjectMap, rhs as ObjectToObjectMap) as ObjectToObjectMap
 void systemCallObjectToObjectMapUnion(const SystemCallInput& input, SystemCallResult* result) {
     const auto& map1 = castObjectToObjectMap(input.getObject(-2));
     const auto& map2 = castObjectToObjectMap(input.getObject(-1));
     result->returnedObject = map1->unionWith(*map2);
 }
 
+// (lhs as ObjectToObjectMap, rhs as ObjectToObjectMap) as ObjectToObjectMap
 void systemCallObjectToObjectMapExcept(const SystemCallInput& input, SystemCallResult* result) {
     const auto& map1 = castObjectToObjectMap(input.getObject(-2));
     const auto& map2 = castObjectToObjectMap(input.getObject(-1));

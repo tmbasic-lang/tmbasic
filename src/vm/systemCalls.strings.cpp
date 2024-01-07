@@ -7,11 +7,13 @@
 
 namespace vm {
 
+// (x as Boolean) as String
 void systemCallBooleanToString(const SystemCallInput& input, SystemCallResult* result) {
     std::string s{ input.getValue(-1).getBoolean() ? "true" : "false" };
     result->returnedObject = boost::make_local_shared<String>(std::move(s));
 }
 
+// (input as String) as List of String
 void systemCallCharacters(const SystemCallInput& input, SystemCallResult* result) {
     const auto& str = *castString(input.getObject(-1));
 
@@ -61,6 +63,7 @@ void systemCallCharacters(const SystemCallInput& input, SystemCallResult* result
     result->returnedObject = boost::make_local_shared<ObjectList>(&objectListBuilder);
 }
 
+// (input as Number) as String
 void systemCallChr(const SystemCallInput& input, SystemCallResult* result) {
     auto value = input.getValue(-1).getInt64();
     auto ch32 = static_cast<ucs4_t>(value);
@@ -79,6 +82,7 @@ void systemCallChr(const SystemCallInput& input, SystemCallResult* result) {
     result->returnedObject = boost::make_local_shared<String>(s);
 }
 
+// (input as String) as List of Number
 void systemCallCodePoints(const SystemCallInput& input, SystemCallResult* result) {
     const auto& str = *castString(input.getObject(-1));
 
@@ -104,6 +108,7 @@ void systemCallCodePoints(const SystemCallInput& input, SystemCallResult* result
     result->returnedObject = boost::make_local_shared<ValueList>(&valueListBuilder);
 }
 
+// (input as String) as Number
 void systemCallCodeUnit1(const SystemCallInput& input, SystemCallResult* result) {
     const auto& str = *castString(input.getObject(-1));
     if (str.value.length() == 0) {
@@ -114,6 +119,7 @@ void systemCallCodeUnit1(const SystemCallInput& input, SystemCallResult* result)
     result->returnedValue.num = static_cast<int>(codeUnit);
 }
 
+// (input as String, index as Number) as Number
 void systemCallCodeUnit2(const SystemCallInput& input, SystemCallResult* result) {
     const auto& str = *castString(input.getObject(-1));
     const auto& index = input.getValue(-1).getInt64();
@@ -125,6 +131,7 @@ void systemCallCodeUnit2(const SystemCallInput& input, SystemCallResult* result)
     result->returnedValue.num = static_cast<int>(codeUnit);
 }
 
+// (input as String) as List of Number
 void systemCallCodeUnits(const SystemCallInput& input, SystemCallResult* result) {
     const auto& str = *castString(input.getObject(-1));
     ValueListBuilder b{};
@@ -135,6 +142,7 @@ void systemCallCodeUnits(const SystemCallInput& input, SystemCallResult* result)
     result->returnedObject = boost::make_local_shared<ValueList>(&b);
 }
 
+// (input as List of String) as String
 void systemCallConcat1(const SystemCallInput& input, SystemCallResult* result) {
     const auto& objectList = *castObjectList(input.getObject(-1));
 
@@ -147,6 +155,7 @@ void systemCallConcat1(const SystemCallInput& input, SystemCallResult* result) {
     result->returnedObject = boost::make_local_shared<String>(ss);
 }
 
+// (input as List of String, separator as String) as String
 void systemCallConcat2(const SystemCallInput& input, SystemCallResult* result) {
     const auto& objectList = *castObjectList(input.getObject(-2));
     const auto& separator = *castString(input.getObject(-1));
@@ -164,6 +173,7 @@ void systemCallConcat2(const SystemCallInput& input, SystemCallResult* result) {
     result->returnedObject = boost::make_local_shared<String>(ss.str());
 }
 
+// () as Number
 void systemCallInputNumber(const SystemCallInput& input, SystemCallResult* result) {
     std::string line;
     std::getline(*input.consoleInputStream, line);
@@ -174,17 +184,20 @@ void systemCallInputNumber(const SystemCallInput& input, SystemCallResult* resul
     result->returnedValue.num = num;
 }
 
+// () as String
 void systemCallInputString(const SystemCallInput& input, SystemCallResult* result) {
     std::string line;
     std::getline(*input.consoleInputStream, line);
     result->returnedObject = boost::make_local_shared<String>(line);
 }
 
+// (input as String) as Boolean
 void systemCallIsDigit(const SystemCallInput& input, SystemCallResult* result) {
     const auto& str = *castString(input.getObject(-1));
     result->returnedValue.setBoolean(str.value.length() >= 1 && std::isdigit(str.value.at(0)));
 }
 
+// () as String
 void systemCallNewLine(const SystemCallInput& /*input*/, SystemCallResult* result) {
 #ifdef _WIN32
     result->returnedObject = boost::make_local_shared<String>("\r\n", 2);
@@ -193,6 +206,7 @@ void systemCallNewLine(const SystemCallInput& /*input*/, SystemCallResult* resul
 #endif
 }
 
+// (input as String) as Number
 void systemCallParseNumber(const SystemCallInput& input, SystemCallResult* result) {
     const auto& str = *castString(input.getObject(-1));
     auto num = util::parseDecimalString(str.value);
@@ -202,10 +216,12 @@ void systemCallParseNumber(const SystemCallInput& input, SystemCallResult* resul
     result->returnedValue.num = num;
 }
 
+// (input as String)
 void systemCallPrintString(const SystemCallInput& input, SystemCallResult* /*result*/) {
     *input.consoleOutputStream << castString(input.getObject(-1))->value;
 }
 
+// (codePoints as List of Number) as String
 void systemCallStringFromCodePoints(const SystemCallInput& input, SystemCallResult* result) {
     const auto& valueList = *castValueList(input.getObject(-1));
     std::ostringstream ss{};
@@ -229,6 +245,7 @@ void systemCallStringFromCodePoints(const SystemCallInput& input, SystemCallResu
     result->returnedObject = boost::make_local_shared<String>(ss.str());
 }
 
+// (codeUnits as List of Number) as String
 void systemCallStringFromCodeUnits(const SystemCallInput& input, SystemCallResult* result) {
     const auto& valueList = *castValueList(input.getObject(-1));
 
@@ -260,23 +277,27 @@ void systemCallStringFromCodeUnits(const SystemCallInput& input, SystemCallResul
     result->returnedObject = boost::make_local_shared<String>(str);
 }
 
+// (lhs as String, rhs as String) as String
 void systemCallStringConcat(const SystemCallInput& input, SystemCallResult* result) {
     const auto& lhs = *castString(input.getObject(-2));
     const auto& rhs = *castString(input.getObject(-1));
     result->returnedObject = boost::make_local_shared<String>(lhs.value + rhs.value);
 }
 
+// (lhs as String, rhs as String) as Boolean
 void systemCallStringEquals(const SystemCallInput& input, SystemCallResult* result) {
     const auto& lhs = *castString(input.getObject(-2));
     const auto& rhs = *castString(input.getObject(-1));
     result->returnedValue.setBoolean(lhs.equals(rhs));
 }
 
+// (input as String) as Number
 void systemCallStringLen(const SystemCallInput& input, SystemCallResult* result) {
     const auto& str = castString(input.getObject(-1))->value;
     result->returnedValue.num = str.length();
 }
 
+// (haystack as String, needle as String, replacement as String) as String
 void systemCallStringReplace(const SystemCallInput& input, SystemCallResult* result) {
     const auto& haystack = *castString(input.getObject(-3));
     const auto& needle = *castString(input.getObject(-2));
@@ -297,6 +318,7 @@ void systemCallStringReplace(const SystemCallInput& input, SystemCallResult* res
     result->returnedObject = boost::make_local_shared<String>(std::move(s));
 }
 
+// (input as String, separator as String) as List of String
 void systemCallStringSplit(const SystemCallInput& input, SystemCallResult* result) {
     const auto& str = *castString(input.getObject(-2));
     const auto& separator = *castString(input.getObject(-1));
