@@ -64,7 +64,7 @@ void systemCallDateFromParts(const SystemCallInput& input, SystemCallResult* res
     DateTimeParts parts{
         static_cast<uint32_t>(year), static_cast<uint32_t>(month), static_cast<uint32_t>(day), 0, 0, 0, 0
     };
-    result->returnedValue = convertDateTimePartsToValue(parts);
+    result->returnedValue = parts.toValue();
 }
 
 // (year as Number, ...) as DateTime
@@ -95,13 +95,13 @@ void systemCallDateTimeFromParts(const SystemCallInput& input, SystemCallResult*
                          static_cast<uint32_t>(minute),     static_cast<uint32_t>(second),
                          static_cast<uint32_t>(millisecond) };
 
-    result->returnedValue = convertDateTimePartsToValue(parts);
+    result->returnedValue = parts.toValue();
 }
 
 // (dateTimeOffset as DateTimeOffset) as Number
 void systemCallDateTimeOffsetDay(const SystemCallInput& input, SystemCallResult* result) {
     const auto& dateValue = input.getValue(-1);
-    auto parts = vm::convertValueToDateTimeOffsetParts(dateValue);
+    DateTimeOffsetParts parts{ dateValue };
     result->returnedValue = Value{ parts.day };
 }
 
@@ -130,46 +130,46 @@ void systemCallDateTimeOffsetFromParts(const SystemCallInput& input, SystemCallR
 
     auto offsetMilliseconds = input.getValue(-1).getInt64();
 
-    DateTimeOffsetParts parts{ { static_cast<uint32_t>(year), static_cast<uint32_t>(month), static_cast<uint32_t>(day),
-                                 static_cast<uint32_t>(hour), static_cast<uint32_t>(minute),
-                                 static_cast<uint32_t>(second), static_cast<uint32_t>(millisecond) },
-                               offsetMilliseconds };
+    DateTimeOffsetParts parts{ static_cast<uint32_t>(year),        static_cast<uint32_t>(month),
+                               static_cast<uint32_t>(day),         static_cast<uint32_t>(hour),
+                               static_cast<uint32_t>(minute),      static_cast<uint32_t>(second),
+                               static_cast<uint32_t>(millisecond), offsetMilliseconds };
 
-    result->returnedValue = convertDateTimeOffsetPartsToValue(parts);
+    result->returnedValue = parts.toValue();
 }
 
 // (dateTimeOffset as DateTimeOffset) as Number
 void systemCallDateTimeOffsetHour(const SystemCallInput& input, SystemCallResult* result) {
     const auto& dateValue = input.getValue(-1);
-    auto parts = vm::convertValueToDateTimeOffsetParts(dateValue);
+    DateTimeOffsetParts parts{ dateValue };
     result->returnedValue = Value{ parts.hour };
 }
 
 // (dateTimeOffset as DateTimeOffset) as Number
 void systemCallDateTimeOffsetMillisecond(const SystemCallInput& input, SystemCallResult* result) {
     const auto& dateValue = input.getValue(-1);
-    auto parts = vm::convertValueToDateTimeOffsetParts(dateValue);
+    DateTimeOffsetParts parts{ dateValue };
     result->returnedValue = Value{ parts.millisecond };
 }
 
 // (dateTimeOffset as DateTimeOffset) as Number
 void systemCallDateTimeOffsetMinute(const SystemCallInput& input, SystemCallResult* result) {
     const auto& dateValue = input.getValue(-1);
-    auto parts = vm::convertValueToDateTimeOffsetParts(dateValue);
+    DateTimeOffsetParts parts{ dateValue };
     result->returnedValue = Value{ parts.minute };
 }
 
 // (dateTimeOffset as DateTimeOffset) as Number
 void systemCallDateTimeOffsetMonth(const SystemCallInput& input, SystemCallResult* result) {
     const auto& dateValue = input.getValue(-1);
-    auto parts = vm::convertValueToDateTimeOffsetParts(dateValue);
+    DateTimeOffsetParts parts{ dateValue };
     result->returnedValue = Value{ parts.month };
 }
 
 // (dateTimeOffset as DateTimeOffset) as Number
 void systemCallDateTimeOffsetSecond(const SystemCallInput& input, SystemCallResult* result) {
     const auto& dateValue = input.getValue(-1);
-    auto parts = vm::convertValueToDateTimeOffsetParts(dateValue);
+    DateTimeOffsetParts parts{ dateValue };
     result->returnedValue = Value{ parts.second };
 }
 
@@ -200,7 +200,7 @@ void systemCallDateTimeOffsetToString(const SystemCallInput& input, SystemCallRe
 // (dateTimeOffset as DateTimeOffset) as Number
 void systemCallDateTimeOffsetYear(const SystemCallInput& input, SystemCallResult* result) {
     const auto& dateValue = input.getValue(-1);
-    auto parts = vm::convertValueToDateTimeOffsetParts(dateValue);
+    DateTimeOffsetParts parts{ dateValue };
     result->returnedValue = Value{ parts.year };
 }
 
@@ -210,7 +210,7 @@ void systemCallDateTimeOffsetToDateTime(const SystemCallInput& input, SystemCall
     result->returnedValue = dateTimeOffsetToDateTime(dateTimeOffset);
 }
 
- // (dateTimeOffset as DateTimeOffset) as Date
+// (dateTimeOffset as DateTimeOffset) as Date
 void systemCallDateTimeOffsetToDate(const SystemCallInput& input, SystemCallResult* result) {
     const auto& dateTimeOffset = input.getValue(-1);
     result->returnedValue = dateTimeOffsetToDate(dateTimeOffset);
@@ -218,12 +218,12 @@ void systemCallDateTimeOffsetToDate(const SystemCallInput& input, SystemCallResu
 
 // (count as Number) as TimeSpan
 void systemCallDays(const SystemCallInput& input, SystemCallResult* result) {
-    result->returnedValue.num = input.getValue(-1).num * MSEC_PER_DAY;
+    result->returnedValue.num = input.getValue(-1).num * kMillisecondsPerDay;
 }
 
 // (count as Number) as TimeSpan
 void systemCallHours(const SystemCallInput& input, SystemCallResult* result) {
-    result->returnedValue.num = input.getValue(-1).num * MSEC_PER_HOUR;
+    result->returnedValue.num = input.getValue(-1).num * kMillisecondsPerHour;
 }
 
 // (count as Number) as TimeSpan
@@ -233,12 +233,12 @@ void systemCallMilliseconds(const SystemCallInput& input, SystemCallResult* resu
 
 // (count as Number) as TimeSpan
 void systemCallMinutes(const SystemCallInput& input, SystemCallResult* result) {
-    result->returnedValue.num = input.getValue(-1).num * MSEC_PER_MINUTE;
+    result->returnedValue.num = input.getValue(-1).num * kMillisecondsPerMinute;
 }
 
 // (count as Number) as TimeSpan
 void systemCallSeconds(const SystemCallInput& input, SystemCallResult* result) {
-    result->returnedValue.num = input.getValue(-1).num * MSEC_PER_SECOND;
+    result->returnedValue.num = input.getValue(-1).num * kMillisecondsPerSecond;
 }
 
 // (timeSpan as TimeSpan) as String
@@ -265,42 +265,122 @@ void systemCallTimeZoneFromName(const SystemCallInput& input, SystemCallResult* 
     result->returnedObject = boost::make_local_shared<TimeZone>(std::move(time_zone_ptr));
 }
 
- // (timeSpan as TimeSpan) as Number
+// (timeSpan as TimeSpan) as Number
 void systemCallTotalDays(const SystemCallInput& input, SystemCallResult* result) {
-    result->returnedValue.num = input.getValue(-1).num / MSEC_PER_DAY;
+    result->returnedValue.num = input.getValue(-1).num / kMillisecondsPerDay;
 }
 
- // (timeSpan as TimeSpan) as Number
+// (timeSpan as TimeSpan) as Number
 void systemCallTotalHours(const SystemCallInput& input, SystemCallResult* result) {
-    result->returnedValue.num = input.getValue(-1).num / MSEC_PER_HOUR;
+    result->returnedValue.num = input.getValue(-1).num / kMillisecondsPerHour;
 }
 
- // (timeSpan as TimeSpan) as Number
+// (timeSpan as TimeSpan) as Number
 void systemCallTotalMilliseconds(const SystemCallInput& input, SystemCallResult* result) {
     result->returnedValue = input.getValue(-1);  // already in milliseconds!
 }
 
- // (timeSpan as TimeSpan) as Number
+// (timeSpan as TimeSpan) as Number
 void systemCallTotalMinutes(const SystemCallInput& input, SystemCallResult* result) {
-    result->returnedValue.num = input.getValue(-1).num / MSEC_PER_MINUTE;
+    result->returnedValue.num = input.getValue(-1).num / kMillisecondsPerMinute;
 }
 
- // (timeSpan as TimeSpan) as Number
+// (timeSpan as TimeSpan) as Number
 void systemCallTotalSeconds(const SystemCallInput& input, SystemCallResult* result) {
-    result->returnedValue.num = input.getValue(-1).num / MSEC_PER_SECOND;
+    result->returnedValue.num = input.getValue(-1).num / kMillisecondsPerSecond;
 }
 
 // (timeZone as TimeZone, dateTime as DateTime) as List of TimeSpan
 void systemCallUtcOffsets(const SystemCallInput& input, SystemCallResult* result) {
     const auto& timeZone = *castTimeZone(input.getObject(-1));
     const auto& dateTimeValue = input.getValue(-1);
-    auto dateTimeParts = convertValueToDateTimeParts(dateTimeValue);
+    DateTimeParts dateTimeParts{ dateTimeValue };
     auto offsets = timeZone.getUtcOffsets(dateTimeParts);
     ValueListBuilder builder{};
     for (const auto& offset : offsets) {
         builder.items.push_back(Value{ offset });
     }
     result->returnedObject = boost::make_local_shared<ValueList>(&builder);
+}
+
+// AddYears, AddMonths, AddDays, etc. are all the same except for the operation performed.
+template <typename Parts, typename Operation>
+void dateTimeAddCore(Operation operation, const SystemCallInput& input, SystemCallResult* result) {
+    const auto& value = input.getValue(-2);
+    auto count = input.getValue(-1).getInt64();
+    Parts parts{ value };
+    operation(&parts, count);
+    result->returnedValue = parts.toValue();
+}
+
+// (dto as DateTimeOffset, count as Number) as DateTimeOffset
+void systemCallDateTimeOffsetAddYears(const SystemCallInput& input, SystemCallResult* result) {
+    dateTimeAddCore<DateTimeOffsetParts>([](auto* parts, auto count) { parts->addYears(count); }, input, result);
+}
+
+// (dto as DateTimeOffset, count as Number) as DateTimeOffset
+void systemCallDateTimeOffsetAddMonths(const SystemCallInput& input, SystemCallResult* result) {
+    dateTimeAddCore<DateTimeOffsetParts>([](auto* parts, auto count) { parts->addMonths(count); }, input, result);
+}
+
+// (dto as DateTimeOffset, count as Number) as DateTimeOffset
+void systemCallDateTimeOffsetAddDays(const SystemCallInput& input, SystemCallResult* result) {
+    dateTimeAddCore<DateTimeOffsetParts>([](auto* parts, auto count) { parts->addDays(count); }, input, result);
+}
+
+// (dto as DateTimeOffset, count as Number) as DateTimeOffset
+void systemCallDateTimeOffsetAddHours(const SystemCallInput& input, SystemCallResult* result) {
+    dateTimeAddCore<DateTimeOffsetParts>([](auto* parts, auto count) { parts->addHours(count); }, input, result);
+}
+
+// (dto as DateTimeOffset, count as Number) as DateTimeOffset
+void systemCallDateTimeOffsetAddMinutes(const SystemCallInput& input, SystemCallResult* result) {
+    dateTimeAddCore<DateTimeOffsetParts>([](auto* parts, auto count) { parts->addMinutes(count); }, input, result);
+}
+
+// (dto as DateTimeOffset, count as Number) as DateTimeOffset
+void systemCallDateTimeOffsetAddSeconds(const SystemCallInput& input, SystemCallResult* result) {
+    dateTimeAddCore<DateTimeOffsetParts>([](auto* parts, auto count) { parts->addSeconds(count); }, input, result);
+}
+
+// (dto as DateTimeOffset, count as Number) as DateTimeOffset
+void systemCallDateTimeOffsetAddMilliseconds(const SystemCallInput& input, SystemCallResult* result) {
+    dateTimeAddCore<DateTimeOffsetParts>([](auto* parts, auto count) { parts->addMilliseconds(count); }, input, result);
+}
+
+// (dto as DateTime, count as Number) as DateTime
+void systemCallDateTimeAddYears(const SystemCallInput& input, SystemCallResult* result) {
+    dateTimeAddCore<DateTimeParts>([](auto* parts, auto count) { parts->addYears(count); }, input, result);
+}
+
+// (dto as DateTime, count as Number) as DateTime
+void systemCallDateTimeAddMonths(const SystemCallInput& input, SystemCallResult* result) {
+    dateTimeAddCore<DateTimeParts>([](auto* parts, auto count) { parts->addMonths(count); }, input, result);
+}
+
+// (dto as DateTime, count as Number) as DateTime
+void systemCallDateTimeAddDays(const SystemCallInput& input, SystemCallResult* result) {
+    dateTimeAddCore<DateTimeParts>([](auto* parts, auto count) { parts->addDays(count); }, input, result);
+}
+
+// (dto as DateTime, count as Number) as DateTime
+void systemCallDateTimeAddHours(const SystemCallInput& input, SystemCallResult* result) {
+    dateTimeAddCore<DateTimeParts>([](auto* parts, auto count) { parts->addHours(count); }, input, result);
+}
+
+// (dto as DateTime, count as Number) as DateTime
+void systemCallDateTimeAddMinutes(const SystemCallInput& input, SystemCallResult* result) {
+    dateTimeAddCore<DateTimeParts>([](auto* parts, auto count) { parts->addMinutes(count); }, input, result);
+}
+
+// (dto as DateTime, count as Number) as DateTime
+void systemCallDateTimeAddSeconds(const SystemCallInput& input, SystemCallResult* result) {
+    dateTimeAddCore<DateTimeParts>([](auto* parts, auto count) { parts->addSeconds(count); }, input, result);
+}
+
+// (dto as DateTime, count as Number) as DateTime
+void systemCallDateTimeAddMilliseconds(const SystemCallInput& input, SystemCallResult* result) {
+    dateTimeAddCore<DateTimeParts>([](auto* parts, auto count) { parts->addMilliseconds(count); }, input, result);
 }
 
 }  // namespace vm

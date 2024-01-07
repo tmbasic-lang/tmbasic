@@ -43,7 +43,7 @@ void systemCallObjectOptionalNewPresent(const SystemCallInput& input, SystemCall
     result->returnedObject = boost::make_local_shared<ObjectOptional>(input.getObjectPtr(-1));
 }
 
- // () as ValueOptional
+// () as ValueOptional
 void systemCallValueOptionalNewMissing(const SystemCallInput& /*input*/, SystemCallResult* result) {
     result->returnedObject = boost::make_local_shared<ValueOptional>();
 }

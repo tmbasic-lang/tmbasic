@@ -53,7 +53,7 @@ void systemCallLog(const SystemCallInput& input, SystemCallResult* result) {
     result->returnedValue.num = input.getValue(-1).num.ln();
 }
 
- // (x as Number) as Number
+// (x as Number) as Number
 void systemCallLog10(const SystemCallInput& input, SystemCallResult* result) {
     result->returnedValue.num = input.getValue(-1).num.log10();
 }

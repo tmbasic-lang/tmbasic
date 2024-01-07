@@ -315,7 +315,7 @@ void systemCallObjectListRemove(const SystemCallInput& input, SystemCallResult* 
     result->returnedObject = boost::make_local_shared<ObjectList>(std::move(items));
 }
 
- // (input as ObjectList, index as Number, value as Object) as ObjectList
+// (input as ObjectList, index as Number, value as Object) as ObjectList
 void systemCallObjectListSet(const SystemCallInput& input, SystemCallResult* result) {
     const auto& objectList = *castObjectList(input.getObject(-2));
     const auto& index = static_cast<size_t>(input.getValue(-1).getInt64());

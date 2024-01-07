@@ -38,7 +38,37 @@ BuiltInProcedureList::BuiltInProcedureList() {
 
     addFunction("Abs", { "x" }, { number }, number, SystemCall::kAbs);
     addFunction("Acos", { "x" }, { number }, number, SystemCall::kAcos);
-    addSub("AddControlToForm", { "form", "control" }, { form, control }, SystemCall::kAddControlToForm);
+    addFunction("AddDays", { "time", "count" }, { date, number }, date, SystemCall::kDateTimeAddDays);
+    addFunction("AddDays", { "time", "count" }, { dateTime, number }, dateTime, SystemCall::kDateTimeAddDays);
+    addFunction(
+        "AddDays", { "time", "count" }, { dateTimeOffset, number }, dateTimeOffset, SystemCall::kDateTimeOffsetAddDays);
+    addFunction("AddHours", { "time", "count" }, { dateTime, number }, dateTime, SystemCall::kDateTimeAddHours);
+    addFunction(
+        "AddHours", { "time", "count" }, { dateTimeOffset, number }, dateTimeOffset,
+        SystemCall::kDateTimeOffsetAddHours);
+    addFunction(
+        "AddMilliseconds", { "time", "count" }, { dateTime, number }, dateTime, SystemCall::kDateTimeAddMilliseconds);
+    addFunction(
+        "AddMilliseconds", { "time", "count" }, { dateTimeOffset, number }, dateTimeOffset,
+        SystemCall::kDateTimeOffsetAddMilliseconds);
+    addFunction("AddMinutes", { "time", "count" }, { dateTime, number }, dateTime, SystemCall::kDateTimeAddMinutes);
+    addFunction(
+        "AddMinutes", { "time", "count" }, { dateTimeOffset, number }, dateTimeOffset,
+        SystemCall::kDateTimeOffsetAddMinutes);
+    addFunction("AddMonths", { "time", "count" }, { date, number }, date, SystemCall::kDateTimeAddMonths);
+    addFunction("AddMonths", { "time", "count" }, { dateTime, number }, dateTime, SystemCall::kDateTimeAddMonths);
+    addFunction(
+        "AddMonths", { "time", "count" }, { dateTimeOffset, number }, dateTimeOffset,
+        SystemCall::kDateTimeOffsetAddMonths);
+    addFunction("AddSeconds", { "time", "count" }, { dateTime, number }, dateTime, SystemCall::kDateTimeAddSeconds);
+    addFunction(
+        "AddSeconds", { "time", "count" }, { dateTimeOffset, number }, dateTimeOffset,
+        SystemCall::kDateTimeOffsetAddSeconds);
+    addFunction("AddYears", { "time", "count" }, { date, number }, date, SystemCall::kDateTimeAddYears);
+    addFunction("AddYears", { "time", "count" }, { dateTime, number }, dateTime, SystemCall::kDateTimeAddYears);
+    addFunction(
+        "AddYears", { "time", "count" }, { dateTimeOffset, number }, dateTimeOffset,
+        SystemCall::kDateTimeOffsetAddYears);
     addFunction("Asin", { "x" }, { number }, number, SystemCall::kAsin);
     addFunction("Atan", { "x" }, { number }, number, SystemCall::kAtan);
     addFunction("Atan2", { "y", "x" }, { number, number }, number, SystemCall::kAtan2);
@@ -46,6 +76,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("Characters", { "this" }, { string }, listOfString, SystemCall::kCharacters);
     addFunction("Chr", { "input" }, { number }, string, SystemCall::kChr);
     addFunction("CodePoints", { "input" }, { string }, listOfNumber, SystemCall::kCodePoints);
+    addSub("AddControlToForm", { "form", "control" }, { form, control }, SystemCall::kAddControlToForm);
     addFunction("CodeUnit", { "input" }, { string }, number, SystemCall::kCodeUnit1);
     addFunction("CodeUnit", { "input", "index" }, { string, number }, number, SystemCall::kCodeUnit2);
     addFunction("CodeUnits", { "input" }, { string }, listOfNumber, SystemCall::kCodeUnits);
