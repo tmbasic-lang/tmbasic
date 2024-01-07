@@ -843,6 +843,14 @@ static void emitLiteralStringExpression(const LiteralStringExpressionNode& expre
     state->pushImmediateUtf8(expressionNode.value);
 }
 
+static void emitLiteralNoExpression(const LiteralNoExpressionNode& expressionNode, ProcedureState* state) {
+    if (expressionNode.type->isValueType()) {
+        state->syscall(Opcode::kSystemCallO, SystemCall::kValueOptionalNewMissing, 0, 0);
+    } else {
+        state->syscall(Opcode::kSystemCallO, SystemCall::kObjectOptionalNewMissing, 0, 0);
+    }
+}
+
 static void emitConstValueExpressionNode(const ConstValueExpressionNode& expressionNode, ProcedureState* state) {
     switch (expressionNode.getConstValueExpressionType()) {
         case ConstValueExpressionType::kArray:
@@ -859,6 +867,9 @@ static void emitConstValueExpressionNode(const ConstValueExpressionNode& express
             break;
         case ConstValueExpressionType::kString:
             emitLiteralStringExpression(dynamic_cast<const LiteralStringExpressionNode&>(expressionNode), state);
+            break;
+        case ConstValueExpressionType::kNo:
+            emitLiteralNoExpression(dynamic_cast<const LiteralNoExpressionNode&>(expressionNode), state);
             break;
         default:
             assert(false);

@@ -384,6 +384,7 @@ void CodeEditorWindow::handleStyleToNeeded(Sci_Position endStyleNeeded) {
                 case compiler::TokenKind::kMap:
                 case compiler::TokenKind::kMod:
                 case compiler::TokenKind::kNext:
+                case compiler::TokenKind::kNo:
                 case compiler::TokenKind::kNot:
                 case compiler::TokenKind::kNumber:
                 case compiler::TokenKind::kOf:

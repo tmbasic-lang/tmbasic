@@ -211,6 +211,7 @@ enum class ConstValueExpressionType {
     kNumber,
     kRecord,
     kString,
+    kNo,
 };
 
 class ConstValueExpressionNode : public ExpressionNode {
@@ -323,6 +324,14 @@ class LiteralStringExpressionNode : public ConstValueExpressionNode {
    public:
     std::string value;
     LiteralStringExpressionNode(std::string value, Token token);
+    void dump(std::ostream& s, int n) const override;
+    ConstValueExpressionType getConstValueExpressionType() const override;
+};
+
+class LiteralNoExpressionNode : public ConstValueExpressionNode {
+   public:
+    boost::local_shared_ptr<TypeNode> type;
+    LiteralNoExpressionNode(boost::local_shared_ptr<TypeNode> type, Token token);
     void dump(std::ostream& s, int n) const override;
     ConstValueExpressionType getConstValueExpressionType() const override;
 };

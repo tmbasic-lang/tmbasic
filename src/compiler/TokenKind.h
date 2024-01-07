@@ -76,6 +76,7 @@ enum class TokenKind {
     kMap,
     kMod,
     kNext,
+    kNo,
     kNot,
     kNumber,
     kOf,

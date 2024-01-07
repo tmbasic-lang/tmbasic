@@ -421,6 +421,8 @@ TokenKind Scanner::classifyToken(const std::string& text) {
             case 'n':
                 if (lc == "next") {
                     return TokenKind::kNext;
+                } else if (lc == "no") {
+                    return TokenKind::kNo;
                 } else if (lc == "not") {
                     return TokenKind::kNot;
                 } else if (lc == "number") {

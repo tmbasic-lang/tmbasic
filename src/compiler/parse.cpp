@@ -698,6 +698,22 @@ class LiteralRecordTermProduction : public Production {
     }
 };
 
+class LiteralNoTermProduction : public Production {
+   public:
+    explicit LiteralNoTermProduction(const Production* type)
+        : Production(
+              NAMEOF_TYPE(LiteralNoTermProduction),
+              {
+                  term(TokenKind::kNo),
+                  cut(),
+                  capture(0, prod(type)),
+              }) {}
+
+    std::unique_ptr<Box> parse(CaptureArray* captures, const Token& firstToken) const override {
+        return nodeBox<LiteralNoExpressionNode>(captureSingleNode<TypeNode>(std::move(captures->at(0))), firstToken);
+    }
+};
+
 class LiteralArrayTermProduction : public Production {
    public:
     explicit LiteralArrayTermProduction(const Production* argumentList)
@@ -739,7 +755,8 @@ class ExpressionTermProduction : public Production {
         const Production* literalValue,
         const Production* parenthesesTerm,
         const Production* literalArrayTerm,
-        const Production* literalRecordTerm)
+        const Production* literalRecordTerm,
+        const Production* literalNoTerm)
         : Production(
               NAMEOF_TYPE(ExpressionTermProduction),
               {
@@ -748,6 +765,7 @@ class ExpressionTermProduction : public Production {
                       capture(0, prod(parenthesesTerm)),
                       capture(0, prod(literalArrayTerm)),
                       capture(0, prod(literalRecordTerm)),
+                      capture(0, prod(literalNoTerm)),
                       capture(1, term(TokenKind::kIdentifier)),
                   }),
               }) {}
@@ -2067,9 +2085,10 @@ class ProductionCollection {
         auto* literalRecordFieldList = add<LiteralRecordFieldListProduction>(literalRecordField);
         auto* literalRecordTerm = add<LiteralRecordTermProduction>(literalRecordFieldList);
         auto* literalArrayTerm = add<LiteralArrayTermProduction>(argumentList);
+        auto* literalNoTerm = add<LiteralNoTermProduction>(type);
         auto* parenthesesTerm = add<ParenthesesTermProduction>(expression);
-        auto* expressionTerm =
-            add<ExpressionTermProduction>(literalValue, parenthesesTerm, literalArrayTerm, literalRecordTerm);
+        auto* expressionTerm = add<ExpressionTermProduction>(
+            literalValue, parenthesesTerm, literalArrayTerm, literalRecordTerm, literalNoTerm);
         auto* dottedExpressionSuffix = add<DottedExpressionSuffixProduction>(expression);
         auto* dottedExpression = add<DottedExpressionProduction>(expressionTerm, dottedExpressionSuffix);
         auto* convertExpression = add<ConvertExpressionProduction>(dottedExpression, type);

@@ -633,6 +633,18 @@ ConstValueExpressionType LiteralStringExpressionNode::getConstValueExpressionTyp
     return ConstValueExpressionType::kString;
 }
 
+LiteralNoExpressionNode::LiteralNoExpressionNode(boost::local_shared_ptr<TypeNode> type, Token token)
+    : ConstValueExpressionNode(std::move(token)), type(std::move(type)) {}
+
+void LiteralNoExpressionNode::dump(std::ostream& s, int n) const {
+    DUMP_TYPE(LiteralNoExpressionNode);
+    DUMP_VAR_NODE(type);
+}
+
+ConstValueExpressionType LiteralNoExpressionNode::getConstValueExpressionType() const {
+    return ConstValueExpressionType::kNo;
+}
+
 NotExpressionNode::NotExpressionNode(std::unique_ptr<ExpressionNode> operand, Token token)
     : ExpressionNode(std::move(token)), operand(std::move(operand)) {}
 

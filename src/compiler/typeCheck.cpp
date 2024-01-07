@@ -559,6 +559,14 @@ static void typeCheckLiteralRecordExpressionNode(LiteralRecordExpressionNode* ex
         boost::make_local_shared<TypeNode>(Kind::kRecord, expressionNode->token, typeFields);
 }
 
+static void typeCheckLiteralNoExpressionNode(LiteralNoExpressionNode* expressionNode) {
+    // Construct the type Optional T, where T is expressionNode->type.
+    assert(expressionNode != nullptr);
+    auto& innerType = expressionNode->type;
+    expressionNode->evaluatedType =
+        boost::make_local_shared<TypeNode>(Kind::kOptional, expressionNode->token, innerType);
+}
+
 static void typeCheckConstValueExpression(ConstValueExpressionNode* expressionNode, TypeCheckState* state) {
     switch (expressionNode->getConstValueExpressionType()) {
         case ConstValueExpressionType::kArray:
@@ -575,6 +583,9 @@ static void typeCheckConstValueExpression(ConstValueExpressionNode* expressionNo
             break;
         case ConstValueExpressionType::kString:
             expressionNode->evaluatedType = boost::make_local_shared<TypeNode>(Kind::kString, expressionNode->token);
+            break;
+        case ConstValueExpressionType::kNo:
+            typeCheckLiteralNoExpressionNode(dynamic_cast<LiteralNoExpressionNode*>(expressionNode));
             break;
         default:
             assert(false);
