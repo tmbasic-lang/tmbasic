@@ -1,0 +1,21 @@
+#pragma once
+
+#include "../common.h"
+
+namespace vm {
+
+class BasicBackground : public TBackground {
+   public:
+    std::vector<std::vector<TScreenCell>> cells{};
+    int16_t currentX{ 0 }, currentY{ 0 };
+    TColorAttr currentColorAttr{ 0x07 };
+
+    explicit BasicBackground(const TRect& bounds);
+    inline TColorAttr mapColor(uchar /*index*/) noexcept override { return 0; }
+    void draw() override;
+    std::vector<TScreenCell>* getRow(int16_t y);
+    TScreenCell* getCell(int16_t x, int16_t y);
+    void print(const std::string& str);
+};
+
+}  // namespace vm

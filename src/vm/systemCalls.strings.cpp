@@ -49,6 +49,7 @@ void systemCallCharacters(const SystemCallInput& input, SystemCallResult* result
         // Build grapheme clusters based on break points.
         if (graphemeBreaks.at(i) == 1) {
             if (i > 0) {
+                // End of a grapheme cluster
                 objectListBuilder.items.push_back(boost::make_local_shared<String>(currentGraphemeCluster));
             }
             currentGraphemeCluster = {};
@@ -214,11 +215,6 @@ void systemCallParseNumber(const SystemCallInput& input, SystemCallResult* resul
         throw Error(ErrorCode::kInvalidNumberFormat, fmt::format("\"{}\" is not a number.", str.value));
     }
     result->returnedValue.num = num;
-}
-
-// (input as String)
-void systemCallPrintString(const SystemCallInput& input, SystemCallResult* /*result*/) {
-    *input.consoleOutputStream << castString(input.getObject(-1))->value;
 }
 
 // (codePoints as List of Number) as String

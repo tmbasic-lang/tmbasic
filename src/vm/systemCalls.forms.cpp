@@ -1,4 +1,5 @@
 #include "vm/systemCall.h"
+#include "vm/BasicApp.h"
 #include "vm/BasicForm.h"
 #include "vm/BasicFormsStorage.h"
 #include "vm/Error.h"
@@ -7,11 +8,6 @@
 #include "util/WindowPtr.h"
 
 namespace vm {
-
-class BasicApp : public TApplication {
-   public:
-    BasicApp() : TProgInit(initStatusLine, initMenuBar, initDeskTop) {}
-};
 
 // () as Form
 void systemCallNewForm(const SystemCallInput& input, SystemCallResult* result) {
@@ -22,11 +18,8 @@ void systemCallNewForm(const SystemCallInput& input, SystemCallResult* result) {
 void systemCallRunForm(const SystemCallInput& input, SystemCallResult* /*result*/) {
     auto* form = basicFormsStorage.forms.find(input.getValue(-1).getInt64());
     assert(form != nullptr);
-    assert(TProgram::application == nullptr);
-    BasicApp app{};
     TProgram::deskTop->insert(form);
-    app.run();
-    app.shutDown();
+    TProgram::application->run();
 }
 
 // (form as Form) as String

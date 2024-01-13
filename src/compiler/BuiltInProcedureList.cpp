@@ -104,6 +104,8 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addSub("DeleteDirectory", { "path" }, { string }, SystemCall::kDeleteDirectory1);
     addSub("DeleteDirectory", { "path", "recursive" }, { string, boolean }, SystemCall::kDeleteDirectory2);
     addSub("DeleteFile", { "filePath" }, { string }, SystemCall::kDeleteFile);
+    addSub("EnterCommandLineMode", {}, {}, SystemCall::kEnterCommandLineMode);
+    addSub("EnterFullscreenMode", {}, {}, SystemCall::kEnterFullscreenMode);
     addFunction("ErrorCode", {}, {}, number, SystemCall::kErrorCode);
     addFunction("ErrorMessage", {}, {}, string, SystemCall::kErrorMessage);
     addFunction("Exp", { "x" }, { number }, number, SystemCall::kExp);
@@ -152,20 +154,9 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("ReadFileBytes", { "filePath" }, { string }, listOfNumber, SystemCall::kReadFileBytes);
     addFunction("ReadFileLines", { "filePath" }, { string }, listOfString, SystemCall::kReadFileLines);
     addFunction("ReadFileText", { "filePath" }, { string }, string, SystemCall::kReadFileText);
+    addFunction("RemoveAt", { "list", "index" }, { listOfAny, number }, listOfGeneric1, SystemCall::kListRemoveAt1);
     addFunction(
-        "RemoveAt",
-        {
-            "list",
-            "index",
-        },
-        { listOfAny, number }, listOfGeneric1, SystemCall::kListRemoveAt1);
-    addFunction(
-        "RemoveAt",
-        {
-            "list",
-            "indices",
-        },
-        { listOfAny, listOfNumber }, listOfGeneric1, SystemCall::kListRemoveAt2);
+        "RemoveAt", { "list", "indices" }, { listOfAny, listOfNumber }, listOfGeneric1, SystemCall::kListRemoveAt2);
     addFunction(
         "Replace", { "haystack", "needle", "replacement" }, { string, string, string }, string,
         SystemCall::kStringReplace);
@@ -182,6 +173,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addSub("SetFormTitle", { "form", "title" }, { form, string }, SystemCall::kSetFormTitle);
     addFunction("Sin", { "x" }, { number }, number, SystemCall::kSin);
     addFunction("Skip", { "list", "count" }, { listOfAny, number }, listOfGeneric1, SystemCall::kListSkip);
+    addSub("Sleep", { "delay" }, { timeSpan }, SystemCall::kSleep);
     addFunction("Split", { "input", "separator" }, { string, string }, listOfString, SystemCall::kStringSplit);
     addFunction("Sqr", { "x" }, { number }, number, SystemCall::kSqr);
     addFunction("StringFromCodePoints", { "codePoints" }, { listOfNumber }, string, SystemCall::kStringFromCodePoints);
