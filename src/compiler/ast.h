@@ -2,7 +2,7 @@
 
 #include "../common.h"
 #include "compiler/Token.h"
-#include "vm/systemCall.h"
+#include "shared/SystemCalls.h"
 
 namespace compiler {
 
@@ -43,7 +43,7 @@ class Node {
 
     // procedure nodes and call nodes
     std::optional<size_t> procedureIndex{};
-    std::optional<vm::SystemCall> systemCall{};
+    std::optional<shared::SystemCall> systemCall{};
 
     // symbol reference and procedure call nodes
     boost::local_shared_ptr<TypeNode> evaluatedType = nullptr;  // set during type checking
@@ -801,7 +801,10 @@ class ProcedureNode : public Node {
         std::vector<std::unique_ptr<ParameterNode>> parameters,
         std::unique_ptr<BodyNode> body,
         Token token);
-    ProcedureNode(std::string name, std::vector<std::unique_ptr<ParameterNode>> parameters, vm::SystemCall systemCall);
+    ProcedureNode(
+        std::string name,
+        std::vector<std::unique_ptr<ParameterNode>> parameters,
+        shared::SystemCall systemCall);
     MemberType getMemberType() const override;
     void dump(std::ostream& s, int n) const override;
     std::optional<std::string> getSymbolDeclaration() const override;

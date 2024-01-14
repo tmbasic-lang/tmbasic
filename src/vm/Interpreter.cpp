@@ -23,6 +23,8 @@
 #include "vm/initSystemCalls.h"
 #include "vm/systemCall.h"
 
+using shared::SystemCall;
+
 namespace vm {
 
 template <typename TInt>

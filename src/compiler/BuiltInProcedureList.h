@@ -21,14 +21,14 @@ class BuiltInProcedureList {
         std::string name,
         std::initializer_list<std::string> parameterNames,
         std::initializer_list<boost::local_shared_ptr<TypeNode>> parameterTypes,
-        vm::SystemCall systemCall);
+        shared::SystemCall systemCall);
 
     ProcedureNode* addFunction(
         std::string name,
         std::initializer_list<std::string> parameterNames,
         std::initializer_list<boost::local_shared_ptr<TypeNode>> parameterTypes,
         boost::local_shared_ptr<TypeNode> returnType,
-        vm::SystemCall systemCall);
+        shared::SystemCall systemCall);
 };
 
 }  // namespace compiler

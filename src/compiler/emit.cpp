@@ -5,13 +5,13 @@
 #include "CompilerException.h"
 #include "shared/decimal.h"
 #include "vm/Opcode.h"
-#include "vm/systemCall.h"
+#include "shared/SystemCalls.h"
 
+using shared::SystemCall;
 using std::array;
 using std::stack;
 using std::vector;
 using vm::Opcode;
-using vm::SystemCall;
 
 namespace compiler {
 
@@ -944,6 +944,15 @@ static void emitConvertExpression(const ConvertExpressionNode& expressionNode, P
         expressionNode.token);
 }
 
+static std::optional<SystemCall> getDualGenericSystemCall(SystemCall call) {
+    switch (call) {
+        case SystemCall::kListFillO:
+            return SystemCall::kListFillV;
+        default:
+            return {};
+    }
+}
+
 static void emitFunctionCallExpression(const FunctionCallExpressionNode& expressionNode, ProcedureState* state) {
     assert(expressionNode.procedureIndex.has_value() || expressionNode.systemCall.has_value());
     assert(expressionNode.evaluatedType != nullptr);
@@ -956,7 +965,7 @@ static void emitFunctionCallExpression(const FunctionCallExpressionNode& express
     }
     if (expressionNode.systemCall.has_value()) {
         auto systemCall = *expressionNode.systemCall;
-        auto dualSystemCall = vm::getDualGenericSystemCall(*expressionNode.systemCall);
+        auto dualSystemCall = getDualGenericSystemCall(*expressionNode.systemCall);
         if (dualSystemCall.has_value()) {
             // There is one system call when the first argument is a value and another when it is an object.
             // expressionNode.systemCall is the one for objects and *dualSystemCall is the one for values.
@@ -1242,7 +1251,7 @@ static void emitCallStatement(const CallStatementNode& statementNode, ProcedureS
         }
     }
     if (statementNode.systemCall.has_value()) {
-        if (vm::getDualGenericSystemCall(*statementNode.systemCall).has_value()) {
+        if (getDualGenericSystemCall(*statementNode.systemCall).has_value()) {
             throw std::runtime_error("not impl");
         }
         state->syscall(Opcode::kSystemCall, *statementNode.systemCall, numValueArgs, numObjectArgs);

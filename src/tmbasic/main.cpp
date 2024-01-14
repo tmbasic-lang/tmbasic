@@ -1,10 +1,10 @@
 #include "tmbasic/App.h"
-#include "../compiler/CompilerException.h"
-#include "../compiler/Publisher.h"
-#include "../compiler/TargetPlatform.h"
-#include "../compiler/compileProgram.h"
-#include "../shared/console.h"
-#include "../vm/date.h"
+#include "compiler/compileProgram.h"
+#include "compiler/CompilerException.h"
+#include "compiler/Publisher.h"
+#include "compiler/TargetPlatform.h"
+#include "shared/console.h"
+#include "vm/date.h"
 
 #include <CLI11.hpp>
 
@@ -17,21 +17,8 @@ static void runIde(int argc, char** argv) {
     app.shutDown();
 }
 
-static void runProgram(const std::string& filename) {
-    compiler::CompiledProgram program{};
-    compiler::SourceProgram source{};
-    source.load(filename);
-    compiler::compileProgram(source, &program);
-
-    vm::Interpreter interpreter{ &program.vmProgram, &std::cin, &std::cout };
-    interpreter.init(program.vmProgram.startupProcedureIndex);
-    while (interpreter.run(10000)) {
-    }
-
-    auto error = interpreter.getError();
-    if (error.has_value()) {
-        std::cerr << "Uncaught error:\n" << error->message << std::endl;
-    }
+static void runProgram(const std::string& /*filename*/) {
+    // TODO: build exe and run
 }
 
 static void publishProgram(const std::string& filename, const std::vector<std::string>& platformStrings) {

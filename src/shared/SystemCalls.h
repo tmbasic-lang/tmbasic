@@ -3,7 +3,7 @@
 
 #pragma once
 
-namespace vm {
+namespace shared {
 
 // This enum is big enough that it requires NAMEOF_ENUM_RANGE_MAX to be increased.
 enum class SystemCall {
@@ -233,4 +233,4 @@ enum class SystemCall {
     kMaxSystemCall,
 };
 
-}  // namespace vm
+}  // namespace shared

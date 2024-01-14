@@ -1,15 +1,18 @@
 #include "systemCall.h"
+#include "constants.h"
+#include "date.h"
 #include "Error.h"
+#include "filesystem.h"
 #include "List.h"
 #include "Map.h"
 #include "Optional.h"
-#include "String.h"
-#include "TimeZone.h"
-#include "constants.h"
-#include "date.h"
-#include "filesystem.h"
 #include "shared/decimal.h"
 #include "shared/path.h"
+#include "shared/SystemCalls.h"
+#include "String.h"
+#include "TimeZone.h"
+
+using shared::SystemCall;
 
 namespace vm {
 
@@ -122,15 +125,6 @@ SystemCallResult systemCall(SystemCall which, const SystemCallInput& input) {
     }
 
     return result;
-}
-
-std::optional<SystemCall> getDualGenericSystemCall(SystemCall call) {
-    switch (call) {
-        case SystemCall::kListFillO:
-            return SystemCall::kListFillV;
-        default:
-            return {};
-    }
 }
 
 }  // namespace vm

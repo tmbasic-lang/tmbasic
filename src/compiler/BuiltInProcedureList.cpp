@@ -1,7 +1,7 @@
 #include "BuiltInProcedureList.h"
 #include "findBuiltInRecordType.h"
 
-using vm::SystemCall;
+using shared::SystemCall;
 
 namespace compiler {
 

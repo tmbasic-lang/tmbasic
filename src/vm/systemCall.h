@@ -1,13 +1,13 @@
 #pragma once
 
 #include "../common.h"
+#include "shared/SystemCalls.h"
 #include "vm/constants.h"
 #include "vm/Error.h"
 #include "vm/Interpreter.h"
 #include "vm/List.h"
 #include "vm/Object.h"
 #include "vm/String.h"
-#include "vm/SystemCalls.h"
 #include "vm/Value.h"
 
 namespace vm {
@@ -69,8 +69,7 @@ class SystemCallResult {
 
 typedef void (*SystemCallFunc)(const SystemCallInput&, SystemCallResult*);
 
-void initSystemCall(SystemCall which, SystemCallFunc func);
-SystemCallResult systemCall(SystemCall which, const SystemCallInput& input);
-std::optional<SystemCall> getDualGenericSystemCall(SystemCall call);
+void initSystemCall(shared::SystemCall which, SystemCallFunc func);
+SystemCallResult systemCall(shared::SystemCall which, const SystemCallInput& input);
 
 }  // namespace vm

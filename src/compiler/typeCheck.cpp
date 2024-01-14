@@ -1,7 +1,7 @@
 #include "typeCheck.h"
 #include "BuiltInProcedureList.h"
 #include "CompilerException.h"
-#include "vm/systemCall.h"
+#include "shared/SystemCalls.h"
 
 namespace compiler {
 
@@ -978,7 +978,7 @@ static void typeCheckForEachStatement(ForEachStatementNode* statementNode) {
             args.push_back(std::move(statementNode->haystack));
             auto callNode = std::make_unique<FunctionCallExpressionNode>("Values", std::move(args), token);
             callNode->evaluatedType = boost::make_local_shared<TypeNode>(Kind::kList, token, haystackType->setKeyType);
-            callNode->systemCall = vm::SystemCall::kSetValues;
+            callNode->systemCall = shared::SystemCall::kSetValues;
             statementNode->haystack = std::move(callNode);
             break;
         }
