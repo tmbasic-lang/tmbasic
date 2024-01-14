@@ -3,17 +3,17 @@
 #include "../common.h"
 #include "../shared/CheckBoxes.h"
 #include "../shared/InputLine.h"
-#include "vm/UserForm.h"
+#include "shared/UserForm.h"
 
 namespace tmbasic {
 
 class DesignerFormPropertiesDialog : public TDialog {
    public:
-    explicit DesignerFormPropertiesDialog(vm::UserForm* form);
+    explicit DesignerFormPropertiesDialog(shared::UserForm* form);
     void handleEvent(TEvent& event) override;
 
    private:
-    vm::UserForm* _form;
+    shared::UserForm* _form;
     shared::InputLine* _nameText;
     shared::InputLine* _titleText;
     shared::CheckBoxes* _frameCheckBoxes;

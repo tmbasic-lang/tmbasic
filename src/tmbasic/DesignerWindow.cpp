@@ -1,8 +1,8 @@
 #include "tmbasic/DesignerWindow.h"
 #include "../../obj/resources/help/helpfile.h"
-#include "../shared/DialogPtr.h"
-#include "../shared/ViewPtr.h"
-#include "../vm/UserForm.h"
+#include "shared/DialogPtr.h"
+#include "shared/ViewPtr.h"
+#include "shared/UserForm.h"
 #include "DesignerFormPropertiesDialog.h"
 #include "DesignerGridView.h"
 #include "events.h"
@@ -10,7 +10,7 @@
 using compiler::SourceMember;
 using shared::DialogPtr;
 using shared::ViewPtr;
-using vm::UserForm;
+using shared::UserForm;
 
 namespace tmbasic {
 

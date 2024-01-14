@@ -2,8 +2,8 @@
 
 #include "../common.h"
 
-namespace vm {
+namespace shared {
 
 class UserControl {};
 
-}  // namespace vm
+}  // namespace shared

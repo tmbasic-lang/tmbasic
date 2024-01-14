@@ -1,9 +1,9 @@
 #include "DesignerFormPropertiesDialog.h"
-#include "../shared/Button.h"
-#include "../shared/InputLine.h"
-#include "../shared/Label.h"
-#include "../shared/tvutil.h"
-#include "../vm/UserForm.h"
+#include "shared/Button.h"
+#include "shared/InputLine.h"
+#include "shared/Label.h"
+#include "shared/tvutil.h"
+#include "shared/UserForm.h"
 #include "GridLayout.h"
 #include "RowLayout.h"
 #include "constants.h"
@@ -13,7 +13,7 @@ using shared::CheckBoxes;
 using shared::InputLine;
 using shared::Label;
 using shared::parseUserInt;
-using vm::UserForm;
+using shared::UserForm;
 
 namespace tmbasic {
 
