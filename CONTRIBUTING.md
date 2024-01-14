@@ -5,6 +5,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
+- [Project dependencies](#project-dependencies)
 - [Build for Linux and Windows](#build-for-linux-and-windows)
 - [Build for macOS](#build-for-macos)
 - [Use Visual Studio Code for development and debugging](#use-visual-studio-code-for-development-and-debugging)
@@ -14,6 +15,24 @@
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ___
+
+## Project dependencies
+
+```mermaid
+graph TD;
+    tmbasic["<a href='https://github.com/electroly/tmbasic/tree/master/src/tmbasic'>tmbasic</a> (exe)"]
+    test["<a href='https://github.com/electroly/tmbasic/tree/master/src/test'>test</a> (exe)"]
+    runner["<a href='https://github.com/electroly/tmbasic/tree/master/src/runner'>runner</a> (exe)"]
+    compiler["<a href='https://github.com/electroly/tmbasic/tree/master/src/compiler'>compiler</a> (lib)"]
+    vm["<a href='https://github.com/electroly/tmbasic/tree/master/src/vm'>vm</a> (lib)"]
+    shared["<a href='https://github.com/electroly/tmbasic/tree/master/src/shared'>shared</a> (lib)"]
+    tmbasic-->compiler;
+    test-->compiler;
+    test-->vm;
+    runner-->vm;
+    compiler-->shared;
+    vm-->shared;
+```
 
 ## Build for Linux and Windows
 Linux and Windows builds must be produced on a Linux build machine. Ubuntu Linux is recommended.

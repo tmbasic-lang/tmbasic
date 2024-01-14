@@ -1,6 +1,6 @@
 #include "BasicForm.h"
-#include "BasicFormsStorage.h"
-#include "Error.h"
+#include "vm/BasicFormsStorage.h"
+#include "shared/Error.h"
 
 namespace vm {
 

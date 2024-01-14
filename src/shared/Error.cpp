@@ -1,7 +1,7 @@
 #include "Error.h"
-#include "../shared/win.h"
+#include "shared/win.h"
 
-namespace vm {
+namespace shared {
 
 Error::Error(ErrorCode code, const std::string& message) : code(code), std::runtime_error(message) {}
 
@@ -71,4 +71,4 @@ Error Error::fromFileErrno(int posixError, const std::string& filePath) {
     }
 }
 
-}  // namespace vm
+}  // namespace shared

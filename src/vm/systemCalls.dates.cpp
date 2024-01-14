@@ -1,10 +1,13 @@
 #include "vm/systemCall.h"
+#include "shared/Error.h"
 #include "vm/castObject.h"
 #include "vm/date.h"
-#include "vm/Error.h"
 #include "vm/List.h"
 #include "vm/String.h"
 #include "vm/TimeZone.h"
+
+using shared::Error;
+using shared::ErrorCode;
 
 namespace vm {
 

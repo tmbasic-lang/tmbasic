@@ -3,7 +3,7 @@
 #include "../common.h"
 #include "shared/SystemCalls.h"
 #include "vm/constants.h"
-#include "vm/Error.h"
+#include "shared/Error.h"
 #include "vm/Interpreter.h"
 #include "vm/List.h"
 #include "vm/Object.h"

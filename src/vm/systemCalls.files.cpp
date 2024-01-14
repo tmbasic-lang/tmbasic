@@ -1,30 +1,33 @@
 #include "vm/systemCall.h"
-#include "vm/Error.h"
+#include "shared/Error.h"
+#include "shared/filesystem.h"
+#include "shared/path.h"
+#include "vm/castObject.h"
 #include "vm/List.h"
 #include "vm/String.h"
-#include "vm/filesystem.h"
-#include "vm/castObject.h"
-#include "shared/path.h"
+
+using shared::Error;
+using shared::ErrorCode;
 
 namespace vm {
 
 // (path as String) as Boolean
 void systemCallCreateDirectory(const SystemCallInput& input, SystemCallResult* /*result*/) {
     const auto& path = castString(input.getObject(-1))->value;
-    vm::createDirectory(path);
+    shared::createDirectory(path);
 }
 
 // (path as String)
 void systemCallDeleteDirectory1(const SystemCallInput& input, SystemCallResult* /*result*/) {
     const auto& path = castString(input.getObject(-1))->value;
-    vm::deleteDirectory(path, false);
+    shared::deleteDirectory(path, false);
 }
 
 // (path as String, recursive as Boolean)
 void systemCallDeleteDirectory2(const SystemCallInput& input, SystemCallResult* /*result*/) {
     const auto& path = castString(input.getObject(-1))->value;
     auto recursive = input.getValue(-1).getBoolean();
-    vm::deleteDirectory(path, recursive);
+    shared::deleteDirectory(path, recursive);
 }
 
 // (filePath as String)
@@ -98,7 +101,7 @@ void systemCallPathSeparator(const SystemCallInput& /*input*/, SystemCallResult*
 // (path as String) as List of String
 void systemCallListDirectories(const SystemCallInput& input, SystemCallResult* result) {
     auto path = castString(input.getObject(-1))->value;
-    auto vec = listDirectories(path);
+    auto vec = shared::listDirectories(path);
     ObjectListBuilder builder;
     for (const auto& s : vec) {
         builder.items.push_back(boost::make_local_shared<String>(s));
@@ -109,7 +112,7 @@ void systemCallListDirectories(const SystemCallInput& input, SystemCallResult* r
 // (path as String) as List of String
 void systemCallListFiles(const SystemCallInput& input, SystemCallResult* result) {
     auto path = castString(input.getObject(-1))->value;
-    auto vec = listFiles(path);
+    auto vec = shared::listFiles(path);
     ObjectListBuilder builder;
     for (const auto& s : vec) {
         builder.items.push_back(boost::make_local_shared<String>(s));

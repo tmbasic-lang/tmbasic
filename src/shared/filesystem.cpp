@@ -1,7 +1,7 @@
 #include "filesystem.h"
-#include "Error.h"
-#include "../shared/path.h"
-#include "../shared/win.h"
+#include "shared/Error.h"
+#include "shared/path.h"
+#include "shared/win.h"
 
 // std::filesystem support requires macOS 10.15, and we are targeting 10.13, so don't use it on macOS.
 // instead we will fall back to standard POSIX stuff.
@@ -18,7 +18,7 @@
 #include <sys/types.h>
 #endif
 
-namespace vm {
+namespace shared {
 
 #ifndef _WIN32
 struct DirClose {
@@ -194,4 +194,4 @@ void deleteFile(const std::string& path) {
 #endif
 }
 
-}  // namespace vm
+}  // namespace shared

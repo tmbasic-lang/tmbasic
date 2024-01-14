@@ -41,14 +41,6 @@ std::string getDirectoryName(const std::string& filePath) {
     return directoryName;
 }
 
-void createDirectory(const std::string& path) {
-#ifdef __APPLE__
-    mkdir(path.c_str(), 0755);
-#else
-    std::filesystem::create_directory(path);
-#endif
-}
-
 std::string pathCombine(const std::string& dir, const std::string& name) {
 #ifdef _WIN32
     constexpr char sep = '\\';

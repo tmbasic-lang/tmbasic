@@ -656,7 +656,6 @@ bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
 		obj/resources/help/helpfile.h \
 		obj/resources/help/help.h32 \
 		obj/resources/help/helpfile.o \
-		obj/resources/tzdb.o \
 		$(ALL_PLATFORM_RUNNER_OBJ_FILES) \
 		$(ICON_RES_OBJ_FILE)
 	@mkdir -p $(@D)

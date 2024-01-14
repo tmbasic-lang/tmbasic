@@ -2,9 +2,9 @@
 
 #include "../common.h"
 #include "ast.h"
-#include "../vm/Error.h"
-#include "../vm/Object.h"
-#include "../vm/Value.h"
+#include "shared/Error.h"
+#include "vm/Object.h"
+#include "vm/Value.h"
 
 namespace compiler {
 
@@ -15,7 +15,7 @@ class BuiltInConstantList {
     BuiltInConstantList();
 
    private:
-    void addError(const std::string& name, vm::ErrorCode code);
+    void addError(const std::string& name, shared::ErrorCode code);
     void addNumber(const std::string& name, const decimal::Decimal& number);
     void addString(const std::string& name, std::string string);
 

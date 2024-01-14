@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../common.h"
-#include "BasicForm.h"
-#include "Error.h"
+#include "shared/Error.h"
+#include "vm/BasicForm.h"
 
 namespace vm {
 
@@ -31,14 +31,14 @@ class IdKeyedStorage {
 class IdKeyedFormStorage : public IdKeyedStorage<BasicForm*> {
    protected:
     inline void throwNotFoundError() override {
-        throw Error(ErrorCode::kFormNotFound, "The specified form does not exist.");
+        throw shared::Error(shared::ErrorCode::kFormNotFound, "The specified form does not exist.");
     }
 };
 
 class IdKeyedControlStorage : public IdKeyedStorage<TView*> {
    protected:
     inline void throwNotFoundError() override {
-        throw Error(ErrorCode::kControlNotFound, "The specified control does not exist.");
+        throw shared::Error(shared::ErrorCode::kControlNotFound, "The specified control does not exist.");
     }
 };
 

@@ -1,8 +1,7 @@
 #include "date.h"
-#include "Error.h"
-#include "RecordBuilder.h"
 #include "shared/decimal.h"
 #include "shared/tar.h"
+#include "vm/RecordBuilder.h"
 
 // This is tzdb.tar, the contents of /usr/share/zoneinfo.
 extern const char kResourceTzdb[];  // NOLINT(modernize-avoid-c-arrays)

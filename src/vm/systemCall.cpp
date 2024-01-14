@@ -1,16 +1,16 @@
 #include "systemCall.h"
-#include "constants.h"
-#include "date.h"
-#include "Error.h"
-#include "filesystem.h"
-#include "List.h"
-#include "Map.h"
-#include "Optional.h"
 #include "shared/decimal.h"
+#include "shared/Error.h"
+#include "shared/filesystem.h"
 #include "shared/path.h"
 #include "shared/SystemCalls.h"
-#include "String.h"
-#include "TimeZone.h"
+#include "vm/constants.h"
+#include "vm/date.h"
+#include "vm/List.h"
+#include "vm/Map.h"
+#include "vm/Optional.h"
+#include "vm/String.h"
+#include "vm/TimeZone.h"
 
 using shared::SystemCall;
 
@@ -114,7 +114,7 @@ SystemCallResult systemCall(SystemCall which, const SystemCallInput& input) {
 
     try {
         func(input, &result);
-    } catch (Error& ex) {
+    } catch (shared::Error& ex) {
         result.hasError = true;
         result.errorCode = static_cast<int>(ex.code);
         result.errorMessage = ex.what();

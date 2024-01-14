@@ -2,7 +2,7 @@
 
 #include "../common.h"
 
-namespace vm {
+namespace shared {
 
 // run build/scripts/updateErrors.sh to update BuiltInConstantList.cpp to match this enum
 enum class ErrorCode {
@@ -52,4 +52,4 @@ class Error : public std::runtime_error {
     static Error fromDirectoryWinError(uint32_t winError, const std::string& path);
 };
 
-}  // namespace vm
+}  // namespace shared

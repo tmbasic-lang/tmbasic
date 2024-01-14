@@ -1,12 +1,15 @@
 #include "vm/systemCall.h"
+#include "shared/Error.h"
 #include "shared/WindowPtr.h"
 #include "vm/BasicFormsStorage.h"
 #include "vm/BasicLabel.h"
 #include "vm/castObject.h"
-#include "vm/Error.h"
 #include "vm/Record.h"
 #include "vm/RecordBuilder.h"
 #include "vm/String.h"
+
+using shared::Error;
+using shared::ErrorCode;
 
 namespace vm {
 

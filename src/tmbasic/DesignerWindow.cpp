@@ -9,8 +9,8 @@
 
 using compiler::SourceMember;
 using shared::DialogPtr;
-using shared::ViewPtr;
 using shared::UserForm;
+using shared::ViewPtr;
 
 namespace tmbasic {
 

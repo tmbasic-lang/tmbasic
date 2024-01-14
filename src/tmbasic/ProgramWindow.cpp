@@ -1,28 +1,28 @@
 #include "ProgramWindow.h"
 #include "../../obj/resources/help/helpfile.h"
-#include "../compiler/CompilerException.h"
-#include "../compiler/TargetPlatform.h"
-#include "../compiler/Publisher.h"
-#include "../compiler/compileProgram.h"
-#include "../compiler/makeExeFile.h"
-#include "../shared/DialogPtr.h"
-#include "../shared/Frame.h"
-#include "../shared/Label.h"
-#include "../shared/ListViewer.h"
-#include "../shared/ScrollBar.h"
-#include "../shared/ViewPtr.h"
-#include "../shared/WindowPtr.h"
-#include "../shared/path.h"
-#include "../shared/tvutil.h"
-#include "../vm/Interpreter.h"
-#include "../vm/Program.h"
-#include "../vm/filesystem.h"
-#include "CodeEditorWindow.h"
-#include "DesignerWindow.h"
-#include "GridLayout.h"
-#include "PictureWindow.h"
-#include "constants.h"
-#include "events.h"
+#include "compiler/compileProgram.h"
+#include "compiler/CompilerException.h"
+#include "compiler/makeExeFile.h"
+#include "compiler/Publisher.h"
+#include "compiler/TargetPlatform.h"
+#include "shared/DialogPtr.h"
+#include "shared/filesystem.h"
+#include "shared/Frame.h"
+#include "shared/Label.h"
+#include "shared/ListViewer.h"
+#include "shared/path.h"
+#include "shared/ScrollBar.h"
+#include "shared/tvutil.h"
+#include "shared/ViewPtr.h"
+#include "shared/WindowPtr.h"
+#include "tmbasic/CodeEditorWindow.h"
+#include "tmbasic/constants.h"
+#include "tmbasic/DesignerWindow.h"
+#include "tmbasic/events.h"
+#include "tmbasic/GridLayout.h"
+#include "tmbasic/PictureWindow.h"
+#include "vm/Interpreter.h"
+#include "vm/Program.h"
 
 #ifndef _WIN32
 #include <sys/stat.h>
@@ -36,7 +36,6 @@ using shared::DialogPtr;
 using shared::Label;
 using shared::ViewPtr;
 using shared::WindowPtr;
-using vm::Program;
 
 namespace tmbasic {
 
@@ -119,7 +118,6 @@ class ProgramWindowPrivate {
     ProgramWindow* window;
     bool dirty{ false };
     std::optional<std::string> filePath;
-    std::unique_ptr<vm::Program> vmProgram = std::make_unique<Program>();
     std::unique_ptr<SourceProgram> sourceProgram;
     SourceMembersListBox* contentsListBox{};
     std::function<void(SourceMember*)> openMember;
@@ -520,7 +518,7 @@ void ProgramWindow::run() {
     auto pcode = program.serialize();
     auto nativePlatform = compiler::getNativeTargetPlatform();
     auto exeData = compiler::makeExeFile(pcode, nativePlatform);
-    auto tempFilePath = vm::getTempFilePath(getTempExeFilename(nativePlatform));
+    auto tempFilePath = shared::getTempFilePath(getTempExeFilename(nativePlatform));
     std::ofstream f{ tempFilePath, std::ios::out | std::ios::binary };
     f.write(reinterpret_cast<const char*>(exeData.data()), static_cast<std::streamsize>(exeData.size()));
     f.close();
@@ -534,7 +532,7 @@ void ProgramWindow::run() {
     std::system(args.c_str());
 
     // Delete the temp file
-    vm::deleteFile(tempFilePath);
+    shared::deleteFile(tempFilePath);
 
     std::cout << "\nPress Enter to return to TMBASIC." << std::endl;
     std::cin.get();

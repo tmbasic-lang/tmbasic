@@ -1,11 +1,11 @@
 #include "../common.h"
-#include "vm/Error.h"
+#include "shared/Error.h"
 #include "shared/path.h"
 #include "gtest/gtest.h"
 #include "helpers.h"
 
+using shared::Error;
 using shared::getDirectoryName;
-using vm::Error;
 
 TEST(PathTest, GetDirectoryName_EmptyPath) {
     std::string filePath = "";
