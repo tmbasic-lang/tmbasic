@@ -2,8 +2,8 @@
 #include "compiler/gzip.h"
 #include "compiler/zip.h"
 #include "gtest/gtest.h"
-#include "vm/tar.h"
 #include "helpers.h"
+#include "shared/tar.h"
 
 #include <microtar.h>
 
@@ -11,8 +11,8 @@ using compiler::gunzip;
 using compiler::gzip;
 using compiler::zip;
 using compiler::ZipEntry;
-using vm::tar;
-using vm::TarEntry;
+using shared::tar;
+using shared::TarEntry;
 
 TEST(CompressionTest, Tar) {
     std::vector<TarEntry> entries{

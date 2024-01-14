@@ -3,7 +3,7 @@
 #include "compiler/gzip.h"
 #include "compiler/zip.h"
 #include "shared/path.h"
-#include "vm/tar.h"
+#include "shared/tar.h"
 
 namespace compiler {
 
@@ -40,11 +40,11 @@ std::string Publisher::publish(TargetPlatform platform) {
         };
         compiler::zip(archiveFilePath, entries);
     } else {
-        std::vector<vm::TarEntry> entries{
-            vm::TarEntry{ std::move(exeFilename), std::move(exeData), 0777 },
-            vm::TarEntry{ licFilename, std::move(licData), 0664 },
+        std::vector<shared::TarEntry> entries{
+            shared::TarEntry{ std::move(exeFilename), std::move(exeData), 0777 },
+            shared::TarEntry{ licFilename, std::move(licData), 0664 },
         };
-        auto gz = compiler::gzip(vm::tar(entries));
+        auto gz = compiler::gzip(shared::tar(entries));
         std::ofstream f{ archiveFilePath, std::ios::out | std::ios::binary };
         f.write(reinterpret_cast<const char*>(gz.data()), static_cast<std::streamsize>(gz.size()));
     }

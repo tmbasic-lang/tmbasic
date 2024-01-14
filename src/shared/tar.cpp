@@ -1,7 +1,7 @@
 #include "tar.h"
 #include <microtar.h>
 
-namespace vm {
+namespace shared {
 
 TarEntry::TarEntry(std::string name, std::vector<uint8_t> data, uint mode)
     : name(std::move(name)), data(std::move(data)), mode(mode) {}
@@ -164,4 +164,4 @@ void untar(
     }
 }
 
-}  // namespace vm
+}  // namespace shared

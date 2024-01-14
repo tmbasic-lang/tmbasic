@@ -2,7 +2,7 @@
 
 #include "../common.h"
 
-namespace vm {
+namespace shared {
 
 class TarEntry {
    public:
@@ -18,4 +18,4 @@ void untar(
     size_t tarSize,
     const std::function<void(const char* name, const char* data, size_t length)>& entryCallback);
 
-}  // namespace vm
+}  // namespace shared
