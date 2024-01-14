@@ -8,8 +8,8 @@
 #include "constants.h"
 #include "date.h"
 #include "filesystem.h"
-#include "util/decimal.h"
-#include "util/path.h"
+#include "shared/decimal.h"
+#include "shared/path.h"
 
 namespace vm {
 
@@ -93,7 +93,7 @@ void systemCallErrorMessage(const SystemCallInput& input, SystemCallResult* resu
 // (lhs as Object, rhs as Object) as Boolean
 void systemCallObjectEquals(const SystemCallInput& input, SystemCallResult* result) {
     result->returnedValue.num =
-        input.getObject(-2)->equals(*input.getObject(-1)) ? util::kDecimalOne : util::kDecimalZero;
+        input.getObject(-2)->equals(*input.getObject(-1)) ? shared::kDecimalOne : shared::kDecimalZero;
 }
 
 SystemCallResult systemCall(SystemCall which, const SystemCallInput& input) {

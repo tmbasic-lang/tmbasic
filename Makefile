@@ -94,9 +94,9 @@ RUNNER_OBJ_FILES=$(patsubst src/%,obj/%,$(RUNNER_SRC_FILES:.cpp=.o))
 VM_SRC_FILES=$(shell find src/vm -type f -name "*.cpp")
 VM_H_FILES=$(shell find src/vm -type f -name "*.h")
 VM_OBJ_FILES=$(patsubst src/%,obj/%,$(VM_SRC_FILES:.cpp=.o))
-UTIL_SRC_FILES=$(shell find src/util -type f -name "*.cpp")
-UTIL_H_FILES=$(shell find src/util -type f -name "*.h")
-UTIL_OBJ_FILES=$(patsubst src/%,obj/%,$(UTIL_SRC_FILES:.cpp=.o))
+SHARED_SRC_FILES=$(shell find src/shared -type f -name "*.cpp")
+SHARED_H_FILES=$(shell find src/shared -type f -name "*.h")
+SHARED_OBJ_FILES=$(patsubst src/%,obj/%,$(SHARED_SRC_FILES:.cpp=.o))
 TEST_SRC_FILES=$(shell find src/test -type f -name "*.cpp")
 TEST_H_FILES=$(shell find src/test -type f -name "*.h")
 TEST_OBJ_FILES=$(patsubst src/%,obj/%,$(TEST_SRC_FILES:.cpp=.o))
@@ -105,7 +105,7 @@ TMBASIC_H_FILES=$(shell find src/tmbasic -type f -name "*.h")
 TMBASIC_OBJ_FILES=$(patsubst src/%,obj/%,$(TMBASIC_SRC_FILES:.cpp=.o))
 
 # tidy files
-ALL_NON_TEST_CPP_FILES=$(COMPILER_SRC_FILES) $(RUNNER_SRC_FILES) $(UTIL_SRC_FILES) $(VM_SRC_FILES) $(TMBASIC_SRC_FILES) src/buildDoc.cpp
+ALL_NON_TEST_CPP_FILES=$(COMPILER_SRC_FILES) $(RUNNER_SRC_FILES) $(SHARED_SRC_FILES) $(VM_SRC_FILES) $(TMBASIC_SRC_FILES) src/buildDoc.cpp
 TIDY_TARGETS=$(patsubst src/%,obj/tidy/%,$(ALL_NON_TEST_CPP_FILES:.cpp=.tidy))
 
 # ghpages files
@@ -569,7 +569,7 @@ obj/resources/help/help.txt: $(DOC_FILES) $(TOPIC_SRC_FILES) $(PROCEDURES_SRC_FI
 
 # compiler ------------------------------------------------------------------------------------------------------------
 
-$(COMPILER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(UTIL_H_FILES) $(VM_H_FILES) $(COMPILER_H_FILES)
+$(COMPILER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(SHARED_H_FILES) $(VM_H_FILES) $(COMPILER_H_FILES)
 	@mkdir -p $(@D)
 	$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
 
@@ -579,15 +579,15 @@ obj/compiler.a: $(COMPILER_OBJ_FILES) obj/resources/LICENSE.o
 
 
 
-# util ----------------------------------------------------------------------------------------------------------------
+# shared ----------------------------------------------------------------------------------------------------------------
 
-$(UTIL_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(UTIL_H_FILES)
+$(SHARED_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(SHARED_H_FILES)
 	@mkdir -p $(@D)
 	$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
 
-obj/util.a: $(UTIL_OBJ_FILES)
+obj/shared.a: $(SHARED_OBJ_FILES)
 	@mkdir -p $(@D)
-	$(AR) rcs $@ $(UTIL_OBJ_FILES)
+	$(AR) rcs $@ $(SHARED_OBJ_FILES)
 
 
 
@@ -644,14 +644,14 @@ $(TMBASIC_OBJ_FILES): obj/%.o: src/%.cpp \
 		obj/resources/help/helpfile.h \
 		obj/resources/help/help.h32 \
 		$(COMPILER_H_FILES) \
-		$(UTIL_H_FILES) \
+		$(SHARED_H_FILES) \
 		$(VM_H_FILES) \
 		$(TMBASIC_H_FILES)
 	@mkdir -p $(@D)
 	$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
 
 bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
-		obj/util.a \
+		obj/shared.a \
 		obj/vm.a \
 		obj/compiler.a \
 		obj/common.h.gch \
@@ -662,7 +662,7 @@ bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
 		$(ALL_PLATFORM_RUNNER_OBJ_FILES) \
 		$(ICON_RES_OBJ_FILE)
 	@mkdir -p $(@D)
-	$(CXX) -o $@ $(TMBASIC_OBJ_FILES) $(CXXFLAGS) $(STATIC_FLAG) -include obj/common.h obj/compiler.a obj/vm.a obj/util.a obj/resources/help/helpfile.o obj/resources/tzdb.o $(ALL_PLATFORM_RUNNER_OBJ_FILES) $(ICON_RES_OBJ_FILE) $(TMBASIC_LDFLAGS) $(LDFLAGS)
+	$(CXX) -o $@ $(TMBASIC_OBJ_FILES) $(CXXFLAGS) $(STATIC_FLAG) -include obj/common.h obj/compiler.a obj/vm.a obj/shared.a obj/resources/help/helpfile.o obj/resources/tzdb.o $(ALL_PLATFORM_RUNNER_OBJ_FILES) $(ICON_RES_OBJ_FILE) $(TMBASIC_LDFLAGS) $(LDFLAGS)
 ifeq ($(STRIP_TMBASIC),1)
 	$(STRIP) bin/tmbasic$(EXE_EXTENSION)
 endif
@@ -682,13 +682,13 @@ $(TEST_OBJ_FILES): obj/%.o: src/%.cpp \
 		obj/resources/help/helpfile.h \
 		obj/resources/help/help.h32 \
 		$(COMPILER_H_FILES) \
-		$(UTIL_H_FILES) \
+		$(SHARED_H_FILES) \
 		$(VM_H_FILES)
 	@mkdir -p $(@D)
 	$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
 
 bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) \
-		obj/util.a \
+		obj/shared.a \
 		obj/vm.a \
 		obj/compiler.a \
 		obj/common.h.gch \
@@ -698,13 +698,13 @@ bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) \
 		obj/resources/tzdb.o \
 		$(ALL_PLATFORM_RUNNER_OBJ_FILES)
 	@mkdir -p $(@D)
-	$(CXX) -o $@ $(CXXFLAGS) $(STATIC_FLAG) -include obj/common.h $(TEST_OBJ_FILES) obj/compiler.a obj/vm.a obj/util.a obj/resources/help/helpfile.o obj/resources/tzdb.o $(ALL_PLATFORM_RUNNER_OBJ_FILES) $(TMBASIC_LDFLAGS) $(LDFLAGS) $(LIBGTEST_FLAG) -lpthread
+	$(CXX) -o $@ $(CXXFLAGS) $(STATIC_FLAG) -include obj/common.h $(TEST_OBJ_FILES) obj/compiler.a obj/vm.a obj/shared.a obj/resources/help/helpfile.o obj/resources/tzdb.o $(ALL_PLATFORM_RUNNER_OBJ_FILES) $(TMBASIC_LDFLAGS) $(LDFLAGS) $(LIBGTEST_FLAG) -lpthread
 
 
 
 # runner (this platform) ----------------------------------------------------------------------------------------------
 
-$(RUNNER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(UTIL_H_FILES) $(VM_H_FILES) $(RUNNER_H_FILES)
+$(RUNNER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(SHARED_H_FILES) $(VM_H_FILES) $(RUNNER_H_FILES)
 	@mkdir -p $(@D)
 	$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
 
@@ -714,9 +714,9 @@ obj/resources/pcode/pcode.o: %:
 	xxd -i obj/resources/pcode/pcode.dat | sed s/obj_resources_pcode_pcode_dat/kResourcePcode/g > obj/resources/pcode/pcode.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c obj/resources/pcode/pcode.cpp
 
-bin/runner$(EXE_EXTENSION): obj/resources/pcode/pcode.o $(RUNNER_OBJ_FILES) obj/util.a obj/vm.a obj/resources/tzdb.o
+bin/runner$(EXE_EXTENSION): obj/resources/pcode/pcode.o $(RUNNER_OBJ_FILES) obj/shared.a obj/vm.a obj/resources/tzdb.o
 	@mkdir -p $(@D)
-	$(CXX) -o $@ $(CXXFLAGS) $(STATIC_FLAG) -include obj/common.h $(RUNNER_OBJ_FILES) obj/resources/pcode/pcode.o obj/vm.a obj/util.a obj/resources/tzdb.o $(LDFLAGS)
+	$(CXX) -o $@ $(CXXFLAGS) $(STATIC_FLAG) -include obj/common.h $(RUNNER_OBJ_FILES) obj/resources/pcode/pcode.o obj/vm.a obj/shared.a obj/resources/tzdb.o $(LDFLAGS)
 	$(STRIP) $@
 
 bin/runner.gz: bin/runner$(EXE_EXTENSION)

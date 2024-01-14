@@ -1,5 +1,5 @@
 #include "../common.h"
-#include "util/console.h"
+#include "shared/console.h"
 #include "vm/BasicApp.h"
 #include "vm/Interpreter.h"
 #include "vm/Program.h"
@@ -9,7 +9,7 @@ extern const uint8_t kResourcePcode[];  // NOLINT(cppcoreguidelines-avoid-c-arra
 extern const uint kResourcePcode_len;
 
 int main(int /*argc*/, const char* /*argv*/[]) {
-    util::setUtf8Locale();
+    shared::setUtf8Locale();
     vm::initializeTzdb();
 
     std::vector<uint8_t> pcode{};

@@ -2,31 +2,31 @@
 
 #include "../common.h"
 #include "compiler/SourceProgram.h"
-#include "util/StatusLine.h"
+#include "shared/StatusLine.h"
 
 namespace tmbasic {
 
 class PictureWindowStatusItems {
    public:
-    util::StatusLine* statusLine = nullptr;
+    shared::StatusLine* statusLine = nullptr;
     TStatusItem* character = nullptr;
-    util::StatusItemColors* characterColor = nullptr;
+    shared::StatusItemColors* characterColor = nullptr;
     TStatusItem* fg = nullptr;
-    util::StatusItemColors* fgColor = nullptr;
+    shared::StatusItemColors* fgColor = nullptr;
     TStatusItem* bg = nullptr;
-    util::StatusItemColors* bgColor = nullptr;
+    shared::StatusItemColors* bgColor = nullptr;
     TStatusItem* select = nullptr;
-    util::StatusItemColors* selectColor = nullptr;
+    shared::StatusItemColors* selectColor = nullptr;
     TStatusItem* draw = nullptr;
-    util::StatusItemColors* drawColor = nullptr;
+    shared::StatusItemColors* drawColor = nullptr;
     TStatusItem* pick = nullptr;
-    util::StatusItemColors* pickColor = nullptr;
+    shared::StatusItemColors* pickColor = nullptr;
     TStatusItem* text = nullptr;
-    util::StatusItemColors* textColor = nullptr;
+    shared::StatusItemColors* textColor = nullptr;
     TStatusItem* mask = nullptr;
-    util::StatusItemColors* maskColor = nullptr;
+    shared::StatusItemColors* maskColor = nullptr;
     TStatusItem* options = nullptr;
-    util::StatusItemColors* optionsColor = nullptr;
+    shared::StatusItemColors* optionsColor = nullptr;
 };
 
 class PictureWindow : public TWindow {

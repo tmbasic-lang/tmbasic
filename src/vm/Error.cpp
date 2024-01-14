@@ -1,5 +1,5 @@
 #include "Error.h"
-#include "../util/win.h"
+#include "../shared/win.h"
 
 namespace vm {
 
@@ -45,7 +45,7 @@ Error Error::fromDirectoryWinError(uint32_t winError, const std::string& path) {
         default:
             return { ErrorCode::kIoFailure,
                      fmt::format(
-                         "Failed to access the directory \"{}\". {}", path, util::winFormatErrorMessage(winError)) };
+                         "Failed to access the directory \"{}\". {}", path, shared::winFormatErrorMessage(winError)) };
     }
 #else
     throw std::runtime_error("Called Windows-specific function Error::fromDirectoryWinError() on non-Windows platform");

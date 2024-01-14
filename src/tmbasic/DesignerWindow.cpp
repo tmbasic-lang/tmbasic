@@ -1,15 +1,15 @@
 #include "tmbasic/DesignerWindow.h"
 #include "../../obj/resources/help/helpfile.h"
-#include "../util/DialogPtr.h"
-#include "../util/ViewPtr.h"
+#include "../shared/DialogPtr.h"
+#include "../shared/ViewPtr.h"
 #include "../vm/UserForm.h"
 #include "DesignerFormPropertiesDialog.h"
 #include "DesignerGridView.h"
 #include "events.h"
 
 using compiler::SourceMember;
-using util::DialogPtr;
-using util::ViewPtr;
+using shared::DialogPtr;
+using shared::ViewPtr;
 using vm::UserForm;
 
 namespace tmbasic {

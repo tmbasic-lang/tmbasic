@@ -1,7 +1,7 @@
 #include "date.h"
 #include "Error.h"
 #include "RecordBuilder.h"
-#include "util/decimal.h"
+#include "shared/decimal.h"
 #include "vm/tar.h"
 
 // This is tzdb.tar, the contents of /usr/share/zoneinfo.

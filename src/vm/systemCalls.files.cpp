@@ -4,7 +4,7 @@
 #include "vm/String.h"
 #include "vm/filesystem.h"
 #include "vm/castObject.h"
-#include "util/path.h"
+#include "shared/path.h"
 
 namespace vm {
 
@@ -57,7 +57,7 @@ void systemCallPathCombine(const SystemCallInput& input, SystemCallResult* resul
     auto path = castString(*list.items.at(0)).value;
     for (size_t i = 1; i < list.items.size(); i++) {
         auto component = castString(*list.items.at(i)).value;
-        path = util::pathCombine(path, component);
+        path = shared::pathCombine(path, component);
     }
     result->returnedObject = boost::make_local_shared<String>(path);
 }
@@ -65,25 +65,25 @@ void systemCallPathCombine(const SystemCallInput& input, SystemCallResult* resul
 // (path as String) as String
 void systemCallPathDirectoryName(const SystemCallInput& input, SystemCallResult* result) {
     auto path = castString(input.getObject(-1))->value;
-    result->returnedObject = boost::make_local_shared<String>(util::getDirectoryName(path));
+    result->returnedObject = boost::make_local_shared<String>(shared::getDirectoryName(path));
 }
 
 // (path as String) as String
 void systemCallPathExtension(const SystemCallInput& input, SystemCallResult* result) {
     auto path = castString(input.getObject(-1))->value;
-    result->returnedObject = boost::make_local_shared<String>(util::getExtension(path));
+    result->returnedObject = boost::make_local_shared<String>(shared::getExtension(path));
 }
 
 // (path as String) as String
 void systemCallPathFileName(const SystemCallInput& input, SystemCallResult* result) {
     auto path = castString(input.getObject(-1))->value;
-    result->returnedObject = boost::make_local_shared<String>(util::getFileName(path));
+    result->returnedObject = boost::make_local_shared<String>(shared::getFileName(path));
 }
 
 // (path as String) as String
 void systemCallPathFileNameWithoutExtension(const SystemCallInput& input, SystemCallResult* result) {
     auto path = castString(input.getObject(-1))->value;
-    result->returnedObject = boost::make_local_shared<String>(util::getFileNameWithoutExtension(path));
+    result->returnedObject = boost::make_local_shared<String>(shared::getFileNameWithoutExtension(path));
 }
 
 // () as String

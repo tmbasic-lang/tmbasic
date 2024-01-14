@@ -3,7 +3,7 @@
 
 #include "emit.h"
 #include "CompilerException.h"
-#include "util/decimal.h"
+#include "shared/decimal.h"
 #include "vm/Opcode.h"
 #include "vm/systemCall.h"
 
@@ -86,7 +86,7 @@ class ProcedureState {
         emitInt<uint64_t>(triple.lo, false);
         emitInt<int64_t>(triple.exp, false);
 #ifdef DUMP_ASM
-        std::cerr << " " << util::decimalToString(value);
+        std::cerr << " " << shared::decimalToString(value);
 #endif
     }
 

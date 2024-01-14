@@ -1,10 +1,10 @@
 #include "../common.h"
 #include "vm/Error.h"
-#include "util/path.h"
+#include "shared/path.h"
 #include "gtest/gtest.h"
 #include "helpers.h"
 
-using util::getDirectoryName;
+using shared::getDirectoryName;
 using vm::Error;
 
 TEST(PathTest, GetDirectoryName_EmptyPath) {

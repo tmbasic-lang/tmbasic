@@ -5,12 +5,12 @@
 #include "../compiler/SourceProgram.h"
 #include "../compiler/TargetPlatform.h"
 #include "../compiler/compileProgram.h"
-#include "../util/DialogPtr.h"
-#include "../util/StatusLine.h"
-#include "../util/ViewPtr.h"
-#include "../util/WindowPtr.h"
-#include "../util/membuf.h"
-#include "../util/path.h"
+#include "../shared/DialogPtr.h"
+#include "../shared/StatusLine.h"
+#include "../shared/ViewPtr.h"
+#include "../shared/WindowPtr.h"
+#include "../shared/membuf.h"
+#include "../shared/path.h"
 #include "AboutDialog.h"
 #include "AddProgramItemDialog.h"
 #include "DesignerWindow.h"
@@ -24,11 +24,11 @@
 using compiler::SourceMember;
 using compiler::SourceMemberType;
 using compiler::SourceProgram;
-using util::DialogPtr;
-using util::MemoryIopstream;
-using util::StatusLine;
-using util::ViewPtr;
-using util::WindowPtr;
+using shared::DialogPtr;
+using shared::MemoryIopstream;
+using shared::StatusLine;
+using shared::ViewPtr;
+using shared::WindowPtr;
 
 namespace tmbasic {
 

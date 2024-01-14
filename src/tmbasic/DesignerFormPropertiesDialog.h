@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../common.h"
-#include "../util/CheckBoxes.h"
-#include "../util/InputLine.h"
+#include "../shared/CheckBoxes.h"
+#include "../shared/InputLine.h"
 #include "vm/UserForm.h"
 
 namespace tmbasic {
@@ -14,15 +14,15 @@ class DesignerFormPropertiesDialog : public TDialog {
 
    private:
     vm::UserForm* _form;
-    util::InputLine* _nameText;
-    util::InputLine* _titleText;
-    util::CheckBoxes* _frameCheckBoxes;
-    util::InputLine* _minWidthText;
-    util::InputLine* _minHeightText;
-    util::InputLine* _initialWidthText;
-    util::InputLine* _initialHeightText;
-    util::InputLine* _maxWidthText;
-    util::InputLine* _maxHeightText;
+    shared::InputLine* _nameText;
+    shared::InputLine* _titleText;
+    shared::CheckBoxes* _frameCheckBoxes;
+    shared::InputLine* _minWidthText;
+    shared::InputLine* _minHeightText;
+    shared::InputLine* _initialWidthText;
+    shared::InputLine* _initialHeightText;
+    shared::InputLine* _maxWidthText;
+    shared::InputLine* _maxHeightText;
 };
 
 }  // namespace tmbasic

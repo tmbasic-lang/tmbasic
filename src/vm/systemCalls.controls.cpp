@@ -1,5 +1,5 @@
 #include "vm/systemCall.h"
-#include "util/WindowPtr.h"
+#include "shared/WindowPtr.h"
 #include "vm/BasicFormsStorage.h"
 #include "vm/BasicLabel.h"
 #include "vm/castObject.h"

@@ -1,18 +1,18 @@
 #include "DesignerFormPropertiesDialog.h"
-#include "../util/Button.h"
-#include "../util/InputLine.h"
-#include "../util/Label.h"
-#include "../util/tvutil.h"
+#include "../shared/Button.h"
+#include "../shared/InputLine.h"
+#include "../shared/Label.h"
+#include "../shared/tvutil.h"
 #include "../vm/UserForm.h"
 #include "GridLayout.h"
 #include "RowLayout.h"
 #include "constants.h"
 
-using util::Button;
-using util::CheckBoxes;
-using util::InputLine;
-using util::Label;
-using util::parseUserInt;
+using shared::Button;
+using shared::CheckBoxes;
+using shared::InputLine;
+using shared::Label;
+using shared::parseUserInt;
 using vm::UserForm;
 
 namespace tmbasic {

@@ -5,8 +5,8 @@
 // #define LOG_PERFORMANCE
 
 #include "vm/Interpreter.h"
-#include "util/cast.h"
-#include "util/decimal.h"
+#include "shared/cast.h"
+#include "shared/decimal.h"
 #include "vm/CallFrame.h"
 #include "vm/castObject.h"
 #include "vm/constants.h"

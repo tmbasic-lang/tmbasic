@@ -1,16 +1,16 @@
 #include "AddProgramItemDialog.h"
-#include "../util/Button.h"
-#include "../util/Label.h"
-#include "../util/ListViewer.h"
-#include "../util/ViewPtr.h"
+#include "../shared/Button.h"
+#include "../shared/Label.h"
+#include "../shared/ListViewer.h"
+#include "../shared/ViewPtr.h"
 #include "GridLayout.h"
 #include "RowLayout.h"
 #include "events.h"
 
-using util::Button;
-using util::Label;
-using util::ListViewer;
-using util::ViewPtr;
+using shared::Button;
+using shared::Label;
+using shared::ListViewer;
+using shared::ViewPtr;
 
 namespace tmbasic {
 

@@ -1,14 +1,14 @@
 #include "AboutDialog.h"
 #include "../../obj/resources/help/helpfile.h"
-#include "../util/Button.h"
-#include "../util/Label.h"
-#include "../util/PictureView.h"
+#include "../shared/Button.h"
+#include "../shared/Label.h"
+#include "../shared/PictureView.h"
 #include "GridLayout.h"
 
-using util::Button;
-using util::Label;
-using util::Picture;
-using util::PictureView;
+using shared::Button;
+using shared::Label;
+using shared::Picture;
+using shared::PictureView;
 
 namespace tmbasic {
 

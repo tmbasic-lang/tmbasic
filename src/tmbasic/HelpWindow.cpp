@@ -1,6 +1,6 @@
 #include "HelpWindow.h"
-#include "../util/ScrollBar.h"
-#include "../util/ViewPtr.h"
+#include "../shared/ScrollBar.h"
+#include "../shared/ViewPtr.h"
 #include "App.h"
 
 namespace tmbasic {
@@ -54,14 +54,14 @@ class HelpViewer : public THelpViewer {
     }
 };
 
-static util::ViewPtr<util::ScrollBar> createScrollBar(TRect r, ushort aOptions) {
+static shared::ViewPtr<shared::ScrollBar> createScrollBar(TRect r, ushort aOptions) {
     if (aOptions & sbVertical) {
         r = TRect(r.b.x - 1, r.a.y + 1, r.b.x, r.b.y - 1);
     } else {
         r = TRect(r.a.x + 2, r.b.y - 1, r.b.x - 2, r.b.y);
     }
 
-    util::ViewPtr<util::ScrollBar> s{ r };
+    shared::ViewPtr<shared::ScrollBar> s{ r };
     if (aOptions & sbHandleKeyboard) {
         s->options |= ofPostProcess;
     }
@@ -81,7 +81,7 @@ HelpWindow::HelpWindow(THelpFile* hFile, ushort context)
     vScrollbar->useWhiteColorScheme();
     vScrollbar.addTo(this);
 
-    util::ViewPtr<HelpViewer> viewer(r, hScrollbar, vScrollbar, hFile, context);
+    shared::ViewPtr<HelpViewer> viewer(r, hScrollbar, vScrollbar, hFile, context);
     viewer.addTo(this);
 }
 

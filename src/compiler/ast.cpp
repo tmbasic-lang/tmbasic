@@ -1,7 +1,7 @@
 #include "compiler/ast.h"
-#include "util/decimal.h"
+#include "shared/decimal.h"
 
-using util::decimalToString;
+using shared::decimalToString;
 
 namespace compiler {
 

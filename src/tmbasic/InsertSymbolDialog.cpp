@@ -1,8 +1,8 @@
 #include "InsertSymbolDialog.h"
-#include "../util/Button.h"
-#include "../util/Label.h"
-#include "../util/ScrollBar.h"
-#include "../util/ViewPtr.h"
+#include "../shared/Button.h"
+#include "../shared/Label.h"
+#include "../shared/ScrollBar.h"
+#include "../shared/ViewPtr.h"
 #include "RowLayout.h"
 #include "events.h"
 #include "symbols.h"
@@ -17,10 +17,10 @@
  *
  */
 
-using util::Button;
-using util::Label;
-using util::ScrollBar;
-using util::ViewPtr;
+using shared::Button;
+using shared::Label;
+using shared::ScrollBar;
+using shared::ViewPtr;
 
 namespace tmbasic {
 

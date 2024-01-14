@@ -5,12 +5,12 @@
 // #define DUMP_AST
 
 #include "compiler/parse.h"
-#include "util/decimal.h"
-#include "util/cast.h"
+#include "shared/decimal.h"
+#include "shared/cast.h"
 
-using util::dynamic_cast_borrow;
-using util::dynamic_cast_move;
-using util::parseDecimalString;
+using shared::dynamic_cast_borrow;
+using shared::dynamic_cast_move;
+using shared::parseDecimalString;
 
 namespace compiler {
 

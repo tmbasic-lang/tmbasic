@@ -1,5 +1,5 @@
 #include "vm/TimeZone.h"
-#include "util/decimal.h"
+#include "shared/decimal.h"
 #include "vm/castObject.h"
 #include "vm/date.h"
 

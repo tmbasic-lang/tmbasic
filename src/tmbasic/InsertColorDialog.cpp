@@ -1,23 +1,23 @@
 #include "InsertColorDialog.h"
 #include "../../obj/resources/help/helpfile.h"
 #include "../tmbasic/App.h"
-#include "../util/Button.h"
-#include "../util/DialogPtr.h"
-#include "../util/InputLine.h"
-#include "../util/Label.h"
-#include "../util/StatusLine.h"
-#include "../util/ViewPtr.h"
-#include "../util/tvutil.h"
+#include "../shared/Button.h"
+#include "../shared/DialogPtr.h"
+#include "../shared/InputLine.h"
+#include "../shared/Label.h"
+#include "../shared/StatusLine.h"
+#include "../shared/ViewPtr.h"
+#include "../shared/tvutil.h"
 #include "GridLayout.h"
 #include "events.h"
 
-using util::Button;
-using util::DialogPtr;
-using util::InputLine;
-using util::Label;
-using util::parseUserInt;
-using util::StatusLine;
-using util::ViewPtr;
+using shared::Button;
+using shared::DialogPtr;
+using shared::InputLine;
+using shared::Label;
+using shared::parseUserInt;
+using shared::StatusLine;
+using shared::ViewPtr;
 
 namespace tmbasic {
 

@@ -4,7 +4,7 @@
 #include "compiler/CompilerException.h"
 #include "compiler/parse.h"
 #include "compiler/tokenize.h"
-#include "util/cast.h"
+#include "shared/cast.h"
 
 namespace compiler {
 

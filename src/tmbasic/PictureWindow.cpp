@@ -1,16 +1,16 @@
 #include "PictureWindow.h"
 #include "../../obj/resources/help/helpfile.h"
-#include "../util/Button.h"
-#include "../util/CheckBoxes.h"
-#include "../util/DialogPtr.h"
-#include "../util/InputLine.h"
-#include "../util/Label.h"
-#include "../util/PictureView.h"
-#include "../util/ScrollBar.h"
-#include "../util/StatusLine.h"
-#include "../util/ThinButton.h"
-#include "../util/ViewPtr.h"
-#include "../util/tvutil.h"
+#include "../shared/Button.h"
+#include "../shared/CheckBoxes.h"
+#include "../shared/DialogPtr.h"
+#include "../shared/InputLine.h"
+#include "../shared/Label.h"
+#include "../shared/PictureView.h"
+#include "../shared/ScrollBar.h"
+#include "../shared/StatusLine.h"
+#include "../shared/ThinButton.h"
+#include "../shared/ViewPtr.h"
+#include "../shared/tvutil.h"
 #include "../vm/UserForm.h"
 #include "App.h"
 #include "GridLayout.h"
@@ -21,17 +21,17 @@
 #include "events.h"
 
 using compiler::SourceMember;
-using util::Button;
-using util::CheckBoxes;
-using util::DialogPtr;
-using util::InputLine;
-using util::Label;
-using util::Picture;
-using util::PictureCell;
-using util::ScrollBar;
-using util::StatusLine;
-using util::ThinButton;
-using util::ViewPtr;
+using shared::Button;
+using shared::CheckBoxes;
+using shared::DialogPtr;
+using shared::InputLine;
+using shared::Label;
+using shared::Picture;
+using shared::PictureCell;
+using shared::ScrollBar;
+using shared::StatusLine;
+using shared::ThinButton;
+using shared::ViewPtr;
 
 namespace tmbasic {
 
@@ -363,9 +363,9 @@ class PictureOptionsDialog : public TDialog {
     void handleEvent(TEvent& event) override {
         if (event.what == evCommand && event.message.command == cmOK) {
             try {
-                util::validateIdentifier(_nameText->data, "name");
-                selectedWidth = util::parseUserInt(_widthText->data, "width", 1, 1000);
-                selectedHeight = util::parseUserInt(_heightText->data, "height", 1, 1000);
+                shared::validateIdentifier(_nameText->data, "name");
+                selectedWidth = shared::parseUserInt(_widthText->data, "width", 1, 1000);
+                selectedHeight = shared::parseUserInt(_heightText->data, "height", 1, 1000);
                 selectedName = _nameText->data;
             } catch (std::runtime_error& ex) {
                 messageBox(ex.what(), mfError | mfOKButton);
@@ -588,7 +588,7 @@ void PictureWindowPrivate::updateScrollBars() {
 }
 
 void PictureWindowPrivate::enableDisableCommands(bool enable) {
-    util::enableDisableCommands(
+    shared::enableDisableCommands(
         enable,
         {
             kCmdPictureCharacter,
@@ -604,7 +604,7 @@ void PictureWindowPrivate::enableDisableCommands(bool enable) {
             cmClear,
         });
 
-    util::enableDisableCommands(
+    shared::enableDisableCommands(
         enable && canvasView->selection.has_value(),
         {
             cmCut,
@@ -612,22 +612,22 @@ void PictureWindowPrivate::enableDisableCommands(bool enable) {
             kCmdPictureMove,
         });
 
-    util::enableDisableCommands(
+    shared::enableDisableCommands(
         enable && mode == PictureWindowMode::kPaste,
         {
             kCmdPicturePasteOk,
             kCmdPicturePasteCancel,
         });
 
-    util::enableDisableCommands(
+    shared::enableDisableCommands(
         enable && mode == PictureWindowMode::kMove,
         {
             kCmdPictureMoveOk,
             kCmdPictureMoveCancel,
         });
 
-    util::enableDisableCommand(enable && undoStack.canUndo(), cmUndo);
-    util::enableDisableCommand(enable && undoStack.canRedo(), kCmdEditRedo);
+    shared::enableDisableCommand(enable && undoStack.canUndo(), cmUndo);
+    shared::enableDisableCommand(enable && undoStack.canRedo(), kCmdEditRedo);
 }
 
 static void showHide(bool showCondition, std::initializer_list<TView*> views) {

@@ -2,7 +2,7 @@
 
 #include "../common.h"
 #include "vm/BasicConsoleView.h"
-#include "util/ViewPtr.h"
+#include "shared/ViewPtr.h"
 
 namespace vm {
 
@@ -11,7 +11,7 @@ class BasicApp : public TApplication {
     static BasicApp* createInstance();
     static std::unique_ptr<BasicApp> instance;
 
-    util::ViewPtr<BasicConsoleView> console;
+    shared::ViewPtr<BasicConsoleView> console;
 
     BasicApp();
     virtual ~BasicApp();

@@ -5,15 +5,15 @@
 #include "../compiler/Publisher.h"
 #include "../compiler/compileProgram.h"
 #include "../compiler/makeExeFile.h"
-#include "../util/DialogPtr.h"
-#include "../util/Frame.h"
-#include "../util/Label.h"
-#include "../util/ListViewer.h"
-#include "../util/ScrollBar.h"
-#include "../util/ViewPtr.h"
-#include "../util/WindowPtr.h"
-#include "../util/path.h"
-#include "../util/tvutil.h"
+#include "../shared/DialogPtr.h"
+#include "../shared/Frame.h"
+#include "../shared/Label.h"
+#include "../shared/ListViewer.h"
+#include "../shared/ScrollBar.h"
+#include "../shared/ViewPtr.h"
+#include "../shared/WindowPtr.h"
+#include "../shared/path.h"
+#include "../shared/tvutil.h"
 #include "../vm/Interpreter.h"
 #include "../vm/Program.h"
 #include "../vm/filesystem.h"
@@ -32,20 +32,20 @@ using compiler::SourceMember;
 using compiler::SourceMemberType;
 using compiler::SourceProgram;
 using compiler::TargetPlatform;
-using util::DialogPtr;
-using util::Label;
-using util::ViewPtr;
-using util::WindowPtr;
+using shared::DialogPtr;
+using shared::Label;
+using shared::ViewPtr;
+using shared::WindowPtr;
 using vm::Program;
 
 namespace tmbasic {
 
-class SourceMembersListBox : public util::ListViewer {
+class SourceMembersListBox : public shared::ListViewer {
    public:
     SourceMembersListBox(
         const TRect& bounds,
         uint16_t numCols,
-        util::ScrollBar* vScrollBar,
+        shared::ScrollBar* vScrollBar,
         const SourceProgram& program,
         std::function<void(SourceMember*)> onMemberOpen,
         std::function<void()> onEnableDisableCommands)
@@ -141,7 +141,7 @@ static void updateTitle(ProgramWindowPrivate* p) {
         s << kCharBullet;
     }
     if (p->filePath.has_value()) {
-        s << util::getFileName(*p->filePath);
+        s << shared::getFileName(*p->filePath);
     } else {
         s << "Untitled";
     }
@@ -179,7 +179,7 @@ ProgramWindow::ProgramWindow(
     ts.enableCmd(kCmdProgramContentsWindow);
     enableCommands(ts);
 
-    ViewPtr<util::ScrollBar> vScrollBar{ TRect{ size.x - 1, 1, size.x, size.y - 1 } };
+    ViewPtr<shared::ScrollBar> vScrollBar{ TRect{ size.x - 1, 1, size.x, size.y - 1 } };
     vScrollBar.addTo(this);
 
     auto contentsListBoxRect = getExtent();
@@ -257,7 +257,7 @@ static void onDeleteItem(ProgramWindowPrivate* p) {
     }
 
     auto choice = messageBox(
-        fmt::format("Are you sure you want to delete \"{}\"?", util::ellipsis(member->identifier, 25)),
+        fmt::format("Are you sure you want to delete \"{}\"?", shared::ellipsis(member->identifier, 25)),
         mfOKCancel | mfConfirmation);
     if (choice != cmOK) {
         return;
@@ -353,7 +353,7 @@ bool ProgramWindow::preClose() {
     if (_private->dirty) {
         std::ostringstream s;
         s << "Save changes to \""
-          << (_private->filePath.has_value() ? util::getFileName(*_private->filePath) : "Untitled") << "\"?";
+          << (_private->filePath.has_value() ? shared::getFileName(*_private->filePath) : "Untitled") << "\"?";
         auto result = messageBox(s.str(), mfWarning | mfYesNoCancel);
         if (result == cmCancel) {
             return false;

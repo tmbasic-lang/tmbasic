@@ -71,31 +71,31 @@ void systemCallNumberDivide(const SystemCallInput& input, SystemCallResult* resu
 // (lhs as Number, rhs as Number) as Boolean
 void systemCallNumberEquals(const SystemCallInput& input, SystemCallResult* result) {
     result->returnedValue.num =
-        input.getValue(-2).num == input.getValue(-1).num ? util::kDecimalOne : util::kDecimalZero;
+        input.getValue(-2).num == input.getValue(-1).num ? shared::kDecimalOne : shared::kDecimalZero;
 }
 
 // (lhs as Number, rhs as Number) as Boolean
 void systemCallNumberGreaterThan(const SystemCallInput& input, SystemCallResult* result) {
     result->returnedValue.num =
-        input.getValue(-2).num > input.getValue(-1).num ? util::kDecimalOne : util::kDecimalZero;
+        input.getValue(-2).num > input.getValue(-1).num ? shared::kDecimalOne : shared::kDecimalZero;
 }
 
 // (lhs as Number, rhs as Number) as Boolean
 void systemCallNumberGreaterThanEquals(const SystemCallInput& input, SystemCallResult* result) {
     result->returnedValue.num =
-        input.getValue(-2).num >= input.getValue(-1).num ? util::kDecimalOne : util::kDecimalZero;
+        input.getValue(-2).num >= input.getValue(-1).num ? shared::kDecimalOne : shared::kDecimalZero;
 }
 
 // (lhs as Number, rhs as Number) as Boolean
 void systemCallNumberLessThan(const SystemCallInput& input, SystemCallResult* result) {
     result->returnedValue.num =
-        input.getValue(-2).num < input.getValue(-1).num ? util::kDecimalOne : util::kDecimalZero;
+        input.getValue(-2).num < input.getValue(-1).num ? shared::kDecimalOne : shared::kDecimalZero;
 }
 
 // (lhs as Number, rhs as Number) as Boolean
 void systemCallNumberLessThanEquals(const SystemCallInput& input, SystemCallResult* result) {
     result->returnedValue.num =
-        input.getValue(-2).num <= input.getValue(-1).num ? util::kDecimalOne : util::kDecimalZero;
+        input.getValue(-2).num <= input.getValue(-1).num ? shared::kDecimalOne : shared::kDecimalZero;
 }
 
 // (lhs as Number, rhs as Number) as Number
@@ -111,7 +111,7 @@ void systemCallNumberMultiply(const SystemCallInput& input, SystemCallResult* re
 // (lhs as Number, rhs as Number) as Boolean
 void systemCallNumberNotEquals(const SystemCallInput& input, SystemCallResult* result) {
     result->returnedValue.num =
-        input.getValue(-2).num != input.getValue(-1).num ? util::kDecimalOne : util::kDecimalZero;
+        input.getValue(-2).num != input.getValue(-1).num ? shared::kDecimalOne : shared::kDecimalZero;
 }
 
 // (lhs as Number, rhs as Number) as Number
@@ -132,7 +132,7 @@ void systemCallPow(const SystemCallInput& input, SystemCallResult* result) {
 
 // (x as Number) as Number
 void systemCallRound(const SystemCallInput& input, SystemCallResult* result) {
-    result->returnedValue.num = util::round(input.getValue(-1).num);
+    result->returnedValue.num = shared::round(input.getValue(-1).num);
 }
 
 // (x as Number) as Number

@@ -1,7 +1,7 @@
 #include "filesystem.h"
 #include "Error.h"
-#include "../util/path.h"
-#include "../util/win.h"
+#include "../shared/path.h"
+#include "../shared/win.h"
 
 // std::filesystem support requires macOS 10.15, and we are targeting 10.13, so don't use it on macOS.
 // instead we will fall back to standard POSIX stuff.
@@ -54,7 +54,7 @@ static std::vector<std::string> listFilesOrDirectories(const std::string& path, 
     auto trimmedPath = path.substr(0, trimmedPathLength) + "\\*";
 
     WIN32_FIND_DATAW findFileData{};
-    auto wpath = util::winUtf8ToUtf16(trimmedPath);
+    auto wpath = shared::winUtf8ToUtf16(trimmedPath);
 
     FindFileHandle hFind{ FindFirstFileW(wpath.c_str(), &findFileData) };
     if (hFind.get() == INVALID_HANDLE_VALUE) {
@@ -71,10 +71,10 @@ static std::vector<std::string> listFilesOrDirectories(const std::string& path, 
         auto isDoubleDot = wcscmp(findFileData.cFileName, L"..") == 0;
         if (!isSingleDot && !isDoubleDot) {
             std::wstring filenameUtf16{ findFileData.cFileName };
-            auto filenameUtf8 = util::winUtf16ToUtf8(filenameUtf16);
+            auto filenameUtf8 = shared::winUtf16ToUtf8(filenameUtf16);
             auto isDir = (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
             if (wantDirsOrFiles == isDir) {
-                result.push_back(util::pathCombine(path, filenameUtf8));
+                result.push_back(shared::pathCombine(path, filenameUtf8));
             }
         }
     } while (FindNextFileW(hFind.get(), &findFileData) != 0);
@@ -115,7 +115,7 @@ static std::vector<std::string> listFilesOrDirectories(const std::string& path, 
         }
         auto isDir = entry->d_type == DT_DIR;
         if (isDir == wantDirsOrFiles) {
-            filePaths.push_back(util::pathCombine(path, entry->d_name));
+            filePaths.push_back(shared::pathCombine(path, entry->d_name));
         }
     }
     return filePaths;
@@ -131,7 +131,7 @@ std::vector<std::string> listDirectories(const std::string& path) {
 }
 
 void createDirectory(const std::string& path) {
-    auto parentDir = util::getDirectoryName(path);
+    auto parentDir = shared::getDirectoryName(path);
     if (!parentDir.empty() && parentDir != path) {
         createDirectory(parentDir);
     }

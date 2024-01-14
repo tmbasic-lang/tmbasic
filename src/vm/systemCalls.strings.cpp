@@ -178,7 +178,7 @@ void systemCallConcat2(const SystemCallInput& input, SystemCallResult* result) {
 void systemCallInputNumber(const SystemCallInput& input, SystemCallResult* result) {
     std::string line;
     std::getline(*input.consoleInputStream, line);
-    auto num = util::parseDecimalString(line);
+    auto num = shared::parseDecimalString(line);
     if (num.isnan()) {
         throw Error(ErrorCode::kInvalidNumberFormat, fmt::format("\"{}\" is not a number.", line));
     }
@@ -210,7 +210,7 @@ void systemCallNewLine(const SystemCallInput& /*input*/, SystemCallResult* resul
 // (input as String) as Number
 void systemCallParseNumber(const SystemCallInput& input, SystemCallResult* result) {
     const auto& str = *castString(input.getObject(-1));
-    auto num = util::parseDecimalString(str.value);
+    auto num = shared::parseDecimalString(str.value);
     if (num.isnan()) {
         throw Error(ErrorCode::kInvalidNumberFormat, fmt::format("\"{}\" is not a number.", str.value));
     }

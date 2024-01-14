@@ -1,15 +1,15 @@
 #include "CodeEditorWindow.h"
 #include "../../obj/resources/help/helpfile.h"
 #include "../compiler/tokenize.h"
-#include "../util/DialogPtr.h"
-#include "../util/ViewPtr.h"
+#include "../shared/DialogPtr.h"
+#include "../shared/ViewPtr.h"
 #include "InsertColorDialog.h"
 #include "InsertSymbolDialog.h"
 #include "events.h"
 
 using compiler::SourceMember;
 using compiler::SourceMemberType;
-using util::DialogPtr;
+using shared::DialogPtr;
 
 namespace tmbasic {
 

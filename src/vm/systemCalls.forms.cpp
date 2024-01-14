@@ -5,7 +5,7 @@
 #include "vm/Error.h"
 #include "vm/castObject.h"
 #include "vm/String.h"
-#include "util/WindowPtr.h"
+#include "shared/WindowPtr.h"
 
 namespace vm {
 

@@ -1,12 +1,12 @@
 #include "../common.h"
 #include "gtest/gtest.h"
-#include "util/decimal.h"
+#include "shared/decimal.h"
 
 using decimal::Decimal;
-using util::decimalToDouble;
-using util::decimalToString;
-using util::doubleToDecimal;
-using util::parseDecimalString;
+using shared::decimalToDouble;
+using shared::decimalToString;
+using shared::doubleToDecimal;
+using shared::parseDecimalString;
 
 class DecimalTest : public ::testing::Test {
    protected:

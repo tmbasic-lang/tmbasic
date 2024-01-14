@@ -3,7 +3,7 @@
 #include "parse.h"
 #include "tokenize.h"
 #include "typeCheck.h"
-#include "util/cast.h"
+#include "shared/cast.h"
 #include "vm/String.h"
 
 namespace compiler {
@@ -89,7 +89,7 @@ static void compileGlobal(const SourceMember& sourceMember, CompiledProgram* com
         auto& constNode = dynamic_cast<ConstStatementNode&>(*parserResult.node);
         parserResult.node->evaluatedType = getTypeForLiteralToken(constNode.value->token);
     } else if (parserResult.node->getMemberType() == MemberType::kDimStatement) {
-        const auto* dimNode = util::dynamic_cast_borrow<DimStatementNode>(parserResult.node);
+        const auto* dimNode = shared::dynamic_cast_borrow<DimStatementNode>(parserResult.node);
         assert(dimNode->value || dimNode->type);
         if (dimNode->value) {
             if (dimNode->value->getExpressionType() != ExpressionType::kConstValue) {
@@ -98,7 +98,7 @@ static void compileGlobal(const SourceMember& sourceMember, CompiledProgram* com
                     "Global variable initial values must be a Boolean, Number, or String literal.",
                     dimNode->value->token);
             }
-            const auto* constValueNode = util::dynamic_cast_borrow<ConstValueExpressionNode>(dimNode->value);
+            const auto* constValueNode = shared::dynamic_cast_borrow<ConstValueExpressionNode>(dimNode->value);
             parserResult.node->evaluatedType = getTypeForLiteralToken(constValueNode->token);
             if (parserResult.node->evaluatedType == nullptr) {
                 throw CompilerException(

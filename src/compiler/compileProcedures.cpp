@@ -11,10 +11,10 @@
 #include "compiler/parse.h"
 #include "compiler/tokenize.h"
 #include "compiler/typeCheck.h"
-#include "util/cast.h"
+#include "shared/cast.h"
 #include "vm/Opcode.h"
 
-using util::dynamic_cast_move;
+using shared::dynamic_cast_move;
 
 namespace compiler {
 
