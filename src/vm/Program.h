@@ -14,7 +14,6 @@ class Program {
     std::vector<Value> globalValues;
     std::vector<boost::local_shared_ptr<Object>> globalObjects;
     void deserialize(const std::vector<uint8_t>& pcode);
-    std::vector<uint8_t> serialize() const;
 };
 
 }  // namespace vm

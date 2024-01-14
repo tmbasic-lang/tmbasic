@@ -2,7 +2,6 @@
 
 #include "../common.h"
 #include "compiler/SourceProgram.h"
-#include "vm/Program.h"
 
 namespace tmbasic {
 

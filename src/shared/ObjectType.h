@@ -2,7 +2,7 @@
 
 #include "../common.h"
 
-namespace vm {
+namespace shared {
 
 enum class ObjectType {
     kString = 1,
@@ -37,4 +37,4 @@ enum class ObjectType {
     kObjectOptional,
 };
 
-}  // namespace vm
+}  // namespace shared

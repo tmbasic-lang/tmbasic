@@ -1,6 +1,8 @@
 #include "Optional.h"
 #include "castObject.h"
 
+using shared::ObjectType;
+
 namespace vm {
 
 ValueOptional::ValueOptional() = default;

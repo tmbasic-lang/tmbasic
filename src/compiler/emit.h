@@ -3,7 +3,6 @@
 #include "../common.h"
 #include "CompiledProgram.h"
 #include "ast.h"
-#include "vm/Procedure.h"
 
 namespace compiler {
 

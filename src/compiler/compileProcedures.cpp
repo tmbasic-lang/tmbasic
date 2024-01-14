@@ -122,9 +122,9 @@ static void compileProcedurePass2(
     int numLocalObjects = 0;
     assignLocalVariableIndices(procedureNode, &numLocalValues, &numLocalObjects);
     assignArgumentIndices(procedureNode);
-    auto vmProcedure = std::make_unique<vm::Procedure>();
-    vmProcedure->instructions = emit(*procedureNode, numLocalValues, numLocalObjects, compiledProgram);
-    compiledProgram->vmProgram.procedures.push_back(std::move(vmProcedure));
+
+    auto pcode = emit(*procedureNode, numLocalValues, numLocalObjects, compiledProgram);
+    compiledProgram->vmProcedures.push_back(std::move(pcode));
 }
 
 void assignProcedureIndices(const SourceProgram& sourceProgram, CompiledProgram* compiledProgram) {
@@ -208,7 +208,7 @@ void compileProcedures(const SourceProgram& sourceProgram, CompiledProgram* comp
         compileProcedurePass2(sourceProgram, compiledProgram, compiledProcedure.get(), builtInProcedures);
     }
 
-    compiledProgram->vmProgram.startupProcedureIndex = *mainProcedureIndex;
+    compiledProgram->vmStartupProcedureIndex = *mainProcedureIndex;
 }
 
 }  // namespace compiler

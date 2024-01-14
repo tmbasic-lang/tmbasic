@@ -3,6 +3,8 @@
 #include "vm/castObject.h"
 #include "vm/date.h"
 
+using shared::ObjectType;
+
 namespace vm {
 
 TimeZone::TimeZone(std::unique_ptr<absl::TimeZone> zone) : zone(std::move(zone)) {}

@@ -1,5 +1,7 @@
 #include "ProcedureReference.h"
 
+using shared::ObjectType;
+
 namespace vm {
 
 ObjectType ProcedureReference::getObjectType() const {

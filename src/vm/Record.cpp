@@ -1,6 +1,8 @@
 #include "Record.h"
 #include "castObject.h"
 
+using shared::ObjectType;
+
 namespace vm {
 
 Record::Record(RecordBuilder* builder) : objects(builder->objects.persistent()), values(builder->values.persistent()) {}

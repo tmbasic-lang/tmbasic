@@ -4,7 +4,6 @@
 #include "tokenize.h"
 #include "typeCheck.h"
 #include "shared/cast.h"
-#include "vm/String.h"
 
 namespace compiler {
 
@@ -28,34 +27,31 @@ static boost::local_shared_ptr<TypeNode> getTypeForLiteralToken(const Token& tok
     return boost::make_local_shared<TypeNode>(kind, token);
 }
 
-static boost::local_shared_ptr<vm::Object> getConstString(const LiteralStringExpressionNode& node) {
-    return boost::make_local_shared<vm::String>(node.value);
+static std::string getConstString(const LiteralStringExpressionNode& node) {
+    return node.value;
 }
 
-static boost::local_shared_ptr<vm::Object> getConstObject(const ConstValueExpressionNode& node) {
+static std::string getConstObject(const ConstValueExpressionNode& node) {
     switch (node.getConstValueExpressionType()) {
         case ConstValueExpressionType::kString:
             return getConstString(dynamic_cast<const LiteralStringExpressionNode&>(node));
 
         default:
-            assert(false);
-            return nullptr;
+            throw new std::runtime_error("Invalid const value expression type.");
     }
 }
 
-static vm::Value getConstValue(const ConstValueExpressionNode& node) {
+static decimal::Decimal getConstValue(const ConstValueExpressionNode& node) {
     switch (node.getConstValueExpressionType()) {
         case ConstValueExpressionType::kBoolean: {
-            decimal::Decimal dec{ dynamic_cast<const LiteralBooleanExpressionNode&>(node).value ? 1 : 0 };
-            return vm::Value{ dec };
+            return { dynamic_cast<const LiteralBooleanExpressionNode&>(node).value ? 1 : 0 };
         }
 
         case ConstValueExpressionType::kNumber:
-            return vm::Value{ dynamic_cast<const LiteralNumberExpressionNode&>(node).value };
+            return dynamic_cast<const LiteralNumberExpressionNode&>(node).value;
 
         default:
-            assert(false);
-            return {};
+            throw new std::runtime_error("Invalid const value expression type.");
     }
 }
 
@@ -116,19 +112,20 @@ static void compileGlobal(const SourceMember& sourceMember, CompiledProgram* com
     }
 
     compiledGlobalVariable->isValue = parserResult.node->evaluatedType->isValueType();
-    vm::Value initialValue{ decimal::Decimal{ 0 } };
-    boost::local_shared_ptr<vm::Object> initialObject{};
+    decimal::Decimal initialValue{ 0 };
+    std::pair<shared::ObjectType, std::string> initialObject{ shared::ObjectType::kString, "" };
 
     ExpressionNode* valueExpr = nullptr;
     if (parserResult.node->getMemberType() == MemberType::kDimStatement) {
         auto& dimNode = dynamic_cast<DimStatementNode&>(*parserResult.node);
         valueExpr = dimNode.value.get();
-    }
-    if (parserResult.node->getMemberType() == MemberType::kConstStatement) {
+    } else if (parserResult.node->getMemberType() == MemberType::kConstStatement) {
         auto& constNode = dynamic_cast<ConstStatementNode&>(*parserResult.node);
         valueExpr = constNode.value.get();
     }
+
     if (valueExpr != nullptr) {
+        // This is the form "dim x = 5" or "const x = 5"
         if (valueExpr->getExpressionType() != ExpressionType::kConstValue) {
             throw CompilerException(
                 CompilerErrorCode::kInvalidGlobalVariableType,
@@ -139,28 +136,17 @@ static void compileGlobal(const SourceMember& sourceMember, CompiledProgram* com
         if (compiledGlobalVariable->isValue) {
             initialValue = getConstValue(constValueExpr);
         } else {
-            initialObject = getConstObject(constValueExpr);
-        }
-    } else if (compiledGlobalVariable->isValue) {
-        initialValue = vm::Value{ decimal::Decimal{ 0 } };
-    } else {
-        assert(parserResult.node->evaluatedType != nullptr);
-        auto kind = parserResult.node->evaluatedType->kind;
-        if (kind == Kind::kString) {
-            initialObject = boost::make_local_shared<vm::String>("", 0);
-        } else {
-            // It's the emit phase's responsibility to initialize this in Main()!
-            initialObject = nullptr;
+            initialObject = { shared::ObjectType::kString, getConstObject(constValueExpr) };
         }
     }
 
     if (compiledGlobalVariable->isValue) {
-        compiledGlobalVariable->index = static_cast<int>(compiledProgram->vmProgram.globalValues.size());
-        compiledProgram->vmProgram.globalValues.push_back(initialValue);
+        compiledGlobalVariable->index = static_cast<int>(compiledProgram->vmGlobalValues.size());
+        compiledProgram->vmGlobalValues.push_back(initialValue);
         parserResult.node->globalValueIndex = compiledGlobalVariable->index;
     } else {
-        compiledGlobalVariable->index = static_cast<int>(compiledProgram->vmProgram.globalObjects.size());
-        compiledProgram->vmProgram.globalObjects.push_back(std::move(initialObject));
+        compiledGlobalVariable->index = static_cast<int>(compiledProgram->vmGlobalObjects.size());
+        compiledProgram->vmGlobalObjects.push_back(std::move(initialObject));
         parserResult.node->globalObjectIndex = compiledGlobalVariable->index;
     }
 

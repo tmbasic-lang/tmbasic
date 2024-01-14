@@ -2,7 +2,7 @@
 #include "Error.h"
 #include "RecordBuilder.h"
 #include "shared/decimal.h"
-#include "vm/tar.h"
+#include "shared/tar.h"
 
 // This is tzdb.tar, the contents of /usr/share/zoneinfo.
 extern const char kResourceTzdb[];  // NOLINT(modernize-avoid-c-arrays)
@@ -15,7 +15,7 @@ static bool _isTzdbInitialized = false;
 
 void initializeTzdb() {
     if (!_isTzdbInitialized) {
-        untar(kResourceTzdb, static_cast<size_t>(kResourceTzdb_len), absl::AddZoneInfoFile);
+        shared::untar(kResourceTzdb, static_cast<size_t>(kResourceTzdb_len), absl::AddZoneInfoFile);
         _isTzdbInitialized = true;
     }
 }

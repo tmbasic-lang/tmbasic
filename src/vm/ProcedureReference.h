@@ -11,7 +11,7 @@ class ProcedureReference : public Object {
     int cachedProcedureIndex;
     size_t signatureHash;
     std::string signature;
-    ObjectType getObjectType() const override;
+    shared::ObjectType getObjectType() const override;
     size_t getHash() const override;
     bool equals(const Object& other) const override;
 };

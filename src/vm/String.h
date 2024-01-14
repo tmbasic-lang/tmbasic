@@ -13,7 +13,7 @@ class String : public Object {
     String(const uint8_t* utf8, int length);
     String(const char* utf8, int length);
     explicit String(const char* utf8);
-    ObjectType getObjectType() const override;
+    shared::ObjectType getObjectType() const override;
     size_t getHash() const override;
     bool equals(const Object& other) const override;
     const uint8_t* getUnistring() const;

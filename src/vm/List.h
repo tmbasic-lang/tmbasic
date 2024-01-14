@@ -4,6 +4,8 @@
 #include "vm/Object.h"
 #include "vm/Value.h"
 
+using shared::ObjectType;
+
 namespace vm {
 
 template <typename TElement, ObjectType K>

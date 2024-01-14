@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../common.h"
-#include "vm/ObjectType.h"
+#include "shared/ObjectType.h"
 
 namespace vm {
 
@@ -13,7 +13,7 @@ class Object {
     Object(Object&&) = delete;
     Object& operator=(Object&&) = delete;
     inline virtual ~Object() = default;
-    virtual ObjectType getObjectType() const = 0;
+    virtual shared::ObjectType getObjectType() const = 0;
     virtual std::size_t getHash() const = 0;
     virtual bool equals(const Object& other) const = 0;
 };

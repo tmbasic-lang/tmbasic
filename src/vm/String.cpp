@@ -1,6 +1,8 @@
 #include "String.h"
 #include "castObject.h"
 
+using shared::ObjectType;
+
 namespace vm {
 
 String::String() : value() {}

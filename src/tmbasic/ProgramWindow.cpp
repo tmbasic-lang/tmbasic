@@ -517,7 +517,7 @@ void ProgramWindow::run() {
     }
 
     // Write a temporary EXE file
-    auto pcode = program.vmProgram.serialize();
+    auto pcode = program.serialize();
     auto nativePlatform = compiler::getNativeTargetPlatform();
     auto exeData = compiler::makeExeFile(pcode, nativePlatform);
     auto tempFilePath = vm::getTempFilePath(getTempExeFilename(nativePlatform));

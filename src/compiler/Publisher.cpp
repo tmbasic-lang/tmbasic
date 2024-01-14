@@ -10,7 +10,7 @@ namespace compiler {
 Publisher::Publisher(const CompiledProgram& compiledProgram, const std::string& basFilePath)
     : _filename(shared::getFileNameWithoutExtension(basFilePath)),
       _publishDir(getPublishDir(basFilePath)),
-      _pcode(compiledProgram.vmProgram.serialize()) {}
+      _pcode(compiledProgram.serialize()) {}
 
 std::string Publisher::getPublishDir(const std::string& basFilePath) {
     std::string basDir = shared::getDirectoryName(basFilePath);

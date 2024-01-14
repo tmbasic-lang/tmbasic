@@ -47,8 +47,12 @@ static void runCodeCore(
 
     if (compileSuccess) {
         try {
-            auto interpreter = make_unique<Interpreter>(&program.vmProgram, &consoleInputStream, &consoleOutputStream);
-            interpreter->init(program.vmProgram.startupProcedureIndex);
+            auto serialized = program.serialize();
+            vm::Program vmProgram{};
+            vmProgram.deserialize(serialized);
+
+            auto interpreter = make_unique<Interpreter>(&vmProgram, &consoleInputStream, &consoleOutputStream);
+            interpreter->init(vmProgram.startupProcedureIndex);
             while (interpreter->run(10000)) {
             }
 
