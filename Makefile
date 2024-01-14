@@ -645,14 +645,12 @@ $(TMBASIC_OBJ_FILES): obj/%.o: src/%.cpp \
 		obj/resources/help/help.h32 \
 		$(COMPILER_H_FILES) \
 		$(SHARED_H_FILES) \
-		$(VM_H_FILES) \
 		$(TMBASIC_H_FILES)
 	@mkdir -p $(@D)
 	$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
 
 bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
 		obj/shared.a \
-		obj/vm.a \
 		obj/compiler.a \
 		obj/common.h.gch \
 		obj/resources/help/helpfile.h \
@@ -662,7 +660,7 @@ bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
 		$(ALL_PLATFORM_RUNNER_OBJ_FILES) \
 		$(ICON_RES_OBJ_FILE)
 	@mkdir -p $(@D)
-	$(CXX) -o $@ $(TMBASIC_OBJ_FILES) $(CXXFLAGS) $(STATIC_FLAG) -include obj/common.h obj/compiler.a obj/vm.a obj/shared.a obj/resources/help/helpfile.o obj/resources/tzdb.o $(ALL_PLATFORM_RUNNER_OBJ_FILES) $(ICON_RES_OBJ_FILE) $(TMBASIC_LDFLAGS) $(LDFLAGS)
+	$(CXX) -o $@ $(TMBASIC_OBJ_FILES) $(CXXFLAGS) $(STATIC_FLAG) -include obj/common.h obj/compiler.a obj/shared.a obj/resources/help/helpfile.o obj/resources/tzdb.o $(ALL_PLATFORM_RUNNER_OBJ_FILES) $(ICON_RES_OBJ_FILE) $(TMBASIC_LDFLAGS) $(LDFLAGS)
 ifeq ($(STRIP_TMBASIC),1)
 	$(STRIP) bin/tmbasic$(EXE_EXTENSION)
 endif
