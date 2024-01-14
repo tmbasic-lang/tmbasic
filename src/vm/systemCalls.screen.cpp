@@ -4,32 +4,33 @@
 
 namespace vm {
 
-static BasicApp* getApp() {
-    return dynamic_cast<BasicApp*>(TProgram::application);
-}
-
 // ()
 void systemCallEnterFullscreenMode(const SystemCallInput& /*input*/, SystemCallResult* /*result*/) {
-    auto* app = getApp();
-    app->resume();
-    app->redraw();
+    BasicApp::createInstance();
 }
 
 // ()
-void systemCallEnterCommandLineMode(const SystemCallInput& /*input*/, SystemCallResult* /*result*/) {
-    getApp()->suspend();
+void systemCallFlushConsoleOutput(const SystemCallInput& input, SystemCallResult* /*result*/) {
+    auto* app = BasicApp::instance.get();
+    if (app != nullptr) {
+        // Full-screen mode
+        app->redraw();
+        TScreen::flushScreen();
+        TEvent event{};
+        app->getEvent(event);
+    } else {
+        // Command line mode
+        input.consoleOutputStream->flush();
+    }
 }
 
 // (input as String)
 void systemCallPrintString(const SystemCallInput& input, SystemCallResult* /*result*/) {
-    auto* app = getApp();
+    auto* app = BasicApp::instance.get();
     const auto& str = castString(input.getObject(-1))->value;
-    if (app != nullptr && app->isActive()) {
+    if (app != nullptr) {
         // Full-screen mode
-        app->background->print(str);
-        app->drawView();
-        app->redraw();
-        TScreen::flushScreen();
+        app->console->print(str);
     } else {
         // Command line mode
         *input.consoleOutputStream << str;

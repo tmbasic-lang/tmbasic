@@ -90,11 +90,6 @@ void systemCallErrorMessage(const SystemCallInput& input, SystemCallResult* resu
     result->returnedObject = boost::make_local_shared<String>(input.errorMessage);
 }
 
-// ()
-void systemCallFlushConsoleOutput(const SystemCallInput& input, SystemCallResult* /*result*/) {
-    input.consoleOutputStream->flush();
-}
-
 // (lhs as Object, rhs as Object) as Boolean
 void systemCallObjectEquals(const SystemCallInput& input, SystemCallResult* result) {
     result->returnedValue.num =

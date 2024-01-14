@@ -20,14 +20,10 @@ int main(int /*argc*/, const char* /*argv*/[]) {
     vm::Program program{};
     program.deserialize(pcode);
 
-    vm::BasicApp app{};
-    app.suspend();
-
     vm::Interpreter interpreter{ &program, &std::cin, &std::cout };
     interpreter.init(program.startupProcedureIndex);
     while (interpreter.run(10000)) {
     }
 
-    app.shutDown();
     return 0;
 }

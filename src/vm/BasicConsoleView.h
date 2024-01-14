@@ -4,13 +4,13 @@
 
 namespace vm {
 
-class BasicBackground : public TBackground {
+class BasicConsoleView : public TView {
    public:
     std::vector<std::vector<TScreenCell>> cells{};
     int16_t currentX{ 0 }, currentY{ 0 };
     TColorAttr currentColorAttr{ 0x07 };
 
-    explicit BasicBackground(const TRect& bounds);
+    explicit BasicConsoleView(const TRect& bounds);
     inline TColorAttr mapColor(uchar /*index*/) noexcept override { return 0; }
     void draw() override;
     std::vector<TScreenCell>* getRow(int16_t y);

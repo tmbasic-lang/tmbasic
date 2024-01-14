@@ -67,7 +67,6 @@ void systemCallDays(const SystemCallInput&, SystemCallResult*);
 void systemCallDeleteDirectory1(const SystemCallInput&, SystemCallResult*);
 void systemCallDeleteDirectory2(const SystemCallInput&, SystemCallResult*);
 void systemCallDeleteFile(const SystemCallInput&, SystemCallResult*);
-void systemCallEnterCommandLineMode(const SystemCallInput&, SystemCallResult*);
 void systemCallEnterFullscreenMode(const SystemCallInput&, SystemCallResult*);
 void systemCallErrorCode(const SystemCallInput&, SystemCallResult*);
 void systemCallErrorMessage(const SystemCallInput&, SystemCallResult*);
@@ -294,7 +293,6 @@ void initSystemCalls() {
     initSystemCall(SystemCall::kDeleteDirectory1, systemCallDeleteDirectory1);
     initSystemCall(SystemCall::kDeleteDirectory2, systemCallDeleteDirectory2);
     initSystemCall(SystemCall::kDeleteFile, systemCallDeleteFile);
-    initSystemCall(SystemCall::kEnterCommandLineMode, systemCallEnterCommandLineMode);
     initSystemCall(SystemCall::kEnterFullscreenMode, systemCallEnterFullscreenMode);
     initSystemCall(SystemCall::kErrorCode, systemCallErrorCode);
     initSystemCall(SystemCall::kErrorMessage, systemCallErrorMessage);

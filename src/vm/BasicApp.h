@@ -1,22 +1,22 @@
 #pragma once
 
 #include "../common.h"
-#include "vm/BasicBackground.h"
+#include "vm/BasicConsoleView.h"
+#include "util/ViewPtr.h"
 
 namespace vm {
 
 class BasicApp : public TApplication {
    public:
-    BasicBackground* background;
+    static BasicApp* createInstance();
+    static std::unique_ptr<BasicApp> instance;
+
+    util::ViewPtr<BasicConsoleView> console;
 
     BasicApp();
-    void run() override;
-    void suspend() override;
-    void resume() override;
-    bool isActive();
+    virtual ~BasicApp();
 
    private:
-    bool _active = false;
     TPoint _cursorPoint{ 0, 0 };
     TColorAttr _colorAttr{ 0x07 };
 
