@@ -2,7 +2,7 @@
 
 #include "../common.h"
 
-namespace vm {
+namespace shared {
 
 enum class Opcode {
     // data types:
@@ -121,4 +121,4 @@ enum class Opcode {
     kMaxOpcode,
 };
 
-}  // namespace vm
+}  // namespace shared

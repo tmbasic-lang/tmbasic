@@ -7,22 +7,23 @@
 #include "vm/Interpreter.h"
 #include "shared/cast.h"
 #include "shared/decimal.h"
+#include "shared/Opcode.h"
 #include "vm/CallFrame.h"
 #include "vm/castObject.h"
 #include "vm/constants.h"
 #include "vm/date.h"
 #include "vm/Error.h"
+#include "vm/initSystemCalls.h"
 #include "vm/List.h"
 #include "vm/Map.h"
 #include "vm/Object.h"
-#include "vm/Opcode.h"
 #include "vm/Optional.h"
 #include "vm/Record.h"
 #include "vm/RecordBuilder.h"
 #include "vm/String.h"
-#include "vm/initSystemCalls.h"
 #include "vm/systemCall.h"
 
+using shared::Opcode;
 using shared::SystemCall;
 
 namespace vm {

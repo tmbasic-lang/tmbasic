@@ -12,7 +12,7 @@
 #include "compiler/tokenize.h"
 #include "compiler/typeCheck.h"
 #include "shared/cast.h"
-#include "vm/Opcode.h"
+#include "shared/Opcode.h"
 
 using shared::dynamic_cast_move;
 

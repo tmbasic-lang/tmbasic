@@ -4,14 +4,14 @@
 #include "emit.h"
 #include "CompilerException.h"
 #include "shared/decimal.h"
-#include "vm/Opcode.h"
+#include "shared/Opcode.h"
 #include "shared/SystemCalls.h"
 
+using shared::Opcode;
 using shared::SystemCall;
 using std::array;
 using std::stack;
 using std::vector;
-using vm::Opcode;
 
 namespace compiler {
 
