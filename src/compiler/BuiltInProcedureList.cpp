@@ -170,6 +170,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
         { control, number, number, number, number }, SystemCall::kSetControlBounds2);
     addSub("SetControlText", { "control", "text" }, { control, string }, SystemCall::kSetControlText);
     addSub("SetFormTitle", { "form", "title" }, { form, string }, SystemCall::kSetFormTitle);
+    addSub("SetFullscreenBuffering", { "enable" }, { boolean }, SystemCall::kSetFullscreenBuffering);
     addFunction("Sin", { "x" }, { number }, number, SystemCall::kSin);
     addFunction("Skip", { "list", "count" }, { listOfAny, number }, listOfGeneric1, SystemCall::kListSkip);
     addSub("Sleep", { "delay" }, { timeSpan }, SystemCall::kSleep);
@@ -186,6 +187,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("TotalMinutes", { "timeSpan" }, { timeSpan }, number, SystemCall::kTotalMinutes);
     addFunction("TotalSeconds", { "timeSpan" }, { timeSpan }, number, SystemCall::kTotalSeconds);
     addFunction("Trunc", { "x" }, { number }, number, SystemCall::kTrunc);
+    addSub("UpdateScreen", {}, {}, SystemCall::kUpdateScreen);
     addFunction("Value", { "this" }, { optionalAny }, generic1, SystemCall::kValue);
     addFunction("Values", { "set" }, { setOfAny }, listOfGeneric1, SystemCall::kSetValues);
     addSub("WriteFileBytes", { "filePath", "bytes" }, { string, listOfNumber }, SystemCall::kWriteFileBytes);

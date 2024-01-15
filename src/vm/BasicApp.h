@@ -15,6 +15,7 @@ class BasicApp : public TApplication {
 
     BasicApp();
     virtual ~BasicApp();
+    void forceScreenUpdate();
 
    private:
     static TStatusLine* initBasicStatusLine(TRect r);

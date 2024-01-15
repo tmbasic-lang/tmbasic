@@ -41,6 +41,9 @@ enum class ErrorCode {
     // Dates/times
     kInvalidDateTime = 500,  // ERR_INVALID_DATETIME
     kInvalidTimeZone = 501,  // ERR_INVALID_TIMEZONE
+
+    // Console
+    kWrongScreenMode = 600,  // ERR_WRONG_SCREEN_MODE
 };
 
 class Error : public std::runtime_error {

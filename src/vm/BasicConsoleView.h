@@ -9,6 +9,7 @@ class BasicConsoleView : public TView {
     std::vector<std::vector<TScreenCell>> cells{};
     int16_t currentX{ 0 }, currentY{ 0 };
     TColorAttr currentColorAttr{ 0x07 };
+    bool isBuffered{ false };
 
     explicit BasicConsoleView(const TRect& bounds);
     inline TColorAttr mapColor(uchar /*index*/) noexcept override { return 0; }

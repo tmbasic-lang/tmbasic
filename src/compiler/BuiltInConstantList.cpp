@@ -35,6 +35,7 @@ BuiltInConstantList::BuiltInConstantList()
     addError("ERR_INVALID_CONTROL_TYPE", shared::ErrorCode::kInvalidControlType);
     addError("ERR_INVALID_DATETIME", shared::ErrorCode::kInvalidDateTime);
     addError("ERR_INVALID_TIMEZONE", shared::ErrorCode::kInvalidTimeZone);
+    addError("ERR_WRONG_SCREEN_MODE", shared::ErrorCode::kWrongScreenMode);
     // end_errors
 }
 
