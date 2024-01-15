@@ -31,6 +31,7 @@
 #define Uses_TEvent
 #define Uses_TFileDialog
 #define Uses_TFrame
+#define Uses_THardwareInfo
 #define Uses_TIndicator
 #define Uses_TInputLine
 #define Uses_TKeys

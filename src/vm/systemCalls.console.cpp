@@ -145,12 +145,12 @@ static void setConsoleColor(const SystemCallInput& input) {
 }
 
 // (color as Color)
-void systemCallSetConsoleForeColor(const SystemCallInput& input, SystemCallResult* /*result*/) {
+void systemCallSetForeColor(const SystemCallInput& input, SystemCallResult* /*result*/) {
     setConsoleColor<setFore>(input);
 }
 
 // (color as Color)
-void systemCallSetConsoleBackColor(const SystemCallInput& input, SystemCallResult* /*result*/) {
+void systemCallSetBackColor(const SystemCallInput& input, SystemCallResult* /*result*/) {
     setConsoleColor<setBack>(input);
 }
 
@@ -167,13 +167,54 @@ static void getConsoleColor(SystemCallResult* result) {
 }
 
 // () as Color
-void systemCallConsoleForeColor(const SystemCallInput& /*input*/, SystemCallResult* result) {
+void systemCallForeColor(const SystemCallInput& /*input*/, SystemCallResult* result) {
     getConsoleColor<getFore>(result);
 }
 
 // () as Color
-void systemCallConsoleBackColor(const SystemCallInput& /*input*/, SystemCallResult* result) {
+void systemCallBackColor(const SystemCallInput& /*input*/, SystemCallResult* result) {
     getConsoleColor<getBack>(result);
+}
+
+// (x as Number, y as Number)
+void systemCallMoveCursor(const SystemCallInput& input, SystemCallResult* /*result*/) {
+    auto* app = BasicApp::instance.get();
+    if (app == nullptr) {
+        throw Error(ErrorCode::kWrongScreenMode, "Must be in fullscreen mode.");
+    }
+
+    auto x = input.getValue(-2);
+    if (x.num < 0 || x.num >= 32768) {
+        throw Error(ErrorCode::kInvalidArgument, "X must be between 0 and 32767.");
+    }
+
+    auto y = input.getValue(-1);
+    if (y.num < 0 || y.num >= 32768) {
+        throw Error(ErrorCode::kInvalidArgument, "Y must be between 0 and 32767.");
+    }
+
+    app->console->currentX = static_cast<int16_t>(x.getInt32());
+    app->console->currentY = static_cast<int16_t>(y.getInt32());
+}
+
+// () as Number
+void systemCallScreenWidth(const SystemCallInput& /*input*/, SystemCallResult* result) {
+    auto* app = BasicApp::instance.get();
+    if (app == nullptr) {
+        throw Error(ErrorCode::kWrongScreenMode, "Must be in fullscreen mode.");
+    }
+
+    result->returnedValue = Value{ THardwareInfo::getScreenCols() };
+}
+
+// () as Number
+void systemCallScreenHeight(const SystemCallInput& /*input*/, SystemCallResult* result) {
+    auto* app = BasicApp::instance.get();
+    if (app == nullptr) {
+        throw Error(ErrorCode::kWrongScreenMode, "Must be in fullscreen mode.");
+    }
+
+    result->returnedValue = Value{ THardwareInfo::getScreenRows() };
 }
 
 }  // namespace vm

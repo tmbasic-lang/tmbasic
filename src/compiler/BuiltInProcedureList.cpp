@@ -88,8 +88,8 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("CodeUnit", { "input" }, { string }, number, SystemCall::kCodeUnit1);
     addFunction("CodeUnit", { "input", "index" }, { string, number }, number, SystemCall::kCodeUnit2);
     addFunction("CodeUnits", { "input" }, { string }, listOfNumber, SystemCall::kCodeUnits);
-    addFunction("ConsoleBackColor", {}, {}, color, SystemCall::kConsoleBackColor);
-    addFunction("ConsoleForeColor", {}, {}, color, SystemCall::kConsoleForeColor);
+    addFunction("BackColor", {}, {}, color, SystemCall::kBackColor);
+    addFunction("ForeColor", {}, {}, color, SystemCall::kForeColor);
     addFunction("Concat", { "strings" }, { listOfString }, string, SystemCall::kConcat1);
     addFunction("Concat", { "strings", "separator" }, { listOfString, string }, string, SystemCall::kConcat2);
     addFunction("Contains", { "set", "key" }, { setOfAny, generic1 }, boolean, SystemCall::kSetContains);
@@ -149,6 +149,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("Month", { "input" }, { date }, number, SystemCall::kDateTimeOffsetMonth);
     addFunction("Month", { "input" }, { dateTime }, number, SystemCall::kDateTimeOffsetMonth);
     addFunction("Month", { "input" }, { dateTimeOffset }, number, SystemCall::kDateTimeOffsetMonth);
+    addSub("MoveCursor", { "x", "y" }, { number, number }, SystemCall::kMoveCursor);
     addFunction("NewForm", {}, {}, form, SystemCall::kNewForm);
     addFunction("NewLabel", {}, {}, control, SystemCall::kNewLabel);
     addFunction("NewLine", {}, {}, string, SystemCall::kNewLine);
@@ -172,11 +173,13 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("Rgb", { "red", "green", "blue" }, { number, number, number }, color, SystemCall::kRgb);
     addFunction("Round", { "x" }, { number }, number, SystemCall::kRound);
     addSub("RunForm", { "form" }, { form }, SystemCall::kRunForm);
+    addFunction("ScreenHeight", {}, {}, number, SystemCall::kScreenHeight);
+    addFunction("ScreenWidth", {}, {}, number, SystemCall::kScreenWidth);
     addFunction("Second", { "input" }, { dateTime }, number, SystemCall::kDateTimeOffsetSecond);
     addFunction("Second", { "input" }, { dateTimeOffset }, number, SystemCall::kDateTimeOffsetSecond);
     addFunction("Seconds", { "count" }, { number }, timeSpan, SystemCall::kSeconds);
-    addSub("SetConsoleBackColor", { "color" }, { color }, SystemCall::kSetConsoleBackColor);
-    addSub("SetConsoleForeColor", { "color" }, { color }, SystemCall::kSetConsoleForeColor);
+    addSub("SetBackColor", { "color" }, { color }, SystemCall::kSetBackColor);
+    addSub("SetForeColor", { "color" }, { color }, SystemCall::kSetForeColor);
     addSub("SetControlBounds", { "control", "bounds" }, { control, rectangle }, SystemCall::kSetControlBounds1);
     addSub(
         "SetControlBounds", { "control", "left", "top", "width", "height" },
