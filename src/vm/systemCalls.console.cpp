@@ -7,6 +7,44 @@ using shared::ErrorCode;
 
 namespace vm {
 
+static TColorRGB colorRecordToColorRgb(const Record& colorRecord) {
+    auto red = static_cast<uint8_t>(colorRecord.values.at(0).getInt32());
+    auto green = static_cast<uint8_t>(colorRecord.values.at(1).getInt32());
+    auto blue = static_cast<uint8_t>(colorRecord.values.at(2).getInt32());
+    return { red, green, blue };
+}
+
+static boost::local_shared_ptr<Record> colorRgbToColorRecord(const TColorRGB& colorRgb) {
+    RecordBuilder builder{ 3, 0 };
+    builder.values.set(0, Value{ colorRgb.r });
+    builder.values.set(1, Value{ colorRgb.g });
+    builder.values.set(2, Value{ colorRgb.b });
+    return boost::make_local_shared<Record>(&builder);
+}
+
+static TColorRGB colorDesiredToColorRgb(const TColorDesired& colorDesired) {
+    if (colorDesired.isRGB()) {
+        return colorDesired.asRGB();
+    }
+
+    if (colorDesired.isBIOS()) {
+        auto bios = colorDesired.asBIOS();
+        TColorRGB rgb{};
+        if (bios.r) {
+            rgb.r = bios.bright ? 255 : 128;
+        }
+        if (bios.g) {
+            rgb.g = bios.bright ? 255 : 128;
+        }
+        if (bios.b) {
+            rgb.b = bios.bright ? 255 : 128;
+        }
+        return rgb;
+    }
+
+    throw Error(ErrorCode::kInternalTypeConfusion, "Unexpected color type.");
+}
+
 // ()
 void systemCallEnterFullscreen(const SystemCallInput& /*input*/, SystemCallResult* /*result*/) {
     BasicApp::createInstance();
@@ -92,6 +130,50 @@ void systemCallRgb(const SystemCallInput& input, SystemCallResult* result) {
     builder.values.set(1, Value{ green.floor() });
     builder.values.set(2, Value{ blue.floor() });
     result->returnedObject = boost::make_local_shared<Record>(&builder);
+}
+
+template <decltype(&setFore) setForeOrBack>
+static void setConsoleColor(const SystemCallInput& input) {
+    auto* app = BasicApp::instance.get();
+    if (app == nullptr) {
+        throw Error(ErrorCode::kWrongScreenMode, "Must be in fullscreen mode.");
+    }
+
+    const auto& colorRecord = castRecord(input.getObject(-1));
+    const auto colorRgb = colorRecordToColorRgb(*colorRecord);
+    setForeOrBack(app->console->currentColorAttr, colorRgb);
+}
+
+// (color as Color)
+void systemCallSetConsoleForeColor(const SystemCallInput& input, SystemCallResult* /*result*/) {
+    setConsoleColor<setFore>(input);
+}
+
+// (color as Color)
+void systemCallSetConsoleBackColor(const SystemCallInput& input, SystemCallResult* /*result*/) {
+    setConsoleColor<setBack>(input);
+}
+
+template <decltype(&getFore) getForeOrBack>
+static void getConsoleColor(SystemCallResult* result) {
+    auto* app = BasicApp::instance.get();
+    if (app == nullptr) {
+        throw Error(ErrorCode::kWrongScreenMode, "Must be in fullscreen mode.");
+    }
+
+    const auto colorDesired = getForeOrBack(app->console->currentColorAttr);
+    auto rgb = colorDesiredToColorRgb(colorDesired);
+    result->returnedObject = colorRgbToColorRecord(rgb);
+}
+
+// () as Color
+void systemCallConsoleForeColor(const SystemCallInput& /*input*/, SystemCallResult* result) {
+    getConsoleColor<getFore>(result);
+}
+
+// () as Color
+void systemCallConsoleBackColor(const SystemCallInput& /*input*/, SystemCallResult* result) {
+    getConsoleColor<getBack>(result);
 }
 
 }  // namespace vm

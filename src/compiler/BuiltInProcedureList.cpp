@@ -88,6 +88,8 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("CodeUnit", { "input" }, { string }, number, SystemCall::kCodeUnit1);
     addFunction("CodeUnit", { "input", "index" }, { string, number }, number, SystemCall::kCodeUnit2);
     addFunction("CodeUnits", { "input" }, { string }, listOfNumber, SystemCall::kCodeUnits);
+    addFunction("ConsoleBackColor", {}, {}, color, SystemCall::kConsoleBackColor);
+    addFunction("ConsoleForeColor", {}, {}, color, SystemCall::kConsoleForeColor);
     addFunction("Concat", { "strings" }, { listOfString }, string, SystemCall::kConcat1);
     addFunction("Concat", { "strings", "separator" }, { listOfString, string }, string, SystemCall::kConcat2);
     addFunction("Contains", { "set", "key" }, { setOfAny, generic1 }, boolean, SystemCall::kSetContains);
@@ -173,6 +175,8 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("Second", { "input" }, { dateTime }, number, SystemCall::kDateTimeOffsetSecond);
     addFunction("Second", { "input" }, { dateTimeOffset }, number, SystemCall::kDateTimeOffsetSecond);
     addFunction("Seconds", { "count" }, { number }, timeSpan, SystemCall::kSeconds);
+    addSub("SetConsoleBackColor", { "color" }, { color }, SystemCall::kSetConsoleBackColor);
+    addSub("SetConsoleForeColor", { "color" }, { color }, SystemCall::kSetConsoleForeColor);
     addSub("SetControlBounds", { "control", "bounds" }, { control, rectangle }, SystemCall::kSetControlBounds1);
     addSub(
         "SetControlBounds", { "control", "left", "top", "width", "height" },
