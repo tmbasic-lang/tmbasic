@@ -3,12 +3,13 @@
 
 namespace vm {
 
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 std::unique_ptr<BasicApp> BasicApp::instance{};
 
 class DeskTop : public TDeskTop {
    public:
     explicit DeskTop(const TRect& r) : TDeskTop(r), TDeskInit(initBasicBackground) {}
-    static TBackground* initBasicBackground(TRect r) { return new TBackground(r, ' '); }
+    static gsl::owner<TBackground*> initBasicBackground(TRect r) { return new TBackground(r, ' '); }
 };
 
 BasicApp* BasicApp::createInstance() {
@@ -26,11 +27,11 @@ BasicApp::~BasicApp() {
     shutDown();
 }
 
-TStatusLine* BasicApp::initBasicStatusLine(TRect r) {
+TStatusLine* BasicApp::initBasicStatusLine(TRect /*r*/) {
     return nullptr;
 }
 
-TMenuBar* BasicApp::initBasicMenuBar(TRect r) {
+TMenuBar* BasicApp::initBasicMenuBar(TRect /*r*/) {
     return nullptr;
 }
 

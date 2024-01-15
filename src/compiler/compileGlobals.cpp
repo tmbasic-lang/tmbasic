@@ -37,7 +37,7 @@ static std::string getConstObject(const ConstValueExpressionNode& node) {
             return getConstString(dynamic_cast<const LiteralStringExpressionNode&>(node));
 
         default:
-            throw new std::runtime_error("Invalid const value expression type.");
+            throw std::runtime_error("Invalid const value expression type.");
     }
 }
 
@@ -51,7 +51,7 @@ static decimal::Decimal getConstValue(const ConstValueExpressionNode& node) {
             return dynamic_cast<const LiteralNumberExpressionNode&>(node).value;
 
         default:
-            throw new std::runtime_error("Invalid const value expression type.");
+            throw std::runtime_error("Invalid const value expression type.");
     }
 }
 

@@ -7,7 +7,6 @@
 #include "vm/String.h"
 
 using shared::Error;
-using shared::ErrorCode;
 
 namespace vm {
 

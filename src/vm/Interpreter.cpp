@@ -23,7 +23,6 @@
 #include "vm/String.h"
 #include "vm/systemCall.h"
 
-using shared::Error;
 using shared::ErrorCode;
 using shared::Opcode;
 using shared::SystemCall;

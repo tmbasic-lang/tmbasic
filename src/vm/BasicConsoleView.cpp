@@ -12,7 +12,7 @@ void BasicConsoleView::draw() {
 
     int16_t y = 0;
     for (; y < size.y; y++) {
-        writeLine(0, y, size.x, 1, drawBuffer);
+        writeLine(0, y, static_cast<int16_t>(size.x), 1, drawBuffer);
     }
 
     y = 0;
