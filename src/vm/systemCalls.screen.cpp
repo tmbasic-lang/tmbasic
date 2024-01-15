@@ -5,7 +5,7 @@
 namespace vm {
 
 // ()
-void systemCallEnterFullscreenMode(const SystemCallInput& /*input*/, SystemCallResult* /*result*/) {
+void systemCallEnterFullscreen(const SystemCallInput& /*input*/, SystemCallResult* /*result*/) {
     BasicApp::createInstance();
 }
 

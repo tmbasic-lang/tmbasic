@@ -65,7 +65,7 @@ enum class SystemCall {
     kDeleteDirectory1,
     kDeleteDirectory2,
     kDeleteFile,
-    kEnterFullscreenMode,
+    kEnterFullscreen,
     kErrorCode,
     kErrorMessage,
     kExp,

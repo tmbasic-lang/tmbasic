@@ -104,7 +104,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addSub("DeleteDirectory", { "path" }, { string }, SystemCall::kDeleteDirectory1);
     addSub("DeleteDirectory", { "path", "recursive" }, { string, boolean }, SystemCall::kDeleteDirectory2);
     addSub("DeleteFile", { "filePath" }, { string }, SystemCall::kDeleteFile);
-    addSub("EnterFullscreenMode", {}, {}, SystemCall::kEnterFullscreenMode);
+    addSub("EnterFullscreen", {}, {}, SystemCall::kEnterFullscreen);
     addFunction("ErrorCode", {}, {}, number, SystemCall::kErrorCode);
     addFunction("ErrorMessage", {}, {}, string, SystemCall::kErrorMessage);
     addFunction("Exp", { "x" }, { number }, number, SystemCall::kExp);
