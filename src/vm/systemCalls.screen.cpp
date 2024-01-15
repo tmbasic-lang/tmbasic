@@ -70,4 +70,28 @@ void systemCallPrintString(const SystemCallInput& input, SystemCallResult* /*res
     }
 }
 
+// (red as Number, green as Number, blue as Number)
+void systemCallRgb(const SystemCallInput& input, SystemCallResult* result) {
+    auto red = input.getValue(-3).num;
+    if (red < 0 || red >= 256) {
+        throw Error(ErrorCode::kInvalidArgument, "Red must be between 0 and 255.");
+    }
+
+    auto green = input.getValue(-2).num;
+    if (green < 0 || green >= 256) {
+        throw Error(ErrorCode::kInvalidArgument, "Green must be between 0 and 255.");
+    }
+
+    auto blue = input.getValue(-1).num;
+    if (blue < 0 || blue >= 256) {
+        throw Error(ErrorCode::kInvalidArgument, "Blue must be between 0 and 255.");
+    }
+
+    RecordBuilder builder{ 3, 0 };
+    builder.values.set(0, Value{ red.floor() });
+    builder.values.set(1, Value{ green.floor() });
+    builder.values.set(2, Value{ blue.floor() });
+    result->returnedObject = boost::make_local_shared<Record>(&builder);
+}
+
 }  // namespace vm

@@ -161,6 +161,7 @@ enum class SystemCall {
     kReadFileBytes,
     kReadFileLines,
     kReadFileText,
+    kRgb,
     kRound,
     kRunForm,
     kSeconds,

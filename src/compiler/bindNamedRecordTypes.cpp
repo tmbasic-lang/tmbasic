@@ -1,6 +1,6 @@
 #include "bindNamedRecordTypes.h"
 #include "CompilerException.h"
-#include "findBuiltInRecordType.h"
+#include "BuiltInRecordTypesList.h"
 
 namespace compiler {
 

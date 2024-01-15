@@ -1,4 +1,4 @@
-#include "findBuiltInRecordType.h"
+#include "BuiltInRecordTypesList.h"
 
 namespace compiler {
 
@@ -14,6 +14,12 @@ class BuiltInRecordTypesList {
             ValueField(1, "Top", number),
             ValueField(2, "Width", number),
             ValueField(3, "Height", number),
+        };
+
+        types["color"] = {
+            ValueField(0, "Red", number),
+            ValueField(1, "Green", number),
+            ValueField(2, "Blue", number),
         };
     }
 

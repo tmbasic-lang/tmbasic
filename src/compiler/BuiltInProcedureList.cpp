@@ -1,9 +1,19 @@
 #include "BuiltInProcedureList.h"
-#include "findBuiltInRecordType.h"
+#include "BuiltInRecordTypesList.h"
 
 using shared::SystemCall;
 
 namespace compiler {
+
+static boost::local_shared_ptr<TypeNode> getBuiltInRecordType(const std::string& name) {
+    auto typeNode = boost::make_local_shared<TypeNode>(Kind::kRecord, Token{}, name);
+    auto lowercaseName = boost::to_lower_copy(name);
+    auto found = findBuiltInRecordType(lowercaseName, &typeNode->fields);
+    if (!found) {
+        throw std::runtime_error(fmt::format("Internal error. Built-in record type \"{}\" not found.", name));
+    }
+    return typeNode;
+}
 
 BuiltInProcedureList::BuiltInProcedureList() {
     auto any = boost::make_local_shared<TypeNode>(Kind::kAny, Token{});
@@ -31,10 +41,8 @@ BuiltInProcedureList::BuiltInProcedureList() {
     auto form = boost::make_local_shared<TypeNode>(Kind::kForm, Token{});
     auto control = boost::make_local_shared<TypeNode>(Kind::kControl, Token{});
 
-    auto rectangle = boost::make_local_shared<TypeNode>(Kind::kRecord, Token{}, "Rectangle");
-    if (!findBuiltInRecordType("rectangle", &rectangle->fields)) {
-        throw std::runtime_error("Built-in record type Rectangle not found");
-    }
+    auto color = getBuiltInRecordType("Color");
+    auto rectangle = getBuiltInRecordType("Rectangle");
 
     addFunction("Abs", { "x" }, { number }, number, SystemCall::kAbs);
     addFunction("Acos", { "x" }, { number }, number, SystemCall::kAcos);
@@ -159,6 +167,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction(
         "Replace", { "haystack", "needle", "replacement" }, { string, string, string }, string,
         SystemCall::kStringReplace);
+    addFunction("Rgb", { "red", "green", "blue" }, { number, number, number }, color, SystemCall::kRgb);
     addFunction("Round", { "x" }, { number }, number, SystemCall::kRound);
     addSub("RunForm", { "form" }, { form }, SystemCall::kRunForm);
     addFunction("Second", { "input" }, { dateTime }, number, SystemCall::kDateTimeOffsetSecond);
