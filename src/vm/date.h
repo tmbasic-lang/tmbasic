@@ -32,7 +32,7 @@ class DateTimeParts {
         uint32_t second,
         uint32_t millisecond);
     DateTimeParts(const absl::CivilSecond& civilSecond, uint32_t millisecond);
-    DateTimeParts(const Value& value);
+    explicit DateTimeParts(const Value& value);
     void addYears(int32_t years);
     void addMonths(int32_t months);
     void addDays(int32_t days);
@@ -55,7 +55,7 @@ class DateTimeOffsetParts : public DateTimeParts {
         uint32_t second,
         uint32_t millisecond,
         int64_t utcOffsetMilliseconds);
-    DateTimeOffsetParts(const Value& value);
+    explicit DateTimeOffsetParts(const Value& value);
     int64_t utcOffsetMilliseconds;
     Value toValue() const override;
 };
