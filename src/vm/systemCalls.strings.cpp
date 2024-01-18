@@ -5,6 +5,10 @@
 #include "vm/TimeZone.h"
 #include "vm/castObject.h"
 
+// libunistring
+#include <unistr.h>   // u8_uctomb
+#include <unigbrk.h>  // u8_grapheme_breaks
+
 using shared::Error;
 using shared::ErrorCode;
 
