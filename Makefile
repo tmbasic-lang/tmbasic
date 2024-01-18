@@ -204,8 +204,10 @@ RANLIB=$(LINUX_TRIPLE)-ranlib
 STRIP=$(LINUX_TRIPLE)-strip
 else
 # ubuntu dev container
-CC=ccache gcc -fdiagnostics-color=always
-CXX=ccache g++ -fdiagnostics-color=always
+CC=ccache gcc
+CXX=ccache g++
+CXXFLAGS += -fdiagnostics-color=always -fsanitize=undefined -fsanitize=address -fsanitize=shift -fsanitize=shift-exponent -fsanitize=shift-base -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow -fsanitize=bool -fsanitize=enum -fsanitize=vptr -fsanitize=pointer-overflow -fsanitize=builtin -fno-sanitize-recover
+LDFLAGS += -static-libasan
 endif
 endif
 

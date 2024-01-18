@@ -141,6 +141,7 @@ static void forEachFile(const string& path, const function<void(string)>& func) 
         }
         func(entry->d_name);
     }
+    closedir(dir);
 }
 
 static string replace(string haystack, const string& needle, const string& replacement) {

@@ -19,7 +19,30 @@ class IdKeyedStorage {
         return it->second;
     }
 
-    void remove(int64_t id) { _map.erase(id); }
+    void remove(int64_t id) {
+        if (isClearing) {
+            return;
+        }
+
+        delete _map[id];
+        _map.erase(id);
+    }
+
+    bool isClearing = false;
+
+    void clear() {
+        assert(!isClearing);
+
+        // They try to remove themselves from the map in their destructors, so set a
+        // flag that disables that behavior here. We will erase from the map.
+        isClearing = true;
+        for (auto& [id, item] : _map) {
+            delete item;
+        }
+        isClearing = false;
+
+        _map.clear();
+    }
 
    protected:
     virtual void throwNotFoundError() = 0;
@@ -47,6 +70,7 @@ class BasicFormsStorage {
     inline int64_t nextId() { return _nextId++; }
     IdKeyedFormStorage forms{};
     IdKeyedControlStorage controls{};
+    void clear();
 
    private:
     int64_t _nextId = 1;

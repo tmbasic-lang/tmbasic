@@ -9,6 +9,7 @@
 #include "shared/decimal.h"
 #include "shared/Error.h"
 #include "shared/Opcode.h"
+#include "vm/BasicFormsStorage.h"
 #include "vm/CallFrame.h"
 #include "vm/castObject.h"
 #include "vm/constants.h"
@@ -122,7 +123,11 @@ class InterpreterPrivate {
         }
 
         *procedure = callFrame.procedure;
-        *instructions = &callFrame.procedure->instructions;
+        if (callFrame.procedure == nullptr) {
+            *instructions = nullptr;
+        } else {
+            *instructions = &callFrame.procedure->instructions;
+        }
         *instructionIndex = callFrame.instructionIndex;
 
         callStack.pop();
@@ -139,6 +144,7 @@ Interpreter::Interpreter(Program* program, std::istream* consoleInputStream, std
 
 Interpreter::~Interpreter() {
     delete _private;
+    basicFormsStorage.clear();
 }
 
 void Interpreter::init(size_t procedureIndex) {
