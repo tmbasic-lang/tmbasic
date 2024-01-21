@@ -16,6 +16,7 @@ class ProgramWindow : public TWindow {
     uint16_t getHelpCtx() override;
     void handleEvent(TEvent& event) override;
     void close() override;
+    bool closeMaybe();
     TPalette& getPalette() const override;
     void setState(uint16_t aState, bool enable) override;
     bool isDirty() const;

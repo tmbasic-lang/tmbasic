@@ -328,11 +328,7 @@ class AppPrivate {
 
     static bool closeProgramWindow(ProgramWindow* programWindow) {
         if (programWindow != nullptr) {
-            programWindow->close();
-            if (programWindow->frame != nullptr) {
-                // the program window is still open, so the user must have clicked cancel
-                return false;
-            }
+            return programWindow->closeMaybe();
         }
         return true;
     }

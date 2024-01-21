@@ -130,6 +130,11 @@ void ProgramWindow::updateTitle() {
 }
 
 void ProgramWindow::enableDisableCommands(bool enable) {
+    if (_contentsListBox == nullptr) {
+        // Program window is closing.
+        return;
+    }
+
     TCommandSet cmds;
     if (_contentsListBox->range > 0 && _contentsListBox->focused >= 0) {
         cmds.enableCmd(cmClear);
@@ -340,6 +345,10 @@ bool ProgramWindow::preClose() {
 }
 
 void ProgramWindow::close() {
+    closeMaybe();
+}
+
+bool ProgramWindow::closeMaybe() {
     if (preClose()) {
         // close all other program-related windows first
         message(owner, evBroadcast, kCmdCloseProgramRelatedWindows, nullptr);
@@ -354,8 +363,14 @@ void ProgramWindow::close() {
         ts.enableCmd(kCmdProgramContentsWindow);
         disableCommands(ts);
 
+        // Don't try to mess around with the controls during window shutdown.
+        _contentsListBox = nullptr;
+
         TWindow::close();
+        return true;
     }
+
+    return false;
 }
 
 bool ProgramWindow::isDirty() const {
