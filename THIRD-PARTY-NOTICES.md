@@ -1,4 +1,4 @@
-# Third Party Libraries
+# Third Party Notices
 
 A mirror of third party library sources is available in a [requester-pays](https://docs.aws.amazon.com/AmazonS3/latest/userguide/RequesterPaysBuckets.html) S3 bucket named `tmbasic`. Use the [AWSCLI](https://aws.amazon.com/cli/) to access:
 
