@@ -1,5 +1,8 @@
 # Run "make help" to get started.
 
+# Define DISABLE_SANITIZERS to disable sanitizers in debug builds, otherwise they are enabled by default.
+# Valgrind is incompatible with ASan.
+
 OPTFLAGS ?= -g -O0
 STRIP_TMBASIC ?= 0
 
@@ -206,8 +209,11 @@ else
 # ubuntu dev container
 CC=ccache gcc
 CXX=ccache g++
-CXXFLAGS += -fdiagnostics-color=always -fsanitize=undefined -fsanitize=address -fsanitize=shift -fsanitize=shift-exponent -fsanitize=shift-base -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow -fsanitize=bool -fsanitize=enum -fsanitize=vptr -fsanitize=pointer-overflow -fsanitize=builtin -fno-sanitize-recover
-LDFLAGS += -static-libasan
+CXXFLAGS += -fdiagnostics-color=always
+ifndef DISABLE_SANITIZERS
+	CXXFLAGS += -fdiagnostics-color=always -fsanitize=undefined -fsanitize=address -fsanitize=shift -fsanitize=shift-exponent -fsanitize=shift-base -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow -fsanitize=bool -fsanitize=enum -fsanitize=vptr -fsanitize=pointer-overflow -fsanitize=builtin -fno-sanitize-recover
+	LDFLAGS += -static-libasan
+endif
 endif
 endif
 
@@ -265,7 +271,7 @@ endif
 ### Linker flags ######################################################################################################
 
 # LDFLAGS: Linker flags used for all binaries.
-LDFLAGS=-lstdc++
+LDFLAGS += -lstdc++
 
 # TMBASIC_LDFLAGS: Additional linker flags used only for the "tmbasic" binary.
 TMBASIC_LDFLAGS=
@@ -403,7 +409,8 @@ test: bin/test$(EXE_EXTENSION)
 
 .PHONY: valgrind
 valgrind: bin/tmbasic
-	valgrind --leak-check=full --show-leak-kinds=all --undef-value-errors=no --log-file=valgrind.txt bin/tmbasic || (printf "\r\nCrash detected! Resetting terminal in 5 seconds...\r\n" && sleep 5 && reset && echo "Eating input. Press Ctrl+D." && cat >/dev/null)
+	valgrind --leak-check=full --show-leak-kinds=all --undef-value-errors=no --log-file=valgrind.txt bin/tmbasic || cat valgrind.txt
+	cat valgrind.txt
 
 .PHONE: callgrind
 callgrind:
