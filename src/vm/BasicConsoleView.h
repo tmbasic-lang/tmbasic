@@ -10,6 +10,7 @@ class BasicConsoleView : public TView {
     int16_t currentX{ 0 }, currentY{ 0 };
     TColorAttr currentColorAttr{ TColorRGB{ 255, 255, 255 }, TColorRGB{ 0, 0, 0 } };
     bool isBuffered{ false };
+    TColorRGB fillColor{ 0, 0, 0 };
 
     explicit BasicConsoleView(const TRect& bounds);
     inline TColorAttr mapColor(uchar /*index*/) noexcept override { return 0; }

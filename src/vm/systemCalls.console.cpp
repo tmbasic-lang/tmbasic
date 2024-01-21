@@ -7,11 +7,30 @@ using shared::ErrorCode;
 
 namespace vm {
 
+static void validateAndFloorRgb(Value* red, Value* green, Value* blue) {
+    if (red->num < 0 || red->num >= 256) {
+        throw Error(ErrorCode::kInvalidArgument, "Red must be between 0 and 255.");
+    }
+    red->num = red->num.floor();
+
+    if (green->num < 0 || green->num >= 256) {
+        throw Error(ErrorCode::kInvalidArgument, "Green must be between 0 and 255.");
+    }
+    green->num = green->num.floor();
+
+    if (blue->num < 0 || blue->num >= 256) {
+        throw Error(ErrorCode::kInvalidArgument, "Blue must be between 0 and 255.");
+    }
+    blue->num = blue->num.floor();
+}
+
 static TColorRGB colorRecordToColorRgb(const Record& colorRecord) {
-    auto red = static_cast<uint8_t>(colorRecord.values.at(0).getInt32());
-    auto green = static_cast<uint8_t>(colorRecord.values.at(1).getInt32());
-    auto blue = static_cast<uint8_t>(colorRecord.values.at(2).getInt32());
-    return { red, green, blue };
+    auto red = colorRecord.values.at(0);
+    auto green = colorRecord.values.at(1);
+    auto blue = colorRecord.values.at(2);
+    validateAndFloorRgb(&red, &green, &blue);
+    return { static_cast<uint8_t>(red.getInt32()), static_cast<uint8_t>(green.getInt32()),
+             static_cast<uint8_t>(blue.getInt32()) };
 }
 
 static boost::local_shared_ptr<Record> colorRgbToColorRecord(const TColorRGB& colorRgb) {
@@ -110,30 +129,20 @@ void systemCallPrintString(const SystemCallInput& input, SystemCallResult* /*res
 
 // (red as Number, green as Number, blue as Number)
 void systemCallRgb(const SystemCallInput& input, SystemCallResult* result) {
-    auto red = input.getValue(-3).num;
-    if (red < 0 || red >= 256) {
-        throw Error(ErrorCode::kInvalidArgument, "Red must be between 0 and 255.");
-    }
-
-    auto green = input.getValue(-2).num;
-    if (green < 0 || green >= 256) {
-        throw Error(ErrorCode::kInvalidArgument, "Green must be between 0 and 255.");
-    }
-
-    auto blue = input.getValue(-1).num;
-    if (blue < 0 || blue >= 256) {
-        throw Error(ErrorCode::kInvalidArgument, "Blue must be between 0 and 255.");
-    }
+    auto red = input.getValue(-3);
+    auto green = input.getValue(-2);
+    auto blue = input.getValue(-1);
+    validateAndFloorRgb(&red, &green, &blue);
 
     RecordBuilder builder{ 3, 0 };
-    builder.values.set(0, Value{ red.floor() });
-    builder.values.set(1, Value{ green.floor() });
-    builder.values.set(2, Value{ blue.floor() });
+    builder.values.set(0, red);
+    builder.values.set(1, green);
+    builder.values.set(2, blue);
     result->returnedObject = boost::make_local_shared<Record>(&builder);
 }
 
 template <decltype(&setFore) setForeOrBack>
-static void setConsoleColor(const SystemCallInput& input) {
+static void setConsoleColorRgb(const SystemCallInput& input) {
     auto* app = BasicApp::instance.get();
     if (app == nullptr) {
         throw Error(ErrorCode::kWrongScreenMode, "Must be in fullscreen mode.");
@@ -146,12 +155,39 @@ static void setConsoleColor(const SystemCallInput& input) {
 
 // (color as Color)
 void systemCallSetForeColor(const SystemCallInput& input, SystemCallResult* /*result*/) {
-    setConsoleColor<setFore>(input);
+    setConsoleColorRgb<setFore>(input);
 }
 
 // (color as Color)
 void systemCallSetBackColor(const SystemCallInput& input, SystemCallResult* /*result*/) {
-    setConsoleColor<setBack>(input);
+    setConsoleColorRgb<setBack>(input);
+}
+
+template <decltype(&setFore) setForeOrBack>
+static void setConsoleColorComponents(const SystemCallInput& input) {
+    auto* app = BasicApp::instance.get();
+    if (app == nullptr) {
+        throw Error(ErrorCode::kWrongScreenMode, "Must be in fullscreen mode.");
+    }
+
+    auto red = input.getValue(-3);
+    auto green = input.getValue(-2);
+    auto blue = input.getValue(-1);
+    validateAndFloorRgb(&red, &green, &blue);
+
+    TColorRGB colorRgb{ static_cast<uint8_t>(red.getInt32()), static_cast<uint8_t>(green.getInt32()),
+                        static_cast<uint8_t>(blue.getInt32()) };
+    setForeOrBack(app->console->currentColorAttr, colorRgb);
+}
+
+// (red as Number, green as Number, blue as Number)
+void systemCallSetForeColorComponents(const SystemCallInput& input, SystemCallResult* /*result*/) {
+    setConsoleColorComponents<setFore>(input);
+}
+
+// (red as Number, green as Number, blue as Number)
+void systemCallSetBackColorComponents(const SystemCallInput& input, SystemCallResult* /*result*/) {
+    setConsoleColorComponents<setBack>(input);
 }
 
 template <decltype(&getFore) getForeOrBack>
@@ -215,6 +251,20 @@ void systemCallScreenHeight(const SystemCallInput& /*input*/, SystemCallResult* 
     }
 
     result->returnedValue = Value{ THardwareInfo::getScreenRows() };
+}
+
+// ()
+void systemCallCls(const SystemCallInput& /*input*/, SystemCallResult* /*result*/) {
+    auto* app = BasicApp::instance.get();
+    if (app == nullptr) {
+        throw Error(ErrorCode::kWrongScreenMode, "Must be in fullscreen mode.");
+    }
+
+    app->console->cells.clear();
+    app->console->fillColor = getBack(app->console->currentColorAttr).asRGB();
+    if (!app->console->isBuffered) {
+        app->forceScreenUpdate();
+    }
 }
 
 }  // namespace vm

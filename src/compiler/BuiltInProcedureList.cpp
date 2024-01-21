@@ -83,6 +83,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("Ceil", { "x" }, { number }, number, SystemCall::kCeil);
     addFunction("Characters", { "this" }, { string }, listOfString, SystemCall::kCharacters);
     addFunction("Chr", { "input" }, { number }, string, SystemCall::kChr);
+    addSub("Cls", {}, {}, SystemCall::kCls);
     addFunction("CodePoints", { "input" }, { string }, listOfNumber, SystemCall::kCodePoints);
     addSub("AddControlToForm", { "form", "control" }, { form, control }, SystemCall::kAddControlToForm);
     addFunction("CodeUnit", { "input" }, { string }, number, SystemCall::kCodeUnit1);
@@ -179,12 +180,14 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("Second", { "input" }, { dateTimeOffset }, number, SystemCall::kDateTimeOffsetSecond);
     addFunction("Seconds", { "count" }, { number }, timeSpan, SystemCall::kSeconds);
     addSub("SetBackColor", { "color" }, { color }, SystemCall::kSetBackColor);
-    addSub("SetForeColor", { "color" }, { color }, SystemCall::kSetForeColor);
+    addSub("SetBackColor", { "red", "green", "blue" }, { number, number, number }, SystemCall::kSetBackColorComponents);
     addSub("SetControlBounds", { "control", "bounds" }, { control, rectangle }, SystemCall::kSetControlBounds1);
     addSub(
         "SetControlBounds", { "control", "left", "top", "width", "height" },
         { control, number, number, number, number }, SystemCall::kSetControlBounds2);
     addSub("SetControlText", { "control", "text" }, { control, string }, SystemCall::kSetControlText);
+    addSub("SetForeColor", { "color" }, { color }, SystemCall::kSetForeColor);
+    addSub("SetForeColor", { "red", "green", "blue" }, { number, number, number }, SystemCall::kSetForeColorComponents);
     addSub("SetFormTitle", { "form", "title" }, { form, string }, SystemCall::kSetFormTitle);
     addSub("SetFullscreenBuffering", { "enable" }, { boolean }, SystemCall::kSetFullscreenBuffering);
     addFunction("Sin", { "x" }, { number }, number, SystemCall::kSin);

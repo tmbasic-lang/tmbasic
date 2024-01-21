@@ -7,14 +7,16 @@ BasicConsoleView::BasicConsoleView(const TRect& bounds) : TView(bounds) {
 }
 
 void BasicConsoleView::draw() {
+    // First clear the screen.
     TDrawBuffer drawBuffer;
-    drawBuffer.moveChar(0, ' ', 0, size.x);
+    drawBuffer.moveChar(0, ' ', TColorAttr{ fillColor, fillColor }, size.x);
 
     int16_t y = 0;
     for (; y < size.y; y++) {
         writeLine(0, y, static_cast<int16_t>(size.x), 1, drawBuffer);
     }
 
+    // Then draw whatever cells we have.
     y = 0;
     for (const auto& row : cells) {
         writeLine(0, y, static_cast<int16_t>(row.size()), 1, row.data());
