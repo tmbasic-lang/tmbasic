@@ -16,6 +16,7 @@ li@libunistring - {Part 1:license_libunistring_lgpl}, {Part 2:license_libunistri
 li@{microtar:license_microtar}@
 li@{mpdecimal:license_mpdecimal}@
 li@{musl:license_musl}@
+li@{nameof:license_nameof}@
 li@{ncurses:license_ncurses}@
 li@{scintilla:license_scintilla}@
 li@{turbo:license_turbo}@
@@ -30,6 +31,5 @@ The following additional components are included in the TMBASIC development envi
 
 ul@li@{CLI11:license_cli11}@
 li@{libzip:license_libzip}@
-li@{nameof:license_nameof}@
 li@{zlib:license_zlib}@
 @

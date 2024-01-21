@@ -20,13 +20,14 @@ Component | License
 [musl](https://musl.libc.org/) | [MIT](https://github.com/electroly/tmbasic/blob/master/doc/licenses/musl/COPYRIGHT)
 [nameof](https://github.com/Neargye/nameof) | [MIT](https://github.com/electroly/tmbasic/blob/master/doc/licenses/nameof/LICENSE.txt)
 [ncurses](https://invisible-island.net/ncurses/) | [X11](https://github.com/electroly/tmbasic/blob/master/doc/licenses/ncurses/COPYING)
+[scintilla](https://www.scintilla.org/) | [HPND](https://github.com/electroly/tmbasic/blob/master/doc/licenses/scintilla/License.txt)
 [turbo](https://github.com/magiblot/turbo) | [MIT](https://github.com/electroly/tmbasic/blob/master/doc/licenses/turbo/COPYRIGHT)
 [tvision](https://github.com/magiblot/tvision) | [Borland, MIT](https://github.com/electroly/tmbasic/blob/master/doc/licenses/tvision/COPYRIGHT)
-[scintilla](https://www.scintilla.org/) | [HPND](https://github.com/electroly/tmbasic/blob/master/doc/licenses/scintilla/License.txt)
 
 ## Libraries included only in TMBASIC
 
 Component | License
 -- | --
+[CLI11](https://github.com/CLIUtils/CLI11) | [BSD-3-Clause](https://github.com/electroly/tmbasic/blob/master/doc/licenses/cli11/LICENSE)
 [libzip](https://github.com/nih-at/libzip) | [BSD-3-Clause](https://github.com/electroly/tmbasic/blob/master/doc/licenses/libzip/LICENSE)
 [zlib](https://zlib.net) | [Zlib](https://github.com/electroly/tmbasic/blob/master/doc/licenses/zlib/LICENSE.txt)
