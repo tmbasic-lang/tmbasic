@@ -530,6 +530,9 @@ obj/resources/LICENSE.txt: $(LICENSE_FILES)
 	@echo === musl license === >> $@
 	@cat doc/licenses/musl/COPYRIGHT >> $@
 	@echo >> $@
+	@echo === nameof license === >> $@
+	@cat doc/licenses/nameof/LICENSE.txt >> $@
+	@echo >> $@
 	@echo === ncurses license === >> $@
 	@cat doc/licenses/ncurses/COPYING >> $@
 	@echo >> $@
