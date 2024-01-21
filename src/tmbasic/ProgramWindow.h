@@ -27,11 +27,20 @@ class ProgramWindow : public TWindow {
     void checkForErrors();
     void publish();
     void run();
-    void save();
-    void saveAs();
+    bool save();
+    bool saveAs();
+    void updateTitle();
+    void enableDisableCommands(bool enable);
+    void deleteItem();
 
    private:
-    gsl::owner<class ProgramWindowPrivate*> _private;
+    bool _dirty{ false };
+    std::optional<std::string> _filePath;
+    std::unique_ptr<compiler::SourceProgram> _sourceProgram;
+    class SourceMembersListBox* _contentsListBox{};
+    std::function<void(compiler::SourceMember*)> _openMember;
+
+    bool save(const std::string& filePath);
 };
 
 }  // namespace tmbasic

@@ -113,45 +113,25 @@ class SourceMembersListBox : public shared::ListViewer {
     std::function<void()> _onEnableDisableCommands;
 };
 
-class ProgramWindowPrivate {
-   public:
-    ProgramWindow* window;
-    bool dirty{ false };
-    std::optional<std::string> filePath;
-    std::unique_ptr<SourceProgram> sourceProgram;
-    SourceMembersListBox* contentsListBox{};
-    std::function<void(SourceMember*)> openMember;
-
-    ProgramWindowPrivate(
-        ProgramWindow* window,
-        std::unique_ptr<SourceProgram> sourceProgram,
-        std::function<void(SourceMember*)> openMember,
-        std::optional<std::string> filePath)
-        : window(window),
-          sourceProgram(std::move(sourceProgram)),
-          openMember(std::move(openMember)),
-          filePath(std::move(filePath)) {}
-};
-
-static void updateTitle(ProgramWindowPrivate* p) {
+void ProgramWindow::updateTitle() {
     std::ostringstream s;
-    if (p->dirty) {
+    if (_dirty) {
         s << kCharBullet;
     }
-    if (p->filePath.has_value()) {
-        s << shared::getFileName(*p->filePath);
+    if (_filePath.has_value()) {
+        s << shared::getFileName(*_filePath);
     } else {
         s << "Untitled";
     }
     s << " (Program)";
 
-    delete[] p->window->title;  // NOLINT(cppcoreguidelines-owning-memory)
-    p->window->title = newStr(s.str());
+    delete[] title;  // NOLINT(cppcoreguidelines-owning-memory)
+    title = newStr(s.str());
 }
 
-static void enableDisableCommands(ProgramWindowPrivate* p, bool enable) {
+void ProgramWindow::enableDisableCommands(bool enable) {
     TCommandSet cmds;
-    if (p->contentsListBox->range > 0 && p->contentsListBox->focused >= 0) {
+    if (_contentsListBox->range > 0 && _contentsListBox->focused >= 0) {
         cmds.enableCmd(cmClear);
     } else {
         TView::disableCommand(cmClear);
@@ -166,7 +146,9 @@ ProgramWindow::ProgramWindow(
     std::function<void(SourceMember*)> openMember)
     : TWindow(r, "Untitled - Program", wnNoNumber),
       TWindowInit(initFrame),
-      _private(new ProgramWindowPrivate(this, std::move(sourceProgram), std::move(openMember), std::move(filePath))) {
+      _filePath(std::move(filePath)),
+      _sourceProgram(std::move(sourceProgram)),
+      _openMember(std::move(openMember)) {
     TCommandSet ts;
     ts.enableCmd(cmSave);
     ts.enableCmd(cmSaveAs);
@@ -185,14 +167,14 @@ ProgramWindow::ProgramWindow(
     ViewPtr<SourceMembersListBox> contentsListBox{ contentsListBoxRect,
                                                    1,
                                                    vScrollBar,
-                                                   *_private->sourceProgram,
-                                                   [this](auto* member) -> void { _private->openMember(member); },
-                                                   [this]() -> void { enableDisableCommands(_private, true); } };
-    _private->contentsListBox = contentsListBox;
-    _private->contentsListBox->growMode = gfGrowHiX | gfGrowHiY;
+                                                   *_sourceProgram,
+                                                   [this](auto* member) -> void { this->_openMember(member); },
+                                                   [this]() -> void { enableDisableCommands(true); } };
+    _contentsListBox = contentsListBox;
+    contentsListBox->growMode = gfGrowHiX | gfGrowHiY;
     contentsListBox.addTo(this);
 
-    updateTitle(_private);
+    updateTitle();
     updateListItems();
 }
 
@@ -207,13 +189,13 @@ uint16_t ProgramWindow::getHelpCtx() {
     return hcide_programWindow;
 }
 
-static bool save(ProgramWindowPrivate* p, const std::string& filePath) {
+bool ProgramWindow::save(const std::string& filePath) {
     try {
-        p->sourceProgram->save(filePath);
-        p->filePath = filePath;
-        p->dirty = false;
-        updateTitle(p);
-        p->window->frame->drawView();
+        _sourceProgram->save(filePath);
+        _filePath = filePath;
+        _dirty = false;
+        updateTitle();
+        frame->drawView();
         return true;
     } catch (const std::system_error& ex) {
         std::ostringstream s;
@@ -226,14 +208,14 @@ static bool save(ProgramWindowPrivate* p, const std::string& filePath) {
     }
 }
 
-static bool onSaveAs(ProgramWindowPrivate* p) {
+bool ProgramWindow::saveAs() {
     auto d = DialogPtr<TFileDialog>("*.bas", "Save Program As (.BAS)", "~N~ame", fdOKButton, 101);
     auto result = false;
 
     if (TProgram::deskTop->execView(d) != cmCancel) {
         auto fileName = std::array<char, MAXPATH>();
         d->getFileName(fileName.data());
-        if (save(p, fileName.data())) {
+        if (save(fileName.data())) {
             result = true;
         }
     }
@@ -241,15 +223,15 @@ static bool onSaveAs(ProgramWindowPrivate* p) {
     return result;
 }
 
-static bool onSave(ProgramWindowPrivate* p) {
-    if (p->filePath.has_value()) {
-        return save(p, *p->filePath);
+bool ProgramWindow::save() {
+    if (_filePath.has_value()) {
+        return save(*_filePath);
     }
-    return onSaveAs(p);
+    return saveAs();
 }
 
-static void onDeleteItem(ProgramWindowPrivate* p) {
-    auto* member = p->contentsListBox->getSelectedMember();
+void ProgramWindow::deleteItem() {
+    auto* member = _contentsListBox->getSelectedMember();
     if (member == nullptr) {
         return;
     }
@@ -297,25 +279,17 @@ static void onDeleteItem(ProgramWindowPrivate* p) {
             break;
     }
 
-    for (auto iter = p->sourceProgram->members.begin(); iter != p->sourceProgram->members.end(); ++iter) {
+    for (auto iter = _sourceProgram->members.begin(); iter != _sourceProgram->members.end(); ++iter) {
         if (member == iter->get()) {
-            p->sourceProgram->members.erase(iter);
+            _sourceProgram->members.erase(iter);
             break;
         }
     }
 
-    p->dirty = true;
-    updateTitle(p);
-    p->window->frame->drawView();
-    p->window->updateListItems();
-}
-
-void ProgramWindow::save() {
-    onSave(_private);
-}
-
-void ProgramWindow::saveAs() {
-    onSaveAs(_private);
+    _dirty = true;
+    updateTitle();
+    frame->drawView();
+    updateListItems();
 }
 
 void ProgramWindow::handleEvent(TEvent& event) {
@@ -334,12 +308,12 @@ void ProgramWindow::handleEvent(TEvent& event) {
                 break;
         }
     } else if (event.what == evCommand && event.message.command == cmClear) {
-        onDeleteItem(_private);
+        deleteItem();
         clearEvent(event);
     } else if (event.what == evKeyDown && event.keyDown.keyCode == kbEnter) {
-        auto* member = _private->contentsListBox->getSelectedMember();
+        auto* member = _contentsListBox->getSelectedMember();
         if (member != nullptr) {
-            _private->openMember(member);
+            _openMember(member);
         }
     }
 
@@ -348,16 +322,15 @@ void ProgramWindow::handleEvent(TEvent& event) {
 
 // true = close, false = stay open
 bool ProgramWindow::preClose() {
-    if (_private->dirty) {
+    if (_dirty) {
         std::ostringstream s;
-        s << "Save changes to \""
-          << (_private->filePath.has_value() ? shared::getFileName(*_private->filePath) : "Untitled") << "\"?";
+        s << "Save changes to \"" << (_filePath.has_value() ? shared::getFileName(*_filePath) : "Untitled") << "\"?";
         auto result = messageBox(s.str(), mfWarning | mfYesNoCancel);
         if (result == cmCancel) {
             return false;
         }
         if (result == cmYes) {
-            if (!onSave(_private)) {
+            if (!save()) {
                 return false;
             }
         }
@@ -386,35 +359,35 @@ void ProgramWindow::close() {
 }
 
 bool ProgramWindow::isDirty() const {
-    return _private->dirty;
+    return _dirty;
 }
 
 void ProgramWindow::setDirty() {
-    _private->dirty = true;
-    updateTitle(_private);
+    _dirty = true;
+    updateTitle();
     frame->drawView();
 }
 
 void ProgramWindow::addNewSourceMember(std::unique_ptr<SourceMember> sourceMember) {
-    _private->sourceProgram->members.push_back(std::move(sourceMember));
-    _private->contentsListBox->updateItems();
-    _private->dirty = true;
-    updateTitle(_private);
+    _sourceProgram->members.push_back(std::move(sourceMember));
+    _contentsListBox->updateItems();
+    _dirty = true;
+    updateTitle();
 }
 
 void ProgramWindow::updateListItems() {
-    _private->contentsListBox->updateItems();
+    _contentsListBox->updateItems();
 }
 
 void ProgramWindow::redrawListItems() {
-    _private->contentsListBox->drawView();
+    _contentsListBox->drawView();
 }
 
 void ProgramWindow::setState(uint16_t aState, bool enable) {
     TWindow::setState(aState, enable);
 
     if (aState == sfActive) {
-        enableDisableCommands(_private, enable);
+        enableDisableCommands(enable);
     }
 }
 
@@ -430,7 +403,7 @@ static void compilerErrorMessageBox(const compiler::CompilerException& ex) {
 void ProgramWindow::checkForErrors() {
     compiler::CompiledProgram program;
     try {
-        compiler::compileProgram(*_private->sourceProgram, &program);
+        compiler::compileProgram(*_sourceProgram, &program);
         messageBox("No errors!", mfInformation | mfOKButton);
     } catch (compiler::CompilerException& ex) {
         compilerErrorMessageBox(ex);
@@ -458,7 +431,7 @@ class PublishStatusWindow : public TWindow {
 };
 
 void ProgramWindow::publish() {
-    if (!_private->filePath.has_value()) {
+    if (!_filePath.has_value()) {
         messageBox("Please save your program first.", mfError | mfOKButton);
         return;
     }
@@ -469,7 +442,7 @@ void ProgramWindow::publish() {
 
     compiler::CompiledProgram program;
     try {
-        compiler::compileProgram(*_private->sourceProgram, &program);
+        compiler::compileProgram(*_sourceProgram, &program);
     } catch (compiler::CompilerException& ex) {
         statusWindow.get()->close();
         compilerErrorMessageBox(ex);
@@ -477,7 +450,7 @@ void ProgramWindow::publish() {
     }
 
     try {
-        compiler::Publisher publisher{ program, *_private->filePath };
+        compiler::Publisher publisher{ program, *_filePath };
 
         for (auto platform : compiler::getTargetPlatforms()) {
             statusWindow.get()->labelTop->setTitle("Publishing:");
@@ -508,7 +481,7 @@ static std::string getTempExeFilename(TargetPlatform platform) {
 void ProgramWindow::run() {
     compiler::CompiledProgram program;
     try {
-        compiler::compileProgram(*_private->sourceProgram, &program);
+        compiler::compileProgram(*_sourceProgram, &program);
     } catch (compiler::CompilerException& ex) {
         compilerErrorMessageBox(ex);
         return;
