@@ -38,7 +38,18 @@ TScreenCell* BasicConsoleView::getCell(int16_t x, int16_t y) {
 
     // If the cell doesn't exist, create it.
     if (x >= 0 && static_cast<size_t>(x) >= row->size()) {
+        auto oldSize = row->size();
         row->resize(x + 1);
+        auto newSize = row->size();
+
+        // Fill in the gap with the fill color.
+        TColorAttr fill{ fillColor, fillColor };
+        for (auto i = oldSize; i < newSize; i++) {
+            auto* cell = &row->at(i);
+            cell->attr = fill;
+            cell->_ch._text[0] = ' ';
+            cell->_ch._text[1] = '\0';
+        }
     }
 
     return &row->at(x);
