@@ -80,6 +80,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("Asin", { "x" }, { number }, number, SystemCall::kAsin);
     addFunction("Atan", { "x" }, { number }, number, SystemCall::kAtan);
     addFunction("Atan2", { "y", "x" }, { number, number }, number, SystemCall::kAtan2);
+    addFunction("BackColor", {}, {}, color, SystemCall::kBackColor);
     addFunction("Ceil", { "x" }, { number }, number, SystemCall::kCeil);
     addFunction("Characters", { "this" }, { string }, listOfString, SystemCall::kCharacters);
     addFunction("Chr", { "input" }, { number }, string, SystemCall::kChr);
@@ -89,8 +90,6 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("CodeUnit", { "input" }, { string }, number, SystemCall::kCodeUnit1);
     addFunction("CodeUnit", { "input", "index" }, { string, number }, number, SystemCall::kCodeUnit2);
     addFunction("CodeUnits", { "input" }, { string }, listOfNumber, SystemCall::kCodeUnits);
-    addFunction("BackColor", {}, {}, color, SystemCall::kBackColor);
-    addFunction("ForeColor", {}, {}, color, SystemCall::kForeColor);
     addFunction("Concat", { "strings" }, { listOfString }, string, SystemCall::kConcat1);
     addFunction("Concat", { "strings", "separator" }, { listOfString, string }, string, SystemCall::kConcat2);
     addFunction("Contains", { "set", "key" }, { setOfAny, generic1 }, boolean, SystemCall::kSetContains);
@@ -123,6 +122,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("Find", { "map", "key" }, { mapFromAnyToAny, generic1 }, optionalGeneric2, SystemCall::kMapFind);
     addFunction("First", { "list" }, { listOfAny }, generic1, SystemCall::kListFirst);
     addFunction("Floor", { "x" }, { number }, number, SystemCall::kFloor);
+    addFunction("ForeColor", {}, {}, color, SystemCall::kForeColor);
     addFunction("FormTitle", { "form" }, { form }, string, SystemCall::kFormTitle);
     addFunction("HasValue", { "this" }, { optionalAny }, boolean, SystemCall::kHasValue);
     addFunction("Hour", { "input" }, { dateTime }, number, SystemCall::kDateTimeOffsetHour);
