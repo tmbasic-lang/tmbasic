@@ -42,8 +42,6 @@ TDeskTop* BasicApp::initBasicDeskTop(TRect r) {
 void BasicApp::forceScreenUpdate() {
     redraw();
     TScreen::flushScreen();
-    TEvent event{};
-    getEvent(event);
 }
 
 }  // namespace vm
