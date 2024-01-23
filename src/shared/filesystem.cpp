@@ -187,13 +187,14 @@ std::string getTempFilePath(const std::string& filename) {
         return ss.str();
     }
 #else
-    auto tempPath = std::filesystem::temp_directory_path();
-    if (!std::filesystem::exists(tempPath)) {
-        // It's possible that the temp directory doesn't exist, and we don't have permission to create it.
+    try {
+        auto tempPath = std::filesystem::temp_directory_path();
+        return (tempPath / filename).string();
+    } catch (const std::filesystem::filesystem_error& ex) {
+        // It's possible that the temp directory doesn't exist.
         // Best to fall back to the current directory with a relative path.
         return filename;
     }
-    return (tempPath / filename).string();
 #endif
 }
 
