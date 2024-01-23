@@ -16,8 +16,12 @@ static void runIde(int argc, char** argv) {
     app.shutDown();
 }
 
-static void runProgram(const std::string& /*filename*/) {
-    // TODO: build exe and run
+static void runProgram(const std::string& filename) {
+    compiler::CompiledProgram program{};
+    compiler::SourceProgram source{};
+    source.load(filename);
+    compiler::compileProgram(source, &program);
+    program.run();
 }
 
 static void publishProgram(const std::string& filename, const std::vector<std::string>& platformStrings) {
@@ -48,33 +52,26 @@ int main(int argc, char** argv) {
 
     CLI::App cli{ "TMBASIC programming language" };
 
+    // CAREFUL! The variables that receive command line arguments must stay alive until the end of the cli.parse() call
+    // because we're capturing references to them in the callbacks. So don't move them into inner lexical scopes.
+    std::string filename{};
+    std::vector<std::string> platformStrings{};
+
     // run
-    {
-        auto* command = cli.add_subcommand("run", "Runs a TMBASIC program.");
-
-        std::string filename{};
-        command->add_option("filename", filename, "Path to a TMBASIC source file (.bas)")->required();
-
-        command->callback([&]() { runProgram(filename); });
-    }
+    auto* run = cli.add_subcommand("run", "Runs a TMBASIC program.");
+    run->add_option("filename", filename, "Path to a TMBASIC source file (.bas)")->required();
+    run->callback([&]() { runProgram(filename); });
 
     // publish
-    {
-        auto* command = cli.add_subcommand("publish", "Publishes a TMBASIC program to a native executable.");
-
-        std::string filename{};
-        command->add_option("filename", filename, "Path to a TMBASIC source file (.bas)")->required();
-
-        std::vector<std::string> platformStrings{};
-        std::ostringstream ss{};
-        ss << "Target platform(s). Options are:\n";
-        for (auto platform : compiler::getTargetPlatforms()) {
-            ss << "   -t " << compiler::getPlatformName(platform) << "\n";
-        }
-        command->add_option("-t,--target", platformStrings, ss.str());
-
-        command->callback([&]() { publishProgram(filename, platformStrings); });
+    auto* publish = cli.add_subcommand("publish", "Publishes a TMBASIC program to a native executable.");
+    publish->add_option("filename", filename, "Path to a TMBASIC source file (.bas)")->required();
+    std::ostringstream targetPlatformsHelp{};
+    targetPlatformsHelp << "Target platform(s). Options are:\n";
+    for (auto platform : compiler::getTargetPlatforms()) {
+        targetPlatformsHelp << "   -t " << compiler::getPlatformName(platform) << "\n";
     }
+    publish->add_option("-t,--target", platformStrings, targetPlatformsHelp.str());
+    publish->callback([&]() { publishProgram(filename, platformStrings); });
 
     try {
         cli.parse(argc, argv);
