@@ -409,7 +409,7 @@ test: bin/test$(EXE_EXTENSION)
 
 .PHONY: valgrind
 valgrind: bin/tmbasic
-	valgrind --leak-check=full --show-leak-kinds=all --undef-value-errors=no --log-file=valgrind.txt bin/tmbasic || cat valgrind.txt
+	valgrind --log-file=valgrind.txt bin/tmbasic || cat valgrind.txt
 	cat valgrind.txt
 
 .PHONE: callgrind

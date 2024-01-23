@@ -1,0 +1,4 @@
+--leak-check=full
+--show-leak-kinds=all
+--undef-value-errors=no
+--suppressions=/code/src/valgrind-suppressions.supp

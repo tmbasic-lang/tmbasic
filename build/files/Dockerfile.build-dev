@@ -75,7 +75,8 @@ RUN mkdir -p /tmp/downloads && \
 RUN ln -s /usr/local/$(uname -m)-linux-gnu /usr/local/target
 
 # environment
-COPY devPrompt.sh /home/user/
+COPY --chown=$HOST_UID:$HOST_GID devPrompt.sh /home/user/
+COPY --chown=$HOST_UID:$HOST_GID .valgrindrc /home/user/
 RUN echo "export ARCH=\"$ARCH\"" >> /etc/profile.d/tmbasic.sh && \
     echo "export IMAGE_NAME=\"$IMAGE_NAME\"" >> /etc/profile.d/tmbasic.sh && \
     echo "export PS1=\"[$IMAGE_NAME] \w\$ \"" >> /etc/profile.d/tmbasic.sh && \

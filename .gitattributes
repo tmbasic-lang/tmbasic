@@ -13,6 +13,7 @@
 *.md text eol=lf
 *.rc text eol=crlf
 *.sh text eol=lf
+*.supp text eol=lf
 *.txt text eol=lf
 .clang-format text eol=lf
 .clang-tidy text eol=lf

@@ -1,0 +1,40 @@
+{
+   <tvision_global_1>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:_ZN13TNSCollection8setLimitEi
+   fun:_ZN16TStreamableClassC1EPKcPFP11TStreamablevEi
+   fun:_GLOBAL__sub_I_crossRefHandler
+   fun:call_init
+   fun:__libc_start_main@@GLIBC_2.34
+   fun:(below main)
+}
+{
+   <tvision_global_2>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZN16TStreamableClassC1EPKcPFP11TStreamablevEi
+   fun:_GLOBAL__sub_I_crossRefHandler
+   fun:call_init
+   fun:__libc_start_main@@GLIBC_2.34
+   fun:(below main)
+}
+{
+   <tvision_global_3>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:_nc_build_names
+   fun:_nc_find_type_entry
+   fun:tigetflag_sp
+   fun:use_default_colors
+   fun:_ZN7tvision14NcursesDisplayC1ERNS_8StdioCtlE
+   fun:_ZN7tvision8Platform13createConsoleEv
+   fun:_ZN7tvision8Platform12setUpConsoleERPNS_15ConsoleStrategyE
+   fun:_ZN13THardwareInfo12setUpConsoleEv
+   fun:_ZN7TScreenC1Ev
+   fun:_ZN15TSubsystemsInitC1Ev
+   fun:_ZN7tmbasic3AppC1EiPPc
+}
