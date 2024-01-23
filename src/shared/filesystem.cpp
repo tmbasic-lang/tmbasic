@@ -178,11 +178,22 @@ std::string getTempFilePath(const std::string& filename) {
         return ss.str();
     } else {
         // Default to "/tmp" if TMPDIR is not set
+        // If even /tmp doesn't exist, just return filename.
+        struct stat sb {};
+        if (stat("/tmp", &sb) != 0 || !S_ISDIR(sb.st_mode)) {
+            return filename;
+        }
         ss << "/tmp/" << filename;
         return ss.str();
     }
 #else
-    return (std::filesystem::temp_directory_path() / filename).string();
+    auto tempPath = std::filesystem::temp_directory_path();
+    if (!std::filesystem::exists(tempPath)) {
+        // It's possible that the temp directory doesn't exist, and we don't have permission to create it.
+        // Best to fall back to the current directory with a relative path.
+        return filename;
+    }
+    return (tempPath / filename).string();
 #endif
 }
 
