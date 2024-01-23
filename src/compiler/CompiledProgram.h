@@ -59,6 +59,7 @@ class CompiledProgram {
     std::unordered_map<size_t, CompiledUserType*> userTypesBySourceMemberIndex;
 
     std::vector<uint8_t> serialize() const;
+    void run() const;
 };
 
 }  // namespace compiler
