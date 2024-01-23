@@ -26,6 +26,8 @@
 
 #ifndef _WIN32
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #endif
 
 using compiler::SourceMember;
@@ -514,10 +516,35 @@ void ProgramWindow::run() {
     chmod(tempFilePath.c_str(), 0777);
 #endif
 
-    // Execute it
+    // Execute it.
     TProgram::application->suspend();
+
+#ifdef _WIN32
+    // Shell is always available in Windows, so just use std::system().
     auto args = fmt::format("\"{}\"", tempFilePath);
     std::system(args.c_str());
+#else
+    // Shell might NOT be available in Linux, so use fork/exec.
+    // Consider a chroot environment containing tmbasic and nothing else.
+    auto pid = fork();
+    if (pid == 0) {
+        // Child process. Use exec.
+        execl(tempFilePath.c_str(), tempFilePath.c_str(), nullptr);
+
+        // If it was successful, then execution will never reach this point.
+        // If we're here, then it failed.
+        std::cerr << "Failed to start the program: " << strerror(errno) << std::endl;
+
+        // ChatGPT says it's important to use _exit and not exit here.
+        _exit(EXIT_FAILURE);
+    } else if (pid > 0) {
+        // Parent process. Wait for the child process to exit.
+        int status{};
+        waitpid(pid, &status, 0);
+    } else {
+        std::cout << "Failed to fork a new process: " << strerror(errno) << std::endl;
+    }
+#endif
 
     // Delete the temp file
     shared::deleteFile(tempFilePath);
