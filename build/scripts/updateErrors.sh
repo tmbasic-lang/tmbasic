@@ -14,7 +14,7 @@ rm -f /tmp/list.cpp
 grep -v "li@" doc/help/topics/builtin_constants.txt > /tmp/help.txt
 export LINE_NUMBER=$(grep -n "ul@" /tmp/help.txt | awk -F: '{ print $1 }')
 head -n $LINE_NUMBER /tmp/help.txt > /tmp/help2.txt
-grep ERR_ src/shared/Error.h | awk '{ print "li@`" $5 "`@" }' | sort >> /tmp/help2.txt
+grep ERR_ src/shared/Error.h | awk '{ sub(/,$/, "", $3); print "li@`" $5 " = " $3 "`@" }' >> /tmp/help2.txt
 tail -n +$(($LINE_NUMBER+1)) /tmp/help.txt >> /tmp/help2.txt
 mv -f /tmp/help2.txt doc/help/topics/builtin_constants.txt
 rm -f /tmp/help.txt
