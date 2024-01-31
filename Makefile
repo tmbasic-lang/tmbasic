@@ -673,7 +673,7 @@ bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
 	@mkdir -p $(@D)
 	$(CXX) -o $@ $(TMBASIC_OBJ_FILES) $(CXXFLAGS) $(STATIC_FLAG) -include obj/common.h obj/compiler.a obj/shared.a obj/resources/help/helpfile.o obj/resources/tzdb.o $(ALL_PLATFORM_RUNNER_OBJ_FILES) $(ICON_RES_OBJ_FILE) $(TMBASIC_LDFLAGS) $(LDFLAGS)
 ifeq ($(STRIP_TMBASIC),1)
-	$(STRIP) --strip-unneeded bin/tmbasic$(EXE_EXTENSION)
+	$(STRIP) bin/tmbasic$(EXE_EXTENSION)
 endif
 
 ifeq ($(TARGET_OS),win)
@@ -726,7 +726,7 @@ obj/resources/pcode/pcode.o: %:
 bin/runner$(EXE_EXTENSION): obj/resources/pcode/pcode.o $(RUNNER_OBJ_FILES) obj/shared.a obj/vm.a obj/resources/tzdb.o
 	@mkdir -p $(@D)
 	$(CXX) -o $@ $(CXXFLAGS) $(STATIC_FLAG) -include obj/common.h $(RUNNER_OBJ_FILES) obj/resources/pcode/pcode.o obj/vm.a obj/shared.a obj/resources/tzdb.o $(LDFLAGS)
-	$(STRIP) --strip-unneeded $@
+	$(STRIP) $@
 
 bin/runner.gz: bin/runner$(EXE_EXTENSION)
 	@mkdir -p $(@D)
