@@ -50,8 +50,8 @@ TVISION_VERSION=4510c5f24ec1e651efc7519a492497c0331959f3
 TZDB_VERSION=2023d
 ZLIB_VERSION=1.3
 
-# https://github.com/electroly/tmbasic-abseil-cpp
-downloadFile "abseil-$ABSEIL_VERSION.tar.gz" "https://github.com/electroly/tmbasic-abseil-cpp/archive/$ABSEIL_VERSION.tar.gz"
+# https://github.com/tmbasic-lang/tmbasic-abseil-cpp
+downloadFile "abseil-$ABSEIL_VERSION.tar.gz" "https://github.com/tmbasic-lang/tmbasic-abseil-cpp/archive/$ABSEIL_VERSION.tar.gz"
 
 # https://ftp.gnu.org/gnu/binutils
 downloadFile "binutils-$BINUTILS_VERSION.tar.gz" "https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VERSION.tar.gz"

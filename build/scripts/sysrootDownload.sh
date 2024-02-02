@@ -23,7 +23,7 @@ if [ "$ARCH" = "i686" ]; then
     export BUILDX_ARCH="linux/386"
 fi
 
-export IMAGE_NAME="ghcr.io/electroly/tmbasic-linux-sysroot"
+export IMAGE_NAME="ghcr.io/tmbasic-lang/tmbasic-linux-sysroot"
 export FILENAME="downloads/sysroot-$IMAGE_TAG.tar.gz"
 
 mkdir -p downloads

@@ -36,7 +36,7 @@ jobs:
           set -euxo pipefail
 
           export IMAGE_TAG=$(awk -F= '{ if ($1 == "build-environment-${{ matrix.platform }}") print $2 }' build/tags.ini)
-          export IMAGE_NAME="ghcr.io/electroly/tmbasic-build-env:$IMAGE_TAG"
+          export IMAGE_NAME="ghcr.io/tmbasic-lang/tmbasic-build-env:$IMAGE_TAG"
           docker pull "$IMAGE_NAME"
 
           pushd build
@@ -181,7 +181,7 @@ jobs:
           set -euxo pipefail
 
           export IMAGE_TAG=$(awk -F= '{ if ($1 == "build-environment-${{ matrix.platform }}") print $2 }' build/tags.ini)
-          export IMAGE_NAME="ghcr.io/electroly/tmbasic-build-env:$IMAGE_TAG"
+          export IMAGE_NAME="ghcr.io/tmbasic-lang/tmbasic-build-env:$IMAGE_TAG"
           docker pull "$IMAGE_NAME"
 
           mkdir -p obj/resources/runners/
