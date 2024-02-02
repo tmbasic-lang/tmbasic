@@ -26,6 +26,9 @@ jobs:
             arch: i686
             os: win
     name: ${{ matrix.platform }}
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v3

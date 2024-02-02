@@ -16,6 +16,9 @@ jobs:
           - arch: arm64v8
             buildx-arch: linux/arm/v8
     name: linux-${{ matrix.arch }}
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v3
