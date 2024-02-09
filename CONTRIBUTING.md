@@ -20,12 +20,6 @@ ___
 
 ```mermaid
 graph TD;
-    tmbasic["<a href='https://github.com/tmbasic-lang/tmbasic/tree/master/src/tmbasic'>tmbasic</a> (exe)"]
-    test["<a href='https://github.com/tmbasic-lang/tmbasic/tree/master/src/test'>test</a> (exe)"]
-    runner["<a href='https://github.com/tmbasic-lang/tmbasic/tree/master/src/runner'>runner</a> (exe)"]
-    compiler["<a href='https://github.com/tmbasic-lang/tmbasic/tree/master/src/compiler'>compiler</a> (lib)"]
-    vm["<a href='https://github.com/tmbasic-lang/tmbasic/tree/master/src/vm'>vm</a> (lib)"]
-    shared["<a href='https://github.com/tmbasic-lang/tmbasic/tree/master/src/shared'>shared</a> (lib)"]
     tmbasic-->compiler;
     test-->compiler;
     test-->vm;
