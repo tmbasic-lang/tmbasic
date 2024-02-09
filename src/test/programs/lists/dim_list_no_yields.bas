@@ -8,3 +8,4 @@ Compiler error
 kNoYieldsInDimCollection
 Main
 2:5
+A "dim list" block must contain at least one "yield" statement.

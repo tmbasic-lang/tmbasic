@@ -14,3 +14,4 @@ Compiler error
 kTypeMismatch
 Main
 6:14
+This "case" expression is of type Number, which does not match the "select case" expression type String.

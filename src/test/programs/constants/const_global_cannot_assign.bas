@@ -7,3 +7,4 @@ Compiler error
 kInvalidAssignmentTarget
 Main
 2:5
+Cannot assign to a constant.

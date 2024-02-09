@@ -10,3 +10,4 @@ Compiler error
 kInvalidReturn
 Foo
 2:5
+A subroutine cannot return a value.

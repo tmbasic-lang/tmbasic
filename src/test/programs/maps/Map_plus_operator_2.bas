@@ -15,3 +15,4 @@ Compiler error
 kTypeMismatch
 Main
 10:19
+The types Map from Number to Number and Map from Number to String are not valid operands for the "+" operator.

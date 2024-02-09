@@ -11,3 +11,4 @@ Compiler error
 kYieldOutsideDimCollection
 Foo
 2:5
+Yield must be inside a "dim list", "dim map", or "dim set" block.

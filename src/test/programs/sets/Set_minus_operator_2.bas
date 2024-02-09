@@ -14,3 +14,4 @@ Compiler error
 kTypeMismatch
 Main
 9:19
+The types Set of Number and Set of String are not valid operands for the "-" operator.

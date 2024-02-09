@@ -8,3 +8,4 @@ Compiler error
 kInvalidGlobalVariableType
 dim x = [{ foo: 111 }]
 1:9
+Global variable initial values must be a Boolean, Number, or String literal.

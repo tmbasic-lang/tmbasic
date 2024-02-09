@@ -10,3 +10,4 @@ Compiler error
 kInvalidReturn
 Foo
 2:5
+This function expects to return a value of type Number.

@@ -10,3 +10,4 @@ Compiler error
 kInvalidTypeConversion
 Main
 3:15
+This type conversion is not allowed because the source and target types have different field names. The field at index 0 is named "z" in the source type but "a" in the target type.

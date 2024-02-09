@@ -13,3 +13,4 @@ Compiler error
 kContinueTypeMismatch
 Main
 6:13
+This "continue do" statement is inside a "while" loop. The loop type must match.

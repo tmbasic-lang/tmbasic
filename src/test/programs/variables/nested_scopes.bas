@@ -11,3 +11,4 @@ Compiler error
 kDuplicateSymbolName
 Main
 4:9
+There is already a variable named "a". Try another name for this variable.

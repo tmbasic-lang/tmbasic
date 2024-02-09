@@ -8,3 +8,4 @@ Compiler error
 kTypeMismatch
 Main
 4:16
+The condition of a "do" statement must be a Boolean.

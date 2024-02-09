@@ -11,3 +11,4 @@ Compiler error
 kTypeMismatch
 Foo
 2:5
+The return type of this function is Number, but the "return" statement expression is of type String.

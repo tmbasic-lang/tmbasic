@@ -41,7 +41,8 @@ static void runCodeCore(
                             << (ex.token.sourceMember == nullptr ? "token.sourceMember is null!"
                                                                  : ex.token.sourceMember->identifier)
                             << "\n"
-                            << (ex.token.lineIndex + 1) << ":" << (ex.token.columnIndex + 1) << "\n";
+                            << (ex.token.lineIndex + 1) << ":" << (ex.token.columnIndex + 1) << "\n"
+                            << ex.message << "\n";
         errorMessage = ex.message;
     }
 
@@ -69,8 +70,7 @@ static void runCodeCore(
 
     auto actualOutput = consoleOutputStream.str();
 
-    // If we're about to fail, then also print the error message.
-    // It's likely that this message is more useful than the assert failure message.
+    // If we're about to fail, then also print the unquoted error message for easy copy-and-paste.
     if (actualOutput != expectedOutput && errorMessage.has_value()) {
         std::cerr << "Error message:\n" << *errorMessage << "\n\n";
     }

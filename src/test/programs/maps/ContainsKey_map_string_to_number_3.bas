@@ -8,3 +8,4 @@ Compiler error
 kProcedureNotFound
 Main
 3:11
+Call to procedure "ContainsKey" with the wrong parameters.

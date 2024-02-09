@@ -9,3 +9,4 @@ Compiler error
 kInvalidYieldType
 Main
 3:9
+Inside "dim map" blocks, "yield" must take a key and a value.

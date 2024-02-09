@@ -8,3 +8,4 @@ Compiler error
 kTypeMismatch
 Main
 3:11
+The target of an "input" statement must be a String or Number.

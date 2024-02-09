@@ -12,3 +12,4 @@ Compiler error
 kTypeMismatch
 Main
 4:14
+Ranges in "case" expressions must be numbers, but this range's start value is of type String.

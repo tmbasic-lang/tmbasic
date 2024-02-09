@@ -13,3 +13,4 @@ Compiler error
 kExitTypeMismatch
 Main
 6:13
+This "exit do" statement is inside a "while" loop. The loop type must match.

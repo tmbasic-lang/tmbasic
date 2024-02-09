@@ -11,3 +11,4 @@ Compiler error
 kProcedureNotFound
 Main
 6:13
+Call to procedure "Find" with the wrong parameters.

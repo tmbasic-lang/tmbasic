@@ -16,3 +16,4 @@ Compiler error
 kMultipleSelectCaseDefaults
 Main
 10:9
+This "select case" has multiple "case else" blocks, but it can only have one.

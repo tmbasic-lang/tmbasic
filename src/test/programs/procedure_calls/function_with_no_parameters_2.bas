@@ -12,3 +12,4 @@ Compiler error
 kSymbolNotFound
 Main
 2:63
+There is no variable named "Foo" accessible from here.

@@ -11,3 +11,4 @@ Compiler error
 kInvalidTypeConversion
 Main
 3:15
+This type conversion is not allowed because the target type has 1 field(s) but the source type has 2 field(s). The number of fields must match.

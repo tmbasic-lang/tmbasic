@@ -8,3 +8,4 @@ Compiler error
 kTypeMismatch
 Main
 4:15
+The types List of Number and List of String are not valid operands for the "+" operator.
