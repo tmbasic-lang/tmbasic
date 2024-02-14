@@ -124,7 +124,7 @@ function checkTzdb {
 echo
 echo '# depsDownload.sh'
 
-checkGitHubCommit "ABSEIL" "https://github.com/tmbasic-lang/tmbasic-abseil-cpp/commits.atom"
+checkGitHubCommit "ABSEIL" "https://github.com/tmbasic-lang/abseil-cpp/commits.atom"
 checkGnu "binutils-" "BINUTILS" "https://ftp.gnu.org/gnu/binutils/"
 checkJfrog "BOOST" "https://boostorg.jfrog.io/artifactory/main/release/"
 checkGitHubRelease "CLI11" "https://github.com/CLIUtils/CLI11/releases.atom"

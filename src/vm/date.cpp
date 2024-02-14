@@ -12,9 +12,19 @@ namespace vm {
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 static bool _isTzdbInitialized = false;
 
+// Keep these alive because we have handed out string_views which must remain valid for the life of the program.
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
+static std::vector<std::vector<char>> _zoneInfoFiles{};
+
+static void addStaticZoneInfoFile(const std::string& name, std::vector<char> data) {
+    const auto& storedData = _zoneInfoFiles.emplace_back(std::move(data));
+    std::string_view sv{ storedData.data(), storedData.size() };
+    absl::AddStaticZoneInfoFile(name, sv);
+}
+
 void initializeTzdb() {
     if (!_isTzdbInitialized) {
-        shared::untar(kResourceTzdb, static_cast<size_t>(kResourceTzdb_len), absl::AddZoneInfoFile);
+        shared::untar(kResourceTzdb, static_cast<size_t>(kResourceTzdb_len), addStaticZoneInfoFile);
         _isTzdbInitialized = true;
     }
 }

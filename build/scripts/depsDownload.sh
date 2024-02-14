@@ -31,7 +31,7 @@ function downloadFile {
 }
 
 # don't update these versions by hand. instead, run scripts/depsCheck.sh
-ABSEIL_VERSION=57383901082bd5e3ad8bfe63b2c44897c9f05c27
+ABSEIL_VERSION=95fdf6f2117eee7e15dd015b4e89068463f6c9af
 BINUTILS_VERSION=2.42
 BOOST_VERSION=1.84.0
 CLI11_VERSION=2.4.1
@@ -50,8 +50,8 @@ TVISION_VERSION=be6e64f85355c6c96b7c09174986fafb6a411c6a
 TZDB_VERSION=2024a
 ZLIB_VERSION=1.3.1
 
-# https://github.com/tmbasic-lang/tmbasic-abseil-cpp
-downloadFile "abseil-$ABSEIL_VERSION.tar.gz" "https://github.com/tmbasic-lang/tmbasic-abseil-cpp/archive/$ABSEIL_VERSION.tar.gz"
+# https://github.com/tmbasic-lang/abseil-cpp
+downloadFile "abseil-$ABSEIL_VERSION.tar.gz" "https://github.com/tmbasic-lang/abseil-cpp/archive/$ABSEIL_VERSION.tar.gz"
 
 # https://ftp.gnu.org/gnu/binutils
 downloadFile "binutils-$BINUTILS_VERSION.tar.gz" "https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VERSION.tar.gz"

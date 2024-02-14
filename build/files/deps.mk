@@ -626,7 +626,7 @@ endif
 
 $(ABSEIL_DIR)/download:
 	tar zxf $(DOWNLOAD_DIR)/abseil-*.tar.gz
-	mv -f tmbasic-abseil-*/ $(ABSEIL_DIR)/
+	mv -f abseil-*/ $(ABSEIL_DIR)/
 	touch $@
 
 $(ABSEIL_DIR)/install: $(ABSEIL_DIR)/download $(CMAKE_DIR)/install $(BINUTILS_DIR)/install

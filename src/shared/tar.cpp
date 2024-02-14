@@ -129,7 +129,7 @@ class InputTarArchive {
 void untar(
     const char* tarData,
     size_t tarSize,
-    const std::function<void(const char* name, const char* data, size_t length)>& entryCallback) {
+    const std::function<void(const std::string& name, std::vector<char> data)>& entryCallback) {
     InputTarArchive archive{ tarData, tarSize };
     mtar_t mtar{};
     memset(&mtar, 0, sizeof(mtar_t));
@@ -158,7 +158,7 @@ void untar(
         if (mtar_read_data(&mtar, data.data(), size) < 0) {
             throw std::runtime_error(fmt::format("Failed to read the tar data for \"{}\".", name));
         }
-        entryCallback(name.c_str(), data.data(), data.size());
+        entryCallback(name, std::move(data));
 
         mtar_next(&mtar);
     }
