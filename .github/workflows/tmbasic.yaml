@@ -46,7 +46,7 @@ jobs:
           mv bin/runner.gz runner-${{ matrix.platform }}.gz
 
       - name: Upload runner.gz
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: runner-${{ matrix.platform }}
           path: runner-${{ matrix.platform }}.gz
@@ -73,7 +73,6 @@ jobs:
         run: |
           set -euxo pipefail
 
-          # https://github.com/actions/runner-images/issues/8613
           brew install awscli
 
           export FILENAME=$(awk -F= '{ if ($1 == "build-environment-${{ matrix.platform }}") print $2 }' build/tags.ini)
@@ -88,7 +87,7 @@ jobs:
           mv bin/runner.gz runner-${{ matrix.platform }}.gz
 
       - name: Upload runner.gz
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: runner-${{ matrix.platform }}
           path: runner-${{ matrix.platform }}.gz
@@ -99,7 +98,7 @@ jobs:
     needs: [build-runner-docker, build-runner-mac]
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: .
 
@@ -118,7 +117,7 @@ jobs:
           ls -l runners.tar
 
       - name: Upload runners.tar
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: runners
           path: runners.tar
@@ -161,7 +160,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Download runners.tar
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: runners
           path: .
@@ -204,14 +203,14 @@ jobs:
 
       - name: Upload tmbasic.zip
         if: matrix.format == 'zip'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: tmbasic-${{ matrix.platform }}
           path: bin/tmbasic-*.zip
 
       - name: Upload tmbasic.tar.gz
         if: matrix.format == 'tar.gz'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: tmbasic-${{ matrix.platform }}
           path: bin/tmbasic-*.tar.gz
@@ -231,7 +230,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Download runners.tar
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: runners
           path: .
@@ -269,7 +268,7 @@ jobs:
           popd
 
       - name: Upload tmbasic.zip
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: tmbasic-${{ matrix.platform }}
           path: bin/tmbasic-*.zip
