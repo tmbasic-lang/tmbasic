@@ -387,7 +387,7 @@ ifeq ($(LINUX_DISTRO),ubuntu)
 	@echo "make format        Reformat code"
 	@echo "make lint          Check code with cpplint"
 	@echo "make tidy          Check code with clang-tidy"
-	@echo "make ghpages       Build tmbasic-gh-pages"
+	@echo "make ghpages       Build website"
 endif
 	@echo ""
 
