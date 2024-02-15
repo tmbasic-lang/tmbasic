@@ -123,7 +123,7 @@ jobs:
           path: runners.tar
 
       - name: Delete runner-*.gz
-        uses: geekyeggo/delete-artifact@v2
+        uses: geekyeggo/delete-artifact@v4
         with:
           useGlob: false
           name: |
@@ -279,7 +279,7 @@ jobs:
     needs: [build-tmbasic-docker, build-tmbasic-mac]
     steps:
       - name: Delete runners.tar
-        uses: geekyeggo/delete-artifact@v2
+        uses: geekyeggo/delete-artifact@v4
         with:
           useGlob: false
           name: runners
