@@ -278,6 +278,8 @@ jobs:
   final-cleanup:
     runs-on: ubuntu-latest
     name: Cleanup
+    permissions:
+      actions: write
     needs: [build-tmbasic-docker, build-tmbasic-mac]
     steps:
       - name: Delete runners.tar
