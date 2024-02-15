@@ -31,7 +31,7 @@ function downloadFile {
 }
 
 # don't update these versions by hand. instead, run scripts/depsCheck.sh
-ABSEIL_VERSION=95fdf6f2117eee7e15dd015b4e89068463f6c9af
+ABSEIL_VERSION=7626bacbbc05bfeb03a09e5993934c9d2b80b9ba
 BINUTILS_VERSION=2.42
 BOOST_VERSION=1.84.0
 CLI11_VERSION=2.4.1

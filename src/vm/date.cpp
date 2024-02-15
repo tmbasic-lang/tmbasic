@@ -19,7 +19,7 @@ static std::vector<std::vector<char>> _zoneInfoFiles{};
 static void addStaticZoneInfoFile(const std::string& name, std::vector<char> data) {
     const auto& storedData = _zoneInfoFiles.emplace_back(std::move(data));
     std::string_view sv{ storedData.data(), storedData.size() };
-    absl::AddStaticZoneInfoFile(name, sv);
+    absl::LoadStaticZoneInfoFile(name, sv);
 }
 
 void initializeTzdb() {
