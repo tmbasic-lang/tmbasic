@@ -95,6 +95,8 @@ jobs:
   gather-runners:
     runs-on: ubuntu-latest
     name: Gather Runners
+    permissions:
+      actions: write
     needs: [build-runner-docker, build-runner-mac]
     steps:
       - name: Download artifacts
