@@ -450,7 +450,7 @@ ifeq ($(TARGET_OS),mac)
 TURBO_CMAKE_FLAGS=-DCMAKE_EXE_LINKER_FLAGS="-framework ServiceManagement -framework Foundation -framework Cocoa"
 endif
 
-$(TURBO_DIR)/install: $(TURBO_DIR)/download $(TVISION_DIR)/install $(FMT_DIR)/install \
+$(TURBO_DIR)/install: $(TURBO_DIR)/download $(TVISION_DIR)/install \
 		$(CMAKE_DIR)/install $(NCURSES_DIR)/install $(BINUTILS_DIR)/install
 	cd $(TURBO_DIR) && \
 		mkdir -p build && \
@@ -462,7 +462,6 @@ $(TURBO_DIR)/install: $(TURBO_DIR)/download $(TVISION_DIR)/install $(FMT_DIR)/in
 			-DCMAKE_INSTALL_PREFIX=$(TARGET_PREFIX) \
 			-DCMAKE_BUILD_TYPE=Release \
 			-DTURBO_USE_SYSTEM_TVISION=ON \
-			-DTURBO_USE_SYSTEM_DEPS=ON \
 			-DTURBO_BUILD_APP=OFF \
 			$(CMAKE_TOOLCHAIN_FLAG) && \
 		$(MAKE) && \
