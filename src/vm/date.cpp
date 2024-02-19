@@ -60,11 +60,13 @@ std::unique_ptr<ZoneInfoSource> customZoneInfoSourceFactory(
     return std::make_unique<StaticZoneInfoSource>(it->second);
 }
 
-// Abseil will look for this zone_info_source_factory symbol.
+// Abseil will look for this zone_info_source_factory symbol. Their intention was that we would define our own "strong"
+// zone_info_source_factory symbol that overrides their "weak" symbol, but they don't support doing so in MinGW which
+// we need. Instead we will let them define the symbol and then write to it when we initialize the TZDB.
 namespace absl {
 namespace time_internal {
 namespace cctz_extension {
-ZoneInfoSourceFactory zone_info_source_factory = customZoneInfoSourceFactory;
+extern ZoneInfoSourceFactory zone_info_source_factory;
 }  // namespace cctz_extension
 }  // namespace time_internal
 }  // namespace absl
@@ -81,6 +83,7 @@ namespace vm {
 
 void initializeTzdb() {
     if (!_isTzdbInitialized) {
+        absl::time_internal::cctz_extension::zone_info_source_factory = customZoneInfoSourceFactory;
         shared::untar(kResourceTzdb, static_cast<size_t>(kResourceTzdb_len), addStaticZoneInfoFile);
         _isTzdbInitialized = true;
     }
