@@ -3,24 +3,81 @@
 #include "shared/tar.h"
 #include "vm/RecordBuilder.h"
 
-// This is tzdb.tar, the contents of /usr/share/zoneinfo.
-extern const char kResourceTzdb[];  // NOLINT(modernize-avoid-c-arrays)
-extern const uint kResourceTzdb_len;
+// We depend on an internal implementation detail of Abseil in order to statically link our own zoneinfo data.
+// However we have evidence that Google uses it in this way, so the risk of breakage should be low.
+// See: https://github.com/abseil/abseil-cpp/pull/1626
+#include <absl/time/internal/cctz/include/cctz/zone_info_source.h>
 
-namespace vm {
+using absl::time_internal::cctz::ZoneInfoSource;
 
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 static bool _isTzdbInitialized = false;
 
-// Keep these alive because we have handed out string_views which must remain valid for the life of the program.
-// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
-static std::vector<std::vector<char>> _zoneInfoFiles{};
+// An implementation of ZoneInfoSource backed by static in-memory data.
+static std::unordered_map<std::string, std::vector<char>> zoneInfoFiles{};
+
+class StaticZoneInfoSource : public ZoneInfoSource {
+   public:
+    explicit StaticZoneInfoSource(const std::vector<char>& file) : _file(file), _len(file.size()) {}
+
+    std::size_t Read(void* ptr, std::size_t size) override {
+        size = std::min(size, _len);
+        memcpy(ptr, _file.data() + _offset, size);
+        _offset += size;
+        _len -= size;
+        return size;
+    }
+
+    int Skip(std::size_t offset) override {
+        offset = std::min(offset, _len);
+        _offset += offset;
+        _len -= offset;
+        return 0;
+    }
+
+    std::string Version() const override { return std::string(); }
+
+   private:
+    const std::vector<char>& _file;
+    std::size_t _offset = 0;
+    std::size_t _len;
+};
+
+std::unique_ptr<ZoneInfoSource> customZoneInfoSourceFactory(
+    const std::string& name,
+    const std::function<std::unique_ptr<ZoneInfoSource>(const std::string& name)>& fallback_factory) {
+    assert(_isTzdbInitialized);
+
+    // We accept a dummy name as a test that we're using our static data and not the system data.
+    if (name == "tmbasic-dummy-zone") {
+        return customZoneInfoSourceFactory("Etc/GMT-4", fallback_factory);
+    }
+
+    auto it = zoneInfoFiles.find(name);
+    if (it == zoneInfoFiles.end()) {
+        return nullptr;
+    }
+    return std::make_unique<StaticZoneInfoSource>(it->second);
+}
+
+// Abseil will look for this zone_info_source_factory symbol.
+namespace absl {
+namespace time_internal {
+namespace cctz_extension {
+ZoneInfoSourceFactory zone_info_source_factory = customZoneInfoSourceFactory;
+}  // namespace cctz_extension
+}  // namespace time_internal
+}  // namespace absl
+
+// This is tzdb.tar, the contents of /usr/share/zoneinfo.
+extern const char kResourceTzdb[];  // NOLINT(modernize-avoid-c-arrays)
+extern const uint kResourceTzdb_len;
 
 static void addStaticZoneInfoFile(const std::string& name, std::vector<char> data) {
-    const auto& storedData = _zoneInfoFiles.emplace_back(std::move(data));
-    std::string_view sv{ storedData.data(), storedData.size() };
-    absl::LoadStaticZoneInfoFile(name, sv);
+    zoneInfoFiles.emplace(name, std::move(data));
 }
+
+namespace vm {
 
 void initializeTzdb() {
     if (!_isTzdbInitialized) {

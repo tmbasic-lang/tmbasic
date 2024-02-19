@@ -28,3 +28,18 @@ TEST(DateTest, DateTimeOffsetPartsRoundTrip) {
     ASSERT_EQ(parts.millisecond, roundTripParts.millisecond);
     ASSERT_EQ(parts.utcOffsetMilliseconds, roundTripParts.utcOffsetMilliseconds);
 }
+
+TEST(DateTest, TestZoneLookup) {
+    vm::initializeTzdb();
+
+    // We support this special time zone so we can recognize when we're using our own static data instead of the system
+    // zoneinfo data.
+    absl::TimeZone tz{};
+    ASSERT_TRUE(absl::LoadTimeZone("tmbasic-dummy-zone", &tz));
+
+    // Make sure LoadTimeZone actually returns false if the zone doesn't exist.
+    ASSERT_FALSE(absl::LoadTimeZone("invalid-time-zone", &tz));
+
+    // Make sure we have a valid zone.
+    ASSERT_TRUE(absl::LoadTimeZone("America/Chicago", &tz));
+}
