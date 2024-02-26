@@ -14,6 +14,7 @@ using absl::time_internal::cctz::ZoneInfoSource;
 static bool _isTzdbInitialized = false;
 
 // An implementation of ZoneInfoSource backed by static in-memory data.
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 static std::unordered_map<std::string, std::vector<char>> zoneInfoFiles{};
 
 class StaticZoneInfoSource : public ZoneInfoSource {
@@ -22,6 +23,7 @@ class StaticZoneInfoSource : public ZoneInfoSource {
 
     std::size_t Read(void* ptr, std::size_t size) override {
         size = std::min(size, _len);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
         memcpy(ptr, _file.data() + _offset, size);
         _offset += size;
         _len -= size;
@@ -35,7 +37,7 @@ class StaticZoneInfoSource : public ZoneInfoSource {
         return 0;
     }
 
-    std::string Version() const override { return std::string(); }
+    std::string Version() const override { return {}; }
 
    private:
     const std::vector<char>& _file;
@@ -59,17 +61,6 @@ std::unique_ptr<ZoneInfoSource> customZoneInfoSourceFactory(
     }
     return std::make_unique<StaticZoneInfoSource>(it->second);
 }
-
-// Abseil will look for this zone_info_source_factory symbol. Their intention was that we would define our own "strong"
-// zone_info_source_factory symbol that overrides their "weak" symbol, but they don't support doing so in MinGW which
-// we need. Instead we will let them define the symbol and then write to it when we initialize the TZDB.
-namespace absl {
-namespace time_internal {
-namespace cctz_extension {
-extern ZoneInfoSourceFactory zone_info_source_factory;
-}  // namespace cctz_extension
-}  // namespace time_internal
-}  // namespace absl
 
 // This is tzdb.tar, the contents of /usr/share/zoneinfo.
 extern const char kResourceTzdb[];  // NOLINT(modernize-avoid-c-arrays)
