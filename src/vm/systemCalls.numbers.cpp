@@ -122,7 +122,7 @@ void systemCallNumberSubtract(const SystemCallInput& input, SystemCallResult* re
 // (input as Number) as String
 void systemCallNumberToString(const SystemCallInput& input, SystemCallResult* result) {
     const auto& value = input.getValue(-1);
-    result->returnedObject = boost::make_local_shared<String>(value.getString());
+    result->returnedObject = boost::make_intrusive_ptr<String>(value.getString());
 }
 
 // (base as Number, exponent as Number) as Number

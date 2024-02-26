@@ -21,9 +21,9 @@ class SetBuilder : public Object {
 using ValueSetBuilder = SetBuilder<Value, ObjectType::kValueSetBuilder, std::hash<Value>, std::equal_to<Value>>;
 
 using ObjectSetBuilder = SetBuilder<
-    boost::local_shared_ptr<Object>,
+    boost::intrusive_ptr<Object>,
     ObjectType::kObjectSetBuilder,
-    std::hash<boost::local_shared_ptr<Object>>,
+    std::hash<boost::intrusive_ptr<Object>>,
     ObjectReferenceCompare>;
 
 template <
@@ -70,28 +70,28 @@ class Set : public Object {
         return true;
     }
 
-    boost::local_shared_ptr<TKeyList> toList() const {
+    boost::intrusive_ptr<TKeyList> toList() const {
         TKeyListBuilder builder;
         for (const auto& key : keys) {
             builder.items.push_back(key);
         }
-        return boost::make_local_shared<TKeyList>(&builder);
+        return boost::make_intrusive_ptr<TKeyList>(&builder);
     }
 
-    boost::local_shared_ptr<Self> unionWith(const Self& other) const {
+    boost::intrusive_ptr<Self> unionWith(const Self& other) const {
         auto builder = keys.transient();
         for (auto& key : other.keys) {
             builder.insert(key);
         }
-        return boost::make_local_shared<Self>(builder.persistent());
+        return boost::make_intrusive_ptr<Self>(builder.persistent());
     }
 
-    boost::local_shared_ptr<Self> except(const Self& other) const {
+    boost::intrusive_ptr<Self> except(const Self& other) const {
         auto builder = keys.transient();
         for (auto& key : other.keys) {
             builder.erase(key);
         }
-        return boost::make_local_shared<Self>(builder.persistent());
+        return boost::make_intrusive_ptr<Self>(builder.persistent());
     }
 };
 
@@ -105,11 +105,11 @@ using ValueSet =
         ValueSetBuilder>;
 
 using ObjectSet =
-    Set<boost::local_shared_ptr<Object>,
+    Set<boost::intrusive_ptr<Object>,
         ObjectType::kObjectSet,
         ObjectListBuilder,
         ObjectList,
-        std::hash<boost::local_shared_ptr<Object>>,
+        std::hash<boost::intrusive_ptr<Object>>,
         ObjectReferenceCompare,
         ObjectSetBuilder>;
 

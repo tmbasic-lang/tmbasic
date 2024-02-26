@@ -12,7 +12,7 @@ class Program {
     size_t startupProcedureIndex = 0;
     std::vector<std::unique_ptr<Procedure>> procedures;
     std::vector<Value> globalValues;
-    std::vector<boost::local_shared_ptr<Object>> globalObjects;
+    std::vector<boost::intrusive_ptr<Object>> globalObjects;
     void deserialize(const std::vector<uint8_t>& pcode);
 };
 

@@ -284,24 +284,24 @@ DateTimeParts::DateTimeParts(const Value& value) {
     millisecond = parts.millisecond;
 }
 
-boost::local_shared_ptr<String> dateToString(const Value& date) {
+boost::intrusive_ptr<String> dateToString(const Value& date) {
     DateTimeParts parts{ date };
     std::stringstream ss;
     ss << std::setfill('0') << std::setw(4) << parts.year << "-" << std::setw(2) << parts.month << "-" << std::setw(2)
        << parts.day;
-    return boost::make_local_shared<String>(ss.str());
+    return boost::make_intrusive_ptr<String>(ss.str());
 }
 
-boost::local_shared_ptr<String> dateTimeToString(const Value& date) {
+boost::intrusive_ptr<String> dateTimeToString(const Value& date) {
     DateTimeParts parts{ date };
     std::stringstream ss;
     ss << std::setfill('0') << std::setw(4) << parts.year << "-" << std::setw(2) << parts.month << "-" << std::setw(2)
        << parts.day << " " << std::setw(2) << parts.hour << ":" << std::setw(2) << parts.minute << ":" << std::setw(2)
        << parts.second << "." << std::setw(3) << parts.millisecond;
-    return boost::make_local_shared<String>(ss.str());
+    return boost::make_intrusive_ptr<String>(ss.str());
 }
 
-boost::local_shared_ptr<String> dateTimeOffsetToString(const Value& date) {
+boost::intrusive_ptr<String> dateTimeOffsetToString(const Value& date) {
     DateTimeOffsetParts parts{ date };
     std::stringstream ss;
     ss << std::setfill('0') << std::setw(4) << parts.year << "-" << std::setw(2) << parts.month << "-" << std::setw(2)
@@ -318,10 +318,10 @@ boost::local_shared_ptr<String> dateTimeOffsetToString(const Value& date) {
     }
     ss << std::setw(2) << std::abs(offsetHourPart) << ":" << std::setw(2) << std::abs(offsetMinutePart);
 
-    return boost::make_local_shared<String>(ss.str());
+    return boost::make_intrusive_ptr<String>(ss.str());
 }
 
-boost::local_shared_ptr<String> timeSpanToString(const Value& timeSpan) {
+boost::intrusive_ptr<String> timeSpanToString(const Value& timeSpan) {
     auto totalMsec = timeSpan.getInt64();
     auto hours = totalMsec / kMillisecondsPerHour;
     auto minutes = (totalMsec - hours * kMillisecondsPerHour) / kMillisecondsPerMinute;
@@ -333,7 +333,7 @@ boost::local_shared_ptr<String> timeSpanToString(const Value& timeSpan) {
     std::stringstream ss;
     ss << std::setw(2) << std::setfill('0') << hours << ":" << std::setw(2) << std::setfill('0') << minutes << ":"
        << std::setw(2) << std::setfill('0') << seconds << "." << std::setw(3) << std::setfill('0') << msec;
-    return boost::make_local_shared<String>(ss.str());
+    return boost::make_intrusive_ptr<String>(ss.str());
 }
 
 Value dateTimeToDate(const Value& dateTime) {

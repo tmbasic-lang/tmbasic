@@ -33,12 +33,12 @@ static TColorRGB colorRecordToColorRgb(const Record& colorRecord) {
              static_cast<uint8_t>(blue.getInt32()) };
 }
 
-static boost::local_shared_ptr<Record> colorRgbToColorRecord(const TColorRGB& colorRgb) {
+static boost::intrusive_ptr<Record> colorRgbToColorRecord(const TColorRGB& colorRgb) {
     RecordBuilder builder{ 3, 0 };
     builder.values.set(0, Value{ colorRgb.r });
     builder.values.set(1, Value{ colorRgb.g });
     builder.values.set(2, Value{ colorRgb.b });
-    return boost::make_local_shared<Record>(&builder);
+    return boost::make_intrusive_ptr<Record>(&builder);
 }
 
 static TColorRGB colorDesiredToColorRgb(const TColorDesired& colorDesired) {
@@ -138,7 +138,7 @@ void systemCallRgb(const SystemCallInput& input, SystemCallResult* result) {
     builder.values.set(0, red);
     builder.values.set(1, green);
     builder.values.set(2, blue);
-    result->returnedObject = boost::make_local_shared<Record>(&builder);
+    result->returnedObject = boost::make_intrusive_ptr<Record>(&builder);
 }
 
 template <decltype(&setFore) setForeOrBack>

@@ -10,7 +10,7 @@ Record::Record(RecordBuilder* builder) : objects(builder->objects.persistent()),
 Record::Record(const Record& source, int valueIndex, Value newValue)
     : objects(source.objects), values(source.values.set(valueIndex, std::move(newValue))) {}
 
-Record::Record(const Record& source, int objectIndex, const boost::local_shared_ptr<Object>& newObject)
+Record::Record(const Record& source, int objectIndex, const boost::intrusive_ptr<Object>& newObject)
     : objects(source.objects.set(objectIndex, newObject)), values(source.values) {}
 
 ObjectType Record::getObjectType() const {

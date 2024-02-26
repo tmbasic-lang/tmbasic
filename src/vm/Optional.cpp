@@ -28,7 +28,7 @@ bool ValueOptional::equals(const Object& other) const {
 
 ObjectOptional::ObjectOptional() = default;
 
-ObjectOptional::ObjectOptional(boost::local_shared_ptr<Object> object) : item(std::move(object)) {}
+ObjectOptional::ObjectOptional(boost::intrusive_ptr<Object> object) : item(std::move(object)) {}
 
 ObjectType ObjectOptional::getObjectType() const {
     return ObjectType::kObjectOptional;

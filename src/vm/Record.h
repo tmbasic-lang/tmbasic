@@ -9,10 +9,10 @@ namespace vm {
 
 class Record : public Object {
    public:
-    const immer::array<boost::local_shared_ptr<Object>> objects;
+    const immer::array<boost::intrusive_ptr<Object>> objects;
     const immer::array<Value> values;
     Record(const Record& source, int valueIndex, Value newValue);
-    Record(const Record& source, int objectIndex, const boost::local_shared_ptr<Object>& newObject);
+    Record(const Record& source, int objectIndex, const boost::intrusive_ptr<Object>& newObject);
     explicit Record(RecordBuilder* builder);
     shared::ObjectType getObjectType() const override;
     size_t getHash() const override;

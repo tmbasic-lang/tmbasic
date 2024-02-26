@@ -19,7 +19,7 @@ class ListBuilder : public Object {
     bool equals(const Object& other) const override { return false; }
 };
 
-using ObjectListBuilder = ListBuilder<boost::local_shared_ptr<Object>, ObjectType::kObjectListBuilder>;
+using ObjectListBuilder = ListBuilder<boost::intrusive_ptr<Object>, ObjectType::kObjectListBuilder>;
 using ValueListBuilder = ListBuilder<Value, ObjectType::kValueListBuilder>;
 
 class ListBase : public Object {
@@ -93,7 +93,7 @@ class List : public ListBase {
     }
 };
 
-using ObjectList = List<boost::local_shared_ptr<Object>, ObjectType::kObjectList, ObjectListBuilder>;
+using ObjectList = List<boost::intrusive_ptr<Object>, ObjectType::kObjectList, ObjectListBuilder>;
 using ValueList = List<Value, ObjectType::kValueList, ValueListBuilder>;
 
 }  // namespace vm

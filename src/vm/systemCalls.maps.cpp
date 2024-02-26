@@ -10,7 +10,7 @@ namespace vm {
 
 // () as ObjectToObjectMap
 void systemCallObjectToObjectMapNew(const SystemCallInput& /*input*/, SystemCallResult* result) {
-    result->returnedObject = boost::make_local_shared<ObjectToObjectMap>();
+    result->returnedObject = boost::make_intrusive_ptr<ObjectToObjectMap>();
 }
 
 // (input as ObjectToObjectMap, key as Object, value as Object) as ObjectToObjectMap
@@ -18,12 +18,12 @@ void systemCallObjectToObjectMapSet(const SystemCallInput& input, SystemCallResu
     const auto& map = *castObjectToObjectMap(input.getObject(-3));
     const auto& from = input.getObjectPtr(-2);
     const auto& to = input.getObjectPtr(-1);
-    result->returnedObject = boost::make_local_shared<ObjectToObjectMap>(map, from, to);
+    result->returnedObject = boost::make_intrusive_ptr<ObjectToObjectMap>(map, from, to);
 }
 
 // () as ObjectToObjectMapBuilder
 void systemCallObjectToObjectMapBuilderNew(const SystemCallInput& /*input*/, SystemCallResult* result) {
-    result->returnedObject = boost::make_local_shared<ObjectToObjectMapBuilder>();
+    result->returnedObject = boost::make_intrusive_ptr<ObjectToObjectMapBuilder>();
 }
 
 // (builder as ObjectToObjectMapBuilder, key as Object, value as Object)
@@ -37,12 +37,12 @@ void systemCallObjectToObjectMapBuilderAdd(const SystemCallInput& input, SystemC
 // (builder as ObjectToObjectMapBuilder) as ObjectToObjectMap
 void systemCallObjectToObjectMapBuilderEnd(const SystemCallInput& input, SystemCallResult* result) {
     auto& builder = *castObjectToObjectMapBuilder(input.getObject(-1));
-    result->returnedObject = boost::make_local_shared<ObjectToObjectMap>(&builder);
+    result->returnedObject = boost::make_intrusive_ptr<ObjectToObjectMap>(&builder);
 }
 
 // () as ObjectToValueMap
 void systemCallObjectToValueMapNew(const SystemCallInput& /*input*/, SystemCallResult* result) {
-    result->returnedObject = boost::make_local_shared<ObjectToValueMap>();
+    result->returnedObject = boost::make_intrusive_ptr<ObjectToValueMap>();
 }
 
 // (input as ObjectToValueMap, key as Object, value as Value) as ObjectToValueMap
@@ -50,12 +50,12 @@ void systemCallObjectToValueMapSet(const SystemCallInput& input, SystemCallResul
     const auto& map = *castObjectToValueMap(input.getObject(-2));
     const auto& from = input.getObjectPtr(-1);
     const auto& to = input.getValue(-1);
-    result->returnedObject = boost::make_local_shared<ObjectToValueMap>(map, from, to);
+    result->returnedObject = boost::make_intrusive_ptr<ObjectToValueMap>(map, from, to);
 }
 
 // () as ObjectToValueMapBuilder
 void systemCallObjectToValueMapBuilderNew(const SystemCallInput& /*input*/, SystemCallResult* result) {
-    result->returnedObject = boost::make_local_shared<ObjectToValueMapBuilder>();
+    result->returnedObject = boost::make_intrusive_ptr<ObjectToValueMapBuilder>();
 }
 
 // (builder as ObjectToValueMapBuilder, key as Object, value as Value)
@@ -69,12 +69,12 @@ void systemCallObjectToValueMapBuilderAdd(const SystemCallInput& input, SystemCa
 // (builder as ObjectToValueMapBuilder) as ObjectToValueMap
 void systemCallObjectToValueMapBuilderEnd(const SystemCallInput& input, SystemCallResult* result) {
     auto& builder = *castObjectToValueMapBuilder(input.getObject(-1));
-    result->returnedObject = boost::make_local_shared<ObjectToValueMap>(&builder);
+    result->returnedObject = boost::make_intrusive_ptr<ObjectToValueMap>(&builder);
 }
 
 // () as ValueToObjectMap
 void systemCallValueToObjectMapNew(const SystemCallInput& /*input*/, SystemCallResult* result) {
-    result->returnedObject = boost::make_local_shared<ValueToObjectMap>();
+    result->returnedObject = boost::make_intrusive_ptr<ValueToObjectMap>();
 }
 
 // (input as ValueToObjectMap, key as Value, value as Object) as ValueToObjectMap
@@ -82,12 +82,12 @@ void systemCallValueToObjectMapSet(const SystemCallInput& input, SystemCallResul
     const auto& map = *castValueToObjectMap(input.getObject(-2));
     const auto& from = input.getValue(-1);
     const auto& to = input.getObjectPtr(-1);
-    result->returnedObject = boost::make_local_shared<ValueToObjectMap>(map, from, to);
+    result->returnedObject = boost::make_intrusive_ptr<ValueToObjectMap>(map, from, to);
 }
 
 // () as ValueToObjectMapBuilder
 void systemCallValueToObjectMapBuilderNew(const SystemCallInput& /*input*/, SystemCallResult* result) {
-    result->returnedObject = boost::make_local_shared<ValueToObjectMapBuilder>();
+    result->returnedObject = boost::make_intrusive_ptr<ValueToObjectMapBuilder>();
 }
 
 // (builder as ValueToObjectMapBuilder, key as Value, value as Object)
@@ -101,12 +101,12 @@ void systemCallValueToObjectMapBuilderAdd(const SystemCallInput& input, SystemCa
 // (builder as ValueToObjectMapBuilder) as ValueToObjectMap
 void systemCallValueToObjectMapBuilderEnd(const SystemCallInput& input, SystemCallResult* result) {
     auto& builder = *castValueToObjectMapBuilder(input.getObject(-1));
-    result->returnedObject = boost::make_local_shared<ValueToObjectMap>(&builder);
+    result->returnedObject = boost::make_intrusive_ptr<ValueToObjectMap>(&builder);
 }
 
 // () as ValueToValueMap
 void systemCallValueToValueMapNew(const SystemCallInput& /*input*/, SystemCallResult* result) {
-    result->returnedObject = boost::make_local_shared<ValueToValueMap>();
+    result->returnedObject = boost::make_intrusive_ptr<ValueToValueMap>();
 }
 
 // (input as ValueToValueMap, key as Value, value as Value) as ValueToValueMap
@@ -114,12 +114,12 @@ void systemCallValueToValueMapSet(const SystemCallInput& input, SystemCallResult
     const auto& map = *castValueToValueMap(input.getObject(-1));
     const auto& from = input.getValue(-2);
     const auto& to = input.getValue(-1);
-    result->returnedObject = boost::make_local_shared<ValueToValueMap>(map, from, to);
+    result->returnedObject = boost::make_intrusive_ptr<ValueToValueMap>(map, from, to);
 }
 
 // () as ValueToValueMapBuilder
 void systemCallValueToValueMapBuilderNew(const SystemCallInput& /*input*/, SystemCallResult* result) {
-    result->returnedObject = boost::make_local_shared<ValueToValueMapBuilder>();
+    result->returnedObject = boost::make_intrusive_ptr<ValueToValueMapBuilder>();
 }
 
 // (builder as ValueToValueMapBuilder, key as Value, value as Value)
@@ -133,7 +133,7 @@ void systemCallValueToValueMapBuilderAdd(const SystemCallInput& input, SystemCal
 // (builder as ValueToValueMapBuilder) as ValueToValueMap
 void systemCallValueToValueMapBuilderEnd(const SystemCallInput& input, SystemCallResult* result) {
     auto& builder = *castValueToValueMapBuilder(input.getObject(-1));
-    result->returnedObject = boost::make_local_shared<ValueToValueMap>(&builder);
+    result->returnedObject = boost::make_intrusive_ptr<ValueToValueMap>(&builder);
 }
 
 // (input as Map from K to V, key as K) as Boolean
@@ -202,9 +202,9 @@ void systemCallMapFind(const SystemCallInput& input, SystemCallResult* result) {
             const auto& map = castObjectToObjectMap(mapObject);
             const auto* found = map.pairs.find(key);
             if (found == nullptr) {
-                result->returnedObject = boost::make_local_shared<ObjectOptional>();
+                result->returnedObject = boost::make_intrusive_ptr<ObjectOptional>();
             } else {
-                result->returnedObject = boost::make_local_shared<ObjectOptional>(*found);
+                result->returnedObject = boost::make_intrusive_ptr<ObjectOptional>(*found);
             }
             break;
         }
@@ -214,9 +214,9 @@ void systemCallMapFind(const SystemCallInput& input, SystemCallResult* result) {
             const auto& map = castObjectToValueMap(mapObject);
             const auto* found = map.pairs.find(key);
             if (found == nullptr) {
-                result->returnedObject = boost::make_local_shared<ValueOptional>();
+                result->returnedObject = boost::make_intrusive_ptr<ValueOptional>();
             } else {
-                result->returnedObject = boost::make_local_shared<ValueOptional>(*found);
+                result->returnedObject = boost::make_intrusive_ptr<ValueOptional>(*found);
             }
             break;
         }
@@ -226,9 +226,9 @@ void systemCallMapFind(const SystemCallInput& input, SystemCallResult* result) {
             const auto& map = castValueToObjectMap(mapObject);
             const auto* found = map.pairs.find(key);
             if (found == nullptr) {
-                result->returnedObject = boost::make_local_shared<ObjectOptional>();
+                result->returnedObject = boost::make_intrusive_ptr<ObjectOptional>();
             } else {
-                result->returnedObject = boost::make_local_shared<ObjectOptional>(*found);
+                result->returnedObject = boost::make_intrusive_ptr<ObjectOptional>(*found);
             }
             break;
         }
@@ -238,9 +238,9 @@ void systemCallMapFind(const SystemCallInput& input, SystemCallResult* result) {
             const auto& map = castValueToValueMap(mapObject);
             const auto* found = map.pairs.find(key);
             if (found == nullptr) {
-                result->returnedObject = boost::make_local_shared<ValueOptional>();
+                result->returnedObject = boost::make_intrusive_ptr<ValueOptional>();
             } else {
-                result->returnedObject = boost::make_local_shared<ValueOptional>(*found);
+                result->returnedObject = boost::make_intrusive_ptr<ValueOptional>(*found);
             }
             break;
         }

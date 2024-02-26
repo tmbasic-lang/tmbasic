@@ -46,9 +46,9 @@ static void pushValue(std::array<Value, kValueStackSize>* valueStack, int* vsi, 
 }
 
 static void pushObject(
-    std::array<boost::local_shared_ptr<Object>, kObjectStackSize>* objectStack,
+    std::array<boost::intrusive_ptr<Object>, kObjectStackSize>* objectStack,
     int* osi,
-    boost::local_shared_ptr<Object>&& obj) {
+    boost::intrusive_ptr<Object>&& obj) {
     // Take the performance hit of at() to detect stack overflows cleanly.
     objectStack->at(*osi) = std::move(obj);
     (*osi)++;
@@ -66,7 +66,7 @@ static void popValues(int* vsi, int count) {
     // For performance, we will not clear out the popped values. It makes no difference to memory usage.
 }
 
-static void popObject(std::array<boost::local_shared_ptr<Object>, kObjectStackSize>* objectStack, int* osi) {
+static void popObject(std::array<boost::intrusive_ptr<Object>, kObjectStackSize>* objectStack, int* osi) {
     assert(*osi > 0);
     (*osi)--;
     // It would be slightly faster not to clear out the popped pointer, but that leads to extra memory usage when large
@@ -80,8 +80,8 @@ static Value* valueAt(std::array<Value, kValueStackSize>* valueStack, int vsi, i
     return &(*valueStack)[vsi + offset];
 }
 
-static boost::local_shared_ptr<Object>* objectAt(
-    std::array<boost::local_shared_ptr<Object>, kObjectStackSize>* objectStack,
+static boost::intrusive_ptr<Object>* objectAt(
+    std::array<boost::intrusive_ptr<Object>, kObjectStackSize>* objectStack,
     int osi,
     int offset) {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
@@ -96,7 +96,7 @@ class InterpreterPrivate {
 
     std::stack<CallFrame> callStack;
     std::array<Value, kValueStackSize> valueStack;
-    std::array<boost::local_shared_ptr<Object>, kObjectStackSize> objectStack;
+    std::array<boost::intrusive_ptr<Object>, kObjectStackSize> objectStack;
     bool hasError = false;
     std::string errorMessage;
     Value errorCode;
@@ -173,15 +173,15 @@ struct SetDottedExpressionState {
     size_t* instructionIndex{};
     bool isAssigningValue{};
     Value sourceValue{};
-    boost::local_shared_ptr<Object> sourceObject{};
+    boost::intrusive_ptr<Object> sourceObject{};
     bool error{};
     std::string errorMessage{};
     ErrorCode errorCode{};
 };
 
-static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
+static boost::intrusive_ptr<Object> setDottedExpressionRecurse(
     SetDottedExpressionState* state,
-    const boost::local_shared_ptr<Object>& base,
+    const boost::intrusive_ptr<Object>& base,
     int remainingSuffixes,  // includes this one
     int nextKeyValueOffset,
     int nextKeyObjectOffset) {
@@ -206,7 +206,7 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
             }
             auto valueFieldIndex = readInt<uint16_t>(state->instructions, state->instructionIndex);
             const auto& baseRecord = castRecord(*base);
-            return boost::make_local_shared<Record>(baseRecord, valueFieldIndex, state->sourceValue);
+            return boost::make_intrusive_ptr<Record>(baseRecord, valueFieldIndex, state->sourceValue);
         }
 
         case 0x02: {
@@ -222,14 +222,14 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
                 if (state->isAssigningValue) {
                     throw std::runtime_error("Expected assignment target to be an object.");
                 }
-                return boost::make_local_shared<Record>(baseRecord, objectFieldIndex, state->sourceObject);
+                return boost::make_intrusive_ptr<Record>(baseRecord, objectFieldIndex, state->sourceObject);
             }
 
             // We are recursing into this object field.
             const auto& objectField = baseRecord.objects.at(objectFieldIndex);
             auto updatedObjectField = setDottedExpressionRecurse(
                 state, objectField, remainingSuffixes - 1, nextKeyValueOffset, nextKeyObjectOffset);
-            return boost::make_local_shared<Record>(baseRecord, objectFieldIndex, updatedObjectField);
+            return boost::make_intrusive_ptr<Record>(baseRecord, objectFieldIndex, updatedObjectField);
         }
 
         case 0x03: {
@@ -252,14 +252,14 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
                     state->errorCode = ErrorCode::kListIndexOutOfRange;
                     return nullptr;
                 }
-                return boost::make_local_shared<ValueList>(
+                return boost::make_intrusive_ptr<ValueList>(
                     baseValueList, /* insert */ false, index, state->sourceValue);
             }
 
             if (baseType == ObjectType::kValueToValueMap) {
                 // We are assigning to this value map element.
                 const auto& baseMap = castValueToValueMap(*base);
-                return boost::make_local_shared<ValueToValueMap>(baseMap, indexOrKeyValue, state->sourceValue);
+                return boost::make_intrusive_ptr<ValueToValueMap>(baseMap, indexOrKeyValue, state->sourceValue);
             }
 
             throw std::runtime_error("Expected assignment target to be value list or value-value map.");
@@ -282,7 +282,7 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
                     if (state->isAssigningValue) {
                         throw std::runtime_error("Expected assignment target to be an object.");
                     }
-                    return boost::make_local_shared<ObjectList>(
+                    return boost::make_intrusive_ptr<ObjectList>(
                         baseObjectList, /* insert */ false, indexOrKeyValue.getInt64(), state->sourceObject);
                 }
 
@@ -291,7 +291,7 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
                 auto objectElement = baseObjectList.items.at(index);
                 auto updatedObjectElement = setDottedExpressionRecurse(
                     state, objectElement, remainingSuffixes - 1, nextKeyValueOffset, nextKeyObjectOffset);
-                return boost::make_local_shared<ObjectList>(
+                return boost::make_intrusive_ptr<ObjectList>(
                     baseObjectList, /* insert */ false, indexOrKeyValue.getInt64(), updatedObjectElement);
             }
 
@@ -302,7 +302,7 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
                     if (state->isAssigningValue) {
                         throw std::runtime_error("Expected assignment target to be an object.");
                     }
-                    return boost::make_local_shared<ValueToObjectMap>(baseMap, indexOrKeyValue, state->sourceObject);
+                    return boost::make_intrusive_ptr<ValueToObjectMap>(baseMap, indexOrKeyValue, state->sourceObject);
                 }
 
                 // We are recursing into this value-object map element.
@@ -316,7 +316,7 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
                 auto objectElement = *findResult;  // take reference
                 auto updatedObjectElement = setDottedExpressionRecurse(
                     state, objectElement, remainingSuffixes - 1, nextKeyValueOffset, nextKeyObjectOffset);
-                return boost::make_local_shared<ValueToObjectMap>(baseMap, indexOrKeyValue, updatedObjectElement);
+                return boost::make_intrusive_ptr<ValueToObjectMap>(baseMap, indexOrKeyValue, updatedObjectElement);
             }
 
             throw std::runtime_error("Expected assignment target to be object list or value-object map.");
@@ -337,7 +337,7 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
 
             // We are assigning to this object-value map element.
             const auto& baseMap = castObjectToValueMap(*base);
-            return boost::make_local_shared<ObjectToValueMap>(baseMap, keyObject, state->sourceValue);
+            return boost::make_intrusive_ptr<ObjectToValueMap>(baseMap, keyObject, state->sourceValue);
         }
 
         case 0x06: {
@@ -354,7 +354,7 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
                 if (state->isAssigningValue) {
                     throw std::runtime_error("Expected assignment target to be an object.");
                 }
-                return boost::make_local_shared<ObjectToObjectMap>(baseMap, keyObject, state->sourceObject);
+                return boost::make_intrusive_ptr<ObjectToObjectMap>(baseMap, keyObject, state->sourceObject);
             }
 
             // We are recursing into this object-object map element.
@@ -368,7 +368,7 @@ static boost::local_shared_ptr<Object> setDottedExpressionRecurse(
             auto objectElement = *findResult;  // take reference
             auto updatedObjectElement = setDottedExpressionRecurse(
                 state, objectElement, remainingSuffixes - 1, nextKeyValueOffset, nextKeyObjectOffset);
-            return boost::make_local_shared<ObjectToObjectMap>(baseMap, keyObject, updatedObjectElement);
+            return boost::make_intrusive_ptr<ObjectToObjectMap>(baseMap, keyObject, updatedObjectElement);
         }
 
         default:
@@ -404,7 +404,7 @@ static void setDottedExpression(SetDottedExpressionState* state) {
     assert(baseObject != nullptr);
     state->sourceValue = state->isAssigningValue ? *valueAt(&state->p->valueStack, *vsi, sourceValueOffset) : Value{};
     state->sourceObject = !state->isAssigningValue ? *objectAt(&state->p->objectStack, *osi, sourceObjectOffset)
-                                                   : boost::local_shared_ptr<Object>{};
+                                                   : boost::intrusive_ptr<Object>{};
 
     // Figure out how long the encoded suffix data is, so that we can reliably skip past it in case
     // setDottedExpressionRecurse() fails early and doesn't consume it all.
@@ -580,7 +580,7 @@ bool Interpreter::run(int maxCycles) {
 
             case Opcode::kPushImmediateUtf8: {
                 auto stringLength = readInt<uint32_t>(instructions, &instructionIndex);
-                auto str = boost::make_local_shared<String>(&instructions->at(instructionIndex), stringLength);
+                auto str = boost::make_intrusive_ptr<String>(&instructions->at(instructionIndex), stringLength);
                 instructionIndex += stringLength;
                 pushObject(objectStack, &osi, std::move(str));
                 break;
@@ -945,7 +945,7 @@ bool Interpreter::run(int maxCycles) {
                     recordBuilder.objects.set(i, std::move(obj));
                     popObject(objectStack, &osi);
                 }
-                pushObject(objectStack, &osi, boost::make_local_shared<Record>(&recordBuilder));
+                pushObject(objectStack, &osi, boost::make_intrusive_ptr<Record>(&recordBuilder));
                 break;
             }
 
@@ -971,7 +971,7 @@ bool Interpreter::run(int maxCycles) {
                 auto index = readInt<uint16_t>(instructions, &instructionIndex);
                 const auto& record = castRecord(**objectAt(objectStack, osi, -1));
                 auto& newValue = *valueAt(valueStack, vsi, -1);
-                auto newRecord = boost::make_local_shared<Record>(record, index, newValue);
+                auto newRecord = boost::make_intrusive_ptr<Record>(record, index, newValue);
                 popObject(objectStack, &osi);  // pop record
                 popValue(&vsi);                // pop newValue
                 pushObject(objectStack, &osi, std::move(newRecord));
@@ -982,7 +982,7 @@ bool Interpreter::run(int maxCycles) {
                 auto index = readInt<uint16_t>(instructions, &instructionIndex);
                 const auto& record = castRecord(**objectAt(objectStack, osi, -2));
                 auto& newObject = *objectAt(objectStack, osi, -1);
-                auto newRecord = boost::make_local_shared<Record>(record, index, newObject);
+                auto newRecord = boost::make_intrusive_ptr<Record>(record, index, newObject);
                 popObject(objectStack, &osi);  // pop record
                 popObject(objectStack, &osi);  // pop newObject
                 pushObject(objectStack, &osi, std::move(newRecord));
@@ -998,7 +998,7 @@ bool Interpreter::run(int maxCycles) {
                 for (int i = 0; i < numVals; i++) {
                     popValue(&vsi);
                 }
-                pushObject(objectStack, &osi, boost::make_local_shared<ValueList>(&valueListBuilder));
+                pushObject(objectStack, &osi, boost::make_intrusive_ptr<ValueList>(&valueListBuilder));
                 break;
             }
 
@@ -1011,7 +1011,7 @@ bool Interpreter::run(int maxCycles) {
                 for (int i = 0; i < numObjs; i++) {
                     popObject(objectStack, &osi);
                 }
-                pushObject(objectStack, &osi, boost::make_local_shared<ObjectList>(&objectListBuilder));
+                pushObject(objectStack, &osi, boost::make_intrusive_ptr<ObjectList>(&objectListBuilder));
                 break;
             }
 

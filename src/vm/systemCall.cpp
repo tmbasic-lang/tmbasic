@@ -22,7 +22,7 @@ static std::vector<SystemCallFunc> _systemCalls;
 SystemCallInput::SystemCallInput(
     Interpreter* interpreter,
     std::array<Value, kValueStackSize>* valueStack,
-    std::array<boost::local_shared_ptr<Object>, kObjectStackSize>* objectStack,
+    std::array<boost::intrusive_ptr<Object>, kObjectStackSize>* objectStack,
     int valueStackIndex,
     int objectStackIndex,
     int numValueArguments,
@@ -90,7 +90,7 @@ void systemCallErrorCode(const SystemCallInput& input, SystemCallResult* result)
 
 // () as String
 void systemCallErrorMessage(const SystemCallInput& input, SystemCallResult* result) {
-    result->returnedObject = boost::make_local_shared<String>(input.errorMessage);
+    result->returnedObject = boost::make_intrusive_ptr<String>(input.errorMessage);
 }
 
 // (lhs as Object, rhs as Object) as Boolean

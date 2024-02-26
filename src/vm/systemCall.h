@@ -16,7 +16,7 @@ class SystemCallInput {
    public:
     Interpreter* interpreter;
     std::array<Value, kValueStackSize>* valueStack;
-    std::array<boost::local_shared_ptr<Object>, kObjectStackSize>* objectStack;
+    std::array<boost::intrusive_ptr<Object>, kObjectStackSize>* objectStack;
     int valueStackIndex;
     int objectStackIndex;
     int numValueArguments;
@@ -29,7 +29,7 @@ class SystemCallInput {
     SystemCallInput(
         Interpreter* interpreter,
         std::array<Value, kValueStackSize>* valueStack,
-        std::array<boost::local_shared_ptr<Object>, kObjectStackSize>* objectStack,
+        std::array<boost::intrusive_ptr<Object>, kObjectStackSize>* objectStack,
         int valueStackIndex,
         int objectStackIndex,
         int numValueArguments,
@@ -53,7 +53,7 @@ class SystemCallInput {
         return ptr.get();
     }
 
-    inline boost::local_shared_ptr<Object> getObjectPtr(const int osiOffset) const {
+    inline boost::intrusive_ptr<Object> getObjectPtr(const int osiOffset) const {
         return objectStack->at(objectStackIndex + osiOffset);
     }
 };
@@ -61,7 +61,7 @@ class SystemCallInput {
 class SystemCallResult {
    public:
     Value returnedValue = {};
-    boost::local_shared_ptr<Object> returnedObject = nullptr;
+    boost::intrusive_ptr<Object> returnedObject = nullptr;
     bool hasError = false;
     std::string errorMessage = "";
     int errorCode = 0;

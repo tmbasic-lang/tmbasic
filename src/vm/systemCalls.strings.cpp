@@ -17,7 +17,7 @@ namespace vm {
 // (x as Boolean) as String
 void systemCallBooleanToString(const SystemCallInput& input, SystemCallResult* result) {
     std::string s{ input.getValue(-1).getBoolean() ? "true" : "false" };
-    result->returnedObject = boost::make_local_shared<String>(std::move(s));
+    result->returnedObject = boost::make_intrusive_ptr<String>(std::move(s));
 }
 
 // (input as String) as List of String
@@ -36,9 +36,9 @@ void systemCallCharacters(const SystemCallInput& input, SystemCallResult* result
     if (fastPath) {
         ObjectListBuilder objectListBuilder{};
         for (char ch : str.value) {
-            objectListBuilder.items.push_back(boost::make_local_shared<String>(std::string{ ch }));
+            objectListBuilder.items.push_back(boost::make_intrusive_ptr<String>(std::string{ ch }));
         }
-        result->returnedObject = boost::make_local_shared<ObjectList>(&objectListBuilder);
+        result->returnedObject = boost::make_intrusive_ptr<ObjectList>(&objectListBuilder);
         return;
     }
 
@@ -57,7 +57,7 @@ void systemCallCharacters(const SystemCallInput& input, SystemCallResult* result
         if (graphemeBreaks.at(i) == 1) {
             if (i > 0) {
                 // End of a grapheme cluster
-                objectListBuilder.items.push_back(boost::make_local_shared<String>(currentGraphemeCluster));
+                objectListBuilder.items.push_back(boost::make_intrusive_ptr<String>(currentGraphemeCluster));
             }
             currentGraphemeCluster = {};
         }
@@ -66,9 +66,9 @@ void systemCallCharacters(const SystemCallInput& input, SystemCallResult* result
     }
 
     // Add remaining grapheme cluster.
-    objectListBuilder.items.push_back(boost::make_local_shared<String>(currentGraphemeCluster));
+    objectListBuilder.items.push_back(boost::make_intrusive_ptr<String>(currentGraphemeCluster));
 
-    result->returnedObject = boost::make_local_shared<ObjectList>(&objectListBuilder);
+    result->returnedObject = boost::make_intrusive_ptr<ObjectList>(&objectListBuilder);
 }
 
 // (input as Number) as String
@@ -87,7 +87,7 @@ void systemCallChr(const SystemCallInput& input, SystemCallResult* result) {
     // Convert the UTF-8 array to a std::string.
     std::string s{ reinterpret_cast<const char*>(utf8.data()), static_cast<size_t>(length) };
 
-    result->returnedObject = boost::make_local_shared<String>(s);
+    result->returnedObject = boost::make_intrusive_ptr<String>(s);
 }
 
 // (input as String) as List of Number
@@ -113,7 +113,7 @@ void systemCallCodePoints(const SystemCallInput& input, SystemCallResult* result
         currentIndex += length;
     }
 
-    result->returnedObject = boost::make_local_shared<ValueList>(&valueListBuilder);
+    result->returnedObject = boost::make_intrusive_ptr<ValueList>(&valueListBuilder);
 }
 
 // (input as String) as Number
@@ -147,7 +147,7 @@ void systemCallCodeUnits(const SystemCallInput& input, SystemCallResult* result)
     for (size_t i = 0; i < numCodeUnits; i++) {
         b.items.push_back(Value{ static_cast<uint8_t>(str.value.at(i)) });
     }
-    result->returnedObject = boost::make_local_shared<ValueList>(&b);
+    result->returnedObject = boost::make_intrusive_ptr<ValueList>(&b);
 }
 
 // (input as List of String) as String
@@ -160,7 +160,7 @@ void systemCallConcat1(const SystemCallInput& input, SystemCallResult* result) {
         ss += castString(*object).value;
     }
 
-    result->returnedObject = boost::make_local_shared<String>(ss);
+    result->returnedObject = boost::make_intrusive_ptr<String>(ss);
 }
 
 // (input as List of String, separator as String) as String
@@ -178,7 +178,7 @@ void systemCallConcat2(const SystemCallInput& input, SystemCallResult* result) {
         first = false;
     }
 
-    result->returnedObject = boost::make_local_shared<String>(ss.str());
+    result->returnedObject = boost::make_intrusive_ptr<String>(ss.str());
 }
 
 // () as Number
@@ -196,7 +196,7 @@ void systemCallInputNumber(const SystemCallInput& input, SystemCallResult* resul
 void systemCallInputString(const SystemCallInput& input, SystemCallResult* result) {
     std::string line;
     std::getline(*input.consoleInputStream, line);
-    result->returnedObject = boost::make_local_shared<String>(line);
+    result->returnedObject = boost::make_intrusive_ptr<String>(line);
 }
 
 // (input as String) as Boolean
@@ -208,9 +208,9 @@ void systemCallIsDigit(const SystemCallInput& input, SystemCallResult* result) {
 // () as String
 void systemCallNewLine(const SystemCallInput& /*input*/, SystemCallResult* result) {
 #ifdef _WIN32
-    result->returnedObject = boost::make_local_shared<String>("\r\n", 2);
+    result->returnedObject = boost::make_intrusive_ptr<String>("\r\n", 2);
 #else
-    result->returnedObject = boost::make_local_shared<String>("\n", 1);
+    result->returnedObject = boost::make_intrusive_ptr<String>("\n", 1);
 #endif
 }
 
@@ -245,7 +245,7 @@ void systemCallStringFromCodePoints(const SystemCallInput& input, SystemCallResu
         ss << sv;
     }
 
-    result->returnedObject = boost::make_local_shared<String>(ss.str());
+    result->returnedObject = boost::make_intrusive_ptr<String>(ss.str());
 }
 
 // (codeUnits as List of Number) as String
@@ -277,14 +277,14 @@ void systemCallStringFromCodeUnits(const SystemCallInput& input, SystemCallResul
             fmt::format("Invalid Unicode code unit detected at string index {}.", error - utf8));
     }
 
-    result->returnedObject = boost::make_local_shared<String>(str);
+    result->returnedObject = boost::make_intrusive_ptr<String>(str);
 }
 
 // (lhs as String, rhs as String) as String
 void systemCallStringConcat(const SystemCallInput& input, SystemCallResult* result) {
     const auto& lhs = *castString(input.getObject(-2));
     const auto& rhs = *castString(input.getObject(-1));
-    result->returnedObject = boost::make_local_shared<String>(lhs.value + rhs.value);
+    result->returnedObject = boost::make_intrusive_ptr<String>(lhs.value + rhs.value);
 }
 
 // (lhs as String, rhs as String) as Boolean
@@ -318,7 +318,7 @@ void systemCallStringReplace(const SystemCallInput& input, SystemCallResult* res
         pos += replacement.value.length();
     }
 
-    result->returnedObject = boost::make_local_shared<String>(std::move(s));
+    result->returnedObject = boost::make_intrusive_ptr<String>(std::move(s));
 }
 
 // (input as String, separator as String) as List of String
@@ -338,12 +338,12 @@ void systemCallStringSplit(const SystemCallInput& input, SystemCallResult* resul
 
     while ((endPos = str.value.find(separator.value, startPos)) != std::string::npos) {
         token = str.value.substr(startPos, endPos - startPos);
-        builder.items.push_back(boost::make_local_shared<String>(token));
+        builder.items.push_back(boost::make_intrusive_ptr<String>(token));
         startPos = endPos + separator.value.length();
     }
 
-    builder.items.push_back(boost::make_local_shared<String>(str.value.substr(startPos)));
-    result->returnedObject = boost::make_local_shared<ObjectList>(&builder);
+    builder.items.push_back(boost::make_intrusive_ptr<String>(str.value.substr(startPos)));
+    result->returnedObject = boost::make_intrusive_ptr<ObjectList>(&builder);
 }
 
 }  // namespace vm

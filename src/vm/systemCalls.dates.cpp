@@ -252,7 +252,7 @@ void systemCallTimeSpanToString(const SystemCallInput& input, SystemCallResult* 
 // (timeZone as TimeZone) as String
 void systemCallTimeZoneToString(const SystemCallInput& input, SystemCallResult* result) {
     const auto& timeZone = *castTimeZone(input.getObject(-1));
-    result->returnedObject = boost::make_local_shared<String>(timeZone.zone->name());
+    result->returnedObject = boost::make_intrusive_ptr<String>(timeZone.zone->name());
 }
 
 // (name as String) as TimeZone
@@ -265,7 +265,7 @@ void systemCallTimeZoneFromName(const SystemCallInput& input, SystemCallResult* 
         throw Error(ErrorCode::kInvalidTimeZone, "The specified time zone was not found.");
     }
 
-    result->returnedObject = boost::make_local_shared<TimeZone>(std::move(time_zone_ptr));
+    result->returnedObject = boost::make_intrusive_ptr<TimeZone>(std::move(time_zone_ptr));
 }
 
 // (timeSpan as TimeSpan) as Number
@@ -303,7 +303,7 @@ void systemCallUtcOffsets(const SystemCallInput& input, SystemCallResult* result
     for (const auto& offset : offsets) {
         builder.items.push_back(Value{ offset });
     }
-    result->returnedObject = boost::make_local_shared<ValueList>(&builder);
+    result->returnedObject = boost::make_intrusive_ptr<ValueList>(&builder);
 }
 
 // AddYears, AddMonths, AddDays, etc. are all the same except for the operation performed.

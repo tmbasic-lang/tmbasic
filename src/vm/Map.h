@@ -25,23 +25,23 @@ using ValueToValueMapBuilder =
 
 using ValueToObjectMapBuilder = MapBuilder<
     Value,
-    boost::local_shared_ptr<Object>,
+    boost::intrusive_ptr<Object>,
     ObjectType::kValueToObjectMapBuilder,
     std::hash<Value>,
     std::equal_to<Value>>;
 
 using ObjectToValueMapBuilder = MapBuilder<
-    boost::local_shared_ptr<Object>,
+    boost::intrusive_ptr<Object>,
     Value,
     ObjectType::kObjectToValueMapBuilder,
-    std::hash<boost::local_shared_ptr<Object>>,
+    std::hash<boost::intrusive_ptr<Object>>,
     ObjectReferenceCompare>;
 
 using ObjectToObjectMapBuilder = MapBuilder<
-    boost::local_shared_ptr<Object>,
-    boost::local_shared_ptr<Object>,
+    boost::intrusive_ptr<Object>,
+    boost::intrusive_ptr<Object>,
     ObjectType::kObjectToObjectMapBuilder,
-    std::hash<boost::local_shared_ptr<Object>>,
+    std::hash<boost::intrusive_ptr<Object>>,
     ObjectReferenceCompare>;
 
 template <
@@ -110,23 +110,23 @@ class Map : public Object {
         return true;
     }
 
-    boost::local_shared_ptr<TKeyList> keys() const {
+    boost::intrusive_ptr<TKeyList> keys() const {
         TKeyListBuilder builder;
         for (auto& pair : pairs) {
             builder.items.push_back(pair.first);
         }
-        return boost::make_local_shared<TKeyList>(&builder);
+        return boost::make_intrusive_ptr<TKeyList>(&builder);
     }
 
-    boost::local_shared_ptr<TValueList> values() const {
+    boost::intrusive_ptr<TValueList> values() const {
         TValueListBuilder builder;
         for (auto& pair : pairs) {
             builder.items.push_back(pair.second);
         }
-        return boost::make_local_shared<TValueList>(&builder);
+        return boost::make_intrusive_ptr<TValueList>(&builder);
     }
 
-    boost::local_shared_ptr<Record> keysAndValues() const {
+    boost::intrusive_ptr<Record> keysAndValues() const {
         TKeyListBuilder keysBuilder;
         TValueListBuilder valuesBuilder;
         for (auto& pair : pairs) {
@@ -135,25 +135,25 @@ class Map : public Object {
         }
 
         RecordBuilder builder{ 0, 2 };
-        builder.objects.push_back(boost::make_local_shared<TKeyList>(&keysBuilder));
-        builder.objects.push_back(boost::make_local_shared<TValueList>(&valuesBuilder));
-        return boost::make_local_shared<Record>(&builder);
+        builder.objects.push_back(boost::make_intrusive_ptr<TKeyList>(&keysBuilder));
+        builder.objects.push_back(boost::make_intrusive_ptr<TValueList>(&valuesBuilder));
+        return boost::make_intrusive_ptr<Record>(&builder);
     }
 
-    boost::local_shared_ptr<Self> unionWith(const Self& other) const {
+    boost::intrusive_ptr<Self> unionWith(const Self& other) const {
         auto builder = pairs.transient();
         for (auto& pair : other.pairs) {
             builder.set(pair.first, pair.second);
         }
-        return boost::make_local_shared<Self>(builder.persistent());
+        return boost::make_intrusive_ptr<Self>(builder.persistent());
     }
 
-    boost::local_shared_ptr<Self> except(const Self& other) const {
+    boost::intrusive_ptr<Self> except(const Self& other) const {
         auto builder = pairs.transient();
         for (auto& pair : other.pairs) {
             builder.erase(pair.first);
         }
-        return boost::make_local_shared<Self>(builder.persistent());
+        return boost::make_intrusive_ptr<Self>(builder.persistent());
     }
 };
 
@@ -172,7 +172,7 @@ using ValueToValueMap =
 
 using ValueToObjectMap =
     Map<Value,
-        boost::local_shared_ptr<Object>,
+        boost::intrusive_ptr<Object>,
         ObjectType::kValueToObjectMap,
         ValueListBuilder,
         ValueList,
@@ -184,12 +184,12 @@ using ValueToObjectMap =
         ValueToObjectMapBuilder>;
 
 using ObjectToValueMap =
-    Map<boost::local_shared_ptr<Object>,
+    Map<boost::intrusive_ptr<Object>,
         Value,
         ObjectType::kObjectToValueMap,
         ObjectListBuilder,
         ObjectList,
-        std::hash<boost::local_shared_ptr<Object>>,
+        std::hash<boost::intrusive_ptr<Object>>,
         ObjectReferenceCompare,
         ValuePointerCompare,
         ValueListBuilder,
@@ -197,12 +197,12 @@ using ObjectToValueMap =
         ObjectToValueMapBuilder>;
 
 using ObjectToObjectMap =
-    Map<boost::local_shared_ptr<Object>,
-        boost::local_shared_ptr<Object>,
+    Map<boost::intrusive_ptr<Object>,
+        boost::intrusive_ptr<Object>,
         ObjectType::kObjectToObjectMap,
         ObjectListBuilder,
         ObjectList,
-        std::hash<boost::local_shared_ptr<Object>>,
+        std::hash<boost::intrusive_ptr<Object>>,
         ObjectReferenceCompare,
         ObjectPointerCompare,
         ObjectListBuilder,

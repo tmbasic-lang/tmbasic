@@ -64,10 +64,10 @@ class DateTimeOffsetParts : public DateTimeParts {
 void initializeTzdb();
 
 // String formatting
-boost::local_shared_ptr<String> dateToString(const Value& date);
-boost::local_shared_ptr<String> dateTimeToString(const Value& dateTime);
-boost::local_shared_ptr<String> dateTimeOffsetToString(const Value& dateTimeOffset);
-boost::local_shared_ptr<String> timeSpanToString(const Value& timeSpan);
+boost::intrusive_ptr<String> dateToString(const Value& date);
+boost::intrusive_ptr<String> dateTimeToString(const Value& dateTime);
+boost::intrusive_ptr<String> dateTimeOffsetToString(const Value& dateTimeOffset);
+boost::intrusive_ptr<String> timeSpanToString(const Value& timeSpan);
 
 // Conversion between date types
 Value dateTimeOffsetToDateTime(const Value& dateTimeOffset);

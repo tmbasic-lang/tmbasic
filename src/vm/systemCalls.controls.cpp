@@ -13,13 +13,13 @@ using shared::ErrorCode;
 
 namespace vm {
 
-static boost::local_shared_ptr<Record> newRectangle(int left, int top, int width, int height) {
+static boost::intrusive_ptr<Record> newRectangle(int left, int top, int width, int height) {
     RecordBuilder builder{ 4, 0 };
     builder.values.set(0, Value{ left });
     builder.values.set(1, Value{ top });
     builder.values.set(2, Value{ width });
     builder.values.set(3, Value{ height });
-    return boost::make_local_shared<Record>(&builder);
+    return boost::make_intrusive_ptr<Record>(&builder);
 }
 
 static TRect newTRect(int left, int top, int width, int height) {

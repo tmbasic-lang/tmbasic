@@ -29,7 +29,7 @@ void systemCallRunForm(const SystemCallInput& input, SystemCallResult* /*result*
 void systemCallFormTitle(const SystemCallInput& input, SystemCallResult* result) {
     auto* form = basicFormsStorage.forms.find(input.getValue(-1).getInt64());
     std::string title{ form->title };
-    result->returnedObject = boost::make_local_shared<String>(std::move(title));
+    result->returnedObject = boost::make_intrusive_ptr<String>(std::move(title));
 }
 
 // (form as Form, title as String)

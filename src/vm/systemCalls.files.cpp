@@ -53,7 +53,7 @@ void systemCallFileExists(const SystemCallInput& input, SystemCallResult* result
 void systemCallPathCombine(const SystemCallInput& input, SystemCallResult* result) {
     const auto& list = *castObjectList(input.getObject(-1));
     if (list.items.empty()) {
-        result->returnedObject = boost::make_local_shared<String>("", 0);
+        result->returnedObject = boost::make_intrusive_ptr<String>("", 0);
         return;
     }
     auto path = castString(*list.items.at(0)).value;
@@ -61,39 +61,39 @@ void systemCallPathCombine(const SystemCallInput& input, SystemCallResult* resul
         auto component = castString(*list.items.at(i)).value;
         path = shared::pathCombine(path, component);
     }
-    result->returnedObject = boost::make_local_shared<String>(path);
+    result->returnedObject = boost::make_intrusive_ptr<String>(path);
 }
 
 // (path as String) as String
 void systemCallPathDirectoryName(const SystemCallInput& input, SystemCallResult* result) {
     auto path = castString(input.getObject(-1))->value;
-    result->returnedObject = boost::make_local_shared<String>(shared::getDirectoryName(path));
+    result->returnedObject = boost::make_intrusive_ptr<String>(shared::getDirectoryName(path));
 }
 
 // (path as String) as String
 void systemCallPathExtension(const SystemCallInput& input, SystemCallResult* result) {
     auto path = castString(input.getObject(-1))->value;
-    result->returnedObject = boost::make_local_shared<String>(shared::getExtension(path));
+    result->returnedObject = boost::make_intrusive_ptr<String>(shared::getExtension(path));
 }
 
 // (path as String) as String
 void systemCallPathFileName(const SystemCallInput& input, SystemCallResult* result) {
     auto path = castString(input.getObject(-1))->value;
-    result->returnedObject = boost::make_local_shared<String>(shared::getFileName(path));
+    result->returnedObject = boost::make_intrusive_ptr<String>(shared::getFileName(path));
 }
 
 // (path as String) as String
 void systemCallPathFileNameWithoutExtension(const SystemCallInput& input, SystemCallResult* result) {
     auto path = castString(input.getObject(-1))->value;
-    result->returnedObject = boost::make_local_shared<String>(shared::getFileNameWithoutExtension(path));
+    result->returnedObject = boost::make_intrusive_ptr<String>(shared::getFileNameWithoutExtension(path));
 }
 
 // () as String
 void systemCallPathSeparator(const SystemCallInput& /*input*/, SystemCallResult* result) {
 #ifdef _WIN32
-    result->returnedObject = boost::make_local_shared<String>("\\", 1);
+    result->returnedObject = boost::make_intrusive_ptr<String>("\\", 1);
 #else
-    result->returnedObject = boost::make_local_shared<String>("/", 1);
+    result->returnedObject = boost::make_intrusive_ptr<String>("/", 1);
 #endif
 }
 
@@ -103,9 +103,9 @@ void systemCallListDirectories(const SystemCallInput& input, SystemCallResult* r
     auto vec = shared::listDirectories(path);
     ObjectListBuilder builder;
     for (const auto& s : vec) {
-        builder.items.push_back(boost::make_local_shared<String>(s));
+        builder.items.push_back(boost::make_intrusive_ptr<String>(s));
     }
-    result->returnedObject = boost::make_local_shared<ObjectList>(&builder);
+    result->returnedObject = boost::make_intrusive_ptr<ObjectList>(&builder);
 }
 
 // (path as String) as List of String
@@ -114,9 +114,9 @@ void systemCallListFiles(const SystemCallInput& input, SystemCallResult* result)
     auto vec = shared::listFiles(path);
     ObjectListBuilder builder;
     for (const auto& s : vec) {
-        builder.items.push_back(boost::make_local_shared<String>(s));
+        builder.items.push_back(boost::make_intrusive_ptr<String>(s));
     }
-    result->returnedObject = boost::make_local_shared<ObjectList>(&builder);
+    result->returnedObject = boost::make_intrusive_ptr<ObjectList>(&builder);
 }
 
 // (filePath as String) as List of Number
@@ -142,7 +142,7 @@ void systemCallReadFileBytes(const SystemCallInput& input, SystemCallResult* res
     for (auto& byte : bytes) {
         vlb.items.push_back(Value{ byte });
     }
-    result->returnedObject = boost::make_local_shared<ValueList>(&vlb);
+    result->returnedObject = boost::make_intrusive_ptr<ValueList>(&vlb);
 }
 
 // (filePath as String) as List of String
@@ -158,12 +158,12 @@ void systemCallReadFileLines(const SystemCallInput& input, SystemCallResult* res
         if (stream.fail()) {
             throw Error::fromFileErrno(errno, filePath);
         }
-        builder.items.push_back(boost::make_local_shared<String>(line));
+        builder.items.push_back(boost::make_intrusive_ptr<String>(line));
     }
     if (stream.fail() && !stream.eof()) {
         throw Error::fromFileErrno(errno, filePath);
     }
-    result->returnedObject = boost::make_local_shared<ObjectList>(&builder);
+    result->returnedObject = boost::make_intrusive_ptr<ObjectList>(&builder);
 }
 
 // (filePath as String) as String
@@ -178,7 +178,7 @@ void systemCallReadFileText(const SystemCallInput& input, SystemCallResult* resu
     if (stream.fail() && !stream.eof()) {
         throw Error::fromFileErrno(errno, filePath);
     }
-    result->returnedObject = boost::make_local_shared<String>(ss.str());
+    result->returnedObject = boost::make_intrusive_ptr<String>(ss.str());
 }
 
 // (filePath as String, bytes as List of Number)

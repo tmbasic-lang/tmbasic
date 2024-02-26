@@ -57,6 +57,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/smart_ptr/local_shared_ptr.hpp>
 #include <boost/smart_ptr/make_local_shared.hpp>
+#include <boost/intrusive_ptr.hpp>
 
 // immer
 #define IMMER_NO_THREAD_SAFETY 1  // NOLINT
@@ -116,6 +117,18 @@
 #include <windows.h>
 #include <tchar.h>
 #endif
+
+// We ultimately shouldn't need this function if we're using object pooling, but it's easier to have it now as we
+// convert from boost::local_shared_ptr to boost::intrusive_ptr.
+namespace boost {
+template <typename T, typename... Args>
+intrusive_ptr<T> make_intrusive_ptr(Args&&... args) {
+    // Create the object with new and use perfect forwarding for constructor arguments
+    T* ptr = new T(std::forward<Args>(args)...);
+    // Wrap the raw pointer in an intrusive_ptr (initial reference count is considered 1)
+    return intrusive_ptr<T>(ptr);
+}
+}  // namespace boost
 
 #ifdef CLANG_TIDY
 // clang-tidy gets upset about assert()

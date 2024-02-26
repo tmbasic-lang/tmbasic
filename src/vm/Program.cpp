@@ -34,24 +34,24 @@ class ProgramReader {
         return decimal::Decimal{ triple };
     }
 
-    boost::local_shared_ptr<vm::String> readString() {
+    boost::intrusive_ptr<vm::String> readString() {
         size_t length = readInt<uint32_t>();
         std::string_view sv{ reinterpret_cast<const char*>(&vec.at(offset)), length };
         std::string str{ sv };
         offset += length;
-        return boost::make_local_shared<vm::String>(str);
+        return boost::make_intrusive_ptr<vm::String>(str);
     }
 
-    boost::local_shared_ptr<vm::ValueList> readValueList() {
+    boost::intrusive_ptr<vm::ValueList> readValueList() {
         vm::ValueListBuilder vlb{};
         auto count = readInt<uint32_t>();
         for (uint32_t i = 0; i < count; i++) {
             vlb.items.push_back(vm::Value{ readDecimal() });
         }
-        return boost::make_local_shared<vm::ValueList>(&vlb);
+        return boost::make_intrusive_ptr<vm::ValueList>(&vlb);
     }
 
-    boost::local_shared_ptr<vm::Object> readObject() {
+    boost::intrusive_ptr<vm::Object> readObject() {
         auto type = static_cast<ObjectType>(readInt<uint8_t>());
         switch (type) {
             case ObjectType::kString:

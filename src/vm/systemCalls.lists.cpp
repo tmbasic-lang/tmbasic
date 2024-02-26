@@ -67,7 +67,7 @@ static void listSkipOrTake(const SystemCallInput& input, SystemCallResult* resul
                 builder.items.push_back(valueList->items.at(i));
             }
         }
-        result->returnedObject = boost::make_local_shared<ValueList>(&builder);
+        result->returnedObject = boost::make_intrusive_ptr<ValueList>(&builder);
     } else {
         ObjectListBuilder builder{};
         if (skip) {
@@ -79,20 +79,20 @@ static void listSkipOrTake(const SystemCallInput& input, SystemCallResult* resul
                 builder.items.push_back(objectList->items.at(i));
             }
         }
-        result->returnedObject = boost::make_local_shared<ObjectList>(&builder);
+        result->returnedObject = boost::make_intrusive_ptr<ObjectList>(&builder);
     }
 }
 
 template <typename TList>
-static boost::local_shared_ptr<TList> removeAtSingle(const TList& list, int64_t index) {
+static boost::intrusive_ptr<TList> removeAtSingle(const TList& list, int64_t index) {
     if (index < 0 || static_cast<size_t>(index) >= list.items.size()) {
         throw Error(ErrorCode::kListIndexOutOfRange, "Index out of range.");
     }
-    return boost::make_local_shared<TList>(list, index);
+    return boost::make_intrusive_ptr<TList>(list, index);
 }
 
 template <typename TList>
-static boost::local_shared_ptr<TList> removeAtMultiple(const TList& list, const ValueList& indices) {
+static boost::intrusive_ptr<TList> removeAtMultiple(const TList& list, const ValueList& indices) {
     std::vector<int64_t> sortedIndices{};
     for (const auto& index : indices.items) {
         sortedIndices.push_back(index.getInt64());
@@ -113,7 +113,7 @@ static boost::local_shared_ptr<TList> removeAtMultiple(const TList& list, const 
         vec = vec.erase(static_cast<size_t>(index));
     }
 
-    return boost::make_local_shared<TList>(vec);
+    return boost::make_intrusive_ptr<TList>(vec);
 }
 
 // (input as List of T, start as Number, count as Number) as List of T
@@ -145,7 +145,7 @@ void systemCallListMid(const SystemCallInput& input, SystemCallResult* result) {
         for (size_t i = start; i < start + takeCount; i++) {
             builder.items.push_back(valueList->items.at(i));
         }
-        result->returnedObject = boost::make_local_shared<ValueList>(&builder);
+        result->returnedObject = boost::make_intrusive_ptr<ValueList>(&builder);
     } else {
         if (start < 0 || start >= objectList->items.size()) {
             throw Error(ErrorCode::kListIndexOutOfRange, "Index out of range.");
@@ -155,7 +155,7 @@ void systemCallListMid(const SystemCallInput& input, SystemCallResult* result) {
         for (size_t i = start; i < start + takeCount; i++) {
             builder.items.push_back(objectList->items.at(i));
         }
-        result->returnedObject = boost::make_local_shared<ObjectList>(&builder);
+        result->returnedObject = boost::make_intrusive_ptr<ObjectList>(&builder);
     }
 }
 
@@ -173,7 +173,7 @@ void systemCallListFillO(const SystemCallInput& input, SystemCallResult* result)
     for (size_t i = 0; i < count; i++) {
         builder.items.push_back(object);
     }
-    result->returnedObject = boost::make_local_shared<ObjectList>(&builder);
+    result->returnedObject = boost::make_intrusive_ptr<ObjectList>(&builder);
 }
 
 // (value as TValue, count as Number) as List of TValue
@@ -190,7 +190,7 @@ void systemCallListFillV(const SystemCallInput& input, SystemCallResult* result)
     for (size_t i = 0; i < count; i++) {
         builder.items.push_back(value);
     }
-    result->returnedObject = boost::make_local_shared<ValueList>(&builder);
+    result->returnedObject = boost::make_intrusive_ptr<ValueList>(&builder);
 }
 
 // (list as List of T) as T
@@ -262,12 +262,12 @@ void systemCallListTake(const SystemCallInput& input, SystemCallResult* result) 
 void systemCallObjectListAdd(const SystemCallInput& input, SystemCallResult* result) {
     const auto& objectList = *castObjectList(input.getObject(-2));
     const auto& object = input.getObjectPtr(-1);
-    result->returnedObject = boost::make_local_shared<ObjectList>(objectList, true, objectList.size(), object);
+    result->returnedObject = boost::make_intrusive_ptr<ObjectList>(objectList, true, objectList.size(), object);
 }
 
 // () as ObjectListBuilder
 void systemCallObjectListBuilderNew(const SystemCallInput& /*input*/, SystemCallResult* result) {
-    result->returnedObject = boost::make_local_shared<ObjectListBuilder>();
+    result->returnedObject = boost::make_intrusive_ptr<ObjectListBuilder>();
 }
 
 // (builder as ObjectListBuilder, Object as Object)
@@ -282,7 +282,7 @@ void systemCallObjectListBuilderAdd(const SystemCallInput& input, SystemCallResu
 // (builder as ObjectListBuilder) as ObjectList
 void systemCallObjectListBuilderEnd(const SystemCallInput& input, SystemCallResult* result) {
     auto& builder = *castObjectListBuilder(input.getObject(-1));
-    result->returnedObject = boost::make_local_shared<ObjectList>(&builder);
+    result->returnedObject = boost::make_intrusive_ptr<ObjectList>(&builder);
 }
 
 // (lhs as ObjectList, rhs as ObjectList) as ObjectList
@@ -293,7 +293,7 @@ void systemCallObjectListConcat(const SystemCallInput& input, SystemCallResult* 
     for (const auto& item : rhs.items) {
         builder.items.push_back(item);
     }
-    result->returnedObject = boost::make_local_shared<ObjectList>(&builder);
+    result->returnedObject = boost::make_intrusive_ptr<ObjectList>(&builder);
 }
 
 // (input as ObjectList, index as Number) as Object
@@ -315,7 +315,7 @@ void systemCallObjectListRemove(const SystemCallInput& input, SystemCallResult* 
         }
     }
 
-    result->returnedObject = boost::make_local_shared<ObjectList>(std::move(items));
+    result->returnedObject = boost::make_intrusive_ptr<ObjectList>(std::move(items));
 }
 
 // (input as ObjectList, index as Number, value as Object) as ObjectList
@@ -323,19 +323,19 @@ void systemCallObjectListSet(const SystemCallInput& input, SystemCallResult* res
     const auto& objectList = *castObjectList(input.getObject(-2));
     const auto& index = static_cast<size_t>(input.getValue(-1).getInt64());
     const auto& element = input.getObjectPtr(-1);
-    result->returnedObject = boost::make_local_shared<ObjectList>(objectList, /* insert */ false, index, element);
+    result->returnedObject = boost::make_intrusive_ptr<ObjectList>(objectList, /* insert */ false, index, element);
 }
 
 // (lhs as ValueList, rhs as Value) as ValueList
 void systemCallValueListAdd(const SystemCallInput& input, SystemCallResult* result) {
     const auto& valueList = *castValueList(input.getObject(-1));
     const auto& value = input.getValue(-1);
-    result->returnedObject = boost::make_local_shared<ValueList>(valueList, true, valueList.size(), value);
+    result->returnedObject = boost::make_intrusive_ptr<ValueList>(valueList, true, valueList.size(), value);
 }
 
 // () as ValueListBuilder
 void systemCallValueListBuilderNew(const SystemCallInput& /*input*/, SystemCallResult* result) {
-    result->returnedObject = boost::make_local_shared<ValueListBuilder>();
+    result->returnedObject = boost::make_intrusive_ptr<ValueListBuilder>();
 }
 
 // (builder as ValueListBuilder, value as Value)
@@ -347,7 +347,7 @@ void systemCallValueListBuilderAdd(const SystemCallInput& input, SystemCallResul
 // (builder as ValueListBuilder) as ValueList
 void systemCallValueListBuilderEnd(const SystemCallInput& input, SystemCallResult* result) {
     auto& builder = *castValueListBuilder(input.getObject(-1));
-    result->returnedObject = boost::make_local_shared<ValueList>(&builder);
+    result->returnedObject = boost::make_intrusive_ptr<ValueList>(&builder);
 }
 
 // (lhs as ValueList, rhs as ValueList) as ValueList
@@ -358,7 +358,7 @@ void systemCallValueListConcat(const SystemCallInput& input, SystemCallResult* r
     for (const auto& item : rhs.items) {
         builder.items.push_back(item);
     }
-    result->returnedObject = boost::make_local_shared<ValueList>(&builder);
+    result->returnedObject = boost::make_intrusive_ptr<ValueList>(&builder);
 }
 
 // (input as ValueList, index as Number) as Value
@@ -379,7 +379,7 @@ void systemCallValueListRemove(const SystemCallInput& input, SystemCallResult* r
         }
     }
 
-    result->returnedObject = boost::make_local_shared<ValueList>(std::move(items));
+    result->returnedObject = boost::make_intrusive_ptr<ValueList>(std::move(items));
 }
 
 // (input as ValueList, index as Number, value as Value) as ValueList
@@ -387,7 +387,7 @@ void systemCallValueListSet(const SystemCallInput& input, SystemCallResult* resu
     const auto& valueList = *castValueList(input.getObject(-1));
     const auto& index = static_cast<size_t>(input.getValue(-2).getInt64());
     const auto& value = input.getValue(-1);
-    result->returnedObject = boost::make_local_shared<ValueList>(valueList, /* insert */ false, index, value);
+    result->returnedObject = boost::make_intrusive_ptr<ValueList>(valueList, /* insert */ false, index, value);
 }
 
 }  // namespace vm

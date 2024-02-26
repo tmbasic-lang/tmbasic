@@ -18,8 +18,8 @@ BasicLabel::~BasicLabel() {
     basicFormsStorage.controls.remove(_id);
 }
 
-boost::local_shared_ptr<String> BasicLabel::getBasicText() {
-    return boost::make_local_shared<String>(text);
+boost::intrusive_ptr<String> BasicLabel::getBasicText() {
+    return boost::make_intrusive_ptr<String>(text);
 }
 
 void BasicLabel::setText(const String& newText) {

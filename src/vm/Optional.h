@@ -18,9 +18,9 @@ class ValueOptional : public Object {
 
 class ObjectOptional : public Object {
    public:
-    const std::optional<boost::local_shared_ptr<Object>> item = {};
+    const std::optional<boost::intrusive_ptr<Object>> item = {};
     ObjectOptional();
-    explicit ObjectOptional(boost::local_shared_ptr<Object> object);
+    explicit ObjectOptional(boost::intrusive_ptr<Object> object);
     shared::ObjectType getObjectType() const override;
     size_t getHash() const override;
     bool equals(const Object& other) const override;

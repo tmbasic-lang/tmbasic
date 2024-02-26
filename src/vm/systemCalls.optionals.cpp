@@ -38,22 +38,22 @@ void systemCallHasValue(const SystemCallInput& input, SystemCallResult* result) 
 
 // () as ObjectOptional
 void systemCallObjectOptionalNewMissing(const SystemCallInput& /*input*/, SystemCallResult* result) {
-    result->returnedObject = boost::make_local_shared<ObjectOptional>();
+    result->returnedObject = boost::make_intrusive_ptr<ObjectOptional>();
 }
 
 // (input as Object) as ObjectOptional
 void systemCallObjectOptionalNewPresent(const SystemCallInput& input, SystemCallResult* result) {
-    result->returnedObject = boost::make_local_shared<ObjectOptional>(input.getObjectPtr(-1));
+    result->returnedObject = boost::make_intrusive_ptr<ObjectOptional>(input.getObjectPtr(-1));
 }
 
 // () as ValueOptional
 void systemCallValueOptionalNewMissing(const SystemCallInput& /*input*/, SystemCallResult* result) {
-    result->returnedObject = boost::make_local_shared<ValueOptional>();
+    result->returnedObject = boost::make_intrusive_ptr<ValueOptional>();
 }
 
 // (input as Value) as ValueOptional
 void systemCallValueOptionalNewPresent(const SystemCallInput& input, SystemCallResult* result) {
-    result->returnedObject = boost::make_local_shared<ValueOptional>(input.getValue(-1));
+    result->returnedObject = boost::make_intrusive_ptr<ValueOptional>(input.getValue(-1));
 }
 
 // (input as Optional T) as T

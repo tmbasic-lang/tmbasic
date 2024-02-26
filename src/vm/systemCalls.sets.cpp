@@ -12,7 +12,7 @@ namespace vm {
 void systemCallObjectSetAdd(const SystemCallInput& input, SystemCallResult* result) {
     const auto& set = *castObjectSet(input.getObject(-2));
     const auto& key = input.getObjectPtr(-1);
-    result->returnedObject = boost::make_local_shared<ObjectSet>(set, true, key);
+    result->returnedObject = boost::make_intrusive_ptr<ObjectSet>(set, true, key);
 }
 
 // (builder as ObjectSetBuilder, Object as Object)
@@ -25,24 +25,24 @@ void systemCallObjectSetBuilderAdd(const SystemCallInput& input, SystemCallResul
 // (builder as ObjectSetBuilder) as ObjectSet
 void systemCallObjectSetBuilderEnd(const SystemCallInput& input, SystemCallResult* result) {
     auto* builder = castObjectSetBuilder(input.getObject(-1));
-    result->returnedObject = boost::make_local_shared<ObjectSet>(builder);
+    result->returnedObject = boost::make_intrusive_ptr<ObjectSet>(builder);
 }
 
 // () as ObjectSetBuilder
 void systemCallObjectSetBuilderNew(const SystemCallInput& /*input*/, SystemCallResult* result) {
-    result->returnedObject = boost::make_local_shared<ObjectSetBuilder>();
+    result->returnedObject = boost::make_intrusive_ptr<ObjectSetBuilder>();
 }
 
 // () as ObjectSet
 void systemCallObjectSetNew(const SystemCallInput& /*input*/, SystemCallResult* result) {
-    result->returnedObject = boost::make_local_shared<ObjectSet>();
+    result->returnedObject = boost::make_intrusive_ptr<ObjectSet>();
 }
 
 // (lhs as ObjectSet, rhs as Object) as ObjectSet
 void systemCallObjectSetRemove(const SystemCallInput& input, SystemCallResult* result) {
     const auto& set = *castObjectSet(input.getObject(-2));
     const auto& key = input.getObjectPtr(-1);
-    result->returnedObject = boost::make_local_shared<ObjectSet>(set, false, key);
+    result->returnedObject = boost::make_intrusive_ptr<ObjectSet>(set, false, key);
 }
 
 // (lhs as Set of T, rhs as Set of T) as Set of T
@@ -114,7 +114,7 @@ void systemCallSetValues(const SystemCallInput& input, SystemCallResult* result)
 void systemCallValueSetAdd(const SystemCallInput& input, SystemCallResult* result) {
     const auto& set = *castValueSet(input.getObject(-1));
     const auto& key = input.getValue(-1);
-    result->returnedObject = boost::make_local_shared<ValueSet>(set, true, key);
+    result->returnedObject = boost::make_intrusive_ptr<ValueSet>(set, true, key);
 }
 
 // (builder as ValueSetBuilder, value as Value)
@@ -127,24 +127,24 @@ void systemCallValueSetBuilderAdd(const SystemCallInput& input, SystemCallResult
 // (builder as ValueSetBuilder) as ValueSet
 void systemCallValueSetBuilderEnd(const SystemCallInput& input, SystemCallResult* result) {
     auto* builder = castValueSetBuilder(input.getObject(-1));
-    result->returnedObject = boost::make_local_shared<ValueSet>(builder);
+    result->returnedObject = boost::make_intrusive_ptr<ValueSet>(builder);
 }
 
 // () as ValueSetBuilder
 void systemCallValueSetBuilderNew(const SystemCallInput& /*input*/, SystemCallResult* result) {
-    result->returnedObject = boost::make_local_shared<ValueSetBuilder>();
+    result->returnedObject = boost::make_intrusive_ptr<ValueSetBuilder>();
 }
 
 // () as ValueSet
 void systemCallValueSetNew(const SystemCallInput& /*input*/, SystemCallResult* result) {
-    result->returnedObject = boost::make_local_shared<ValueSet>();
+    result->returnedObject = boost::make_intrusive_ptr<ValueSet>();
 }
 
 // (lhs as ValueSet, rhs as Value) as ValueSet
 void systemCallValueSetRemove(const SystemCallInput& input, SystemCallResult* result) {
     const auto& set = *castValueSet(input.getObject(-1));
     const auto& key = input.getValue(-1);
-    result->returnedObject = boost::make_local_shared<ValueSet>(set, false, key);
+    result->returnedObject = boost::make_intrusive_ptr<ValueSet>(set, false, key);
 }
 
 // (lhs as Set of T, rhs as Set of T) as Set of T
