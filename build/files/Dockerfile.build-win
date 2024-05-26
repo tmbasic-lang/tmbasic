@@ -1,4 +1,4 @@
-FROM ubuntu:22.04 AS first-stage
+FROM ubuntu:24.04 AS first-stage
 
 # mingw - build steps adapted from https://github.com/mmozeiko/docker-mingw-w64/blob/master/Dockerfile
 RUN apt-get update -y && \
@@ -48,8 +48,8 @@ RUN apt-get install -y \
         diffutils \
         dos2unix \
         build-essential \
-        libncursesw5-dev \
-        libncursesw5
+        libncurses-dev \
+        libncursesw6
 
 # install wine if the host is x86_64, don't bother if the host is aarch64
 $WINE_INSTALL

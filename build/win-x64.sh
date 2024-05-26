@@ -26,7 +26,7 @@ if [ -z "${NO_BUILD+x}" ]; then
     fi
 
     if [ "$(docker image ls $IMAGE_NAME | wc -l)" == "1" ]; then
-        cat files/Dockerfile.build-win | sed "s=\$IMAGE_NAME=$IMAGE_NAME=g; s/\$ARCH/$ARCH/g; s/\$LIB3264/$LIB3264/g; s/\$WINE_INSTALL/$WINE_INSTALL/g" | docker buildx build $BUILDX_FLAGS -t $IMAGE_NAME files -f-
+        cat files/Dockerfile.build-win | sed "s=\$IMAGE_NAME=$IMAGE_NAME=g; s/\$ARCH/$ARCH/g; s/\$LIB3264/$LIB3264/g; s/\$WINE_INSTALL/$WINE_INSTALL/g" | docker buildx build --progress plain $BUILDX_FLAGS -t $IMAGE_NAME files -f-
     fi
 fi
 

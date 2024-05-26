@@ -6,7 +6,7 @@ echo "Generating sysroot for $BUILDX_ARCH ($IMAGE_NAME)"
 
 cat Dockerfile.sysroot \
     | envsubst \
-    | docker buildx build --push --platform "$BUILDX_ARCH" -t "$IMAGE_NAME" . -f- \
+    | docker buildx build --progress plain --push --platform "$BUILDX_ARCH" -t "$IMAGE_NAME" . -f- \
     ;
 
 echo "Pushed: $IMAGE_NAME"

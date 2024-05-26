@@ -1,44 +1,43 @@
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 RUN apt-get update -y && \
     apt-get upgrade -y && \
     yes | unminimize && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
         apt-transport-https \
+        autoconf \
+        automake \
         ccache \
+        cpplint \
         curl \
+        dos2unix \
         git \
         language-pack-en \
         make \
         man \
         manpages \
+        nano \
         nodejs \
         npm \
         pandoc \
         pkg-config \
+        pngcrush \
         python3 \
-        python3-pip \
         software-properties-common \
+        texinfo \
         unzip \
         valgrind \
         xxd \
-        autoconf \
-        automake \
-        dos2unix \
-        pngcrush \
-        nano \
-        texinfo
+        ;
 
 # unprivileged user
-RUN mkdir -p /code && \
+RUN deluser --remove-home ubuntu && \
+    mkdir -p /code && \
     (groupadd -g $HOST_GID user || true) && \
     (useradd -r -u $HOST_UID -g $HOST_GID user || true) && \
     chown $HOST_UID:$HOST_GID /code && \
     mkdir -p /home/user && \
     chown $HOST_UID:$HOST_GID /home/user
-
-# cpplint
-RUN pip3 install cpplint
 
 # doctoc
 RUN npm install -g doctoc
