@@ -199,7 +199,7 @@ jobs:
           if [ "${{ matrix.format }}" = "zip" ]; then
             zip -9 tmbasic-${{ matrix.platform }}-$VERSION.zip tmbasic*
           else
-            tar zcvf tmbasic-${{ matrix.platform }}-$VERSION.tar.gz tmbasic
+            tar zcf tmbasic-${{ matrix.platform }}-$VERSION.tar.gz tmbasic
           fi
           popd
 

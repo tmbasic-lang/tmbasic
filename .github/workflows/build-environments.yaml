@@ -109,7 +109,7 @@ jobs:
           echo "Archiving environment."
           export TIMESTAMP=$(date -u "+%Y%m%d%H%M%S")
           export FILENAME=tmbasic-build-env-${{ matrix.platform }}-$TIMESTAMP.tar.gz
-          tar zcvf "../$FILENAME" "mac-${{ matrix.short_arch }}"
+          tar zcf "../$FILENAME" "mac-${{ matrix.short_arch }}"
 
           echo "Uploading environment tarball."
           export S3_URL="s3://tmbasic/mac-build-envs/$FILENAME"
