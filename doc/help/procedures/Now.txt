@@ -1,0 +1,14 @@
+.procedure Now
+.category Dates and Times
+.blurb Returns the current date, time, and time zone offset.
+.description
+Returns the current date, time, and time zone offset.
+.overload
+.return DateTimeOffset
+The current date, time, and time zone offset.
+.example
+.example-code
+print Now()
+.example-output
+2024-05-27 03:07:21.373 -04:00
+.

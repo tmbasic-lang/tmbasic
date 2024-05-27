@@ -108,6 +108,7 @@ enum class SystemCall {
     kNewForm,
     kNewLabel,
     kNewLine,
+    kNow,
     kNumberAdd,
     kNumberDivide,
     kNumberEquals,

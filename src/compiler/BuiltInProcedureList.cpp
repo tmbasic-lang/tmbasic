@@ -154,6 +154,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("NewForm", {}, {}, form, SystemCall::kNewForm);
     addFunction("NewLabel", {}, {}, control, SystemCall::kNewLabel);
     addFunction("NewLine", {}, {}, string, SystemCall::kNewLine);
+    addFunction("Now", {}, {}, dateTimeOffset, SystemCall::kNow);
     addFunction("ParseNumber", { "text" }, { string }, number, SystemCall::kParseNumber);
     addFunction("PathCombine", { "parts" }, { listOfString }, string, SystemCall::kPathCombine);
     addFunction("PathDirectoryName", { "path" }, { string }, string, SystemCall::kPathDirectoryName);

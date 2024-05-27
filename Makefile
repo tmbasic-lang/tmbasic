@@ -330,7 +330,7 @@ LDFLAGS += -lmpdec -lmpdec++
 LDFLAGS += -lunistring
 
 # Linker flag to include libasbl_time
-LDFLAGS += -labsl_time -labsl_time_zone -labsl_int128
+LDFLAGS += -labsl_time -labsl_time_zone -labsl_int128 -labsl_raw_logging_internal
 
 # Linker flag to include microtar
 LDFLAGS += -lmicrotar

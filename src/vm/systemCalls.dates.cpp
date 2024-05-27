@@ -244,6 +244,58 @@ void systemCallSeconds(const SystemCallInput& input, SystemCallResult* result) {
     result->returnedValue.num = input.getValue(-1).num * kMillisecondsPerSecond;
 }
 
+// () as DateTimeOffset
+void systemCallNow(const SystemCallInput& input, SystemCallResult* result) {
+    absl::TimeZone tz;
+#ifdef _WIN32
+    // Ask Windows for the local time zone because Abseil doesn't know how to do it.
+    DYNAMIC_TIME_ZONE_INFORMATION dynamicTimeZoneInfo{};
+    switch (GetDynamicTimeZoneInformation(&dynamicTimeZoneInfo)) {
+        case TIME_ZONE_ID_DAYLIGHT:
+            tz = absl::FixedTimeZone(
+                static_cast<int>(-dynamicTimeZoneInfo.Bias - dynamicTimeZoneInfo.DaylightBias) * 60);
+            break;
+        default:
+            tz = absl::FixedTimeZone(static_cast<int>(-dynamicTimeZoneInfo.Bias) * 60);
+            break;
+    }
+#else
+    // Trust Abseil on other platforms.
+    tz = absl::LocalTimeZone();
+#endif
+
+    // Get the UTC time.
+    auto time = absl::Now();
+
+    // Convert to CivilSecond in the local time zone.
+    auto civilTime = absl::ToCivilSecond(time, tz);
+
+    // Extract year, month, day, hour, minute, and second as integers.
+    auto year = civilTime.year();
+    auto month = civilTime.month();
+    auto day = civilTime.day();
+    auto hour = civilTime.hour();
+    auto minute = civilTime.minute();
+    auto second = civilTime.second();
+
+    // Calculate milliseconds.
+    auto sinceCivil = time - absl::FromCivil(civilTime, tz);
+    auto milliseconds = absl::ToInt64Milliseconds(sinceCivil) % 1000;
+
+    // Get the UTC offset in milliseconds
+    auto civilInfo = tz.At(time);
+    auto utcOffsetMilliseconds = static_cast<int64_t>(civilInfo.offset) * 1000;
+
+    // Construct DateTimeOffsetParts.
+    DateTimeOffsetParts parts{ static_cast<uint32_t>(year),         static_cast<uint32_t>(month),
+                               static_cast<uint32_t>(day),          static_cast<uint32_t>(hour),
+                               static_cast<uint32_t>(minute),       static_cast<uint32_t>(second),
+                               static_cast<uint32_t>(milliseconds), utcOffsetMilliseconds };
+
+    // Return it in Value format.
+    result->returnedValue = parts.toValue();
+}
+
 // (timeSpan as TimeSpan) as String
 void systemCallTimeSpanToString(const SystemCallInput& input, SystemCallResult* result) {
     result->returnedObject = timeSpanToString(input.getValue(-1));
@@ -259,13 +311,13 @@ void systemCallTimeZoneToString(const SystemCallInput& input, SystemCallResult* 
 void systemCallTimeZoneFromName(const SystemCallInput& input, SystemCallResult* result) {
     const auto& name = *castString(input.getObject(-1));
 
-    auto time_zone_ptr = std::make_unique<absl::TimeZone>();
-    auto success = absl::LoadTimeZone(name.value, time_zone_ptr.get());
+    auto timeZonePtr = std::make_unique<absl::TimeZone>();
+    auto success = absl::LoadTimeZone(name.value, timeZonePtr.get());
     if (!success) {
         throw Error(ErrorCode::kInvalidTimeZone, "The specified time zone was not found.");
     }
 
-    result->returnedObject = boost::make_intrusive_ptr<TimeZone>(std::move(time_zone_ptr));
+    result->returnedObject = boost::make_intrusive_ptr<TimeZone>(std::move(timeZonePtr));
 }
 
 // (timeSpan as TimeSpan) as Number

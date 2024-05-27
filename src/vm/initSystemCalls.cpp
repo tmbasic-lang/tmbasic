@@ -111,6 +111,7 @@ void systemCallMoveCursor(const SystemCallInput&, SystemCallResult*);
 void systemCallNewForm(const SystemCallInput&, SystemCallResult*);
 void systemCallNewLabel(const SystemCallInput&, SystemCallResult*);
 void systemCallNewLine(const SystemCallInput&, SystemCallResult*);
+void systemCallNow(const SystemCallInput&, SystemCallResult*);
 void systemCallNumberAdd(const SystemCallInput&, SystemCallResult*);
 void systemCallNumberDivide(const SystemCallInput&, SystemCallResult*);
 void systemCallNumberEquals(const SystemCallInput&, SystemCallResult*);
@@ -350,6 +351,7 @@ void initSystemCalls() {
     initSystemCall(shared::SystemCall::kNewForm, systemCallNewForm);
     initSystemCall(shared::SystemCall::kNewLabel, systemCallNewLabel);
     initSystemCall(shared::SystemCall::kNewLine, systemCallNewLine);
+    initSystemCall(shared::SystemCall::kNow, systemCallNow);
     initSystemCall(shared::SystemCall::kNumberAdd, systemCallNumberAdd);
     initSystemCall(shared::SystemCall::kNumberDivide, systemCallNumberDivide);
     initSystemCall(shared::SystemCall::kNumberEquals, systemCallNumberEquals);
