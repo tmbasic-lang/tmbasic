@@ -432,6 +432,62 @@ static void emitBinaryExpression(const BinaryExpressionNode& expressionNode, Pro
                         expressionNode.token);
             }
             state->syscall(Opcode::kSystemCallV, systemCall, 2, 0);
+        } else if (
+            (lhsType->kind == Kind::kDate && rhsType->kind == Kind::kDate) ||
+            (lhsType->kind == Kind::kDateTime && rhsType->kind == Kind::kDateTime)) {
+            SystemCall systemCall{};
+            switch (binarySuffix->binaryOperator) {
+                case BinaryOperator::kEquals:
+                    systemCall = SystemCall::kDateTimeEquals;
+                    break;
+                case BinaryOperator::kNotEquals:
+                    systemCall = SystemCall::kDateTimeNotEquals;
+                    break;
+                case BinaryOperator::kLessThan:
+                    systemCall = SystemCall::kDateTimeLessThan;
+                    break;
+                case BinaryOperator::kLessThanEquals:
+                    systemCall = SystemCall::kDateTimeLessThanEquals;
+                    break;
+                case BinaryOperator::kGreaterThan:
+                    systemCall = SystemCall::kDateTimeGreaterThan;
+                    break;
+                case BinaryOperator::kGreaterThanEquals:
+                    systemCall = SystemCall::kDateTimeGreaterThanEquals;
+                    break;
+                default:
+                    throw CompilerException(
+                        CompilerErrorCode::kInternal, "Internal error. Unimplemented binary operator.",
+                        expressionNode.token);
+            }
+            state->syscall(Opcode::kSystemCallV, systemCall, 2, 0);
+        } else if (lhsType->kind == Kind::kDateTimeOffset && rhsType->kind == Kind::kDateTimeOffset) {
+            SystemCall systemCall{};
+            switch (binarySuffix->binaryOperator) {
+                case BinaryOperator::kEquals:
+                    systemCall = SystemCall::kDateTimeOffsetEquals;
+                    break;
+                case BinaryOperator::kNotEquals:
+                    systemCall = SystemCall::kDateTimeOffsetNotEquals;
+                    break;
+                case BinaryOperator::kLessThan:
+                    systemCall = SystemCall::kDateTimeOffsetLessThan;
+                    break;
+                case BinaryOperator::kLessThanEquals:
+                    systemCall = SystemCall::kDateTimeOffsetLessThanEquals;
+                    break;
+                case BinaryOperator::kGreaterThan:
+                    systemCall = SystemCall::kDateTimeOffsetGreaterThan;
+                    break;
+                case BinaryOperator::kGreaterThanEquals:
+                    systemCall = SystemCall::kDateTimeOffsetGreaterThanEquals;
+                    break;
+                default:
+                    throw CompilerException(
+                        CompilerErrorCode::kInternal, "Internal error. Unimplemented binary operator.",
+                        expressionNode.token);
+            }
+            state->syscall(Opcode::kSystemCallV, systemCall, 2, 0);
         } else if (lhsType->kind == Kind::kString && rhsType->kind == Kind::kString) {
             switch (binarySuffix->binaryOperator) {
                 case BinaryOperator::kAdd:

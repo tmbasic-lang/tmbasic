@@ -53,6 +53,25 @@ static void validateMillisecond(int64_t millisecond) {
     }
 }
 
+static absl::Time dateTimeOffsetValueToAbslTime(const Value& value) {
+    // Value -> DateTimeOffsetParts
+    DateTimeOffsetParts const parts{ value };
+
+    // DateTimeOffsetParts -> absl::CivilSecond
+    auto civilSecond = absl::CivilSecond{ parts.year, parts.month, parts.day, parts.hour, parts.minute, parts.second };
+
+    // Construct a fixed time zone with the specific UTC offset.
+    auto timeZone = absl::FixedTimeZone(static_cast<int>(parts.utcOffsetMilliseconds / 1000));
+
+    // absl::CivilSecond + absl::TimeZone -> absl::Time (with seconds precision)
+    auto time = absl::FromCivil(civilSecond, timeZone);
+
+    // Add the milliseconds back into the time since we lost it during the CivilSecond conversion.
+    time += absl::Milliseconds(parts.millisecond);
+
+    return time;
+}
+
 // (year as Number, month as Number, day as Number) as Date
 void systemCallDateFromParts(const SystemCallInput& input, SystemCallResult* result) {
     auto year = input.getValue(-3).getInt64();
@@ -436,6 +455,84 @@ void systemCallDateTimeAddSeconds(const SystemCallInput& input, SystemCallResult
 // (dto as DateTime, count as Number) as DateTime
 void systemCallDateTimeAddMilliseconds(const SystemCallInput& input, SystemCallResult* result) {
     dateTimeAddCore<DateTimeParts>([](auto* parts, auto count) { parts->addMilliseconds(count); }, input, result);
+}
+
+// (lhs as Date | DateTime, rhs as Date | DateTime) as Boolean
+void systemCallDateTimeLessThan(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& left = input.getValue(-2);
+    const auto& right = input.getValue(-1);
+    result->returnedValue = Value{ left.num < right.num };
+}
+
+// (lhs as Date | DateTime, rhs as Date | DateTime) as Boolean
+void systemCallDateTimeLessThanEquals(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& left = input.getValue(-2);
+    const auto& right = input.getValue(-1);
+    result->returnedValue = Value{ left.num <= right.num };
+}
+
+// (lhs as Date | DateTime, rhs as Date | DateTime) as Boolean
+void systemCallDateTimeGreaterThan(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& left = input.getValue(-2);
+    const auto& right = input.getValue(-1);
+    result->returnedValue = Value{ left.num > right.num };
+}
+
+// (lhs as Date | DateTime, rhs as Date | DateTime) as Boolean
+void systemCallDateTimeGreaterThanEquals(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& left = input.getValue(-2);
+    const auto& right = input.getValue(-1);
+    result->returnedValue = Value{ left.num >= right.num };
+}
+
+// (lhs as Date | DateTime, rhs as Date | DateTime) as Boolean
+void systemCallDateTimeEquals(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& left = input.getValue(-2);
+    const auto& right = input.getValue(-1);
+    result->returnedValue = Value{ left.num == right.num };
+}
+
+// (lhs as Date | DateTime, rhs as Date | DateTime) as Boolean
+void systemCallDateTimeNotEquals(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& left = input.getValue(-2);
+    const auto& right = input.getValue(-1);
+    result->returnedValue = Value{ left.num != right.num };
+}
+
+// (lhs as DateTimeOffset, rhs as DateTimeOffset) as Boolean
+void systemCallDateTimeOffsetLessThan(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedValue =
+        Value{ dateTimeOffsetValueToAbslTime(input.getValue(-2)) < dateTimeOffsetValueToAbslTime(input.getValue(-1)) };
+}
+
+// (lhs as DateTimeOffset, rhs as DateTimeOffset) as Boolean
+void systemCallDateTimeOffsetLessThanEquals(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedValue =
+        Value{ dateTimeOffsetValueToAbslTime(input.getValue(-2)) <= dateTimeOffsetValueToAbslTime(input.getValue(-1)) };
+}
+
+// (lhs as DateTimeOffset, rhs as DateTimeOffset) as Boolean
+void systemCallDateTimeOffsetGreaterThan(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedValue =
+        Value{ dateTimeOffsetValueToAbslTime(input.getValue(-2)) > dateTimeOffsetValueToAbslTime(input.getValue(-1)) };
+}
+
+// (lhs as DateTimeOffset, rhs as DateTimeOffset) as Boolean
+void systemCallDateTimeOffsetGreaterThanEquals(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedValue =
+        Value{ dateTimeOffsetValueToAbslTime(input.getValue(-2)) >= dateTimeOffsetValueToAbslTime(input.getValue(-1)) };
+}
+
+// (lhs as DateTimeOffset, rhs as DateTimeOffset) as Boolean
+void systemCallDateTimeOffsetEquals(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedValue =
+        Value{ dateTimeOffsetValueToAbslTime(input.getValue(-2)) == dateTimeOffsetValueToAbslTime(input.getValue(-1)) };
+}
+
+// (lhs as DateTimeOffset, rhs as DateTimeOffset) as Boolean
+void systemCallDateTimeOffsetNotEquals(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedValue =
+        Value{ dateTimeOffsetValueToAbslTime(input.getValue(-2)) != dateTimeOffsetValueToAbslTime(input.getValue(-1)) };
 }
 
 }  // namespace vm
