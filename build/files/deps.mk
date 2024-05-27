@@ -570,7 +570,8 @@ $(LIBZIP_DIR)/install: $(LIBZIP_DIR)/download $(CMAKE_DIR)/install $(ZLIB_DIR)/i
 			-DCMAKE_BUILD_TYPE=Release \
 			-DCMAKE_PREFIX_PATH=$(TARGET_PREFIX) \
 			-DCMAKE_INSTALL_PREFIX=$(TARGET_PREFIX) \
-			$(CMAKE_TOOLCHAIN_FLAG) && \
+			$(CMAKE_TOOLCHAIN_FLAG) \
+			-DCMAKE_C_FLAGS="-Wno-incompatible-pointer-types" && \
 		$(MAKE) && \
 		$(MAKE) install
 	touch $@

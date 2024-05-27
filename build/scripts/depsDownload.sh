@@ -31,27 +31,27 @@ function downloadFile {
 }
 
 # don't update these versions by hand. instead, run scripts/depsCheck.sh
-ABSEIL_VERSION=14b8a4eac3e5a7b97ba4cc7b7dadf2a85aae8215
+ABSEIL_VERSION=baf07b1f6201e4a6b3f16d87131a558693197c6f
 BINUTILS_VERSION=2.42
-BOOST_VERSION=1.84.0
-CLI11_VERSION=2.4.1
-CMAKE_VERSION=3.28.3
+BOOST_VERSION=1.85.0
+CLI11_VERSION=2.4.2
+CMAKE_VERSION=3.29.3
 FMT_VERSION=10.2.1
 GOOGLETEST_VERSION=1.14.0
 IMMER_VERSION=0.8.1
-LIBUNISTRING_VERSION=1.1
+LIBUNISTRING_VERSION=1.2
 LIBZIP_VERSION=1.10.1
 MICROTAR_VERSION=27076e1b9290e9c7842bb7890a54fcf172406c84
 MPDECIMAL_VERSION=4.0.0
 NAMEOF_VERSION=0.10.4
-NCURSES_VERSION=6.4
-TURBO_VERSION=3251358bb06e277309b9ae678f1c88c315c7f856
-TVISION_VERSION=be6e64f85355c6c96b7c09174986fafb6a411c6a
+NCURSES_VERSION=6.5
+TURBO_VERSION=697580ec67fc70e5095b5a5657ef13e92aad29a6
+TVISION_VERSION=966226d643cd638fb516b621ac90a31f3ec8d1f6
 TZDB_VERSION=2024a
 ZLIB_VERSION=1.3.1
 
-# https://github.com/tmbasic-lang/abseil-cpp
-downloadFile "abseil-$ABSEIL_VERSION.tar.gz" "https://github.com/tmbasic-lang/abseil-cpp/archive/$ABSEIL_VERSION.tar.gz"
+# https://github.com/abseil/abseil-cpp
+downloadFile "abseil-$ABSEIL_VERSION.tar.gz" "https://github.com/abseil/abseil-cpp/archive/$ABSEIL_VERSION.tar.gz"
 
 # https://ftp.gnu.org/gnu/binutils
 downloadFile "binutils-$BINUTILS_VERSION.tar.gz" "https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VERSION.tar.gz"

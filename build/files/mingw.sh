@@ -5,7 +5,7 @@ set -euxo pipefail
 PKG_CONFIG_VERSION=0.29.2
 BINUTILS_VERSION=2.42
 MINGW_VERSION=11.0.1
-GCC_VERSION=13.2.0
+GCC_VERSION=14.1.0
 
 curl -L https://pkg-config.freedesktop.org/releases/pkg-config-$PKG_CONFIG_VERSION.tar.gz | tar -xz &
 curl -L https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VERSION.tar.xz | tar -xJ &
