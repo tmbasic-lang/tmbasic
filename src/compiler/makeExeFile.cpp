@@ -114,25 +114,32 @@ static size_t findBytecodeIndex(const vector<uint8_t>& runnerBinary) {
     throw runtime_error("Cannot find the bytecode in the runner binary!");
 }
 
-vector<uint8_t> readRunnerFile() {
-    // Read the contents of /code/bin/runner and return it
-    vector<uint8_t> runnerBinary{};
-    ifstream runnerFile{ "/code/bin/runner", ios::binary };
-    if (!runnerFile.is_open()) {
-        throw runtime_error("Cannot open /code/bin/runner");
+vector<uint8_t> readDebugRunnerFile() {
+    auto filename = fmt::format("runner{}", getPlatformExeExtension(getNativeTargetPlatform()));
+
+    vector<string> candidates{ filename, fmt::format("/code/bin/{}", filename) };
+
+    // Find the first candidate file that actually exists.
+    for (const auto& candidate : candidates) {
+        ifstream runnerFile{ candidate, ios::binary };
+        if (runnerFile.is_open()) {
+            runnerFile.seekg(0, ios::end);
+            vector<uint8_t> runnerBinary(runnerFile.tellg());
+            runnerFile.seekg(0, ios::beg);
+            runnerFile.read(
+                reinterpret_cast<char*>(runnerBinary.data()), static_cast<std::streamsize>(runnerBinary.size()));
+            runnerFile.close();
+            return runnerBinary;
+        }
     }
-    runnerFile.seekg(0, ios::end);
-    runnerBinary.resize(runnerFile.tellg());
-    runnerFile.seekg(0, ios::beg);
-    runnerFile.read(reinterpret_cast<char*>(runnerBinary.data()), static_cast<std::streamsize>(runnerBinary.size()));
-    runnerFile.close();
-    return runnerBinary;
+
+    throw runtime_error("This build of TMBASIC does not contain the necessary runtime.");
 }
 
 vector<uint8_t> makeExeFile(const vector<uint8_t>& bytecode, TargetPlatform platform) {
     auto runnerBinaryGzip = getRunnerTemplateGzipped(platform);
 
-    auto runnerBinary = runnerBinaryGzip.empty() ? readRunnerFile() : gunzip(runnerBinaryGzip);
+    auto runnerBinary = runnerBinaryGzip.empty() ? readDebugRunnerFile() : gunzip(runnerBinaryGzip);
 
     auto bytecodeIndex = findBytecodeIndex(runnerBinary);
     (void)bytecodeIndex;
