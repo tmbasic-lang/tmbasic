@@ -268,7 +268,7 @@ jobs:
           export VERSION=$(awk -F= '{ if ($1 == "version") print $2 }' build/version.ini)
 
           pushd bin
-          zip -9 tmbasic-${{ matrix.platform }}-$VERSION.zip tmbasic
+          ditto -c -k --sequesterRsrc tmbasic tmbasic-${{ matrix.platform }}-$VERSION.zip
           popd
 
       - name: Upload tmbasic.zip
