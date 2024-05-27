@@ -90,32 +90,20 @@ class ProcedureState {
 #endif
     }
 
-    void popValue() {
-        op(Opcode::kPopValue);
-    }
-    void popObject() {
-        op(Opcode::kPopObject);
-    }
-    void duplicateValue() {
-        op(Opcode::kDuplicateValue);
-    }
+    void popValue() { op(Opcode::kPopValue); }
+    void popObject() { op(Opcode::kPopObject); }
+    void duplicateValue() { op(Opcode::kDuplicateValue); }
     void duplicateValues(uint8_t count) {
         op(Opcode::kDuplicateValues);
         emitInt<uint8_t>(count);
     }
-    void duplicateObject() {
-        op(Opcode::kDuplicateObject);
-    }
+    void duplicateObject() { op(Opcode::kDuplicateObject); }
     void duplicateObjects(uint8_t count) {
         op(Opcode::kDuplicateObjects);
         emitInt<uint8_t>(count);
     }
-    void swapValues() {
-        op(Opcode::kSwapValues);
-    }
-    void swapObjects() {
-        op(Opcode::kSwapObjects);
-    }
+    void swapValues() { op(Opcode::kSwapValues); }
+    void swapObjects() { op(Opcode::kSwapObjects); }
     void copyValue(uint8_t index) {
         op(Opcode::kCopyValue);
         emitInt<uint8_t>(index);
@@ -253,27 +241,13 @@ class ProcedureState {
         }
     }
 
-    void returnVoid() {
-        op(Opcode::kReturn);
-    }
-    void returnValue() {
-        op(Opcode::kReturnValue);
-    }
-    void returnObject() {
-        op(Opcode::kReturnObject);
-    }
-    void setError() {
-        op(Opcode::kSetError);
-    }
-    void clearError() {
-        op(Opcode::kClearError);
-    }
-    void bubbleError() {
-        op(Opcode::kBubbleError);
-    }
-    void returnIfError() {
-        op(Opcode::kReturnIfError);
-    }
+    void returnVoid() { op(Opcode::kReturn); }
+    void returnValue() { op(Opcode::kReturnValue); }
+    void returnObject() { op(Opcode::kReturnObject); }
+    void setError() { op(Opcode::kSetError); }
+    void clearError() { op(Opcode::kClearError); }
+    void bubbleError() { op(Opcode::kBubbleError); }
+    void returnIfError() { op(Opcode::kReturnIfError); }
 
     void branchIfError(int labelId) {
         op(Opcode::kBranchIfError);
@@ -335,29 +309,15 @@ class ProcedureState {
         emitInt<uint16_t>(fieldIndex);
     }
 
-    void dottedExpressionValueKeySuffix(bool isValueElement) {
-        emitInt<uint8_t>(isValueElement ? 3 : 4);
-    }
+    void dottedExpressionValueKeySuffix(bool isValueElement) { emitInt<uint8_t>(isValueElement ? 3 : 4); }
 
-    void dottedExpressionObjectKeySuffix(bool isValueElement) {
-        emitInt<uint8_t>(isValueElement ? 5 : 6);
-    }
+    void dottedExpressionObjectKeySuffix(bool isValueElement) { emitInt<uint8_t>(isValueElement ? 5 : 6); }
 
-    void objectToObjectMapTryGet() {
-        op(Opcode::kObjectToObjectMapTryGet);
-    }
-    void objectToValueMapTryGet() {
-        op(Opcode::kObjectToValueMapTryGet);
-    }
-    void valueToObjectMapTryGet() {
-        op(Opcode::kValueToObjectMapTryGet);
-    }
-    void valueToValueMapTryGet() {
-        op(Opcode::kValueToValueMapTryGet);
-    }
-    void setErrorMapKeyNotFound() {
-        op(Opcode::kSetErrorMapKeyNotFound);
-    }
+    void objectToObjectMapTryGet() { op(Opcode::kObjectToObjectMapTryGet); }
+    void objectToValueMapTryGet() { op(Opcode::kObjectToValueMapTryGet); }
+    void valueToObjectMapTryGet() { op(Opcode::kValueToObjectMapTryGet); }
+    void valueToValueMapTryGet() { op(Opcode::kValueToValueMapTryGet); }
+    void setErrorMapKeyNotFound() { op(Opcode::kSetErrorMapKeyNotFound); }
 
    private:
     template <typename TOutputInt, typename TInputInt>
