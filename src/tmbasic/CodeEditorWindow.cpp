@@ -327,9 +327,7 @@ static std::vector<compiler::TokenKind> tokenizeLine(std::string_view str) {
 void CodeEditorWindow::handleNotification(const SCNotification& scn, turbo::Editor& aEditor) {
     BasicEditorWindow::handleNotification(scn, aEditor);
     if (scn.nmhdr.code == SCN_STYLENEEDED) {
-        {
-            handleStyleToNeeded(scn.position);
-        }
+        handleStyleToNeeded(scn.position);
     }
 }
 
