@@ -142,17 +142,17 @@ void assignProcedureIndices(const SourceProgram& sourceProgram, CompiledProgram*
 }
 
 void compileProcedures(const SourceProgram& sourceProgram, CompiledProgram* compiledProgram) {
-    BuiltInConstantList builtInConstants{};
-    BuiltInProcedureList builtInProcedures{};
+    BuiltInConstantList const builtInConstants{};
+    BuiltInProcedureList const builtInProcedures{};
     SymbolScope globalSymbolScope{ *compiledProgram };
 
     // add symbols to the global scope for built-in constants
-    for (auto& builtInConstant : builtInConstants.constants) {
+    for (const auto& builtInConstant : builtInConstants.constants) {
         globalSymbolScope.addSymbol(builtInConstant.second.get(), SymbolType::kVariable);
     }
 
     // add symbols to the global scope for built-in procedures
-    for (auto& builtInProcedureGroup : builtInProcedures.map) {
+    for (const auto& builtInProcedureGroup : builtInProcedures.map) {
         for (auto& builtInProcedure : *builtInProcedureGroup.second) {
             globalSymbolScope.addSymbol(builtInProcedure.get(), SymbolType::kProcedure);
         }

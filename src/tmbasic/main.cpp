@@ -43,7 +43,7 @@ static void publishProgram(const std::string& filename, const std::vector<std::s
     compiler::Publisher publisher{ program, filename };
     for (auto platform : publishPlatforms) {
         auto outputFilePath = publisher.publish(platform);
-        std::cout << outputFilePath << std::endl;
+        std::cout << outputFilePath << '\n';
     }
 }
 
@@ -80,13 +80,13 @@ int main(int argc, char** argv) {
     } catch (compiler::CompilerException& ex) {
         std::cerr << "Error in \"" << ex.token.sourceMember->identifier << "\"\nLn " << ex.token.lineIndex + 1
                   << ", Col " << ex.token.columnIndex + 1 << "\n"
-                  << ex.message << std::endl;
+                  << ex.message << '\n';
         return 1;
     } catch (const std::exception& e) {
-        std::cerr << "Error: " << e.what() << std::endl;
+        std::cerr << "Error: " << e.what() << '\n';
         return 1;
     } catch (...) {
-        std::cerr << "Unknown error." << std::endl;
+        std::cerr << "Unknown error." << '\n';
         return 1;
     }
 

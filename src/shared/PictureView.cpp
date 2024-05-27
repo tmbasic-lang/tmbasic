@@ -89,7 +89,7 @@ std::string Picture::exportToString() {
     uint32_t previousBg = 0;
     auto previousTransparent = false;
     std::string previousChar = " ";
-    std::function<void()> newlineOrSpace = [&s, &lineStart]() -> void {
+    std::function<void()> const newlineOrSpace = [&s, &lineStart]() -> void {
         if (s.tellp() - lineStart >= 110) {
             s << "\n";
             lineStart = s.tellp();
@@ -109,7 +109,7 @@ std::string Picture::exportToString() {
             auto changesBitMask = (previousChar != cell.ch ? 0x01 : 0) |
                 (previousTransparent != cell.transparent ? 0x02 : 0) | (previousFg != fg ? 0x04 : 0) |
                 (previousBg != bg ? 0x08 : 0);
-            char command = static_cast<char>('A' + changesBitMask);
+            char const command = static_cast<char>('A' + changesBitMask);
 
             s << command;
 

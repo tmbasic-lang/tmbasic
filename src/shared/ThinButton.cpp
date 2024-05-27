@@ -69,7 +69,7 @@ void ThinButton::drawState(bool down) {
         cButton = { 0xA0, 0xA0 };
     }
 
-    int s = size.x - 1;
+    int const s = size.x - 1;
     b.moveChar(0, ' ', cButton, size.x);
 
     if (title != nullptr) {
@@ -99,7 +99,7 @@ void ThinButton::handleEvent(TEvent& event) {
         TView::handleEvent(event);
     }
 
-    char c = hotKey(title);
+    char const c = hotKey(title);
     switch (event.what) {
         case evMouseDown:
             if ((state & sfDisabled) == 0) {

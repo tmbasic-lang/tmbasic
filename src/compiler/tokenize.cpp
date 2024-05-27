@@ -231,7 +231,7 @@ bool Scanner::isCurrentTokenTextEmpty() {
 }
 
 TokenKind Scanner::classifyToken(const std::string& text) {
-    assert(text.length() > 0);
+    assert(!text.empty());
     switch (text[0]) {
         case '\n':
             return TokenKind::kEndOfLine;

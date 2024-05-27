@@ -23,7 +23,7 @@ class BuiltInRecordTypesList {
         };
     }
 
-    std::unordered_map<std::string, FieldList> types{};
+    std::unordered_map<std::string, FieldList> types;
 
    private:
     static boost::local_shared_ptr<ParameterNode> ValueField(

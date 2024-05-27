@@ -153,7 +153,7 @@ void Interpreter::init(size_t procedureIndex) {
     _private->valueStackIndex = 0;
     _private->objectStackIndex = 0;
 
-    _private->callStack.push({ nullptr, 0, 0, 0, 0, 0, false, false });
+    _private->callStack.emplace(nullptr, 0, 0, 0, 0, 0, false, false);
 
     decimal::context = decimal::IEEEContext(decimal::DECIMAL128);
 }
@@ -172,10 +172,10 @@ struct SetDottedExpressionState {
     const std::vector<uint8_t>* instructions{};
     size_t* instructionIndex{};
     bool isAssigningValue{};
-    Value sourceValue{};
-    boost::intrusive_ptr<Object> sourceObject{};
+    Value sourceValue;
+    boost::intrusive_ptr<Object> sourceObject;
     bool error{};
-    std::string errorMessage{};
+    std::string errorMessage;
     ErrorCode errorCode{};
 };
 
@@ -383,9 +383,9 @@ static void setDottedExpression(SetDottedExpressionState* state) {
     assert(state->instructions != nullptr);
     assert(state->instructionIndex != nullptr);
 
-    int numSuffixes = readInt<uint8_t>(state->instructions, state->instructionIndex);
-    int numKeyValues = readInt<uint8_t>(state->instructions, state->instructionIndex);
-    int numKeyObjects = readInt<uint8_t>(state->instructions, state->instructionIndex);
+    int const numSuffixes = readInt<uint8_t>(state->instructions, state->instructionIndex);
+    int const numKeyValues = readInt<uint8_t>(state->instructions, state->instructionIndex);
+    int const numKeyObjects = readInt<uint8_t>(state->instructions, state->instructionIndex);
 
     // Let's get our bearings in the stack.
     //                  <--- lower indices              higher indices --->
@@ -813,8 +813,8 @@ bool Interpreter::run(int maxCycles) {
                 auto returnsValue = opcode == Opcode::kCallV;
                 auto returnsObject = opcode == Opcode::kCallO;
                 auto& callProcedure = *procedures.at(procIndex);
-                _private->callStack.push(
-                    { procedure, instructionIndex, numVals, numObjs, vsi, osi, returnsValue, returnsObject });
+                _private->callStack.emplace(
+                    procedure, instructionIndex, numVals, numObjs, vsi, osi, returnsValue, returnsObject);
                 procedure = &callProcedure;
                 instructions = &callProcedure.instructions;
                 assert(instructions != nullptr);
@@ -831,17 +831,17 @@ bool Interpreter::run(int maxCycles) {
                 auto numObjs = readInt<uint8_t>(instructions, &instructionIndex);
                 auto returnsValue = opcode == Opcode::kSystemCallV || opcode == Opcode::kSystemCallVO;
                 auto returnsObject = opcode == Opcode::kSystemCallO || opcode == Opcode::kSystemCallVO;
-                SystemCallInput systemCallInput{ this,
-                                                 valueStack,
-                                                 objectStack,
-                                                 vsi,
-                                                 osi,
-                                                 numVals,
-                                                 numObjs,
-                                                 _private->consoleInputStream,
-                                                 _private->consoleOutputStream,
-                                                 _private->errorCode,
-                                                 _private->errorMessage };
+                SystemCallInput const systemCallInput{ this,
+                                                       valueStack,
+                                                       objectStack,
+                                                       vsi,
+                                                       osi,
+                                                       numVals,
+                                                       numObjs,
+                                                       _private->consoleInputStream,
+                                                       _private->consoleOutputStream,
+                                                       _private->errorCode,
+                                                       _private->errorMessage };
                 auto result = systemCall(static_cast<SystemCall>(syscallIndex), systemCallInput);
                 popValues(&vsi, numVals);
                 for (auto i = 0; i < numObjs; i++) {
@@ -990,7 +990,7 @@ bool Interpreter::run(int maxCycles) {
             }
 
             case Opcode::kValueListNew: {
-                int numVals = readInt<uint16_t>(instructions, &instructionIndex);
+                int const numVals = readInt<uint16_t>(instructions, &instructionIndex);
                 ValueListBuilder valueListBuilder{};
                 for (int i = numVals - 1; i >= 0; i--) {
                     valueListBuilder.items.push_back(std::move(*valueAt(valueStack, vsi, -1 - i)));
@@ -1003,7 +1003,7 @@ bool Interpreter::run(int maxCycles) {
             }
 
             case Opcode::kObjectListNew: {
-                int numObjs = readInt<uint16_t>(instructions, &instructionIndex);
+                int const numObjs = readInt<uint16_t>(instructions, &instructionIndex);
                 ObjectListBuilder objectListBuilder{};
                 for (int i = numObjs - 1; i >= 0; i--) {
                     objectListBuilder.items.push_back(std::move(*objectAt(objectStack, osi, -1 - i)));

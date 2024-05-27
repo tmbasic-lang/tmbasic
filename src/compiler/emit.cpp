@@ -1200,7 +1200,7 @@ static void emitAssignStatement(const AssignStatementNode& statementNode, Proced
 static void emitCallStatement(const CallStatementNode& statementNode, ProcedureState* state) {
     auto numValueArgs = 0;
     auto numObjectArgs = 0;
-    int maxArgs = std::numeric_limits<uint8_t>::max();
+    int const maxArgs = std::numeric_limits<uint8_t>::max();
     for (const auto& arg : statementNode.arguments) {
         assert(arg->evaluatedType != nullptr);
         arg->evaluatedType->isValueType() ? numValueArgs++ : numObjectArgs++;
@@ -2163,7 +2163,7 @@ static void emitPrint(const TypeNode& type, const Token& token, ProcedureState* 
             // ---- O: list [0] | V: [0]
 
             // Print the list. We'll have to construct the type List of T from our type Set of T.
-            TypeNode listType{ Kind::kList, type.token, type.setKeyType };
+            TypeNode const listType{ Kind::kList, type.token, type.setKeyType };
             emitPrint(listType, token, state);
             // ---- O: [0] | V: [0]
             break;
@@ -2377,7 +2377,7 @@ vector<uint8_t> emit(
     std::cerr << "--start of emit--";
 #endif
     ProcedureState state;
-    int maxLocals = std::numeric_limits<uint16_t>::max();
+    int const maxLocals = std::numeric_limits<uint16_t>::max();
     if (numLocalValues > maxLocals || numLocalObjects > maxLocals) {
         throw CompilerException(
             CompilerErrorCode::kTooManyLocalVariables, "Too many local variables.", procedureNode.token);

@@ -18,9 +18,9 @@ class BasicApp : public TApplication {
     void forceScreenUpdate();
 
    private:
-    static TStatusLine* initBasicStatusLine(TRect r);
-    static TMenuBar* initBasicMenuBar(TRect r);
-    static TDeskTop* initBasicDeskTop(TRect r);
+    static gsl::owner<TStatusLine*> initBasicStatusLine(TRect r);
+    static gsl::owner<TMenuBar*> initBasicMenuBar(TRect r);
+    static gsl::owner<TDeskTop*> initBasicDeskTop(TRect r);
 };
 
 }  // namespace vm

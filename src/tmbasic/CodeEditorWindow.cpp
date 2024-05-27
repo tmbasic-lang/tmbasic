@@ -102,7 +102,7 @@ class CodeEditorFrame : public turbo::BasicEditorFrame {
     }
 };
 
-static TFrame* initCodeEditorFrame(TRect r) {
+static gsl::owner<TFrame*> initCodeEditorFrame(TRect r) {
     return new CodeEditorFrame(r);
 }
 

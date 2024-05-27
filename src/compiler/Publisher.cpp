@@ -13,7 +13,7 @@ Publisher::Publisher(const CompiledProgram& compiledProgram, const std::string& 
       _pcode(compiledProgram.serialize()) {}
 
 std::string Publisher::getPublishDir(const std::string& basFilePath) {
-    std::string basDir = shared::getDirectoryName(basFilePath);
+    std::string const basDir = shared::getDirectoryName(basFilePath);
     return shared::pathCombine(basDir, "publish");
 }
 
@@ -34,13 +34,13 @@ std::string Publisher::publish(TargetPlatform platform) {
     std::vector<uint8_t> licData{};
     licData.insert(licData.end(), licString.begin(), licString.end());
     if (isZip) {
-        std::vector<compiler::ZipEntry> entries{
+        std::vector<compiler::ZipEntry> const entries{
             compiler::ZipEntry{ std::move(exeFilename), std::move(exeData) },
             compiler::ZipEntry{ licFilename, std::move(licData) },
         };
         compiler::zip(archiveFilePath, entries);
     } else {
-        std::vector<shared::TarEntry> entries{
+        std::vector<shared::TarEntry> const entries{
             shared::TarEntry{ std::move(exeFilename), std::move(exeData), 0777 },
             shared::TarEntry{ licFilename, std::move(licData), 0664 },
         };

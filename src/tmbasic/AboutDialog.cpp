@@ -33,7 +33,7 @@ static const std::string kLogoPicture =
 static Picture getLogoPicture() {
     Picture picture{ kLogoPicture };
     // replace RGB #C0C0C0 with BIOS color 7 otherwise it won't exactly match the background of the dialog box
-    TColorRGB c0c0c0{ 0xC0C0C0 };
+    TColorRGB const c0c0c0{ 0xC0C0C0 };
     for (auto& cell : picture.cells) {
         if (getBack(cell.colorAttr) == c0c0c0) {
             cell.colorAttr = { getFore(cell.colorAttr), TColorBIOS{ 7 } };

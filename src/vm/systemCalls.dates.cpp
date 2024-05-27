@@ -64,7 +64,7 @@ void systemCallDateFromParts(const SystemCallInput& input, SystemCallResult* res
     auto day = input.getValue(-1).getInt64();
     validateDay(day);
 
-    DateTimeParts parts{
+    DateTimeParts const parts{
         static_cast<uint32_t>(year), static_cast<uint32_t>(month), static_cast<uint32_t>(day), 0, 0, 0, 0
     };
     result->returnedValue = parts.toValue();
@@ -93,10 +93,10 @@ void systemCallDateTimeFromParts(const SystemCallInput& input, SystemCallResult*
     auto millisecond = input.getValue(-1).getInt64();
     validateMillisecond(millisecond);
 
-    DateTimeParts parts{ static_cast<uint32_t>(year),       static_cast<uint32_t>(month),
-                         static_cast<uint32_t>(day),        static_cast<uint32_t>(hour),
-                         static_cast<uint32_t>(minute),     static_cast<uint32_t>(second),
-                         static_cast<uint32_t>(millisecond) };
+    DateTimeParts const parts{ static_cast<uint32_t>(year),       static_cast<uint32_t>(month),
+                               static_cast<uint32_t>(day),        static_cast<uint32_t>(hour),
+                               static_cast<uint32_t>(minute),     static_cast<uint32_t>(second),
+                               static_cast<uint32_t>(millisecond) };
 
     result->returnedValue = parts.toValue();
 }
@@ -104,7 +104,7 @@ void systemCallDateTimeFromParts(const SystemCallInput& input, SystemCallResult*
 // (dateTimeOffset as DateTimeOffset) as Number
 void systemCallDateTimeOffsetDay(const SystemCallInput& input, SystemCallResult* result) {
     const auto& dateValue = input.getValue(-1);
-    DateTimeOffsetParts parts{ dateValue };
+    DateTimeOffsetParts const parts{ dateValue };
     result->returnedValue = Value{ parts.day };
 }
 
@@ -133,10 +133,10 @@ void systemCallDateTimeOffsetFromParts(const SystemCallInput& input, SystemCallR
 
     auto offsetMilliseconds = input.getValue(-1).getInt64();
 
-    DateTimeOffsetParts parts{ static_cast<uint32_t>(year),        static_cast<uint32_t>(month),
-                               static_cast<uint32_t>(day),         static_cast<uint32_t>(hour),
-                               static_cast<uint32_t>(minute),      static_cast<uint32_t>(second),
-                               static_cast<uint32_t>(millisecond), offsetMilliseconds };
+    DateTimeOffsetParts const parts{ static_cast<uint32_t>(year),        static_cast<uint32_t>(month),
+                                     static_cast<uint32_t>(day),         static_cast<uint32_t>(hour),
+                                     static_cast<uint32_t>(minute),      static_cast<uint32_t>(second),
+                                     static_cast<uint32_t>(millisecond), offsetMilliseconds };
 
     result->returnedValue = parts.toValue();
 }
@@ -144,35 +144,35 @@ void systemCallDateTimeOffsetFromParts(const SystemCallInput& input, SystemCallR
 // (dateTimeOffset as DateTimeOffset) as Number
 void systemCallDateTimeOffsetHour(const SystemCallInput& input, SystemCallResult* result) {
     const auto& dateValue = input.getValue(-1);
-    DateTimeOffsetParts parts{ dateValue };
+    DateTimeOffsetParts const parts{ dateValue };
     result->returnedValue = Value{ parts.hour };
 }
 
 // (dateTimeOffset as DateTimeOffset) as Number
 void systemCallDateTimeOffsetMillisecond(const SystemCallInput& input, SystemCallResult* result) {
     const auto& dateValue = input.getValue(-1);
-    DateTimeOffsetParts parts{ dateValue };
+    DateTimeOffsetParts const parts{ dateValue };
     result->returnedValue = Value{ parts.millisecond };
 }
 
 // (dateTimeOffset as DateTimeOffset) as Number
 void systemCallDateTimeOffsetMinute(const SystemCallInput& input, SystemCallResult* result) {
     const auto& dateValue = input.getValue(-1);
-    DateTimeOffsetParts parts{ dateValue };
+    DateTimeOffsetParts const parts{ dateValue };
     result->returnedValue = Value{ parts.minute };
 }
 
 // (dateTimeOffset as DateTimeOffset) as Number
 void systemCallDateTimeOffsetMonth(const SystemCallInput& input, SystemCallResult* result) {
     const auto& dateValue = input.getValue(-1);
-    DateTimeOffsetParts parts{ dateValue };
+    DateTimeOffsetParts const parts{ dateValue };
     result->returnedValue = Value{ parts.month };
 }
 
 // (dateTimeOffset as DateTimeOffset) as Number
 void systemCallDateTimeOffsetSecond(const SystemCallInput& input, SystemCallResult* result) {
     const auto& dateValue = input.getValue(-1);
-    DateTimeOffsetParts parts{ dateValue };
+    DateTimeOffsetParts const parts{ dateValue };
     result->returnedValue = Value{ parts.second };
 }
 
@@ -203,7 +203,7 @@ void systemCallDateTimeOffsetToString(const SystemCallInput& input, SystemCallRe
 // (dateTimeOffset as DateTimeOffset) as Number
 void systemCallDateTimeOffsetYear(const SystemCallInput& input, SystemCallResult* result) {
     const auto& dateValue = input.getValue(-1);
-    DateTimeOffsetParts parts{ dateValue };
+    DateTimeOffsetParts const parts{ dateValue };
     result->returnedValue = Value{ parts.year };
 }
 
@@ -245,7 +245,7 @@ void systemCallSeconds(const SystemCallInput& input, SystemCallResult* result) {
 }
 
 // () as DateTimeOffset
-void systemCallNow(const SystemCallInput& input, SystemCallResult* result) {
+void systemCallNow(const SystemCallInput& /*input*/, SystemCallResult* result) {
     absl::TimeZone tz;
 #ifdef _WIN32
     // Ask Windows for the local time zone because Abseil doesn't know how to do it.
@@ -287,10 +287,10 @@ void systemCallNow(const SystemCallInput& input, SystemCallResult* result) {
     auto utcOffsetMilliseconds = static_cast<int64_t>(civilInfo.offset) * 1000;
 
     // Construct DateTimeOffsetParts.
-    DateTimeOffsetParts parts{ static_cast<uint32_t>(year),         static_cast<uint32_t>(month),
-                               static_cast<uint32_t>(day),          static_cast<uint32_t>(hour),
-                               static_cast<uint32_t>(minute),       static_cast<uint32_t>(second),
-                               static_cast<uint32_t>(milliseconds), utcOffsetMilliseconds };
+    DateTimeOffsetParts const parts{ static_cast<uint32_t>(year),         static_cast<uint32_t>(month),
+                                     static_cast<uint32_t>(day),          static_cast<uint32_t>(hour),
+                                     static_cast<uint32_t>(minute),       static_cast<uint32_t>(second),
+                                     static_cast<uint32_t>(milliseconds), utcOffsetMilliseconds };
 
     // Return it in Value format.
     result->returnedValue = parts.toValue();
@@ -349,7 +349,7 @@ void systemCallTotalSeconds(const SystemCallInput& input, SystemCallResult* resu
 void systemCallUtcOffsets(const SystemCallInput& input, SystemCallResult* result) {
     const auto& timeZone = *castTimeZone(input.getObject(-1));
     const auto& dateTimeValue = input.getValue(-1);
-    DateTimeParts dateTimeParts{ dateTimeValue };
+    DateTimeParts const dateTimeParts{ dateTimeValue };
     auto offsets = timeZone.getUtcOffsets(dateTimeParts);
     ValueListBuilder builder{};
     for (const auto& offset : offsets) {

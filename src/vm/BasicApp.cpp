@@ -27,15 +27,15 @@ BasicApp::~BasicApp() {
     shutDown();
 }
 
-TStatusLine* BasicApp::initBasicStatusLine(TRect /*r*/) {
+gsl::owner<TStatusLine*> BasicApp::initBasicStatusLine(TRect /*r*/) {
     return nullptr;
 }
 
-TMenuBar* BasicApp::initBasicMenuBar(TRect /*r*/) {
+gsl::owner<TMenuBar*> BasicApp::initBasicMenuBar(TRect /*r*/) {
     return nullptr;
 }
 
-TDeskTop* BasicApp::initBasicDeskTop(TRect r) {
+gsl::owner<TDeskTop*> BasicApp::initBasicDeskTop(TRect r) {
     return new DeskTop(r);
 }
 

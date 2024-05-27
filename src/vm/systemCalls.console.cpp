@@ -175,8 +175,8 @@ static void setConsoleColorComponents(const SystemCallInput& input) {
     auto blue = input.getValue(-1);
     validateAndFloorRgb(&red, &green, &blue);
 
-    TColorRGB colorRgb{ static_cast<uint8_t>(red.getInt32()), static_cast<uint8_t>(green.getInt32()),
-                        static_cast<uint8_t>(blue.getInt32()) };
+    TColorRGB const colorRgb{ static_cast<uint8_t>(red.getInt32()), static_cast<uint8_t>(green.getInt32()),
+                              static_cast<uint8_t>(blue.getInt32()) };
     setForeOrBack(app->console->currentColorAttr, colorRgb);
 }
 
@@ -219,12 +219,12 @@ void systemCallMoveCursor(const SystemCallInput& input, SystemCallResult* /*resu
         throw Error(ErrorCode::kWrongScreenMode, "Must be in fullscreen mode.");
     }
 
-    auto x = input.getValue(-2);
+    const auto& x = input.getValue(-2);
     if (x.num < 0 || x.num >= 32768) {
         throw Error(ErrorCode::kInvalidArgument, "X must be between 0 and 32767.");
     }
 
-    auto y = input.getValue(-1);
+    const auto& y = input.getValue(-1);
     if (y.num < 0 || y.num >= 32768) {
         throw Error(ErrorCode::kInvalidArgument, "Y must be between 0 and 32767.");
     }

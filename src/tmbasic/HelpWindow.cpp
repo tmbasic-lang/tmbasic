@@ -23,7 +23,7 @@ class HelpWindowFrame : public TFrame {
         return { fore, back };
     }
 
-    static TFrame* init(TRect r) { return new HelpWindowFrame(r); }
+    static gsl::owner<TFrame*> init(TRect r) { return new HelpWindowFrame(r); }
 };
 
 class HelpViewer : public THelpViewer {

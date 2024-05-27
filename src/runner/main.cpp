@@ -31,16 +31,16 @@ int main(int /*argc*/, const char* /*argv*/[]) {
 
         auto error = interpreter.getError();
         if (error.has_value()) {
-            std::cerr << "Error " << error->code.getString() << ": " << error->message << std::endl;
+            std::cerr << "Error " << error->code.getString() << ": " << error->message << '\n';
             return 1;
         }
 
         return 0;
     } catch (const std::exception& e) {
-        std::cerr << e.what() << std::endl;
+        std::cerr << e.what() << '\n';
         return 1;
     } catch (...) {
-        std::cerr << "Unknown fatal error." << std::endl;
+        std::cerr << "Unknown fatal error." << '\n';
         return 1;
     }
 }

@@ -26,7 +26,7 @@ void systemCallCharacters(const SystemCallInput& input, SystemCallResult* result
 
     // Fast path if the whole string is ASCII.
     auto fastPath = true;
-    for (char ch : str.value) {
+    for (char const ch : str.value) {
         if (ch != 9 && (ch < 32 || ch > 126)) {
             fastPath = false;
             break;
@@ -35,7 +35,7 @@ void systemCallCharacters(const SystemCallInput& input, SystemCallResult* result
 
     if (fastPath) {
         ObjectListBuilder objectListBuilder{};
-        for (char ch : str.value) {
+        for (char const ch : str.value) {
             objectListBuilder.items.push_back(boost::make_intrusive_ptr<String>(std::string{ ch }));
         }
         result->returnedObject = boost::make_intrusive_ptr<ObjectList>(&objectListBuilder);
@@ -85,7 +85,7 @@ void systemCallChr(const SystemCallInput& input, SystemCallResult* result) {
     }
 
     // Convert the UTF-8 array to a std::string.
-    std::string s{ reinterpret_cast<const char*>(utf8.data()), static_cast<size_t>(length) };
+    std::string const s{ reinterpret_cast<const char*>(utf8.data()), static_cast<size_t>(length) };
 
     result->returnedObject = boost::make_intrusive_ptr<String>(s);
 }
@@ -119,7 +119,7 @@ void systemCallCodePoints(const SystemCallInput& input, SystemCallResult* result
 // (input as String) as Number
 void systemCallCodeUnit1(const SystemCallInput& input, SystemCallResult* result) {
     const auto& str = *castString(input.getObject(-1));
-    if (str.value.length() == 0) {
+    if (str.value.empty()) {
         result->returnedValue.num = 0;
         return;
     }
@@ -143,7 +143,7 @@ void systemCallCodeUnit2(const SystemCallInput& input, SystemCallResult* result)
 void systemCallCodeUnits(const SystemCallInput& input, SystemCallResult* result) {
     const auto& str = *castString(input.getObject(-1));
     ValueListBuilder b{};
-    size_t numCodeUnits = str.value.length();
+    size_t const numCodeUnits = str.value.length();
     for (size_t i = 0; i < numCodeUnits; i++) {
         b.items.push_back(Value{ static_cast<uint8_t>(str.value.at(i)) });
     }
@@ -202,7 +202,7 @@ void systemCallInputString(const SystemCallInput& input, SystemCallResult* resul
 // (input as String) as Boolean
 void systemCallIsDigit(const SystemCallInput& input, SystemCallResult* result) {
     const auto& str = *castString(input.getObject(-1));
-    result->returnedValue.setBoolean(str.value.length() >= 1 && std::isdigit(str.value.at(0)));
+    result->returnedValue.setBoolean(!str.value.empty() && std::isdigit(str.value.at(0)));
 }
 
 // () as String
@@ -241,7 +241,7 @@ void systemCallStringFromCodePoints(const SystemCallInput& input, SystemCallResu
         }
 
         // Convert the UTF-8 array to a std::string_view.
-        std::string_view sv{ reinterpret_cast<const char*>(utf8.data()), static_cast<size_t>(length) };
+        std::string_view const sv{ reinterpret_cast<const char*>(utf8.data()), static_cast<size_t>(length) };
         ss << sv;
     }
 
@@ -306,7 +306,7 @@ void systemCallStringReplace(const SystemCallInput& input, SystemCallResult* res
     const auto& needle = *castString(input.getObject(-2));
     const auto& replacement = *castString(input.getObject(-1));
 
-    if (needle.value.length() == 0) {
+    if (needle.value.empty()) {
         throw Error(ErrorCode::kInvalidArgument, "Needle cannot be empty.");
     }
 
@@ -326,7 +326,7 @@ void systemCallStringSplit(const SystemCallInput& input, SystemCallResult* resul
     const auto& str = *castString(input.getObject(-2));
     const auto& separator = *castString(input.getObject(-1));
 
-    if (separator.value.length() == 0) {
+    if (separator.value.empty()) {
         throw Error(ErrorCode::kInvalidArgument, "Separator cannot be empty.");
     }
 

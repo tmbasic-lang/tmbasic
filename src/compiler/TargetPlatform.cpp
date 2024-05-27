@@ -97,7 +97,7 @@ const char* getPlatformExeExtension(TargetPlatform platform) {
 }
 
 std::string getLicenseForPlatform(TargetPlatform platform) {
-    std::string_view sv{ kLicense, kLicense_len };
+    std::string_view const sv{ kLicense, kLicense_len };
     switch (platform) {
         case TargetPlatform::kWinX86:
         case TargetPlatform::kWinX64: {

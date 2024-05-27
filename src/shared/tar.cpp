@@ -8,7 +8,7 @@ TarEntry::TarEntry(std::string name, std::vector<uint8_t> data, uint mode)
 
 class OutputTarArchive {
    public:
-    std::vector<uint8_t> bytes{};
+    std::vector<uint8_t> bytes;
     size_t index{ 0 };
 
     static int read(mtar_t* tar, void* data, unsigned size) {

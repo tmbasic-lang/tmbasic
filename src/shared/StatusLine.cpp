@@ -8,8 +8,8 @@ void StatusLine::draw() {
     TDrawBuffer b;
     TAttrPair color{};
 
-    TAttrPair cNormal = getColor(0x0301);
-    TAttrPair cNormDisabled = getColor(0x0202);
+    TAttrPair const cNormal = getColor(0x0301);
+    TAttrPair const cNormDisabled = getColor(0x0202);
     b.moveChar(0, ' ', cNormal, size.x);
     auto* t = items;
     ushort i = 0;
@@ -22,7 +22,7 @@ void StatusLine::draw() {
         }
 
         if (t->text != nullptr) {
-            ushort l = cstrlen(t->text);
+            ushort const l = cstrlen(t->text);
             if (i + l < size.x) {
                 if (commandEnabled(t->command)) {
                     if (colors != nullptr && colors->colorPairNormal.has_value()) {
@@ -47,7 +47,7 @@ void StatusLine::draw() {
         t = t->next;
     }
     if (i < size.x - 2) {
-        TStringView hintText = hint(helpCtx);
+        TStringView const hintText = hint(helpCtx);
         if (!hintText.empty()) {
             b.moveStr(i, "\xB3 ", cNormal);
             i += 2;

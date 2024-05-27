@@ -22,7 +22,6 @@
 
 using boost::trim_copy;
 using std::cerr;
-using std::endl;
 using std::function;
 using std::istringstream;
 using std::make_unique;
@@ -158,7 +157,7 @@ static string replaceRegex(const string& haystack, const string& pattern, const 
 }
 
 static string replaceRegex(string haystack, const string& pattern, const function<string(smatch&)>& replacementFunc) {
-    regex r(pattern);
+    regex const r(pattern);
     while (true) {
         smatch match;
         if (regex_search(haystack, match, r)) {
@@ -330,7 +329,7 @@ static vector<string> splitStringIntoLines(const string& input) {
 }
 
 static bool startsWith(const string& str, char ch) {
-    return str.length() > 0 && str[0] == ch;
+    return !str.empty() && str[0] == ch;
 }
 
 static string readProcedureBlock(const vector<string>& lines, size_t* i) {
@@ -370,12 +369,12 @@ static unique_ptr<Procedure> parseProcedure(const string& input) {
                 overload = newOverload.get();
                 procedure->overloads.push_back(std::move(newOverload));
             } else if (section == ".description") {
-                if (procedure->description.length() > 0) {
+                if (!procedure->description.empty()) {
                     throw runtime_error(string("Duplicate description in procedure ") + procedure->name);
                 }
                 procedure->description = readProcedureBlock(lines, &i);
             } else if (section == ".blurb") {
-                if (procedure->blurb.length() > 0) {
+                if (!procedure->blurb.empty()) {
                     throw runtime_error(string("Duplicate blurb in procedure ") + procedure->name);
                 }
                 procedure->blurb = rest;
@@ -412,12 +411,12 @@ static unique_ptr<Procedure> parseProcedure(const string& input) {
                 newExample->description = readProcedureBlock(lines, &i);
                 overload->examples.push_back(std::move(newExample));
             } else if (section == ".example-code") {
-                if (example->code.length() > 0) {
+                if (!example->code.empty()) {
                     throw runtime_error(string("Duplicate example-code in procedure ") + procedure->name);
                 }
                 example->code = readProcedureBlock(lines, &i);
             } else if (section == ".example-output") {
-                if (example->output.length() > 0) {
+                if (!example->output.empty()) {
                     throw runtime_error(string("Duplicate example-output in procedure ") + procedure->name);
                 }
                 example->output = readProcedureBlock(lines, &i);
@@ -676,12 +675,12 @@ int main() {
         buildProcedureIndex(procedures, &outputTxt, htmlPageTemplate);
         writeFile("../obj/resources/help/help.txt", insertDiagrams(outputTxt.str()));
     } catch (const regex_error& ex) {
-        ostringstream s;
-        cerr << ex.what() << ": " << NAMEOF_ENUM(ex.code()) << endl;
+        ostringstream const s;
+        cerr << ex.what() << ": " << NAMEOF_ENUM(ex.code()) << '\n';
         return -1;
     } catch (const runtime_error& ex) {
-        ostringstream s;
-        cerr << ex.what() << endl;
+        ostringstream const s;
+        cerr << ex.what() << '\n';
         return -1;
     }
 

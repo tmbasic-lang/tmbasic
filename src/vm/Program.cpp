@@ -35,9 +35,9 @@ class ProgramReader {
     }
 
     boost::intrusive_ptr<vm::String> readString() {
-        size_t length = readInt<uint32_t>();
-        std::string_view sv{ reinterpret_cast<const char*>(&vec.at(offset)), length };
-        std::string str{ sv };
+        size_t const length = readInt<uint32_t>();
+        std::string_view const sv{ reinterpret_cast<const char*>(&vec.at(offset)), length };
+        std::string const str{ sv };
         offset += length;
         return boost::make_intrusive_ptr<vm::String>(str);
     }

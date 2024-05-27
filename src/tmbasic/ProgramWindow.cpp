@@ -25,7 +25,6 @@
 using compiler::SourceMember;
 using compiler::SourceMemberType;
 using compiler::SourceProgram;
-using compiler::TargetPlatform;
 using shared::DialogPtr;
 using shared::Label;
 using shared::ViewPtr;
@@ -445,7 +444,7 @@ void ProgramWindow::publish() {
         return;
     }
 
-    WindowPtr<PublishStatusWindow> statusWindow{};
+    WindowPtr<PublishStatusWindow> const statusWindow{};
     statusWindow.get()->drawView();
     TScreen::flushScreen();
 
@@ -490,7 +489,7 @@ void ProgramWindow::run() {
     TProgram::application->suspend();
     program.run();
 
-    std::cout << "\nPress Enter to return to TMBASIC." << std::endl;
+    std::cout << "\nPress Enter to return to TMBASIC." << '\n';
     std::cin.get();
 
     TProgram::application->resume();

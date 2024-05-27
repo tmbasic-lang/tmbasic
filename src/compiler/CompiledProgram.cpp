@@ -105,7 +105,7 @@ void CompiledProgram::run() const {
 
         // If it was successful, then execution will never reach this point.
         // If we're here, then it failed.
-        std::cerr << "Failed to start the program: " << strerror(errno) << std::endl;
+        std::cerr << "Failed to start the program: " << strerror(errno) << '\n';
 
         // ChatGPT says it's important to use _exit and not exit here.
         _exit(EXIT_FAILURE);
@@ -114,7 +114,7 @@ void CompiledProgram::run() const {
         int status{};
         waitpid(pid, &status, 0);
     } else {
-        std::cout << "Failed to fork a new process: " << strerror(errno) << std::endl;
+        std::cout << "Failed to fork a new process: " << strerror(errno) << '\n';
     }
 #endif
 

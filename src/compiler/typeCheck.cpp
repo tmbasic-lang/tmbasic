@@ -1088,6 +1088,7 @@ static void typeCheckSelectCaseStatement(SelectCaseStatementNode* statementNode)
 
 static void typeCheckYieldStatement(YieldStatementNode* statementNode) {
     assert(statementNode->boundCollectionDeclaration != nullptr);
+    (void)statementNode;
 }
 
 static void typeCheckDimListStatement(DimListStatementNode* statementNode) {
@@ -1425,7 +1426,7 @@ void typeCheck(
     CompiledProgram* compiledProgram,
     const BuiltInProcedureList& builtInProcedures) {
     TypeCheckState state{ *procedureNode, sourceProgram, compiledProgram, builtInProcedures };
-    return typeCheckBody(procedureNode->body.get(), &state);
+    typeCheckBody(procedureNode->body.get(), &state);
 }
 
 };  // namespace compiler

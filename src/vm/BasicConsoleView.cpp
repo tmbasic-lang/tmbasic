@@ -43,7 +43,7 @@ TScreenCell* BasicConsoleView::getCell(int16_t x, int16_t y) {
         auto newSize = row->size();
 
         // Fill in the gap with the fill color.
-        TColorAttr fill{ fillColor, fillColor };
+        TColorAttr const fill{ fillColor, fillColor };
         for (auto i = oldSize; i < newSize; i++) {
             auto* cell = &row->at(i);
             cell->attr = fill;
@@ -58,7 +58,7 @@ TScreenCell* BasicConsoleView::getCell(int16_t x, int16_t y) {
 void BasicConsoleView::print(const std::string& str) {
     const auto bounds = getBounds();
 
-    std::string_view view{ str };
+    std::string_view const view{ str };
     size_t iPrev = 0;
     size_t i = 0;
     size_t width = 0;

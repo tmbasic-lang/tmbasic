@@ -51,7 +51,7 @@ class DeskTop : public TDeskTop {
    public:
     explicit DeskTop(const TRect& r) : TDeskTop(r), TDeskInit(initTmBackground) {}
 
-    static TBackground* initTmBackground(TRect r) { return new Background(r); }
+    static gsl::owner<TBackground*> initTmBackground(TRect r) { return new Background(r); }
 };
 
 class AppPrivate {
@@ -63,7 +63,7 @@ class AppPrivate {
     PictureWindowStatusItems pictureWindowStatusItems{};
     PictureWindow* pictureWindow = nullptr;
 
-    static TDeskTop* initDeskTop(TRect r) {
+    static gsl::owner<TDeskTop*> initDeskTop(TRect r) {
         r.a.y++;
         r.b.y--;
         return new DeskTop(r);
@@ -261,7 +261,7 @@ class AppPrivate {
                 return true;
 
             case kCmdProgramAddItem: {
-                DialogPtr<AddProgramItemDialog> d{};
+                DialogPtr<AddProgramItemDialog> const d{};
                 auto cmd = TApplication::deskTop->execView(d.get());
                 if (cmd != cmCancel) {
                     TEvent addEvent{ evCommand };
@@ -452,7 +452,7 @@ class AppPrivate {
             return;
         }
 
-        std::string source = "picture Untitled\nend picture\n";
+        std::string const source = "picture Untitled\nend picture\n";
         auto sourceMember = std::make_unique<SourceMember>(SourceMemberType::kPicture, source, 0, 0);
         auto* sourceMemberPtr = sourceMember.get();
         programWindow->addNewSourceMember(std::move(sourceMember));
@@ -682,7 +682,7 @@ void App::idle() {
     TApplication::idle();
 
     auto now = std::chrono::steady_clock::now();
-    std::chrono::duration<double, std::milli> msec = now - _private->lastTimerTick;
+    std::chrono::duration<double, std::milli> const msec = now - _private->lastTimerTick;
     if (msec.count() >= 250) {
         _private->lastTimerTick = now;
         message(deskTop, evBroadcast, kCmdTimerTick, nullptr);

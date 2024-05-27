@@ -5,7 +5,7 @@ namespace shared {
 
 Label::Label(const TRect& r) : TLabel(r, "", nullptr) {}
 
-Label::Label(TStringView text, TView* link) : TLabel(TRect(0, 0, static_cast<int>(cstrlen(text) + 3), 1), text, link) {}
+Label::Label(TStringView text, TView* link) : TLabel(TRect(0, 0, (cstrlen(text) + 3), 1), text, link) {}
 
 Label::Label(const TRect& r, TStringView text, TView* link) : TLabel(r, text, link) {}
 

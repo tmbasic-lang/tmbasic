@@ -51,7 +51,7 @@ class Cp437Table : public TView {
 
     void draw() override {
         TDrawBuffer buf;
-        TColorAttr color{ 0x30 };
+        TColorAttr const color{ 0x30 };
 
         for (uint16_t y = 0; y <= size.y - 1; y++) {
             buf.moveChar(0, ' ', color, static_cast<int16_t>(size.x));
@@ -69,7 +69,7 @@ class Cp437Table : public TView {
         if (event.what == evMouseDown) {
             do {
                 if (mouseInView(event.mouse.where)) {
-                    TPoint spot = makeLocal(event.mouse.where);
+                    TPoint const spot = makeLocal(event.mouse.where);
                     auto i = spot.x + 32 * spot.y;
                     if (i >= 1 && i <= 254) {
                         setCharFunc(_cp437toUtf8.at(i));
@@ -100,12 +100,12 @@ class UnicodeTable : public TView {
 
     void draw() override {
         TDrawBuffer buf;
-        TColorAttr color{ 0x30 };
+        TColorAttr const color{ 0x30 };
 
         for (ushort y = 0; y <= size.y - 1; y++) {
             buf.moveChar(0, ' ', color, static_cast<int16_t>(size.x));
             for (ushort x = 0; x <= size.x - 1; x++) {
-                size_t i = 32 * (y + _unicodeTableScrollTop) + x;
+                size_t const i = 32 * (y + _unicodeTableScrollTop) + x;
                 if (i < getSymbolCount()) {
                     buf.moveStr(x, getSymbol(i), color, static_cast<ushort>(1));
                 }
@@ -121,8 +121,8 @@ class UnicodeTable : public TView {
         if (event.what == evMouseDown) {
             do {
                 if (mouseInView(event.mouse.where)) {
-                    TPoint spot = makeLocal(event.mouse.where);
-                    size_t i = spot.x + 32 * (_unicodeTableScrollTop + spot.y);
+                    TPoint const spot = makeLocal(event.mouse.where);
+                    size_t const i = spot.x + 32 * (_unicodeTableScrollTop + spot.y);
                     if (i < getSymbolCount()) {
                         setCharFunc(getSymbol(i));
                     } else {

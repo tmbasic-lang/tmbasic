@@ -59,9 +59,9 @@ Decimal doubleToDecimal(double x) {
     // Decompose double using bit manipulation
     uint64_t bits = 0;
     std::memcpy(&bits, &x, sizeof(double));
-    uint32_t negative = (bits >> 63) & 1U;
-    uint32_t exponent = (bits >> 52) & 0x7FFU;
-    uint64_t mantissa = bits & 0xFFFFFFFFFFFFFU;
+    uint32_t const negative = (bits >> 63) & 1U;
+    uint32_t const exponent = (bits >> 52) & 0x7FFU;
+    uint64_t const mantissa = bits & 0xFFFFFFFFFFFFFU;
 
     if (std::isinf(x)) {
         mpd_uint128_triple_t infTriple{};
@@ -73,7 +73,7 @@ Decimal doubleToDecimal(double x) {
     int64_t binaryExponent = exponent;
     binaryExponent -= 0x3ff;  // IEEE 754 double bias
 
-    Decimal fraction = mantissa / kDecimalDoubleMantissaDenominator;
+    Decimal const fraction = mantissa / kDecimalDoubleMantissaDenominator;
 
     Decimal magnitude = 2;
     auto isSubnormal = exponent == 0U;
@@ -83,7 +83,7 @@ Decimal doubleToDecimal(double x) {
     }
     magnitude = magnitude.pow(binaryExponent);
 
-    Decimal sign = negative == 0U ? 1 : -1;
+    Decimal const sign = negative == 0U ? 1 : -1;
 
     if (exponent == 0U && mantissa == 0U) {
         return kDecimalZero;

@@ -151,7 +151,7 @@ static Term zeroOrMore(std::initializer_list<Term> terms) {
 static Term capture(int captureId, Term&& subTerm) {
     auto t = Term(TermType::kCapture);
     t.captureId = captureId;
-    t.subTerms.push_back(subTerm);
+    t.subTerms.push_back(std::move(subTerm));
     return t;
 }
 

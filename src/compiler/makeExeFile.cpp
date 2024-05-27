@@ -117,7 +117,7 @@ static size_t findBytecodeIndex(const vector<uint8_t>& runnerBinary) {
 vector<uint8_t> readDebugRunnerFile() {
     auto filename = fmt::format("runner{}", getPlatformExeExtension(getNativeTargetPlatform()));
 
-    vector<string> candidates{ filename, fmt::format("/code/bin/{}", filename) };
+    vector<string> const candidates{ filename, fmt::format("/code/bin/{}", filename) };
 
     // Find the first candidate file that actually exists.
     for (const auto& candidate : candidates) {

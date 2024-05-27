@@ -67,12 +67,12 @@ class CanvasView : public TView {
     bool flashingSelection = false;
 
     // select mode > paste and move operations
-    std::optional<Picture> pastedPicture{};
-    std::optional<TPoint> pastedPictureLocation{};
+    std::optional<Picture> pastedPicture;
+    std::optional<TPoint> pastedPictureLocation;
 
     // select mode > move operation
-    std::optional<TRect> moveOriginalRect{};        // where the pastedPicture is being dragged from
-    std::optional<TColorAttr> moveOriginalColor{};  // the color to fill in the original area
+    std::optional<TRect> moveOriginalRect;        // where the pastedPicture is being dragged from
+    std::optional<TColorAttr> moveOriginalColor;  // the color to fill in the original area
 
     // mask mode
     bool flashingMask = false;
@@ -645,13 +645,13 @@ void PictureWindowPrivate::updateStatusItems() {
     delete[] statusItems.character->text;  // NOLINT
     statusItems.character->text = newStr(chText.str());
 
-    TAttrPair attrPair{ TColorAttr(fg, bg), TColorAttr(fg, bg) };
+    TAttrPair const attrPair{ TColorAttr(fg, bg), TColorAttr(fg, bg) };
     statusItems.fgColor->colorPairNormal = attrPair;
     statusItems.bgColor->colorPairNormal = attrPair;
     statusItems.characterColor->colorPairNormal = attrPair;
 
-    TAttrPair sel{ 0x20, 0x2E };
-    TAttrPair unsel{ 0x70, 0x74 };
+    TAttrPair const sel{ 0x20, 0x2E };
+    TAttrPair const unsel{ 0x70, 0x74 };
 
     statusItems.selectColor->colorPairNormal = mode == PictureWindowMode::kSelect ? sel : unsel;
     statusItems.drawColor->colorPairNormal = mode == PictureWindowMode::kDraw ? sel : unsel;
@@ -736,7 +736,7 @@ void PictureWindowPrivate::updateStatusItems() {
 
 void PictureWindowPrivate::onClear() {
     checkpoint();
-    PictureCell pictureCell{ false, { fg, bg }, " " };
+    PictureCell const pictureCell{ false, { fg, bg }, " " };
 
     auto& picture = canvasView->picture;
     const auto selection =
@@ -920,16 +920,16 @@ void PictureWindowPrivate::onRedo() {
 }
 
 void PictureWindowPrivate::onMouse(int pictureX, int pictureY, const CanvasViewMouseEventArgs& e) {
-    TPoint pt{ pictureX, pictureY };
+    TPoint const pt{ pictureX, pictureY };
     auto& picture = canvasView->picture;
     auto leftMouseDown = e.down && (e.buttons & mbLeftButton) != 0;
     auto rightMouseDown = e.down && (e.buttons & mbRightButton) != 0;
     auto leftDragging = e.move && (e.buttons & mbLeftButton) != 0;
     auto rightDragging = e.move && (e.buttons & mbRightButton) != 0;
 
-    TPoint verticalGripper{ picture.width / 2, picture.height };
-    TPoint horizontalGripper{ picture.width + 1, picture.height / 2 };
-    TPoint diagonalGripper{ picture.width + 1, picture.height };
+    TPoint const verticalGripper{ picture.width / 2, picture.height };
+    TPoint const horizontalGripper{ picture.width + 1, picture.height / 2 };
+    TPoint const diagonalGripper{ picture.width + 1, picture.height };
     if (leftMouseDown && (pt == verticalGripper || pt == horizontalGripper || pt == diagonalGripper)) {
         // the user has started to drag the resize gripper
         checkpoint();
@@ -1045,7 +1045,7 @@ void PictureWindowPrivate::onMouse(int pictureX, int pictureY, const CanvasViewM
     }
 
     auto& cell = picture.cells.at(pictureY * picture.width + pictureX);
-    TColorAttr color{ fg, bg };
+    TColorAttr const color{ fg, bg };
 
     switch (mode) {
         case PictureWindowMode::kSelect:
@@ -1324,7 +1324,7 @@ void PictureWindow::handleEvent(TEvent& event) {
         if (event.keyDown.controlKeyState & kbPaste) {
             std::string s;
             std::array<char, 512> buf{};
-            TSpan<char> bufSpan{ buf.data(), buf.size() };
+            TSpan<char> const bufSpan{ buf.data(), buf.size() };
             size_t length = 0;
             while (textEvent(event, bufSpan, length)) {
                 s.append(buf.data(), length);

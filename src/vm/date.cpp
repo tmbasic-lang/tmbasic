@@ -225,7 +225,7 @@ Value DateTimeOffsetParts::toValue() const {
 }
 
 Value DateTimeParts::toValue() const {
-    DateTimeOffsetParts offsetParts{ year, month, day, hour, minute, second, millisecond, 0 };
+    DateTimeOffsetParts const offsetParts{ year, month, day, hour, minute, second, millisecond, 0 };
     return offsetParts.toValue();
 }
 
@@ -265,7 +265,7 @@ DateTimeOffsetParts::DateTimeOffsetParts(const Value& value) {
 }
 
 DateTimeParts::DateTimeParts(const Value& value) {
-    DateTimeOffsetParts parts{ value };
+    DateTimeOffsetParts const parts{ value };
     year = parts.year;
     month = parts.month;
     day = parts.day;
@@ -276,7 +276,7 @@ DateTimeParts::DateTimeParts(const Value& value) {
 }
 
 boost::intrusive_ptr<String> dateToString(const Value& date) {
-    DateTimeParts parts{ date };
+    DateTimeParts const parts{ date };
     std::stringstream ss;
     ss << std::setfill('0') << std::setw(4) << parts.year << "-" << std::setw(2) << parts.month << "-" << std::setw(2)
        << parts.day;
@@ -284,7 +284,7 @@ boost::intrusive_ptr<String> dateToString(const Value& date) {
 }
 
 boost::intrusive_ptr<String> dateTimeToString(const Value& date) {
-    DateTimeParts parts{ date };
+    DateTimeParts const parts{ date };
     std::stringstream ss;
     ss << std::setfill('0') << std::setw(4) << parts.year << "-" << std::setw(2) << parts.month << "-" << std::setw(2)
        << parts.day << " " << std::setw(2) << parts.hour << ":" << std::setw(2) << parts.minute << ":" << std::setw(2)
@@ -293,7 +293,7 @@ boost::intrusive_ptr<String> dateTimeToString(const Value& date) {
 }
 
 boost::intrusive_ptr<String> dateTimeOffsetToString(const Value& date) {
-    DateTimeOffsetParts parts{ date };
+    DateTimeOffsetParts const parts{ date };
     std::stringstream ss;
     ss << std::setfill('0') << std::setw(4) << parts.year << "-" << std::setw(2) << parts.month << "-" << std::setw(2)
        << parts.day << " " << std::setw(2) << parts.hour << ":" << std::setw(2) << parts.minute << ":" << std::setw(2)
@@ -328,12 +328,12 @@ boost::intrusive_ptr<String> timeSpanToString(const Value& timeSpan) {
 }
 
 Value dateTimeToDate(const Value& dateTime) {
-    DateTimeParts parts{ dateTime };
+    DateTimeParts const parts{ dateTime };
     return DateTimeParts{ parts.year, parts.month, parts.day, 0, 0, 0, 0 }.toValue();
 }
 
 Value dateTimeOffsetToDateTime(const Value& dateTimeOffset) {
-    DateTimeOffsetParts parts{ dateTimeOffset };
+    DateTimeOffsetParts const parts{ dateTimeOffset };
     return DateTimeParts{
         parts.year, parts.month, parts.day, parts.hour, parts.minute, parts.second, parts.millisecond
     }
@@ -341,7 +341,7 @@ Value dateTimeOffsetToDateTime(const Value& dateTimeOffset) {
 }
 
 Value dateTimeOffsetToDate(const Value& dateTimeOffset) {
-    DateTimeOffsetParts parts{ dateTimeOffset };
+    DateTimeOffsetParts const parts{ dateTimeOffset };
     return DateTimeParts{ parts.year, parts.month, parts.day, 0, 0, 0, 0 }.toValue();
 }
 

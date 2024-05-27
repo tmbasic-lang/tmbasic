@@ -312,7 +312,7 @@ class PaletteView : public TView {
                     auto width = getWidth();
                     auto height = getHeight();
                     const std::vector<TColorRGB>& colors = getColors();
-                    TPoint spot = makeLocal(event.mouse.where);
+                    TPoint const spot = makeLocal(event.mouse.where);
                     auto x = spot.x;
                     auto y = spot.y;
                     if (x >= 0 && x < width && y >= 0 && y < height) {

@@ -26,8 +26,8 @@ bool TimeZone::equals(const Object& other) const {
 }
 
 std::vector<decimal::Decimal> TimeZone::getUtcOffsets(const DateTimeParts& dateTimeParts) const {
-    absl::CivilSecond civilSecond{ dateTimeParts.year, dateTimeParts.month,  dateTimeParts.day,
-                                   dateTimeParts.hour, dateTimeParts.minute, dateTimeParts.second };
+    absl::CivilSecond const civilSecond{ dateTimeParts.year, dateTimeParts.month,  dateTimeParts.day,
+                                         dateTimeParts.hour, dateTimeParts.minute, dateTimeParts.second };
     auto timeInfo = zone->At(civilSecond);
 
     // If this is the DST fallback hour, there is both a pre and post time. "pre" is always at least filled.

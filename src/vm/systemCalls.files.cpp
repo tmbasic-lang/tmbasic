@@ -169,7 +169,7 @@ void systemCallReadFileLines(const SystemCallInput& input, SystemCallResult* res
 // (filePath as String) as String
 void systemCallReadFileText(const SystemCallInput& input, SystemCallResult* result) {
     auto filePath = castString(input.getObject(-1))->value;
-    std::ifstream stream{ filePath };
+    std::ifstream const stream{ filePath };
     if (stream.fail()) {
         throw Error::fromFileErrno(errno, filePath);
     }
@@ -196,8 +196,8 @@ void systemCallWriteFileBytes(const SystemCallInput& input, SystemCallResult* /*
     }
     constexpr size_t kChunkSize = 16 * 1024;  // 16KB
     for (size_t i = 0; i < bytes.size(); i += kChunkSize) {
-        size_t remainingBytes = bytes.size() - i;
-        size_t chunkBytes = std::min(kChunkSize, remainingBytes);
+        size_t const remainingBytes = bytes.size() - i;
+        size_t const chunkBytes = std::min(kChunkSize, remainingBytes);
         stream.write(&bytes.at(i), static_cast<std::streamsize>(chunkBytes));
         if (stream.fail()) {
             throw Error::fromFileErrno(errno, filePath);
