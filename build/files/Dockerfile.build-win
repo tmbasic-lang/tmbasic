@@ -76,7 +76,6 @@ RUN mkdir -p /tmp/downloads && \
 # environment
 RUN echo "export ARCH=\"$ARCH\"" >> /etc/profile.d/tmbasic.sh && \
     echo "export IMAGE_NAME=\"$IMAGE_NAME\"" >> /etc/profile.d/tmbasic.sh && \
-    echo "export PS1=\"[$IMAGE_NAME] \w\$ \"" >> /etc/profile.d/tmbasic.sh && \
     echo "export MAKEFLAGS=\"-j$(nproc)\"" >> /etc/profile.d/tmbasic.sh && \
     echo "export TARGET_OS=win" >> /etc/profile.d/tmbasic.sh && \
     echo "export PREFIX=/usr/$ARCH-w64-mingw32" >> /etc/profile.d/tmbasic.sh && \
