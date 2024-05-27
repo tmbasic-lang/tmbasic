@@ -116,6 +116,7 @@
 #ifdef _WIN32
 #include <windows.h>
 #include <tchar.h>
+#include <shlwapi.h>
 #endif
 
 // We ultimately shouldn't need this function if we're using object pooling, but it's easier to have it now as we

@@ -130,10 +130,24 @@ std::vector<std::string> listDirectories(const std::string& path) {
     return listFilesOrDirectories(path, true);
 }
 
+static bool isRootPath(const std::string& path) {
+#ifdef _WIN32
+    auto wpath = shared::winUtf8ToUtf16(path);
+    return PathIsRootW(wpath.c_str()) == TRUE;
+#else
+    return path == "/";
+#endif
+}
+
 void createDirectory(const std::string& path) {
     auto parentDir = shared::getDirectoryName(path);
     if (!parentDir.empty() && parentDir != path) {
         createDirectory(parentDir);
+    }
+
+    if (isRootPath(path)) {
+        // Nothing to do.
+        return;
     }
 
 #ifdef _WIN32

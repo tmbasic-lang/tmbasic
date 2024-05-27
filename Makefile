@@ -341,6 +341,11 @@ TMBASIC_LDFLAGS += -lzip -lz
 # Linker flag to include libgtest (googletest).
 LIBGTEST_FLAG += -lgtest -lgtest_main
 
+# Linker flag to include Windows-specific libraries
+ifeq ($(TARGET_OS),win)
+LDFLAGS += -lshlwapi
+endif
+
 
 
 ### Phony targets #####################################################################################################
