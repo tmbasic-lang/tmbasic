@@ -66,7 +66,9 @@ Linux and Windows builds must be produced on a Linux build machine. Ubuntu Linux
 1. Type `exit` to leave the build environment.
 
 ## Build for macOS
-1. Install Xcode (version 12 or higher) and AWSCLI v2.
+1. Install Xcode (version 12 or higher).
+
+1. Install Hombrew and use it to `brew install awscli fileicon`.
 
 1. `aws configure` -- enter your AWS credentials. You need this to access the requester-pays S3 bucket `tmbasic` which contains premade build environments.
 

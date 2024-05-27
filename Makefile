@@ -680,6 +680,9 @@ bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
 ifeq ($(STRIP_TMBASIC),1)
 	$(STRIP) bin/tmbasic$(EXE_EXTENSION)
 endif
+ifeq ($(TARGET_OS),mac)
+	fileicon set bin/tmbasic doc/art/favicon/favicon.icns
+endif
 
 ifeq ($(TARGET_OS),win)
 obj/tmbasic/AppWin.res.o: src/tmbasic/AppWin.rc doc/art/favicon/favicon.ico
