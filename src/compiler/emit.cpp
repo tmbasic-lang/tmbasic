@@ -455,6 +455,9 @@ static void emitBinaryExpression(const BinaryExpressionNode& expressionNode, Pro
                 case BinaryOperator::kGreaterThanEquals:
                     systemCall = SystemCall::kDateTimeGreaterThanEquals;
                     break;
+                case BinaryOperator::kSubtract:
+                    systemCall = SystemCall::kDateTimeSubtract;
+                    break;
                 default:
                     throw CompilerException(
                         CompilerErrorCode::kInternal, "Internal error. Unimplemented binary operator.",
@@ -481,6 +484,9 @@ static void emitBinaryExpression(const BinaryExpressionNode& expressionNode, Pro
                     break;
                 case BinaryOperator::kGreaterThanEquals:
                     systemCall = SystemCall::kDateTimeOffsetGreaterThanEquals;
+                    break;
+                case BinaryOperator::kSubtract:
+                    systemCall = SystemCall::kDateTimeOffsetSubtract;
                     break;
                 default:
                     throw CompilerException(

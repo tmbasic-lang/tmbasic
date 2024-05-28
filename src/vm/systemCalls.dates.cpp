@@ -53,6 +53,22 @@ static void validateMillisecond(int64_t millisecond) {
     }
 }
 
+static absl::Time dateTimeValueToAbslTimeAssumingUtc(const Value& value) {
+    // Value -> DateTimeParts
+    DateTimeParts const parts{ value };
+
+    // DateTimeOffsetParts -> absl::CivilSecond
+    auto civilSecond = absl::CivilSecond{ parts.year, parts.month, parts.day, parts.hour, parts.minute, parts.second };
+
+    // absl::CivilSecond + absl::TimeZone -> absl::Time (with seconds precision)
+    auto time = absl::FromCivil(civilSecond, absl::UTCTimeZone());
+
+    // Add the milliseconds back into the time since we lost it during the CivilSecond conversion.
+    time += absl::Milliseconds(parts.millisecond);
+
+    return time;
+}
+
 static absl::Time dateTimeOffsetValueToAbslTime(const Value& value) {
     // Value -> DateTimeOffsetParts
     DateTimeOffsetParts const parts{ value };
@@ -533,6 +549,26 @@ void systemCallDateTimeOffsetEquals(const SystemCallInput& input, SystemCallResu
 void systemCallDateTimeOffsetNotEquals(const SystemCallInput& input, SystemCallResult* result) {
     result->returnedValue =
         Value{ dateTimeOffsetValueToAbslTime(input.getValue(-2)) != dateTimeOffsetValueToAbslTime(input.getValue(-1)) };
+}
+
+// (lhs as DateTime, rhs as DateTime) as TimeSpan
+void systemCallDateTimeSubtract(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& lhs = input.getValue(-2);
+    const auto& rhs = input.getValue(-1);
+    auto lhsTime = dateTimeValueToAbslTimeAssumingUtc(lhs);
+    auto rhsTime = dateTimeValueToAbslTimeAssumingUtc(rhs);
+    auto diff = lhsTime - rhsTime;
+    result->returnedValue = Value{ absl::ToInt64Milliseconds(diff) };
+}
+
+// (lhs as DateTimeOffset, rhs as DateTimeOffset) as TimeSpan
+void systemCallDateTimeOffsetSubtract(const SystemCallInput& input, SystemCallResult* result) {
+    const auto& lhs = input.getValue(-2);
+    const auto& rhs = input.getValue(-1);
+    auto lhsTime = dateTimeOffsetValueToAbslTime(lhs);
+    auto rhsTime = dateTimeOffsetValueToAbslTime(rhs);
+    auto diff = lhsTime - rhsTime;
+    result->returnedValue = Value{ absl::ToInt64Milliseconds(diff) };
 }
 
 }  // namespace vm

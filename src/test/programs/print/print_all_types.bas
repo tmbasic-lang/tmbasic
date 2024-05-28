@@ -15,7 +15,7 @@ $2
 3|Date|0000-00-00
 4|DateTime|0000-00-00 00:00:00.000
 5|DateTimeOffset|0000-00-00 00:00:00.000 +00:00
-6|TimeSpan|00:00:00.000
+6|TimeSpan|0:00:00:00.000
 7|TimeZone|UTC
 8|String|
 9|List of Number|[]

@@ -313,17 +313,29 @@ boost::intrusive_ptr<String> dateTimeOffsetToString(const Value& date) {
 }
 
 boost::intrusive_ptr<String> timeSpanToString(const Value& timeSpan) {
-    auto totalMsec = timeSpan.getInt64();
-    auto hours = totalMsec / kMillisecondsPerHour;
-    auto minutes = (totalMsec - hours * kMillisecondsPerHour) / kMillisecondsPerMinute;
-    auto seconds =
-        (totalMsec - hours * kMillisecondsPerHour - minutes * kMillisecondsPerMinute) / kMillisecondsPerSecond;
-    auto msec =
-        totalMsec - hours * kMillisecondsPerHour - minutes * kMillisecondsPerMinute - seconds * kMillisecondsPerSecond;
-
     std::stringstream ss;
-    ss << std::setw(2) << std::setfill('0') << hours << ":" << std::setw(2) << std::setfill('0') << minutes << ":"
-       << std::setw(2) << std::setfill('0') << seconds << "." << std::setw(3) << std::setfill('0') << msec;
+
+    auto totalMsec = timeSpan.getInt64();
+
+    if (totalMsec < 0) {
+        ss << "-";
+        totalMsec *= -1;
+    }
+
+    auto days = totalMsec / kMillisecondsPerDay;
+    totalMsec -= days * kMillisecondsPerDay;
+    auto hours = totalMsec / kMillisecondsPerHour;
+    totalMsec -= hours * kMillisecondsPerHour;
+    auto minutes = totalMsec / kMillisecondsPerMinute;
+    totalMsec -= minutes * kMillisecondsPerMinute;
+    auto seconds = totalMsec / kMillisecondsPerSecond;
+    totalMsec -= seconds * kMillisecondsPerSecond;
+    auto msec = totalMsec;
+
+    ss << days << ":" << std::setw(2) << std::setfill('0') << hours << ":" << std::setw(2) << std::setfill('0')
+       << minutes << ":" << std::setw(2) << std::setfill('0') << seconds << "." << std::setw(3) << std::setfill('0')
+       << msec;
+
     return boost::make_intrusive_ptr<String>(ss.str());
 }
 

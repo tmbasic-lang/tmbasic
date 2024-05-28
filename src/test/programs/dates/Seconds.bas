@@ -2,4 +2,4 @@ sub Main()
     print Seconds(1.5)
 end sub
 --output--
-00:00:01.500
+0:00:00:01.500

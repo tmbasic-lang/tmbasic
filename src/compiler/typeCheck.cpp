@@ -453,13 +453,10 @@ static void typeCheckBinaryExpression(BinaryExpressionNode* expressionNode, Type
 
             case BinaryOperator::kAdd:
                 if (lhsType->kind == Kind::kString && rhsType->kind == Kind::kString) {
+                    // String + String
                     suffix->evaluatedType = lhsType;
                     break;
-                }
-                // fall through
-
-            case BinaryOperator::kSubtract:
-                if (lhsType->kind == Kind::kNumber && rhsType->kind == Kind::kNumber) {
+                } else if (lhsType->kind == Kind::kNumber && rhsType->kind == Kind::kNumber) {
                     // Number + Number
                     suffix->evaluatedType = lhsType;
                 } else if (lhsType->kind == Kind::kList && rhsType->equals(*lhsType->listItemType)) {
@@ -477,6 +474,42 @@ static void typeCheckBinaryExpression(BinaryExpressionNode* expressionNode, Type
                 } else if (lhsType->kind == Kind::kMap && lhsType->equals(*rhsType)) {
                     // (Map from T1 to T2) + (Map from T1 to T2)
                     suffix->evaluatedType = lhsType;
+                } else {
+                    throw CompilerException(
+                        CompilerErrorCode::kTypeMismatch,
+                        fmt::format(
+                            "The types {} and {} are not valid operands for the \"{}\" operator.", lhsType->toString(),
+                            rhsType->toString(), getOperatorText(suffix->binaryOperator)),
+                        suffix->token);
+                }
+                break;
+
+            case BinaryOperator::kSubtract:
+                if (lhsType->kind == Kind::kNumber && rhsType->kind == Kind::kNumber) {
+                    // Number - Number
+                    suffix->evaluatedType = lhsType;
+                } else if (lhsType->kind == Kind::kList && rhsType->equals(*lhsType->listItemType)) {
+                    // (List of T) - (T)
+                    suffix->evaluatedType = lhsType;
+                } else if (lhsType->kind == Kind::kList && lhsType->equals(*rhsType)) {
+                    // (List of T) - (List of T)
+                    suffix->evaluatedType = lhsType;
+                } else if (lhsType->kind == Kind::kSet && rhsType->equals(*lhsType->setKeyType)) {
+                    // (Set of T) - (T)
+                    suffix->evaluatedType = lhsType;
+                } else if (lhsType->kind == Kind::kSet && lhsType->equals(*rhsType)) {
+                    // (Set of T) - (Set of T)
+                    suffix->evaluatedType = lhsType;
+                } else if (lhsType->kind == Kind::kMap && lhsType->equals(*rhsType)) {
+                    // (Map from T1 to T2) - (Map from T1 to T2)
+                    suffix->evaluatedType = lhsType;
+                } else if (
+                    lhsType->kind == rhsType->kind &&
+                    (lhsType->kind == Kind::kDate || lhsType->kind == Kind::kDateTime ||
+                     lhsType->kind == Kind::kDateTimeOffset)) {
+                    // Date - Date, DateTime - DateTime, DateTimeOffset - DateTimeOffset
+                    lhsType = suffix->evaluatedType =
+                        boost::make_local_shared<TypeNode>(Kind::kTimeSpan, suffix->token);
                 } else {
                     throw CompilerException(
                         CompilerErrorCode::kTypeMismatch,
