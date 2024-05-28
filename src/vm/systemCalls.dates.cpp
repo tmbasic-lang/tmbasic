@@ -571,4 +571,44 @@ void systemCallDateTimeOffsetSubtract(const SystemCallInput& input, SystemCallRe
     result->returnedValue = Value{ absl::ToInt64Milliseconds(diff) };
 }
 
+// (lhs as TimeSpan, rhs as TimeSpan) as TimeSpan
+void systemCallTimeSpanAdd(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedValue = Value{ input.getValue(-2).num + input.getValue(-1).num };
+}
+
+// (lhs as TimeSpan, rhs as TimeSpan) as TimeSpan
+void systemCallTimeSpanSubtract(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedValue = Value{ input.getValue(-2).num - input.getValue(-1).num };
+}
+
+// (lhs as TimeSpan, rhs as TimeSpan) as Boolean
+void systemCallTimeSpanLessThan(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedValue = Value{ input.getValue(-2).num < input.getValue(-1).num };
+}
+
+// (lhs as TimeSpan, rhs as TimeSpan) as Boolean
+void systemCallTimeSpanLessThanEquals(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedValue = Value{ input.getValue(-2).num <= input.getValue(-1).num };
+}
+
+// (lhs as TimeSpan, rhs as TimeSpan) as Boolean
+void systemCallTimeSpanGreaterThan(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedValue = Value{ input.getValue(-2).num > input.getValue(-1).num };
+}
+
+// (lhs as TimeSpan, rhs as TimeSpan) as Boolean
+void systemCallTimeSpanGreaterThanEquals(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedValue = Value{ input.getValue(-2).num >= input.getValue(-1).num };
+}
+
+// (lhs as TimeSpan, rhs as TimeSpan) as Boolean
+void systemCallTimeSpanEquals(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedValue = Value{ input.getValue(-2).num == input.getValue(-1).num };
+}
+
+// (lhs as TimeSpan, rhs as TimeSpan) as Boolean
+void systemCallTimeSpanNotEquals(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedValue = Value{ input.getValue(-2).num != input.getValue(-1).num };
+}
+
 }  // namespace vm

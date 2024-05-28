@@ -474,6 +474,9 @@ static void typeCheckBinaryExpression(BinaryExpressionNode* expressionNode, Type
                 } else if (lhsType->kind == Kind::kMap && lhsType->equals(*rhsType)) {
                     // (Map from T1 to T2) + (Map from T1 to T2)
                     suffix->evaluatedType = lhsType;
+                } else if (lhsType->kind == Kind::kTimeSpan && rhsType->kind == Kind::kTimeSpan) {
+                    // TimeSpan + TimeSpan
+                    suffix->evaluatedType = lhsType;
                 } else {
                     throw CompilerException(
                         CompilerErrorCode::kTypeMismatch,
@@ -510,6 +513,9 @@ static void typeCheckBinaryExpression(BinaryExpressionNode* expressionNode, Type
                     // Date - Date, DateTime - DateTime, DateTimeOffset - DateTimeOffset
                     lhsType = suffix->evaluatedType =
                         boost::make_local_shared<TypeNode>(Kind::kTimeSpan, suffix->token);
+                } else if (lhsType->kind == Kind::kTimeSpan && rhsType->kind == Kind::kTimeSpan) {
+                    // TimeSpan - TimeSpan
+                    suffix->evaluatedType = lhsType;
                 } else {
                     throw CompilerException(
                         CompilerErrorCode::kTypeMismatch,

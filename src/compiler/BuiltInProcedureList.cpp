@@ -196,6 +196,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addSub("Sleep", { "delay" }, { timeSpan }, SystemCall::kSleep);
     addFunction("Split", { "input", "separator" }, { string, string }, listOfString, SystemCall::kStringSplit);
     addFunction("Sqr", { "x" }, { number }, number, SystemCall::kSqr);
+    addFunction("Stopwatch", {}, {}, timeSpan, SystemCall::kStopwatch);
     addFunction("StringFromCodePoints", { "codePoints" }, { listOfNumber }, string, SystemCall::kStringFromCodePoints);
     addFunction("StringFromCodeUnits", { "codeUnits" }, { listOfNumber }, string, SystemCall::kStringFromCodeUnits);
     addFunction("Take", { "list", "count" }, { listOfAny, number }, listOfGeneric1, SystemCall::kListTake);

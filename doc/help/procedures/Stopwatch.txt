@@ -1,0 +1,19 @@
+.procedure Stopwatch
+.category Dates and Times
+.blurb Returns the current time using a special monotonic clock.
+.description
+Returns a t[TimeSpan] representing the current time with millisecond precision.
+This is not "wall clock" time; instead, it is a monotonic timer that is suitable for measuring elapsed time.
+The specific value returned by this function is not meaningful by itself, but subtracting this value from an earlier value returned by this function will give the elapsed time between the two calls.
+.overload
+.return TimeSpan
+The time since the computer's monotonic clock was started at an arbitrary point in the past.
+.example
+.example-code
+print Stopwatch()
+Sleep Seconds(1)
+print Stopwatch()
+.example-output
+0:07:13:25.020
+0:07:13:26.020
+.

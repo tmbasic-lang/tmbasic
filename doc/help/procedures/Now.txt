@@ -3,6 +3,9 @@
 .blurb Returns the current date, time, and time zone offset.
 .description
 Returns the current date, time, and time zone offset.
+This is the system's "wall clock" time which may go backwards, for instance when crossing the daylight saving time autumn boundary.
+For that reason, this function is not suitable for measuring elapsed time.
+Use o[Stopwatch] for measuring time intervals.
 .overload
 .return DateTimeOffset
 The current date, time, and time zone offset.

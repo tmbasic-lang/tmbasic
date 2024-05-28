@@ -13,5 +13,5 @@ A time span representing i[count] milliseconds.
 dim x = Milliseconds(1.5)
 print x
 .example-output
-00:00:00.001
+0:00:00:00.001
 .

@@ -494,6 +494,39 @@ static void emitBinaryExpression(const BinaryExpressionNode& expressionNode, Pro
                         expressionNode.token);
             }
             state->syscall(Opcode::kSystemCallV, systemCall, 2, 0);
+        } else if (lhsType->kind == Kind::kTimeSpan && rhsType->kind == Kind::kTimeSpan) {
+            SystemCall systemCall{};
+            switch (binarySuffix->binaryOperator) {
+                case BinaryOperator::kEquals:
+                    systemCall = SystemCall::kTimeSpanEquals;
+                    break;
+                case BinaryOperator::kNotEquals:
+                    systemCall = SystemCall::kTimeSpanNotEquals;
+                    break;
+                case BinaryOperator::kLessThan:
+                    systemCall = SystemCall::kTimeSpanLessThan;
+                    break;
+                case BinaryOperator::kLessThanEquals:
+                    systemCall = SystemCall::kTimeSpanLessThanEquals;
+                    break;
+                case BinaryOperator::kGreaterThan:
+                    systemCall = SystemCall::kTimeSpanGreaterThan;
+                    break;
+                case BinaryOperator::kGreaterThanEquals:
+                    systemCall = SystemCall::kTimeSpanGreaterThanEquals;
+                    break;
+                case BinaryOperator::kAdd:
+                    systemCall = SystemCall::kTimeSpanAdd;
+                    break;
+                case BinaryOperator::kSubtract:
+                    systemCall = SystemCall::kTimeSpanSubtract;
+                    break;
+                default:
+                    throw CompilerException(
+                        CompilerErrorCode::kInternal, "Internal error. Unimplemented binary operator.",
+                        expressionNode.token);
+            }
+            state->syscall(Opcode::kSystemCallV, systemCall, 2, 0);
         } else if (lhsType->kind == Kind::kString && rhsType->kind == Kind::kString) {
             switch (binarySuffix->binaryOperator) {
                 case BinaryOperator::kAdd:
