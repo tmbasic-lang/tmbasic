@@ -52,7 +52,9 @@ bool findBuiltInRecordType(
     std::vector<boost::local_shared_ptr<ParameterNode>>* outFieldList) {
     auto it = builtInRecordTypesList.types.find(lowercaseName);
     if (it != builtInRecordTypesList.types.end()) {
-        outFieldList->insert(outFieldList->end(), it->second.begin(), it->second.end());
+        if (outFieldList != nullptr) {
+            outFieldList->insert(outFieldList->end(), it->second.begin(), it->second.end());
+        }
         return true;
     }
     return false;

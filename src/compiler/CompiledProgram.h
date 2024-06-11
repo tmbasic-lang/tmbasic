@@ -49,7 +49,7 @@ class CompiledProgram {
     std::vector<decimal::Decimal> vmGlobalValues;
     std::vector<std::pair<shared::ObjectType, std::string>> vmGlobalObjects;
 
-    // The remained of this class is metadata that is not serialized.
+    // The remainder of this class is metadata that is not serialized.
     std::vector<std::unique_ptr<CompiledGlobalVariable>> globalVariables;
     std::vector<std::unique_ptr<CompiledProcedure>> procedures;
 

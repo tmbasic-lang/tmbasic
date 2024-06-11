@@ -1,6 +1,7 @@
 #include "compiler/compileTypes.h"
 #include "compiler/ast.h"
 #include "compiler/bindNamedRecordTypes.h"
+#include "compiler/checkRecursiveTypes.h"
 #include "compiler/CompilerException.h"
 #include "compiler/parse.h"
 #include "compiler/tokenize.h"
@@ -83,20 +84,36 @@ static void checkFieldTypes(size_t sourceMemberIndex, CompiledProgram* compiledP
     auto* compiledUserType = compiledProgram->userTypesBySourceMemberIndex.find(sourceMemberIndex)->second;
     for (auto& field : compiledUserType->fields) {
         checkFieldType(*field->parameterNode->type, *compiledProgram);
+    }
+}
+
+static void bindFieldTypes(size_t sourceMemberIndex, CompiledProgram* compiledProgram) {
+    auto* compiledUserType = compiledProgram->userTypesBySourceMemberIndex.find(sourceMemberIndex)->second;
+    for (auto& field : compiledUserType->fields) {
         bindNamedRecordTypes(field->parameterNode->type.get(), *compiledProgram);
     }
 }
 
 void compileTypes(const SourceProgram& sourceProgram, CompiledProgram* compiledProgram) {
-    // build a CompiledUserType for each user type, which assigns field indices
+    // Build a CompiledUserType for each user type, which assigns field indices.
     sourceProgram.forEachMemberIndex(SourceMemberType::kType, [compiledProgram](const auto& sourceMember, auto index) {
         compileType(index, sourceMember, compiledProgram);
     });
 
-    // check that fields of record types refer to defined types
+    // Check that fields of record types refer to defined types.
     sourceProgram.forEachMemberIndex(
         SourceMemberType::kType,
         [compiledProgram](const auto& /*sourceMember*/, auto index) { checkFieldTypes(index, compiledProgram); });
+
+    // We must check for cycles AFTER building CompiledUserTypes but BEFORE binding named record types.
+    // If there's a cycle and we try to bind it, we'll create an internal cycle in the reference counted TypeNodes
+    // which will cause a memory leak.
+    checkRecursiveTypes(sourceProgram, compiledProgram);
+
+    // Binds the named record types to their declarations.
+    sourceProgram.forEachMemberIndex(
+        SourceMemberType::kType,
+        [compiledProgram](const auto& /*sourceMember*/, auto index) { bindFieldTypes(index, compiledProgram); });
 }
 
 }  // namespace compiler

@@ -38,6 +38,7 @@ enum class CompilerErrorCode {
     kInvalidTypeConversion,
     kInvalidReturn,
     kControlReachesEndOfFunction,
+    kRecursiveRecordType,
 };
 
 class CompilerException : public std::exception {
