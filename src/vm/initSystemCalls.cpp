@@ -183,6 +183,8 @@ void systemCallPrintString(const SystemCallInput&, SystemCallResult*);
 void systemCallReadFileBytes(const SystemCallInput&, SystemCallResult*);
 void systemCallReadFileLines(const SystemCallInput&, SystemCallResult*);
 void systemCallReadFileText(const SystemCallInput&, SystemCallResult*);
+void systemCallRecordEquals(const SystemCallInput&, SystemCallResult*);
+void systemCallRecordNotEquals(const SystemCallInput&, SystemCallResult*);
 void systemCallRgb(const SystemCallInput&, SystemCallResult*);
 void systemCallRound(const SystemCallInput&, SystemCallResult*);
 void systemCallRunForm(const SystemCallInput&, SystemCallResult*);
@@ -446,6 +448,8 @@ void initSystemCalls() {
     initSystemCall(shared::SystemCall::kReadFileBytes, systemCallReadFileBytes);
     initSystemCall(shared::SystemCall::kReadFileLines, systemCallReadFileLines);
     initSystemCall(shared::SystemCall::kReadFileText, systemCallReadFileText);
+    initSystemCall(shared::SystemCall::kRecordEquals, systemCallRecordEquals);
+    initSystemCall(shared::SystemCall::kRecordNotEquals, systemCallRecordNotEquals);
     initSystemCall(shared::SystemCall::kRgb, systemCallRgb);
     initSystemCall(shared::SystemCall::kRound, systemCallRound);
     initSystemCall(shared::SystemCall::kRunForm, systemCallRunForm);

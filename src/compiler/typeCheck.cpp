@@ -433,19 +433,46 @@ static void typeCheckBinaryExpression(BinaryExpressionNode* expressionNode, Type
 
             case BinaryOperator::kEquals:
             case BinaryOperator::kNotEquals:
-            case BinaryOperator::kLessThan:
-            case BinaryOperator::kLessThanEquals:
-            case BinaryOperator::kGreaterThan:
-            case BinaryOperator::kGreaterThanEquals: {
-                if (lhsType->equals(*rhsType)) {
-                    suffix->evaluatedType = boost::make_local_shared<TypeNode>(Kind::kBoolean, suffix->token);
-                } else {
+                if (!lhsType->equals(*rhsType)) {
                     throw CompilerException(
                         CompilerErrorCode::kTypeMismatch,
                         fmt::format(
                             "The \"{}\" operator requires the operands to have identical types.",
                             getOperatorText(suffix->binaryOperator)),
                         suffix->token);
+                }
+                lhsType = state->typeBoolean;
+                break;
+
+            case BinaryOperator::kLessThan:
+            case BinaryOperator::kLessThanEquals:
+            case BinaryOperator::kGreaterThan:
+            case BinaryOperator::kGreaterThanEquals: {
+                if (!lhsType->equals(*rhsType)) {
+                    throw CompilerException(
+                        CompilerErrorCode::kTypeMismatch,
+                        fmt::format(
+                            "The \"{}\" operator requires the operands to have identical types.",
+                            getOperatorText(suffix->binaryOperator)),
+                        suffix->token);
+                }
+                switch (lhsType->kind) {
+                    case Kind::kDate:
+                    case Kind::kDateTime:
+                    case Kind::kDateTimeOffset:
+                    case Kind::kNumber:
+                    case Kind::kString:
+                    case Kind::kTimeSpan:
+                        suffix->evaluatedType = boost::make_local_shared<TypeNode>(Kind::kBoolean, suffix->token);
+                        break;
+
+                    default:
+                        throw CompilerException(
+                            CompilerErrorCode::kTypeMismatch,
+                            fmt::format(
+                                "The \"{}\" operator does not support the type \"{}\".",
+                                getOperatorText(suffix->binaryOperator), lhsType->toString()),
+                            suffix->token);
                 }
                 lhsType = state->typeBoolean;
                 break;

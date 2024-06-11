@@ -180,6 +180,8 @@ enum class SystemCall {
     kReadFileBytes,
     kReadFileLines,
     kReadFileText,
+    kRecordEquals,
+    kRecordNotEquals,
     kRgb,
     kRound,
     kRunForm,

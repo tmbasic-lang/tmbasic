@@ -701,7 +701,7 @@ static void emitBinaryExpression(const BinaryExpressionNode& expressionNode, Pro
             } else {
                 throw std::runtime_error("not impl");
             }
-        } else if (lhsType->kind == Kind::kMap && lhsType->equals(*rhsType)) {
+        } else if (lhsType->kind == Kind::kMap && rhsType->kind == Kind::kMap) {
             auto isFromValue = lhsType->mapKeyType->isValueType();
             auto isToValue = lhsType->mapValueType->isValueType();
             if (binarySuffix->binaryOperator == BinaryOperator::kAdd) {
@@ -732,6 +732,14 @@ static void emitBinaryExpression(const BinaryExpressionNode& expressionNode, Pro
                         state->syscall(Opcode::kSystemCallO, SystemCall::kObjectToObjectMapExcept, 0, 2);
                     }
                 }
+            } else {
+                throw std::runtime_error("not impl");
+            }
+        } else if (lhsType->kind == Kind::kRecord && rhsType->kind == Kind::kRecord) {
+            if (binarySuffix->binaryOperator == BinaryOperator::kEquals) {
+                state->syscall(Opcode::kSystemCallV, SystemCall::kRecordEquals, 0, 2);
+            } else if (binarySuffix->binaryOperator == BinaryOperator::kNotEquals) {
+                state->syscall(Opcode::kSystemCallV, SystemCall::kRecordNotEquals, 0, 2);
             } else {
                 throw std::runtime_error("not impl");
             }
