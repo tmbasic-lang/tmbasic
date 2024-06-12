@@ -387,7 +387,15 @@ static void emitBinaryExpression(const BinaryExpressionNode& expressionNode, Pro
         auto rhsType = binarySuffix->rightOperand->evaluatedType;
         emitExpression(*binarySuffix->rightOperand, state);
         auto suffixResultType = binarySuffix->evaluatedType;
-        if (lhsType->kind == Kind::kNumber && rhsType->kind == Kind::kNumber) {
+
+        if (!lhsType->isValueType() && !rhsType->isValueType() &&
+            binarySuffix->binaryOperator == BinaryOperator::kEquals) {
+            state->syscall(Opcode::kSystemCallV, SystemCall::kObjectEquals, 0, 2);
+        } else if (
+            !lhsType->isValueType() && !rhsType->isValueType() &&
+            binarySuffix->binaryOperator == BinaryOperator::kNotEquals) {
+            state->syscall(Opcode::kSystemCallV, SystemCall::kObjectNotEquals, 0, 2);
+        } else if (lhsType->kind == Kind::kNumber && rhsType->kind == Kind::kNumber) {
             SystemCall systemCall{};
             switch (binarySuffix->binaryOperator) {
                 case BinaryOperator::kEquals:
@@ -595,12 +603,6 @@ static void emitBinaryExpression(const BinaryExpressionNode& expressionNode, Pro
                         } else {
                             state->syscall(Opcode::kSystemCallO, SystemCall::kObjectListConcat, 0, 2);
                         }
-                        break;
-                    case BinaryOperator::kEquals:
-                        state->syscall(Opcode::kSystemCallV, SystemCall::kObjectEquals, 0, 2);
-                        break;
-                    case BinaryOperator::kNotEquals:
-                        state->syscall(Opcode::kSystemCallV, SystemCall::kObjectNotEquals, 0, 2);
                         break;
                     default:
                         throw std::runtime_error("not impl");
