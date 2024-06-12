@@ -147,6 +147,7 @@ void systemCallObjectListConcat(const SystemCallInput&, SystemCallResult*);
 void systemCallObjectListGet(const SystemCallInput&, SystemCallResult*);
 void systemCallObjectListRemove(const SystemCallInput&, SystemCallResult*);
 void systemCallObjectListSet(const SystemCallInput&, SystemCallResult*);
+void systemCallObjectNotEquals(const SystemCallInput&, SystemCallResult*);
 void systemCallObjectOptionalNewMissing(const SystemCallInput&, SystemCallResult*);
 void systemCallObjectOptionalNewPresent(const SystemCallInput&, SystemCallResult*);
 void systemCallObjectSetAdd(const SystemCallInput&, SystemCallResult*);
@@ -412,6 +413,7 @@ void initSystemCalls() {
     initSystemCall(shared::SystemCall::kObjectListGet, systemCallObjectListGet);
     initSystemCall(shared::SystemCall::kObjectListRemove, systemCallObjectListRemove);
     initSystemCall(shared::SystemCall::kObjectListSet, systemCallObjectListSet);
+    initSystemCall(shared::SystemCall::kObjectNotEquals, systemCallObjectNotEquals);
     initSystemCall(shared::SystemCall::kObjectOptionalNewMissing, systemCallObjectOptionalNewMissing);
     initSystemCall(shared::SystemCall::kObjectOptionalNewPresent, systemCallObjectOptionalNewPresent);
     initSystemCall(shared::SystemCall::kObjectSetAdd, systemCallObjectSetAdd);

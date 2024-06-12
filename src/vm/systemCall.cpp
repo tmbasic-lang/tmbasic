@@ -99,6 +99,12 @@ void systemCallObjectEquals(const SystemCallInput& input, SystemCallResult* resu
         input.getObject(-2)->equals(*input.getObject(-1)) ? shared::kDecimalOne : shared::kDecimalZero;
 }
 
+// (lhs as Object, rhs as Object) as Boolean
+void systemCallObjectNotEquals(const SystemCallInput& input, SystemCallResult* result) {
+    result->returnedValue.num =
+        !input.getObject(-2)->equals(*input.getObject(-1)) ? shared::kDecimalOne : shared::kDecimalZero;
+}
+
 SystemCallResult systemCall(SystemCall which, const SystemCallInput& input) {
     SystemCallResult result;
 

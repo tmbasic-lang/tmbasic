@@ -596,6 +596,12 @@ static void emitBinaryExpression(const BinaryExpressionNode& expressionNode, Pro
                             state->syscall(Opcode::kSystemCallO, SystemCall::kObjectListConcat, 0, 2);
                         }
                         break;
+                    case BinaryOperator::kEquals:
+                        state->syscall(Opcode::kSystemCallV, SystemCall::kObjectEquals, 0, 2);
+                        break;
+                    case BinaryOperator::kNotEquals:
+                        state->syscall(Opcode::kSystemCallV, SystemCall::kObjectNotEquals, 0, 2);
+                        break;
                     default:
                         throw std::runtime_error("not impl");
                 }

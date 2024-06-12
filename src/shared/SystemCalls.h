@@ -144,6 +144,7 @@ enum class SystemCall {
     kObjectListGet,
     kObjectListRemove,
     kObjectListSet,
+    kObjectNotEquals,
     kObjectOptionalNewMissing,
     kObjectOptionalNewPresent,
     kObjectSetAdd,
