@@ -190,7 +190,6 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addSub("SetForeColor", { "color" }, { color }, SystemCall::kSetForeColor);
     addSub("SetForeColor", { "red", "green", "blue" }, { number, number, number }, SystemCall::kSetForeColorComponents);
     addSub("SetFormTitle", { "form", "title" }, { form, string }, SystemCall::kSetFormTitle);
-    addSub("SetFullscreenBuffering", { "enable" }, { boolean }, SystemCall::kSetFullscreenBuffering);
     addFunction("Sin", { "x" }, { number }, number, SystemCall::kSin);
     addFunction("Skip", { "list", "count" }, { listOfAny, number }, listOfGeneric1, SystemCall::kListSkip);
     addSub("Sleep", { "delay" }, { timeSpan }, SystemCall::kSleep);

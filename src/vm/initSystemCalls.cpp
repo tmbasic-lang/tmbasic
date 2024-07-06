@@ -201,7 +201,6 @@ void systemCallSetControlText(const SystemCallInput&, SystemCallResult*);
 void systemCallSetForeColor(const SystemCallInput&, SystemCallResult*);
 void systemCallSetForeColorComponents(const SystemCallInput&, SystemCallResult*);
 void systemCallSetFormTitle(const SystemCallInput&, SystemCallResult*);
-void systemCallSetFullscreenBuffering(const SystemCallInput&, SystemCallResult*);
 void systemCallSetLen(const SystemCallInput&, SystemCallResult*);
 void systemCallSetValues(const SystemCallInput&, SystemCallResult*);
 void systemCallSin(const SystemCallInput&, SystemCallResult*);
@@ -467,7 +466,6 @@ void initSystemCalls() {
     initSystemCall(shared::SystemCall::kSetForeColor, systemCallSetForeColor);
     initSystemCall(shared::SystemCall::kSetForeColorComponents, systemCallSetForeColorComponents);
     initSystemCall(shared::SystemCall::kSetFormTitle, systemCallSetFormTitle);
-    initSystemCall(shared::SystemCall::kSetFullscreenBuffering, systemCallSetFullscreenBuffering);
     initSystemCall(shared::SystemCall::kSetLen, systemCallSetLen);
     initSystemCall(shared::SystemCall::kSetValues, systemCallSetValues);
     initSystemCall(shared::SystemCall::kSin, systemCallSin);

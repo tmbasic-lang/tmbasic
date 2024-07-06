@@ -198,7 +198,6 @@ enum class SystemCall {
     kSetForeColor,
     kSetForeColorComponents,
     kSetFormTitle,
-    kSetFullscreenBuffering,
     kSetLen,
     kSetValues,
     kSin,
