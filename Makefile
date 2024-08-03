@@ -6,7 +6,14 @@
 OPTFLAGS ?= -g -O0
 STRIP_TMBASIC ?= 0
 
-
+# Sanitizers are extremely slow in WSL on Arm64. Disable sanitizers for now.
+ifeq ($(TARGET_OS),linux)
+ifeq ($(LINUX_TRIPLE),aarch64-linux-gnu)
+ifeq ($(shell uname -r | grep -c WSL),1)
+DISABLE_SANITIZERS=1
+endif
+endif
+endif
 
 ### Input validation ##################################################################################################
 
