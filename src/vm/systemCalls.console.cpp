@@ -70,7 +70,7 @@ void systemCallEnterFullscreen(const SystemCallInput& /*input*/, SystemCallResul
 }
 
 // ()
-void systemCallUpdateScreen(const SystemCallInput& /*input*/, SystemCallResult* /*result*/) {
+void systemCallNextFrame(const SystemCallInput& /*input*/, SystemCallResult* /*result*/) {
     auto* app = BasicApp::instance.get();
     if (app == nullptr) {
         throw Error(ErrorCode::kWrongScreenMode, "Must be in fullscreen mode.");

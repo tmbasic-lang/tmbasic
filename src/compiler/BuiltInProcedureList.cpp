@@ -154,6 +154,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("NewForm", {}, {}, form, SystemCall::kNewForm);
     addFunction("NewLabel", {}, {}, control, SystemCall::kNewLabel);
     addFunction("NewLine", {}, {}, string, SystemCall::kNewLine);
+    addSub("NextFrame", {}, {}, SystemCall::kNextFrame);
     addFunction("Now", {}, {}, dateTimeOffset, SystemCall::kNow);
     addFunction("ParseNumber", { "text" }, { string }, number, SystemCall::kParseNumber);
     addFunction("PathCombine", { "parts" }, { listOfString }, string, SystemCall::kPathCombine);
@@ -207,7 +208,6 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("TotalMinutes", { "timeSpan" }, { timeSpan }, number, SystemCall::kTotalMinutes);
     addFunction("TotalSeconds", { "timeSpan" }, { timeSpan }, number, SystemCall::kTotalSeconds);
     addFunction("Trunc", { "x" }, { number }, number, SystemCall::kTrunc);
-    addSub("UpdateScreen", {}, {}, SystemCall::kUpdateScreen);
     addFunction("Value", { "this" }, { optionalAny }, generic1, SystemCall::kValue);
     addFunction("Values", { "set" }, { setOfAny }, listOfGeneric1, SystemCall::kSetValues);
     addSub("WriteFileBytes", { "filePath", "bytes" }, { string, listOfNumber }, SystemCall::kWriteFileBytes);
