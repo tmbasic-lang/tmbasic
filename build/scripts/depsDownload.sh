@@ -31,23 +31,23 @@ function downloadFile {
 }
 
 # don't update these versions by hand. instead, run scripts/depsCheck.sh
-ABSEIL_VERSION=baf07b1f6201e4a6b3f16d87131a558693197c6f
-BINUTILS_VERSION=2.42
-BOOST_VERSION=1.85.0
-CLI11_VERSION=2.4.2
-CMAKE_VERSION=3.29.3
-FMT_VERSION=10.2.1
-GOOGLETEST_VERSION=1.14.0
+ABSEIL_VERSION=310e6f4f0f202da13720fdd6cb0095e10a98fe1c
+BINUTILS_VERSION=2.44
+BOOST_VERSION=1.87.0
+CLI11_VERSION=2.5.0
+CMAKE_VERSION=3.31.6
+FMT_VERSION=11.1.4
+GOOGLETEST_VERSION=1.16.0
 IMMER_VERSION=0.8.1
-LIBUNISTRING_VERSION=1.2
-LIBZIP_VERSION=1.10.1
+LIBUNISTRING_VERSION=1.3
+LIBZIP_VERSION=1.11.3
 MICROTAR_VERSION=27076e1b9290e9c7842bb7890a54fcf172406c84
 MPDECIMAL_VERSION=4.0.0
 NAMEOF_VERSION=0.10.4
 NCURSES_VERSION=6.5
-TURBO_VERSION=697580ec67fc70e5095b5a5657ef13e92aad29a6
-TVISION_VERSION=966226d643cd638fb516b621ac90a31f3ec8d1f6
-TZDB_VERSION=2024a
+TURBO_VERSION=f4d6c6c8def15e2757f344a149fdb4607414f169
+TVISION_VERSION=d9bc00957285caf9144ca3d219d8256e34f24170
+TZDB_VERSION=2025a
 ZLIB_VERSION=1.3.1
 
 # https://github.com/abseil/abseil-cpp
@@ -56,8 +56,8 @@ downloadFile "abseil-$ABSEIL_VERSION.tar.gz" "https://github.com/abseil/abseil-c
 # https://ftp.gnu.org/gnu/binutils
 downloadFile "binutils-$BINUTILS_VERSION.tar.gz" "https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VERSION.tar.gz"
 
-# https://boostorg.jfrog.io/artifactory/main/release/
-downloadFile "boost-$BOOST_VERSION.tar.gz" "https://boostorg.jfrog.io/artifactory/main/release/$BOOST_VERSION/source/boost_$(echo $BOOST_VERSION | tr '.' '_').tar.gz"
+# https://archives.boost.io/release/
+downloadFile "boost-$BOOST_VERSION.tar.gz" "https://archives.boost.io/release/$BOOST_VERSION/source/boost_$(echo $BOOST_VERSION | tr '.' '_').tar.gz"
 
 # https://github.com/CLIUtils/CLI11/releases
 downloadFile "cli11-$CLI11_VERSION.hpp" "https://github.com/CLIUtils/CLI11/releases/download/v$CLI11_VERSION/CLI11.hpp"

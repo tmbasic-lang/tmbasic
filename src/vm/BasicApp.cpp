@@ -43,7 +43,7 @@ void BasicApp::forceScreenUpdate() {
     redraw();
     TScreen::flushScreen();
     TEvent event{};
-    eventTimeout = 0;
+    eventTimeoutMs = 0;
     getEvent(event);
 }
 
