@@ -155,4 +155,18 @@ void systemCallTrunc(const SystemCallInput& input, SystemCallResult* result) {
     result->returnedValue.num = input.getValue(-1).num.trunc();
 }
 
+// (x as Number, y as Number) as Number
+void systemCallMin(const SystemCallInput& input, SystemCallResult* result) {
+    auto x = input.getValue(-2).num;
+    auto y = input.getValue(-1).num;
+    result->returnedValue.num = x < y ? x : y;
+}
+
+// (x as Number, y as Number) as Number
+void systemCallMax(const SystemCallInput& input, SystemCallResult* result) {
+    auto x = input.getValue(-2).num;
+    auto y = input.getValue(-1).num;
+    result->returnedValue.num = x > y ? x : y;
+}
+
 }  // namespace vm

@@ -139,6 +139,8 @@ BuiltInProcedureList::BuiltInProcedureList() {
     addFunction("ListFill", { "value", "count" }, { any, number }, listOfGeneric1, SystemCall::kListFillO);
     addFunction("Log", { "x" }, { number }, number, SystemCall::kLog);
     addFunction("Log10", { "x" }, { number }, number, SystemCall::kLog10);
+    addFunction("Max", { "x", "y" }, { number, number }, number, SystemCall::kMax);
+    addFunction("Min", { "x", "y" }, { number, number }, number, SystemCall::kMin);
     addFunction(
         "Mid", { "list", "start", "count" }, { listOfAny, number, number }, listOfGeneric1, SystemCall::kListMid);
     addFunction("Millisecond", { "input" }, { dateTime }, number, SystemCall::kDateTimeOffsetMillisecond);

@@ -27,14 +27,6 @@ sub DrawTitlebar()
     print "Tic Tac Toe"
 end sub
 
-function Max(a as Number, b as Number) as Number
-    if a > b then
-        return a
-    else
-        return b
-    end if
-end function
-
 sub DrawX(x as Number, y as Number, size as Number)
     SetForeColor 255, 154, 149
     

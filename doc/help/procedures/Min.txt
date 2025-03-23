@@ -1,0 +1,22 @@
+.procedure Min
+.category Math
+.blurb Returns the smaller of two numbers.
+.description
+Returns the smaller of two numbers.
+
+If both numbers are equal, either one is returned.
+.overload
+.parameter x: Number
+First number to compare.
+.parameter y: Number
+Second number to compare.
+.return Number
+The smaller of i[x] and i[y].
+.example
+.example-code
+print Min(5, 3)
+print Min(-2, 1)
+.example-output
+3
+-2
+. 

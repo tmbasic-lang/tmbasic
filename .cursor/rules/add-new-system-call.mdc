@@ -1,0 +1,35 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+Follow these steps to add a new BASIC function or subroutine called "Foo" to our standard library.
+
+1. Decide on the signature:
+    sub Foo(bar as Number, baz as String)
+    function Foo(bar as Number, baz as String) as Boolean
+
+2. Edit [initSystemCalls.cpp](mdc:src/vm/initSystemCalls.cpp)
+    - Add a function prototype: `void systemCallFoo(const SystemCallInput&, SystemCallResult*);`
+    - In `initSystemCalls()`, add a line: `initSystemCall(shared::SystemCall::kFoo, systemCallFoo);`
+
+3. List the `systemCalls.*.cpp` files in `src/vm` and choose the most appropriate one for your implementation.
+   Implement your `systemCallFoo` function there.
+   A preceding function comment with the BASIC signature is required, e.g. `// (x as Number) as Number`
+
+4. Execute the shell script `build/scripts/updateSystemCalls.sh`.
+   This updates the `shared::SystemCall` enum to add `kFoo`.
+   It prints lots of stuff, just ignore the output and keep going.
+
+5. Update [BuiltInProcedureList.cpp](mdc:src/compiler/BuiltInProcedureList.cpp) to call `addFunction()` or `addSub()` with the BASIC-level information: name, parameter types, and return type.
+   Follow the examples you see in that file.
+
+6. Create a file `Foo.txt` in `doc/help/procedures` like [Characters.txt](mdc:doc/help/procedures/Characters.txt) (function) or [CreateDirectory.txt](mdc:doc/help/procedures/CreateDirectory.txt) (subroutine).
+   This documentation requires a very specific format.
+   Read [Characters.txt](mdc:doc/help/procedures/Characters.txt) (function) or [CreateDirectory.txt](mdc:doc/help/procedures/CreateDirectory.txt) (subroutine) to understand the syntax before writing your documentation.
+
+7. List the subdirectories in `src/test/programs` and find the category folder most appropriate for your function.
+
+8. Add a .bas file to that directory testing your function.
+   Put `--output--` on its own line to separate the BASIC code from the expected output.
+   Read [if_only.bas](mdc:src/test/programs/if/if_only.bas) for an example before writing your test program. Our BASIC is non-standard.

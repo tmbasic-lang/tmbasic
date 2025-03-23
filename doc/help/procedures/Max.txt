@@ -1,0 +1,22 @@
+.procedure Max
+.category Math
+.blurb Returns the larger of two numbers.
+.description
+Returns the larger of two numbers.
+
+If both numbers are equal, either one is returned.
+.overload
+.parameter x: Number
+First number to compare.
+.parameter y: Number
+Second number to compare.
+.return Number
+The larger of i[x] and i[y].
+.example
+.example-code
+print Max(5, 3)
+print Max(-2, 1)
+.example-output
+5
+1
+. 

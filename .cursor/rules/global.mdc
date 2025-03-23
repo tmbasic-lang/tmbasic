@@ -1,0 +1,7 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+We are developing TMBASIC, a modern BASIC programming language specialized in writing console applications.
+It is written in C++.
