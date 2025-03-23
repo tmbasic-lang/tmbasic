@@ -1,0 +1,77 @@
+---
+description: TMBASIC language syntax and semantics; always read this before writing BASIC code
+globs: 
+alwaysApply: false
+---
+TMBASIC is a statically- and nominally-typed BASIC language. Roughly speaking, it is a cross between QBASIC and Visual Basic (pre-.NET).
+
+# Data types
+- Boolean - true / false.
+- Number - 128-bit decimal.
+- String - UTF-8 text.
+- Date - Date without a time.
+- DateTime - Date and time, without a time zone.
+- DateTimeOffset - Record containing a DateTime and a TimeSpan representing the offset from UTC.
+- TimeZone - Offset from UTC and daylight saving time schedule.
+- TimeSpan - Period of time.
+- List of T - Generic dynamic-sized array with element type T. Example: List of Number. Literals look like: [0, 1, 2].
+- Map from K to V - Generic dynamic-sized dictionary with key type K and value type V. Example: Map from Number to String.
+- Set of T - Generic dynamic-sized set containing unique elements of type T. Example: Set of Number.
+- Optional T - Wrapper for type T indicating that the value may or may not be present. Example: Optional Number.
+- Record (...) - Anonymous record type, containing zero or more named fields. Example: Record (foo as Number, bar as String). Literals look like {foo: 1, bar: "hi"}.
+- Named record types. These are defined using type ... end type blocks.
+
+There are no object or reference semantics in TMBASIC, and thus no real support for object oriented programming (OOP). Everything is a value. Assigning to a variable always makes a copy, even for records, lists, and maps. Procedure parameters are passed by value.
+
+# Example: if statements
+```
+sub FizzBuzz(n as Number)
+    dim fizz = (n mod 3) = 0
+    dim buzz = (n mod 5) = 0
+    if fizz and buzz then
+        print "FizzBuzz"
+    else if fizz then
+        print "Fizz"
+    else if buzz then
+        print "Buzz"
+    else
+        print n
+    end if
+end function
+
+sub Main()
+    dim n as Number
+    print "Enter a number, or 0 to quit: ";
+    input n
+    if n <> 0 then FizzBuzz n
+end sub
+```
+
+# Example: Build a list efficiently with dim list
+```
+function Fibonacci(count as Number) as List of Number
+    ' No explicit type needed when providing an initial value.
+    dim a = 0
+    dim b = 1
+
+    ' Use "dim list" and "yield" to build the list to be returned.
+    dim list numbers
+        yield a  ' This appends to the "numbers" list.
+        yield b
+        for i = 3 to count
+            dim c = a + b
+            yield c
+            a = b
+            b = c
+        next
+    end dim
+
+    return numbers
+end function
+
+sub Main()
+    for each n in Fibonacci(50)
+        print n
+    next
+end sub
+```
