@@ -12,7 +12,7 @@ jobs:
           - arch: i386
             buildx-arch: linux/386
           - arch: arm32v7
-            buildx-arch: linux/arm32
+            buildx-arch: linux/arm/v7
           - arch: arm64v8
             buildx-arch: linux/arm64
     name: linux-${{ matrix.arch }}

@@ -8,7 +8,7 @@ export BUILDX_ARCH="unknown_arch"
 
 if [ "$ARCH" = "arm32v7" ]; then
     export IMAGE_TAG=$(awk -F= '{ if ($1 == "linux-system-root-arm32") print $2 }' tags.ini)
-    export BUILDX_ARCH="linux/arm32"
+    export BUILDX_ARCH="linux/arm/v7"
 fi
 if [ "$ARCH" = "arm64v8" ]; then
     export IMAGE_TAG=$(awk -F= '{ if ($1 == "linux-system-root-arm64") print $2 }' tags.ini)
