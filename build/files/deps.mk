@@ -325,7 +325,7 @@ $(IMMER_DIR)/download:
 	mv -f immer-*/ $(IMMER_DIR)/
 	touch $@
 
-$(IMMER_DIR)/install: $(IMMER_DIR)/download $(CMAKE_DIR)/install $(BINUTILS_DIR)/install
+$(IMMER_DIR)/install: $(IMMER_DIR)/download
 	cp -rf $(IMMER_DIR)/immer $(TARGET_PREFIX)/include/
 	touch $@
 
@@ -564,6 +564,7 @@ $(LIBZIP_DIR)/install: $(LIBZIP_DIR)/download $(CMAKE_DIR)/install $(ZLIB_DIR)/i
 			-DENABLE_ZSTD=OFF \
 			-DBUILD_TOOLS=OFF \
 			-DBUILD_REGRESS=OFF \
+			-DBUILD_OSSFUZZ=OFF \
 			-DBUILD_EXAMPLES=OFF \
 			-DBUILD_DOC=OFF \
 			$(CMAKE_FLAGS) \
