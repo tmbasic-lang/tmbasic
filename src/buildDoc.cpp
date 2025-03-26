@@ -274,8 +274,7 @@ static string processHtml(string str) {
         return string("<a href=\"type_") + to_lower_copy(match[2].str()) + ".html\">" + match[1].str() + "</a>";
     });
     str = replaceRegex(str, R"(p\[([^\]]+)\])", [](auto& match) -> string {
-        return string("<a href=\"procedure_") + to_lower_copy(match[1].str()) + ".html\">" + match[1].str() +
-            "</a>";
+        return string("<a href=\"procedure_") + to_lower_copy(match[1].str()) + ".html\">" + match[1].str() + "</a>";
     });
     str = replaceRegex(str, R"(i\[([^\]]+)\])", "<i>$1</i>");
     str = replaceRegex(str, R"(b\[([^\]]+)\])", "<b>$1</b>");
@@ -594,8 +593,8 @@ static void buildProcedureCategoryPages(
 
         for (const auto& x : procedures) {
             if (x->category == category) {
-                o << "li@b[{`" << x->name << "`:procedure_" << to_lower_copy(x->name) << "}] <EM_DASH> "
-                  << x->blurb << "@\n";
+                o << "li@b[{`" << x->name << "`:procedure_" << to_lower_copy(x->name) << "}] <EM_DASH> " << x->blurb
+                  << "@\n";
             }
         }
 
@@ -618,8 +617,7 @@ static void buildProcedureIndex(
 
     o << "ul@";
     for (const auto& x : procedures) {
-        o << "li@b[{`" << x->name << "`:procedure_" << to_lower_copy(x->name) << "}] <EM_DASH> " << x->blurb
-          << "@\n";
+        o << "li@b[{`" << x->name << "`:procedure_" << to_lower_copy(x->name) << "}] <EM_DASH> " << x->blurb << "@\n";
     }
     o << "@\n\n";
 

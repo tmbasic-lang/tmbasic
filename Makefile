@@ -433,7 +433,7 @@ callgrind:
 
 .PHONY: format
 format:
-	find src/ -type f \( -iname \*.h -o -iname \*.cpp \) | xargs clang-format -i
+	find src/ -type f \( -iname \*.h -o -iname \*.cpp \) -not -path "src/boost/*" | xargs clang-format -i
 
 .PHONY: lint
 lint:
