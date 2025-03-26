@@ -1,4 +1,5 @@
 #include "SourceProgram.h"
+#include "shared/strings.h"
 
 namespace compiler {
 
@@ -87,7 +88,7 @@ static void loadEndCurrentBlock(
         for (auto& line : *currentBlock) {
             s << line << "\n";
         }
-        members->push_back(std::make_unique<SourceMember>(currentMemberType, boost::trim_copy(s.str()) + "\n", 0, 0));
+        members->push_back(std::make_unique<SourceMember>(currentMemberType, shared::trim_copy(s.str()) + "\n", 0, 0));
         currentBlock->clear();
     }
 }
@@ -114,7 +115,7 @@ static void eatLinesUntilEnd(
         currentBlock->push_back(line);
 
         // The end phrase is case insensitive.
-        auto lc = boost::to_lower_copy(line);
+        auto lc = shared::to_lower_copy(line);
 
         if (lc.find(endPhrase) == 0) {
             return;
@@ -125,7 +126,7 @@ static void eatLinesUntilEnd(
 void SourceProgram::loadFromContent(const std::string& content) {
     // If this has Windows CRLF line endings, convert it to Unix LF line endings.
     if (content.find("\r\n") != std::string::npos) {
-        loadFromContent(boost::replace_all_copy(content, "\r\n", "\n"));
+        loadFromContent(shared::replace_all_copy(content, "\r\n", "\n"));
         return;
     }
 
@@ -140,7 +141,7 @@ void SourceProgram::loadFromContent(const std::string& content) {
         currentBlock.push_back(line);
 
         // These keywords are case insensitive.
-        auto lc = boost::to_lower_copy(line);
+        auto lc = shared::to_lower_copy(line);
 
         // Detect the type of block by the starting keyword.
         // There can be comment lines above this.
@@ -180,7 +181,7 @@ void SourceProgram::save(const std::string& filePath) const {
     auto stream = std::ofstream(filePath);
 
     for (const auto* member : sortMembers(this)) {
-        stream << boost::trim_copy(member->source) << "\n\n";
+        stream << shared::trim_copy(member->source) << "\n\n";
     }
 }
 

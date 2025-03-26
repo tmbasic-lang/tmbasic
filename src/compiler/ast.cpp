@@ -1,5 +1,6 @@
 #include "compiler/ast.h"
 #include "shared/decimal.h"
+#include "shared/strings.h"
 
 using shared::decimalToString;
 
@@ -468,7 +469,7 @@ ExpressionType ConvertExpressionNode::getExpressionType() const {
 }
 
 DottedExpressionSuffixNode::DottedExpressionSuffixNode(std::string aName, Token token)
-    : Node(std::move(token)), name(std::move(aName)), nameLowercase(boost::to_lower_copy(*name)) {}
+    : Node(std::move(token)), name(std::move(aName)), nameLowercase(shared::to_lower_copy(*name)) {}
 
 DottedExpressionSuffixNode::DottedExpressionSuffixNode(
     std::vector<std::unique_ptr<ExpressionNode>> collectionIndex,
@@ -1439,7 +1440,7 @@ StatementType OnStatementNode::getStatementType() const {
 ParameterNode::ParameterNode(std::string aName, boost::local_shared_ptr<TypeNode> type, Token token)
     : Node(std::move(token)),
       name(std::move(aName)),
-      nameLowercase(boost::to_lower_copy(name)),
+      nameLowercase(shared::to_lower_copy(name)),
       type(std::move(type)) {}
 
 void ParameterNode::dump(std::ostream& s, int n) const {

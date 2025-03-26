@@ -13,6 +13,7 @@
 #include "compiler/typeCheck.h"
 #include "shared/cast.h"
 #include "shared/Opcode.h"
+#include "shared/strings.h"
 
 using shared::dynamic_cast_move;
 
@@ -179,12 +180,12 @@ void compileProcedures(const SourceProgram& sourceProgram, CompiledProgram* comp
                 CompilerErrorCode::kWrongMemberType, "This member must be a subroutine or function.", tokens[0]);
         }
         auto procedureNode = dynamic_cast_move<ProcedureNode>(std::move(parserResult.node));
-        if (boost::to_lower_copy(procedureNode->name) == "main") {
+        if (shared::to_lower_copy(procedureNode->name) == "main") {
             mainProcedureIndex = compiledProcedure->procedureIndex;
         }
         procedureNode->procedureIndex = compiledProcedure->procedureIndex;
         compiledProcedure->name = procedureNode->name;
-        compiledProcedure->nameLowercase = boost::to_lower_copy(procedureNode->name);
+        compiledProcedure->nameLowercase = shared::to_lower_copy(procedureNode->name);
         compiledProcedure->procedureNode = std::move(procedureNode);
     }
 

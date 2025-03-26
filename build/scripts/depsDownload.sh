@@ -33,7 +33,6 @@ function downloadFile {
 # don't update these versions by hand. instead, run scripts/depsCheck.sh
 ABSEIL_VERSION=310e6f4f0f202da13720fdd6cb0095e10a98fe1c
 BINUTILS_VERSION=2.44
-BOOST_VERSION=1.87.0
 CLI11_VERSION=2.5.0
 CMAKE_VERSION=3.31.6
 FMT_VERSION=11.1.4
@@ -55,9 +54,6 @@ downloadFile "abseil-$ABSEIL_VERSION.tar.gz" "https://github.com/abseil/abseil-c
 
 # https://ftp.gnu.org/gnu/binutils
 downloadFile "binutils-$BINUTILS_VERSION.tar.gz" "https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VERSION.tar.gz"
-
-# https://archives.boost.io/release/
-downloadFile "boost-$BOOST_VERSION.tar.gz" "https://archives.boost.io/release/$BOOST_VERSION/source/boost_$(echo $BOOST_VERSION | tr '.' '_').tar.gz"
 
 # https://github.com/CLIUtils/CLI11/releases
 downloadFile "cli11-$CLI11_VERSION.hpp" "https://github.com/CLIUtils/CLI11/releases/download/v$CLI11_VERSION/CLI11.hpp"

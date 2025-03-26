@@ -22,3 +22,4 @@
 Dockerfile* text eol=lf
 Makefile text eol=lf
 doc/* linguist-documentation
+/src/boost/* linguist-documentation

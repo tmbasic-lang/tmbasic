@@ -3,7 +3,6 @@
 
 ABSEIL_DIR=$(PWD)/abseil
 BINUTILS_DIR=$(PWD)/binutils
-BOOST_DIR=$(PWD)/boost
 CLI11_DIR=$(PWD)/cli11
 FMT_DIR=$(PWD)/fmt
 GOOGLETEST_DIR=$(PWD)/googletest
@@ -120,7 +119,6 @@ NATIVE_CC ?= $(CC)
 .PHONY: all
 all: \
 	$(ABSEIL_DIR)/install \
-	$(BOOST_DIR)/install \
 	$(CLI11_DIR)/install \
 	$(FMT_DIR)/install \
 	$(GOOGLETEST_DIR)/install \
@@ -327,25 +325,6 @@ $(IMMER_DIR)/download:
 
 $(IMMER_DIR)/install: $(IMMER_DIR)/download $(CMAKE_DIR)/install $(BINUTILS_DIR)/install
 	cp -rf $(IMMER_DIR)/immer $(TARGET_PREFIX)/include/
-	touch $@
-
-
-
-# boost ---------------------------------------------------------------------------------------------------------------
-
-$(BOOST_DIR)/download:
-	tar zxf $(DOWNLOAD_DIR)/boost-*.tar.gz
-	mv -f boost_*/ $(BOOST_DIR)/
-	touch $@
-
-$(BOOST_DIR)/install: $(BOOST_DIR)/download
-	cd $(BOOST_DIR) && cp -rf boost $(NATIVE_PREFIX)/include/
-ifeq ($(TARGET_OS),win)
-	ln -s $(NATIVE_PREFIX)/include/boost $(TARGET_PREFIX)/include/boost
-endif
-ifeq ($(TARGET_OS),linux)
-	ln -s $(NATIVE_PREFIX)/include/boost $(TARGET_PREFIX)/include/boost
-endif
 	touch $@
 
 

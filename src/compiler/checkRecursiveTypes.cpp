@@ -1,6 +1,7 @@
 #include "compiler/checkRecursiveTypes.h"
 #include "compiler/BuiltInRecordTypesList.h"
 #include "compiler/CompilerException.h"
+#include "shared/strings.h"
 
 namespace compiler {
 
@@ -61,7 +62,7 @@ void walkType(const State& state) {
         // ourselves here. We will use the lowercase names.
         const auto& typeNode = *state.typeNode;
         const auto typeName = typeNode.toString();
-        const auto typeNameLowercase = boost::to_lower_copy(typeName);
+        const auto typeNameLowercase = shared::to_lower_copy(typeName);
         const auto newPath = state.path.push_back(typeNameLowercase);
 
         // Check if the type is already in the path. If it is, this is a cycle.
@@ -112,7 +113,7 @@ void walkType(const State& state) {
     } else {
         // This is a named record type. Could be either a built-in type or a user-defined type.
         const auto& typeName = *state.name;
-        const auto typeNameLowercase = boost::to_lower_copy(*state.name);
+        const auto typeNameLowercase = shared::to_lower_copy(*state.name);
         if (findBuiltInRecordType(typeNameLowercase, nullptr)) {
             // This is a built-in type. We know there are no cycles in the built-in types so we don't need to check.
             return;

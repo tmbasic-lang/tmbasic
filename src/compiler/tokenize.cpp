@@ -1,4 +1,5 @@
 #include "compiler/tokenize.h"
+#include "shared/strings.h"
 
 namespace compiler {
 
@@ -312,7 +313,7 @@ TokenKind Scanner::classifyToken(const std::string& text) {
     }
 
     if (std::regex_match(text, _identifierRegex)) {
-        auto lc = boost::to_lower_copy(text);
+        auto lc = shared::to_lower_copy(text);
         switch (lc[0]) {
             case 'a':
                 if (lc == "and") {

@@ -4,6 +4,7 @@
 #include "tokenize.h"
 #include "typeCheck.h"
 #include "shared/cast.h"
+#include "shared/strings.h"
 
 namespace compiler {
 
@@ -56,7 +57,7 @@ static decimal::Decimal getConstValue(const ConstValueExpressionNode& node) {
 }
 
 static void compileGlobal(const SourceMember& sourceMember, CompiledProgram* compiledProgram) {
-    auto lowercaseIdentifier = boost::to_lower_copy(sourceMember.identifier);
+    auto lowercaseIdentifier = shared::to_lower_copy(sourceMember.identifier);
     CompiledGlobalVariable* compiledGlobalVariable = nullptr;
 
     // see if the compiled global already exists

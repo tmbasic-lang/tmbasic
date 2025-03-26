@@ -2,6 +2,7 @@
 #include "BuiltInProcedureList.h"
 #include "CompilerException.h"
 #include "shared/SystemCalls.h"
+#include "shared/strings.h"
 
 namespace compiler {
 
@@ -178,7 +179,7 @@ static void typeCheckCall(
 
     // MARKER: This function concerns procedure lookups. Search for this line to find others.
 
-    auto lowercaseProcedureName = boost::to_lower_copy(name);
+    auto lowercaseProcedureName = shared::to_lower_copy(name);
     for (auto& compiledProcedure : state->compiledProgram->procedures) {
         if (compiledProcedure->nameLowercase == lowercaseProcedureName) {
             anyNameMatches = true;
@@ -1289,7 +1290,7 @@ static void typeCheckOnStatement(OnStatementNode* statementNode, TypeCheckState*
 
     // Find the specified event handler procedure with the expected parameters.
     // MARKER: This function concerns procedure lookups. Search for this line to find others.
-    auto lowercaseProcedureName = boost::to_lower_copy(statementNode->handlerName);
+    auto lowercaseProcedureName = shared::to_lower_copy(statementNode->handlerName);
     auto nameMatch = false;
     auto signatureMatch = false;
     for (auto& compiledProcedure : state->compiledProgram->procedures) {

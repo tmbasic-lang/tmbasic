@@ -16,11 +16,8 @@
 #include <utility>
 #include <vector>
 
-#include <boost/algorithm/string/trim.hpp>
-#include <boost/algorithm/string/case_conv.hpp>
 #include <nameof.hpp>
 
-using boost::trim_copy;
 using std::cerr;
 using std::function;
 using std::istringstream;
@@ -82,6 +79,33 @@ struct Procedure {
     string category;
     vector<unique_ptr<Overload>> overloads;
 };
+
+static std::string to_lower_copy(const std::string& str) {
+    std::string result;
+    for (char c : str) {
+        result += std::tolower(c);
+    }
+    return result;
+}
+
+// There's another copy of this function in strings.cpp
+std::string trim_copy(const std::string& str) {
+    if (str.empty()) {
+        return str;
+    }
+
+    // Find first non-whitespace character
+    size_t start = str.find_first_not_of(" \t\n\r\f\v");
+    if (start == std::string::npos) {
+        return "";  // String contains only whitespace
+    }
+
+    // Find last non-whitespace character
+    size_t end = str.find_last_not_of(" \t\n\r\f\v");
+
+    // Return the trimmed substring
+    return str.substr(start, end - start + 1);
+}
 
 static void createDirectory(const string& path) {
     if (mkdir(path.c_str(), 0777) != 0 && errno != EEXIST) {
@@ -212,10 +236,10 @@ static string processTitle(string str) {
 
 static string processText(string str) {
     str = replaceRegex(str, R"(t\[(([^\] ]+)[^\]]*)\])", [](auto& match) -> string {
-        return string("{") + match[1].str() + ":type_" + boost::to_lower_copy(match[2].str()) + "}";
+        return string("{") + match[1].str() + ":type_" + to_lower_copy(match[2].str()) + "}";
     });
     str = replaceRegex(str, R"(p\[([^\]]+)\])", [](auto& match) -> string {
-        return string("{") + match[1].str() + ":procedure_" + boost::to_lower_copy(match[1].str()) + "}";
+        return string("{") + match[1].str() + ":procedure_" + to_lower_copy(match[1].str()) + "}";
     });
     str = replaceRegex(str, R"(i\[([^\]]+)\])", "$1");
     str = replaceRegex(str, R"(b\[([^\]]+)\])", "$1");
@@ -247,10 +271,10 @@ static string processHtml(string str) {
     str = htmlEncode(str);
     str = replace(str, kHtmlTriangleRight, string("<wbr>") + kHtmlTriangleRight);
     str = replaceRegex(str, R"(t\[(([^\] ]+)[^\]]*)\])", [](auto& match) -> string {
-        return string("<a href=\"type_") + boost::to_lower_copy(match[2].str()) + ".html\">" + match[1].str() + "</a>";
+        return string("<a href=\"type_") + to_lower_copy(match[2].str()) + ".html\">" + match[1].str() + "</a>";
     });
     str = replaceRegex(str, R"(p\[([^\]]+)\])", [](auto& match) -> string {
-        return string("<a href=\"procedure_") + boost::to_lower_copy(match[1].str()) + ".html\">" + match[1].str() +
+        return string("<a href=\"procedure_") + to_lower_copy(match[1].str()) + ".html\">" + match[1].str() +
             "</a>";
     });
     str = replaceRegex(str, R"(i\[([^\]]+)\])", "<i>$1</i>");
@@ -543,7 +567,7 @@ static unique_ptr<Procedure> buildProcedure(
     ostringstream* outputTxt,
     const string& htmlPageTemplate) {
     auto procedure = parseProcedure(readFile(utf8Filename));
-    auto topicName = string("procedure_") + boost::to_lower_copy(procedure->name);
+    auto topicName = string("procedure_") + to_lower_copy(procedure->name);
     *outputTxt << ".topic " << topicName << "\n" << processText(formatProcedureText(*procedure)) << "\n";
     writeHtmlPage(topicName, formatProcedureText(*procedure), htmlPageTemplate);
     return procedure;
@@ -570,7 +594,7 @@ static void buildProcedureCategoryPages(
 
         for (const auto& x : procedures) {
             if (x->category == category) {
-                o << "li@b[{`" << x->name << "`:procedure_" << boost::to_lower_copy(x->name) << "}] <EM_DASH> "
+                o << "li@b[{`" << x->name << "`:procedure_" << to_lower_copy(x->name) << "}] <EM_DASH> "
                   << x->blurb << "@\n";
             }
         }
@@ -594,7 +618,7 @@ static void buildProcedureIndex(
 
     o << "ul@";
     for (const auto& x : procedures) {
-        o << "li@b[{`" << x->name << "`:procedure_" << boost::to_lower_copy(x->name) << "}] <EM_DASH> " << x->blurb
+        o << "li@b[{`" << x->name << "`:procedure_" << to_lower_copy(x->name) << "}] <EM_DASH> " << x->blurb
           << "@\n";
     }
     o << "@\n\n";

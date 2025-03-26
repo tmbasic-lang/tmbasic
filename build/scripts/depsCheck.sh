@@ -108,23 +108,11 @@ function checkTzdb {
     echo "${varname}_VERSION=$version"
 }
 
-function checkBoost {
-    local varname=$1
-    local url=$2
-    local version=$(curl -L --compressed --silent $url \
-        | grep -o '<a href="[0-9]\+\.[0-9]\+\.[0-9]\+/">' \
-        | sed 's/<a href="//; s/\/".*//' \
-        | sort -V \
-        | tail -n 1)
-    echo "${varname}_VERSION=$version"
-}
-
 echo
 echo '# depsDownload.sh'
 
 checkGitHubCommit "ABSEIL" "https://github.com/abseil/abseil-cpp/commits.atom"
 checkGnu "binutils-" "BINUTILS" "https://ftp.gnu.org/gnu/binutils/"
-checkBoost "BOOST" "https://archives.boost.io/release/"
 checkGitHubRelease "CLI11" "https://github.com/CLIUtils/CLI11/releases.atom"
 checkGitHubRelease "CMAKE" "https://github.com/Kitware/CMake/releases.atom"
 checkGitHubRelease "FMT" "https://github.com/fmtlib/fmt/releases.atom"
