@@ -18,6 +18,5 @@ cp -f doc/licenses/libzip/LICENSE obj/doc-temp/diagrams-license/license_libzip.t
 cp -f doc/licenses/microtar/LICENSE obj/doc-temp/diagrams-license/license_microtar.txt
 cp -f doc/licenses/zlib/LICENSE.txt obj/doc-temp/diagrams-license/license_zlib.txt
 cp -f doc/licenses/cli11/LICENSE obj/doc-temp/diagrams-license/license_cli11.txt
-cp -f doc/licenses/libunistring/COPYING.LIB obj/doc-temp/diagrams-license/license_libunistring_lgpl.txt
-cp -f doc/licenses/libunistring/COPYING obj/doc-temp/diagrams-license/license_libunistring_gpl.txt
 cp -f doc/licenses/abseil/LICENSE obj/doc-temp/diagrams-license/license_abseil.txt
+cp -f doc/licenses/utf8proc/LICENSE.md obj/doc-temp/diagrams-license/license_utf8proc.txt

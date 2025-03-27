@@ -5,9 +5,7 @@
 #include "vm/TimeZone.h"
 #include "vm/castObject.h"
 
-// libunistring
-#include <unistr.h>   // u8_uctomb
-#include <unigbrk.h>  // u8_grapheme_breaks
+#include <utf8proc.h>
 
 using shared::Error;
 using shared::ErrorCode;
@@ -42,31 +40,48 @@ void systemCallCharacters(const SystemCallInput& input, SystemCallResult* result
         return;
     }
 
-    // Slow path using libunistring.
-    std::vector<char> graphemeBreaks(str.value.size() + 1);
-    u8_grapheme_breaks(str.getUnistring(), str.value.size(), graphemeBreaks.data());
-
-    // The libunistring documentation says the first break point is always 1.
-    assert(graphemeBreaks[0] == 1);
-
+    // Slow path
     ObjectListBuilder objectListBuilder{};
     std::string currentGraphemeCluster{};
 
-    for (size_t i = 0; i < str.value.length(); i++) {
-        // Build grapheme clusters based on break points.
-        if (graphemeBreaks.at(i) == 1) {
-            if (i > 0) {
-                // End of a grapheme cluster
-                objectListBuilder.items.push_back(boost::make_intrusive_ptr<String>(currentGraphemeCluster));
-            }
-            currentGraphemeCluster = {};
+    // Use utf8proc_iterate to get codepoints
+    const auto* utf8 = reinterpret_cast<const utf8proc_uint8_t*>(str.value.c_str());
+    auto utf8RemainingLength = static_cast<utf8proc_ssize_t>(str.value.length());
+    utf8proc_ssize_t position = 0;
+    utf8proc_int32_t state = 0;
+    utf8proc_int32_t prevCodepoint = -1;
+
+    while (utf8RemainingLength > 0) {
+        utf8proc_int32_t codepoint{};
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        auto bytes = utf8proc_iterate(utf8 + position, utf8RemainingLength, &codepoint);
+        if (bytes < 0) {
+            throw Error(
+                ErrorCode::kInvalidUnicodeCodePoint,
+                fmt::format("Invalid Unicode code point detected at string index {}.", position));
         }
 
-        currentGraphemeCluster += str.value.at(i);
+        // Check for grapheme break
+        if (prevCodepoint != -1) {
+            bool const isBreak = utf8proc_grapheme_break_stateful(prevCodepoint, codepoint, &state);
+            if (isBreak) {
+                objectListBuilder.items.push_back(boost::make_intrusive_ptr<String>(currentGraphemeCluster));
+                currentGraphemeCluster = {};
+            }
+        }
+
+        // Add bytes to current cluster
+        currentGraphemeCluster.append(str.value.substr(position, bytes));
+
+        prevCodepoint = codepoint;
+        position += bytes;
+        utf8RemainingLength -= bytes;
     }
 
-    // Add remaining grapheme cluster.
-    objectListBuilder.items.push_back(boost::make_intrusive_ptr<String>(currentGraphemeCluster));
+    // Add final cluster if any
+    if (!currentGraphemeCluster.empty()) {
+        objectListBuilder.items.push_back(boost::make_intrusive_ptr<String>(currentGraphemeCluster));
+    }
 
     result->returnedObject = boost::make_intrusive_ptr<ObjectList>(&objectListBuilder);
 }
@@ -74,13 +89,12 @@ void systemCallCharacters(const SystemCallInput& input, SystemCallResult* result
 // (input as Number) as String
 void systemCallChr(const SystemCallInput& input, SystemCallResult* result) {
     auto value = input.getValue(-1).getInt64();
-    auto ch32 = static_cast<ucs4_t>(value);
+    auto ch32 = static_cast<utf8proc_int32_t>(value);
 
-    // Use u8_uctomb to convert ch32 to a UTF-8 array.
-    std::array<uint8_t, 6> utf8{};
-    auto length = u8_uctomb(utf8.data(), ch32, utf8.size());
-    assert(length <= 6);
-    if (length < 0) {
+    // Convert the code point to a UTF-8 array.
+    std::array<uint8_t, 4> utf8{};
+    auto length = utf8proc_encode_char(ch32, utf8.data());
+    if (length == 0) {
         throw Error(ErrorCode::kInvalidUnicodeCodePoint, fmt::format("Invalid Unicode code point: {}", value));
     }
 
@@ -94,23 +108,24 @@ void systemCallChr(const SystemCallInput& input, SystemCallResult* result) {
 void systemCallCodePoints(const SystemCallInput& input, SystemCallResult* result) {
     const auto& str = *castString(input.getObject(-1));
 
-    // Use u8_mbtouc to convert the UTF-8 string to a vector of code points.
-    const auto* utf8 = str.getUnistring();
-    auto utf8Length = str.value.length();
-    size_t currentIndex = 0;  // Track the index into the string
+    // Use utf8proc_iterate to convert the UTF-8 string to a vector of code points
+    const auto* utf8 = reinterpret_cast<const utf8proc_uint8_t*>(str.value.c_str());
+    auto utf8RemainingLength = static_cast<utf8proc_ssize_t>(str.value.length());
+    utf8proc_ssize_t position = 0;
     ValueListBuilder valueListBuilder{};
 
-    while (currentIndex < utf8Length) {
-        ucs4_t ch32 = 0;
+    while (utf8RemainingLength > 0) {
+        utf8proc_int32_t codepoint{};
         // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-        auto length = u8_mbtouc(&ch32, &utf8[currentIndex], utf8Length - currentIndex);
-        if (length < 0) {
+        auto bytes = utf8proc_iterate(utf8 + position, utf8RemainingLength, &codepoint);
+        if (bytes < 0) {
             throw Error(
                 ErrorCode::kInvalidUnicodeCodePoint,
-                fmt::format("Invalid Unicode code point detected at string index {}.", currentIndex));
+                fmt::format("Invalid Unicode code point detected at string index {}.", position));
         }
-        valueListBuilder.items.push_back(Value{ static_cast<int64_t>(ch32) });
-        currentIndex += length;
+        valueListBuilder.items.push_back(Value{ static_cast<int64_t>(codepoint) });
+        position += bytes;
+        utf8RemainingLength -= bytes;
     }
 
     result->returnedObject = boost::make_intrusive_ptr<ValueList>(&valueListBuilder);
@@ -228,15 +243,14 @@ void systemCallParseNumber(const SystemCallInput& input, SystemCallResult* resul
 void systemCallStringFromCodePoints(const SystemCallInput& input, SystemCallResult* result) {
     const auto& valueList = *castValueList(input.getObject(-1));
     std::ostringstream ss{};
-    std::array<uint8_t, 6> utf8{};
+    std::array<uint8_t, 4> utf8{};
 
     for (const auto& value : valueList.items) {
-        auto codePoint = value.getInt64();
+        auto codePoint = static_cast<utf8proc_int32_t>(value.getInt64());
 
         // Convert the code point to a UTF-8 array.
-        auto length = u8_uctomb(utf8.data(), codePoint, utf8.size());
-        assert(length <= 6);
-        if (length < 0) {
+        auto length = utf8proc_encode_char(codePoint, utf8.data());
+        if (length == 0) {
             throw Error(ErrorCode::kInvalidUnicodeCodePoint, fmt::format("Invalid Unicode code point: {}", codePoint));
         }
 
@@ -258,8 +272,7 @@ void systemCallStringFromCodeUnits(const SystemCallInput& input, SystemCallResul
         auto codeUnit = value.getInt64();
 
         if (codeUnit < 0 || codeUnit > 255) {
-            throw Error(
-                ErrorCode::kInvalidUnicodeCodePoint, fmt::format("Invalid Unicode code unit at string index {}.", i));
+            throw Error(ErrorCode::kInvalidUnicodeCodePoint, fmt::format("Invalid Unicode code unit at index {}.", i));
         }
 
         ss << static_cast<char>(codeUnit);
@@ -268,13 +281,22 @@ void systemCallStringFromCodeUnits(const SystemCallInput& input, SystemCallResul
 
     // Validate the UTF-8 string.
     auto str = ss.str();
-    const auto* utf8 = reinterpret_cast<const uint8_t*>(str.c_str());
-    const auto* error = u8_check(utf8, str.length());
-    if (error != nullptr) {
-        // error is a pointer to the first invalid unit.
-        throw Error(
-            ErrorCode::kInvalidUnicodeCodePoint,
-            fmt::format("Invalid Unicode code unit detected at string index {}.", error - utf8));
+    const auto* utf8 = reinterpret_cast<const utf8proc_uint8_t*>(str.c_str());
+    auto utf8RemainingLength = static_cast<utf8proc_ssize_t>(str.length());
+    utf8proc_int32_t codepoint{};
+    utf8proc_ssize_t bytes{};
+    utf8proc_ssize_t position{};
+
+    while (utf8RemainingLength > 0) {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        bytes = utf8proc_iterate(utf8 + position, utf8RemainingLength, &codepoint);
+        if (bytes < 0) {
+            throw Error(
+                ErrorCode::kInvalidUnicodeCodePoint,
+                fmt::format("Invalid Unicode code unit detected at index {}.", position));
+        }
+        position += bytes;
+        utf8RemainingLength -= bytes;
     }
 
     result->returnedObject = boost::make_intrusive_ptr<String>(str);

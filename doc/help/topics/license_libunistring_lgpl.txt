@@ -1,5 +1,0 @@
-nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {License:license}@
-
-h1["libunistring" License - LGPL]
-
-dia[license_libunistring_lgpl]

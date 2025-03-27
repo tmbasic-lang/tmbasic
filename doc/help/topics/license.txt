@@ -12,7 +12,6 @@ li@{boost:license_boost}@
 li@{fmt:license_fmt}@
 li@{immer:license_immer}@
 li@libstdc++ - {Part 1:license_libstdcxx1}, {Part 2:license_libstdcxx2}, {Part 3:license_libstdcxx3}@
-li@libunistring - {Part 1:license_libunistring_lgpl}, {Part 2:license_libunistring_gpl}@
 li@{microtar:license_microtar}@
 li@{mpdecimal:license_mpdecimal}@
 li@{musl:license_musl}@
@@ -21,6 +20,7 @@ li@{ncurses:license_ncurses}@
 li@{scintilla:license_scintilla}@
 li@{turbo:license_turbo}@
 li@{tvision:license_tvision}@
+li@{utf8proc:license_utf8proc}@
 @
 
 These licenses are permissive and commercial-friendly.

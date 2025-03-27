@@ -148,9 +148,8 @@ LICENSE_FILES=\
 	doc/licenses/microtar/LICENSE \
 	doc/licenses/zlib/LICENSE.txt \
 	doc/licenses/cli11/LICENSE \
-	doc/licenses/libunistring/COPYING.LIB \
-	doc/licenses/libunistring/COPYING \
-	doc/licenses/abseil/LICENSE
+	doc/licenses/abseil/LICENSE \
+	doc/licenses/utf8proc/LICENSE.md
 LICENSE_DIAGRAM_TXT_TIMESTAMP_FILE=obj/doc-temp/diagrams-license/timestamp
 LICENSE_DIAGRAM_TXT_FILES=\
 	obj/doc-temp/diagrams-license/license_tmbasic.txt \
@@ -171,9 +170,8 @@ LICENSE_DIAGRAM_TXT_FILES=\
 	obj/doc-temp/diagrams-license/license_microtar.txt \
 	obj/doc-temp/diagrams-license/license_zlib.txt \
 	obj/doc-temp/diagrams-license/license_cli11.txt \
-	obj/doc-temp/diagrams-license/license_libunistring_lgpl.txt \
-	obj/doc-temp/diagrams-license/license_libunistring_gpl.txt \
-	obj/doc-temp/diagrams-license/license_abseil.txt
+	obj/doc-temp/diagrams-license/license_abseil.txt \
+	obj/doc-temp/diagrams-license/license_utf8proc.txt
 
 # icon resource
 ifeq ($(TARGET_OS),win)
@@ -333,8 +331,8 @@ endif
 # Linker flag to include libmpdec and libmpdec++ (mpdecimal).
 LDFLAGS += -lmpdec -lmpdec++
 
-# Linker flag to include libunistring
-LDFLAGS += -lunistring
+# Linker flag to include libutf8proc.
+LDFLAGS += -lutf8proc
 
 # Linker flag to include libasbl_time
 LDFLAGS += -labsl_time -labsl_time_zone -labsl_int128 -labsl_raw_logging_internal
@@ -510,9 +508,6 @@ obj/resources/LICENSE.o: obj/resources/LICENSE.txt
 obj/resources/LICENSE.txt: $(LICENSE_FILES)
 	@mkdir -p $(@D)
 	@rm -f $@
-	@echo === tmbasic license === >> $@
-	@cat LICENSE >> $@
-	@echo >> $@
 	@echo === abseil license === >> $@
 	@cat doc/licenses/abseil/LICENSE >> $@
 	@echo >> $@
@@ -529,10 +524,6 @@ obj/resources/LICENSE.txt: $(LICENSE_FILES)
 	@cat doc/licenses/gcc/GPL-3 >> $@
 	@cat doc/licenses/gcc/copyright >> $@
 	@echo >> $@
-	@echo === libunistring license === >> $@
-	@cat doc/licenses/libunistring/COPYING.LIB >> $@
-	@cat doc/licenses/libunistring/COPYING >> $@
-	@echo >> $@
 	@echo === microtar license === >> $@
 	@cat doc/licenses/microtar/LICENSE >> $@
 	@echo >> $@
@@ -548,14 +539,20 @@ obj/resources/LICENSE.txt: $(LICENSE_FILES)
 	@echo === ncurses license === >> $@
 	@cat doc/licenses/ncurses/COPYING >> $@
 	@echo >> $@
+	@echo === scintilla license === >> $@
+	@cat doc/licenses/scintilla/License.txt >> $@
+	@echo >> $@
+	@echo === tmbasic license === >> $@
+	@cat LICENSE >> $@
+	@echo >> $@
 	@echo === turbo license === >> $@
 	@cat doc/licenses/turbo/COPYRIGHT >> $@
 	@echo >> $@
 	@echo === tvision license === >> $@
 	@cat doc/licenses/tvision/COPYRIGHT >> $@
 	@echo >> $@
-	@echo === scintilla license === >> $@
-	@cat doc/licenses/scintilla/License.txt >> $@
+	@echo === utf8proc license === >> $@
+	@cat doc/licenses/utf8proc/LICENSE.md >> $@
 	@echo >> $@
 
 $(LICENSE_DIAGRAM_TXT_TIMESTAMP_FILE): $(LICENSE_FILES)

@@ -1,5 +1,5 @@
 nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {License:license}@
 
-h1["libunistring" License - GPL]
+h1["utf8proc" License]
 
-dia[license_libunistring_gpl]
+dia[license_utf8proc]

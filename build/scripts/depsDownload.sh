@@ -38,7 +38,6 @@ CMAKE_VERSION=3.31.6
 FMT_VERSION=11.1.4
 GOOGLETEST_VERSION=1.16.0
 IMMER_VERSION=0.8.1
-LIBUNISTRING_VERSION=1.3
 LIBZIP_VERSION=1.11.3
 MICROTAR_VERSION=27076e1b9290e9c7842bb7890a54fcf172406c84
 MPDECIMAL_VERSION=4.0.0
@@ -47,6 +46,7 @@ NCURSES_VERSION=6.5
 TURBO_VERSION=f4d6c6c8def15e2757f344a149fdb4607414f169
 TVISION_VERSION=d9bc00957285caf9144ca3d219d8256e34f24170
 TZDB_VERSION=2025a
+UTF8PROC_VERSION=2.10.0
 ZLIB_VERSION=1.3.1
 
 # https://github.com/abseil/abseil-cpp
@@ -76,9 +76,6 @@ downloadFile "googletest-$GOOGLETEST_VERSION.tar.gz" "https://github.com/google/
 # https://github.com/arximboldi/immer
 downloadFile "immer-$IMMER_VERSION.tar.gz" "https://github.com/arximboldi/immer/archive/refs/tags/v$IMMER_VERSION.tar.gz"
 
-# https://ftp.gnu.org/gnu/libunistring/
-downloadFile "libunistring-$LIBUNISTRING_VERSION.tar.gz" "https://ftp.gnu.org/gnu/libunistring/libunistring-$LIBUNISTRING_VERSION.tar.gz"
-
 # https://github.com/nih-at/libzip/releases
 downloadFile "libzip-$LIBZIP_VERSION.tar.gz" "https://github.com/nih-at/libzip/releases/download/v$LIBZIP_VERSION/libzip-$LIBZIP_VERSION.tar.gz"
 
@@ -103,6 +100,9 @@ downloadFile "tvision-$TVISION_VERSION.tar.gz" "https://github.com/magiblot/tvis
 # https://www.iana.org/time-zones
 downloadFile "tzdata-$TZDB_VERSION.tar.gz" "https://data.iana.org/time-zones/releases/tzdata$TZDB_VERSION.tar.gz"
 downloadFile "tzcode-$TZDB_VERSION.tar.gz" "https://data.iana.org/time-zones/releases/tzcode$TZDB_VERSION.tar.gz"
+
+# https://github.com/JuliaStrings/utf8proc
+downloadFile "utf8proc-$UTF8PROC_VERSION.tar.gz" "https://github.com/JuliaStrings/utf8proc/archive/refs/tags/v$UTF8PROC_VERSION.tar.gz"
 
 # https://zlib.net
 downloadFile "zlib-$ZLIB_VERSION.tar.gz" "https://zlib.net/zlib-$ZLIB_VERSION.tar.gz"
