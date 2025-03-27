@@ -82,7 +82,7 @@ struct Procedure {
 
 static std::string to_lower_copy(const std::string& str) {
     std::string result;
-    for (char c : str) {
+    for (char const c : str) {
         result += std::tolower(c);
     }
     return result;
@@ -95,13 +95,13 @@ std::string trim_copy(const std::string& str) {
     }
 
     // Find first non-whitespace character
-    size_t start = str.find_first_not_of(" \t\n\r\f\v");
+    size_t const start = str.find_first_not_of(" \t\n\r\f\v");
     if (start == std::string::npos) {
         return "";  // String contains only whitespace
     }
 
     // Find last non-whitespace character
-    size_t end = str.find_last_not_of(" \t\n\r\f\v");
+    size_t const end = str.find_last_not_of(" \t\n\r\f\v");
 
     // Return the trimmed substring
     return str.substr(start, end - start + 1);

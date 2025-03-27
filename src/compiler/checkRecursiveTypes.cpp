@@ -16,7 +16,7 @@ class State {
     CompiledProgram* compiledProgram;
 
     State(TypeNode* typeNode, immer::flex_vector<std::string> path, CompiledProgram* compiledProgram)
-        : typeNode(typeNode), name({}), path(std::move(path)), compiledProgram(compiledProgram) {}
+        : typeNode(typeNode), path(std::move(path)), compiledProgram(compiledProgram) {}
 
     State(std::string name, immer::flex_vector<std::string> path, CompiledProgram* compiledProgram)
         : typeNode(nullptr), name(std::move(name)), path(std::move(path)), compiledProgram(compiledProgram) {}
@@ -28,6 +28,8 @@ class State {
     State next(std::string name, immer::flex_vector<std::string> path) const {
         return State{ std::move(name), std::move(path), compiledProgram };
     }
+
+    ~State() = default;
 
     // Non-copyable
     State(const State&) = delete;
@@ -136,8 +138,8 @@ void walkType(const State& state) {
 
 void checkType(size_t sourceMemberIndex, CompiledProgram* compiledProgram) {
     const auto& compiledUserType = *compiledProgram->userTypesBySourceMemberIndex.find(sourceMemberIndex)->second;
-    immer::flex_vector<std::string> path{};
-    State state{ compiledUserType.name, path, compiledProgram };
+    immer::flex_vector<std::string> const path{};
+    State const state{ compiledUserType.name, path, compiledProgram };
     walkType(state);
 }
 
@@ -147,7 +149,7 @@ void checkRecursiveTypes(const SourceProgram& sourceProgram, CompiledProgram* co
     // Check each named record type.
     sourceProgram.forEachMemberIndex(
         SourceMemberType::kType,
-        [compiledProgram](const SourceMember& sourceMember, auto index) { checkType(index, compiledProgram); });
+        [compiledProgram](const SourceMember& /*sourceMember*/, auto index) { checkType(index, compiledProgram); });
 }
 
 }  // namespace compiler
