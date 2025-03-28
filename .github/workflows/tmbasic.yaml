@@ -169,3 +169,17 @@ jobs:
         with:
           name: tmbasic-${{ env.VERSION }}-distributions
           path: dist/tmbasic-*
+          
+      - name: Delete intermediate artifacts
+        uses: geekyeggo/delete-artifact@v5
+        with:
+          failOnError: false
+          name: |
+            intermediate-linux-arm64
+            intermediate-linux-arm32
+            intermediate-linux-x64
+            intermediate-linux-x86
+            intermediate-win-x64
+            intermediate-win-x86
+            intermediate-mac-arm64
+            intermediate-mac-x64
