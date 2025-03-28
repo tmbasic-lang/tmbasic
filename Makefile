@@ -88,12 +88,6 @@ endif
 # Operating system + architecture pairs
 PLATFORMS=linux_arm64 linux_arm32 linux_x64 linux_x86 mac_x64 mac_arm64  win_x64 win_x86
 
-# Input runner builds, which will be 0-byte files for debug builds. for full release builds, these runners will be built
-# separately and provided ahead of time.
-ALL_PLATFORM_RUNNER_COMPRESSED_FILENAMES=$(foreach X,$(PLATFORMS),$X.gz)
-ALL_PLATFORM_RUNNER_OBJ_FILES=$(patsubst %,obj/resources/runners/%,$(ALL_PLATFORM_RUNNER_COMPRESSED_FILENAMES:=.o))
-ALL_PLATFORM_RUNNER_COMPRESSED_FILES=$(ALL_PLATFORM_RUNNER_OBJ_FILES:.o=)
-
 # C++ build files
 COMPILER_SRC_FILES=$(shell find src/compiler -type f -name "*.cpp")
 COMPILER_H_FILES=$(shell find src/compiler -type f -name "*.h")
@@ -403,7 +397,7 @@ endif
 
 .PHONY: release
 release:
-	OPTFLAGS="-O3" EXTRADEFS="-DNDEBUG" STRIP_TMBASIC=1 DISABLE_SANITIZERS=1 $(MAKE) bin/tmbasic$(EXE_EXTENSION) bin/test$(EXE_EXTENSION)
+	OPTFLAGS="-O3" EXTRADEFS="-DNDEBUG" STRIP_TMBASIC=1 DISABLE_SANITIZERS=1 $(MAKE) bin/tmbasic$(EXE_EXTENSION) bin/test$(EXE_EXTENSION) runner
 
 .PHONY: clean
 clean:
@@ -446,7 +440,7 @@ ghpages: obj/resources/help/help.txt bin/ghpages/index.html
 	cp obj/doc-html/* bin/ghpages/
 
 .PHONY: runner
-runner: bin/runner.gz
+runner: bin/runtime_$(TARGET_OS)_$(SHORT_ARCH).dat
 
 
 
@@ -636,26 +630,6 @@ obj/resources/tzdb.o: $(PREFIX)/share/tzdb.tar
 	cd "$(PREFIX)/share" && xxd -i tzdb.tar | sed s/tzdb_tar/kResourceTzdb/g > $(PWD)/obj/resources/kResourceTzdb.cpp
 	$(CXX) -o $@ $(CXXFLAGS) -c obj/resources/kResourceTzdb.cpp
 
-$(ALL_PLATFORM_RUNNER_COMPRESSED_FILES): %: bin/runner.gz
-	@mkdir -p $(@D)
-	TARGET_OS=$(TARGET_OS) SHORT_ARCH=$(SHORT_ARCH) RUNNER_FILE=$@ build/scripts/runnerFile.sh
-
-# runnerRes.sh takes a ton of memory, so run these one at a time instead of in parallel
-obj/resources/runners/all: $(ALL_PLATFORM_RUNNER_COMPRESSED_FILES)
-	@mkdir -p $(@D)
-	OBJ_FILE=obj/resources/runners/linux_arm64.gz.o CXX="$(CXX) $(CXXFLAGS)" build/scripts/runnerRes.sh
-	OBJ_FILE=obj/resources/runners/linux_arm32.gz.o CXX="$(CXX) $(CXXFLAGS)" build/scripts/runnerRes.sh
-	OBJ_FILE=obj/resources/runners/linux_x64.gz.o CXX="$(CXX) $(CXXFLAGS)" build/scripts/runnerRes.sh
-	OBJ_FILE=obj/resources/runners/linux_x86.gz.o CXX="$(CXX) $(CXXFLAGS)" build/scripts/runnerRes.sh
-	OBJ_FILE=obj/resources/runners/mac_x64.gz.o CXX="$(CXX) $(CXXFLAGS)" build/scripts/runnerRes.sh
-	OBJ_FILE=obj/resources/runners/mac_arm64.gz.o CXX="$(CXX) $(CXXFLAGS)" build/scripts/runnerRes.sh
-	OBJ_FILE=obj/resources/runners/win_x64.gz.o CXX="$(CXX) $(CXXFLAGS)" build/scripts/runnerRes.sh
-	OBJ_FILE=obj/resources/runners/win_x86.gz.o CXX="$(CXX) $(CXXFLAGS)" build/scripts/runnerRes.sh
-	@touch $@
-
-$(ALL_PLATFORM_RUNNER_OBJ_FILES): obj/resources/runners/%.o: obj/resources/runners/all
-	@mkdir -p $(@D)
-
 
 
 # tmbasic -------------------------------------------------------------------------------------------------------------
@@ -677,10 +651,10 @@ bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
 		obj/resources/help/helpfile.h \
 		obj/resources/help/help.h32 \
 		obj/resources/help/helpfile.o \
-		$(ALL_PLATFORM_RUNNER_OBJ_FILES) \
-		$(ICON_RES_OBJ_FILE)
+		$(ICON_RES_OBJ_FILE) \
+		bin/runtime_$(TARGET_OS)_$(SHORT_ARCH).dat
 	@mkdir -p $(@D)
-	$(CXX) -o $@ $(TMBASIC_OBJ_FILES) $(CXXFLAGS) $(STATIC_FLAG) -include obj/common.h obj/compiler.a obj/shared.a obj/resources/help/helpfile.o obj/resources/tzdb.o $(ALL_PLATFORM_RUNNER_OBJ_FILES) $(ICON_RES_OBJ_FILE) $(TMBASIC_LDFLAGS) $(LDFLAGS)
+	$(CXX) -o $@ $(TMBASIC_OBJ_FILES) $(CXXFLAGS) $(STATIC_FLAG) -include obj/common.h obj/compiler.a obj/shared.a obj/resources/help/helpfile.o obj/resources/tzdb.o $(ICON_RES_OBJ_FILE) $(TMBASIC_LDFLAGS) $(LDFLAGS)
 ifeq ($(STRIP_TMBASIC),1)
 	$(STRIP) bin/tmbasic$(EXE_EXTENSION)
 endif
@@ -716,14 +690,13 @@ bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) \
 		obj/resources/help/helpfile.h \
 		obj/resources/help/help.h32 \
 		obj/resources/help/helpfile.o \
-		obj/resources/tzdb.o \
-		$(ALL_PLATFORM_RUNNER_OBJ_FILES)
+		obj/resources/tzdb.o
 	@mkdir -p $(@D)
-	$(CXX) -o $@ $(CXXFLAGS) $(STATIC_FLAG) -include obj/common.h $(TEST_OBJ_FILES) obj/compiler.a obj/vm.a obj/shared.a obj/resources/help/helpfile.o obj/resources/tzdb.o $(ALL_PLATFORM_RUNNER_OBJ_FILES) $(TMBASIC_LDFLAGS) $(LDFLAGS) $(LIBGTEST_FLAG) -lpthread
+	$(CXX) -o $@ $(CXXFLAGS) $(STATIC_FLAG) -include obj/common.h $(TEST_OBJ_FILES) obj/compiler.a obj/vm.a obj/shared.a obj/resources/help/helpfile.o obj/resources/tzdb.o $(TMBASIC_LDFLAGS) $(LDFLAGS) $(LIBGTEST_FLAG) -lpthread
 
 
 
-# runner (this platform) ----------------------------------------------------------------------------------------------
+# runner --------------------------------------------------------------------------------------------------------------
 
 $(RUNNER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(SHARED_H_FILES) $(VM_H_FILES) $(RUNNER_H_FILES)
 	@mkdir -p $(@D)
@@ -735,13 +708,8 @@ obj/resources/pcode/pcode.o: %:
 	xxd -i obj/resources/pcode/pcode.dat | sed s/obj_resources_pcode_pcode_dat/kResourcePcode/g > obj/resources/pcode/pcode.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c obj/resources/pcode/pcode.cpp
 
-bin/runner$(EXE_EXTENSION): obj/resources/pcode/pcode.o $(RUNNER_OBJ_FILES) obj/shared.a obj/vm.a obj/resources/tzdb.o
+bin/runtime_$(TARGET_OS)_$(SHORT_ARCH).dat: obj/resources/pcode/pcode.o $(RUNNER_OBJ_FILES) obj/shared.a obj/vm.a obj/resources/tzdb.o
 	@mkdir -p $(@D)
 	$(CXX) -o $@ $(CXXFLAGS) $(STATIC_FLAG) -include obj/common.h $(RUNNER_OBJ_FILES) obj/resources/pcode/pcode.o obj/vm.a obj/shared.a obj/resources/tzdb.o $(LDFLAGS)
 	$(STRIP) $@
-
-bin/runner.gz: bin/runner$(EXE_EXTENSION)
-	@mkdir -p $(@D)
-	@rm -f $@
-	cat $< | gzip -k -1 > $@
-	@[ -e "$@" ] && touch $@
+	chmod -x $@

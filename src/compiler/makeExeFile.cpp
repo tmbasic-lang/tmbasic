@@ -1,99 +1,71 @@
 #include "makeExeFile.h"
-#include "gzip.h"
+#include "shared/process.h"
 
 using std::array;
-using std::ofstream;
+using std::ifstream;
+using std::ios;
 using std::runtime_error;
 using std::string;
 using std::vector;
 
-// linux_arm32
-extern const uint8_t kResource_runner_linux_arm32_gz[];  // NOLINT(modernize-avoid-c-arrays)
-extern const uint kResource_runner_linux_arm32_gz_len;
-
-// linux_arm64
-extern const uint8_t kResource_runner_linux_arm64_gz[];  // NOLINT(modernize-avoid-c-arrays)
-extern const uint kResource_runner_linux_arm64_gz_len;
-
-// linux_x86
-extern const uint8_t kResource_runner_linux_x86_gz[];  // NOLINT(modernize-avoid-c-arrays)
-extern const uint kResource_runner_linux_x86_gz_len;
-
-// linux_x64
-extern const uint8_t kResource_runner_linux_x64_gz[];  // NOLINT(modernize-avoid-c-arrays)
-extern const uint kResource_runner_linux_x64_gz_len;
-
-// mac_x64
-extern const uint8_t kResource_runner_mac_x64_gz[];  // NOLINT(modernize-avoid-c-arrays)
-extern const uint kResource_runner_mac_x64_gz_len;
-
-// mac_arm64
-extern const uint8_t kResource_runner_mac_arm64_gz[];  // NOLINT(modernize-avoid-c-arrays)
-extern const uint kResource_runner_mac_arm64_gz_len;
-
-// win_x86
-extern const uint8_t kResource_runner_win_x86_gz[];  // NOLINT(modernize-avoid-c-arrays)
-extern const uint kResource_runner_win_x86_gz_len;
-
-// win_x64
-extern const uint8_t kResource_runner_win_x64_gz[];  // NOLINT(modernize-avoid-c-arrays)
-extern const uint kResource_runner_win_x64_gz_len;
-
 namespace compiler {
 
-static vector<uint8_t> getRunnerTemplateGzipped(TargetPlatform platform) {
-    vector<uint8_t> vec{};
-    const uint8_t* data{};
-    uint len{};
+static vector<uint8_t> loadRuntimeFile(TargetPlatform platform) {
+    string os;
+    string arch;
+
     switch (platform) {
         case TargetPlatform::kLinuxArm32:
-            data = kResource_runner_linux_arm32_gz;
-            len = kResource_runner_linux_arm32_gz_len;
+            os = "linux";
+            arch = "arm32";
             break;
-
         case TargetPlatform::kLinuxArm64:
-            data = kResource_runner_linux_arm64_gz;
-            len = kResource_runner_linux_arm64_gz_len;
+            os = "linux";
+            arch = "arm64";
             break;
-
         case TargetPlatform::kLinuxX86:
-            data = kResource_runner_linux_x86_gz;
-            len = kResource_runner_linux_x86_gz_len;
+            os = "linux";
+            arch = "x86";
             break;
-
         case TargetPlatform::kLinuxX64:
-            data = kResource_runner_linux_x64_gz;
-            len = kResource_runner_linux_x64_gz_len;
+            os = "linux";
+            arch = "x64";
             break;
-
         case TargetPlatform::kMacX64:
-            data = kResource_runner_mac_x64_gz;
-            len = kResource_runner_mac_x64_gz_len;
+            os = "mac";
+            arch = "x64";
             break;
-
         case TargetPlatform::kMacArm64:
-            data = kResource_runner_mac_arm64_gz;
-            len = kResource_runner_mac_arm64_gz_len;
+            os = "mac";
+            arch = "arm64";
             break;
-
         case TargetPlatform::kWinX86:
-            data = kResource_runner_win_x86_gz;
-            len = kResource_runner_win_x86_gz_len;
+            os = "win";
+            arch = "x86";
             break;
-
         case TargetPlatform::kWinX64:
-            data = kResource_runner_win_x64_gz;
-            len = kResource_runner_win_x64_gz_len;
+            os = "win";
+            arch = "x64";
             break;
-
         default:
             assert(false);
-            return vec;
+            return {};
     }
 
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-    vec.insert(vec.end(), data, data + len);
-    return vec;
+    string runtimePath = shared::getExecutableDirectoryPath() + "/runtime_" + os + "_" + arch + ".dat";
+
+    ifstream runtimeFile(runtimePath, ios::binary);
+    if (!runtimeFile.is_open()) {
+        throw runtime_error("Could not open runtime file: " + runtimePath);
+    }
+
+    runtimeFile.seekg(0, ios::end);
+    vector<uint8_t> runtimeBinary(runtimeFile.tellg());
+    runtimeFile.seekg(0, ios::beg);
+    runtimeFile.read(reinterpret_cast<char*>(runtimeBinary.data()), static_cast<std::streamsize>(runtimeBinary.size()));
+    runtimeFile.close();
+
+    return runtimeBinary;
 }
 
 static size_t findBytecodeIndex(const vector<uint8_t>& runnerBinary) {
@@ -114,35 +86,10 @@ static size_t findBytecodeIndex(const vector<uint8_t>& runnerBinary) {
     throw runtime_error("Cannot find the bytecode in the runner binary!");
 }
 
-vector<uint8_t> readDebugRunnerFile() {
-    auto filename = fmt::format("runner{}", getPlatformExeExtension(getNativeTargetPlatform()));
-
-    vector<string> const candidates{ filename, fmt::format("/code/bin/{}", filename) };
-
-    // Find the first candidate file that actually exists.
-    for (const auto& candidate : candidates) {
-        ifstream runnerFile{ candidate, ios::binary };
-        if (runnerFile.is_open()) {
-            runnerFile.seekg(0, ios::end);
-            vector<uint8_t> runnerBinary(runnerFile.tellg());
-            runnerFile.seekg(0, ios::beg);
-            runnerFile.read(
-                reinterpret_cast<char*>(runnerBinary.data()), static_cast<std::streamsize>(runnerBinary.size()));
-            runnerFile.close();
-            return runnerBinary;
-        }
-    }
-
-    throw runtime_error("This build of TMBASIC does not contain the necessary runtime.");
-}
-
 vector<uint8_t> makeExeFile(const vector<uint8_t>& bytecode, TargetPlatform platform) {
-    auto runnerBinaryGzip = getRunnerTemplateGzipped(platform);
-
-    auto runnerBinary = runnerBinaryGzip.empty() ? readDebugRunnerFile() : gunzip(runnerBinaryGzip);
+    auto runnerBinary = loadRuntimeFile(platform);
 
     auto bytecodeIndex = findBytecodeIndex(runnerBinary);
-    (void)bytecodeIndex;
     memcpy(&runnerBinary.at(bytecodeIndex), bytecode.data(), bytecode.size());
     return runnerBinary;
 }

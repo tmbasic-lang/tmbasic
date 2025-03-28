@@ -6,8 +6,12 @@ extern const uint kLicense_len;
 namespace compiler {
 
 static const std::vector<TargetPlatform> _targetPlatforms{
+#ifdef NDEBUG
     TargetPlatform::kLinuxArm32, TargetPlatform::kLinuxArm64, TargetPlatform::kLinuxX86, TargetPlatform::kLinuxX64,
     TargetPlatform::kMacArm64,   TargetPlatform::kMacX64,     TargetPlatform::kWinX86,   TargetPlatform::kWinX64,
+#else
+    getNativeTargetPlatform(),
+#endif
 };
 
 const std::vector<TargetPlatform>& getTargetPlatforms() {
