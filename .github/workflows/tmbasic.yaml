@@ -60,7 +60,7 @@ jobs:
         include:
           - platform: mac-arm64
           - platform: mac-x64
-    name: TMBASIC (${{ matrix.platform }})
+    name: Build (${{ matrix.platform }})
     steps:
       - name: Checkout
         uses: actions/checkout@v4
