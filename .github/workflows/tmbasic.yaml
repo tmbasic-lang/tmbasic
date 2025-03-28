@@ -40,8 +40,6 @@ jobs:
           ./${{ matrix.platform }}.sh -c "./make-release.sh"
           popd
 
-          export VERSION=$(awk -F= '{ if ($1 == "version") print $2 }' build/version.ini)
-
           pushd bin
           zip intermediate-${{ matrix.platform }}.zip tmbasic* runtime*.dat
           popd
@@ -89,17 +87,13 @@ jobs:
           ./${{ matrix.platform }}.sh -c "./make-release.sh"
           popd
 
-          export VERSION=$(awk -F= '{ if ($1 == "version") print $2 }' build/version.ini)
-
-          pushd bin
-          ditto -c -k --sequesterRsrc tmbasic runtime*.dat intermediate-${{ matrix.platform }}.zip
-          popd
+          ditto -c -k --sequesterRsrc bin intermediate-${{ matrix.platform }}.zip
 
       - name: Upload tmbasic.zip
         uses: actions/upload-artifact@v4
         with:
           name: intermediate-${{ matrix.platform }}
-          path: bin/intermediate-${{ matrix.platform }}.zip
+          path: intermediate-${{ matrix.platform }}.zip
 
   make-distribution:
     # Only macOS can properly make a macOS zip with "ditto" that preserves the resource fork.
