@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 # Input variables: $TARGET_OS, $ARCH
 set -e
 

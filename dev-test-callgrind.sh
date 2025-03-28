@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 set -e
 OPTFLAGS="-O3 -g" EXTRADEFS="-DNDEBUG" make bin/test$(EXE_EXTENSION)
 rm -f /code/callgrind.out /code/callgrind.txt

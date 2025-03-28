@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 set -e
 # Valgrind is incompatible with ASan.
 DISABLE_SANITIZERS=1 make

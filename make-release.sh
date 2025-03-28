@@ -1,3 +1,3 @@
-#!/usr/bin/bash
+#!/bin/bash
 set -e
 OPTFLAGS="-O3" EXTRADEFS="-DNDEBUG" STRIP_TMBASIC=1 DISABLE_SANITIZERS=1 make
