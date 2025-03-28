@@ -247,7 +247,7 @@ endif
 ### Linker flags ######################################################################################################
 
 # LDFLAGS: Linker flags used for all binaries.
-LDFLAGS += -lstdc++
+LDFLAGS += -lstdc++ -labsl_time -labsl_time_zone -labsl_int128 -labsl_raw_logging_internal -lmicrotar -lmpdec -lmpdec++ -lutf8proc
 
 # TMBASIC_LDFLAGS: Additional linker flags used only for the "tmbasic" binary.
 TMBASIC_LDFLAGS=
@@ -299,18 +299,6 @@ else
 LDFLAGS += -lncursesw
 endif
 
-# Linker flag to include libmpdec and libmpdec++ (mpdecimal).
-LDFLAGS += -lmpdec -lmpdec++
-
-# Linker flag to include libutf8proc.
-LDFLAGS += -lutf8proc
-
-# Linker flag to include libasbl_time
-LDFLAGS += -labsl_time -labsl_time_zone -labsl_int128 -labsl_raw_logging_internal
-
-# Linker flag to include microtar
-LDFLAGS += -lmicrotar
-
 # Linker flag to include libzip, zlib in tmbasic/test only (not runners).
 TMBASIC_LDFLAGS += -lzip -lz
 
@@ -334,25 +322,10 @@ help:
 	@echo "Target: $(TARGET_OS) $(ARCH)"
 	@echo "--------"
 	@echo "make               Build TMBASIC"
-	@echo "make run           Run TMBASIC"
-	@echo "make clean         Delete build outputs"
 ifeq ($(LINUX_DISTRO),ubuntu)
-	@echo "make lint          Check code with cpplint"
 	@echo "make tidy          Check code with clang-tidy"
 endif
 	@echo ""
-
-.PHONY: clean
-clean:
-	@rm -rf bin obj valgrind.txt
-
-.PHONY: run
-run:
-	@cd bin && ./tmbasic || (printf "\r\nCrash detected! Resetting terminal in 5 seconds...\r\n" && sleep 5 && reset && echo "Eating input. Press Ctrl+D." && cat >/dev/null)
-
-.PHONY: lint
-lint:
-	cpplint --quiet --recursive --repository=src src
 
 .PHONY: tidy
 tidy: $(TIDY_TARGETS)

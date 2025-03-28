@@ -38,7 +38,7 @@ do
         make_colorized
     elif [ "$x" == "r" ] 
     then
-        TERM=xterm-256color COLORTERM=truecolor make run
+        TERM=xterm-256color COLORTERM=truecolor bin/tmbasic || (printf "\r\nCrash detected! Resetting terminal in 5 seconds...\r\n" && sleep 5 && reset && echo "Eating input. Press Ctrl+D." && cat >/dev/null)
     elif [ "$x" == "u" ]
     then
         build/scripts/updateCompilerTest.sh
@@ -46,10 +46,10 @@ do
         build/scripts/updateSystemCalls.sh
     elif [ "$x" == "1" ]
     then
-        TERM=xterm COLORTERM= make run
+        TERM=xterm COLORTERM= bin/tmbasic || (printf "\r\nCrash detected! Resetting terminal in 5 seconds...\r\n" && sleep 5 && reset && echo "Eating input. Press Ctrl+D." && cat >/dev/null)
     elif [ "$x" == "2" ]
     then
-        TERM=xterm-256color COLORTERM= make run
+        TERM=xterm-256color COLORTERM= bin/tmbasic || (printf "\r\nCrash detected! Resetting terminal in 5 seconds...\r\n" && sleep 5 && reset && echo "Eating input. Press Ctrl+D." && cat >/dev/null)
     elif [ "$x" == "f" ]
     then
         ./dev-format.sh
@@ -71,7 +71,7 @@ do
         ./make-ghpages.sh
     elif [ "$x" == "c" ]
     then
-        make clean
+        ./dev-clean.sh
     elif [ "$x" == "q" ]
     then
         break
