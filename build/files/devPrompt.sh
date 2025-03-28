@@ -52,7 +52,7 @@ do
         TERM=xterm-256color COLORTERM= make run
     elif [ "$x" == "f" ]
     then
-        make format
+        ./dev-format.sh
     elif [ "$x" == "t" ]
     then
         export GTEST_FILTER="*"
@@ -60,7 +60,7 @@ do
             export GTEST_FILTER=$(cat test_filter)
         fi
         make_colorized
-        make test
+        ./dev-test.sh
     elif [ "$x" == "F" ]
     then
         echo -n "GTEST_FILTER="
@@ -68,7 +68,7 @@ do
         echo "$GTEST_FILTER" > test_filter
     elif [ "$x" == "g" ]
     then
-        make ghpages
+        ./make-ghpages.sh
     elif [ "$x" == "c" ]
     then
         make clean

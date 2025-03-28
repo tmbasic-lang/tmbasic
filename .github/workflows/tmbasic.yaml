@@ -37,7 +37,7 @@ jobs:
           docker pull "$IMAGE_NAME"
 
           pushd build
-          ./${{ matrix.platform }}.sh -c "make release"
+          ./${{ matrix.platform }}.sh -c "./make-release.sh"
           popd
 
           export VERSION=$(awk -F= '{ if ($1 == "version") print $2 }' build/version.ini)
@@ -90,7 +90,7 @@ jobs:
           ls -lR obj/resources/runners/
 
           pushd build
-          ./${{ matrix.platform }}.sh -c "make release"
+          ./${{ matrix.platform }}.sh -c "./make-release.sh"
           popd
 
           export VERSION=$(awk -F= '{ if ($1 == "version") print $2 }' build/version.ini)

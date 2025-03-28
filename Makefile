@@ -112,12 +112,6 @@ TMBASIC_OBJ_FILES=$(patsubst src/%,obj/%,$(TMBASIC_SRC_FILES:.cpp=.o))
 ALL_NON_TEST_CPP_FILES=$(COMPILER_SRC_FILES) $(RUNNER_SRC_FILES) $(SHARED_SRC_FILES) $(VM_SRC_FILES) $(TMBASIC_SRC_FILES) src/buildDoc.cpp
 TIDY_TARGETS=$(patsubst src/%,obj/tidy/%,$(ALL_NON_TEST_CPP_FILES:.cpp=.tidy))
 
-# ghpages files
-FAVICON_IN_FILES=$(shell find doc/art/favicon -type f)
-FAVICON_OUT_FILES=$(patsubst doc/art/favicon/%,bin/ghpages/%,$(FAVICON_IN_FILES))
-PNG_IN_FILES=$(shell find doc/art/ -maxdepth 1 -type f -name "*.png")
-PNG_OUT_FILES=$(patsubst doc/art/%,bin/ghpages/%,$(PNG_IN_FILES))
-
 # help files
 TOPIC_SRC_FILES=$(shell find doc/help/topics -type f -name "*.txt")
 PROCEDURES_SRC_FILES=$(shell find doc/help/procedures -type f -name "*.txt")
@@ -167,19 +161,10 @@ LICENSE_DIAGRAM_TXT_FILES=\
 	obj/doc-temp/diagrams-license/license_abseil.txt \
 	obj/doc-temp/diagrams-license/license_utf8proc.txt
 
-# icon resource
-ifeq ($(TARGET_OS),win)
-ICON_RES_OBJ_FILE=obj/tmbasic/AppWin.res.o
-else
-ICON_RES_OBJ_FILE=
-endif
-
 
 
 ### Commands ##########################################################################################################
 
-BSDIFF=bsdiff
-BZIP2=bzip2
 TVHC=tvhc
 BUILDCXX=$(CXX)
 STRIP=strip
@@ -214,14 +199,6 @@ ifndef DISABLE_SANITIZERS
 	LDFLAGS += -static-libasan
 endif
 endif
-endif
-
-# TEST_CMD: We run our unit test executable in "make test". For the Windows target, we use Wine since we cross-compile
-# from Linux. This command is executed from the "bin" directory.
-ifeq ($(TARGET_OS),win)
-TEST_CMD=mkdir -p /tmp/tmbasic-wine && HOME=/tmp/tmbasic-wine WINEPATH=/usr/$(ARCH)-w64-mingw32/bin wine test.exe
-else
-TEST_CMD=./test
 endif
 
 
@@ -350,54 +327,20 @@ endif
 ### Phony targets #####################################################################################################
 
 .PHONY: all
-all: bin/tmbasic$(EXE_EXTENSION) bin/test$(EXE_EXTENSION) runner
-
-.PHONY: versions
-ifeq ($(TARGET_OS),linux)
-ifeq ($(LINUX_DISTRO),alpine)
-versions:
-	@apk info --license libstdc++ | tr -d '\n' | awk '{print $$1}'
-	@apk info --license musl-dev | tr -d '\n' | awk '{print $$1}'
-else
-versions:
-	@echo
-endif
-endif
-
-ifeq ($(TARGET_OS),win)
-versions:
-	@echo
-endif
-
-ifeq ($(TARGET_OS),mac)
-versions:
-	@echo
-endif
+all: bin/tmbasic$(EXE_EXTENSION) bin/test$(EXE_EXTENSION) bin/runtime_$(TARGET_OS)_$(SHORT_ARCH).dat
 
 .PHONY: help
-help: versions
+help:
 	@echo "Target: $(TARGET_OS) $(ARCH)"
-	@echo ""
-	@echo "COMMANDS"
 	@echo "--------"
-	@echo "make               Build TMBASIC (debug)"
-	@echo "make release       Build TMBASIC (release)"
+	@echo "make               Build TMBASIC"
 	@echo "make run           Run TMBASIC"
-	@echo "make test          Run tests"
 	@echo "make clean         Delete build outputs"
 ifeq ($(LINUX_DISTRO),ubuntu)
-	@echo "make valgrind      Run TMBASIC with valgrind"
-	@echo "make callgrind     Run tests with callgrind"
-	@echo "make format        Reformat code"
 	@echo "make lint          Check code with cpplint"
 	@echo "make tidy          Check code with clang-tidy"
-	@echo "make ghpages       Build website"
 endif
 	@echo ""
-
-.PHONY: release
-release:
-	OPTFLAGS="-O3" EXTRADEFS="-DNDEBUG" STRIP_TMBASIC=1 DISABLE_SANITIZERS=1 $(MAKE) bin/tmbasic$(EXE_EXTENSION) bin/test$(EXE_EXTENSION) runner
 
 .PHONY: clean
 clean:
@@ -407,40 +350,12 @@ clean:
 run:
 	@cd bin && ./tmbasic || (printf "\r\nCrash detected! Resetting terminal in 5 seconds...\r\n" && sleep 5 && reset && echo "Eating input. Press Ctrl+D." && cat >/dev/null)
 
-.PHONY: test
-test: bin/test$(EXE_EXTENSION)
-	cd bin && $(TEST_CMD) --gtest_shuffle
-
-.PHONY: valgrind
-valgrind: bin/tmbasic
-	valgrind --log-file=valgrind.txt bin/tmbasic || cat valgrind.txt
-	cat valgrind.txt
-
-.PHONE: callgrind
-callgrind:
-	OPTFLAGS="-O3 -g" EXTRADEFS="-DNDEBUG" $(MAKE) bin/test$(EXE_EXTENSION)
-	rm -f /code/callgrind.out /code/callgrind.txt
-	cd bin && valgrind --tool=callgrind --dump-instr=yes --trace-jump=yes --callgrind-out-file=/code/callgrind.out ./test
-	callgrind_annotate --include=/code/src --auto=yes /code/callgrind.out > /code/callgrind.txt
-
-.PHONY: format
-format:
-	find src/ -type f \( -iname \*.h -o -iname \*.cpp \) -not -path "src/boost/*" | xargs clang-format -i
-
 .PHONY: lint
 lint:
 	cpplint --quiet --recursive --repository=src src
 
 .PHONY: tidy
 tidy: $(TIDY_TARGETS)
-
-.PHONY: ghpages
-ghpages: obj/resources/help/help.txt bin/ghpages/index.html
-	@mkdir -p bin/ghpages
-	cp obj/doc-html/* bin/ghpages/
-
-.PHONY: runner
-runner: bin/runtime_$(TARGET_OS)_$(SHORT_ARCH).dat
 
 
 
@@ -455,33 +370,6 @@ $(TIDY_TARGETS): obj/tidy/%.tidy: src/%.cpp
 	@mkdir -p $(@D)
 	@clang-tidy $< --quiet --fix --extra-arg=-Wno-unknown-warning-option -- $(CXXFLAGS) -DCLANG_TIDY | tee $@
 	@touch $@
-
-
-
-# ghpages -------------------------------------------------------------------------------------------------------------
-
-bin/ghpages/index.html: README.md \
-		doc/help/html/page-template-1.html \
-		doc/help/html/page-template-2.html \
-		doc/help/html/page-template-3.html \
-		$(FAVICON_OUT_FILES) \
-		$(PNG_OUT_FILES)
-	@mkdir -p $(@D)
-	cat doc/help/html/page-template-1.html > $@
-	echo -n "TMBASIC Programming Language" >> $@
-	cat doc/help/html/page-template-2.html >> $@
-	pandoc --from=markdown --to=html $< >> $@
-	cat doc/help/html/page-template-3.html >> $@
-	cat $@ | sed 's!https://tmbasic.com/!/!g' > $@-temp
-	mv -f $@-temp $@
-
-$(FAVICON_OUT_FILES): bin/ghpages/%: doc/art/favicon/%
-	@mkdir -p $(@D)
-	cp -f $< $@
-
-$(PNG_OUT_FILES): bin/ghpages/%: doc/art/%
-	@mkdir -p $(@D)
-	cp -f $< $@
 
 
 
@@ -643,6 +531,13 @@ $(TMBASIC_OBJ_FILES): obj/%.o: src/%.cpp \
 		$(TMBASIC_H_FILES)
 	@mkdir -p $(@D)
 	$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
+
+# icon resource
+ifeq ($(TARGET_OS),win)
+ICON_RES_OBJ_FILE=obj/tmbasic/AppWin.res.o
+else
+ICON_RES_OBJ_FILE=
+endif
 
 bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
 		obj/shared.a \
