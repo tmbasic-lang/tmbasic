@@ -356,60 +356,6 @@ obj/common.h.gch: src/common.h
 
 # help ----------------------------------------------------------------------------------------------------------------
 
-obj/resources/LICENSE.o: obj/resources/LICENSE.txt
-	xxd -i $< | sed s/obj_resources_LICENSE_txt/kLicense/g > obj/resources/LICENSE.cpp
-	$(CXX) -o $@ $(CXXFLAGS) -c obj/resources/LICENSE.cpp
-
-obj/resources/LICENSE.txt: $(LICENSE_FILES)
-	@mkdir -p $(@D)
-	@rm -f $@
-	@echo === abseil license === >> $@
-	@cat doc/licenses/abseil/LICENSE >> $@
-	@echo >> $@
-	@echo === boost license === >> $@
-	@cat doc/licenses/boost/LICENSE_1_0.txt >> $@
-	@echo >> $@
-	@echo === fmt license === >> $@
-	@cat doc/licenses/fmt/LICENSE.rst >> $@
-	@echo >> $@
-	@echo === immer license === >> $@
-	@cat doc/licenses/immer/LICENSE >> $@
-	@echo >> $@
-	@echo === libstdc++ license === >> $@
-	@cat doc/licenses/gcc/GPL-3 >> $@
-	@cat doc/licenses/gcc/copyright >> $@
-	@echo >> $@
-	@echo === microtar license === >> $@
-	@cat doc/licenses/microtar/LICENSE >> $@
-	@echo >> $@
-	@echo === mpdecimal license === >> $@
-	@cat doc/licenses/mpdecimal/LICENSE.txt >> $@
-	@echo >> $@
-	@echo === musl license === >> $@
-	@cat doc/licenses/musl/COPYRIGHT >> $@
-	@echo >> $@
-	@echo === nameof license === >> $@
-	@cat doc/licenses/nameof/LICENSE.txt >> $@
-	@echo >> $@
-	@echo === ncurses license === >> $@
-	@cat doc/licenses/ncurses/COPYING >> $@
-	@echo >> $@
-	@echo === scintilla license === >> $@
-	@cat doc/licenses/scintilla/License.txt >> $@
-	@echo >> $@
-	@echo === tmbasic license === >> $@
-	@cat LICENSE >> $@
-	@echo >> $@
-	@echo === turbo license === >> $@
-	@cat doc/licenses/turbo/COPYRIGHT >> $@
-	@echo >> $@
-	@echo === tvision license === >> $@
-	@cat doc/licenses/tvision/COPYRIGHT >> $@
-	@echo >> $@
-	@echo === utf8proc license === >> $@
-	@cat doc/licenses/utf8proc/LICENSE.md >> $@
-	@echo >> $@
-
 $(LICENSE_DIAGRAM_TXT_TIMESTAMP_FILE): $(LICENSE_FILES)
 	@mkdir -p $(@D)
 	build/scripts/copyLicenses.sh
@@ -449,9 +395,9 @@ $(COMPILER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(SHARED_H_FILES) $(V
 	@mkdir -p $(@D)
 	$(CXX) -o $@ $(CXXFLAGS) -c -include obj/common.h $<
 
-obj/compiler.a: $(COMPILER_OBJ_FILES) obj/resources/LICENSE.o
+obj/compiler.a: $(COMPILER_OBJ_FILES)
 	@mkdir -p $(@D)
-	$(AR) rcs $@ $(COMPILER_OBJ_FILES) obj/resources/LICENSE.o
+	$(AR) rcs $@ $(COMPILER_OBJ_FILES)
 
 
 

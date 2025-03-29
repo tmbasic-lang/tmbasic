@@ -1,7 +1,6 @@
 #include "TargetPlatform.h"
-
-extern const char kLicense[];  // NOLINT(modernize-avoid-c-arrays)
-extern const uint kLicense_len;
+#include "shared/process.h"
+#include "shared/path.h"
 
 namespace compiler {
 
@@ -101,12 +100,19 @@ const char* getPlatformExeExtension(TargetPlatform platform) {
 }
 
 std::string getLicenseForPlatform(TargetPlatform platform) {
-    std::string_view const sv{ kLicense, kLicense_len };
+    auto exeDir = shared::getExecutableDirectoryPath();
+    auto licensePath = shared::pathCombine(exeDir, "LICENSE.dat");
+    std::ifstream licenseFile{ licensePath, std::ios::in | std::ios::binary };
+    if (!licenseFile.is_open()) {
+        throw std::runtime_error{ "Failed to open license file: " + licensePath };
+    }
+    std::string licenseContent{ std::istreambuf_iterator<char>{licenseFile}, {} };
+
     switch (platform) {
         case TargetPlatform::kWinX86:
         case TargetPlatform::kWinX64: {
             std::ostringstream o;
-            for (auto ch : sv) {
+            for (auto ch : licenseContent) {
                 if (ch == '\n') {
                     o << '\r';
                 }
@@ -116,7 +122,7 @@ std::string getLicenseForPlatform(TargetPlatform platform) {
         }
 
         default:
-            return std::string{ sv };
+            return licenseContent;
     }
 }
 

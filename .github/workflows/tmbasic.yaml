@@ -28,7 +28,7 @@ jobs:
       - name: Build
         env:
           NO_BUILD: 1
-          TTY_FLAG: " "          
+          TTY_FLAG: " "
         run: |
           set -euxo pipefail
 
@@ -112,8 +112,11 @@ jobs:
           mkdir -p downloads
           mkdir -p extracted
           mkdir -p dist
+
           export VERSION=$(awk -F= '{ if ($1 == "version") print $2 }' build/version.ini)
           echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+          ./make-license.sh
 
       - name: Download all artifacts
         uses: actions/download-artifact@v4
@@ -149,6 +152,9 @@ jobs:
             
             # Copy all runtime dat files
             cp runtime_files/* "dist/$platform/"
+
+            # Copy license file
+            cp bin/license.dat "dist/$platform/"
             
             # Create archive with appropriate format
             if [[ "$platform" == linux-* ]]; then
