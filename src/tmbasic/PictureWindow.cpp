@@ -1,5 +1,4 @@
 #include "PictureWindow.h"
-#include "../../obj/resources/help/helpfile.h"
 #include "shared/Button.h"
 #include "shared/CheckBoxes.h"
 #include "shared/DialogPtr.h"
@@ -18,6 +17,7 @@
 #include "RowLayout.h"
 #include "UndoStack.h"
 #include "events.h"
+#include "helpfile.h"
 
 using compiler::SourceMember;
 using shared::Button;

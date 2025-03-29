@@ -1,5 +1,3 @@
-# Run "make help" to get started.
-
 # Define DISABLE_SANITIZERS to disable sanitizers in debug builds, otherwise they are enabled by default.
 # Valgrind is incompatible with ASan.
 
@@ -112,66 +110,14 @@ TMBASIC_OBJ_FILES=$(patsubst src/%,obj/%,$(TMBASIC_SRC_FILES:.cpp=.o))
 ALL_NON_TEST_CPP_FILES=$(COMPILER_SRC_FILES) $(RUNNER_SRC_FILES) $(SHARED_SRC_FILES) $(VM_SRC_FILES) $(TMBASIC_SRC_FILES) src/buildDoc.cpp
 TIDY_TARGETS=$(patsubst src/%,obj/tidy/%,$(ALL_NON_TEST_CPP_FILES:.cpp=.tidy))
 
-# help files
-TOPIC_SRC_FILES=$(shell find doc/help/topics -type f -name "*.txt")
-PROCEDURES_SRC_FILES=$(shell find doc/help/procedures -type f -name "*.txt")
-DOC_FILES=$(shell find doc -type f -name "*.txt") $(shell find doc -type f -name "*.html")
-DIAGRAM_SRC_FILES=$(shell find doc/help/diagrams -type f -name "*.txt")
-LICENSE_FILES=\
-	LICENSE \
-	doc/licenses/boost/LICENSE_1_0.txt \
-	doc/licenses/musl/COPYRIGHT \
-	doc/licenses/immer/LICENSE \
-	doc/licenses/gcc/GPL-3 \
-	doc/licenses/gcc/copyright1 \
-	doc/licenses/gcc/copyright2 \
-	doc/licenses/mpdecimal/LICENSE.txt \
-	doc/licenses/nameof/LICENSE.txt \
-	doc/licenses/ncurses/COPYING \
-	doc/licenses/tvision/COPYRIGHT \
-	doc/licenses/fmt/LICENSE.rst \
-	doc/licenses/scintilla/License.txt \
-	doc/licenses/turbo/COPYRIGHT \
-	doc/licenses/libzip/LICENSE \
-	doc/licenses/microtar/LICENSE \
-	doc/licenses/zlib/LICENSE.txt \
-	doc/licenses/cli11/LICENSE \
-	doc/licenses/abseil/LICENSE \
-	doc/licenses/utf8proc/LICENSE.md
-LICENSE_DIAGRAM_TXT_TIMESTAMP_FILE=obj/doc-temp/diagrams-license/timestamp
-LICENSE_DIAGRAM_TXT_FILES=\
-	obj/doc-temp/diagrams-license/license_tmbasic.txt \
-	obj/doc-temp/diagrams-license/license_boost.txt \
-	obj/doc-temp/diagrams-license/license_musl.txt \
-	obj/doc-temp/diagrams-license/license_immer.txt \
-	obj/doc-temp/diagrams-license/license_libstdc++_gpl3.txt \
-	obj/doc-temp/diagrams-license/license_libstdc++_gcc1.txt \
-	obj/doc-temp/diagrams-license/license_libstdc++_gcc2.txt \
-	obj/doc-temp/diagrams-license/license_mpdecimal.txt \
-	obj/doc-temp/diagrams-license/license_nameof.txt \
-	obj/doc-temp/diagrams-license/license_ncurses.txt \
-	obj/doc-temp/diagrams-license/license_tvision.txt \
-	obj/doc-temp/diagrams-license/license_fmt.txt \
-	obj/doc-temp/diagrams-license/license_scintilla.txt \
-	obj/doc-temp/diagrams-license/license_turbo.txt \
-	obj/doc-temp/diagrams-license/license_libzip.txt \
-	obj/doc-temp/diagrams-license/license_microtar.txt \
-	obj/doc-temp/diagrams-license/license_zlib.txt \
-	obj/doc-temp/diagrams-license/license_cli11.txt \
-	obj/doc-temp/diagrams-license/license_abseil.txt \
-	obj/doc-temp/diagrams-license/license_utf8proc.txt
-
 
 
 ### Commands ##########################################################################################################
 
-TVHC=tvhc
-BUILDCXX=$(CXX)
 STRIP=strip
 
 # Toolchain: We use cross-compilation to build Windows and Linux binaries.
 ifeq ($(TARGET_OS),win)
-BUILDCXX=g++
 CC=$(ARCH)-w64-mingw32-gcc
 CXX=$(ARCH)-w64-mingw32-g++
 AR=$(ARCH)-w64-mingw32-ar
@@ -182,7 +128,6 @@ endif
 
 ifeq ($(TARGET_OS),linux)
 ifeq ($(LINUX_DISTRO),alpine)
-BUILDCXX=g++
 CC=clang --target=$(LINUX_TRIPLE) --sysroot=/target-sysroot
 CXX=clang++ --target=$(LINUX_TRIPLE) --sysroot=/target-sysroot
 LD=$(LINUX_TRIPLE)-ld
@@ -354,41 +299,6 @@ obj/common.h.gch: src/common.h
 
 
 
-# help ----------------------------------------------------------------------------------------------------------------
-
-$(LICENSE_DIAGRAM_TXT_TIMESTAMP_FILE): $(LICENSE_FILES)
-	@mkdir -p $(@D)
-	build/scripts/copyLicenses.sh
-	@touch $@
-
-$(LICENSE_DIAGRAM_TXT_FILES): $(LICENSE_DIAGRAM_TXT_TIMESTAMP_FILE)
-
-obj/buildDoc: src/buildDoc.cpp
-	@mkdir -p $(@D)
-	$(BUILDCXX) -o $@ $< $(CXXFLAGS) -Wall -Werror -std=c++17 -lstdc++
-
-obj/resources/help/helpfile.h: obj/resources/help/help.txt
-	@mkdir -p obj/resources/help
-	@mkdir -p bin
-	@rm -f obj/resources/help/help.h32
-	@rm -f obj/resources/help/helpfile.h
-	$(TVHC) obj/resources/help/help.txt obj/resources/help/help.h32 obj/resources/help/helpfile.h >/dev/null
-
-obj/resources/help/help.h32: obj/resources/help/helpfile.h
-	@# noop
-
-obj/resources/help/help.txt: $(DOC_FILES) $(TOPIC_SRC_FILES) $(PROCEDURES_SRC_FILES) \
-		obj/buildDoc \
-		$(DIAGRAM_SRC_FILES) \
-		$(LICENSE_DIAGRAM_TXT_FILES) \
-		doc/help/html/page-template-1.html \
-		doc/help/html/page-template-2.html \
-		doc/help/html/page-template-3.html
-	@mkdir -p $(@D)
-	cd doc && ../obj/buildDoc
-
-
-
 # compiler ------------------------------------------------------------------------------------------------------------
 
 $(COMPILER_OBJ_FILES): obj/%.o: src/%.cpp obj/common.h.gch $(SHARED_H_FILES) $(VM_H_FILES) $(COMPILER_H_FILES)
@@ -427,11 +337,6 @@ obj/vm.a: $(VM_OBJ_FILES)
 
 # resources -----------------------------------------------------------------------------------------------------------
 
-obj/resources/help/helpfile.o: obj/resources/help/help.h32
-	@mkdir -p $(@D)
-	xxd -i $< | sed s/obj_resources_help_help_h32/kResourceHelp/g > obj/resources/help/kResourceHelp.cpp
-	$(CXX) -o $@ $(CXXFLAGS) -c obj/resources/help/kResourceHelp.cpp
-
 obj/resources/tzdb.o: $(PREFIX)/share/tzdb.tar
 	@mkdir -p $(@D)
 	cd "$(PREFIX)/share" && xxd -i tzdb.tar | sed s/tzdb_tar/kResourceTzdb/g > $(PWD)/obj/resources/kResourceTzdb.cpp
@@ -443,8 +348,6 @@ obj/resources/tzdb.o: $(PREFIX)/share/tzdb.tar
 
 $(TMBASIC_OBJ_FILES): obj/%.o: src/%.cpp \
 		obj/common.h.gch \
-		obj/resources/help/helpfile.h \
-		obj/resources/help/help.h32 \
 		$(COMPILER_H_FILES) \
 		$(SHARED_H_FILES) \
 		$(TMBASIC_H_FILES)
@@ -462,13 +365,10 @@ bin/tmbasic$(EXE_EXTENSION): $(TMBASIC_OBJ_FILES) \
 		obj/shared.a \
 		obj/compiler.a \
 		obj/common.h.gch \
-		obj/resources/help/helpfile.h \
-		obj/resources/help/help.h32 \
-		obj/resources/help/helpfile.o \
 		$(ICON_RES_OBJ_FILE) \
 		bin/runtime_$(TARGET_OS)_$(SHORT_ARCH).dat
 	@mkdir -p $(@D)
-	$(CXX) -o $@ $(TMBASIC_OBJ_FILES) $(CXXFLAGS) $(STATIC_FLAG) -include obj/common.h obj/compiler.a obj/shared.a obj/resources/help/helpfile.o obj/resources/tzdb.o $(ICON_RES_OBJ_FILE) $(TMBASIC_LDFLAGS) $(LDFLAGS)
+	$(CXX) -o $@ $(TMBASIC_OBJ_FILES) $(CXXFLAGS) $(STATIC_FLAG) -include obj/common.h obj/compiler.a obj/shared.a obj/resources/tzdb.o $(ICON_RES_OBJ_FILE) $(TMBASIC_LDFLAGS) $(LDFLAGS)
 ifeq ($(STRIP_TMBASIC),1)
 	$(STRIP) bin/tmbasic$(EXE_EXTENSION)
 endif
@@ -488,8 +388,6 @@ endif
 
 $(TEST_OBJ_FILES): obj/%.o: src/%.cpp \
 		obj/common.h.gch \
-		obj/resources/help/helpfile.h \
-		obj/resources/help/help.h32 \
 		$(COMPILER_H_FILES) \
 		$(SHARED_H_FILES) \
 		$(VM_H_FILES)
@@ -501,12 +399,9 @@ bin/test$(EXE_EXTENSION): $(TEST_OBJ_FILES) \
 		obj/vm.a \
 		obj/compiler.a \
 		obj/common.h.gch \
-		obj/resources/help/helpfile.h \
-		obj/resources/help/help.h32 \
-		obj/resources/help/helpfile.o \
 		obj/resources/tzdb.o
 	@mkdir -p $(@D)
-	$(CXX) -o $@ $(CXXFLAGS) $(STATIC_FLAG) -include obj/common.h $(TEST_OBJ_FILES) obj/compiler.a obj/vm.a obj/shared.a obj/resources/help/helpfile.o obj/resources/tzdb.o $(TMBASIC_LDFLAGS) $(LDFLAGS) $(LIBGTEST_FLAG) -lpthread
+	$(CXX) -o $@ $(CXXFLAGS) $(STATIC_FLAG) -include obj/common.h $(TEST_OBJ_FILES) obj/compiler.a obj/vm.a obj/shared.a obj/resources/tzdb.o $(TMBASIC_LDFLAGS) $(LDFLAGS) $(LIBGTEST_FLAG) -lpthread
 
 
 

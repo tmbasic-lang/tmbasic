@@ -117,6 +117,7 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
           ./make-license.sh
+          ./make-help.sh
 
       - name: Download all artifacts
         uses: actions/download-artifact@v4
@@ -150,11 +151,10 @@ jobs:
               cp "extracted/$platform/tmbasic" "dist/$platform/"
             fi
             
-            # Copy all runtime dat files
+            # Copy dat files
             cp runtime_files/* "dist/$platform/"
-
-            # Copy license file
             cp bin/license.dat "dist/$platform/"
+            cp bin/help.dat "dist/$platform/"
             
             # Create archive with appropriate format
             if [[ "$platform" == linux-* ]]; then

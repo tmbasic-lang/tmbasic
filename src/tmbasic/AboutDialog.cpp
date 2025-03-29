@@ -1,9 +1,9 @@
 #include "AboutDialog.h"
-#include "../../obj/resources/help/helpfile.h"
 #include "../shared/Button.h"
 #include "../shared/Label.h"
 #include "../shared/PictureView.h"
 #include "GridLayout.h"
+#include "helpfile.h"
 
 using shared::Button;
 using shared::Label;

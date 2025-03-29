@@ -1,5 +1,4 @@
 #include "tmbasic/App.h"
-#include "../../obj/resources/help/helpfile.h"
 #include "../compiler/CompilerException.h"
 #include "../compiler/Publisher.h"
 #include "../compiler/SourceProgram.h"
@@ -11,15 +10,16 @@
 #include "../shared/WindowPtr.h"
 #include "../shared/membuf.h"
 #include "../shared/path.h"
+#include "../shared/process.h"
 #include "AboutDialog.h"
 #include "AddProgramItemDialog.h"
 #include "DesignerWindow.h"
 #include "CodeEditorWindow.h"
 #include "HelpWindow.h"
 #include "ProgramWindow.h"
-#include "Resource.h"
 #include "constants.h"
 #include "events.h"
+#include "helpfile.h"
 
 using compiler::SourceMember;
 using compiler::SourceMemberType;
@@ -62,6 +62,7 @@ class AppPrivate {
     std::chrono::steady_clock::time_point lastTimerTick;
     PictureWindowStatusItems pictureWindowStatusItems{};
     PictureWindow* pictureWindow = nullptr;
+    std::vector<char> helpFile{};
 
     static gsl::owner<TDeskTop*> initDeskTop(TRect r) {
         r.a.y++;
@@ -780,8 +781,14 @@ TPalette& App::getPalette() const {
 
 void App::openHelpTopic(uint16_t topic) {
     try {
-        auto* start = reinterpret_cast<char*>(kResourceHelp);
-        auto* end = reinterpret_cast<char*>(&kResourceHelp[kResourceHelp_len]);
+        if (_private->helpFile.empty()) {
+            // Read contents of help file into _private->helpFile
+            auto helpFilePath = shared::getExecutableDirectoryPath() + "/help.dat";
+            std::ifstream helpFile(helpFilePath, std::ios::binary);
+            _private->helpFile.assign(std::istreambuf_iterator<char>(helpFile), {});
+        }
+        auto* start = _private->helpFile.data();
+        auto* end = start + _private->helpFile.size();
         auto* stream = new MemoryIopstream(start, end);  // NOLINT(cppcoreguidelines-owning-memory)
         auto* helpFile = new THelpFile(*stream);         // NOLINT(cppcoreguidelines-owning-memory)
         auto* helpWindow = WindowPtr<HelpWindow>(helpFile, topic).get();

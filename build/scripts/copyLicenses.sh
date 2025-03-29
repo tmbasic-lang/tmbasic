@@ -1,5 +1,6 @@
 #!/bin/bash
 set -euo pipefail
+mkdir -p obj/doc-temp/diagrams-license
 cp -f LICENSE obj/doc-temp/diagrams-license/license_tmbasic.txt
 cp -f doc/licenses/boost/LICENSE_1_0.txt obj/doc-temp/diagrams-license/license_boost.txt
 cp -f doc/licenses/musl/COPYRIGHT obj/doc-temp/diagrams-license/license_musl.txt

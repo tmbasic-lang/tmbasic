@@ -1,5 +1,4 @@
 #include "InsertColorDialog.h"
-#include "../../obj/resources/help/helpfile.h"
 #include "../tmbasic/App.h"
 #include "../shared/Button.h"
 #include "../shared/DialogPtr.h"
@@ -10,6 +9,7 @@
 #include "../shared/tvutil.h"
 #include "GridLayout.h"
 #include "events.h"
+#include "helpfile.h"
 
 using shared::Button;
 using shared::DialogPtr;

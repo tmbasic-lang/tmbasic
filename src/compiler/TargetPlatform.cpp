@@ -106,7 +106,7 @@ std::string getLicenseForPlatform(TargetPlatform platform) {
     if (!licenseFile.is_open()) {
         throw std::runtime_error{ "Failed to open license file: " + licensePath };
     }
-    std::string licenseContent{ std::istreambuf_iterator<char>{licenseFile}, {} };
+    std::string licenseContent{ std::istreambuf_iterator<char>{ licenseFile }, {} };
 
     switch (platform) {
         case TargetPlatform::kWinX86:
