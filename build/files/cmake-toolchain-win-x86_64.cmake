@@ -10,3 +10,10 @@ set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
+
+# Set include directories for mpdec
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem /usr/${COMPILER_PREFIX}/include/libmpdec -isystem /usr/${COMPILER_PREFIX}/include/libmpdec++")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -isystem /usr/${COMPILER_PREFIX}/include/libmpdec -isystem /usr/${COMPILER_PREFIX}/include/libmpdec++")
+# Disable array bounds warning
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-array-bounds")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-array-bounds")

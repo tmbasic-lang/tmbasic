@@ -3,8 +3,8 @@
 # Exit on error
 set -e
 
-# Generate help text (from original Makefile)
-make obj/resources/help/help.txt
+# Generate help text
+./make-help.sh
 
 # Create output directories
 mkdir -p bin/ghpages

@@ -1,2 +1,2 @@
 #!/bin/bash
-rm -rf bin obj valgrind.txt
+rm -rf bin obj cmake valgrind.txt

@@ -1,27 +1,8 @@
 #!/bin/bash
 
-function make_colorized() {
-    ccache --zero-stats
+function make_timed() {
     clear
-    # Create a file descriptor 3 for stderr
-    exec 3>&1
-    time make 2> >(while IFS= read -r line; do
-                  echo "$line" >&3  # Pass stderr to the console
-                  if [[ "$line" == *"error:"* ]]; then
-                      return
-                  fi
-              done) | {
-        counter=1
-        while IFS= read -r line; do
-            # Colorize and number each line from stdout
-            echo
-            echo -e "\033[47;30m ${counter} \033[0m $line"
-            ((counter++))
-        done
-    }
-    # Close the extra file descriptor
-    exec 3>&-
-    ccache --show-stats | awk 'BEGIN { RS = "\n\n" } { print $0; exit }'
+    time ./dev-build.sh
 }
 
 while true
@@ -35,7 +16,7 @@ do
     echo
     if [ "$x" == "m" ]
     then
-        make_colorized
+        make_timed
     elif [ "$x" == "r" ] 
     then
         TERM=xterm-256color COLORTERM=truecolor bin/tmbasic || (printf "\r\nCrash detected! Resetting terminal in 5 seconds...\r\n" && sleep 5 && reset && echo "Eating input. Press Ctrl+D." && cat >/dev/null)
@@ -59,7 +40,7 @@ do
         if [ -f "test_filter" ]; then
             export GTEST_FILTER=$(cat test_filter)
         fi
-        make_colorized
+        make_timed
         ./dev-test.sh
     elif [ "$x" == "F" ]
     then

@@ -59,5 +59,4 @@ set +x
 cd ../
 
 pwd
-TARGET_OS=mac ARCH=$ARCH make help
 TARGET_OS=mac ARCH=$ARCH PS1="[tmbasic-mac-$SHORT_ARCH] \w\$ " MAKEFLAGS="-j6" BASH_SILENCE_DEPRECATION_WARNING=1 bash "$@"

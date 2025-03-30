@@ -55,7 +55,6 @@ RUN echo "export ARCH=\"$ARCH\"" >> /etc/profile.d/tmbasic.sh && \
     echo "export LINUX_DISTRO=alpine" >> /etc/profile.d/tmbasic.sh && \
     echo "export LINUX_TRIPLE=$TRIPLE" >> /etc/profile.d/tmbasic.sh && \
     echo "export PREFIX=/usr/local/$TRIPLE" >> /etc/profile.d/tmbasic.sh && \
-    echo "make -f /code/Makefile help" >> /etc/profile.d/tmbasic.sh && \
     chmod +x /etc/profile.d/tmbasic.sh
 
 # Flatten layers
