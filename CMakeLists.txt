@@ -20,7 +20,7 @@ set(TARGET_OS "" CACHE STRING "Target OS (linux, win, mac)")
 set(LINUX_DISTRO "" CACHE STRING "Linux distribution (alpine, ubuntu)")
 set(LINUX_TRIPLE "" CACHE STRING "Linux triple for cross-compilation")
 set(ARCH "" CACHE STRING "Architecture (i686, x86_64, arm32v7, arm64v8)")
-set(PREFIX "/usr/local/${LINUX_TRIPLE}" CACHE PATH "Path to dependencies")
+set(PREFIX "" CACHE PATH "Path to dependencies")
 
 # Check if required variables are set
 if(NOT TARGET_OS)
@@ -36,6 +36,9 @@ if(TARGET_OS STREQUAL "linux")
 endif()
 if(NOT ARCH)
     message(FATAL_ERROR "ARCH must be specified (i686, x86_64, arm32v7, arm64v8)")
+endif()
+if(NOT PREFIX)
+    message(FATAL_ERROR "PREFIX must be specified")
 endif()
 
 # Determine SHORT_ARCH based on ARCH
