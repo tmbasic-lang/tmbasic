@@ -1,6 +1,6 @@
 #!/bin/bash
 # Required variables: TARGET_OS, LINUX_DISTRO, LINUX_TRIPLE, ARCH, PREFIX
-set -e
+set -euxo pipefail
 
 # Change to the repository root.
 cd "$( dirname "${BASH_SOURCE[0]}" )"
@@ -15,8 +15,10 @@ if [[ "$TARGET_OS" == "linux" && "$LINUX_DISTRO" == "ubuntu" ]]; then
     SUFFIX="-dev"
 fi
 
+TOOLCHAIN_FILE="../build/files/cmake-toolchain-${TARGET_OS}-${ARCH}${SUFFIX}.cmake"
+
 cmake \
-    -DCMAKE_TOOLCHAIN_FILE=../build/files/cmake-toolchain-${TARGET_OS}-${ARCH}${SUFFIX}.cmake \
+    "-DCMAKE_TOOLCHAIN_FILE=$TOOLCHAIN_FILE" \
     -DCMAKE_VERBOSE_MAKEFILE=ON \
     -DTARGET_OS=$TARGET_OS \
     -DLINUX_DISTRO=$LINUX_DISTRO \
