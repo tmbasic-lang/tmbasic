@@ -225,7 +225,6 @@ if(TARGET_OS STREQUAL "linux")
         target_link_directories(tmbasic PRIVATE /target-sysroot/usr/local/lib)
     endif()
 elseif(TARGET_OS STREQUAL "mac")
-    target_link_libraries(tmbasic "-framework AppKit")
     target_link_directories(tmbasic PRIVATE ${PREFIX}/lib)
     add_custom_command(
         TARGET tmbasic POST_BUILD
