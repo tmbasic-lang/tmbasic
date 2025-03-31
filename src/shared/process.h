@@ -5,6 +5,7 @@
 
 namespace shared {
 
+std::string getExecutableFilePath();
 std::string getExecutableDirectoryPath();
 
 }  // namespace shared

@@ -8,7 +8,6 @@ RUN apk update && \
         curl \
         make \
         pkgconfig \
-        xxd \
         python3 \
         cmake \
         autoconf \

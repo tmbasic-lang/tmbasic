@@ -69,7 +69,7 @@ static void addStaticZoneInfoFile(const std::string& name, std::vector<char> dat
 
 namespace vm {
 
-void initializeTzdb() {
+void initializeTzdbFromFile() {
     if (!_isTzdbInitialized) {
         // tzdb.dat is a tar file that contains the /usr/share/zoneinfo/ contents.
         auto tarFilePath = shared::getExecutableDirectoryPath() + "/tzdb.dat";
@@ -80,6 +80,14 @@ void initializeTzdb() {
 
         absl::time_internal::cctz_extension::zone_info_source_factory = customZoneInfoSourceFactory;
         shared::untar(data.data(), data.size(), addStaticZoneInfoFile);
+        _isTzdbInitialized = true;
+    }
+}
+
+void initializeTzdbFromBuffer(const std::vector<char>& buffer) {
+    if (!_isTzdbInitialized) {
+        absl::time_internal::cctz_extension::zone_info_source_factory = customZoneInfoSourceFactory;
+        shared::untar(buffer.data(), buffer.size(), addStaticZoneInfoFile);
         _isTzdbInitialized = true;
     }
 }

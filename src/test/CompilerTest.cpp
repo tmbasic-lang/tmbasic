@@ -122,7 +122,7 @@ static std::vector<std::vector<std::string>> parseCases(const std::string& input
 }
 
 static void runCode(const string& basFile) {
-    vm::initializeTzdb();
+    vm::initializeTzdbFromFile();
 
     std::vector<size_t> sectionStarts{};
 

@@ -26,7 +26,6 @@ RUN apt-get update -y && \
         texinfo \
         unzip \
         valgrind \
-        xxd \
         ;
 
 # unprivileged user

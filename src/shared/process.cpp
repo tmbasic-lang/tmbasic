@@ -20,7 +20,7 @@
 
 namespace shared {
 
-std::string getExecutableDirectoryPath() {
+std::string getExecutableFilePath() {
 #ifdef _WIN32
     // Windows implementation
     wchar_t path[MAX_PATH];
@@ -30,7 +30,7 @@ std::string getExecutableDirectoryPath() {
     }
 
     std::filesystem::path exePath(path);
-    return exePath.parent_path().string();
+    return exePath.string();
 #elif defined(__APPLE__)
     // macOS implementation
     char pathbuf[PATH_MAX];
@@ -45,10 +45,7 @@ std::string getExecutableDirectoryPath() {
         throw std::runtime_error("Failed to resolve executable path");
     }
 
-    // Use dirname to get directory path (make a copy since dirname can modify the string)
-    char dirpath[PATH_MAX];
-    strncpy(dirpath, realpathbuf, PATH_MAX);
-    return std::string(dirname(dirpath));
+    return std::string(realpathbuf);
 #else
     // Linux implementation for statically linked executable
     const char* exe = reinterpret_cast<const char*>(getauxval(AT_EXECFN));
@@ -62,8 +59,22 @@ std::string getExecutableDirectoryPath() {
         throw std::runtime_error("Failed to resolve executable path");
     }
 
-    std::filesystem::path exePath(realpathbuf);
-    return exePath.parent_path().string();
+    return std::string(realpathbuf);
+#endif
+}
+
+std::string getExecutableDirectoryPath() {
+    std::string exePath = getExecutableFilePath();
+
+#ifdef __APPLE__
+    // Use dirname for macOS
+    char dirpath[PATH_MAX];
+    strncpy(dirpath, exePath.c_str(), PATH_MAX);
+    return std::string(dirname(dirpath));
+#else
+    // Use std::filesystem for Windows and Linux
+    std::filesystem::path path(exePath);
+    return path.parent_path().string();
 #endif
 }
 

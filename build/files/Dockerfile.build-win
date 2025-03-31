@@ -44,7 +44,6 @@ RUN apt-get remove --purge -y \
 # extra utilities
 RUN apt-get install -y \
         unzip \
-        xxd \
         diffutils \
         dos2unix \
         build-essential \

@@ -22,12 +22,6 @@ set(LINUX_TRIPLE "" CACHE STRING "Linux triple for cross-compilation")
 set(ARCH "" CACHE STRING "Architecture (i686, x86_64, arm32v7, arm64v8)")
 set(PREFIX "/usr/local/${LINUX_TRIPLE}" CACHE PATH "Path to dependencies")
 
-# On macOS, tvision uses libncurses instead because libncursesw isn't distributed on that platform.
-set(NCURSES_LIB "ncursesw")
-if(TARGET_OS STREQUAL "mac")
-    set(NCURSES_LIB "ncurses")
-endif()
-
 # Check if required variables are set
 if(NOT TARGET_OS)
     message(FATAL_ERROR "TARGET_OS must be specified (linux, win, mac)")
@@ -53,6 +47,15 @@ elseif(ARCH STREQUAL "arm32v7")
     set(SHORT_ARCH "arm32")
 elseif(ARCH STREQUAL "arm64v8")
     set(SHORT_ARCH "arm64")
+endif()
+
+# Set RUNTIME_OUTPUT_DIRECTORY to ensure binaries are placed in the bin directory
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+# On macOS, tvision uses libncurses instead because libncursesw isn't distributed on that platform.
+set(NCURSES_LIB "ncursesw")
+if(TARGET_OS STREQUAL "mac")
+    set(NCURSES_LIB "ncurses")
 endif()
 
 # Handle sanitizers
@@ -150,25 +153,13 @@ elseif(TARGET_OS STREQUAL "win")
     target_link_options(test PRIVATE -static)
 endif()
 
-# Resource handling for pcode
-add_custom_command(
-    OUTPUT ${CMAKE_BINARY_DIR}/pcode.dat ${CMAKE_BINARY_DIR}/pcode.cpp
-    COMMAND head -c 1048576 /dev/zero | tr '\\0' 'T' > ${CMAKE_BINARY_DIR}/pcode.dat
-    COMMAND cd ${CMAKE_BINARY_DIR} && xxd -i pcode.dat | sed s/pcode_dat/kResourcePcode/g > pcode.cpp
-    COMMENT "Generating pcode resource"
-)
-add_library(resources_pcode OBJECT ${CMAKE_BINARY_DIR}/pcode.cpp)
-
 # Runner library and runtime data file
 add_library(runner STATIC ${RUNNER_SRC_FILES})
 target_compile_options(runner PRIVATE ${COMMON_COMPILE_OPTIONS}) 
 target_precompile_headers(runner PRIVATE src/common.h)
 
-# Set RUNTIME_OUTPUT_DIRECTORY to ensure binaries are placed in the bin directory
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
 # Runtime executable
-add_executable(runtime ${CMAKE_BINARY_DIR}/pcode.cpp ${RUNNER_SRC_FILES})
+add_executable(runtime ${RUNNER_SRC_FILES})
 target_precompile_headers(runtime PRIVATE src/common.h)
 target_compile_options(runtime PRIVATE ${COMMON_COMPILE_OPTIONS})
 target_link_directories(runtime PRIVATE ${PREFIX}/lib)
