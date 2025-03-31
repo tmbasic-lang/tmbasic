@@ -1,15 +1,13 @@
 cmake_minimum_required(VERSION 3.31)
-
-# Project definition
-project(tmbasic VERSION 1.0.0 LANGUAGES CXX)
+project(tmbasic)
 
 # Generate compilation database for clang-tidy
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# Set C++ standard
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+# These don't seem to work. I've specified -std=c++17 in the toolchain files, and that works but it adds it twice.
+# set(CMAKE_CXX_STANDARD 17)
+# set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Define build options
 option(STRIP_TMBASIC "Strip the tmbasic executable" OFF)
