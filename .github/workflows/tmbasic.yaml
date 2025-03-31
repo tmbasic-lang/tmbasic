@@ -46,7 +46,7 @@ jobs:
 
           # If this is linux-x64, then upload the tzdb.tar file.
           if [[ "$platform" == linux-x64 ]]; then
-            cp build/tzdb.tar bin/
+            cp -f build/tzdb.tar cmake/bin/tzdb.dat
           fi
 
       - name: Upload intermediate zip
@@ -100,7 +100,9 @@ jobs:
           ./${{ matrix.platform }}.sh -c "scripts/make-tmbasic.sh" -DCMAKE_BUILD_TYPE=Release
           popd
 
-          ditto -c -k --sequesterRsrc bin intermediate-${{ matrix.platform }}.zip
+          mkdir intermediate
+          mv cmake/bin/tmbasic cmake/bin/runtime* intermediate/
+          ditto -c -k --sequesterRsrc intermediate intermediate-${{ matrix.platform }}.zip
 
       - name: Upload tmbasic.zip
         uses: actions/upload-artifact@v4
