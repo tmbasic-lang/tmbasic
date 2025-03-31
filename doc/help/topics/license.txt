@@ -6,30 +6,31 @@ TMBASIC is open source software available free of charge.
 The following components are included in the TMBASIC development environment and in compiled programs.
 You must obey the licenses of these open source components when you share your compiled programs.
 
-ul@li@{tmbasic:license_tmbasic}@
-li@{abseil:license_abseil}@
-li@{boost:license_boost}@
-li@{fmt:license_fmt}@
-li@{immer:license_immer}@
-li@libstdc++ - {Part 1:license_libstdcxx1}, {Part 2:license_libstdcxx2}, {Part 3:license_libstdcxx3}@
-li@{microtar:license_microtar}@
-li@{mpdecimal:license_mpdecimal}@
-li@{musl:license_musl}@
-li@{nameof:license_nameof}@
-li@{ncurses:license_ncurses}@
-li@{scintilla:license_scintilla}@
-li@{turbo:license_turbo}@
-li@{tvision:license_tvision}@
-li@{utf8proc:license_utf8proc}@
+ul@li@tmbasic@
+li@abseil@
+li@boost@
+li@fmt@
+li@immer@
+li@libstdc++@
+li@microtar@
+li@mpdecimal@
+li@musl@
+li@nameof@
+li@ncurses@
+li@scintilla@
+li@turbo@
+li@tvision@
+li@utf8proc@
 @
 
 These licenses are permissive and commercial-friendly.
 When you compile your program, TMBASIC produces a `LICENSE.txt` file for your convenience.
-Include this license file when sharing your TMBASIC app.
+Including this license file when sharing your TMBASIC app will fulfill your license obligations.
 
 The following additional components are included in the TMBASIC development environment only.
+See the THIRD-PARTY-NOTICES.txt file distributed with TMBASIC.
 
-ul@li@{CLI11:license_cli11}@
-li@{libzip:license_libzip}@
-li@{zlib:license_zlib}@
+ul@li@CLI11@
+li@libzip@
+li@zlib@
 @

@@ -9,6 +9,7 @@
 /callgrind*
 /cmake
 /dist/
+/help-temp/
 /mac-arm64/
 /mac-x64/
 /obj/

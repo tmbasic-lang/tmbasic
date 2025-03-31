@@ -633,7 +633,8 @@ $(UTF8PROC_DIR)/install: $(UTF8PROC_DIR)/download $(BINUTILS_DIR)/install $(CMAK
 			-DCMAKE_PREFIX_PATH=$(TARGET_PREFIX) \
 			-DCMAKE_INSTALL_PREFIX=$(TARGET_PREFIX) \
 			-DBUILD_SHARED_LIBS=OFF \
+			-DCMAKE_BUILD_TYPE=Release \
 			$(CMAKE_TOOLCHAIN_FLAG) && \
-		cmake --build . --config Release && \
-		cmake --install . --config Release
+		cmake --build . && \
+		cmake --install .
 	touch $@

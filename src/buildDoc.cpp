@@ -226,7 +226,7 @@ static string getDiagramHtml(const string& name) {
     if (tryReadFile(string("help/diagrams/") + name + ".txt", &text)) {
         return htmlEncode(text);
     }
-    return htmlEncode(readFile(string("../obj/doc-temp/diagrams-license/") + name + ".txt"));
+    throw runtime_error(string("Unable to find diagram: ") + name);
 }
 
 static string processTitle(string str) {
@@ -670,9 +670,6 @@ static string insertDiagram(string input, const string& dir, const string& filen
 static string insertDiagrams(string text) {
     forEachFile(
         "help/diagrams", [&text](auto filename) -> void { text = insertDiagram(text, "help/diagrams/", filename); });
-    forEachFile("../obj/doc-temp/diagrams-license", [&text](auto filename) -> void {
-        text = insertDiagram(text, "../obj/doc-temp/diagrams-license/", filename);
-    });
     return text;
 }
 
@@ -695,7 +692,7 @@ int main() {
         sort(procedures.begin(), procedures.end(), compareProceduresByName);
         buildProcedureCategoryPages(procedures, &outputTxt, htmlPageTemplate);
         buildProcedureIndex(procedures, &outputTxt, htmlPageTemplate);
-        writeFile("../obj/resources/help/help.txt", insertDiagrams(outputTxt.str()));
+        writeFile("../help-temp/help.txt", insertDiagrams(outputTxt.str()));
     } catch (const regex_error& ex) {
         ostringstream const s;
         cerr << ex.what() << ": " << NAMEOF_ENUM(ex.code()) << '\n';

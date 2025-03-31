@@ -2,6 +2,10 @@
 # Input variables: $TARGET_OS, $ARCH
 set -e
 
+# Change to the repository root.
+cd "$( dirname "${BASH_SOURCE[0]}" )"
+cd ..
+
 # Check that the input variables are set.
 if [ -z "$TARGET_OS" ]; then
     echo "TARGET_OS is not set."

@@ -1,7 +1,13 @@
 #!/bin/bash
 set -e
 
-OUTFILE=bin/license.dat
+# Change to the repository root.
+cd "$( dirname "${BASH_SOURCE[0]}" )"
+cd ..
+
+mkdir -p cmake/bin
+
+OUTFILE=cmake/bin/license.dat
 rm -f $OUTFILE
 
 # Create Table of Contents

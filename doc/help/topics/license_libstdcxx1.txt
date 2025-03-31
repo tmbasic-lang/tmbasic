@@ -1,5 +1,0 @@
-nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {License:license}@
-
-h1["libstdc++" License (Part 1)]
-
-dia[license_libstdc++_gpl3]

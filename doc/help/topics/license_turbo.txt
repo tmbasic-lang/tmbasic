@@ -1,5 +1,0 @@
-nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {License:license}@
-
-h1["turbo" License]
-
-dia[license_turbo]

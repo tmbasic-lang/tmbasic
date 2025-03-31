@@ -1,5 +1,0 @@
-nav@{TMBASIC Documentation:doc} <TRIANGLE_RIGHT> {License:license}@
-
-h1["utf8proc" License]
-
-dia[license_utf8proc]

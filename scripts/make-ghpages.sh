@@ -1,10 +1,12 @@
 #!/bin/bash
+set -euxo pipefail
 
-# Exit on error
-set -e
+# Change to the repository root.
+cd "$( dirname "${BASH_SOURCE[0]}" )"
+cd ..
 
 # Generate help text
-./make-help.sh
+scripts/make-help.sh
 
 # Create output directories
 mkdir -p bin/ghpages
