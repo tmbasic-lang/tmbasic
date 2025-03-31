@@ -16,7 +16,7 @@ if [[ "$TARGET_OS" == "linux" && "$LINUX_DISTRO" == "ubuntu" ]]; then
 fi
 
 cmake \
-    -DCMAKE_TOOLCHAIN_FILE=/code/build/files/cmake-toolchain-${TARGET_OS}-${ARCH}${SUFFIX}.cmake \
+    -DCMAKE_TOOLCHAIN_FILE=../build/files/cmake-toolchain-${TARGET_OS}-${ARCH}${SUFFIX}.cmake \
     -DCMAKE_VERBOSE_MAKEFILE=OFF \
     -DTARGET_OS=$TARGET_OS \
     -DLINUX_DISTRO=$LINUX_DISTRO \
