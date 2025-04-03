@@ -1,13 +1,21 @@
 cmake_minimum_required(VERSION 3.31)
 project(tmbasic)
 
+# Diagnostics
+message(STATUS "Compiler ID: ${CMAKE_C_COMPILER_ID}")
+message(STATUS "C Compiler:  ${CMAKE_C_COMPILER}")
+message(STATUS "CXX Compiler: ${CMAKE_CXX_COMPILER}")
+message(STATUS "CMAKE_C_COMPILER_TARGET='${CMAKE_C_COMPILER_TARGET}'")
+message(STATUS "CMAKE_CXX_COMPILER_TARGET='${CMAKE_CXX_COMPILER_TARGET}'")
+message(STATUS "CMAKE_CROSSCOMPILING='${CMAKE_CROSSCOMPILING}'")
+
 # Generate compilation database for clang-tidy
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# These don't seem to work. I've specified -std=c++17 in the toolchain files, and that works but it adds it twice.
-# set(CMAKE_CXX_STANDARD 17)
-# set(CMAKE_CXX_STANDARD_REQUIRED ON)
-# set(CMAKE_CXX_EXTENSIONS OFF)
+# Set C++ standard to C++17
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Define build options
 option(STRIP_TMBASIC "Strip the tmbasic executable" OFF)
@@ -18,7 +26,7 @@ set(TARGET_OS "" CACHE STRING "Target OS (linux, win, mac)")
 set(LINUX_DISTRO "" CACHE STRING "Linux distribution (alpine, ubuntu)")
 set(LINUX_TRIPLE "" CACHE STRING "Linux triple for cross-compilation")
 set(ARCH "" CACHE STRING "Architecture (i686, x86_64, arm32v7, arm64v8)")
-set(PREFIX "" CACHE PATH "Path to dependencies")
+set(TARGET_PREFIX "" CACHE PATH "Path to dependencies")
 
 # Check if required variables are set
 if(NOT TARGET_OS)
@@ -35,8 +43,8 @@ endif()
 if(NOT ARCH)
     message(FATAL_ERROR "ARCH must be specified (i686, x86_64, arm32v7, arm64v8)")
 endif()
-if(NOT PREFIX)
-    message(FATAL_ERROR "PREFIX must be specified")
+if(NOT TARGET_PREFIX)
+    message(FATAL_ERROR "TARGET_PREFIX must be specified")
 endif()
 
 # Determine SHORT_ARCH based on ARCH
@@ -125,22 +133,22 @@ include_directories(src)
 
 # Create static libraries
 add_library(compiler STATIC ${COMPILER_SRC_FILES})
-target_compile_options(compiler PRIVATE ${COMMON_COMPILE_OPTIONS})
-target_precompile_headers(compiler PRIVATE src/common.h)
+#target_compile_options(compiler PRIVATE ${COMMON_COMPILE_OPTIONS})
+#target_precompile_headers(compiler PRIVATE src/common.h)
 
 add_library(shared STATIC ${SHARED_SRC_FILES})
-target_compile_options(shared PRIVATE ${COMMON_COMPILE_OPTIONS})
-target_precompile_headers(shared PRIVATE src/common.h)
+#target_compile_options(shared PRIVATE ${COMMON_COMPILE_OPTIONS})
+#target_precompile_headers(shared PRIVATE src/common.h)
 
 add_library(vm STATIC ${VM_SRC_FILES})
-target_compile_options(vm PRIVATE ${COMMON_COMPILE_OPTIONS})
-target_precompile_headers(vm PRIVATE src/common.h)
+#target_compile_options(vm PRIVATE ${COMMON_COMPILE_OPTIONS})
+#target_precompile_headers(vm PRIVATE src/common.h)
 
 # Test executable
 add_executable(test ${TEST_SRC_FILES})
-target_compile_options(test PRIVATE ${COMMON_COMPILE_OPTIONS})
-target_precompile_headers(test PRIVATE src/common.h)
-target_link_directories(test PRIVATE ${PREFIX}/lib)
+#target_compile_options(test PRIVATE ${COMMON_COMPILE_OPTIONS})
+#target_precompile_headers(test PRIVATE src/common.h)
+target_link_directories(test PRIVATE ${TARGET_PREFIX}/lib)
 target_link_libraries(test
     compiler shared vm
     stdc++ absl_time absl_time_zone absl_int128 absl_raw_logging_internal
@@ -149,21 +157,16 @@ target_link_libraries(test
     zip z gtest gtest_main pthread
 )
 if(TARGET_OS STREQUAL "linux" AND LINUX_DISTRO STREQUAL "alpine")
-    target_link_options(test PRIVATE -static)
+    target_link_options(test PRIVATE ${CMAKE_EXE_LINKER_FLAGS} -static)
 elseif(TARGET_OS STREQUAL "win")
-    target_link_options(test PRIVATE -static)
+    target_link_options(test PRIVATE ${CMAKE_EXE_LINKER_FLAGS} -static)
 endif()
-
-# Runner library and runtime data file
-add_library(runner STATIC ${RUNNER_SRC_FILES})
-target_compile_options(runner PRIVATE ${COMMON_COMPILE_OPTIONS}) 
-target_precompile_headers(runner PRIVATE src/common.h)
 
 # Runtime executable
 add_executable(runtime ${RUNNER_SRC_FILES})
-target_precompile_headers(runtime PRIVATE src/common.h)
-target_compile_options(runtime PRIVATE ${COMMON_COMPILE_OPTIONS})
-target_link_directories(runtime PRIVATE ${PREFIX}/lib)
+#target_precompile_headers(runtime PRIVATE src/common.h)
+#target_compile_options(runtime PRIVATE ${COMMON_COMPILE_OPTIONS})
+target_link_directories(runtime PRIVATE ${TARGET_PREFIX}/lib)
 target_link_libraries(runtime
     vm shared
     stdc++ absl_time absl_time_zone absl_int128 absl_raw_logging_internal
@@ -175,9 +178,9 @@ set_target_properties(runtime PROPERTIES
 )
 
 if(TARGET_OS STREQUAL "linux" AND LINUX_DISTRO STREQUAL "alpine")
-    target_link_options(runtime PRIVATE -static)
+    target_link_options(runtime PRIVATE ${CMAKE_EXE_LINKER_FLAGS} -static)
 elseif(TARGET_OS STREQUAL "win")
-    target_link_options(runtime PRIVATE -static)
+    target_link_options(runtime PRIVATE ${CMAKE_EXE_LINKER_FLAGS} -static)
 endif()
 
 add_custom_command(
@@ -204,10 +207,10 @@ endif()
 
 # TMBASIC executable
 add_executable(tmbasic ${TMBASIC_SRC_FILES} ${TMBASIC_RES_OBJ})
-target_compile_options(tmbasic PRIVATE ${COMMON_COMPILE_OPTIONS})
-target_precompile_headers(tmbasic PRIVATE src/common.h)
+#target_compile_options(tmbasic PRIVATE ${COMMON_COMPILE_OPTIONS})
+#target_precompile_headers(tmbasic PRIVATE src/common.h)
 add_dependencies(tmbasic runtime)
-target_link_directories(tmbasic PRIVATE ${PREFIX}/lib)
+target_link_directories(tmbasic PRIVATE ${TARGET_PREFIX}/lib)
 target_link_libraries(tmbasic
     compiler shared
     stdc++ absl_time absl_time_zone absl_int128 absl_raw_logging_internal
@@ -221,17 +224,17 @@ if(TARGET_OS STREQUAL "linux")
         target_link_directories(tmbasic PRIVATE /usr/local/${LINUX_TRIPLE}/lib)
     endif()
     if(LINUX_DISTRO STREQUAL "alpine")
-        target_link_options(tmbasic PRIVATE -static)
+        target_link_options(tmbasic PRIVATE ${CMAKE_EXE_LINKER_FLAGS} -static)
         target_link_directories(tmbasic PRIVATE /target-sysroot/usr/local/lib)
     endif()
 elseif(TARGET_OS STREQUAL "mac")
-    target_link_directories(tmbasic PRIVATE ${PREFIX}/lib)
+    target_link_directories(tmbasic PRIVATE ${TARGET_PREFIX}/lib)
     add_custom_command(
         TARGET tmbasic POST_BUILD
         COMMAND fileicon set $<TARGET_FILE:tmbasic> ${CMAKE_SOURCE_DIR}/doc/art/favicon/favicon.icns
     )
 elseif(TARGET_OS STREQUAL "win")
-    target_link_options(tmbasic PRIVATE -static)
+    target_link_options(tmbasic PRIVATE ${CMAKE_EXE_LINKER_FLAGS} -static)
     target_link_libraries(tmbasic shlwapi)
 endif()
 
@@ -245,5 +248,5 @@ endif()
 # Copy tzdb.tar to tzdb.dat in the executable directory
 add_custom_command(
     TARGET tmbasic POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${PREFIX}/share/tzdb.tar $<TARGET_FILE_DIR:tmbasic>/tzdb.dat
+    COMMAND ${CMAKE_COMMAND} -E copy ${TARGET_PREFIX}/share/tzdb.tar $<TARGET_FILE_DIR:tmbasic>/tzdb.dat
 )
