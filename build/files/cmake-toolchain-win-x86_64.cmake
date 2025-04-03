@@ -17,3 +17,4 @@ include_directories(SYSTEM /usr/${COMPILER_PREFIX}/include/libmpdec /usr/${COMPI
 # Disable array bounds warning
 set(CMAKE_CXX_FLAGS_INIT "-Wno-array-bounds")
 set(CMAKE_C_FLAGS_INIT "-Wno-array-bounds")
+find_program(CMAKE_STRIP NAMES ${COMPILER_PREFIX}-strip)

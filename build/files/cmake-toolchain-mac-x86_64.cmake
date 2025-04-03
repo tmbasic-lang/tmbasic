@@ -19,3 +19,4 @@ set(CMAKE_OSX_ARCHITECTURES "x86_64" CACHE STRING "Build architectures for macOS
 
 # skip framework checks
 set(CMAKE_FIND_FRAMEWORK NEVER) 
+set(CMAKE_STRIP strip)
