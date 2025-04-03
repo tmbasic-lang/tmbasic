@@ -1,14 +1,6 @@
 cmake_minimum_required(VERSION 3.31)
 project(tmbasic)
 
-# Diagnostics
-message(STATUS "Compiler ID: ${CMAKE_C_COMPILER_ID}")
-message(STATUS "C Compiler:  ${CMAKE_C_COMPILER}")
-message(STATUS "CXX Compiler: ${CMAKE_CXX_COMPILER}")
-message(STATUS "CMAKE_C_COMPILER_TARGET='${CMAKE_C_COMPILER_TARGET}'")
-message(STATUS "CMAKE_CXX_COMPILER_TARGET='${CMAKE_CXX_COMPILER_TARGET}'")
-message(STATUS "CMAKE_CROSSCOMPILING='${CMAKE_CROSSCOMPILING}'")
-
 # Generate compilation database for clang-tidy
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -133,28 +125,32 @@ include_directories(src)
 
 # Create static libraries
 add_library(compiler STATIC ${COMPILER_SRC_FILES})
-#target_compile_options(compiler PRIVATE ${COMMON_COMPILE_OPTIONS})
-#target_precompile_headers(compiler PRIVATE src/common.h)
+target_compile_options(compiler PRIVATE ${COMMON_COMPILE_OPTIONS})
+target_compile_definitions(compiler PRIVATE UTF8PROC_STATIC)
+target_precompile_headers(compiler PRIVATE src/common.h)
 
 add_library(shared STATIC ${SHARED_SRC_FILES})
-#target_compile_options(shared PRIVATE ${COMMON_COMPILE_OPTIONS})
-#target_precompile_headers(shared PRIVATE src/common.h)
+target_compile_options(shared PRIVATE ${COMMON_COMPILE_OPTIONS})
+target_compile_definitions(shared PRIVATE UTF8PROC_STATIC)
+target_precompile_headers(shared PRIVATE src/common.h)
 
 add_library(vm STATIC ${VM_SRC_FILES})
-#target_compile_options(vm PRIVATE ${COMMON_COMPILE_OPTIONS})
-#target_precompile_headers(vm PRIVATE src/common.h)
+target_compile_options(vm PRIVATE ${COMMON_COMPILE_OPTIONS})
+target_compile_definitions(vm PRIVATE UTF8PROC_STATIC)
+target_precompile_headers(vm PRIVATE src/common.h)
 
 # Test executable
 add_executable(test ${TEST_SRC_FILES})
-#target_compile_options(test PRIVATE ${COMMON_COMPILE_OPTIONS})
-#target_precompile_headers(test PRIVATE src/common.h)
+target_compile_options(test PRIVATE ${COMMON_COMPILE_OPTIONS})
+target_compile_definitions(test PRIVATE UTF8PROC_STATIC)
+target_precompile_headers(test PRIVATE src/common.h)
 target_link_directories(test PRIVATE ${TARGET_PREFIX}/lib)
 target_link_libraries(test
     compiler shared vm
     stdc++ absl_time absl_time_zone absl_int128 absl_raw_logging_internal
     microtar mpdec mpdec++ utf8proc
     turbo-core fmt tvision ${NCURSES_LIB}
-    zip z gtest gtest_main pthread
+    zip z gtest gtest_main pthread  
 )
 if(TARGET_OS STREQUAL "linux" AND LINUX_DISTRO STREQUAL "alpine")
     target_link_options(test PRIVATE ${CMAKE_EXE_LINKER_FLAGS} -static)
@@ -164,8 +160,9 @@ endif()
 
 # Runtime executable
 add_executable(runtime ${RUNNER_SRC_FILES})
-#target_precompile_headers(runtime PRIVATE src/common.h)
-#target_compile_options(runtime PRIVATE ${COMMON_COMPILE_OPTIONS})
+# The runner is a single .cpp file, it's faster NOT to use a precompiled header.
+target_compile_options(runtime PRIVATE ${COMMON_COMPILE_OPTIONS})
+target_compile_definitions(runtime PRIVATE UTF8PROC_STATIC)
 target_link_directories(runtime PRIVATE ${TARGET_PREFIX}/lib)
 target_link_libraries(runtime
     vm shared
@@ -193,22 +190,24 @@ add_custom_command(
 if(TARGET_OS STREQUAL "win")
     find_program(WINDRES ${ARCH}-w64-mingw32-windres)
     add_custom_command(
-        OUTPUT ${CMAKE_BINARY_DIR}/tmbasic/AppWin.res.o
-        COMMAND ${WINDRES} ${CMAKE_SOURCE_DIR}/src/tmbasic/AppWin.rc -o ${CMAKE_BINARY_DIR}/tmbasic/AppWin.res.o
+        OUTPUT ${CMAKE_BINARY_DIR}/AppWin.res.o
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        COMMAND ${WINDRES} ${CMAKE_SOURCE_DIR}/src/tmbasic/AppWin.rc -o ${CMAKE_BINARY_DIR}/AppWin.res.o
         DEPENDS 
             ${CMAKE_SOURCE_DIR}/src/tmbasic/AppWin.rc 
             ${CMAKE_SOURCE_DIR}/doc/art/favicon/favicon.ico
         COMMENT "Compiling Windows resources"
     )
-    set(TMBASIC_RES_OBJ ${CMAKE_BINARY_DIR}/tmbasic/AppWin.res.o)
+    set(TMBASIC_RES_OBJ ${CMAKE_BINARY_DIR}/AppWin.res.o)
 else()
     set(TMBASIC_RES_OBJ "")
 endif()
 
 # TMBASIC executable
 add_executable(tmbasic ${TMBASIC_SRC_FILES} ${TMBASIC_RES_OBJ})
-#target_compile_options(tmbasic PRIVATE ${COMMON_COMPILE_OPTIONS})
-#target_precompile_headers(tmbasic PRIVATE src/common.h)
+target_compile_options(tmbasic PRIVATE ${COMMON_COMPILE_OPTIONS})
+target_compile_definitions(tmbasic PRIVATE UTF8PROC_STATIC)
+target_precompile_headers(tmbasic PRIVATE src/common.h)
 add_dependencies(tmbasic runtime)
 target_link_directories(tmbasic PRIVATE ${TARGET_PREFIX}/lib)
 target_link_libraries(tmbasic
@@ -236,6 +235,8 @@ elseif(TARGET_OS STREQUAL "mac")
 elseif(TARGET_OS STREQUAL "win")
     target_link_options(tmbasic PRIVATE ${CMAKE_EXE_LINKER_FLAGS} -static)
     target_link_libraries(tmbasic shlwapi)
+    target_link_libraries(test shlwapi)
+    target_link_libraries(runtime shlwapi)
 endif()
 
 if(STRIP_TMBASIC)

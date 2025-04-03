@@ -7,6 +7,7 @@ set -euxo pipefail
 cd "$( dirname "${BASH_SOURCE[0]}" )"
 cd ..
 
+# Avoid bash error about uninitialized variables when building for non-Linux.
 if [[ "$TARGET_OS" != "linux" ]]; then
     LINUX_DISTRO=""
     LINUX_TRIPLE=""
@@ -23,7 +24,7 @@ fi
 
 cmake \
     "-DCMAKE_TOOLCHAIN_FILE=../build/files/cmake-toolchain-${TARGET_OS}-${ARCH}${TOOLCHAIN_SUFFIX}.cmake" \
-    -DCMAKE_VERBOSE_MAKEFILE=ON \
+    -DCMAKE_VERBOSE_MAKEFILE=OFF \
     -DTARGET_OS=$TARGET_OS \
     -DLINUX_DISTRO=$LINUX_DISTRO \
     -DLINUX_TRIPLE=$LINUX_TRIPLE \
