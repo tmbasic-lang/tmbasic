@@ -46,10 +46,10 @@ jobs:
 
           # If this is linux-x64, then upload the tzdb.tar file.
           if [[ "${{ matrix.platform }}" == linux-x64 ]]; then
-            # Build license.dat
-            scripts/make-license.sh
-            # Build help.dat
-            scripts/make-help.sh
+            pushd build
+            ./${{ matrix.platform }}.sh -c scripts/make-license.sh
+            ./${{ matrix.platform }}.sh -c scripts/make-help.sh
+            popd
           fi
 
       - name: Upload intermediate zip
