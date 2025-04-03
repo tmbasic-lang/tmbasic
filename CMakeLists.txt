@@ -170,9 +170,6 @@ target_link_libraries(runtime
     microtar mpdec mpdec++ utf8proc
     turbo-core fmt tvision ${NCURSES_LIB}
 )
-set_target_properties(runtime PROPERTIES 
-    OUTPUT_NAME "runtime_${TARGET_OS}_${SHORT_ARCH}.dat"
-)
 
 if(TARGET_OS STREQUAL "linux" AND LINUX_DISTRO STREQUAL "alpine")
     target_link_options(runtime PRIVATE ${CMAKE_EXE_LINKER_FLAGS} -static)
@@ -250,4 +247,11 @@ endif()
 add_custom_command(
     TARGET tmbasic POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy ${TARGET_PREFIX}/share/tzdb.tar $<TARGET_FILE_DIR:tmbasic>/tzdb.dat
+)
+
+# Rename the runtime. Don't try to simply set this as the target's output name because on Windows it'll end up with an
+# extra .exe extension.
+add_custom_command(
+    TARGET runtime POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E rename $<TARGET_FILE:runtime> ${CMAKE_BINARY_DIR}/bin/runtime_${TARGET_OS}_${SHORT_ARCH}.dat
 )

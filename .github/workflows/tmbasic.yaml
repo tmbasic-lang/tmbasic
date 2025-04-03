@@ -158,6 +158,14 @@ jobs:
           # Diagnostics: log all the files we've got
           ls -lR runtime_files
 
+          # Explicitly verify the existence of the expected files:
+          for file in help.dat license.dat tzdb.dat runtime_linux_arm32.dat runtime_linux_arm64.dat runtime_linux_x64.dat runtime_linux_x86.dat runtime_win_x64.dat runtime_win_x86.dat runtime_mac_arm64.dat runtime_mac_x64.dat; do
+            if [[ ! -f runtime_files/$file ]]; then
+              echo "File $file not found"
+              exit 1
+            fi
+          done
+
           # Create platform-specific distributions
           for platform in linux-arm64 linux-arm32 linux-x64 linux-x86 win-x64 win-x86 mac-arm64 mac-x64; do
             echo "Creating distribution for $platform"
