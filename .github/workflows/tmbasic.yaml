@@ -147,16 +147,16 @@ jobs:
           for platform_dir in downloads/intermediate-*; do
             platform=$(basename "$platform_dir" | sed 's/intermediate-//')
             mkdir -p "extracted/$platform"
-            unzip -o "$platform_dir"/*.zip -d "extracted/$platform"
+            ditto -x -k "$platform_dir"/*.zip "extracted/$platform"
           done
-
-          # Extract data files
-          unzip -o downloads/data-files.zip -d extracted/
 
           # Collect all runtime dat files in one place
           mkdir -p runtime_files
           find extracted -name "runtime*.dat" -exec cp {} runtime_files/ \;
-          cp -f extracted/data-files/* runtime_files/
+          cp -f downloads/data-files/* runtime_files/
+
+          # Diagnostics: log all the files we've got
+          ls -lR runtime_files
 
           # Create platform-specific distributions
           for platform in linux-arm64 linux-arm32 linux-x64 linux-x86 win-x64 win-x86 mac-arm64 mac-x64; do
