@@ -25,10 +25,7 @@ $global:RepositoryRoot = $null # /
 $global:DownloadsDir = $null # /build/downloads/
 $global:FilesDir = $null # /build/files/
 $global:PackageVersions = @{}
-$global:VerboseLogFile = $null
 $global:Msbuild = $null # Path to msbuild.exe
-$global:Cl = $null # Path to cl.exe
-$global:Lib = $null # Path to lib.exe
 
 function Main
 {
@@ -65,12 +62,9 @@ function Main
     Initialize-PackageVersions
 
     $env:PATH = (Join-Path $global:NativePrefix "bin") + ";" + $env:PATH
-    $global:VerboseLogFile = Join-Path $global:TargetPrefix "tmp\verbose.log"
-    [System.IO.File]::WriteAllText($global:VerboseLogFile, "")
 
     Install-SevenZip
     Install-Cmake
-    Install-Boost
     Install-GoogleTest
     Install-Fmt
     Install-Immer
@@ -105,8 +99,28 @@ function Install-Cmake
     }
 
     $url = "https://github.com/Kitware/CMake/releases/download/v$version/cmake-$version-windows-$nativePlatform.zip"
-    $filePath = Get-DownloadedFile -Url $url -Filename "cmake-$version-windows-$nativePlatform.zip"
-    Expand-ArchiveIgnoringTopLevelDirectory -Path $filePath -DestinationPath $global:NativePrefix
+    $zipFilename = "cmake-$version-windows-$nativePlatform.zip"
+    $filePath = Get-DownloadedFile -Url $url -Filename $zipFilename
+
+    # Extract to a temporary directory
+    Write-Host "Expanding $zipFilename."
+    $tempDir = New-TemporaryDirectory
+    Expand-Archive -Path $filePath -DestinationPath $tempDir
+
+    # This has created a single folder called "cmake-*". Figure out what it is.
+    $cmakeDir = Get-ChildItem -Path $tempDir -Recurse -Include "cmake-*" | Select-Object -First 1
+    if ([string]::IsNullOrEmpty($cmakeDir))
+    {
+        throw "Failed to find cmake directory"
+    }
+
+    # Copy the contents of the cmake directory to the native prefix
+    Write-Host "Copying cmake files to $global:NativePrefix."
+    Copy-Item -Path (Join-Path $cmakeDir "*") -Destination $global:NativePrefix -Recurse -Force
+
+    # Delete the temporary directory
+    Write-Host "Deleting directory $tempDir."
+    Remove-Item -Recurse -Force -Path $tempDir
 
     Set-InstalledPackage -Name "cmake" -Version $version
 }
@@ -257,23 +271,6 @@ function Install-Immer
     Set-InstalledPackage -Name "immer" -Version $version
 }
 
-function Install-Boost
-{
-    $version = $global:PackageVersions["BOOST"]
-
-    if ((Get-InstalledPackageVersion -Name "boost") -eq $version)
-    {
-        return
-    }
-
-    $url = "https://archives.boost.io/release/$version/source/boost_" + $version.Replace(".", "_") + ".zip"
-    $filePath = Get-DownloadedFile -Url $url -Filename "boost_$version.zip"
-    Expand-ArchiveRenamingTopLevelDirectory -Path $filePath -DestinationPath (Join-Path $global:NativePrefix "include") -NewName "boost"
-    Expand-ArchiveRenamingTopLevelDirectory -Path $filePath -DestinationPath (Join-Path $global:TargetPrefix "include") -NewName "boost"
-
-    Set-InstalledPackage -Name "boost" -Version $version
-}
-
 function Install-Mpdecimal
 {
     $version = $global:PackageVersions["MPDECIMAL"]
@@ -350,38 +347,6 @@ function Install-Tvision
 
     Set-InstalledPackage -Name "tvision" -Version $version
 
-    $buildNativeDir = Join-Path $srcDir "build-native"
-    New-Directory $buildNativeDir | Out-Null
-    Push-Location $buildNativeDir
-    try
-    {
-        & cmake `
-            -G "Visual Studio 17 2022" `
-			"-DCMAKE_PREFIX_PATH=$global:NativePrefix" `
-			"-DCMAKE_INSTALL_PREFIX=$global:NativePrefix" `
-            ..
-        if ($LASTEXITCODE -ne 0)
-        {
-            throw "Failed to configure tvision (native)"
-        }
-
-        & cmake --build . --config Release
-        if ($LASTEXITCODE -ne 0)
-        {
-            throw "Failed to build tvision (native)"
-        }
-
-        & cmake --install . --config Release
-        if ($LASTEXITCODE -ne 0)
-        {
-            throw "Failed to install tvision (native)"
-        }
-    }
-    finally
-    {
-        Pop-Location
-    }
-
     $buildTargetDir = Join-Path $srcDir "build"
     New-Directory $buildTargetDir | Out-Null
     Push-Location $buildTargetDir
@@ -395,19 +360,19 @@ function Install-Tvision
             ..
         if ($LASTEXITCODE -ne 0)
         {
-            throw "Failed to configure tvision (target)"
+            throw "Failed to configure tvision"
         }
 
         & cmake --build . --config Release
         if ($LASTEXITCODE -ne 0)
         {
-            throw "Failed to build tvision (target)"
+            throw "Failed to build tvision"
         }
 
         & cmake --install . --config Release
         if ($LASTEXITCODE -ne 0)
         {
-            throw "Failed to install tvision (target)"
+            throw "Failed to install tvision"
         }
     }
     finally

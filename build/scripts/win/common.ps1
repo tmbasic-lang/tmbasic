@@ -76,98 +76,6 @@ function New-TemporaryDirectory
     return $dir
 }
 
-function Expand-ArchiveIgnoringTopLevelDirectory
-{
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        $Path,
-
-        [Parameter(Mandatory = $true)]
-        $DestinationPath
-    )
-
-    # Ensure destination path exists
-    if (-not (Test-Path $DestinationPath))
-    {
-        New-Item -ItemType Directory -Path $DestinationPath | Out-Null
-    }
-    
-    # Get full paths
-    $zipPath = (Resolve-Path $Path).Path
-    $zipFilename = [System.IO.Path]::GetFileName($zipPath)
-    $destPath = (Resolve-Path $DestinationPath).Path
-    
-    Write-Host "Expanding $zipFilename."
-    
-    # Open the zip file
-    $zip = [System.IO.Compression.ZipFile]::OpenRead($zipPath)
-    try 
-    {
-        # Get all entries
-        $entries = $zip.Entries
-        
-        if ($entries.Count -eq 0) {
-            throw "Zip file is empty"
-        }
-        
-        # Get the top level directory from the first entry
-        $firstEntryPath = $entries[0].FullName
-        $topLevelDir = $firstEntryPath.Split('/')[0] + '/'
-
-        # Extract entries, skipping the top level directory
-        foreach ($entry in $entries)
-        {
-            # Verify this entry is in the same top level directory
-            if (-not $entry.FullName.StartsWith($topLevelDir))
-            {
-                throw "Zip contains multiple top-level directories. Found: $($entry.FullName) which doesn't start with $topLevelDir"
-            }
-            
-            # Get the relative path by removing the top level directory
-            $relativePath = $entry.FullName.Substring($topLevelDir.Length)
-            if ([string]::IsNullOrEmpty($relativePath))
-            {
-                # It's the top-level directory itself.
-                continue
-            }
-            
-            # Create the target path
-            $targetPath = Join-Path $destPath $relativePath
-
-            # If it ends in / then it's a directory.
-            if ($entry.FullName.EndsWith('/'))
-            {
-                [System.IO.Directory]::CreateDirectory($targetPath) | Out-Null
-                continue
-            }
-
-            # Ensure the target directory exists
-            $targetDir = [System.IO.Path]::GetDirectoryName($targetPath)
-            [System.IO.Directory]::CreateDirectory($targetDir) | Out-Null
-
-            # Extract the file directly to the destination
-            $entryStream = $entry.Open()
-            $fileStream = [System.IO.File]::Create($targetPath)
-            
-            try
-            {
-                $entryStream.CopyTo($fileStream)
-            }
-            finally
-            {
-                $fileStream.Close()
-                $entryStream.Close()
-            }
-        }
-    }
-    finally
-    {
-        # Clean up
-        $zip.Dispose()
-    }
-}
-
 function Expand-ArchiveRenamingTopLevelDirectory
 {
     param
@@ -188,7 +96,7 @@ function Expand-ArchiveRenamingTopLevelDirectory
     # Stupid way to detect the top-level directory: read all the directories before and after, and find the new one.
     $dirsBefore = [System.IO.Directory]::GetDirectories($DestinationPath)
     
-    & 7za x -y "-o$DestinationPath" $Path | Out-File -FilePath $global:VerboseLogFile -Encoding UTF8 -Append
+    & 7za x -y "-o$DestinationPath" $Path
     if ($LASTEXITCODE -ne 0)
     {
         throw "Failed to extract $Path"
@@ -242,7 +150,7 @@ function Expand-Tarball
     try
     {
         # Step 1: Extract the .tar.gz to get a .tar file
-        & 7za e -y "-o$tempDir" $tarballPath | Out-File -FilePath $global:VerboseLogFile -Encoding UTF8 -Append
+        & 7za e -y "-o$tempDir" $tarballPath
         if ($LASTEXITCODE -ne 0)
         {
             throw "Failed to extract $tarballPath"
@@ -256,7 +164,7 @@ function Expand-Tarball
         }
         
         # Step 2: Extract the .tar file to the destination
-        & 7za x -y "-o$destPath" $tarFile.FullName | Out-File -FilePath $global:VerboseLogFile -Encoding UTF8 -Append
+        & 7za x -y "-o$destPath" $tarFile.FullName
         if ($LASTEXITCODE -ne 0)
         {
             throw "Failed to extract $tarballPath"
