@@ -30,7 +30,7 @@ TEST(DateTest, DateTimeOffsetPartsRoundTrip) {
 }
 
 TEST(DateTest, TestZoneLookup) {
-    vm::initializeTzdb();
+    vm::initializeTzdbFromFile();
 
     // We support this special time zone so we can recognize when we're using our own static data instead of the system
     // zoneinfo data.

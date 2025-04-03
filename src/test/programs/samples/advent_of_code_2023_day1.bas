@@ -32,7 +32,7 @@ function Part2(lineChs as List of String) as Number
 end function
 
 sub Main()
-    dim lines = ReadFileLines("../src/test/files/advent_of_code_2023_day1_input.txt")
+    dim lines = ReadFileLines("../../src/test/files/advent_of_code_2023_day1_input.txt")
     dim sum1 = 0
     dim sum2 = 0
     for each line in lines

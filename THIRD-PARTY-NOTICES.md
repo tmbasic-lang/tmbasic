@@ -14,7 +14,6 @@ Component | License
 [fmt](https://github.com/fmtlib/fmt) | [MIT](https://github.com/tmbasic-lang/tmbasic/blob/master/doc/licenses/fmt/LICENSE.rst)
 [immer](https://github.com/arximboldi/immer) | [BSL-1.0](https://github.com/tmbasic-lang/tmbasic/blob/master/doc/licenses/immer/LICENSE)
 [libstdc++](https://gcc.gnu.org/onlinedocs/libstdc++/) | [GPL-3.0-only](https://github.com/tmbasic-lang/tmbasic/blob/master/doc/licenses/gcc/GPL-3) WITH [GCC-exception-3.1](https://github.com/tmbasic-lang/tmbasic/blob/master/doc/licenses/gcc/copyright)
-[libunistring](https://www.gnu.org/software/libunistring/manual/libunistring.html) | [LGPL-3.0-only](https://github.com/tmbasic-lang/tmbasic/blob/master/doc/licenses/libunistring/COPYING.LIB)
 [microtar](https://github.com/rxi/microtar) | [MIT](https://github.com/tmbasic-lang/tmbasic/blob/master/doc/licenses/microtar/LICENSE)
 [mpdecimal](https://www.bytereef.org/mpdecimal/) | [BSD-2-Clause](https://github.com/tmbasic-lang/tmbasic/blob/master/doc/licenses/mpdecimal/LICENSE.txt)
 [musl](https://musl.libc.org/) | [MIT](https://github.com/tmbasic-lang/tmbasic/blob/master/doc/licenses/musl/COPYRIGHT)
@@ -23,6 +22,7 @@ Component | License
 [scintilla](https://www.scintilla.org/) | [HPND](https://github.com/tmbasic-lang/tmbasic/blob/master/doc/licenses/scintilla/License.txt)
 [turbo](https://github.com/magiblot/turbo) | [MIT](https://github.com/tmbasic-lang/tmbasic/blob/master/doc/licenses/turbo/COPYRIGHT)
 [tvision](https://github.com/magiblot/tvision) | [Borland, MIT](https://github.com/tmbasic-lang/tmbasic/blob/master/doc/licenses/tvision/COPYRIGHT)
+[utf8proc](https://github.com/JuliaStrings/utf8proc) | [MIT](https://github.com/tmbasic-lang/tmbasic/blob/master/doc/licenses/utf8proc/LICENSE.md)
 
 ## Libraries included only in TMBASIC
 

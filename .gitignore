@@ -7,7 +7,9 @@
 /build/files/sysroot-*
 /build/sysroots/sysroot-*
 /callgrind*
+/cmake
 /dist/
+/help-temp/
 /mac-arm64/
 /mac-x64/
 /win-arm64/

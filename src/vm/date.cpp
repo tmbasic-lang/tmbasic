@@ -1,6 +1,7 @@
 #include "date.h"
 #include "shared/decimal.h"
 #include "shared/tar.h"
+#include "shared/process.h"
 #include "vm/RecordBuilder.h"
 
 // We depend on an internal implementation detail of Abseil in order to statically link our own zoneinfo data.
@@ -62,20 +63,31 @@ std::unique_ptr<ZoneInfoSource> customZoneInfoSourceFactory(
     return std::make_unique<StaticZoneInfoSource>(it->second);
 }
 
-// This is tzdb.tar, the contents of /usr/share/zoneinfo.
-extern const char kResourceTzdb[];  // NOLINT(modernize-avoid-c-arrays)
-extern const uint kResourceTzdb_len;
-
 static void addStaticZoneInfoFile(const std::string& name, std::vector<char> data) {
     zoneInfoFiles.emplace(name, std::move(data));
 }
 
 namespace vm {
 
-void initializeTzdb() {
+void initializeTzdbFromFile() {
+    if (!_isTzdbInitialized) {
+        // tzdb.dat is a tar file that contains the /usr/share/zoneinfo/ contents.
+        auto tarFilePath = shared::getExecutableDirectoryPath() + "/tzdb.dat";
+
+        // Read the contents of the file.
+        std::ifstream tarFile(tarFilePath, std::ios::binary);
+        std::vector<char> data(std::istreambuf_iterator<char>(tarFile), {});
+
+        absl::time_internal::cctz_extension::zone_info_source_factory = customZoneInfoSourceFactory;
+        shared::untar(data.data(), data.size(), addStaticZoneInfoFile);
+        _isTzdbInitialized = true;
+    }
+}
+
+void initializeTzdbFromBuffer(const std::vector<char>& buffer) {
     if (!_isTzdbInitialized) {
         absl::time_internal::cctz_extension::zone_info_source_factory = customZoneInfoSourceFactory;
-        shared::untar(kResourceTzdb, static_cast<size_t>(kResourceTzdb_len), addStaticZoneInfoFile);
+        shared::untar(buffer.data(), buffer.size(), addStaticZoneInfoFile);
         _isTzdbInitialized = true;
     }
 }

@@ -54,10 +54,9 @@
 #include <tvision/help.h>
 
 // boost
-#include <boost/algorithm/string.hpp>
-#include <boost/smart_ptr/local_shared_ptr.hpp>
-#include <boost/smart_ptr/make_local_shared.hpp>
-#include <boost/intrusive_ptr.hpp>
+#include "boost/smart_ptr/local_shared_ptr.hpp"
+#include "boost/smart_ptr/make_local_shared.hpp"
+#include "boost/smart_ptr/intrusive_ptr.hpp"
 
 // immer
 #define IMMER_NO_THREAD_SAFETY 1  // NOLINT

@@ -11,7 +11,7 @@ using compiler::TokenKind;
 TEST(ScannerTest, IntegerLiteral) {
     auto tokens = tokenize("123", TokenizeType::kFormat, nullptr);
     ASSERT_EQ(TokenKind::kNumberLiteral, tokens[0].type);
-    ASSERT_EQ(1, tokens.size());
+    ASSERT_EQ(1UL, tokens.size());
 }
 
 TEST(ScannerTest, MinusVsNegative) {
@@ -53,7 +53,7 @@ TEST(ScannerTest, MinusVsNegative) {
     ASSERT_EQ(13, tokens[i].columnIndex);
     ASSERT_EQ(TokenKind::kNumberLiteral, tokens[i++].type);
 
-    ASSERT_EQ(i, tokens.size());
+    ASSERT_EQ(static_cast<unsigned long>(i), tokens.size());
 }
 
 TEST(ScannerTest, ForLoop) {
@@ -129,5 +129,5 @@ TEST(ScannerTest, ForLoop) {
     ASSERT_EQ(0, tokens[i].columnIndex);
     ASSERT_EQ(TokenKind::kNext, tokens[i++].type);
 
-    ASSERT_EQ(i, tokens.size());
+    ASSERT_EQ(static_cast<unsigned long>(i), tokens.size());
 }

@@ -1,5 +1,6 @@
 #include "bindProcedureSymbols.h"
 #include "CompilerException.h"
+#include "shared/strings.h"
 
 namespace compiler {
 
@@ -37,7 +38,7 @@ AddSymbolResult SymbolScope::addSymbol(Node* symbolDeclaration, SymbolType symbo
         return AddSymbolResult::kNoSymbolDeclaration;
     }
 
-    auto lowercaseName = boost::to_lower_copy(*optionalName);
+    auto lowercaseName = shared::to_lower_copy(*optionalName);
     const auto* existingSymbolDeclaration = lookup(lowercaseName, symbolType);
     if (existingSymbolDeclaration != nullptr) {
         return AddSymbolResult::kDuplicateName;
@@ -63,7 +64,7 @@ static void bindExpressionSymbols(ExpressionNode* node, SymbolScope* scope) {
     assert(node != nullptr);
     if (node->isSymbolReference()) {
         auto* symbolRef = dynamic_cast<SymbolReferenceExpressionNode*>(node);
-        auto lowercaseName = boost::to_lower_copy(symbolRef->name);
+        auto lowercaseName = shared::to_lower_copy(symbolRef->name);
         const auto* symbolDeclaration = scope->lookup(lowercaseName, SymbolType::kVariable);
         if (symbolDeclaration != nullptr) {
             symbolRef->boundSymbolDeclaration = symbolDeclaration;

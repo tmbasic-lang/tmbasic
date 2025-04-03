@@ -61,7 +61,8 @@ class DateTimeOffsetParts : public DateTimeParts {
 };
 
 // Initialization of zoneinfo data at startup.
-void initializeTzdb();
+void initializeTzdbFromFile();
+void initializeTzdbFromBuffer(const std::vector<char>& buffer);
 
 // String formatting
 boost::intrusive_ptr<String> dateToString(const Value& date);

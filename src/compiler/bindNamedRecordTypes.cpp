@@ -1,6 +1,7 @@
 #include "bindNamedRecordTypes.h"
 #include "CompilerException.h"
 #include "BuiltInRecordTypesList.h"
+#include "shared/strings.h"
 
 namespace compiler {
 
@@ -37,7 +38,7 @@ class NamedRecordTypeBinder {
         }
 
         if (typeNode->recordName.has_value()) {
-            auto recordNameLowercase = boost::to_lower_copy(*typeNode->recordName);
+            auto recordNameLowercase = shared::to_lower_copy(*typeNode->recordName);
 
             if (findBuiltInRecordType(recordNameLowercase, &typeNode->fields)) {
                 return;

@@ -6,6 +6,7 @@
 #include "shared/decimal.h"
 #include "shared/Opcode.h"
 #include "shared/SystemCalls.h"
+#include "shared/strings.h"
 
 using shared::Opcode;
 using shared::SystemCall;
@@ -2495,7 +2496,7 @@ vector<uint8_t> emit(
     }
     state.initLocals(static_cast<uint16_t>(numLocalValues), static_cast<uint16_t>(numLocalObjects));
 
-    if (boost::to_lower_copy(procedureNode.name) == "main") {
+    if (shared::to_lower_copy(procedureNode.name) == "main") {
         // We have to initialize any global objects that don't have initializers.
         for (const auto& globalVariable : compiledProgram->globalVariables) {
             auto* type = globalVariable->dimOrConstStatementNode->evaluatedType.get();

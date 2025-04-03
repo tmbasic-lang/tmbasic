@@ -108,29 +108,16 @@ function checkTzdb {
     echo "${varname}_VERSION=$version"
 }
 
-function checkBoost {
-    local varname=$1
-    local url=$2
-    local version=$(curl -L --compressed --silent $url \
-        | grep -o '<a href="[0-9]\+\.[0-9]\+\.[0-9]\+/">' \
-        | sed 's/<a href="//; s/\/".*//' \
-        | sort -V \
-        | tail -n 1)
-    echo "${varname}_VERSION=$version"
-}
-
 echo
 echo '# depsDownload.sh'
 
 checkGitHubCommit "ABSEIL" "https://github.com/abseil/abseil-cpp/commits.atom"
 checkGnu "binutils-" "BINUTILS" "https://ftp.gnu.org/gnu/binutils/"
-checkBoost "BOOST" "https://archives.boost.io/release/"
 checkGitHubRelease "CLI11" "https://github.com/CLIUtils/CLI11/releases.atom"
 checkGitHubRelease "CMAKE" "https://github.com/Kitware/CMake/releases.atom"
 checkGitHubRelease "FMT" "https://github.com/fmtlib/fmt/releases.atom"
 checkGitHubRelease "GOOGLETEST" "https://github.com/google/googletest/releases.atom"
 checkGitHubRelease "IMMER" "https://github.com/arximboldi/immer/releases.atom"
-checkGnu "libunistring-" "LIBUNISTRING" "https://ftp.gnu.org/gnu/libunistring/"
 checkGitHubRelease "LIBZIP" "https://github.com/nih-at/libzip/releases.atom"
 checkGitHubCommit "MICROTAR" "https://github.com/rxi/microtar/commits.atom"
 checkMpdecimal "MPDECIMAL" "https://www.bytereef.org/mpdecimal/download.html"
@@ -139,6 +126,7 @@ checkNcurses "NCURSES" "https://invisible-mirror.net/ncurses/announce.html"
 checkGitHubCommit "TURBO" "https://github.com/magiblot/turbo/commits.atom"
 checkGitHubCommit "TVISION" "https://github.com/magiblot/tvision/commits.atom"
 checkTzdb "TZDB" "https://www.iana.org/time-zones"
+checkGitHubRelease "UTF8PROC" "https://github.com/JuliaStrings/utf8proc/releases.atom"
 checkZlib "ZLIB" "https://zlib.net/"
 
 echo

@@ -1,5 +1,6 @@
 #include "fixDottedExpressionFunctionCalls.h"
 #include "CompilerException.h"
+#include "shared/strings.h"
 
 namespace compiler {
 
@@ -53,7 +54,7 @@ class DottedExpressionFunctionCallFixer {
         // is there a function with this name?
         // MARKER: This function concerns procedure lookups. Search for this line to find others.
         auto& symbolReference = dynamic_cast<SymbolReferenceExpressionNode&>(*dotted->base);
-        auto lowercaseProcedureName = boost::to_lower_copy(symbolReference.name);
+        auto lowercaseProcedureName = shared::to_lower_copy(symbolReference.name);
         auto functionExists = false;
         for (const auto& compiledProcedure : _compiledProgram.procedures) {
             if (compiledProcedure->nameLowercase == lowercaseProcedureName) {

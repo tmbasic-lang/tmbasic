@@ -1,5 +1,4 @@
 #include "ProgramWindow.h"
-#include "../../obj/resources/help/helpfile.h"
 #include "compiler/compileProgram.h"
 #include "compiler/CompilerException.h"
 #include "compiler/Publisher.h"
@@ -17,6 +16,7 @@
 #include "tmbasic/constants.h"
 #include "tmbasic/DesignerWindow.h"
 #include "tmbasic/events.h"
+#include "tmbasic/helpfile.h"
 #include "tmbasic/GridLayout.h"
 #include "tmbasic/PictureWindow.h"
 #include "vm/Interpreter.h"

@@ -70,7 +70,7 @@ function Part2(gameNumber as Number, rounds as List of Round) as Number
 end function
 
 sub Main()
-    dim lines = ReadFileLines("../src/test/files/advent_of_code_2023_day2_input.txt")
+    dim lines = ReadFileLines("../../src/test/files/advent_of_code_2023_day2_input.txt")
     dim sum1 = 0
     dim sum2 = 0
     for each line in lines

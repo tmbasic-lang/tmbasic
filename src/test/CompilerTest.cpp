@@ -4,6 +4,7 @@
 #include "compiler/compileProgram.h"
 #include "gtest/gtest.h"
 #include "helpers.h"
+#include "shared/strings.h"
 #include "vm/Interpreter.h"
 #include "vm/Procedure.h"
 #include "vm/Program.h"
@@ -121,7 +122,7 @@ static std::vector<std::vector<std::string>> parseCases(const std::string& input
 }
 
 static void runCode(const string& basFile) {
-    vm::initializeTzdb();
+    vm::initializeTzdbFromFile();
 
     std::vector<size_t> sectionStarts{};
 
@@ -179,8 +180,8 @@ static void runCode(const string& basFile) {
             auto substitutedOutput = expectedOutput;
             for (size_t i = 0; i < p.size(); i++) {
                 auto placeholder = fmt::format("${}", i);
-                boost::replace_all(substitutedSource, placeholder, p.at(i));
-                boost::replace_all(substitutedOutput, placeholder, p.at(i));
+                shared::replace_all(&substitutedSource, placeholder, p.at(i));
+                shared::replace_all(&substitutedOutput, placeholder, p.at(i));
             }
             runCodeCore(input, substitutedSource, substitutedOutput, fmt::format("↑ Case {} ↑", p.at(0)));
         }
@@ -195,8 +196,8 @@ static void run(string dir, string filenameWithoutExtension) {
 TEST(CompilerTest, CrLfLineEndings) {
     // Don't assume any particular line ending in crlf.bas, although it should be LFs.
     auto code = readFile("strings/crlf.bas");
-    auto codeLf = boost::replace_all_copy(code, "\r\n", "\n");
-    auto codeCrLf = boost::replace_all_copy(codeLf, "\n", "\r\n");
+    auto codeLf = shared::replace_all_copy(code, "\r\n", "\n");
+    auto codeCrLf = shared::replace_all_copy(codeLf, "\n", "\r\n");
 
     // Just need to see that it compiles successfully.
     compiler::SourceProgram sourceProgram{};

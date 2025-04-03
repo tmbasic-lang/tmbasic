@@ -1,5 +1,6 @@
 #include "BuiltInProcedureList.h"
 #include "BuiltInRecordTypesList.h"
+#include "shared/strings.h"
 
 using shared::SystemCall;
 
@@ -7,7 +8,7 @@ namespace compiler {
 
 static boost::local_shared_ptr<TypeNode> getBuiltInRecordType(const std::string& name) {
     auto typeNode = boost::make_local_shared<TypeNode>(Kind::kRecord, Token{}, name);
-    auto lowercaseName = boost::to_lower_copy(name);
+    auto lowercaseName = shared::to_lower_copy(name);
     auto found = findBuiltInRecordType(lowercaseName, &typeNode->fields);
     if (!found) {
         throw std::runtime_error(fmt::format("Internal error. Built-in record type \"{}\" not found.", name));
@@ -221,7 +222,7 @@ BuiltInProcedureList::BuiltInProcedureList() {
 }
 
 const std::vector<std::unique_ptr<ProcedureNode>>& BuiltInProcedureList::get(const std::string& name) const {
-    auto lowercaseName = boost::to_lower_copy(name);
+    auto lowercaseName = shared::to_lower_copy(name);
     auto result = map.find(lowercaseName);
     return result == map.end() ? _empty : *result->second;
 }
@@ -244,7 +245,7 @@ ProcedureNode* BuiltInProcedureList::addSub(
     std::initializer_list<std::string> parameterNames,
     std::initializer_list<boost::local_shared_ptr<TypeNode>> parameterTypes,
     SystemCall systemCall) {
-    auto lowercaseName = boost::to_lower_copy(name);
+    auto lowercaseName = shared::to_lower_copy(name);
     assert(parameterNames.size() == parameterTypes.size());
     std::vector<std::unique_ptr<ParameterNode>> parameterNodes{};
     const auto* parameterNameIter = parameterNames.begin();

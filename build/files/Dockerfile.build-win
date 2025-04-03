@@ -44,7 +44,6 @@ RUN apt-get remove --purge -y \
 # extra utilities
 RUN apt-get install -y \
         unzip \
-        xxd \
         diffutils \
         dos2unix \
         build-essential \
@@ -79,7 +78,6 @@ RUN echo "export ARCH=\"$ARCH\"" >> /etc/profile.d/tmbasic.sh && \
     echo "export MAKEFLAGS=\"-j$(nproc)\"" >> /etc/profile.d/tmbasic.sh && \
     echo "export TARGET_OS=win" >> /etc/profile.d/tmbasic.sh && \
     echo "export PREFIX=/usr/$ARCH-w64-mingw32" >> /etc/profile.d/tmbasic.sh && \
-    echo "make -f /code/Makefile help" >> /etc/profile.d/tmbasic.sh && \
     chmod +x /etc/profile.d/tmbasic.sh
 
 # Flatten layers

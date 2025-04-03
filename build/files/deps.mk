@@ -3,12 +3,10 @@
 
 ABSEIL_DIR=$(PWD)/abseil
 BINUTILS_DIR=$(PWD)/binutils
-BOOST_DIR=$(PWD)/boost
 CLI11_DIR=$(PWD)/cli11
 FMT_DIR=$(PWD)/fmt
 GOOGLETEST_DIR=$(PWD)/googletest
 IMMER_DIR=$(PWD)/immer
-LIBUNISTRING_DIR=$(PWD)/libunistring
 LIBZIP_DIR=$(PWD)/libzip
 MICROTAR_DIR=$(PWD)/microtar
 MPDECIMAL_DIR=$(PWD)/mpdecimal
@@ -17,6 +15,7 @@ NCURSES_DIR=$(PWD)/ncurses
 TURBO_DIR=$(PWD)/turbo
 TVISION_DIR=$(PWD)/tvision
 TZDB_DIR=$(PWD)/tzdb
+UTF8PROC_DIR=$(PWD)/utf8proc
 ZLIB_DIR=$(PWD)/zlib
 
 ifneq ($(ARCH),i686)
@@ -120,12 +119,10 @@ NATIVE_CC ?= $(CC)
 .PHONY: all
 all: \
 	$(ABSEIL_DIR)/install \
-	$(BOOST_DIR)/install \
 	$(CLI11_DIR)/install \
 	$(FMT_DIR)/install \
 	$(GOOGLETEST_DIR)/install \
 	$(IMMER_DIR)/install \
-	$(LIBUNISTRING_DIR)/install \
 	$(LIBZIP_DIR)/install \
 	$(MICROTAR_DIR)/install \
 	$(MPDECIMAL_DIR)/install \
@@ -134,6 +131,7 @@ all: \
 	$(TURBO_DIR)/install \
 	$(TVISION_DIR)/install \
 	$(TZDB_DIR)/install \
+	$(UTF8PROC_DIR)/install \
 	$(ZLIB_DIR)/install
 
 
@@ -327,25 +325,6 @@ $(IMMER_DIR)/download:
 
 $(IMMER_DIR)/install: $(IMMER_DIR)/download
 	cp -rf $(IMMER_DIR)/immer $(TARGET_PREFIX)/include/
-	touch $@
-
-
-
-# boost ---------------------------------------------------------------------------------------------------------------
-
-$(BOOST_DIR)/download:
-	tar zxf $(DOWNLOAD_DIR)/boost-*.tar.gz
-	mv -f boost_*/ $(BOOST_DIR)/
-	touch $@
-
-$(BOOST_DIR)/install: $(BOOST_DIR)/download
-	cd $(BOOST_DIR) && cp -rf boost $(NATIVE_PREFIX)/include/
-ifeq ($(TARGET_OS),win)
-	ln -s $(NATIVE_PREFIX)/include/boost $(TARGET_PREFIX)/include/boost
-endif
-ifeq ($(TARGET_OS),linux)
-	ln -s $(NATIVE_PREFIX)/include/boost $(TARGET_PREFIX)/include/boost
-endif
 	touch $@
 
 
@@ -591,38 +570,6 @@ $(CLI11_DIR)/install: $(CLI11_DIR)/download
 
 
 
-# libunistring --------------------------------------------------------------------------------------------------------
-
-$(LIBUNISTRING_DIR)/download:
-	tar zxf $(DOWNLOAD_DIR)/libunistring-*.tar.gz
-	mv -f libunistring-*/ $(LIBUNISTRING_DIR)/
-	touch $@
-
-LIBUNISTRING_CONFIGURE_FLAGS=--prefix=$(TARGET_PREFIX) --enable-static --disable-shared --disable-threads
-
-$(LIBUNISTRING_DIR)/install: $(LIBUNISTRING_DIR)/download $(BINUTILS_DIR)/install
-ifeq ($(TARGET_OS),mac)
-	cd $(LIBUNISTRING_DIR) && \
-		CC="clang -arch $(MACARCH) -mmacosx-version-min=$(MACVER)" \
-			CXX="clang++ -arch $(MACARCH) -mmacosx-version-min=$(MACVER)" \
-			./configure --host=$(MACTRIPLE) $(LIBUNISTRING_CONFIGURE_FLAGS)
-endif
-ifeq ($(TARGET_OS),linux)
-	cd $(LIBUNISTRING_DIR) && \
-		CC="$(CC)" CXX="$(CXX)" LD="$(LD)" AR="$(AR)" \
-			./configure $(HOST_FLAG) $(LIBUNISTRING_CONFIGURE_FLAGS)
-endif
-ifeq ($(TARGET_OS),win)
-	cd $(LIBUNISTRING_DIR) && \
-		./configure $(HOST_FLAG) $(LIBUNISTRING_CONFIGURE_FLAGS)
-endif
-	cd $(LIBUNISTRING_DIR) && \
-		$(MAKE) && \
-		$(MAKE) install
-	touch $@
-
-
-
 # abseil --------------------------------------------------------------------------------------------------------------
 
 $(ABSEIL_DIR)/download:
@@ -667,4 +614,28 @@ $(TZDB_DIR)/install: $(TZDB_DIR)/download $(BINUTILS_DIR)/install $(MICROTAR_DIR
 	cd $(TZDB_DIR)/build/usr/share/zoneinfo && \
 		find . -type f | xargs $(NATIVE_PREFIX)/bin/mtar $(TARGET_PREFIX)/share/tzdb.tar
 	ls -l $(TARGET_PREFIX)/share/tzdb.tar
+	touch $@
+
+
+
+# utf8proc ------------------------------------------------------------------------------------------------------------
+
+$(UTF8PROC_DIR)/download:
+	tar zxf $(DOWNLOAD_DIR)/utf8proc-*.tar.gz
+	mv -f utf8proc-*/ $(UTF8PROC_DIR)/
+	touch $@
+
+$(UTF8PROC_DIR)/install: $(UTF8PROC_DIR)/download $(BINUTILS_DIR)/install $(CMAKE_DIR)/install
+	cd $(UTF8PROC_DIR) && \
+		mkdir -p build && \
+		cd build && \
+		cmake .. \
+			$(CMAKE_FLAGS) \
+			-DCMAKE_PREFIX_PATH=$(TARGET_PREFIX) \
+			-DCMAKE_INSTALL_PREFIX=$(TARGET_PREFIX) \
+			-DBUILD_SHARED_LIBS=OFF \
+			-DCMAKE_BUILD_TYPE=Release \
+			$(CMAKE_TOOLCHAIN_FLAG) && \
+		cmake --build . && \
+		cmake --install .
 	touch $@
