@@ -16,8 +16,6 @@
 #include <utility>
 #include <vector>
 
-#include <nameof.hpp>
-
 using std::cerr;
 using std::function;
 using std::istringstream;
@@ -695,7 +693,7 @@ int main() {
         writeFile("../help-temp/help.txt", insertDiagrams(outputTxt.str()));
     } catch (const regex_error& ex) {
         ostringstream const s;
-        cerr << ex.what() << ": " << NAMEOF_ENUM(ex.code()) << '\n';
+        cerr << ex.what() << ": " << ex.code() << '\n';
         return -1;
     } catch (const runtime_error& ex) {
         ostringstream const s;
