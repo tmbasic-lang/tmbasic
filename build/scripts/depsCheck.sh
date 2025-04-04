@@ -72,32 +72,6 @@ function checkZlib {
     echo "${varname}_VERSION=$version"
 }
 
-function checkMingw {
-    local varname=$1
-    local url=$2
-    local version=$(curl --silent $url \
-        | grep '<link>' \
-        | grep '\.tar\.bz2/' \
-        | sort -V -r \
-        | head -n 1 \
-        | grep -o '[0-9\.]\+\.tar' \
-        | sed 's/\.tar//')
-    echo "${varname}_VERSION=$version"
-}
-
-function checkGcc {
-    local varname=$1
-    local url=$2
-    local version=$(curl --silent $url \
-        | grep gcc- \
-        | grep '/">' \
-        | tail -n 1 \
-        | grep -o 'gcc-[0-9\.]\+' \
-        | head -n 1 \
-        | sed 's/gcc-//')
-    echo "${varname}_VERSION=$version"
-}
-
 function checkTzdb {
     # <td><a href="https://data.iana.org/time-zones/releases/tzdata2023c.tar.gz">tzdata2023c.tar.gz</a> (433.5kb)</td>
     local varname=$1
@@ -128,10 +102,3 @@ checkGitHubCommit "TVISION" "https://github.com/magiblot/tvision/commits.atom"
 checkTzdb "TZDB" "https://www.iana.org/time-zones"
 checkGitHubRelease "UTF8PROC" "https://github.com/JuliaStrings/utf8proc/releases.atom"
 checkZlib "ZLIB" "https://zlib.net/"
-
-echo
-echo '# mingw.sh'
-checkGnu "pkg-config-" "PKG_CONFIG" "https://pkg-config.freedesktop.org/releases/"
-checkGnu "binutils-" "BINUTILS" "https://ftp.gnu.org/gnu/binutils/"
-checkMingw "MINGW" "https://sourceforge.net/projects/mingw-w64/rss?path=/mingw-w64/mingw-w64-release"
-checkGcc "GCC" "https://ftp.gnu.org/gnu/gcc/"

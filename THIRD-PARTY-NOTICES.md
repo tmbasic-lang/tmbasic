@@ -1,10 +1,5 @@
 # Third Party Notices
 
-A mirror of third party library sources is available in a [requester-pays](https://docs.aws.amazon.com/AmazonS3/latest/userguide/RequesterPaysBuckets.html) S3 bucket named `tmbasic`. Use the [AWSCLI](https://aws.amazon.com/cli/) to access:
-
-- List files: `aws s3 ls s3://tmbasic/deps/ --request-payer requester`
-- Download a file: `aws s3 cp s3://tmbasic/deps/filename.tar.gz . --request-payer requester`
-
 ## Libraries included in both TMBASIC and user programs
 
 Component | License

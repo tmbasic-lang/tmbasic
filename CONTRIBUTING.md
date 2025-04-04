@@ -28,9 +28,7 @@ graph TD;
     vm-->shared;
 ```
 
-## Build for Linux and Windows
-Linux and Windows builds must be produced on a Linux build machine. Ubuntu Linux is recommended.
-
+## Build for Linux
 1. Install git and Docker. Give your user account permission to run `docker`.
 
     ```
@@ -47,30 +45,27 @@ Linux and Windows builds must be produced on a Linux build machine. Ubuntu Linux
 
     ```
     git clone https://github.com/tmbasic-lang/tmbasic.git
-    cd tmbasic
     ```
 
 1. Start the build environment and compile TMBASIC.
 
     ```
-    cd build
+    cd tmbasic/build
     ./dev.sh
-    make
+    scripts/make-tmbasic.sh
     ```
 
     This will create a development build for Linux suitable for debugging.
-    This build of TMBASIC will be unable to produce executables for other platforms because it does not contain the necessary builds of the interpreter.
-
-    Use one of the `linux-*.sh` or `win-*.sh` scripts instead of `dev.sh` to produce a build for a particular target platform.
 
 1. Type `exit` to leave the build environment.
+
+## Build for Windows
+TODO
 
 ## Build for macOS
 1. Install Xcode (version 12 or higher).
 
-1. Install Hombrew and use it to `brew install awscli fileicon`.
-
-1. `aws configure` -- enter your AWS credentials. You need this to access the requester-pays S3 bucket `tmbasic` which contains premade build environments.
+1. Install Homebrew and use it to `brew install fileicon`.
 
 1. Start the build environment and compile:
 
@@ -118,8 +113,8 @@ pngcrush -brute -reduce -ow screenshot.png
 
 ## Update third party dependencies
 
-1. In `build/`, run `scripts/depsCheck.sh`. Update `build/scripts/depsDownload.sh` and `build/files/mingw.sh`.
+1. In `build/`, run `scripts/depsCheck.sh`. Update `build/scripts/depsDownload.sh`.
 1. In `build/`, run `scripts/depsDownload.sh` to pull the latest version of each dep.
-1. In `build/downloads/`, `rm sysroot-* ; aws s3 sync . s3://tmbasic/deps/ --acl public-read --size-only`
+1. In `build/downloads/`, `rm sysroot-* ; aws s3 sync . s3://tmbasic-archive/deps/ --acl public-read --size-only`
 1. Commit as "Update deps".
 1. Check for new Alpine releases. Search for `alpine:` to find the Dockerfiles to update. Commit as "Update Alpine".

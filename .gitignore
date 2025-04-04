@@ -12,6 +12,14 @@
 /help-temp/
 /mac-arm64/
 /mac-x64/
+/win-arm64/
+/win-x64/
+/win-x86/
+/win-native/
+/win-arm64-del/
+/win-x64-del/
+/win-x86-del/
+/win-native-del/
 /obj/
 /publish/
 /test_filter
@@ -19,3 +27,4 @@
 /tvision/
 /valgrind*
 debug.log
+tzdb.tar
