@@ -451,6 +451,7 @@ function Install-Tvision
 			"-DCMAKE_PREFIX_PATH=$global:TargetPrefix" `
 			"-DCMAKE_INSTALL_PREFIX=$global:TargetPrefix" `
             -DTV_USE_STATIC_RTL=ON `
+            -DTV_BUILD_EXAMPLES=OFF `
             $global:RuntimeFlag `
             ..
         if ($LASTEXITCODE -ne 0)
