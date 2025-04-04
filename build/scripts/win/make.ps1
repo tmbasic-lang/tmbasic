@@ -597,15 +597,15 @@ function Install-Zlib
         # Also make sure to use the static runtime (/MT or /MTd)
         if ($global:BuildType -eq "Debug")
         {
-            $vcxprojContent = Get-PatchedString $vcxprojContent "<RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>" "<RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>"
-            $vcxprojContent = Get-PatchedString $vcxprojContent "<RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>" "<RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>"
-            $vcxprojContent = Get-PatchedString $vcxprojContent "<RuntimeLibrary>MultiThreaded</RuntimeLibrary>" "<RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>"
+            $vcxprojContent = $vcxprojContent.Replace("<RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>", "<RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>")
+            $vcxprojContent = $vcxprojContent.Replace("<RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>", "<RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>")
+            $vcxprojContent = $vcxprojContent.Replace("<RuntimeLibrary>MultiThreaded</RuntimeLibrary>", "<RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>")
         }
         else
         {
-            $vcxprojContent = Get-PatchedString $vcxprojContent "<RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>" "<RuntimeLibrary>MultiThreaded</RuntimeLibrary>"
-            $vcxprojContent = Get-PatchedString $vcxprojContent "<RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>" "<RuntimeLibrary>MultiThreaded</RuntimeLibrary>"
-            $vcxprojContent = Get-PatchedString $vcxprojContent "<RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>" "<RuntimeLibrary>MultiThreaded</RuntimeLibrary>"
+            $vcxprojContent = $vcxprojContent.Replace("<RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>", "<RuntimeLibrary>MultiThreaded</RuntimeLibrary>")
+            $vcxprojContent = $vcxprojContent.Replace("<RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>", "<RuntimeLibrary>MultiThreaded</RuntimeLibrary>")
+            $vcxprojContent = $vcxprojContent.Replace("<RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>", "<RuntimeLibrary>MultiThreaded</RuntimeLibrary>")
         }
         $vcxprojContent = Get-PatchedString $vcxprojContent "ZLIB_WINAPI;" ""
         
