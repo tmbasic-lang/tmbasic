@@ -24,17 +24,33 @@ set(TARGET_PREFIX "" CACHE PATH "Path to dependencies")
 if(NOT TARGET_OS)
     message(FATAL_ERROR "TARGET_OS must be specified (linux, win, mac)")
 endif()
+
+if(NOT TARGET_OS MATCHES "^(linux|win|mac)$")
+    message(FATAL_ERROR "Invalid TARGET_OS value '${TARGET_OS}'. Must be one of: linux, win, mac")
+endif()
+
 if(TARGET_OS STREQUAL "linux")
     if(NOT LINUX_DISTRO)
         message(FATAL_ERROR "LINUX_DISTRO must be specified for Linux builds (alpine, ubuntu)")
     endif()
+    
+    if(NOT LINUX_DISTRO MATCHES "^(alpine|ubuntu)$") 
+        message(FATAL_ERROR "Invalid LINUX_DISTRO value '${LINUX_DISTRO}'. Must be one of: alpine, ubuntu")
+    endif()
+
     if(NOT LINUX_TRIPLE)
         message(FATAL_ERROR "LINUX_TRIPLE must be specified for Linux builds (e.g., x86_64-linux-gnu)")
     endif()
 endif()
+
 if(NOT ARCH)
     message(FATAL_ERROR "ARCH must be specified (i686, x86_64, arm32v7, arm64v8)")
 endif()
+
+if(NOT ARCH MATCHES "^(i686|x86_64|arm32v7|arm64v8)$")
+    message(FATAL_ERROR "Invalid ARCH value '${ARCH}'. Must be one of: i686, x86_64, arm32v7, arm64v8") 
+endif()
+
 if(NOT TARGET_PREFIX)
     message(FATAL_ERROR "TARGET_PREFIX must be specified")
 endif()
@@ -281,7 +297,14 @@ endif()
 
 # Rename the runtime. Don't try to simply set this as the target's output name because on Windows it'll end up with an
 # extra .exe extension.
-add_custom_command(
-    TARGET runtime POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E rename $<TARGET_FILE:runtime> ${CMAKE_BINARY_DIR}/bin/runtime_${TARGET_OS}_${SHORT_ARCH}.dat
-)
+if(TARGET_OS STREQUAL "win")
+    add_custom_command(
+        TARGET runtime POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E rename $<TARGET_FILE:runtime> ${CMAKE_BINARY_DIR}/bin/${CMAKE_BUILD_TYPE}/runtime_${TARGET_OS}_${SHORT_ARCH}.dat
+    )
+else()
+    add_custom_command(
+        TARGET runtime POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E rename $<TARGET_FILE:runtime> ${CMAKE_BINARY_DIR}/bin/runtime_${TARGET_OS}_${SHORT_ARCH}.dat
+    )
+endif()

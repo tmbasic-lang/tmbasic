@@ -33,6 +33,7 @@ $global:BuildApp = $BuildApp # boolean
 $global:BuildType = $BuildType # "Release" or "Debug"
 $global:UseS3Mirror = $UseS3Mirror # boolean
 $global:Host_arm64_x86_x64 = $null # "arm64", "x86", or "x64"
+$global:Target_arm64v8_i686_x86_64 = $null # "arm64v8", "i686", or "x86_64"
 $global:Target_arm64_x86_x64 = $null # "arm64", "x86", or "x64"
 $global:Target_ARM64_Win32_x64 = $null # "ARM64", "Win32", or "x64"
 $global:TargetPrefix = $null # Unix-style root directory
@@ -60,16 +61,19 @@ function Main
 
     if ($Platform -eq "arm64")
     {
+        $global:Target_arm64v8_i686_x86_64 = "arm64v8"
         $global:Target_ARM64_Win32_x64 = "ARM64"
         $global:Target_arm64_x86_x64 = "arm64"
     }
     elseif ($Platform -eq "x86")
     {
+        $global:Target_arm64v8_i686_x86_64 = "i686"
         $global:Target_ARM64_Win32_x64 = "Win32"
         $global:Target_arm64_x86_x64 = "x86"
     }
     elseif ($Platform -eq "x64")
     {
+        $global:Target_arm64v8_i686_x86_64 = "x86_64"
         $global:Target_ARM64_Win32_x64 = "x64"
         $global:Target_arm64_x86_x64 = "x64"
     }
@@ -999,7 +1003,7 @@ function Install-Tmbasic
             -A "$global:Target_ARM64_Win32_x64" `
             "-DCMAKE_PREFIX_PATH=$global:TargetPrefix" `
             "-DTARGET_OS=win" `
-            "-DARCH=$global:Host_arm64_x86_x64" `
+            "-DARCH=$global:Target_arm64v8_i686_x86_64" `
             "-DTARGET_PREFIX=$global:TargetPrefix" `
             "-DCMAKE_BUILD_TYPE=$global:BuildType" `
             $global:RuntimeFlag `

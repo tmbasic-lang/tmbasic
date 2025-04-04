@@ -1,3 +1,4 @@
+# Build dependencies on Linux and macOS.
 # set by caller: $(ARCH) $(TARGET_OS) $(TARGET_PREFIX) $(NATIVE_PREFIX) $(TARGET_COMPILER_PREFIX) $(DOWNLOAD_DIR)
 # $NATIVE_PREFIX/bin should be in the $PATH
 
@@ -29,10 +30,8 @@ endif
 endif
 
 ifneq ($(TARGET_OS),linux)
-ifneq ($(TARGET_OS),win)
 ifneq ($(TARGET_OS),mac)
 $(error Unknown TARGET_OS '$(TARGET_OS)')
-endif
 endif
 endif
 
@@ -99,19 +98,10 @@ ifeq ($(TARGET_OS),mac)
 CFLAGS += -arch $(MACARCH) -mmacosx-version-min=$(MACVER)
 endif
 
-ifeq ($(TARGET_OS),win)
-EXE_EXTENSION=.exe
-endif
-
 ifeq ($(TARGET_OS),mac)
 CMAKE_DIR=$(PWD)/cmake-macos-universal
 else
 CMAKE_DIR=$(PWD)/cmake-linux-$(shell uname -m)
-endif
-
-ifeq ($(TARGET_OS),win)
-CMAKE_TOOLCHAIN_FLAG=-DCMAKE_TOOLCHAIN_FILE=/tmp/cmake-toolchain-win-$(ARCH).cmake
-HOST_FLAG=--host=$(ARCH)-w64-mingw32
 endif
 
 NATIVE_CC ?= $(CC)
@@ -180,45 +170,6 @@ $(NCURSES_DIR)/download:
 	tar zxf $(DOWNLOAD_DIR)/ncurses-*.tar.gz
 	mv -f ncurses-*/ $(NCURSES_DIR)/
 	touch $@
-
-ifeq ($(TARGET_OS),win)
-$(NCURSES_DIR)/install: $(NCURSES_DIR)/download
-	cd $(NCURSES_DIR) && \
-		./configure \
-			--host=$(ARCH)-w64-mingw32 \
-			--without-ada \
-			--with-static \
-			--with-normal \
-			--without-debug \
-			--disable-relink \
-			--disable-rpath \
-			--with-ticlib \
-			--without-termlib \
-			--enable-widec \
-			--enable-ext-colors \
-			--enable-ext-mouse \
-			--enable-sp-funcs \
-			--with-wrap-prefix=ncwrap_ \
-			--enable-sigwinch \
-			--enable-term-driver \
-			--enable-colorfgbg \
-			--enable-tcap-names \
-			--disable-termcap \
-			--disable-mixed-case \
-			--with-pkg-config \
-			--enable-pc-files \
-			--enable-echo \
-			--with-build-cflags=-D_XOPEN_SOURCE_EXTENDED \
-			--without-progs \
-			--without-tests \
-			--prefix=$(TARGET_PREFIX) \
-			--without-cxx-binding \
-			--disable-home-terminfo \
-			--enable-interop && \
-		$(MAKE) && \
-		$(MAKE) install
-	touch $@
-endif
 
 ifeq ($(TARGET_OS),linux)
 $(NCURSES_DIR)/install: $(NCURSES_DIR)/download $(BINUTILS_DIR)/install
@@ -350,10 +301,6 @@ ifeq ($(TARGET_OS),linux)
 		CC="$(CC)" CXX="$(CXX)" LD="$(LD)" AR="$(AR)" \
 			./configure $(HOST_FLAG) --prefix=$(TARGET_PREFIX) --disable-shared
 endif
-ifeq ($(TARGET_OS),win)
-	cd $(MPDECIMAL_DIR) && \
-		./configure $(HOST_FLAG) --prefix=$(TARGET_PREFIX) --disable-shared
-endif
 	cd $(MPDECIMAL_DIR) && \
 		$(MAKE) && \
 		$(MAKE) install
@@ -396,19 +343,6 @@ ifeq ($(TARGET_OS),linux)
 			-DCMAKE_PREFIX_PATH=$(TARGET_PREFIX) \
 			-DCMAKE_INSTALL_PREFIX=$(TARGET_PREFIX) \
 			-DTV_BUILD_USING_GPM=OFF \
-			-DCMAKE_BUILD_TYPE=Release \
-			$(CMAKE_TOOLCHAIN_FLAG) && \
-		$(MAKE) && \
-		$(MAKE) install
-endif
-ifeq ($(TARGET_OS),win)
-	cd $(TVISION_DIR) && \
-		mkdir -p build-win && \
-		cd build-win && \
-		cmake .. \
-			$(CMAKE_FLAGS) \
-			-DCMAKE_PREFIX_PATH=$(TARGET_PREFIX) \
-			-DCMAKE_INSTALL_PREFIX=$(TARGET_PREFIX) \
 			-DCMAKE_BUILD_TYPE=Release \
 			$(CMAKE_TOOLCHAIN_FLAG) && \
 		$(MAKE) && \
@@ -458,9 +392,6 @@ $(NAMEOF_DIR)/download:
 
 $(NAMEOF_DIR)/install: $(NAMEOF_DIR)/download
 	cd $(NAMEOF_DIR)/include && cp -f nameof.hpp $(NATIVE_PREFIX)/include/
-ifeq ($(TARGET_OS),win)
-	ln -s $(NATIVE_PREFIX)/include/nameof.hpp $(TARGET_PREFIX)/include/nameof.hpp
-endif
 ifeq ($(TARGET_OS),linux)
 	ln -s $(NATIVE_PREFIX)/include/nameof.hpp $(TARGET_PREFIX)/include/nameof.hpp
 endif
@@ -477,10 +408,6 @@ $(ZLIB_DIR)/download:
 
 ifeq ($(TARGET_OS),mac)
 ZLIB_CONFIGURE_FLAGS=--archs="-arch $(MACARCH)"
-endif
-
-ifeq ($(TARGET_OS),win)
-ZLIB_CONFIGURE_ENV=AR=$(ARCH)-w64-mingw32-ar CC=$(ARCH)-w64-mingw32-gcc RANLIB=$(ARCH)-w64-mingw32-ranlib
 endif
 
 ifeq ($(TARGET_OS),linux)
