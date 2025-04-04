@@ -31,6 +31,7 @@ jobs:
           TTY_FLAG: " "
         run: |
           set -euxo pipefail
+          find . -type f -name "*.sh" -exec chmod +x {} \;
 
           export IMAGE_TAG=$(awk -F= '{ if ($1 == "build-environment-${{ matrix.platform }}") print $2 }' build/tags.ini)
           export IMAGE_NAME="ghcr.io/tmbasic-lang/tmbasic-build-env:$IMAGE_TAG"
@@ -91,6 +92,7 @@ jobs:
           NO_BUILD: 1
         run: |
           set -euxo pipefail
+          find . -type f -name "*.sh" -exec chmod +x {} \;
           brew install awscli
           brew install fileicon          
 

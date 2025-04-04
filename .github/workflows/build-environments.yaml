@@ -46,6 +46,7 @@ jobs:
           USE_S3_MIRROR: 1
         run: |
           set -euxo pipefail
+          find . -type f -name "*.sh" -exec chmod +x {} \;
 
           cd build
           echo "Downloading Linux System Root."
@@ -126,6 +127,7 @@ jobs:
           USE_S3_MIRROR: 1
         run: |
           set -euxo pipefail
+          find . -type f -name "*.sh" -exec chmod +x {} \;
 
           # https://github.com/actions/runner-images/issues/8613
           echo "Installing AWSCLI."

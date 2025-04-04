@@ -129,11 +129,20 @@ function Install-Cmake
 
     # Get the native platform (not the target platform) as "arm64" or "x86_64"
     $nativePlatform = $null
+    $nonNativePlatform = $null
     switch ($env:PROCESSOR_ARCHITECTURE)
     {
-        "ARM64" { $nativePlatform = "arm64" }
-        "AMD64" { $nativePlatform = "x86_64" }
+        "ARM64" { $nativePlatform = "arm64"; $nonNativePlatform = "x86_64" }
+        "AMD64" { $nativePlatform = "x86_64"; $nonNativePlatform = "arm64" }
         default { throw "Unsupported processor architecture: $env:PROCESSOR_ARCHITECTURE" }
+    }
+
+    if (-not $global:UseS3Mirror)
+    {
+        # Download the non-native platform version of CMake, too, for the purpose of uploading to the S3 mirror.
+        $nonNativeUrl = "https://github.com/Kitware/CMake/releases/download/v$version/cmake-$version-windows-$nonNativePlatform.zip"
+        $nonNativeZipFilename = "cmake-$version-windows-$nonNativePlatform.zip"
+        Get-DownloadedFile -Url $nonNativeUrl -Filename $nonNativeZipFilename
     }
 
     $url = "https://github.com/Kitware/CMake/releases/download/v$version/cmake-$version-windows-$nativePlatform.zip"

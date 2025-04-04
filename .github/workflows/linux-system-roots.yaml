@@ -43,6 +43,7 @@ jobs:
           REPO: ${{ github.repository_owner }}/tmbasic-linux-sysroot
         run: |
           set -euxo pipefail
+          find . -type f -name "*.sh" -exec chmod +x {} \;
 
           export TIMESTAMP=$(date -u "+%Y%m%d%H%M%S")
           export IMAGE_TAG=${{ matrix.arch }}-$TIMESTAMP
