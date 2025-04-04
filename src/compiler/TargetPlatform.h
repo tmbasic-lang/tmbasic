@@ -13,6 +13,7 @@ enum class TargetPlatform {
     kMacX64,
     kWinX86,
     kWinX64,
+    kWinArm64,
 };
 
 enum class TargetPlatformArchiveType { kZip, kTarGz };

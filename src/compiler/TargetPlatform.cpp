@@ -8,6 +8,7 @@ static const std::vector<TargetPlatform> _targetPlatforms{
 #ifdef NDEBUG
     TargetPlatform::kLinuxArm32, TargetPlatform::kLinuxArm64, TargetPlatform::kLinuxX86, TargetPlatform::kLinuxX64,
     TargetPlatform::kMacArm64,   TargetPlatform::kMacX64,     TargetPlatform::kWinX86,   TargetPlatform::kWinX64,
+    TargetPlatform::kWinArm64,
 #else
     getNativeTargetPlatform(),
 #endif
@@ -35,6 +36,8 @@ const char* getPlatformName(TargetPlatform platform) {
             return "win-x86";
         case TargetPlatform::kWinX64:
             return "win-x64";
+        case TargetPlatform::kWinArm64:
+            return "win-arm64";
         default:
             assert(false);
             return "";
@@ -66,6 +69,9 @@ TargetPlatform parsePlatformName(const std::string& name) {
     if (name == "win-x64") {
         return TargetPlatform::kWinX64;
     }
+    if (name == "win-arm64") {
+        return TargetPlatform::kWinArm64;
+    }
     throw std::runtime_error{ "Unknown platform name: " + name };
 }
 
@@ -75,6 +81,7 @@ TargetPlatformArchiveType getTargetPlatformArchiveType(TargetPlatform platform) 
         case TargetPlatform::kMacX64:
         case TargetPlatform::kWinX86:
         case TargetPlatform::kWinX64:
+        case TargetPlatform::kWinArm64:
             return TargetPlatformArchiveType::kZip;
 
         case TargetPlatform::kLinuxArm32:
@@ -93,6 +100,7 @@ const char* getPlatformExeExtension(TargetPlatform platform) {
     switch (platform) {
         case TargetPlatform::kWinX86:
         case TargetPlatform::kWinX64:
+        case TargetPlatform::kWinArm64:
             return ".exe";
         default:
             return "";
@@ -110,7 +118,8 @@ std::string getLicenseForPlatform(TargetPlatform platform) {
 
     switch (platform) {
         case TargetPlatform::kWinX86:
-        case TargetPlatform::kWinX64: {
+        case TargetPlatform::kWinX64:
+        case TargetPlatform::kWinArm64: {
             std::ostringstream o;
             for (auto ch : licenseContent) {
                 if (ch == '\n') {
@@ -152,6 +161,8 @@ TargetPlatform getNativeTargetPlatform() {
     return TargetPlatform::kWinX86;
 #elif defined(_M_X64)
     return TargetPlatform::kWinX64;
+#elif defined(_M_ARM64)
+    return TargetPlatform::kWinArm64;
 #else
 #error "getNativeTargetPlatform(): Unsupported Windows platform."
 #endif

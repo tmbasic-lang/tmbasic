@@ -88,7 +88,6 @@ void systemCallCharacters(const SystemCallInput& input, SystemCallResult* result
 
 // (input as Number) as String
 void systemCallChr(const SystemCallInput& input, SystemCallResult* result) {
-#ifndef _WIN32
     auto value = input.getValue(-1).getInt64();
     auto ch32 = static_cast<utf8proc_int32_t>(value);
 
@@ -103,14 +102,10 @@ void systemCallChr(const SystemCallInput& input, SystemCallResult* result) {
     std::string const s{ reinterpret_cast<const char*>(utf8.data()), static_cast<size_t>(length) };
 
     result->returnedObject = boost::make_intrusive_ptr<String>(s);
-#else
-    throw Error(ErrorCode::kNotImplemented, "systemCallChr is not implemented on Windows.");
-#endif
 }
 
 // (input as String) as List of Number
 void systemCallCodePoints(const SystemCallInput& input, SystemCallResult* result) {
-#ifndef _WIN32
     const auto& str = *castString(input.getObject(-1));
 
     // Use utf8proc_iterate to convert the UTF-8 string to a vector of code points
@@ -134,9 +129,6 @@ void systemCallCodePoints(const SystemCallInput& input, SystemCallResult* result
     }
 
     result->returnedObject = boost::make_intrusive_ptr<ValueList>(&valueListBuilder);
-#else
-    throw Error(ErrorCode::kNotImplemented, "systemCallCodePoints is not implemented on Windows.");
-#endif
 }
 
 // (input as String) as Number
@@ -249,7 +241,6 @@ void systemCallParseNumber(const SystemCallInput& input, SystemCallResult* resul
 
 // (codePoints as List of Number) as String
 void systemCallStringFromCodePoints(const SystemCallInput& input, SystemCallResult* result) {
-#ifndef _WIN32
     const auto& valueList = *castValueList(input.getObject(-1));
     std::ostringstream ss{};
     std::array<uint8_t, 4> utf8{};
@@ -269,14 +260,10 @@ void systemCallStringFromCodePoints(const SystemCallInput& input, SystemCallResu
     }
 
     result->returnedObject = boost::make_intrusive_ptr<String>(ss.str());
-#else
-    throw Error(ErrorCode::kNotImplemented, "systemCallStringFromCodePoints is not implemented on Windows.");
-#endif
 }
 
 // (codeUnits as List of Number) as String
 void systemCallStringFromCodeUnits(const SystemCallInput& input, SystemCallResult* result) {
-#ifndef _WIN32
     const auto& valueList = *castValueList(input.getObject(-1));
 
     std::ostringstream ss{};
@@ -313,9 +300,6 @@ void systemCallStringFromCodeUnits(const SystemCallInput& input, SystemCallResul
     }
 
     result->returnedObject = boost::make_intrusive_ptr<String>(str);
-#else
-    throw Error(ErrorCode::kNotImplemented, "systemCallStringFromCodeUnits is not implemented on Windows.");
-#endif
 }
 
 // (lhs as String, rhs as String) as String

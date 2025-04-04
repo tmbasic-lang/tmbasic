@@ -48,6 +48,10 @@ static vector<uint8_t> loadRuntimeFile(TargetPlatform platform) {
             os = "win";
             arch = "x64";
             break;
+        case TargetPlatform::kWinArm64:
+            os = "win";
+            arch = "arm64";
+            break;
         default:
             assert(false);
             return {};

@@ -289,18 +289,37 @@ function Get-DownloadedFile
     $filePath = Join-Path $global:DownloadsDir $Filename
     if (Test-Path $filePath)
     {
+        Write-Host "Already downloaded: $filePath."
         return $filePath
     }
 
     # Download the file to a temporary file
-    Write-Host "Downloading: $Url"
     $tempFilePath = Join-Path $global:DownloadsDir ([System.IO.Path]::GetRandomFileName())
     try
     {
-        & curl.exe -Lo "$tempFilePath" "$Url"
+        if ($global:UseS3Mirror)
+        {
+            $mirrorUrl = "s3://tmbasic/deps/$Filename"
+            Write-Host "Downloading: $mirrorUrl"
+            Write-Host "Mirror of: $Url"
+            & aws.exe s3 cp "$mirrorUrl" "$tempFilePath" --request-payer requester --only-show-errors | Out-Host
+        }
+        else
+        {
+            Write-Host "Downloading: $Url"
+            & curl.exe -Lso "$tempFilePath" "$Url" | Out-Host
+        }
+
         if ($LASTEXITCODE -ne 0)
         {
             throw "Failed to download $Url"
+        }
+
+        # Check the file size, if it's less than 2KB something went wrong.
+        $fileSize = (Get-Item $tempFilePath).Length
+        if ($fileSize -lt 2048)
+        {
+            throw "Downloaded file is less than 2KB, something went wrong."
         }
 
         # Move the file to the downloads directory

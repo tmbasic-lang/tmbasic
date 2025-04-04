@@ -53,10 +53,25 @@ endif()
 # Set RUNTIME_OUTPUT_DIRECTORY to ensure binaries are placed in the bin directory
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-# On macOS, tvision uses libncurses instead because libncursesw isn't distributed on that platform.
-set(NCURSES_LIB "ncursesw")
+# Variable flags.
+if(TARGET_OS STREQUAL "win")
+    set(NCURSES_LIB "")
+    set(PTHREAD_LIB "")
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        set(TVISION_LIB "tvision-debug")
+    else()
+        set(TVISION_LIB "tvision")
+    endif()
+endif()
 if(TARGET_OS STREQUAL "mac")
     set(NCURSES_LIB "ncurses")
+    set(PTHREAD_LIB "pthread")
+    set(TVISION_LIB "tvision")
+endif()
+if(TARGET_OS STREQUAL "linux")
+    set(NCURSES_LIB "ncursesw")
+    set(PTHREAD_LIB "pthread")
+    set(TVISION_LIB "tvision")
 endif()
 
 # Handle sanitizers
@@ -108,20 +123,45 @@ file(GLOB_RECURSE TEST_SRC_FILES src/test/*.cpp)
 file(GLOB_RECURSE TMBASIC_SRC_FILES src/tmbasic/*.cpp)
 
 # Define compiler and linker flags based on target OS
-set(COMMON_COMPILE_OPTIONS
-    -Wall
-    -Werror
-    -Winvalid-pch
-    -Wno-unknown-pragmas
-    -Wno-reorder
-)
-
-if(NOT TARGET_OS STREQUAL "mac")
-    list(APPEND COMMON_COMPILE_OPTIONS -Wno-psabi)
+if(TARGET_OS STREQUAL "win")
+    set(COMMON_COMPILE_OPTIONS
+        /utf-8
+        /Zc:__cplusplus     # Enable proper __cplusplus macro
+        /Zc:preprocessor    # Enable standards-conforming preprocessor
+        /EHsc               # Standard C++ exception handling
+        /permissive-        # Strict standards conformance
+        /W3                 # Warning level
+        /wd4996             # Disable deprecation warnings
+    )
+    # Add preprocessor definitions needed for MSVC compatibility
+    add_compile_definitions(
+        _CRT_SECURE_NO_WARNINGS
+        NOMINMAX            # Don't define min/max macros
+        WIN32_LEAN_AND_MEAN # Trim Windows headers
+        FMT_CONSTEXPR=inline
+        FMT_USE_NONTYPE_TEMPLATE_PARAMETERS=0
+    )
+else()
+    set(COMMON_COMPILE_OPTIONS
+        -Wall
+        -Werror
+        -Winvalid-pch
+        -Wno-unknown-pragmas
+        -Wno-reorder
+    )
+    if(TARGET_OS STREQUAL "linux")
+        list(APPEND COMMON_COMPILE_OPTIONS -Wno-psabi)
+    endif()
 endif()
 
-# Include directories
+# Include and library directories
 include_directories(src)
+include_directories(SYSTEM ${TARGET_PREFIX}/include)
+set(CMAKE_FIND_ROOT_PATH ${TARGET_PREFIX})
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
 
 # Create static libraries
 add_library(compiler STATIC ${COMPILER_SRC_FILES})
@@ -147,14 +187,12 @@ target_precompile_headers(test PRIVATE src/common.h)
 target_link_directories(test PRIVATE ${TARGET_PREFIX}/lib)
 target_link_libraries(test
     compiler shared vm
-    stdc++ absl_time absl_time_zone absl_int128 absl_raw_logging_internal
+    absl_time absl_time_zone absl_int128 absl_raw_logging_internal
     microtar mpdec mpdec++ utf8proc
-    turbo-core fmt tvision ${NCURSES_LIB}
-    zip z gtest gtest_main pthread  
+    turbo-core fmt ${TVISION_LIB} ${NCURSES_LIB}
+    zip z gtest gtest_main ${PTHREAD_LIB}
 )
 if(TARGET_OS STREQUAL "linux" AND LINUX_DISTRO STREQUAL "alpine")
-    target_link_options(test PRIVATE ${CMAKE_EXE_LINKER_FLAGS} -static)
-elseif(TARGET_OS STREQUAL "win")
     target_link_options(test PRIVATE ${CMAKE_EXE_LINKER_FLAGS} -static)
 endif()
 
@@ -166,36 +204,27 @@ target_compile_definitions(runtime PRIVATE UTF8PROC_STATIC)
 target_link_directories(runtime PRIVATE ${TARGET_PREFIX}/lib)
 target_link_libraries(runtime
     vm shared
-    stdc++ absl_time absl_time_zone absl_int128 absl_raw_logging_internal
+    absl_time absl_time_zone absl_int128 absl_raw_logging_internal
     microtar mpdec mpdec++ utf8proc
-    turbo-core fmt tvision ${NCURSES_LIB}
+    turbo-core fmt ${TVISION_LIB} ${NCURSES_LIB}
 )
 
 if(TARGET_OS STREQUAL "linux" AND LINUX_DISTRO STREQUAL "alpine")
     target_link_options(runtime PRIVATE ${CMAKE_EXE_LINKER_FLAGS} -static)
-elseif(TARGET_OS STREQUAL "win")
-    target_link_options(runtime PRIVATE ${CMAKE_EXE_LINKER_FLAGS} -static)
 endif()
 
-add_custom_command(
-    TARGET runtime POST_BUILD
-    COMMAND ${CMAKE_STRIP} $<TARGET_FILE:runtime>
-    COMMAND chmod -x $<TARGET_FILE:runtime>
-)
+if(STRIP_TMBASIC)
+    add_custom_command(
+        TARGET runtime POST_BUILD
+        COMMAND ${CMAKE_STRIP} $<TARGET_FILE:runtime>
+        COMMAND chmod -x $<TARGET_FILE:runtime>
+    )
+endif()
 
 # Windows resource compilation
 if(TARGET_OS STREQUAL "win")
-    find_program(WINDRES ${ARCH}-w64-mingw32-windres)
-    add_custom_command(
-        OUTPUT ${CMAKE_BINARY_DIR}/AppWin.res.o
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-        COMMAND ${WINDRES} ${CMAKE_SOURCE_DIR}/src/tmbasic/AppWin.rc -o ${CMAKE_BINARY_DIR}/AppWin.res.o
-        DEPENDS 
-            ${CMAKE_SOURCE_DIR}/src/tmbasic/AppWin.rc 
-            ${CMAKE_SOURCE_DIR}/doc/art/favicon/favicon.ico
-        COMMENT "Compiling Windows resources"
-    )
-    set(TMBASIC_RES_OBJ ${CMAKE_BINARY_DIR}/AppWin.res.o)
+    set(WIN_RC_FILE ${CMAKE_SOURCE_DIR}/src/tmbasic/AppWin.rc)
+    set(TMBASIC_RES_OBJ ${WIN_RC_FILE})
 else()
     set(TMBASIC_RES_OBJ "")
 endif()
@@ -209,14 +238,14 @@ add_dependencies(tmbasic runtime)
 target_link_directories(tmbasic PRIVATE ${TARGET_PREFIX}/lib)
 target_link_libraries(tmbasic
     compiler shared
-    stdc++ absl_time absl_time_zone absl_int128 absl_raw_logging_internal
+    absl_time absl_time_zone absl_int128 absl_raw_logging_internal
     microtar mpdec mpdec++ utf8proc
-    turbo-core fmt tvision ${NCURSES_LIB}
+    turbo-core fmt ${TVISION_LIB} ${NCURSES_LIB}
     zip z
 )
 if(TARGET_OS STREQUAL "linux")
     if(LINUX_DISTRO STREQUAL "ubuntu")
-        target_link_libraries(tmbasic pthread)
+        target_link_libraries(tmbasic ${PTHREAD_LIB})
         target_link_directories(tmbasic PRIVATE /usr/local/${LINUX_TRIPLE}/lib)
     endif()
     if(LINUX_DISTRO STREQUAL "alpine")
@@ -230,7 +259,6 @@ elseif(TARGET_OS STREQUAL "mac")
         COMMAND fileicon set $<TARGET_FILE:tmbasic> ${CMAKE_SOURCE_DIR}/doc/art/favicon/favicon.icns
     )
 elseif(TARGET_OS STREQUAL "win")
-    target_link_options(tmbasic PRIVATE ${CMAKE_EXE_LINKER_FLAGS} -static)
     target_link_libraries(tmbasic shlwapi)
     target_link_libraries(test shlwapi)
     target_link_libraries(runtime shlwapi)

@@ -1,7 +1,19 @@
 param
 (
     [Parameter(Mandatory = $true)]
-    $Platform
+    $Platform,
+
+    [Parameter(Mandatory = $true)]
+    $BuildDeps,
+
+    [Parameter(Mandatory = $true)]
+    $BuildApp,
+
+    [Parameter(Mandatory = $true)]
+    $BuildType,
+
+    [Parameter(Mandatory = $true)]
+    $UseS3Mirror
 )
 
 # 1 = Print commands as they are executed
@@ -16,6 +28,10 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 . "$PSScriptRoot/common.ps1"
 
 # Global variables
+$global:BuildDeps = $BuildDeps # boolean
+$global:BuildApp = $BuildApp # boolean
+$global:BuildType = $BuildType # "Release" or "Debug"
+$global:UseS3Mirror = $UseS3Mirror # boolean
 $global:Host_arm64_x86_x64 = $null # "arm64", "x86", or "x64"
 $global:Target_arm64_x86_x64 = $null # "arm64", "x86", or "x64"
 $global:Target_ARM64_Win32_x64 = $null # "ARM64", "Win32", or "x64"
@@ -26,6 +42,7 @@ $global:DownloadsDir = $null # /build/downloads/
 $global:FilesDir = $null # /build/files/
 $global:PackageVersions = @{}
 $global:Msbuild = $null # Path to msbuild.exe
+$global:RuntimeFlag = $null # MSVC runtime library flag for CMake
 
 function Main
 {
@@ -57,6 +74,16 @@ function Main
         $global:Target_arm64_x86_x64 = "x64"
     }
 
+    # Set the runtime flag based on build type
+    if ($global:BuildType -eq "Debug")
+    {
+        $global:RuntimeFlag = "-DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDebug"
+    }
+    else
+    {
+        $global:RuntimeFlag = "-DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded"
+    }
+
     Initialize-VisualStudioPaths
     Initialize-Directories
     Initialize-PackageVersions
@@ -78,6 +105,12 @@ function Main
     Install-Cli11
     Install-Abseil
     Install-Tzdb
+    Install-Utf8proc
+
+    if ($BuildApp)
+    {
+        Install-Tmbasic
+    }
 }
 
 function Install-Cmake
@@ -87,6 +120,11 @@ function Install-Cmake
     if ((Get-InstalledPackageVersion -Name "cmake") -eq $version)
     {
         return
+    }
+    
+    if (-not $global:BuildDeps)
+    {
+        throw "CMake needs to be installed, but building is disabled."
     }
 
     # Get the native platform (not the target platform) as "arm64" or "x86_64"
@@ -105,6 +143,7 @@ function Install-Cmake
     # Extract to a temporary directory
     Write-Host "Expanding $zipFilename."
     $tempDir = New-TemporaryDirectory
+
     Expand-Archive -Path $filePath -DestinationPath $tempDir
 
     # This has created a single folder called "cmake-*". Figure out what it is.
@@ -135,6 +174,11 @@ function Install-SevenZip
     {
         return
     }
+    
+    if (-not $global:BuildDeps)
+    {
+        throw "7-Zip needs to be installed, but building is disabled."
+    }
 
     $url = "https://www.7-zip.org/a/7za920.zip"
     $filePath = Get-DownloadedFile -Url $url -Filename "7za920.zip"
@@ -160,6 +204,11 @@ function Install-GoogleTest
     {
         return
     }
+    
+    if (-not $global:BuildDeps)
+    {
+        throw "GoogleTest needs to be installed, but building is disabled."
+    }
 
     $url = "https://github.com/google/googletest/archive/refs/tags/v$version.zip"
     $filePath = Get-DownloadedFile -Url $url -Filename "googletest-$version.zip"
@@ -176,19 +225,20 @@ function Install-GoogleTest
 			-A "$global:Target_ARM64_Win32_x64" `
 			"-DCMAKE_PREFIX_PATH=$global:TargetPrefix" `
 			"-DCMAKE_INSTALL_PREFIX=$global:TargetPrefix" `
+            $global:RuntimeFlag `
             ..
         if ($LASTEXITCODE -ne 0)
         {
             throw "Failed to configure googletest"
         }
 
-        & cmake --build . --config Release
+        & cmake --build . --config $global:BuildType
         if ($LASTEXITCODE -ne 0)
         {
             throw "Failed to build googletest"
         }
 
-        & cmake --install . --config Release
+        & cmake --install . --config $global:BuildType
         if ($LASTEXITCODE -ne 0)
         {
             throw "Failed to install googletest"
@@ -210,6 +260,11 @@ function Install-Fmt
     {
         return
     }
+    
+    if (-not $global:BuildDeps)
+    {
+        throw "fmt needs to be installed, but building is disabled."
+    }
 
     $url = "https://github.com/fmtlib/fmt/archive/refs/tags/$version.zip"
     $filePath = Get-DownloadedFile -Url $url -Filename "fmt-$version.zip"
@@ -227,22 +282,29 @@ function Install-Fmt
             -DFMT_TEST=OFF -DFMT_FUZZ=OFF -DFMT_CUDA_TEST=OFF -DFMT_DOC=OFF `
 			"-DCMAKE_PREFIX_PATH=$global:TargetPrefix" `
 			"-DCMAKE_INSTALL_PREFIX=$global:TargetPrefix" `
+            $global:RuntimeFlag `
             ..
         if ($LASTEXITCODE -ne 0)
         {
             throw "Failed to configure fmt"
         }
 
-        & cmake --build . --config Release
+        & cmake --build . --config $global:BuildType
         if ($LASTEXITCODE -ne 0)
         {
             throw "Failed to build fmt"
         }
 
-        & cmake --install . --config Release
+        & cmake --install . --config $global:BuildType
         if ($LASTEXITCODE -ne 0)
         {
             throw "Failed to install fmt"
+        }
+
+        # In debug builds, this produces "fmtd.lib" but we want "fmt.lib".
+        if ($global:BuildType -eq "Debug")
+        {
+            Rename-Item -Path (Join-Path $global:TargetPrefix "lib\fmtd.lib") -NewName "fmt.lib"
         }
     }
     finally
@@ -260,6 +322,11 @@ function Install-Immer
     if ((Get-InstalledPackageVersion -Name "immer") -eq $version)
     {
         return
+    }
+    
+    if (-not $global:BuildDeps)
+    {
+        throw "immer needs to be installed, but building is disabled."
     }
 
     $url = "https://github.com/arximboldi/immer/archive/refs/tags/v$version.zip"
@@ -279,6 +346,11 @@ function Install-Mpdecimal
     {
         return
     }
+    
+    if (-not $global:BuildDeps)
+    {
+        throw "mpdecimal needs to be installed, but building is disabled."
+    }
 
     $url = "https://www.bytereef.org/software/mpdecimal/releases/mpdecimal-$version.zip"
     $filePath = Get-DownloadedFile -Url $url -Filename "mpdecimal-$version.zip"
@@ -288,40 +360,47 @@ function Install-Mpdecimal
     Push-Location (Join-Path $srcDir "vcbuild")
     try
     {
+        $batFile = $null
         $distDir = $null
-
         if ($global:Target_arm64_x86_x64 -eq "x86")
         {
-            & cmd /c "vcbuild32.bat"
+            $batFile = (Join-Path $srcDir "vcbuild\vcbuild32.bat")
             $distDir = Join-Path $srcDir "vcbuild\dist32"
         }
         elseif ($global:Target_arm64_x86_x64 -eq "x64")
         {
-            & cmd /c "vcbuild64.bat"
+            $batFile = (Join-Path $srcDir "vcbuild\vcbuild64.bat")
             $distDir = Join-Path $srcDir "vcbuild\dist64"
-
         }
         elseif ($global:Target_arm64_x86_x64 -eq "arm64")
         {
-            & cmd /c "vcbuild_arm64.bat"
+            $batFile = (Join-Path $srcDir "vcbuild\vcbuild_arm64.bat")
             $distDir = Join-Path $srcDir "vcbuild\dist_arm64"
         }
 
+        # We're supposed to be able to pass /d to get a debug build, but for some reason it isn't working.
+        # Let's instead modify the bat scripts directly.
+        $batContent = [System.IO.File]::ReadAllText($batFile)
+        if ($global:BuildType -eq "Debug")
+        {
+            $batContent = $batContent.Replace("set dbg=0", "set dbg=1")
+        }
+        else
+        {
+            $batContent = $batContent.Replace("set dbg=1", "set dbg=0")
+        }
+        [System.IO.File]::WriteAllText($batFile, $batContent)
+
+        & cmd /c "$batFile"
         if ($LASTEXITCODE -ne 0)
         {
             throw "Failed to build mpdecimal"
         }
 
-        # Copy *.h and *.hh to the include directory
-        Copy-Item -Path (Join-Path $distDir "*.h") -Destination (Join-Path $global:TargetPrefix "include") -Recurse -Force
-        Copy-Item -Path (Join-Path $distDir "*.hh") -Destination (Join-Path $global:TargetPrefix "include") -Recurse -Force
-
-        # Copy *.lib, *.exp to the lib directory
-        Copy-Item -Path (Join-Path $distDir "*.lib") -Destination (Join-Path $global:TargetPrefix "lib") -Recurse -Force
-        Copy-Item -Path (Join-Path $distDir "*.exp") -Destination (Join-Path $global:TargetPrefix "lib") -Recurse -Force
-
-        # Copy *.dll to the bin directory
-        Copy-Item -Path (Join-Path $distDir "*.dll") -Destination (Join-Path $global:TargetPrefix "bin") -Recurse -Force
+        Copy-Item -Path (Join-Path $distDir "mpdecimal.h") -Destination (Join-Path $global:TargetPrefix "include\mpdecimal.h") -Force
+        Copy-Item -Path (Join-Path $distDir "decimal.hh") -Destination (Join-Path $global:TargetPrefix "include\decimal.hh") -Force
+        Copy-Item -Path (Join-Path $distDir "libmpdec-$version.lib") -Destination (Join-Path $global:TargetPrefix "lib\mpdec.lib") -Force
+        Copy-Item -Path (Join-Path $distDir "libmpdec++-$version.lib") -Destination (Join-Path $global:TargetPrefix "lib\mpdec++.lib") -Force
     }
     finally
     {
@@ -338,6 +417,11 @@ function Install-Tvision
     if ((Get-InstalledPackageVersion -Name "tvision") -eq $version)
     {
         return
+    }
+    
+    if (-not $global:BuildDeps)
+    {
+        throw "TVision needs to be installed, but building is disabled."
     }
     
     $url = "https://github.com/magiblot/tvision/archive/$version.zip"
@@ -357,19 +441,21 @@ function Install-Tvision
 			-A "$global:Target_ARM64_Win32_x64" `
 			"-DCMAKE_PREFIX_PATH=$global:TargetPrefix" `
 			"-DCMAKE_INSTALL_PREFIX=$global:TargetPrefix" `
+            -DTV_USE_STATIC_RTL=ON `
+            $global:RuntimeFlag `
             ..
         if ($LASTEXITCODE -ne 0)
         {
             throw "Failed to configure tvision"
         }
 
-        & cmake --build . --config Release
+        & cmake --build . --config $global:BuildType
         if ($LASTEXITCODE -ne 0)
         {
             throw "Failed to build tvision"
         }
 
-        & cmake --install . --config Release
+        & cmake --install . --config $global:BuildType
         if ($LASTEXITCODE -ne 0)
         {
             throw "Failed to install tvision"
@@ -391,6 +477,11 @@ function Install-Turbo
     {
         return
     }
+    
+    if (-not $global:BuildDeps)
+    {
+        throw "Turbo needs to be installed, but building is disabled."
+    }
 
     $url = "https://github.com/magiblot/turbo/archive/$version.zip"
     $filePath = Get-DownloadedFile -Url $url -Filename "turbo-$version.zip"
@@ -407,21 +498,23 @@ function Install-Turbo
 			-A "$global:Target_ARM64_Win32_x64" `
 			"-DCMAKE_PREFIX_PATH=$global:TargetPrefix" `
 			"-DCMAKE_INSTALL_PREFIX=$global:TargetPrefix" `
+            -DTURBO_USE_STATIC_RTL=ON `
 			-DTURBO_USE_SYSTEM_TVISION=ON `
 			-DTURBO_BUILD_APP=OFF `
+            $global:RuntimeFlag `
             ..
         if ($LASTEXITCODE -ne 0)
         {
             throw "Failed to configure turbo"
         }
 
-        & cmake --build . --config Release
+        & cmake --build . --config $global:BuildType
         if ($LASTEXITCODE -ne 0)
         {
             throw "Failed to build turbo"
         }
 
-        & cmake --install . --config Release
+        & cmake --install . --config $global:BuildType
         if ($LASTEXITCODE -ne 0)
         {
             throw "Failed to install turbo"
@@ -442,6 +535,11 @@ function Install-Nameof
     if ((Get-InstalledPackageVersion -Name "nameof") -eq $version)
     {
         return
+    }
+    
+    if (-not $global:BuildDeps)
+    {
+        throw "nameof needs to be installed, but building is disabled."
     }
 
     $url = "https://github.com/Neargye/nameof/archive/refs/tags/v$version.zip"
@@ -464,6 +562,11 @@ function Install-Zlib
         return
     }
     
+    if (-not $global:BuildDeps)
+    {
+        throw "zlib needs to be installed, but building is disabled."
+    }
+    
     $urlVersion = $version.Replace(".", "")
     $url = "https://zlib.net/zlib$urlVersion.zip"
     echo $url
@@ -481,16 +584,35 @@ function Install-Zlib
         $vcxprojPath = Join-Path $srcDir "contrib\vstudio\vc17\zlibvc.vcxproj"
         $vcxprojContent = [System.IO.File]::ReadAllText($vcxprojPath)
         $vcxprojContent = $vcxprojContent.Replace("DynamicLibrary", "StaticLibrary")
-        [System.IO.File]::WriteAllText($vcxprojPath, $vcxprojContent)
+        
+        # Also make sure to use the static runtime (/MT or /MTd)
+        $newVcxprojContent = $vcxprojContent
+        if ($global:BuildType -eq "Debug")
+        {
+            $newVcxprojContent = $newVcxprojContent.Replace("<RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>", "<RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>")
+            $newVcxprojContent = $newVcxprojContent.Replace("<RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>", "<RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>")
+        }
+        else
+        {
+            $newVcxprojContent = $newVcxprojContent.Replace("<RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>", "<RuntimeLibrary>MultiThreaded</RuntimeLibrary>")
+            $newVcxprojContent = $newVcxprojContent.Replace("<RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>", "<RuntimeLibrary>MultiThreaded</RuntimeLibrary>")
+        }
+
+        if ($newVcxprojContent -eq $vcxprojContent)
+        {
+            throw "Failed to patch zlibvc.vcxproj"
+        }
+        
+        [System.IO.File]::WriteAllText($vcxprojPath, $newVcxprojContent)
     
-        & "$global:Msbuild" zlibvc.vcxproj /p:Configuration=Release /p:Platform=$global:Target_ARM64_Win32_x64
+        & "$global:Msbuild" zlibvc.vcxproj /p:Configuration=$global:BuildType /p:Platform=$global:Target_ARM64_Win32_x64
         if ($LASTEXITCODE -ne 0)
         {
             throw "Failed to build zlib"
         }
 
         # Copy the static library to the lib directory
-        Copy-Item -Path (Join-Path $srcDir "contrib\vstudio\vc17\$global:Target_ARM64_Win32_x64\ZlibDllRelease\zlibwapi.lib") -Destination (Join-Path $global:TargetPrefix "lib") -Force
+        Copy-Item -Path (Join-Path $srcDir "contrib\vstudio\vc17\$global:Target_ARM64_Win32_x64\ZlibDll$global:BuildType\zlibwapi.lib") -Destination (Join-Path $global:TargetPrefix "lib\z.lib") -Force
 
         # Copy the header files to the include directory
         Copy-Item -Path (Join-Path $srcDir "zlib.h") -Destination (Join-Path $global:TargetPrefix "include") -Force
@@ -511,6 +633,11 @@ function Install-Microtar
     if ((Get-InstalledPackageVersion -Name "microtar") -eq $version)
     {
         return
+    }
+    
+    if (-not $global:BuildDeps)
+    {
+        throw "microtar needs to be installed, but building is disabled."
     }
 
     $url = "https://github.com/rxi/microtar/archive/$version.zip"
@@ -544,25 +671,26 @@ install(FILES src/microtar.h DESTINATION include)
             -A "$global:Target_ARM64_Win32_x64" `
             "-DCMAKE_PREFIX_PATH=$global:TargetPrefix" `
             "-DCMAKE_INSTALL_PREFIX=$global:TargetPrefix" `
+            $global:RuntimeFlag `
             ..
         if ($LASTEXITCODE -ne 0)
         {
             throw "Failed to configure microtar"
         }
 
-        & cmake --build . --config Release
+        & cmake --build . --config $global:BuildType
         if ($LASTEXITCODE -ne 0)
         {
             throw "Failed to build microtar"
         }
 
-        & cmake --install . --config Release
+        & cmake --install . --config $global:BuildType
         if ($LASTEXITCODE -ne 0)
         {
             throw "Failed to install microtar"
         }
 
-        Copy-Item -Path (Join-Path $buildLibraryDir "Release\microtar.lib") -Destination (Join-Path $global:TargetPrefix "lib") -Force
+        Copy-Item -Path (Join-Path $buildLibraryDir "$global:BuildType\microtar.lib") -Destination (Join-Path $global:TargetPrefix "lib") -Force
     }
     finally
     {
@@ -592,25 +720,26 @@ target_compile_definitions(mtar PRIVATE _CRT_SECURE_NO_WARNINGS)
             -G "Visual Studio 17 2022" `
             "-DCMAKE_PREFIX_PATH=$global:TargetPrefix" `
             "-DCMAKE_INSTALL_PREFIX=$global:TargetPrefix" `
+            $global:RuntimeFlag `
             ..
         if ($LASTEXITCODE -ne 0)
         {
             throw "Failed to configure mtar"
         }
 
-        & cmake --build . --config Release
+        & cmake --build . --config $global:BuildType
         if ($LASTEXITCODE -ne 0)
         {
             throw "Failed to build mtar"
         }
 
-        & cmake --install . --config Release
+        & cmake --install . --config $global:BuildType
         if ($LASTEXITCODE -ne 0)
         {
             throw "Failed to install mtar"
         }
 
-        Copy-Item -Path (Join-Path $buildProgramDir "Release\mtar.exe") -Destination (Join-Path $global:NativePrefix "bin") -Force
+        Copy-Item -Path (Join-Path $buildProgramDir "$global:BuildType\mtar.exe") -Destination (Join-Path $global:NativePrefix "bin") -Force
     }
     finally
     {
@@ -628,11 +757,27 @@ function Install-Libzip
     {
         return
     }
+    
+    if (-not $global:BuildDeps)
+    {
+        throw "libzip needs to be installed, but building is disabled."
+    }
 
     $url = "https://github.com/nih-at/libzip/releases/download/v$version/libzip-$version.tar.gz"
     $filePath = Get-DownloadedFile -Url $url -Filename "libzip-$version.tar.gz"
     Expand-TarballRenamingTopLevelDirectory -Path $filePath -DestinationPath (Join-Path $global:TargetPrefix "usr\src") -NewName "libzip"
     $srcDir = Join-Path $global:TargetPrefix "usr\src\libzip"
+
+    # We must patch the CMakeLists.txt
+    # 1. Upgrade `cmake_minimum_required(VERSION 3.10)` to `cmake_minimum_required(VERSION 3.15)`
+    # 2. Insert `cmake_policy(SET CMP0091 NEW)` directly after that.
+    $cmakeListsContent = [System.IO.File]::ReadAllText((Join-Path $srcDir "CMakeLists.txt"))
+    $newCmakeListsContent = $cmakeListsContent.Replace("cmake_minimum_required(VERSION 3.10)", "cmake_minimum_required(VERSION 3.15)`ncmake_policy(SET CMP0091 NEW)`n")
+    if ($newCmakeListsContent -eq $cmakeListsContent)
+    {
+        throw "Failed to patch libzip's CMakeLists.txt"
+    }
+    [System.IO.File]::WriteAllText((Join-Path $srcDir "CMakeLists.txt"), $newCmakeListsContent)
 
     $buildDir = Join-Path $srcDir "build"
     New-Directory $buildDir | Out-Null
@@ -656,23 +801,24 @@ function Install-Libzip
             -DBUILD_OSSFUZZ=OFF `
 			-DBUILD_EXAMPLES=OFF `
 			-DBUILD_DOC=OFF `
-			-DCMAKE_BUILD_TYPE=Release `
+			-DCMAKE_BUILD_TYPE=$global:BuildType `
 			"-DCMAKE_PREFIX_PATH=$global:TargetPrefix" `
 			"-DCMAKE_INSTALL_PREFIX=$global:TargetPrefix" `
 			"-DZLIB_INCLUDE_DIR=$global:TargetPrefix\include" `
+            $global:RuntimeFlag `
             ..
         if ($LASTEXITCODE -ne 0)
         {
             throw "Failed to configure libzip"
         }
 
-        & cmake --build . --config Release
+        & cmake --build . --config $global:BuildType
         if ($LASTEXITCODE -ne 0)
         {
             throw "Failed to build libzip"
         }
 
-        & cmake --install . --config Release
+        & cmake --install . --config $global:BuildType
         if ($LASTEXITCODE -ne 0)
         {
             throw "Failed to install libzip"
@@ -694,10 +840,15 @@ function Install-Cli11
     {
         return
     }
+    
+    if (-not $global:BuildDeps)
+    {
+        throw "CLI11 needs to be installed, but building is disabled."
+    }
 
     $url = "https://github.com/CLIUtils/CLI11/releases/download/v$version/CLI11.hpp"
-    $filePath = Get-DownloadedFile -Url $url -Filename "CLI11.hpp"
-    Copy-Item -Path $filePath -Destination (Join-Path $global:TargetPrefix "include") -Force
+    $filePath = Get-DownloadedFile -Url $url -Filename "cli11-$version.hpp"
+    Copy-Item -Path $filePath -Destination (Join-Path $global:TargetPrefix "include\CLI11.hpp") -Force
 
     Set-InstalledPackage -Name "cli11" -Version $version
 }
@@ -709,6 +860,11 @@ function Install-Abseil
     if ((Get-InstalledPackageVersion -Name "abseil") -eq $version)
     {
         return
+    }
+    
+    if (-not $global:BuildDeps)
+    {
+        throw "abseil needs to be installed, but building is disabled."
     }
 
     $url = "https://github.com/abseil/abseil-cpp/archive/$version.zip"
@@ -728,19 +884,21 @@ function Install-Abseil
 			-DABSL_PROPAGATE_CXX_STD=ON `
             "-DCMAKE_PREFIX_PATH=$global:TargetPrefix" `
             "-DCMAKE_INSTALL_PREFIX=$global:TargetPrefix" `
+            -DABSL_MSVC_STATIC_RUNTIME=ON `
+            $global:RuntimeFlag `
             ..
         if ($LASTEXITCODE -ne 0)
         {
             throw "Failed to configure abseil"
         }
 
-        & cmake --build . --config Release
+        & cmake --build . --config $global:BuildType
         if ($LASTEXITCODE -ne 0)
         {
             throw "Failed to build abseil"
         }
 
-        & cmake --install . --config Release
+        & cmake --install . --config $global:BuildType
         if ($LASTEXITCODE -ne 0)
         {
             throw "Failed to install abseil"
@@ -768,8 +926,113 @@ function Install-Tzdb
 
     if ((Get-InstalledPackageVersion -Name "tzdb") -ne $version)
     {
+        if (-not $global:BuildDeps)
+        {
+            throw "tzdb needs to be installed, but building is disabled."
+        }
+        
         Copy-Item -Path $filePath -Destination (Join-Path $global:TargetPrefix "share") -Force
         Set-InstalledPackage -Name "tzdb" -Version $version
+    }
+}
+
+function Install-Utf8proc
+{
+    $version = $global:PackageVersions["UTF8PROC"]
+
+    if ((Get-InstalledPackageVersion -Name "utf8proc") -eq $version)
+    {
+        return
+    }
+
+    $url = "https://github.com/JuliaStrings/utf8proc/archive/refs/tags/v$version.zip"
+    $filePath = Get-DownloadedFile -Url $url -Filename "utf8proc-$version.zip"
+    Expand-ArchiveRenamingTopLevelDirectory -Path $filePath -DestinationPath (Join-Path $global:TargetPrefix "usr\src") -NewName "utf8proc"
+    $srcDir = Join-Path $global:TargetPrefix "usr\src\utf8proc"
+
+    # We must patch the CMakeLists.txt
+    # 1. Upgrade `cmake_minimum_required(VERSION 3.10)` to `cmake_minimum_required(VERSION 3.15)`
+    # 2. Insert `cmake_policy(SET CMP0091 NEW)` directly after that.
+    $cmakeListsContent = [System.IO.File]::ReadAllText((Join-Path $srcDir "CMakeLists.txt"))
+    $newCmakeListsContent = $cmakeListsContent.Replace("cmake_minimum_required (VERSION 3.10)", "cmake_minimum_required(VERSION 3.15)`ncmake_policy(SET CMP0091 NEW)`n")
+    if ($newCmakeListsContent -eq $cmakeListsContent)
+    {
+        throw "Failed to patch utf8proc's CMakeLists.txt"
+    }
+    [System.IO.File]::WriteAllText((Join-Path $srcDir "CMakeLists.txt"), $newCmakeListsContent)
+
+    $buildDir = Join-Path $srcDir "build"
+    New-Directory $buildDir | Out-Null
+    Push-Location $buildDir
+    try
+    {
+        & cmake `
+            -G "Visual Studio 17 2022" `
+            -A "$global:Target_ARM64_Win32_x64" `
+            "-DCMAKE_PREFIX_PATH=$global:TargetPrefix" `
+            "-DCMAKE_INSTALL_PREFIX=$global:TargetPrefix" `
+            "-DBUILD_SHARED_LIBS=OFF" `
+            $global:RuntimeFlag `
+            ..
+        if ($LASTEXITCODE -ne 0)
+        {
+            throw "Failed to configure utf8proc"
+        }
+
+        & cmake --build . --config $global:BuildType
+        if ($LASTEXITCODE -ne 0)
+        {
+            throw "Failed to build utf8proc"
+        }
+
+        & cmake --install . --config $global:BuildType
+        if ($LASTEXITCODE -ne 0)
+        {
+            throw "Failed to install utf8proc"
+        }
+
+        Rename-Item -Path (Join-Path $global:TargetPrefix "lib\utf8proc_static.lib") -NewName "utf8proc.lib"
+    }
+    finally
+    {
+        Pop-Location
+    }
+
+    Set-InstalledPackage -Name "utf8proc" -Version $version
+}
+
+function Install-Tmbasic
+{
+    # Create cmake build directory
+    $cmakeDir = Join-Path $global:RepositoryRoot "cmake"
+    New-Directory $cmakeDir | Out-Null
+    Push-Location $cmakeDir
+    try
+    {
+        & cmake `
+            -G "Visual Studio 17 2022" `
+            -A "$global:Target_ARM64_Win32_x64" `
+            "-DCMAKE_PREFIX_PATH=$global:TargetPrefix" `
+            "-DTARGET_OS=win" `
+            "-DARCH=$global:Host_arm64_x86_x64" `
+            "-DTARGET_PREFIX=$global:TargetPrefix" `
+            "-DCMAKE_BUILD_TYPE=$global:BuildType" `
+            $global:RuntimeFlag `
+            ..
+        if ($LASTEXITCODE -ne 0)
+        {
+            throw "Failed to configure tmbasic"
+        }
+
+        & cmake --build . --config $global:BuildType
+        if ($LASTEXITCODE -ne 0)
+        {
+            throw "Failed to build tmbasic"
+        }
+    }
+    finally
+    {
+        Pop-Location
     }
 }
 

@@ -6,6 +6,10 @@
 #include "vm/List.h"
 #include "vm/String.h"
 
+#ifdef _WIN32
+#include <io.h> // _access
+#endif
+
 using shared::Error;
 
 namespace vm {
@@ -46,7 +50,11 @@ void systemCallDeleteFile(const SystemCallInput& input, SystemCallResult* /*resu
 // (filePath as String) as Boolean
 void systemCallFileExists(const SystemCallInput& input, SystemCallResult* result) {
     auto path = castString(input.getObject(-1))->value;
+#if _WIN32
+    result->returnedValue.setBoolean(_access(path.c_str(), 0) == 0);
+#else
     result->returnedValue.setBoolean(access(path.c_str(), F_OK) == 0);
+#endif
 }
 
 // (parts as List of String) as String

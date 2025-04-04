@@ -7,6 +7,12 @@ set -euxo pipefail
 cd "$( dirname "${BASH_SOURCE[0]}" )"
 cd ..
 
+# This script doesn't support Windows.
+if [[ "$TARGET_OS" == "win" ]]; then
+    echo "This script doesn't support Windows."
+    exit 1
+fi
+
 # Avoid bash error about uninitialized variables when building for non-Linux.
 if [[ "$TARGET_OS" != "linux" ]]; then
     LINUX_DISTRO=""
