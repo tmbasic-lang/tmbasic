@@ -12,7 +12,12 @@ export TRIPLE="i586-alpine-linux-musl"
 
 # Build unless $NO_BUILD is non-empty.
 if [ -z "${NO_BUILD+x}" ]; then
-    scripts/sysrootDownload.sh
+    # Check for files/sysroot-$ARCH.tar.gz
+    if [ ! -f "files/sysroot-$ARCH.tar.gz" ]; then
+        echo "Error: files/sysroot-$ARCH.tar.gz not found. Please run build/sysroots/build.sh first."
+        exit 1
+    fi
+
     scripts/depsDownload.sh
 
     if [ "$(docker image ls $IMAGE_NAME | wc -l)" == "1" ]; then
