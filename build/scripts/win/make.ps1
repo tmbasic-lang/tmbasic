@@ -392,16 +392,12 @@ function Install-Mpdecimal
 
         # We're supposed to be able to pass /d to get a debug build, but for some reason it isn't working.
         # Let's instead modify the bat scripts directly.
-        $batContent = [System.IO.File]::ReadAllText($batFile)
         if ($global:BuildType -eq "Debug")
         {
+            $batContent = [System.IO.File]::ReadAllText($batFile)
             $batContent = Get-PatchedString $batContent "set dbg=0" "set dbg=1"
+            [System.IO.File]::WriteAllText($batFile, $batContent)
         }
-        else
-        {
-            $batContent = Get-PatchedString $batContent "set dbg=1" "set dbg=0"
-        }
-        [System.IO.File]::WriteAllText($batFile, $batContent)
 
         & cmd /c "$batFile"
         if ($LASTEXITCODE -ne 0)
