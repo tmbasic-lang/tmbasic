@@ -395,11 +395,11 @@ function Install-Mpdecimal
         $batContent = [System.IO.File]::ReadAllText($batFile)
         if ($global:BuildType -eq "Debug")
         {
-            $batContent = $batContent.Replace("set dbg=0", "set dbg=1")
+            $batContent = Get-PatchedString $batContent "set dbg=0" "set dbg=1"
         }
         else
         {
-            $batContent = $batContent.Replace("set dbg=1", "set dbg=0")
+            $batContent = Get-PatchedString $batContent "set dbg=1" "set dbg=0"
         }
         [System.IO.File]::WriteAllText($batFile, $batContent)
 
@@ -596,27 +596,24 @@ function Install-Zlib
         # Rewrite zlibvc.vcxproj to replace "DynamicLibrary" with "StaticLibrary".
         $vcxprojPath = Join-Path $srcDir "contrib\vstudio\vc17\zlibvc.vcxproj"
         $vcxprojContent = [System.IO.File]::ReadAllText($vcxprojPath)
-        $vcxprojContent = $vcxprojContent.Replace("DynamicLibrary", "StaticLibrary")
+        $vcxprojContent = Get-PatchedString $vcxprojContent "DynamicLibrary" "StaticLibrary"
         
         # Also make sure to use the static runtime (/MT or /MTd)
-        $newVcxprojContent = $vcxprojContent
         if ($global:BuildType -eq "Debug")
         {
-            $newVcxprojContent = $newVcxprojContent.Replace("<RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>", "<RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>")
-            $newVcxprojContent = $newVcxprojContent.Replace("<RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>", "<RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>")
+            $vcxprojContent = Get-PatchedString $vcxprojContent "<RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>" "<RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>"
+            $vcxprojContent = Get-PatchedString $vcxprojContent "<RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>" "<RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>"
+            $vcxprojContent = Get-PatchedString $vcxprojContent "<RuntimeLibrary>MultiThreaded</RuntimeLibrary>" "<RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>"
         }
         else
         {
-            $newVcxprojContent = $newVcxprojContent.Replace("<RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>", "<RuntimeLibrary>MultiThreaded</RuntimeLibrary>")
-            $newVcxprojContent = $newVcxprojContent.Replace("<RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>", "<RuntimeLibrary>MultiThreaded</RuntimeLibrary>")
+            $vcxprojContent = Get-PatchedString $vcxprojContent "<RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>" "<RuntimeLibrary>MultiThreaded</RuntimeLibrary>"
+            $vcxprojContent = Get-PatchedString $vcxprojContent "<RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>" "<RuntimeLibrary>MultiThreaded</RuntimeLibrary>"
+            $vcxprojContent = Get-PatchedString $vcxprojContent "<RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>" "<RuntimeLibrary>MultiThreaded</RuntimeLibrary>"
         }
-
-        if ($newVcxprojContent -eq $vcxprojContent)
-        {
-            throw "Failed to patch zlibvc.vcxproj"
-        }
+        $vcxprojContent = Get-PatchedString $vcxprojContent "ZLIB_WINAPI;" ""
         
-        [System.IO.File]::WriteAllText($vcxprojPath, $newVcxprojContent)
+        [System.IO.File]::WriteAllText($vcxprojPath, $vcxprojContent)
     
         & "$global:Msbuild" zlibvc.vcxproj /p:Configuration=$global:BuildType /p:Platform=$global:Target_ARM64_Win32_x64
         if ($LASTEXITCODE -ne 0)

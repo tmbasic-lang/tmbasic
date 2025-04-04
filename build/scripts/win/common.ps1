@@ -337,3 +337,27 @@ function Get-DownloadedFile
         throw
     }
 }
+
+function Get-PatchedString
+{
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        $Haystack,
+
+        [Parameter(Mandatory = $true)]
+        $Needle,
+
+        [Parameter(Mandatory = $true)]
+        $Replacement
+    )
+
+    $result = $Haystack
+    $result = $result.Replace($Needle, $Replacement)
+    if ($result -eq $Haystack)
+    {
+        throw "Failed to patch!"
+    }
+
+    return $result
+}
