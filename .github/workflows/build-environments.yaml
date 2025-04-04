@@ -52,8 +52,17 @@ jobs:
           export TIMESTAMP=$(date -u "+%Y%m%d%H%M%S")
           export IMAGE_TAG=${{ matrix.platform }}-$TIMESTAMP
           export IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/tmbasic-build-env:$IMAGE_TAG"
-          export PUSH_ONLY=1
+          export BUILD_ONLY=1
           ./${{ matrix.platform }}.sh
+
+          echo "Exporting container to tarball."
+          docker save "$IMAGE_NAME" | gzip -c > "tmbasic-build-env-${{ matrix.platform }}-$TIMESTAMP.tar.gz"
+
+      - name: Upload environment
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.platform }}
+          path: tmbasic-build-env-${{ matrix.platform }}-*.tar.gz
 
   build-win:
     runs-on: windows-latest
