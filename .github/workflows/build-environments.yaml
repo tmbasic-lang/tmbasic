@@ -49,13 +49,12 @@ jobs:
           ARCH=${{ matrix.arch }} scripts/sysrootDownload.sh
 
           echo "Building container."
-          export TIMESTAMP=$(date -u "+%Y%m%d%H%M%S")
           export IMAGE_NAME="tmbasic-build-env"
           export BUILD_ONLY=1
           ./${{ matrix.platform }}.sh
 
           echo "Exporting container to tarball."
-          docker save "$IMAGE_NAME" | gzip -c > "../tmbasic-build-env-${{ matrix.platform }}-$TIMESTAMP.tar.gz"
+          docker save "$IMAGE_NAME" | gzip -c > "../tmbasic-build-env-${{ matrix.platform }}.tar.gz"
 
       - name: Upload environment
         uses: actions/upload-artifact@v4
@@ -84,8 +83,7 @@ jobs:
           build\${{ matrix.platform }}.ps1 -BuildDeps -BuildType Release -UseR2Mirror
 
           Write-Host "Archiving environment."
-          $timestamp = Get-Date -Format "yyyyMMddHHmmss" -AsUTC
-          $filename = "tmbasic-build-env-${{ matrix.platform }}-$timestamp.zip"
+          $filename = "tmbasic-build-env-${{ matrix.platform }}.zip"
           Compress-Archive -Path "${{ matrix.platform }}", "win-native" -DestinationPath "$filename"
 
       - name: Upload environment
@@ -126,8 +124,7 @@ jobs:
           popd
 
           echo "Archiving environment."
-          export TIMESTAMP=$(date -u "+%Y%m%d%H%M%S")
-          export FILENAME=tmbasic-build-env-${{ matrix.platform }}-$TIMESTAMP.tar.gz
+          export FILENAME=tmbasic-build-env-${{ matrix.platform }}.tar.gz
           tar zcf "$FILENAME" "mac-${{ matrix.short_arch }}"
 
       - name: Upload environment
@@ -135,3 +132,76 @@ jobs:
         with:
           name: ${{ matrix.platform }}
           path: tmbasic-build-env-${{ matrix.platform }}-*.tar.gz
+
+  upload:
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Upload all artifacts to R2
+        run: |
+          set -euxo pipefail
+
+          # Verify .tar.gz artifacts exist (Linux) and upload
+          timestamp=$(date -u "+%Y%m%d%H%M%S")
+          for platform in linux-arm64 linux-arm32 linux-x64 linux-x86; do
+            if [ ! -f "tmbasic-build-env-${platform}.tar.gz" ]; then
+              echo "Error: tmbasic-build-env-${platform}.tar.gz does not exist"
+              exit 1
+            fi
+
+            aws s3 cp \
+              --endpoint "$R2_ENDPOINT" \
+              --checksum-algorithm CRC32 \
+              "tmbasic-build-env-${platform}.tar.gz" \
+              "s3://tmbasic-artifacts/linux-build-envs/tmbasic-build-env-${platform}-${timestamp}.tar.gz"
+          done
+
+          # Verify .zip artifacts exist (Windows) and upload
+          for platform in win-arm64 win-x64 win-x86; do
+            if [ ! -f "tmbasic-build-env-${platform}.zip" ]; then
+              echo "Error: tmbasic-build-env-${platform}.zip does not exist"
+              exit 1
+            fi
+
+            aws s3 cp \
+              --endpoint "$R2_ENDPOINT" \
+              --checksum-algorithm CRC32 \
+              "tmbasic-build-env-${platform}.zip" \
+              "s3://tmbasic-artifacts/win-build-envs/tmbasic-build-env-${platform}-${timestamp}.zip"
+          done
+
+          # Verify .zip artifacts exist (macOS) and upload
+          for platform in mac-arm64 mac-x64; do
+            if [ ! -f "tmbasic-build-env-${platform}.zip" ]; then
+              echo "Error: tmbasic-build-env-${platform}.zip does not exist"
+              exit 1
+            fi
+
+            aws s3 cp \
+              --endpoint "$R2_ENDPOINT" \
+              --checksum-algorithm CRC32 \
+              "tmbasic-build-env-${platform}.zip" \
+              "s3://tmbasic-artifacts/mac-build-envs/tmbasic-build-env-${platform}-${timestamp}.zip"
+          done
+
+          # Print all the filenames
+          ls -l
+
+      - name: Delete intermediate artifacts
+        uses: geekyeggo/delete-artifact@v5
+        with:
+          failOnError: false
+          name: |
+            linux-arm64
+            linux-arm32
+            linux-x64
+            linux-x86
+            win-arm64
+            win-x64
+            win-x86
