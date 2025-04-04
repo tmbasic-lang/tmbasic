@@ -7,7 +7,7 @@ param
     [ValidateSet("Release", "Debug")]
     [string]$BuildType,
 
-    [switch]$UseS3Mirror
+    [switch]$UseR2Mirror
 )
 
-& "$PSScriptRoot/scripts/win/make.ps1" -Platform x86 -BuildDeps $BuildDeps -BuildApp $BuildApp -BuildType $BuildType -UseS3Mirror $UseS3Mirror
+& "$PSScriptRoot/scripts/win/make.ps1" -Platform x86 -BuildDeps $BuildDeps -BuildApp $BuildApp -BuildType $BuildType -UseR2Mirror $UseR2Mirror

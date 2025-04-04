@@ -13,7 +13,7 @@ param
     $BuildType,
 
     [Parameter(Mandatory = $true)]
-    $UseS3Mirror
+    $UseR2Mirror
 )
 
 # 1 = Print commands as they are executed
@@ -31,7 +31,7 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 $global:BuildDeps = $BuildDeps # boolean
 $global:BuildApp = $BuildApp # boolean
 $global:BuildType = $BuildType # "Release" or "Debug"
-$global:UseS3Mirror = $UseS3Mirror # boolean
+$global:UseR2Mirror = $UseR2Mirror # boolean
 $global:Host_arm64_x86_x64 = $null # "arm64", "x86", or "x64"
 $global:Target_arm64v8_i686_x86_64 = $null # "arm64v8", "i686", or "x86_64"
 $global:Target_arm64_x86_x64 = $null # "arm64", "x86", or "x64"
@@ -140,9 +140,9 @@ function Install-Cmake
         default { throw "Unsupported processor architecture: $env:PROCESSOR_ARCHITECTURE" }
     }
 
-    if (-not $global:UseS3Mirror)
+    if (-not $global:UseR2Mirror)
     {
-        # Download the non-native platform version of CMake, too, for the purpose of uploading to the S3 mirror.
+        # Download the non-native platform version of CMake, too, for the purpose of uploading to the R2 mirror.
         $nonNativeUrl = "https://github.com/Kitware/CMake/releases/download/v$version/cmake-$version-windows-$nonNativePlatform.zip"
         $nonNativeZipFilename = "cmake-$version-windows-$nonNativePlatform.zip"
         Get-DownloadedFile -Url $nonNativeUrl -Filename $nonNativeZipFilename

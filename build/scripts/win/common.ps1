@@ -297,19 +297,19 @@ function Get-DownloadedFile
     $tempFilePath = Join-Path $global:DownloadsDir ([System.IO.Path]::GetRandomFileName())
     try
     {
-        if ($global:UseS3Mirror)
+        if ($global:UseR2Mirror)
         {
-            $mirrorUrl = "s3://tmbasic/deps/$Filename"
+            $mirrorUrl = "https://tmbasic-archive.com/deps/$Filename"
             Write-Host "Downloading: $mirrorUrl"
             Write-Host "Mirror of: $Url"
-            & aws.exe s3 cp "$mirrorUrl" "$tempFilePath" --request-payer requester --only-show-errors | Out-Host
+            $Url = $mirrorUrl
         }
         else
         {
             Write-Host "Downloading: $Url"
-            & curl.exe -Lso "$tempFilePath" "$Url" | Out-Host
         }
 
+        & curl.exe -Lso "$tempFilePath" "$Url" | Out-Host
         if ($LASTEXITCODE -ne 0)
         {
             throw "Failed to download $Url"

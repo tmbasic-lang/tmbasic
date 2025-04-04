@@ -81,30 +81,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install AWS CLI
-        shell: pwsh
-        run: |
-          curl.exe -Lo AWSCLIV2.msi "https://awscli.amazonaws.com/AWSCLIV2.msi"
-          Start-Process msiexec.exe -Wait -ArgumentList '/i AWSCLIV2.msi /qn'
-
       - name: Install Build Environment
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: us-east-1
-          AWS_DEFAULT_OUTPUT: json
         shell: bash
         run: |
           set -euxo pipefail
           export FILENAME=$(awk -F= '{ if ($1 == "build-environment-${{ matrix.platform }}") print $2 }' build/tags.ini)
-          export S3_URL="s3://tmbasic/win-build-envs/$FILENAME"
-          aws s3 cp "$S3_URL" build-environment.zip
+          curl.exe -Lso build-environment.zip "https://tmbasic-archive.com/win-build-envs/$FILENAME"
           unzip build-environment.zip
 
       - name: Build
         run: |
           Write-Host "Building environment."
-          build\${{ matrix.platform }}.ps1 -BuildApp -BuildType Release -UseS3Mirror
+          build\${{ matrix.platform }}.ps1 -BuildApp -BuildType Release -UseR2Mirror
 
           New-Item -ItemType Directory -Path intermediate
           Move-Item -Path cmake/bin/Release/tmbasic.exe, cmake/bin/Release/runtime*.exe -Destination intermediate
@@ -133,18 +121,15 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: us-east-1
           AWS_DEFAULT_OUTPUT: json
           NO_BUILD: 1
         run: |
           set -euxo pipefail
           find . -type f -name "*.sh" -exec chmod +x {} \;
-          brew install awscli
           brew install fileicon          
 
           export FILENAME=$(awk -F= '{ if ($1 == "build-environment-${{ matrix.platform }}") print $2 }' build/tags.ini)
-          export S3_URL="s3://tmbasic/mac-build-envs/$FILENAME"
-          aws s3 cp "$S3_URL" build-environment.tar.gz
+          curl.exe -Lso build-environment.tar.gz "https://tmbasic-archive.com/mac-build-envs/$FILENAME"
           tar zxf build-environment.tar.gz
 
           pushd build

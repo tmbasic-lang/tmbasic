@@ -41,9 +41,8 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: us-east-1
           AWS_DEFAULT_OUTPUT: json
-          USE_S3_MIRROR: 1
+          USE_R2_MIRROR: 1
         run: |
           set -euxo pipefail
           find . -type f -name "*.sh" -exec chmod +x {} \;
@@ -84,7 +83,6 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: us-east-1
           AWS_DEFAULT_OUTPUT: json
         run: |
           $ErrorActionPreference = "Stop"
@@ -98,7 +96,7 @@ jobs:
           Compress-Archive -Path "${{ matrix.platform }}", "win-native" -DestinationPath "$filename"
 
           Write-Host "Uploading environment."
-          $s3Url = "s3://tmbasic/win-build-envs/$filename"
+          $s3Url = "s3://tmbasic-archive/win-build-envs/$filename"
           aws s3 cp "$filename" "$s3Url"
 
           Write-Host "Finished building environment: $s3Url"
@@ -122,9 +120,8 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: us-east-1
           AWS_DEFAULT_OUTPUT: json
-          USE_S3_MIRROR: 1
+          USE_R2_MIRROR: 1
         run: |
           set -euxo pipefail
           find . -type f -name "*.sh" -exec chmod +x {} \;
@@ -148,7 +145,7 @@ jobs:
           tar zcf "../$FILENAME" "mac-${{ matrix.short_arch }}"
 
           echo "Uploading environment tarball."
-          export S3_URL="s3://tmbasic/mac-build-envs/$FILENAME"
+          export S3_URL="s3://tmbasic-archive/mac-build-envs/$FILENAME"
           aws s3 cp "../$FILENAME" $S3_URL
 
           echo "Finished building environment: $S3_URL"
