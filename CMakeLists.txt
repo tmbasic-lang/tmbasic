@@ -272,10 +272,12 @@ if(STRIP_TMBASIC)
 endif()
 
 # Copy tzdb.tar to tzdb.dat in the executable directory
-add_custom_command(
-    TARGET tmbasic POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${TARGET_PREFIX}/share/tzdb.tar $<TARGET_FILE_DIR:tmbasic>/tzdb.dat
-)
+if(NOT TARGET_OS STREQUAL "win")
+    add_custom_command(
+        TARGET tmbasic POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy ${TARGET_PREFIX}/share/tzdb.tar $<TARGET_FILE_DIR:tmbasic>/tzdb.dat
+    )
+endif()
 
 # Rename the runtime. Don't try to simply set this as the target's output name because on Windows it'll end up with an
 # extra .exe extension.

@@ -104,7 +104,6 @@ function Main
     Install-Libzip
     Install-Cli11
     Install-Abseil
-    Install-Tzdb
     Install-Utf8proc
 
     if ($BuildApp)
@@ -920,30 +919,6 @@ function Install-Abseil
     }
 
     Set-InstalledPackage -Name "abseil" -Version $version
-}
-
-function Install-Tzdb
-{
-    $version = $global:PackageVersions["TZDB"]
-
-    # We can't build this ourselves in Windows. tzdb.tar must be provided in the repository root.
-    # Always check for the file even if we're not installing it.
-    $filePath = Join-Path $global:RepositoryRoot "tzdb.tar"
-    if (-not (Test-Path $filePath))
-    {
-        throw "tzdb.tar not found in repository root."
-    }
-
-    if ((Get-InstalledPackageVersion -Name "tzdb") -ne $version)
-    {
-        if (-not $global:BuildDeps)
-        {
-            throw "tzdb needs to be installed, but building is disabled."
-        }
-        
-        Copy-Item -Path $filePath -Destination (Join-Path $global:TargetPrefix "share") -Force
-        Set-InstalledPackage -Name "tzdb" -Version $version
-    }
 }
 
 function Install-Utf8proc
