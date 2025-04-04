@@ -15,7 +15,9 @@ function downloadFile {
     if [ -n "${USE_R2_MIRROR:-}" ]; then
         if [ ! -f "$1" ]; then
             echo "Downloading $2 from R2 mirror..."
-            aws s3 cp "s3://tmbasic-archive/deps/$1" "$1" --request-payer requester
+            URL="https://tmbasic-archive.com/deps/$1"
+            curl -L -o "$1.tmp" "$URL"
+            mv -f "$1.tmp" "$1"
         fi
         DEPFILES="$DEPFILES $1"
         return
