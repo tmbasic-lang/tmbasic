@@ -50,8 +50,7 @@ jobs:
 
           echo "Building container."
           export TIMESTAMP=$(date -u "+%Y%m%d%H%M%S")
-          export IMAGE_TAG=${{ matrix.platform }}-$TIMESTAMP
-          export IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/tmbasic-build-env:$IMAGE_TAG"
+          export IMAGE_NAME="tmbasic-build-env"
           export BUILD_ONLY=1
           ./${{ matrix.platform }}.sh
 
