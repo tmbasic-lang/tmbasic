@@ -88,7 +88,7 @@ jobs:
           $ErrorActionPreference = "Stop"
 
           Write-Host "Building environment."
-          build\${{ matrix.platform }}.ps1 -BuildDeps -BuildType Release -UseS3Mirror
+          build\${{ matrix.platform }}.ps1 -BuildDeps -BuildType Release -UseR2Mirror
 
           Write-Host "Archiving environment."
           $timestamp = Get-Date -Format "yyyyMMddHHmmss" -AsUTC
@@ -97,7 +97,7 @@ jobs:
 
           Write-Host "Uploading environment."
           $s3Url = "s3://tmbasic-archive/win-build-envs/$filename"
-          aws s3 cp "$filename" "$s3Url"
+          aws s3 cp "$filename" "$s3Url" --endpoint-url https://367bdafee4af5175025295154f92e84a.r2.cloudflarestorage.com
 
           Write-Host "Finished building environment: $s3Url"
 
@@ -146,6 +146,6 @@ jobs:
 
           echo "Uploading environment tarball."
           export S3_URL="s3://tmbasic-archive/mac-build-envs/$FILENAME"
-          aws s3 cp "../$FILENAME" $S3_URL
+          aws s3 cp "../$FILENAME" $S3_URL --endpoint-url https://367bdafee4af5175025295154f92e84a.r2.cloudflarestorage.com
 
           echo "Finished building environment: $S3_URL"
