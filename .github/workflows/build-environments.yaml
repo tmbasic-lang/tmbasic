@@ -97,7 +97,7 @@ jobs:
 
           Write-Host "Uploading environment."
           $s3Url = "s3://tmbasic-archive/win-build-envs/$filename"
-          aws s3 cp "$filename" "$s3Url" --endpoint-url https://367bdafee4af5175025295154f92e84a.r2.cloudflarestorage.com
+          aws s3 cp "$filename" "$s3Url" --endpoint-url https://367bdafee4af5175025295154f92e84a.r2.cloudflarestorage.com --max-attempts 20
 
           Write-Host "Finished building environment: $s3Url"
 
@@ -146,6 +146,6 @@ jobs:
 
           echo "Uploading environment tarball."
           export S3_URL="s3://tmbasic-archive/mac-build-envs/$FILENAME"
-          aws s3 cp "../$FILENAME" $S3_URL --endpoint-url https://367bdafee4af5175025295154f92e84a.r2.cloudflarestorage.com
+          aws s3 cp "../$FILENAME" $S3_URL --endpoint-url https://367bdafee4af5175025295154f92e84a.r2.cloudflarestorage.com --max-attempts 20
 
           echo "Finished building environment: $S3_URL"
