@@ -129,7 +129,7 @@ jobs:
           brew install fileicon          
 
           export FILENAME=$(awk -F= '{ if ($1 == "build-environment-${{ matrix.platform }}") print $2 }' build/tags.ini)
-          curl.exe -Lso build-environment.tar.gz "https://tmbasic-archive.com/mac-build-envs/$FILENAME"
+          curl -Lso build-environment.tar.gz "https://tmbasic-archive.com/mac-build-envs/$FILENAME"
           tar zxf build-environment.tar.gz
 
           pushd build
