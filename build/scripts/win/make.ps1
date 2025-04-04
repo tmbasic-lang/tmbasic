@@ -622,7 +622,7 @@ function Install-Zlib
         }
 
         # Copy the static library to the lib directory
-        Copy-Item -Path (Join-Path $srcDir "contrib\vstudio\vc17\$global:Target_ARM64_Win32_x64\ZlibDll$global:BuildType\zlibwapi.lib") -Destination (Join-Path $global:TargetPrefix "lib\z.lib") -Force
+        Copy-Item -Path (Join-Path $srcDir "contrib\vstudio\vc17\$global:Target_arm64_x86_x64\ZlibDll$global:BuildType\zlibwapi.lib") -Destination (Join-Path $global:TargetPrefix "lib\z.lib") -Force
 
         # Copy the header files to the include directory
         Copy-Item -Path (Join-Path $srcDir "zlib.h") -Destination (Join-Path $global:TargetPrefix "include") -Force
