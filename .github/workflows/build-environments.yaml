@@ -55,7 +55,7 @@ jobs:
           ./${{ matrix.platform }}.sh
 
           echo "Exporting container to tarball."
-          docker save "$IMAGE_NAME" | gzip -c > "tmbasic-build-env-${{ matrix.platform }}-$TIMESTAMP.tar.gz"
+          docker save "$IMAGE_NAME" | gzip -c > "../tmbasic-build-env-${{ matrix.platform }}-$TIMESTAMP.tar.gz"
 
       - name: Upload environment
         uses: actions/upload-artifact@v4
