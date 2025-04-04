@@ -119,9 +119,6 @@ jobs:
 
       - name: Build
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_OUTPUT: json
           NO_BUILD: 1
         run: |
           set -euxo pipefail

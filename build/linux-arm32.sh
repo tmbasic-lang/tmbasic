@@ -16,7 +16,7 @@ if [ -z "${NO_BUILD+x}" ]; then
     scripts/depsDownload.sh
 
     if [ "$(docker image ls $IMAGE_NAME | wc -l)" == "1" ]; then
-        cat files/Dockerfile.build-linux | sed "s=\$IMAGE_NAME=$IMAGE_NAME=g; s/\$DOCKER_ARCH/$DOCKER_ARCH/g; s/\$ARCH/$ARCH/g; s/\$USER/$USER/g; s/\$TRIPLE/$TRIPLE/g" | docker buildx build --progress plain $BUILDX_FLAGS -t $IMAGE_NAME files -f-
+        cat files/Dockerfile.build-linux | sed "s=\$IMAGE_NAME=$IMAGE_NAME=g; s/\$DOCKER_ARCH/$DOCKER_ARCH/g; s/\$ARCH/$ARCH/g; s/\$USER/$USER/g; s/\$TRIPLE/$TRIPLE/g" | docker buildx build --progress plain -t $IMAGE_NAME files -f-
     fi
 fi
 
