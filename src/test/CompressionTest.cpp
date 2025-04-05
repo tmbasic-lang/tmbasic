@@ -15,7 +15,7 @@ using shared::tar;
 using shared::TarEntry;
 
 TEST(CompressionTest, Tar) {
-    std::vector<TarEntry> entries{
+    std::vector<TarEntry> const entries{
         TarEntry{ "a", std::vector<uint8_t>{ 1, 2, 3 }, 0777 },
         TarEntry{ "b", std::vector<uint8_t>{ 'H', 'i' }, 0664 },
     };
@@ -24,7 +24,7 @@ TEST(CompressionTest, Tar) {
 }
 
 TEST(CompressionTest, Gzip) {
-    std::vector<uint8_t> vec{ 1, 2, 3 };
+    std::vector<uint8_t> const vec{ 1, 2, 3 };
     auto gz = gzip(vec);
     ASSERT_EQ(23UL, gz.size());
     auto orig = gunzip(gz);
@@ -35,22 +35,22 @@ TEST(CompressionTest, Gzip) {
 }
 
 TEST(CompressionTest, Zip) {
-    std::vector<ZipEntry> entries{
+    std::vector<ZipEntry> const entries{
         ZipEntry{ "a", std::vector<uint8_t>{ 1, 2, 3 } },
         ZipEntry{ "b", std::vector<uint8_t>{ 'H', 'i' } },
     };
     const std::string kZipFilePath = "/tmp/tmbasic_CompressionTest_CreateZipArchive.zip";
     zip(kZipFilePath, entries);
-    struct stat st;
+    struct stat st {};
     stat(kZipFilePath.c_str(), &st);
     unlink(kZipFilePath.c_str());
     ASSERT_EQ(187, st.st_size);
 }
 
 TEST(MicrotarTest, Roundtrip) {
-    std::array<char, 5000> data = { 0 };
+    std::array<char, 5000> data{};
     for (size_t i = 0; i < data.size(); i++) {
-        data[i] = static_cast<char>(i % 256);
+        data.at(i) = static_cast<char>(i % 256);
     }
 
     // Write
@@ -80,7 +80,7 @@ TEST(MicrotarTest, Roundtrip) {
 
             // Verify buf vs. data
             for (size_t i = 0; i < buf.size(); i++) {
-                ASSERT_EQ(data[i], buf[i]);
+                ASSERT_EQ(data.at(i), buf.at(i));
             }
 
             mtar_next(&tar);

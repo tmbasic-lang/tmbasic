@@ -26,5 +26,6 @@
 /turbo/
 /tvision/
 /valgrind*
-debug.log
-tzdb.tar
+/debug.log
+/tzdb.tar
+/tidy.log

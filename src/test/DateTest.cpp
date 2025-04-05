@@ -3,9 +3,9 @@
 #include "vm/date.h"
 
 TEST(DateTest, DateTimePartsRoundTrip) {
-    vm::DateTimeParts parts{ 2019, 12, 31, 23, 55, 59, 999 };
+    vm::DateTimeParts const parts{ 2019, 12, 31, 23, 55, 59, 999 };
     auto value = parts.toValue();
-    vm::DateTimeParts roundTripParts{ value };
+    vm::DateTimeParts const roundTripParts{ value };
     ASSERT_EQ(parts.year, roundTripParts.year);
     ASSERT_EQ(parts.month, roundTripParts.month);
     ASSERT_EQ(parts.day, roundTripParts.day);
@@ -16,9 +16,9 @@ TEST(DateTest, DateTimePartsRoundTrip) {
 }
 
 TEST(DateTest, DateTimeOffsetPartsRoundTrip) {
-    vm::DateTimeOffsetParts parts{ 2019, 12, 31, 23, 55, 59, 999, -6 * vm::kMillisecondsPerHour };
+    vm::DateTimeOffsetParts const parts{ 2019, 12, 31, 23, 55, 59, 999, -6 * vm::kMillisecondsPerHour };
     auto value = parts.toValue();
-    vm::DateTimeOffsetParts roundTripParts{ value };
+    vm::DateTimeOffsetParts const roundTripParts{ value };
     ASSERT_EQ(parts.year, roundTripParts.year);
     ASSERT_EQ(parts.month, roundTripParts.month);
     ASSERT_EQ(parts.day, roundTripParts.day);

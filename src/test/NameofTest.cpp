@@ -3,12 +3,19 @@
 
 class BaseClass {
    public:
-    virtual ~BaseClass() {}
+    virtual ~BaseClass() = default;
+
+    // Rule of five implementation
+    BaseClass() = default;
+    BaseClass(const BaseClass&) = default;
+    BaseClass& operator=(const BaseClass&) = default;
+    BaseClass(BaseClass&&) = default;
+    BaseClass& operator=(BaseClass&&) = default;
 };
 
 class TestClass : public BaseClass {
    public:
-    int memberVariable;
+    int memberVariable{};
 };
 
 enum class TestEnum { kValue };
@@ -22,7 +29,7 @@ TEST(NameofTest, TestClassName) {
 }
 
 TEST(NameofTest, MemberVariableName) {
-    TestClass x;
+    TestClass const x;
     ASSERT_EQ("memberVariable", NAMEOF(x.memberVariable));
 }
 

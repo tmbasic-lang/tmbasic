@@ -2,5 +2,5 @@
 
 #include "../common.h"
 
-std::string readFile(std::string filename);
-std::vector<uint8_t> readBinaryFile(std::string filename);
+std::string readFile(const std::string& filename);
+std::vector<uint8_t> readBinaryFile(const std::string& filename);

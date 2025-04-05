@@ -11,11 +11,9 @@
 #include "vm/String.h"
 #include "vm/date.h"
 
-using compiler::TargetPlatform;
 using std::istringstream;
 using std::make_unique;
 using std::ostringstream;
-using std::runtime_error;
 using std::string;
 using std::vector;
 using vm::Interpreter;
@@ -60,9 +58,7 @@ static void runCodeCore(
 
             auto error = interpreter->getError();
             if (error.has_value()) {
-                consoleOutputStream << "Error" << std::endl
-                                    << error->code.getString() << std::endl
-                                    << error->message << std::endl;
+                consoleOutputStream << "Error" << '\n' << error->code.getString() << '\n' << error->message << '\n';
             }
         } catch (std::exception& ex) {
             consoleOutputStream << "Uncaught runtime error\n" << ex.what() << "\n";
@@ -126,19 +122,19 @@ static void runCode(const string& basFile) {
 
     std::vector<size_t> sectionStarts{};
 
-    string inputSentinel = "--input--\n";
+    string const inputSentinel = "--input--\n";
     auto inputStart = basFile.find(inputSentinel);
     if (inputStart != string::npos) {
         sectionStarts.push_back(inputStart);
     }
 
-    string outputSentinel = "--output--\n";
+    string const outputSentinel = "--output--\n";
     auto outputStart = basFile.find(outputSentinel);
     if (outputStart != string::npos) {
         sectionStarts.push_back(outputStart);
     }
 
-    string casesSentinel = "--cases--\n";
+    string const casesSentinel = "--cases--\n";
     auto casesStart = basFile.find(casesSentinel);
     if (casesStart != string::npos) {
         sectionStarts.push_back(casesStart);
@@ -146,7 +142,9 @@ static void runCode(const string& basFile) {
 
     std::sort(sectionStarts.begin(), sectionStarts.end());
 
-    string input, expectedOutput, cases;
+    string input;
+    string expectedOutput;
+    string cases;
     for (size_t i = 0; i < sectionStarts.size(); i++) {
         auto start = sectionStarts.at(i);
         auto next = (i + 1 < sectionStarts.size()) ? sectionStarts.at(i + 1) : basFile.size();
@@ -165,7 +163,7 @@ static void runCode(const string& basFile) {
     }
 
     string source;
-    if (sectionStarts.size() > 0) {
+    if (!sectionStarts.empty()) {
         source = basFile.substr(0, sectionStarts.at(0));
     } else {
         source = basFile;
@@ -188,7 +186,7 @@ static void runCode(const string& basFile) {
     }
 }
 
-static void run(string dir, string filenameWithoutExtension) {
+static void run(const string& dir, const string& filenameWithoutExtension) {
     auto code = readFile(dir + "/" + filenameWithoutExtension + ".bas");
     runCode(code);
 }

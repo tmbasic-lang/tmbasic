@@ -13,7 +13,7 @@ class DecimalTest : public ::testing::Test {
     void SetUp() override { decimal::context = decimal::IEEEContext(decimal::DECIMAL128); }
 };
 
-static std::string roundtrip(std::string str) {
+static std::string roundtrip(const std::string& str) {
     return decimalToString(parseDecimalString(str));
 }
 
@@ -119,7 +119,7 @@ TEST_F(DecimalTest, NotANumber) {
 
 TEST_F(DecimalTest, DoubleToDecimal1) {
     auto actual = doubleToDecimal(1);
-    Decimal expected = 1;
+    Decimal const expected = 1;
     ASSERT_EQ(expected, actual);
 }
 
@@ -132,13 +132,13 @@ TEST_F(DecimalTest, DoubleToDecimal1_5) {
 
 TEST_F(DecimalTest, DoubleToDecimal0) {
     auto actual = doubleToDecimal(0);
-    Decimal expected = 0;
+    Decimal const expected = 0;
     ASSERT_EQ(expected, actual);
 }
 
 TEST_F(DecimalTest, DoubleToDecimalNeg0) {
     auto actual = doubleToDecimal(-0);
-    Decimal expected = -0;
+    Decimal const expected = -0;
     ASSERT_EQ(expected, actual);
 }
 
@@ -173,25 +173,25 @@ TEST_F(DecimalTest, DoubleToDecimalNeg1234567_875) {
 
 TEST_F(DecimalTest, DecimalToDouble1) {
     auto actual = decimalToDouble(Decimal("1"));
-    double expected = 1;
+    double const expected = 1;
     ASSERT_EQ(expected, actual);
 }
 
 TEST_F(DecimalTest, DecimalToDouble1_5) {
     auto actual = decimalToDouble(Decimal("1.5"));
-    double expected = 1.5;
+    double const expected = 1.5;
     ASSERT_EQ(expected, actual);
 }
 
 TEST_F(DecimalTest, DecimalToDouble0) {
     auto actual = decimalToDouble(Decimal("0"));
-    double expected = 0;
+    double const expected = 0;
     ASSERT_EQ(expected, actual);
 }
 
 TEST_F(DecimalTest, DecimalToDoubleNeg0) {
     auto actual = decimalToDouble(Decimal("-0"));
-    double expected = -0;
+    double const expected = -0;
     ASSERT_EQ(expected, actual);
 }
 
@@ -226,26 +226,28 @@ TEST_F(DecimalTest, DecimalToDoubleNegInf) {
     ASSERT_LT(actual, 0);
 }
 
+union DoubleUint64 {
+    double d;
+    uint64_t i;
+};
+
 static double setLastBit(double input) {
-    union {
-        double d;
-        uint64_t i;
-    };
-    d = input;
-    i |= 1;
-    return d;
+    DoubleUint64 x{};
+    x.d = input;
+    x.i |= 1;
+    return x.d;
 }
 
 TEST_F(DecimalTest, DecimalToDouble1234567_875) {
     auto actual = decimalToDouble(Decimal("1234567.875"));
-    double expected = 1234567.875;
+    double const expected = 1234567.875;
     // on win64 the last bit differs. why?
     ASSERT_EQ(setLastBit(expected), setLastBit(actual));
 }
 
 TEST_F(DecimalTest, DecimalToDoubleNeg1234567_875) {
     auto actual = decimalToDouble(Decimal("-1234567.875"));
-    double expected = -1234567.875;
+    double const expected = -1234567.875;
     // on win64 the last bit differs. why?
     ASSERT_EQ(setLastBit(expected), setLastBit(actual));
 }

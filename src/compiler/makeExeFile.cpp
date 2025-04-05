@@ -2,7 +2,6 @@
 #include "shared/process.h"
 #include "shared/runner_const.h"
 
-using std::array;
 using std::ifstream;
 using std::ios;
 using std::runtime_error;
@@ -57,7 +56,7 @@ static vector<uint8_t> loadRuntimeFile(TargetPlatform platform) {
             return {};
     }
 
-    string runtimePath = shared::getExecutableDirectoryPath() + "/runtime_" + os + "_" + arch + ".dat";
+    string const runtimePath = shared::getExecutableDirectoryPath() + "/runtime_" + os + "_" + arch + ".dat";
 
     ifstream runtimeFile(runtimePath, ios::binary);
     if (!runtimeFile.is_open()) {
@@ -95,22 +94,25 @@ vector<uint8_t> makeExeFile(const vector<uint8_t>& bytecode, TargetPlatform plat
     exeFile.insert(exeFile.end(), bytecode.begin(), bytecode.end());
 
     // 3. Append the bytecode length (4 bytes)
-    uint32_t bytecodeLength = static_cast<uint32_t>(bytecode.size());
-    const uint8_t* byteLengthPtr = reinterpret_cast<const uint8_t*>(&bytecodeLength);
-    exeFile.insert(exeFile.end(), byteLengthPtr, byteLengthPtr + sizeof(bytecodeLength));
+    auto bytecodeLength = static_cast<uint32_t>(bytecode.size());
+    const auto* byteLengthPtr = reinterpret_cast<const uint8_t*>(&bytecodeLength);
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    std::copy(byteLengthPtr, byteLengthPtr + sizeof(bytecodeLength), std::back_inserter(exeFile));
 
     // 4. Append the tzdb data
     exeFile.insert(exeFile.end(), tzdbData.begin(), tzdbData.end());
 
     // 5. Append the tzdb data length (4 bytes)
-    uint32_t tzdbLength = static_cast<uint32_t>(tzdbData.size());
-    const uint8_t* tzdbLengthPtr = reinterpret_cast<const uint8_t*>(&tzdbLength);
-    exeFile.insert(exeFile.end(), tzdbLengthPtr, tzdbLengthPtr + sizeof(tzdbLength));
+    auto tzdbLength = static_cast<uint32_t>(tzdbData.size());
+    const auto* tzdbLengthPtr = reinterpret_cast<const uint8_t*>(&tzdbLength);
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    std::copy(tzdbLengthPtr, tzdbLengthPtr + sizeof(tzdbLength), std::back_inserter(exeFile));
 
     // 6. Append the sentinel value (4 bytes)
     uint32_t sentinel = shared::kPcodeSentinel;
-    const uint8_t* sentinelPtr = reinterpret_cast<const uint8_t*>(&sentinel);
-    exeFile.insert(exeFile.end(), sentinelPtr, sentinelPtr + sizeof(sentinel));
+    const auto* sentinelPtr = reinterpret_cast<const uint8_t*>(&sentinel);
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    std::copy(sentinelPtr, sentinelPtr + sizeof(sentinel), std::back_inserter(exeFile));
 
     return exeFile;
 }

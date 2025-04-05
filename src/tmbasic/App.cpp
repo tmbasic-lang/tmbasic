@@ -62,7 +62,7 @@ class AppPrivate {
     std::chrono::steady_clock::time_point lastTimerTick;
     PictureWindowStatusItems pictureWindowStatusItems{};
     PictureWindow* pictureWindow = nullptr;
-    std::vector<char> helpFile{};
+    std::vector<char> helpFile;
 
     static gsl::owner<TDeskTop*> initDeskTop(TRect r) {
         r.a.y++;
@@ -788,10 +788,20 @@ void App::openHelpTopic(uint16_t topic) {
             _private->helpFile.assign(std::istreambuf_iterator<char>(helpFile), {});
         }
         auto* start = _private->helpFile.data();
+
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
         auto* end = start + _private->helpFile.size();
-        auto* stream = new MemoryIopstream(start, end);  // NOLINT(cppcoreguidelines-owning-memory)
-        auto* helpFile = new THelpFile(*stream);         // NOLINT(cppcoreguidelines-owning-memory)
-        auto* helpWindow = WindowPtr<HelpWindow>(helpFile, topic).get();
+
+        // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
+        auto* stream = new MemoryIopstream(start, end);
+
+        // `helpFile` takes ownership of `stream`.
+        // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
+        auto* helpFile = new THelpFile(*stream);
+
+        // `helpWindow` takes ownership of `helpFile`.
+        WindowPtr<HelpWindow> const helpWindow{ helpFile, topic };
+
         auto width = 85;
         auto maxWidth = deskTop->size.x - 10;
         if (width > maxWidth) {
@@ -806,9 +816,9 @@ void App::openHelpTopic(uint16_t topic) {
             height = 10;
         }
         auto rect = _private->getNewWindowRect(width, height);
-        helpWindow->locate(rect);
+        helpWindow.get()->locate(rect);
         if (TScreen::screenWidth < 95) {
-            helpWindow->zoom();
+            helpWindow.get()->zoom();
         }
     } catch (std::runtime_error& ex) {
         messageBox(std::string("There was an error opening help: ") + ex.what(), mfError | mfOKButton);

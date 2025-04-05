@@ -5,7 +5,7 @@ using std::ostringstream;
 using std::string;
 using std::vector;
 
-string readFile(string filename) {
+string readFile(const string& filename) {
     // this will be executed from the repository root.
     ifstream stream("src/test/programs/" + filename);
     if (!stream.is_open()) {
@@ -16,12 +16,12 @@ string readFile(string filename) {
     return buffer.str();
 }
 
-vector<uint8_t> readBinaryFile(string filename) {
+vector<uint8_t> readBinaryFile(const string& filename) {
     // this will be executed from the repository root.
     ifstream stream("src/test/files/" + filename, ios::binary | ios::ate);
     auto pos = stream.tellg();
     vector<uint8_t> result(pos);
     stream.seekg(0, ios::beg);
-    stream.read(reinterpret_cast<char*>(&result[0]), pos);
+    stream.read(reinterpret_cast<char*>(result.data()), pos);
     return result;
 }

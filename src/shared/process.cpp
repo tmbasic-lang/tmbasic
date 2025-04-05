@@ -9,8 +9,8 @@
 #include <string.h>
 #else                  // Linux
 #include <sys/auxv.h>  // For getauxval()
-#include <limits.h>
-#include <stdlib.h>
+#include <climits>
+#include <cstdlib>
 #endif
 
 #include <stdexcept>
@@ -48,32 +48,33 @@ std::string getExecutableFilePath() {
     return std::string(realpathbuf);
 #else
     // Linux implementation for statically linked executable
+    // NOLINTNEXTLINE(performance-no-int-to-ptr)
     const char* exe = reinterpret_cast<const char*>(getauxval(AT_EXECFN));
     if (!exe) {
         throw std::runtime_error("Failed to get executable path");
     }
 
     // Convert to absolute path if needed
-    char realpathbuf[PATH_MAX];
-    if (realpath(exe, realpathbuf) == nullptr) {
+    std::array<char, PATH_MAX> realpathbuf{};
+    if (realpath(exe, realpathbuf.data()) == nullptr) {
         throw std::runtime_error("Failed to resolve executable path");
     }
 
-    return std::string(realpathbuf);
+    return { realpathbuf.data() };
 #endif
 }
 
 std::string getExecutableDirectoryPath() {
-    std::string exePath = getExecutableFilePath();
+    std::string const exePath = getExecutableFilePath();
 
 #ifdef __APPLE__
     // Use dirname for macOS
-    char dirpath[PATH_MAX];
-    strncpy(dirpath, exePath.c_str(), PATH_MAX);
-    return std::string(dirname(dirpath));
+    std::array<char, PATH_MAX> dirpath{};
+    strncpy(dirpath.data(), exePath.c_str(), PATH_MAX);
+    return { dirname(dirpath.data()) };
 #else
     // Use std::filesystem for Windows and Linux
-    std::filesystem::path path(exePath);
+    std::filesystem::path const path(exePath);
     return path.parent_path().string();
 #endif
 }

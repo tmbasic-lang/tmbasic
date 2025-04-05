@@ -4,7 +4,6 @@
 #include "gtest/gtest.h"
 #include "helpers.h"
 
-using shared::Error;
 using shared::getDirectoryName;
 using shared::getExtension;
 using shared::getFileName;
@@ -12,14 +11,14 @@ using shared::getFileNameWithoutExtension;
 using shared::pathCombine;
 
 TEST(PathTest, GetDirectoryName_EmptyPath) {
-    std::string filePath = "";
-    std::string expectedDir = ".";
+    std::string const filePath;
+    std::string const expectedDir = ".";
     EXPECT_EQ(getDirectoryName(filePath), expectedDir);
 }
 
 TEST(PathTest, GetDirectoryName_NoDirectory) {
-    std::string filePath = "hello";
-    std::string expectedDir = ".";
+    std::string const filePath = "hello";
+    std::string const expectedDir = ".";
     EXPECT_EQ(getDirectoryName(filePath), expectedDir);
 }
 
@@ -94,33 +93,33 @@ TEST(PathTest, PathCombine_WindowsBehavior) {
 #ifdef __linux__
 // Linux-specific Tests
 TEST(PathTest, GetDirectoryName_LinuxBehavior) {
-    std::string filePath = "/path/to/file.txt";
-    std::string expectedDir = "/path/to";
+    std::string const filePath = "/path/to/file.txt";
+    std::string const expectedDir = "/path/to";
     EXPECT_EQ(getDirectoryName(filePath), expectedDir);
 }
 
 TEST(PathTest, GetFileName_LinuxBehavior) {
-    std::string filePath = "/path/to/file.txt";
-    std::string expectedFile = "file.txt";
+    std::string const filePath = "/path/to/file.txt";
+    std::string const expectedFile = "file.txt";
     EXPECT_EQ(getFileName(filePath), expectedFile);
 }
 
 TEST(PathTest, GetFileNameWithoutExtension_LinuxBehavior) {
-    std::string filePath = "/path/to/file.txt";
-    std::string expectedFile = "file";
+    std::string const filePath = "/path/to/file.txt";
+    std::string const expectedFile = "file";
     EXPECT_EQ(getFileNameWithoutExtension(filePath), expectedFile);
 }
 
 TEST(PathTest, GetExtension_LinuxBehavior) {
-    std::string filePath = "/path/to/file.txt";
-    std::string expectedFile = ".txt";
+    std::string const filePath = "/path/to/file.txt";
+    std::string const expectedFile = ".txt";
     EXPECT_EQ(getExtension(filePath), expectedFile);
 }
 
 TEST(PathTest, PathCombine_LinuxBehavior) {
-    std::string a = "/path/to";
-    std::string b = "file.txt";
-    std::string expected = "/path/to/file.txt";
+    std::string const a = "/path/to";
+    std::string const b = "file.txt";
+    std::string const expected = "/path/to/file.txt";
     EXPECT_EQ(pathCombine(a, b), expected);
 }
 #endif
