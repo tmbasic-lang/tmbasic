@@ -6,9 +6,9 @@ namespace compiler {
 
 static const std::vector<TargetPlatform> _targetPlatforms{
 #ifdef NDEBUG
-    TargetPlatform::kLinuxArm32, TargetPlatform::kLinuxArm64, TargetPlatform::kLinuxX86, TargetPlatform::kLinuxX64,
-    TargetPlatform::kMacArm64,   TargetPlatform::kMacX64,     TargetPlatform::kWinX86,   TargetPlatform::kWinX64,
-    TargetPlatform::kWinArm64,
+    TargetPlatform::kLinuxArm32, TargetPlatform::kLinuxArm64, TargetPlatform::kLinuxX86,
+    TargetPlatform::kLinuxX64,   TargetPlatform::kMacArm64,   TargetPlatform::kMacX64,
+    TargetPlatform::kWinX86,     TargetPlatform::kWinX64,     TargetPlatform::kWinArm64,
 #else
     getNativeTargetPlatform(),
 #endif

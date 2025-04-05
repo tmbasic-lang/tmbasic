@@ -6,4 +6,4 @@ cd "$( dirname "${BASH_SOURCE[0]}" )"
 cd ..
 
 scripts/make-tmbasic.sh
-find src/ -type f \( -iname \*.h -o -iname \*.cpp \) -not -path "src/boost/*" | xargs clang-format -i
+find src/ -type f \( -iname \*.h -o -iname \*.cpp \) -not -path "src/boost/*" -not -path "src/tmbasic/helpfile.h" | xargs clang-format -i

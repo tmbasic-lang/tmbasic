@@ -7,7 +7,7 @@
 #include "vm/String.h"
 
 #ifdef _WIN32
-#include <io.h> // _access
+#include <io.h>  // _access
 #endif
 
 using shared::Error;
