@@ -16,13 +16,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Build
         env:
           NO_BUILD: 1
@@ -31,12 +24,17 @@ jobs:
           set -euxo pipefail
           find . -type f -name "*.sh" -exec chmod +x {} \;
 
-          export IMAGE_TAG=$(awk -F= '{ if ($1 == "build-environment-${{ matrix.platform }}") print $2 }' build/tags.ini)
-          export IMAGE_NAME="ghcr.io/tmbasic-lang/tmbasic-build-env:$IMAGE_TAG"
-          docker pull "$IMAGE_NAME"
+          # Download the build image
+          export BUILD_ENV_VERSION=$(awk -F= '{ if ($1 == "build-environment") print $2 }' build/build-environment.ini)
+          curl -Lo build-environment.tar.gz "https://tmbasic-archive.com/linux-build-envs/tmbasic-build-env-${{ matrix.platform }}-$BUILD_ENV_VERSION.tar.gz"
 
+          # Import the "tmbasic-build-env" image into docker
+          gunzip -c build-environment.tar.gz | docker image load
+          rm build-environment.tar.gz
+
+          # Build TMBASIC
           pushd build
-          ./${{ matrix.platform }}.sh -c "scripts/make-tmbasic.sh" -DCMAKE_BUILD_TYPE=Release
+          IMAGE_NAME=tmbasic-build-env NO_BUILD=1 ./${{ matrix.platform }}.sh -c "scripts/make-tmbasic.sh" -DCMAKE_BUILD_TYPE=Release
           popd
 
           pushd cmake/bin
@@ -85,8 +83,8 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
-          export FILENAME=$(awk -F= '{ if ($1 == "build-environment-${{ matrix.platform }}") print $2 }' build/tags.ini)
-          curl.exe -Lso build-environment.zip "https://tmbasic-archive.com/win-build-envs/$FILENAME"
+          export BUILD_ENV_VERSION=$(awk -F= '{ if ($1 == "build-environment") print $2 }' build/build-environment.ini)
+          curl -Lo build-environment.zip "https://tmbasic-archive.com/win-build-envs/tmbasic-build-env-${{ matrix.platform }}-$BUILD_ENV_VERSION.zip"
           unzip build-environment.zip
 
       - name: Build
@@ -125,8 +123,8 @@ jobs:
           find . -type f -name "*.sh" -exec chmod +x {} \;
           brew install fileicon          
 
-          export FILENAME=$(awk -F= '{ if ($1 == "build-environment-${{ matrix.platform }}") print $2 }' build/tags.ini)
-          curl -Lso build-environment.tar.gz "https://tmbasic-archive.com/mac-build-envs/$FILENAME"
+          export BUILD_ENV_VERSION=$(awk -F= '{ if ($1 == "build-environment") print $2 }' build/build-environment.ini)
+          curl -Lo build-environment.tar.gz "https://tmbasic-archive.com/mac-build-envs/tmbasic-build-env-${{ matrix.platform }}-$BUILD_ENV_VERSION.tar.gz"
           tar zxf build-environment.tar.gz
 
           pushd build
