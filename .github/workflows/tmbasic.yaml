@@ -20,20 +20,20 @@ jobs:
           # Check if the file exists without downloading it.
           HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
 
-          # Set an output "build-environment-exists" with the value "true" if the file exists, or "false" if it doesn't.
+          # Set an output "build_environment_exists" with the value "true" if the file exists, or "false" if it doesn't.
           if [ "$HTTP_CODE" = "200" ]; then
             echo "Build environment exists. We will use the existing environment."
-            echo "build-environment-exists=true" >> $GITHUB_OUTPUT
+            echo "build_environment_exists=true" >> $GITHUB_OUTPUT
           else
             echo "Build environment does not exist. We will build it."
-            echo "build-environment-exists=false" >> $GITHUB_OUTPUT
+            echo "build_environment_exists=false" >> $GITHUB_OUTPUT
           fi
 
   build_environment_linux:
     name: Build environment (${{ matrix.platform }})
     runs-on: ubuntu-latest
     needs: build_environment_preflight
-    if: ${{ needs.build_environment_preflight.outputs.build-environment-exists }} == 'false'
+    if: needs.build_environment_preflight.outputs.build_environment_exists == 'false'
     strategy:
       matrix:
         include:
@@ -101,7 +101,7 @@ jobs:
     name: Build environment (${{ matrix.platform }})
     runs-on: windows-latest
     needs: build_environment_preflight
-    if: ${{ needs.build_environment_preflight.outputs.build-environment-exists }} == 'false'
+    if: needs.build_environment_preflight.outputs.build_environment_exists == 'false'
     strategy:
       matrix:
         include:
@@ -134,7 +134,7 @@ jobs:
     # Our build process requires an M1 Mac; it won't work on an Intel Mac.
     runs-on: macos-latest
     needs: build_environment_preflight
-    if: ${{ needs.build_environment_preflight.outputs.build-environment-exists }} == 'false'
+    if: needs.build_environment_preflight.outputs.build_environment_exists == 'false'
     strategy:
       matrix:
         include:
@@ -176,7 +176,7 @@ jobs:
     name: Upload build environments
     runs-on: ubuntu-latest
     needs: [build_environment_preflight, build_environment_linux, build_environment_win, build_environment_mac]
-    if: ${{ needs.build_environment_preflight.outputs.build-environment-exists }} == 'false'
+    if: needs.build_environment_preflight.outputs.build_environment_exists == 'false'
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
