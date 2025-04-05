@@ -41,6 +41,7 @@ FMT_VERSION=11.1.4
 GOOGLETEST_VERSION=1.16.0
 IMMER_VERSION=0.8.1
 LIBZIP_VERSION=1.11.3
+LIEF_VERSION=0.16.4
 MICROTAR_VERSION=27076e1b9290e9c7842bb7890a54fcf172406c84
 MPDECIMAL_VERSION=4.0.0
 NAMEOF_VERSION=0.10.4
@@ -80,6 +81,9 @@ downloadFile "immer-$IMMER_VERSION.tar.gz" "https://github.com/arximboldi/immer/
 
 # https://github.com/nih-at/libzip/releases
 downloadFile "libzip-$LIBZIP_VERSION.tar.gz" "https://github.com/nih-at/libzip/releases/download/v$LIBZIP_VERSION/libzip-$LIBZIP_VERSION.tar.gz"
+
+# https://github.com/lief-project/LIEF/releases
+downloadFile "lief-$LIEF_VERSION.tar.gz" "https://github.com/lief-project/LIEF/archive/refs/tags/$LIEF_VERSION.tar.gz"
 
 # https://github.com/rxi/microtar
 downloadFile "microtar-$MICROTAR_VERSION.tar.gz" "https://github.com/rxi/microtar/archive/$MICROTAR_VERSION.tar.gz"

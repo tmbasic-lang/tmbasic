@@ -1,6 +1,7 @@
 #include "makeExeFile.h"
 #include "shared/process.h"
-#include "shared/runner_const.h"
+#include "shared/filesystem.h"
+#include "shared/ExecutablePatcher.h"
 
 using std::ifstream;
 using std::ios;
@@ -72,49 +73,55 @@ static vector<uint8_t> loadRuntimeFile(TargetPlatform platform) {
     return runtimeBinary;
 }
 
-vector<uint8_t> makeExeFile(const vector<uint8_t>& bytecode, TargetPlatform platform) {
-    auto runtimeBinary = loadRuntimeFile(platform);
-
-    // Load the tzdb data
+static std::vector<uint8_t> loadTzdbFile() {
     auto tarFilePath = shared::getExecutableDirectoryPath() + "/tzdb.dat";
     std::ifstream tarFile(tarFilePath, std::ios::binary);
     if (!tarFile.is_open()) {
         throw runtime_error("Could not open tzdb file: " + tarFilePath);
     }
-    std::vector<char> tzdbData(std::istreambuf_iterator<char>(tarFile), {});
+    std::vector<uint8_t> tzdbData(std::istreambuf_iterator<char>(tarFile), {});
     tarFile.close();
+    return tzdbData;
+}
 
-    // Create the final executable binary
-    vector<uint8_t> exeFile;
+static std::vector<uint8_t> readBytesFromFile(const std::string& filePath) {
+    std::ifstream file(filePath, std::ios::binary);
+    std::vector<uint8_t> bytes(std::istreambuf_iterator<char>(file), {});
+    file.close();
+    return bytes;
+}
 
-    // 1. Start with the runtime binary
-    exeFile.insert(exeFile.end(), runtimeBinary.begin(), runtimeBinary.end());
+static void writeBytesToFile(const std::string& filePath, const std::vector<uint8_t>& bytes) {
+    std::ofstream file(filePath, std::ios::out | std::ios::binary);
+    file.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+    file.close();
+}
 
-    // 2. Append the bytecode (pcode)
-    exeFile.insert(exeFile.end(), bytecode.begin(), bytecode.end());
+vector<uint8_t> makeExeFile(const vector<uint8_t>& bytecode, TargetPlatform platform) {
+    auto runtimeBytes = loadRuntimeFile(platform);
+    auto tzdbBytes = loadTzdbFile();
 
-    // 3. Append the bytecode length (4 bytes)
-    auto bytecodeLength = static_cast<uint32_t>(bytecode.size());
-    const auto* byteLengthPtr = reinterpret_cast<const uint8_t*>(&bytecodeLength);
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-    std::copy(byteLengthPtr, byteLengthPtr + sizeof(bytecodeLength), std::back_inserter(exeFile));
+    // LIEF operates on-disk, so we'll need a temporary file.
+    auto tempFilePath = shared::getTempFilePath("tmbasic-program.tmp");
+    writeBytesToFile(tempFilePath, runtimeBytes);
 
-    // 4. Append the tzdb data
-    exeFile.insert(exeFile.end(), tzdbData.begin(), tzdbData.end());
+    std::vector<uint8_t> exeBytes;
+    try {
+        // Our ExecutablePatcher will write the bytecode and tzdb to the EXE file.
+        shared::ExecutablePatcher patcher{ tempFilePath };
+        patcher.addResource(shared::ExecutablePatcher::kResourcePcode, bytecode);
+        patcher.addResource(shared::ExecutablePatcher::kResourceTzdb, tzdbBytes);
+        patcher.save();
 
-    // 5. Append the tzdb data length (4 bytes)
-    auto tzdbLength = static_cast<uint32_t>(tzdbData.size());
-    const auto* tzdbLengthPtr = reinterpret_cast<const uint8_t*>(&tzdbLength);
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-    std::copy(tzdbLengthPtr, tzdbLengthPtr + sizeof(tzdbLength), std::back_inserter(exeFile));
+        // Read the EXE file back into memory.
+        exeBytes = readBytesFromFile(tempFilePath);
+    } catch (...) {
+        shared::deleteFile(tempFilePath);
+        throw;
+    }
 
-    // 6. Append the sentinel value (4 bytes)
-    uint32_t sentinel = shared::kPcodeSentinel;
-    const auto* sentinelPtr = reinterpret_cast<const uint8_t*>(&sentinel);
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-    std::copy(sentinelPtr, sentinelPtr + sizeof(sentinel), std::back_inserter(exeFile));
-
-    return exeFile;
+    shared::deleteFile(tempFilePath);
+    return exeBytes;
 }
 
 }  // namespace compiler

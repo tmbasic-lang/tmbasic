@@ -9,6 +9,7 @@ FMT_DIR=$(PWD)/fmt
 GOOGLETEST_DIR=$(PWD)/googletest
 IMMER_DIR=$(PWD)/immer
 LIBZIP_DIR=$(PWD)/libzip
+LIEF_DIR=$(PWD)/lief
 MICROTAR_DIR=$(PWD)/microtar
 MPDECIMAL_DIR=$(PWD)/mpdecimal
 NAMEOF_DIR=$(PWD)/nameof
@@ -114,6 +115,7 @@ all: \
 	$(GOOGLETEST_DIR)/install \
 	$(IMMER_DIR)/install \
 	$(LIBZIP_DIR)/install \
+	$(LIEF_DIR)/install \
 	$(MICROTAR_DIR)/install \
 	$(MPDECIMAL_DIR)/install \
 	$(NAMEOF_DIR)/install \
@@ -563,6 +565,39 @@ $(UTF8PROC_DIR)/install: $(UTF8PROC_DIR)/download $(BINUTILS_DIR)/install $(CMAK
 			-DBUILD_SHARED_LIBS=OFF \
 			-DCMAKE_BUILD_TYPE=Release \
 			$(CMAKE_TOOLCHAIN_FLAG) && \
-		cmake --build . && \
-		cmake --install .
+		$(MAKE) && \
+		$(MAKE) install
+	touch $@
+
+
+
+# lief ----------------------------------------------------------------------------------------------------------------
+
+$(LIEF_DIR)/download:
+	tar zxf $(DOWNLOAD_DIR)/lief-*.tar.gz
+	mv -f LIEF-*/ $(LIEF_DIR)/
+	touch $@
+
+$(LIEF_DIR)/install: $(LIEF_DIR)/download $(CMAKE_DIR)/install $(BINUTILS_DIR)/install
+	cd $(LIEF_DIR) && \
+		mkdir -p build && \
+		cd build && \
+		cmake \
+			$(CMAKE_FLAGS) \
+			-DCMAKE_PREFIX_PATH=$(TARGET_PREFIX) \
+			-DCMAKE_INSTALL_PREFIX=$(TARGET_PREFIX) \
+			-DBUILD_SHARED_LIBS=OFF \
+			-DLIEF_C_API=OFF \
+			-DLIEF_EXAMPLES=OFF \
+			-DLIEF_USE_CCACHE=OFF \
+			-DLIEF_LOGGING=OFF \
+			-DLIEF_LOGGING_DEBUG=OFF \
+			-DLIEF_ENABLE_JSON=OFF \
+			-DLIEF_DEX=OFF \
+			-DLIEF_ART=OFF \
+			-DCMAKE_BUILD_TYPE=Release \
+			$(CMAKE_TOOLCHAIN_FLAG) \
+			.. && \
+		$(MAKE) && \
+		$(MAKE) install
 	touch $@

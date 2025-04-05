@@ -25,6 +25,8 @@ licenses=(
     "fmt"        "doc/licenses/fmt/LICENSE.rst"
     "immer"      "doc/licenses/immer/LICENSE"
     "libstdc++"  "$TEMP_GCC_LICENSE"
+    "lief"       "doc/licenses/lief/LICENSE"
+    "microtar"   "doc/licenses/microtar/LICENSE"
     "mpdecimal"  "doc/licenses/mpdecimal/LICENSE.txt"
     "musl"       "doc/licenses/musl/COPYRIGHT"
     "nameof"     "doc/licenses/nameof/LICENSE.txt"
@@ -34,7 +36,6 @@ licenses=(
     "turbo"      "doc/licenses/turbo/COPYRIGHT"
     "tvision"    "doc/licenses/tvision/COPYRIGHT"
     "utf8proc"   "doc/licenses/utf8proc/LICENSE.md"
-    "microtar"   "doc/licenses/microtar/LICENSE"
 )
 
 # Generate Table of Contents

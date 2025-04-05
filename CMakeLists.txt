@@ -213,7 +213,7 @@ target_link_directories(test PRIVATE ${TARGET_PREFIX}/lib)
 target_link_libraries(test
     compiler shared vm
     absl_time absl_time_zone absl_int128 absl_raw_logging_internal
-    microtar mpdec mpdec++ utf8proc
+    microtar mpdec mpdec++ utf8proc LIEF
     turbo-core fmt ${TVISION_LIB} ${NCURSES_LIB}
     zip z gtest gtest_main ${PTHREAD_LIB}
 )
@@ -230,7 +230,7 @@ target_link_directories(runtime PRIVATE ${TARGET_PREFIX}/lib)
 target_link_libraries(runtime
     vm shared
     absl_time absl_time_zone absl_int128 absl_raw_logging_internal
-    microtar mpdec mpdec++ utf8proc
+    microtar mpdec mpdec++ utf8proc LIEF
     turbo-core fmt ${TVISION_LIB} ${NCURSES_LIB}
 )
 
@@ -266,7 +266,7 @@ target_link_directories(tmbasic PRIVATE ${TARGET_PREFIX}/lib)
 target_link_libraries(tmbasic
     compiler shared
     absl_time absl_time_zone absl_int128 absl_raw_logging_internal
-    microtar mpdec mpdec++ utf8proc
+    microtar mpdec mpdec++ utf8proc LIEF
     turbo-core fmt ${TVISION_LIB} ${NCURSES_LIB}
     zip z
 )

@@ -109,7 +109,7 @@ const char* getPlatformExeExtension(TargetPlatform platform) {
 
 std::string getLicenseForPlatform(TargetPlatform platform) {
     auto exeDir = shared::getExecutableDirectoryPath();
-    auto licensePath = shared::pathCombine(exeDir, "LICENSE.dat");
+    auto licensePath = shared::pathCombine(exeDir, "license.dat");
     std::ifstream licenseFile{ licensePath, std::ios::in | std::ios::binary };
     if (!licenseFile.is_open()) {
         throw std::runtime_error{ "Failed to open license file: " + licensePath };

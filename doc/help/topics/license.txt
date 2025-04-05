@@ -12,6 +12,7 @@ li@boost@
 li@fmt@
 li@immer@
 li@libstdc++@
+li@lief@
 li@microtar@
 li@mpdecimal@
 li@musl@
