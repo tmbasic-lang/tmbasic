@@ -53,7 +53,7 @@ TEST(ScannerTest, MinusVsNegative) {
     ASSERT_EQ(13, tokens[i].columnIndex);
     ASSERT_EQ(TokenKind::kNumberLiteral, tokens[i++].type);
 
-    ASSERT_EQ(static_cast<unsigned long>(i), tokens.size());
+    ASSERT_EQ(static_cast<uint64_t>(i), tokens.size());
 }
 
 TEST(ScannerTest, ForLoop) {
@@ -129,5 +129,5 @@ TEST(ScannerTest, ForLoop) {
     ASSERT_EQ(0, tokens[i].columnIndex);
     ASSERT_EQ(TokenKind::kNext, tokens[i++].type);
 
-    ASSERT_EQ(static_cast<unsigned long>(i), tokens.size());
+    ASSERT_EQ(static_cast<uint64_t>(i), tokens.size());
 }
