@@ -357,7 +357,8 @@ jobs:
           Compress-Archive -Path "intermediate\*" -DestinationPath "intermediate-${{ matrix.platform }}.zip"
 
           # Run x64 and x86 tests, but not arm64 because we have no way to run it.
-          if (${{ matrix.platform }} -eq "win-x64" -or ${{ matrix.platform }} -eq "win-x86") {
+          $platform = "${{ matrix.platform }}"
+          if ($platform -eq "win-x64" -or $platform -eq "win-x86") {
               & cmake\bin\test.exe --gtest_shuffle
               if ($LASTEXITCODE -ne 0) {
                 throw "Tests failed"
