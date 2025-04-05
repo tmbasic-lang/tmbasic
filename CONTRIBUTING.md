@@ -28,7 +28,11 @@ graph TD;
     vm-->shared;
 ```
 
-## Build for Linux
+## Build from source
+TMBASIC is developed using Linux.
+It builds for Windows and macOS, too, but you're on your own if you want to develop on those platforms.
+Take a look at the GitHub Actions workflows for guidance if you want to try it.
+
 1. Install git and Docker. Give your user account permission to run `docker`.
 
     ```
@@ -44,7 +48,7 @@ graph TD;
 1. Clone the git repository.
 
     ```
-    git clone https://github.com/tmbasic-lang/tmbasic.git
+    git clone https://github.com/tmbasic/tmbasic.git
     ```
 
 1. Start the build environment and compile TMBASIC.
@@ -56,26 +60,6 @@ graph TD;
     ```
 
     This will create a development build for Linux suitable for debugging.
-
-1. Type `exit` to leave the build environment.
-
-## Build for Windows
-TODO
-
-## Build for macOS
-1. Install Xcode (version 12 or higher).
-
-1. Install Homebrew and use it to `brew install fileicon`.
-
-1. Start the build environment and compile:
-
-    ```
-    cd build
-    ./mac-x64.sh
-    make
-    ```
-
-    Use `./mac-arm64.sh` instead to build for Apple Silicon.
 
 1. Type `exit` to leave the build environment.
 
