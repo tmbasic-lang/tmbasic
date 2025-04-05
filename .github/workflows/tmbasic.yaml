@@ -348,8 +348,8 @@ jobs:
           build\${{ matrix.platform }}.ps1 -BuildApp -BuildType Release -UseR2Mirror
 
           New-Item -ItemType Directory -Path intermediate
-          Move-Item -Path cmake/bin/Release/tmbasic.exe, cmake/bin/Release/runtime*.exe -Destination intermediate
-          Compress-Archive -Path intermediate -DestinationPath "intermediate-${{ matrix.platform }}.zip"
+          Move-Item -Path cmake/bin/Release/tmbasic.exe, cmake/bin/Release/runtime*.dat -Destination intermediate
+          Compress-Archive -Path "intermediate\*" -DestinationPath "intermediate-${{ matrix.platform }}.zip"
 
       - name: Upload tmbasic.zip
         uses: actions/upload-artifact@v4
