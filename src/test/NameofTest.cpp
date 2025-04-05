@@ -21,11 +21,19 @@ class TestClass : public BaseClass {
 enum class TestEnum { kValue };
 
 TEST(NameofTest, BaseClassName) {
+#ifdef _WIN32
+    ASSERT_EQ("class BaseClass", NAMEOF_TYPE(BaseClass));
+#else
     ASSERT_EQ("BaseClass", NAMEOF_TYPE(BaseClass));
+#endif
 }
 
 TEST(NameofTest, TestClassName) {
+#ifdef _WIN32
+    ASSERT_EQ("class TestClass", NAMEOF_TYPE(TestClass));
+#else
     ASSERT_EQ("TestClass", NAMEOF_TYPE(TestClass));
+#endif
 }
 
 TEST(NameofTest, MemberVariableName) {
