@@ -405,6 +405,7 @@ jobs:
     permissions:
       actions: write
     needs: [build_tmbasic_linux, build_tmbasic_win, build_tmbasic_mac]
+    if: always()
     steps:
       - name: Checkout
         uses: actions/checkout@v4
