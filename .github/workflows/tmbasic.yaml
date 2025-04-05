@@ -13,7 +13,9 @@ jobs:
         run: |
           set -euxo pipefail
           BUILD_ENV_VERSION=$(awk -F= '{ if ($1 == "build-environment") print $2 }' build/build-environment.ini)
-          URL="https://tmbasic-archive.com/win-build-envs/tmbasic-build-env-${{ matrix.platform }}-$BUILD_ENV_VERSION.zip"
+
+          # win-x86 is the last one to be uploaded; so if it's present, then so are the rest.
+          URL="https://tmbasic-archive.com/win-build-envs/tmbasic-build-env-win-x86-$BUILD_ENV_VERSION.zip"
 
           # Check if the file exists without downloading it.
           HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
