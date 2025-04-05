@@ -5,27 +5,34 @@ jobs:
   build_environment_preflight:
     name: Build environment (preflight)
     runs-on: ubuntu-latest
+    outputs:
+      # Map the job's "build_environment_exists" output to the step's "build_environment_exists"
+      build_environment_exists: ${{ steps.preflight.outputs.build_environment_exists }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Preflight
+        id: preflight
         run: |
-          set -euxo pipefail
+          set -euo pipefail
           BUILD_ENV_VERSION=$(awk -F= '{ if ($1 == "build-environment") print $2 }' build/build-environment.ini)
+          echo "BUILD_ENV_VERSION: $BUILD_ENV_VERSION"
 
           # win-x86 is the last one to be uploaded; so if it's present, then so are the rest.
           URL="https://tmbasic-archive.com/win-build-envs/tmbasic-build-env-win-x86-$BUILD_ENV_VERSION.zip"
+          echo "URL: $URL"
 
           # Check if the file exists without downloading it.
           HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
+          echo "HTTP_CODE: $HTTP_CODE"
 
           # Set an output "build_environment_exists" with the value "true" if the file exists, or "false" if it doesn't.
           if [ "$HTTP_CODE" = "200" ]; then
-            echo "Build environment exists. We will use the existing environment."
+            echo "Build environment EXISTS. We will use the existing environment."
             echo "build_environment_exists=true" >> $GITHUB_OUTPUT
           else
-            echo "Build environment does not exist. We will build it."
+            echo "Build environment DOES NOT EXIST. We will build it."
             echo "build_environment_exists=false" >> $GITHUB_OUTPUT
           fi
 
