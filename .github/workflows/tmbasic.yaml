@@ -269,6 +269,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
       - name: Build
         env:
           NO_BUILD: 1
@@ -290,11 +293,13 @@ jobs:
           IMAGE_NAME=tmbasic-build-env NO_BUILD=1 ./${{ matrix.platform }}.sh -c "scripts/make-tmbasic.sh" -DCMAKE_BUILD_TYPE=Release
           popd
 
+          # Run tests with QEMU emulation
+          cmake/bin/test --gtest_shuffle
+
           pushd cmake/bin
           zip intermediate-${{ matrix.platform }}.zip tmbasic* runtime*.dat
           popd
 
-          # If this is linux-x64, then upload the tzdb.tar file.
           if [[ "${{ matrix.platform }}" == linux-x64 ]]; then
             pushd build
             IMAGE_NAME=tmbasic-build-env NO_BUILD=1 ./${{ matrix.platform }}.sh -c scripts/make-license.sh
@@ -351,6 +356,14 @@ jobs:
           Move-Item -Path cmake/bin/Release/tmbasic.exe, cmake/bin/Release/runtime*.dat -Destination intermediate
           Compress-Archive -Path "intermediate\*" -DestinationPath "intermediate-${{ matrix.platform }}.zip"
 
+          # Run x64 and x86 tests, but not arm64 because we have no way to run it.
+          if (${{ matrix.platform }} -eq "win-x64" -or ${{ matrix.platform }} -eq "win-x86") {
+              & cmake\bin\test.exe --gtest_shuffle
+              if ($LASTEXITCODE -ne 0) {
+                throw "Tests failed"
+              }
+          }
+
       - name: Upload tmbasic.zip
         uses: actions/upload-artifact@v4
         with:
@@ -390,6 +403,9 @@ jobs:
           mkdir intermediate
           mv cmake/bin/tmbasic cmake/bin/runtime* intermediate/
           ditto -c -k --sequesterRsrc intermediate intermediate-${{ matrix.platform }}.zip
+
+          # Run tests
+          cmake/bin/test --gtest_shuffle
 
       - name: Upload tmbasic.zip
         uses: actions/upload-artifact@v4
