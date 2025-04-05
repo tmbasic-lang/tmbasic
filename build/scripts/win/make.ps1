@@ -608,6 +608,9 @@ function Install-Zlib
             $vcxprojContent = $vcxprojContent.Replace("<RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>", "<RuntimeLibrary>MultiThreaded</RuntimeLibrary>")
         }
         $vcxprojContent = Get-PatchedString $vcxprojContent "ZLIB_WINAPI;" ""
+
+        $vcxprojContent = Get-PatchedString $vcxprojContent "<AssemblerOutput>All</AssemblerOutput>" ""
+        $vcxprojContent = Get-PatchedString $vcxprojContent "<AssemblerListingLocation>`$(IntDir)</AssemblerListingLocation>" ""
         
         [System.IO.File]::WriteAllText($vcxprojPath, $vcxprojContent)
     
