@@ -210,13 +210,13 @@ jobs:
           done
 
           # Upload artifacts to R2
-          timestamp=$(date -u "+%Y%m%d%H%M%S")
+          BUILD_ENV_VERSION=$(awk -F= '{ if ($1 == "build-environment") print $2 }' build/build-environment.ini)
           for platform in linux-arm64 linux-arm32 linux-x64 linux-x86; do
             aws s3 cp \
               --endpoint "$R2_ENDPOINT" \
               --checksum-algorithm CRC32 \
               "tmbasic-build-env-${platform}.tar.gz" \
-              "s3://tmbasic-archive/linux-build-envs/tmbasic-build-env-${platform}-${timestamp}.tar.gz"
+              "s3://tmbasic-archive/linux-build-envs/tmbasic-build-env-${platform}-${BUILD_ENV_VERSION}.tar.gz"
           done
 
           for platform in mac-arm64 mac-x64; do
@@ -224,7 +224,7 @@ jobs:
               --endpoint "$R2_ENDPOINT" \
               --checksum-algorithm CRC32 \
               "tmbasic-build-env-${platform}.tar.gz" \
-              "s3://tmbasic-archive/mac-build-envs/tmbasic-build-env-${platform}-${timestamp}.tar.gz"
+              "s3://tmbasic-archive/mac-build-envs/tmbasic-build-env-${platform}-${BUILD_ENV_VERSION}.tar.gz"
           done
 
           for platform in win-arm64 win-x64 win-x86; do
@@ -232,7 +232,7 @@ jobs:
               --endpoint "$R2_ENDPOINT" \
               --checksum-algorithm CRC32 \
               "tmbasic-build-env-${platform}.zip" \
-              "s3://tmbasic-archive/win-build-envs/tmbasic-build-env-${platform}-${timestamp}.zip"
+              "s3://tmbasic-archive/win-build-envs/tmbasic-build-env-${platform}-${BUILD_ENV_VERSION}.zip"
           done
 
       - name: Delete intermediate artifacts
@@ -254,7 +254,7 @@ jobs:
     name: Build (${{ matrix.platform }})
     runs-on: ubuntu-latest
     needs: [upload_build_environments]
-    if: ${{ needs.upload_build_environments.outcome == 'success' || needs.upload_build_environments.outcome == 'skipped' }}
+    if: always()
     strategy:
       matrix:
         include:
@@ -320,7 +320,7 @@ jobs:
     name: Build (${{ matrix.platform }})
     runs-on: windows-latest
     needs: [upload_build_environments]
-    if: ${{ needs.upload_build_environments.outcome == 'success' || needs.upload_build_environments.outcome == 'skipped' }}
+    if: always()
     strategy:
       matrix:
         include:
@@ -358,7 +358,7 @@ jobs:
     name: Build (${{ matrix.platform }})
     runs-on: macos-latest
     needs: [upload_build_environments]
-    if: ${{ needs.upload_build_environments.outcome == 'success' || needs.upload_build_environments.outcome == 'skipped' }}
+    if: always()
     strategy:
       matrix:
         include:
