@@ -80,6 +80,7 @@ jobs:
           BUILDX_ARCH: ${{ matrix.buildx-arch }}
           ARCH: ${{ matrix.arch }}
           SYSROOT_IMAGE_NAME: tmbasic-linux-sysroot
+          TTY_FLAG: " "
         run: |
           set -euxo pipefail
           find . -type f -name "*.sh" -exec chmod +x {} \;
