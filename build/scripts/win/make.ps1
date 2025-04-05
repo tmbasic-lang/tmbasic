@@ -109,6 +109,7 @@ function Main
     Install-Cli11
     Install-Abseil
     Install-Utf8proc
+    Install-Lief
 
     if ($BuildApp)
     {
@@ -984,6 +985,78 @@ function Install-Utf8proc
     }
 
     Set-InstalledPackage -Name "utf8proc" -Version $version
+}
+
+function Install-Lief
+{
+    $version = $global:PackageVersions["LIEF"]
+
+    if ((Get-InstalledPackageVersion -Name "lief") -eq $version)
+    {
+        return
+    }
+
+    if (-not $global:BuildDeps)
+    {
+        throw "LIEF needs to be installed, but building is disabled."
+    }
+
+    $url = "https://github.com/lief-project/LIEF/releases/download/v$version/LIEF-$version.tar.gz"
+    $filePath = Get-DownloadedFile -Url $url -Filename "lief-$version.tar.gz"
+    Expand-TarballRenamingTopLevelDirectory -Path $filePath -DestinationPath (Join-Path $global:TargetPrefix "usr\src") -NewName "lief"
+    $srcDir = Join-Path $global:TargetPrefix "usr\src\lief"
+    
+    $buildDir = Join-Path $srcDir "build"
+    New-Directory $buildDir | Out-Null
+    Push-Location $buildDir
+    try
+    {
+        $runtimeLibrary = "MultiThreaded"
+        if ($global:BuildType -eq "Debug")
+        {
+            $runtimeLibrary = "MultiThreadedDebug"
+        }
+
+        & cmake `
+            -G "Visual Studio 17 2022" `
+            -A "$global:Target_ARM64_Win32_x64" `
+            "-DCMAKE_PREFIX_PATH=$global:TargetPrefix" `
+            "-DCMAKE_INSTALL_PREFIX=$global:TargetPrefix" `
+            -DBUILD_SHARED_LIBS=OFF `
+			-DLIEF_C_API=OFF `
+			-DLIEF_EXAMPLES=OFF `
+			-DLIEF_USE_CCACHE=OFF `
+			-DLIEF_LOGGING=OFF `
+			-DLIEF_LOGGING_DEBUG=OFF `
+			-DLIEF_ENABLE_JSON=OFF `
+			-DLIEF_DEX=OFF `
+			-DLIEF_ART=OFF `
+            "-DCMAKE_MSVC_RUNTIME_LIBRARY=$runtimeLibrary" `
+            $global:RuntimeFlag `
+            ..
+        if ($LASTEXITCODE -ne 0)
+        {
+            throw "Failed to configure lief"
+        }
+
+        & cmake --build . --config $global:BuildType
+        if ($LASTEXITCODE -ne 0)
+        {
+            throw "Failed to build lief"
+        }
+
+        & cmake --install . --config $global:BuildType
+        if ($LASTEXITCODE -ne 0)
+        {
+            throw "Failed to install lief"
+        }
+    }
+    finally
+    {
+        Pop-Location
+    }
+
+    Set-InstalledPackage -Name "lief" -Version $version
 }
 
 function Install-Tmbasic
