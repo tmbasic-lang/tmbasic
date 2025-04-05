@@ -294,8 +294,8 @@ jobs:
           # If this is linux-x64, then upload the tzdb.tar file.
           if [[ "${{ matrix.platform }}" == linux-x64 ]]; then
             pushd build
-            ./${{ matrix.platform }}.sh -c scripts/make-license.sh
-            ./${{ matrix.platform }}.sh -c scripts/make-help.sh
+            IMAGE_NAME=tmbasic-build-env NO_BUILD=1 ./${{ matrix.platform }}.sh -c scripts/make-license.sh
+            IMAGE_NAME=tmbasic-build-env NO_BUILD=1 ./${{ matrix.platform }}.sh -c scripts/make-help.sh
             popd
           fi
 
