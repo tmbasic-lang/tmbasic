@@ -99,7 +99,9 @@ jobs:
           # This will be used for the Windows builds because tzdb can't be built on Windows.
           # Linux/Mac will use the tzdb.tar that's available in their build environment image.
           if [[ "${{ matrix.platform }}" == "linux-x64" ]]; then
+            pushd build
             NO_BUILD=1 ./${{ matrix.platform }}.sh -c "cp /usr/share/tzdb.tar /code/tzdb.tar"
+            popd
           fi
 
           # Save the build environment image (not just the root filesystem) to a tarball.
