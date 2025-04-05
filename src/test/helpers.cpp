@@ -6,8 +6,8 @@ using std::string;
 using std::vector;
 
 string readFile(string filename) {
-    // this will be executed from the the "cmake/bin" directory
-    ifstream stream("../../src/test/programs/" + filename);
+    // this will be executed from the repository root.
+    ifstream stream("src/test/programs/" + filename);
     if (!stream.is_open()) {
         return {};
     }
@@ -17,7 +17,8 @@ string readFile(string filename) {
 }
 
 vector<uint8_t> readBinaryFile(string filename) {
-    ifstream stream("../../src/test/files/" + filename, ios::binary | ios::ate);
+    // this will be executed from the repository root.
+    ifstream stream("src/test/files/" + filename, ios::binary | ios::ate);
     auto pos = stream.tellg();
     vector<uint8_t> result(pos);
     stream.seekg(0, ios::beg);

@@ -89,7 +89,7 @@ function Part2Step(seedRange as SeedRange, mapRanges as List of MapRange) as See
 end function
 
 function ParseFile() as InputData
-    dim lines = ReadFileLines("../../src/test/files/advent_of_code_2023_day5_input.txt")
+    dim lines = ReadFileLines("src/test/files/advent_of_code_2023_day5_input.txt")
     dim seeds = ParseSeeds(lines(0))
     dim list maps
         dim i = 3

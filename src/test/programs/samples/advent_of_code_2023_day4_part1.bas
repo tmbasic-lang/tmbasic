@@ -1,5 +1,5 @@
 sub Main()
-    dim lines = ReadFileLines("../../src/test/files/advent_of_code_2023_day4_input.txt")
+    dim lines = ReadFileLines("src/test/files/advent_of_code_2023_day4_input.txt")
     dim sum = 0
     for each line in lines
         line = Replace(line, "  ", " ")

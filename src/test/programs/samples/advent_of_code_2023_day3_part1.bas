@@ -47,7 +47,7 @@ sub Part1(grid as List of List of Number)
 end sub
 
 sub Main()
-    dim lines = ReadFileLines("../../src/test/files/advent_of_code_2023_day3_input.txt")
+    dim lines = ReadFileLines("src/test/files/advent_of_code_2023_day3_input.txt")
     dim grid = [ListFill(46, kWidth)]
     for each line in lines
         dim padded = "." + line + "."
