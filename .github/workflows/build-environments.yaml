@@ -158,15 +158,26 @@ jobs:
           # Collect all .tar.gz and .zip files and move them to the root
           find . -type f -name "*.tar.gz" -exec mv {} . \;
           find . -type f -name "*.zip" -exec mv {} . \;
+          ls -lR
 
-          # Verify .tar.gz artifacts exist (Linux) and upload
-          timestamp=$(date -u "+%Y%m%d%H%M%S")
-          for platform in linux-arm64 linux-arm32 linux-x64 linux-x86; do
+          # Verify artifacts exist
+          for platform in linux-arm64 linux-arm32 linux-x64 linux-x86 mac-arm64 mac-x64; do
             if [ ! -f "tmbasic-build-env-${platform}.tar.gz" ]; then
               echo "Error: tmbasic-build-env-${platform}.tar.gz does not exist"
               exit 1
             fi
+          done
 
+          for platform in win-arm64 win-x64 win-x86; do
+            if [ ! -f "tmbasic-build-env-${platform}.zip" ]; then
+              echo "Error: tmbasic-build-env-${platform}.zip does not exist"
+              exit 1
+            fi
+          done
+
+          # Upload artifacts to R2
+          timestamp=$(date -u "+%Y%m%d%H%M%S")
+          for platform in linux-arm64 linux-arm32 linux-x64 linux-x86; do
             aws s3 cp \
               --endpoint "$R2_ENDPOINT" \
               --checksum-algorithm CRC32 \
@@ -174,36 +185,21 @@ jobs:
               "s3://tmbasic-archive/linux-build-envs/tmbasic-build-env-${platform}-${timestamp}.tar.gz"
           done
 
-          # Verify .zip artifacts exist (Windows) and upload
-          for platform in win-arm64 win-x64 win-x86; do
-            if [ ! -f "tmbasic-build-env-${platform}.zip" ]; then
-              echo "Error: tmbasic-build-env-${platform}.zip does not exist"
-              exit 1
-            fi
+          for platform in mac-arm64 mac-x64; do
+            aws s3 cp \
+              --endpoint "$R2_ENDPOINT" \
+              --checksum-algorithm CRC32 \
+              "tmbasic-build-env-${platform}.tar.gz" \
+              "s3://tmbasic-archive/mac-build-envs/tmbasic-build-env-${platform}-${timestamp}.tar.gz"
+          done
 
+          for platform in win-arm64 win-x64 win-x86; do
             aws s3 cp \
               --endpoint "$R2_ENDPOINT" \
               --checksum-algorithm CRC32 \
               "tmbasic-build-env-${platform}.zip" \
               "s3://tmbasic-archive/win-build-envs/tmbasic-build-env-${platform}-${timestamp}.zip"
           done
-
-          # Verify .zip artifacts exist (macOS) and upload
-          for platform in mac-arm64 mac-x64; do
-            if [ ! -f "tmbasic-build-env-${platform}.zip" ]; then
-              echo "Error: tmbasic-build-env-${platform}.zip does not exist"
-              exit 1
-            fi
-
-            aws s3 cp \
-              --endpoint "$R2_ENDPOINT" \
-              --checksum-algorithm CRC32 \
-              "tmbasic-build-env-${platform}.zip" \
-              "s3://tmbasic-archive/mac-build-envs/tmbasic-build-env-${platform}-${timestamp}.zip"
-          done
-
-          # Print all the filenames
-          ls -l
 
       - name: Delete intermediate artifacts
         uses: geekyeggo/delete-artifact@v5
