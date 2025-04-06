@@ -824,7 +824,9 @@ static void emitSymbolReference(const Node& declarationNode, ProcedureState* sta
         assert(procedureNode->returnType != nullptr);
         auto returnsValue = procedureNode->returnType->isValueType();
         if (declarationNode.procedureIndex.has_value()) {
-            state->call(returnsValue ? Opcode::kCallV : Opcode::kCallO, static_cast<uint32_t>(*declarationNode.procedureIndex), 0, 0);
+            state->call(
+                returnsValue ? Opcode::kCallV : Opcode::kCallO, static_cast<uint32_t>(*declarationNode.procedureIndex),
+                0, 0);
         } else if (declarationNode.systemCall.has_value()) {
             state->syscall(
                 returnsValue ? Opcode::kSystemCallV : Opcode::kSystemCallO, *declarationNode.systemCall, 0, 0);
@@ -1231,9 +1233,11 @@ static void emitAssignToDottedExpression(
 
     assert(expressionNode.evaluatedType != nullptr);
     if (expressionNode.evaluatedType->isValueType()) {
-        state->dottedExpressionSetValue(static_cast<uint8_t>(numSuffixes), static_cast<uint8_t>(numValueArgs), static_cast<uint8_t>(numObjectArgs));
+        state->dottedExpressionSetValue(
+            static_cast<uint8_t>(numSuffixes), static_cast<uint8_t>(numValueArgs), static_cast<uint8_t>(numObjectArgs));
     } else {
-        state->dottedExpressionSetObject(static_cast<uint8_t>(numSuffixes), static_cast<uint8_t>(numValueArgs), static_cast<uint8_t>(numObjectArgs));
+        state->dottedExpressionSetObject(
+            static_cast<uint8_t>(numSuffixes), static_cast<uint8_t>(numValueArgs), static_cast<uint8_t>(numObjectArgs));
     }
 
     // The opcode is followed by an encoding of the suffixes. We push the key value/objects in the same order they
@@ -1248,7 +1252,8 @@ static void emitAssignToDottedExpression(
             assert(
                 (suffixIsValue && bound->fieldValueIndex.has_value()) ||
                 (!suffixIsValue && bound->fieldObjectIndex.has_value()));
-            auto index = suffixIsValue ? static_cast<uint16_t>(*bound->fieldValueIndex) : static_cast<uint16_t>(*bound->fieldObjectIndex);
+            auto index = suffixIsValue ? static_cast<uint16_t>(*bound->fieldValueIndex)
+                                       : static_cast<uint16_t>(*bound->fieldObjectIndex);
             state->dottedExpressionDottedSuffix(suffixIsValue, index);
         } else if (dottedSuffix->isIndex()) {
             assert(dottedSuffix->collectionIndex.size() == 1);
@@ -1675,7 +1680,8 @@ static void emitForEachStatement(const ForEachStatementNode& statementNode, Proc
     assert(
         (isValue && statementNode.localValueIndex.has_value()) ||
         (!isValue && statementNode.localObjectIndex.has_value()));
-    auto elementLocalValueOrObjectIndex = isValue ? static_cast<uint16_t>(*statementNode.localValueIndex) : static_cast<uint16_t>(*statementNode.localObjectIndex);
+    auto elementLocalValueOrObjectIndex = isValue ? static_cast<uint16_t>(*statementNode.localValueIndex)
+                                                  : static_cast<uint16_t>(*statementNode.localObjectIndex);
 
     // evaluate list
     emitExpression(*statementNode.haystack, state);
@@ -1849,8 +1855,8 @@ static void emitSelectCaseStatement(const SelectCaseStatementNode& statementNode
     assert(statementNode.expression->evaluatedType != nullptr);
 
     auto isValue = statementNode.expression->evaluatedType->isValueType();
-    auto exprLocalValueOrObjectIndex =
-        isValue ? static_cast<uint16_t>(*statementNode.tempLocalValueIndex) : static_cast<uint16_t>(*statementNode.tempLocalObjectIndex);
+    auto exprLocalValueOrObjectIndex = isValue ? static_cast<uint16_t>(*statementNode.tempLocalValueIndex)
+                                               : static_cast<uint16_t>(*statementNode.tempLocalObjectIndex);
 
     emitExpression(*statementNode.expression, state);
     if (isValue) {

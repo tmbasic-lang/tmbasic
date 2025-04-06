@@ -20,7 +20,8 @@ void DesignerGridView::draw() {
 }
 
 TPalette& DesignerGridView::getPalette() const {
-    static auto palette = TPalette(kDesignerGridViewPalette.data(), static_cast<uint16_t>(kDesignerGridViewPalette.size()));
+    static auto palette =
+        TPalette(kDesignerGridViewPalette.data(), static_cast<uint16_t>(kDesignerGridViewPalette.size()));
     return palette;
 }
 
