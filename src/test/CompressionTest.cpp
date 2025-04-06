@@ -64,8 +64,8 @@ TEST(MicrotarTest, Roundtrip) {
 
         mtar_open(&tar, "test.tar", "w");
 
-        mtar_write_file_header(&tar, "test1.txt", data.size());
-        mtar_write_data(&tar, data.data(), data.size());
+        mtar_write_file_header(&tar, "test1.txt", static_cast<uint32_t>(data.size()));
+        mtar_write_data(&tar, data.data(), static_cast<uint32_t>(data.size()));
 
         mtar_finalize(&tar);
 

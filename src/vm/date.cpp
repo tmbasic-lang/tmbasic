@@ -115,7 +115,7 @@ DateTimeOffsetParts::DateTimeOffsetParts(
       utcOffsetMilliseconds(utcOffsetMilliseconds) {}
 
 DateTimeParts::DateTimeParts(const absl::CivilSecond& civilSecond, uint32_t millisecond)
-    : year(civilSecond.year()),
+    : year(static_cast<uint32_t>(civilSecond.year())),
       month(civilSecond.month()),
       day(civilSecond.day()),
       hour(civilSecond.hour()),
@@ -126,20 +126,20 @@ DateTimeParts::DateTimeParts(const absl::CivilSecond& civilSecond, uint32_t mill
 void DateTimeParts::addYears(int32_t years) {
     absl::CivilYear civilYear{ year };
     civilYear += years;
-    year = civilYear.year();
+    year = static_cast<uint32_t>(civilYear.year());
 }
 
 void DateTimeParts::addMonths(int32_t months) {
     absl::CivilMonth civilMonth{ year, month };
     civilMonth += months;
-    year = civilMonth.year();
+    year = static_cast<uint32_t>(civilMonth.year());
     month = civilMonth.month();
 }
 
 void DateTimeParts::addDays(int32_t days) {
     absl::CivilDay civilDay{ year, month, day };
     civilDay += days;
-    year = civilDay.year();
+    year = static_cast<uint32_t>(civilDay.year());
     month = civilDay.month();
     day = civilDay.day();
 }
@@ -147,7 +147,7 @@ void DateTimeParts::addDays(int32_t days) {
 void DateTimeParts::addHours(int32_t hours) {
     absl::CivilHour civilHour{ year, month, day, hour };
     civilHour += hours;
-    year = civilHour.year();
+    year = static_cast<uint32_t>(civilHour.year());
     month = civilHour.month();
     day = civilHour.day();
     hour = civilHour.hour();
@@ -156,7 +156,7 @@ void DateTimeParts::addHours(int32_t hours) {
 void DateTimeParts::addMinutes(int32_t minutes) {
     absl::CivilMinute civilMinute{ year, month, day, hour, minute };
     civilMinute += minutes;
-    year = civilMinute.year();
+    year = static_cast<uint32_t>(civilMinute.year());
     month = civilMinute.month();
     day = civilMinute.day();
     hour = civilMinute.hour();
@@ -166,7 +166,7 @@ void DateTimeParts::addMinutes(int32_t minutes) {
 void DateTimeParts::addSeconds(int32_t seconds) {
     absl::CivilSecond civilSecond{ year, month, day, hour, minute, second };
     civilSecond += seconds;
-    year = civilSecond.year();
+    year = static_cast<uint32_t>(civilSecond.year());
     month = civilSecond.month();
     day = civilSecond.day();
     hour = civilSecond.hour();

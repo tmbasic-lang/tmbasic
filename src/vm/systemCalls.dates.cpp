@@ -397,7 +397,7 @@ void systemCallUtcOffsets(const SystemCallInput& input, SystemCallResult* result
 template <typename Parts, typename Operation>
 void dateTimeAddCore(Operation operation, const SystemCallInput& input, SystemCallResult* result) {
     const auto& value = input.getValue(-2);
-    auto count = input.getValue(-1).getInt64();
+    auto count = input.getValue(-1).getInt32();
     Parts parts{ value };
     operation(&parts, count);
     result->returnedValue = parts.toValue();

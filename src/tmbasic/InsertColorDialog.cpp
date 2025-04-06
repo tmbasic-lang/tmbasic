@@ -492,7 +492,7 @@ void InsertColorDialog::handleEvent(TEvent& event) {
                 _private->colorView->blue = blue;
                 _private->colorView->drawView();
             }
-        } catch (std::runtime_error& e) {
+        } catch (std::runtime_error&) {
             // ignore
         }
     }

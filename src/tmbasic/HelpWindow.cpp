@@ -86,7 +86,7 @@ HelpWindow::HelpWindow(THelpFile* hFile, ushort context)
 }
 
 TPalette& HelpWindow::getPalette() const {
-    static TPalette palette(App::helpWindowPalette.data(), App::helpWindowPalette.size() - 1);
+    static TPalette palette(App::helpWindowPalette.data(), static_cast<uint16_t>(App::helpWindowPalette.size() - 1));
     return palette;
 }
 

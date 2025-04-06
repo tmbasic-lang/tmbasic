@@ -23,7 +23,7 @@ void Editor::setText(const std::string& str) {
     auto len = prefixLen + suffixLen;
     setSelect(0, len, false);
     deleteSelect();
-    insertText(str.c_str(), str.size(), false);
+    insertText(str.c_str(), static_cast<uint32_t>(str.size()), false);
 }
 
 }  // namespace shared
