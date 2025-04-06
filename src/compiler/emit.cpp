@@ -765,33 +765,33 @@ static void emitSymbolReference(const Node& declarationNode, ProcedureState* sta
     // local variable
     if (declarationNode.localValueIndex.has_value()) {
         if (set) {
-            state->setLocalValue(*declarationNode.localValueIndex);
+            state->setLocalValue(static_cast<uint16_t>(*declarationNode.localValueIndex));
         } else {
-            state->pushLocalValue(*declarationNode.localValueIndex);
+            state->pushLocalValue(static_cast<uint16_t>(*declarationNode.localValueIndex));
         }
         return;
     }
     if (declarationNode.localObjectIndex.has_value()) {
         if (set) {
-            state->setLocalObject(*declarationNode.localObjectIndex);
+            state->setLocalObject(static_cast<uint16_t>(*declarationNode.localObjectIndex));
         } else {
-            state->pushLocalObject(*declarationNode.localObjectIndex);
+            state->pushLocalObject(static_cast<uint16_t>(*declarationNode.localObjectIndex));
         }
         return;
     }
     if (declarationNode.globalValueIndex.has_value()) {
         if (set) {
-            state->setGlobalValue(*declarationNode.globalValueIndex);
+            state->setGlobalValue(static_cast<uint16_t>(*declarationNode.globalValueIndex));
         } else {
-            state->pushGlobalValue(*declarationNode.globalValueIndex);
+            state->pushGlobalValue(static_cast<uint16_t>(*declarationNode.globalValueIndex));
         }
         return;
     }
     if (declarationNode.globalObjectIndex.has_value()) {
         if (set) {
-            state->setGlobalObject(*declarationNode.globalObjectIndex);
+            state->setGlobalObject(static_cast<uint16_t>(*declarationNode.globalObjectIndex));
         } else {
-            state->pushGlobalObject(*declarationNode.globalObjectIndex);
+            state->pushGlobalObject(static_cast<uint16_t>(*declarationNode.globalObjectIndex));
         }
         return;
     }
@@ -801,17 +801,17 @@ static void emitSymbolReference(const Node& declarationNode, ProcedureState* sta
     if (parameterNode != nullptr) {
         if (parameterNode->argumentValueIndex.has_value()) {
             if (set) {
-                state->setArgumentValue(*parameterNode->argumentValueIndex);
+                state->setArgumentValue(static_cast<uint8_t>(*parameterNode->argumentValueIndex));
             } else {
-                state->pushArgumentValue(*parameterNode->argumentValueIndex);
+                state->pushArgumentValue(static_cast<uint8_t>(*parameterNode->argumentValueIndex));
             }
             return;
         }
         if (parameterNode->argumentObjectIndex.has_value()) {
             if (set) {
-                state->setArgumentObject(*parameterNode->argumentObjectIndex);
+                state->setArgumentObject(static_cast<uint8_t>(*parameterNode->argumentObjectIndex));
             } else {
-                state->pushArgumentObject(*parameterNode->argumentObjectIndex);
+                state->pushArgumentObject(static_cast<uint8_t>(*parameterNode->argumentObjectIndex));
             }
             return;
         }
@@ -824,7 +824,7 @@ static void emitSymbolReference(const Node& declarationNode, ProcedureState* sta
         assert(procedureNode->returnType != nullptr);
         auto returnsValue = procedureNode->returnType->isValueType();
         if (declarationNode.procedureIndex.has_value()) {
-            state->call(returnsValue ? Opcode::kCallV : Opcode::kCallO, *declarationNode.procedureIndex, 0, 0);
+            state->call(returnsValue ? Opcode::kCallV : Opcode::kCallO, static_cast<uint32_t>(*declarationNode.procedureIndex), 0, 0);
         } else if (declarationNode.systemCall.has_value()) {
             state->syscall(
                 returnsValue ? Opcode::kSystemCallV : Opcode::kSystemCallO, *declarationNode.systemCall, 0, 0);
@@ -908,7 +908,7 @@ static void emitLiteralRecordExpression(const LiteralRecordExpressionNode& expre
             numObjects++;
         }
     }
-    state->recordNew(numValues, numObjects);
+    state->recordNew(static_cast<uint16_t>(numValues), static_cast<uint16_t>(numObjects));
 }
 
 static void emitLiteralStringExpression(const LiteralStringExpressionNode& expressionNode, ProcedureState* state) {
@@ -1056,7 +1056,7 @@ static void emitFunctionCallExpression(const FunctionCallExpressionNode& express
     } else {
         state->call(
             expressionNode.evaluatedType->isValueType() ? Opcode::kCallV : Opcode::kCallO,
-            *expressionNode.procedureIndex, numValueArgs, numObjectArgs);
+            static_cast<uint32_t>(*expressionNode.procedureIndex), numValueArgs, numObjectArgs);
     }
 }
 
@@ -1079,9 +1079,9 @@ static void emitDottedExpression(const DottedExpressionNode& expressionNode, Pro
             baseType = parameterNode->type.get();
             assert(baseType != nullptr);
             if (parameterNode->fieldValueIndex.has_value()) {
-                state->recordGetValue(*parameterNode->fieldValueIndex);
+                state->recordGetValue(static_cast<uint16_t>(*parameterNode->fieldValueIndex));
             } else if (parameterNode->fieldObjectIndex.has_value()) {
-                state->recordGetObject(*parameterNode->fieldObjectIndex);
+                state->recordGetObject(static_cast<uint16_t>(*parameterNode->fieldObjectIndex));
             } else {
                 throw CompilerException(
                     CompilerErrorCode::kInternal,
@@ -1231,9 +1231,9 @@ static void emitAssignToDottedExpression(
 
     assert(expressionNode.evaluatedType != nullptr);
     if (expressionNode.evaluatedType->isValueType()) {
-        state->dottedExpressionSetValue(numSuffixes, numValueArgs, numObjectArgs);
+        state->dottedExpressionSetValue(static_cast<uint8_t>(numSuffixes), static_cast<uint8_t>(numValueArgs), static_cast<uint8_t>(numObjectArgs));
     } else {
-        state->dottedExpressionSetObject(numSuffixes, numValueArgs, numObjectArgs);
+        state->dottedExpressionSetObject(static_cast<uint8_t>(numSuffixes), static_cast<uint8_t>(numValueArgs), static_cast<uint8_t>(numObjectArgs));
     }
 
     // The opcode is followed by an encoding of the suffixes. We push the key value/objects in the same order they
@@ -1248,7 +1248,7 @@ static void emitAssignToDottedExpression(
             assert(
                 (suffixIsValue && bound->fieldValueIndex.has_value()) ||
                 (!suffixIsValue && bound->fieldObjectIndex.has_value()));
-            auto index = suffixIsValue ? *bound->fieldValueIndex : *bound->fieldObjectIndex;
+            auto index = suffixIsValue ? static_cast<uint16_t>(*bound->fieldValueIndex) : static_cast<uint16_t>(*bound->fieldObjectIndex);
             state->dottedExpressionDottedSuffix(suffixIsValue, index);
         } else if (dottedSuffix->isIndex()) {
             assert(dottedSuffix->collectionIndex.size() == 1);
@@ -1330,7 +1330,7 @@ static void emitCallStatement(const CallStatementNode& statementNode, ProcedureS
     } else {
         assert(statementNode.procedureIndex.has_value());
         state->call(
-            Opcode::kCall, *statementNode.procedureIndex, static_cast<uint8_t>(numValueArgs),
+            Opcode::kCall, static_cast<uint32_t>(*statementNode.procedureIndex), static_cast<uint8_t>(numValueArgs),
             static_cast<uint8_t>(numObjectArgs));
     }
 }
@@ -1379,7 +1379,7 @@ static void emitDimListStatement(const DimListStatementNode& statementNode, Proc
     auto isValueList = listType->listItemType->isValueType();
 
     // We have a local variable slot (at 'index') for the final list, but we will first use it to hold the builder.
-    auto index = *statementNode.localObjectIndex;
+    auto index = static_cast<uint16_t>(*statementNode.localObjectIndex);
     state->syscall(
         Opcode::kSystemCallO, isValueList ? SystemCall::kValueListBuilderNew : SystemCall::kObjectListBuilderNew, 0, 0);
     state->setLocalObject(index);
@@ -1404,7 +1404,7 @@ static void emitDimSetStatement(const DimSetStatementNode& statementNode, Proced
     auto isValueSet = setType->setKeyType->isValueType();
 
     // We have a local variable slot (at 'index') for the final set, but we will first use it to hold the builder.
-    auto index = *statementNode.localObjectIndex;
+    auto index = static_cast<uint16_t>(*statementNode.localObjectIndex);
     state->syscall(
         Opcode::kSystemCallO, isValueSet ? SystemCall::kValueSetBuilderNew : SystemCall::kObjectSetBuilderNew, 0, 0);
     state->setLocalObject(index);
@@ -1431,7 +1431,7 @@ static void emitDimMapStatement(const DimMapStatementNode& statementNode, Proced
     auto isValueTo = mapType->mapValueType->isValueType();
 
     // We have a local variable slot (at 'index') for the final map, but we will first use it to hold the builder.
-    auto index = *statementNode.localObjectIndex;
+    auto index = static_cast<uint16_t>(*statementNode.localObjectIndex);
     state->syscall(
         Opcode::kSystemCallO,
         isValueFrom ? (isValueTo ? SystemCall::kValueToValueMapBuilderNew : SystemCall::kValueToObjectMapBuilderNew)
@@ -1458,7 +1458,7 @@ static void emitYieldStatement(const YieldStatementNode& statementNode, Procedur
     assert(statementNode.boundCollectionDeclaration->localObjectIndex.has_value());
 
     // First two arguments to the next system call below.
-    state->pushLocalObject(statementNode.boundCollectionDeclaration->localObjectIndex.value());
+    state->pushLocalObject(static_cast<uint16_t>(*statementNode.boundCollectionDeclaration->localObjectIndex));
     emitExpression(*statementNode.expression, state);
 
     if (statementNode.toExpression == nullptr) {
@@ -1526,9 +1526,9 @@ static void emitDefaultValue(const TypeNode& type, ProcedureState* state) {
 
         case Kind::kList:
             if (type.listItemType->isValueType()) {
-                state->valueListNew(0);
+                state->valueListNew(static_cast<uint16_t>(0));
             } else {
-                state->objectListNew(0);
+                state->objectListNew(static_cast<uint16_t>(0));
             }
             break;
 
@@ -1582,7 +1582,7 @@ static void emitDefaultValue(const TypeNode& type, ProcedureState* state) {
                     numObjects++;
                 }
             }
-            state->recordNew(numValues, numObjects);
+            state->recordNew(static_cast<uint16_t>(numValues), static_cast<uint16_t>(numObjects));
             break;
         }
 
@@ -1611,9 +1611,9 @@ static void emitDimOrConstStatement(
     if (value != nullptr) {
         emitExpression(*value, state);
         if (statementNode.localValueIndex.has_value()) {
-            state->setLocalValue(*statementNode.localValueIndex);
+            state->setLocalValue(static_cast<uint16_t>(*statementNode.localValueIndex));
         } else if (statementNode.localObjectIndex.has_value()) {
-            state->setLocalObject(*statementNode.localObjectIndex);
+            state->setLocalObject(static_cast<uint16_t>(*statementNode.localObjectIndex));
         } else {
             throw std::runtime_error("Internal error. No local variable index found!");
         }
@@ -1622,9 +1622,9 @@ static void emitDimOrConstStatement(
 
     emitDefaultValue(type, state);
     if (type.isValueType()) {
-        state->setLocalValue(*statementNode.localValueIndex);
+        state->setLocalValue(static_cast<uint16_t>(*statementNode.localValueIndex));
     } else {
-        state->setLocalObject(*statementNode.localObjectIndex);
+        state->setLocalObject(static_cast<uint16_t>(*statementNode.localObjectIndex));
     }
 }
 
@@ -1662,20 +1662,20 @@ static void emitForEachStatement(const ForEachStatementNode& statementNode, Proc
     // we need two local temp values: count and index
     assert(statementNode.getTempLocalValueCount() == 2);
     assert(statementNode.tempLocalValueIndex.has_value());
-    auto countLocalValueIndex = *statementNode.tempLocalValueIndex;
+    auto countLocalValueIndex = static_cast<uint16_t>(*statementNode.tempLocalValueIndex);
     auto indexLocalValueIndex = countLocalValueIndex + 1;
 
     // we need one local object value: the list
     assert(statementNode.getTempLocalObjectCount() == 1);
     assert(statementNode.tempLocalObjectIndex.has_value());
-    auto listLocalObjectIndex = *statementNode.tempLocalObjectIndex;
+    auto listLocalObjectIndex = static_cast<uint16_t>(*statementNode.tempLocalObjectIndex);
 
     // plus the element variable which is user-visible
     auto isValue = statementNode.getSymbolDeclarationType()->isValueType();
     assert(
         (isValue && statementNode.localValueIndex.has_value()) ||
         (!isValue && statementNode.localObjectIndex.has_value()));
-    auto elementLocalValueOrObjectIndex = isValue ? *statementNode.localValueIndex : *statementNode.localObjectIndex;
+    auto elementLocalValueOrObjectIndex = isValue ? static_cast<uint16_t>(*statementNode.localValueIndex) : static_cast<uint16_t>(*statementNode.localObjectIndex);
 
     // evaluate list
     emitExpression(*statementNode.haystack, state);
@@ -1740,12 +1740,12 @@ static void emitForStatement(const ForStatementNode& statementNode, ProcedureSta
     // we need two local temp variables
     assert(statementNode.getTempLocalValueCount() == 2);
     assert(statementNode.tempLocalValueIndex.has_value());
-    auto toLocalValueIndex = *statementNode.tempLocalValueIndex;
+    auto toLocalValueIndex = static_cast<uint16_t>(*statementNode.tempLocalValueIndex);
     auto stepLocalValueIndex = toLocalValueIndex + 1;
 
     // plus the loop counter variable which is user-visible
     assert(statementNode.localValueIndex.has_value());
-    auto counterLocalValueIndex = *statementNode.localValueIndex;
+    auto counterLocalValueIndex = static_cast<uint16_t>(*statementNode.localValueIndex);
 
     // evaluate the fromValue and store in the counter variable
     emitExpression(*statementNode.fromValue, state);
@@ -1850,7 +1850,7 @@ static void emitSelectCaseStatement(const SelectCaseStatementNode& statementNode
 
     auto isValue = statementNode.expression->evaluatedType->isValueType();
     auto exprLocalValueOrObjectIndex =
-        isValue ? *statementNode.tempLocalValueIndex : *statementNode.tempLocalObjectIndex;
+        isValue ? static_cast<uint16_t>(*statementNode.tempLocalValueIndex) : static_cast<uint16_t>(*statementNode.tempLocalObjectIndex);
 
     emitExpression(*statementNode.expression, state);
     if (isValue) {
@@ -1873,22 +1873,22 @@ static void emitSelectCaseStatement(const SelectCaseStatementNode& statementNode
             if (range->toExpression == nullptr) {
                 // single value
                 if (isValue) {
-                    state->pushLocalValue(exprLocalValueOrObjectIndex);
+                    state->pushLocalValue(static_cast<uint16_t>(exprLocalValueOrObjectIndex));
                     emitExpression(*range->expression, state);
                     state->syscall(Opcode::kSystemCallV, SystemCall::kNumberEquals, 2, 0);
                 } else {
-                    state->pushLocalObject(exprLocalValueOrObjectIndex);
+                    state->pushLocalObject(static_cast<uint16_t>(exprLocalValueOrObjectIndex));
                     emitExpression(*range->expression, state);
                     state->syscall(Opcode::kSystemCallV, SystemCall::kObjectEquals, 0, 2);
                 }
             } else {
                 assert(isValue);
 
-                state->pushLocalValue(exprLocalValueOrObjectIndex);
+                state->pushLocalValue(static_cast<uint16_t>(exprLocalValueOrObjectIndex));
                 emitExpression(*range->expression, state);
                 state->syscall(Opcode::kSystemCallV, SystemCall::kNumberGreaterThanEquals, 2, 0);
 
-                state->pushLocalValue(exprLocalValueOrObjectIndex);
+                state->pushLocalValue(static_cast<uint16_t>(exprLocalValueOrObjectIndex));
                 emitExpression(*range->toExpression, state);
                 state->syscall(Opcode::kSystemCallV, SystemCall::kNumberLessThanEquals, 2, 0);
 
@@ -2297,9 +2297,9 @@ static void emitPrint(const TypeNode& type, const Token& token, ProcedureState* 
                 state->syscall(Opcode::kSystemCall, SystemCall::kPrintString, 0, 1);
                 state->duplicateObject();
                 if (field->fieldValueIndex.has_value()) {
-                    state->recordGetValue(*field->fieldValueIndex);
+                    state->recordGetValue(static_cast<uint16_t>(*field->fieldValueIndex));
                 } else if (field->fieldObjectIndex.has_value()) {
-                    state->recordGetObject(*field->fieldObjectIndex);
+                    state->recordGetObject(static_cast<uint16_t>(*field->fieldObjectIndex));
                 } else {
                     throw CompilerException(
                         CompilerErrorCode::kInternal, fmt::format("No field index assigned for \"{}\".", field->name),
@@ -2505,7 +2505,7 @@ vector<uint8_t> emit(
                 continue;
             }
             emitDefaultValue(*type, &state);
-            state.setGlobalObject(globalVariable->index);
+            state.setGlobalObject(static_cast<uint16_t>(globalVariable->index));
         }
     }
 

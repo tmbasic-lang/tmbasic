@@ -98,7 +98,7 @@ static void bindFieldTypes(size_t sourceMemberIndex, CompiledProgram* compiledPr
 void compileTypes(const SourceProgram& sourceProgram, CompiledProgram* compiledProgram) {
     // Build a CompiledUserType for each user type, which assigns field indices.
     sourceProgram.forEachMemberIndex(SourceMemberType::kType, [compiledProgram](const auto& sourceMember, auto index) {
-        compileType(index, sourceMember, compiledProgram);
+        compileType(static_cast<int>(index), sourceMember, compiledProgram);
     });
 
     // Check that fields of record types refer to defined types.

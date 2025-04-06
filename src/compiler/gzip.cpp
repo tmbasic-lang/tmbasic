@@ -41,7 +41,7 @@ class ZStream {
         std::vector<uint8_t> dst{};
 
         stream.next_in = src.data();
-        stream.avail_in = src.size();
+        stream.avail_in = static_cast<uInt>(src.size());
 
         int ret = 0;
         do {

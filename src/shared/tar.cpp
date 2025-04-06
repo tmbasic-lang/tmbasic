@@ -50,7 +50,7 @@ class OutputTarArchive {
         h.size = size;
         h.type = MTAR_TREG;
         h.mode = mode;
-        h.mtime = time(nullptr);
+        h.mtime = static_cast<unsigned int>(time(nullptr));
         return mtar_write_header(tar, &h);
     }
 };
@@ -64,10 +64,10 @@ std::vector<uint8_t> tar(const std::vector<TarEntry>& entries) {
     mtar.close = OutputTarArchive::close;
     mtar.stream = &archive;
     for (const auto& entry : entries) {
-        if (OutputTarArchive::writeFileHeader(&mtar, entry.name, entry.data.size(), entry.mode) < 0) {
+        if (OutputTarArchive::writeFileHeader(&mtar, entry.name, static_cast<uint>(entry.data.size()), entry.mode) < 0) {
             throw std::runtime_error(fmt::format("Failed to write the tar header for \"{}\".", entry.name));
         }
-        if (mtar_write_data(&mtar, entry.data.data(), entry.data.size()) < 0) {
+        if (mtar_write_data(&mtar, entry.data.data(), static_cast<unsigned int>(entry.data.size())) < 0) {
             throw std::runtime_error(fmt::format("Failed to write the tar data for \"{}\".", entry.name));
         }
     }

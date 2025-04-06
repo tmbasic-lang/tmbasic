@@ -204,7 +204,7 @@ std::string getTempFilePath(const std::string& filename) {
     try {
         auto tempPath = std::filesystem::temp_directory_path();
         return (tempPath / filename).string();
-    } catch (const std::filesystem::filesystem_error& ex) {
+    } catch (const std::filesystem::filesystem_error&) {
         // It's possible that the temp directory doesn't exist.
         // Best to fall back to the current directory with a relative path.
         return filename;
