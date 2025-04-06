@@ -6,7 +6,7 @@
         {
             "label": "Make",
             "type": "shell",
-            "command": "./dev-build.sh",
+            "command": "scripts/make-tmbasic.sh",
             "group": {
                 "kind": "build",
                 "isDefault": true

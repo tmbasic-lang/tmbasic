@@ -1,8 +1,8 @@
 #!/bin/bash
 
-function make_timed() {
+function make_tmbasic() {
     clear
-    time ./dev-build.sh
+    time scripts/make-tmbasic.sh
 }
 
 while true
@@ -16,7 +16,7 @@ do
     echo
     if [ "$x" == "m" ]
     then
-        make_timed
+        make_tmbasic
     elif [ "$x" == "r" ] 
     then
         TERM=xterm-256color COLORTERM=truecolor bin/tmbasic || (printf "\r\nCrash detected! Resetting terminal in 5 seconds...\r\n" && sleep 5 && reset && echo "Eating input. Press Ctrl+D." && cat >/dev/null)
@@ -33,15 +33,15 @@ do
         TERM=xterm-256color COLORTERM= bin/tmbasic || (printf "\r\nCrash detected! Resetting terminal in 5 seconds...\r\n" && sleep 5 && reset && echo "Eating input. Press Ctrl+D." && cat >/dev/null)
     elif [ "$x" == "f" ]
     then
-        ./dev-format.sh
+        scripts/format.sh
     elif [ "$x" == "t" ]
     then
         export GTEST_FILTER="*"
         if [ -f "test_filter" ]; then
             export GTEST_FILTER=$(cat test_filter)
         fi
-        make_timed
-        ./dev-test.sh
+        make_tmbasic
+        scripts/test.sh
     elif [ "$x" == "F" ]
     then
         echo -n "GTEST_FILTER="
@@ -49,10 +49,10 @@ do
         echo "$GTEST_FILTER" > test_filter
     elif [ "$x" == "g" ]
     then
-        ./make-ghpages.sh
+        scripts/make-ghpages.sh
     elif [ "$x" == "c" ]
     then
-        ./dev-clean.sh
+        scripts/clean.sh
     elif [ "$x" == "q" ]
     then
         break
