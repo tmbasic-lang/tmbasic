@@ -39,11 +39,16 @@ TEST(CompressionTest, Zip) {
         ZipEntry{ "a", std::vector<uint8_t>{ 1, 2, 3 } },
         ZipEntry{ "b", std::vector<uint8_t>{ 'H', 'i' } },
     };
-    const std::string kZipFilePath = "/tmp/tmbasic_CompressionTest_CreateZipArchive.zip";
-    zip(kZipFilePath, entries);
+#ifdef _WIN32
+    auto tempDir = std::filesystem::temp_directory_path();
+    auto zipFilePath = (tempDir / "tmbasic_CompressionTest_CreateZipArchive.zip").string();
+#else
+    const std::string zipFilePath = "/tmp/tmbasic_CompressionTest_CreateZipArchive.zip";
+#endif
+    zip(zipFilePath, entries);
     struct stat st {};
-    stat(kZipFilePath.c_str(), &st);
-    unlink(kZipFilePath.c_str());
+    stat(zipFilePath.c_str(), &st);
+    unlink(zipFilePath.c_str());
     ASSERT_EQ(187, st.st_size);
 }
 
