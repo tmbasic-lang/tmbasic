@@ -576,6 +576,9 @@ $(UTF8PROC_DIR)/install: $(UTF8PROC_DIR)/download $(BINUTILS_DIR)/install $(CMAK
 $(LIEF_DIR)/download:
 	tar zxf $(DOWNLOAD_DIR)/lief-*.tar.gz
 	mv -f LIEF-*/ $(LIEF_DIR)/
+	if [ -f $(DOWNLOAD_DIR)/lief-ChainedPointerAnalysis.diff ]; then \
+		patch -p1 -d $(LIEF_DIR)/include/LIEF/MachO < $(DOWNLOAD_DIR)/lief-ChainedPointerAnalysis.diff; \
+	fi
 	touch $@
 
 $(LIEF_DIR)/install: $(LIEF_DIR)/download $(CMAKE_DIR)/install $(BINUTILS_DIR)/install

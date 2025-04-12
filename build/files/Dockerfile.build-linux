@@ -31,8 +31,10 @@ COPY cmake-toolchain-linux-$ARCH.cmake /tmp/
 COPY deps.mk /tmp/
 COPY mtar.c /tmp/mtar.c
 COPY deps.tar /tmp/
+COPY lief-ChainedPointerAnalysis.diff /tmp/
 RUN mkdir -p /tmp/downloads && \
     tar xf /tmp/deps.tar -C /tmp/downloads && \
+    mv -f /tmp/lief-ChainedPointerAnalysis.diff /tmp/downloads/ && \
     mkdir -p /usr/local/$TRIPLE/include && \
     mkdir -p /tmp/deps && \
     cd /tmp/deps && \

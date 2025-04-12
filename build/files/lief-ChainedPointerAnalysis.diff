@@ -1,0 +1,24 @@
+*** old/ChainedPointerAnalysis.hpp	Sun Feb 23 00:58:34 2025
+--- new/ChainedPointerAnalysis.hpp	Sat Apr 12 03:39:52 2025
+***************
+*** 353,358 ****
+--- 353,360 ----
+      return *reinterpret_cast<const dyld_chained_ptr_32_firmware_rebase_t*>(&value_);
+    }
+  
++ #pragma pack(push, 8) // Force 8-byte alignment for everything until pop
++ 
+    struct union_pointer_t {
+      PTR_TYPE type = PTR_TYPE::UNKNOWN;
+      union {
+***************
+*** 385,390 ****
+--- 387,394 ----
+        std::ostream& operator<<(std::ostream& os, const union_pointer_t& ptr);
+    };
+  
++ #pragma pack(pop)
++ 
+    static_assert(sizeof(union_pointer_t) == 16);
+  
+    union_pointer_t get_as(DYLD_CHAINED_PTR_FORMAT fmt) const;
