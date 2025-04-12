@@ -48,7 +48,7 @@ export TARGET_PREFIX="$PREFIX"
 
 # Build unless $NO_BUILD is non-empty.
 if [ -z "${NO_BUILD+x}" ]; then
-    MAKEFLAGS="$MAKEFLAGS --no-print-directory --output-sync=recurse -j6" gnumake -f ../../build/files/deps.mk || gnumake -f ../../build/files/deps.mk
+    MAKEFLAGS="${MAKEFLAGS-} --no-print-directory --output-sync=recurse -j6" gnumake -f ../../build/files/deps.mk || gnumake -f ../../build/files/deps.mk
 fi
 
 cd ..
@@ -59,4 +59,4 @@ set +x
 cd ../
 
 pwd
-TARGET_OS=mac ARCH=$ARCH PS1="[tmbasic-mac-$SHORT_ARCH] \w\$ " MAKEFLAGS="-j6" BASH_SILENCE_DEPRECATION_WARNING=1 bash "$@"
+TARGET_OS=mac ARCH=ARCH PS1="[tmbasic-mac-$SHORT_ARCH] \w\$ " MAKEFLAGS="-j6" BASH_SILENCE_DEPRECATION_WARNING=1 bash "$@"

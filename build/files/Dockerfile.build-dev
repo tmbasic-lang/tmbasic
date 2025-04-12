@@ -67,7 +67,7 @@ RUN mkdir -p /tmp/downloads && \
     export LINUX_TRIPLE=$(uname -m)-linux-gnu \
     export TARGET_OS=linux \
     export DOWNLOAD_DIR=/tmp/downloads && \
-    (MAKEFLAGS="$MAKEFLAGS --no-print-directory --output-sync=recurse -j$(nproc)" make -f /tmp/deps.mk || make -f /tmp/deps.mk) && \
+    (MAKEFLAGS="${MAKEFLAGS-} --no-print-directory --output-sync=recurse -j$(nproc)" make -f /tmp/deps.mk || make -f /tmp/deps.mk) && \
     rm -rf /tmp/deps /tmp/deps.mk
 
 # for the benefit of vscode, symlink /usr/local/target to /usr/local/ARCH-linux-gnu
