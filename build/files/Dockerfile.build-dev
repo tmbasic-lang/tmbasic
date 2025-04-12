@@ -1,9 +1,11 @@
 FROM ubuntu:24.04
 
+ENV DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get update -y && \
     apt-get upgrade -y && \
     yes | unminimize && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    apt-get install -y \
         apt-transport-https \
         autoconf \
         automake \
@@ -65,14 +67,13 @@ RUN mkdir -p /tmp/downloads && \
     export LINUX_TRIPLE=$(uname -m)-linux-gnu \
     export TARGET_OS=linux \
     export DOWNLOAD_DIR=/tmp/downloads && \
-    (make -j$(nproc) -f /tmp/deps.mk || make -f /tmp/deps.mk) && \
+    (MAKEFLAGS="$MAKEFLAGS --no-print-directory --output-sync=recurse -j$(nproc)" make -f /tmp/deps.mk || make -f /tmp/deps.mk) && \
     rm -rf /tmp/deps /tmp/deps.mk
 
 # for the benefit of vscode, symlink /usr/local/target to /usr/local/ARCH-linux-gnu
 RUN ln -s /usr/local/$(uname -m)-linux-gnu /usr/local/target
 
 # environment
-COPY --chown=$HOST_UID:$HOST_GID devPrompt.sh /home/user/
 COPY --chown=$HOST_UID:$HOST_GID .valgrindrc /home/user/
 RUN echo "export ARCH=\"$ARCH\"" >> /etc/profile.d/tmbasic.sh && \
     echo "export IMAGE_NAME=\"$IMAGE_NAME\"" >> /etc/profile.d/tmbasic.sh && \
@@ -83,7 +84,6 @@ RUN echo "export ARCH=\"$ARCH\"" >> /etc/profile.d/tmbasic.sh && \
     echo "export LINUX_TRIPLE=$(uname -m)-linux-gnu" >> /etc/profile.d/tmbasic.sh && \
     echo "export PREFIX=/usr/local/$(uname -m)-linux-gnu" >> /etc/profile.d/tmbasic.sh && \
     echo "export LD_LIBRARY_PATH=/usr/lib:/usr/local/lib:/usr/local/$(uname -m)-linux-gnu/lib" >> /etc/profile.d/tmbasic.sh && \
-    echo "alias dev='/home/user/devPrompt.sh'" >> /etc/profile.d/tmbasic.sh && \
     echo "export TERM=xterm-256color" >> /etc/profile.d/tmbasic.sh && \
     echo "export EDITOR=\"nano -w\"" >> /etc/profile.d/tmbasic.sh && \
     chmod +x /etc/profile.d/tmbasic.sh
