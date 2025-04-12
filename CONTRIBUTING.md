@@ -6,11 +6,11 @@
 **Table of Contents**
 
 - [Project dependencies](#project-dependencies)
-- [Build for Linux and Windows](#build-for-linux-and-windows)
-- [Build for macOS](#build-for-macos)
+- [Build from source](#build-from-source)
 - [Use Visual Studio Code for development and debugging](#use-visual-studio-code-for-development-and-debugging)
 - [Take screenshots for the website](#take-screenshots-for-the-website)
 - [Update third party dependencies](#update-third-party-dependencies)
+- [Update GitHub Pages](#update-github-pages)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -102,3 +102,14 @@ pngcrush -brute -reduce -ow screenshot.png
 1. In `build/downloads/`, `rm sysroot-* ; aws s3 sync . s3://tmbasic-archive/deps/ --size-only --endpoint-url https://367bdafee4af5175025295154f92e84a.r2.cloudflarestorage.com`
 1. Commit as "Update deps".
 1. Check for new Alpine releases. Search for `alpine:` to find the Dockerfiles to update. Commit as "Update Alpine".
+
+## Update GitHub Pages
+
+1. Inside the dev container, `scripts/make-ghpages.sh`.
+1. Outside of the container, clone `https://github.com/tmbasic/tmbasic-website.git` at the same level as `tmbasic`.
+1. From the parent directory:
+    ```
+    (cd tmbasic-website && rm -f *.png *.xml *.html *.ico *.svg *.txt)
+    cp tmbasic/bin/ghpages/* tmbasic-website/
+    (cd tmbasic-website && rm -f *.txt && git commit --all --amend -m "tmbasic.com" && git push --force-with-lease)
+    ```
