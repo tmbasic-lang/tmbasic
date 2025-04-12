@@ -93,7 +93,7 @@ static std::vector<uint8_t> readBytesFromFile(const std::string& filePath) {
 
 static void writeBytesToFile(const std::string& filePath, const std::vector<uint8_t>& bytes) {
     std::ofstream file(filePath, std::ios::out | std::ios::binary);
-    file.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+    file.write(reinterpret_cast<const char*>(bytes.data()), static_cast<std::streamsize>(bytes.size()));
     file.close();
 }
 

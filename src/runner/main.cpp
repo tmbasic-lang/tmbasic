@@ -9,7 +9,7 @@
 
 static void unpackResources(vm::Program* program, std::vector<char>* tzdb) {
     const auto exeFilePath = shared::getExecutableFilePath();
-    shared::ExecutablePatcher patcher{ exeFilePath };
+    shared::ExecutablePatcher const patcher{ exeFilePath };
 
     auto tzdbUint8 = patcher.getResource(shared::ExecutablePatcher::kResourceTzdb);
     tzdb->assign(tzdbUint8.begin(), tzdbUint8.end());

@@ -1879,22 +1879,22 @@ static void emitSelectCaseStatement(const SelectCaseStatementNode& statementNode
             if (range->toExpression == nullptr) {
                 // single value
                 if (isValue) {
-                    state->pushLocalValue(static_cast<uint16_t>(exprLocalValueOrObjectIndex));
+                    state->pushLocalValue(exprLocalValueOrObjectIndex);
                     emitExpression(*range->expression, state);
                     state->syscall(Opcode::kSystemCallV, SystemCall::kNumberEquals, 2, 0);
                 } else {
-                    state->pushLocalObject(static_cast<uint16_t>(exprLocalValueOrObjectIndex));
+                    state->pushLocalObject(exprLocalValueOrObjectIndex);
                     emitExpression(*range->expression, state);
                     state->syscall(Opcode::kSystemCallV, SystemCall::kObjectEquals, 0, 2);
                 }
             } else {
                 assert(isValue);
 
-                state->pushLocalValue(static_cast<uint16_t>(exprLocalValueOrObjectIndex));
+                state->pushLocalValue(exprLocalValueOrObjectIndex);
                 emitExpression(*range->expression, state);
                 state->syscall(Opcode::kSystemCallV, SystemCall::kNumberGreaterThanEquals, 2, 0);
 
-                state->pushLocalValue(static_cast<uint16_t>(exprLocalValueOrObjectIndex));
+                state->pushLocalValue(exprLocalValueOrObjectIndex);
                 emitExpression(*range->toExpression, state);
                 state->syscall(Opcode::kSystemCallV, SystemCall::kNumberLessThanEquals, 2, 0);
 

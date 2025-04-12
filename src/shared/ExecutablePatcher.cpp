@@ -36,7 +36,7 @@ ExecutablePatcher::ExecutablePatcher(const std::string& executablePath) : _execu
     }
 }
 
-ExecutablePatcher::~ExecutablePatcher() {}
+ExecutablePatcher::~ExecutablePatcher() = default;
 
 void ExecutablePatcher::addResource(const std::string& name, const std::vector<uint8_t>& data) {
     // Validate resource name (only allow alphanumeric and underscore)
