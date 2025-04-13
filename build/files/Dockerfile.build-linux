@@ -31,10 +31,8 @@ COPY cmake-toolchain-linux-$ARCH.cmake /tmp/
 COPY deps.mk /tmp/
 COPY mtar.c /tmp/mtar.c
 COPY deps.tar /tmp/
-COPY lief-ChainedPointerAnalysis.diff /tmp/
 RUN mkdir -p /tmp/downloads && \
     tar xf /tmp/deps.tar -C /tmp/downloads && \
-    mv -f /tmp/lief-ChainedPointerAnalysis.diff /tmp/downloads/ && \
     mkdir -p /usr/local/$TRIPLE/include && \
     mkdir -p /tmp/deps && \
     cd /tmp/deps && \
@@ -45,6 +43,7 @@ RUN mkdir -p /tmp/downloads && \
     export LINUX_TRIPLE=$TRIPLE && \
     export TARGET_OS=linux && \
     export DOWNLOAD_DIR=/tmp/downloads && \
+    (MAKEFLAGS="${MAKEFLAGS-} --no-print-directory --output-sync=recurse -j$(nproc)" make -f /tmp/deps.mk $PWD/lief/install) && \
     (MAKEFLAGS="${MAKEFLAGS-} --no-print-directory --output-sync=recurse -j$(nproc)" make -f /tmp/deps.mk || make -f /tmp/deps.mk) && \
     rm -rf /tmp/deps /tmp/deps.mk
 
