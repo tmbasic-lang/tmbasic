@@ -31,7 +31,7 @@ fi
 TOOLCHAIN_FILE="../build/files/cmake-toolchain-${TARGET_OS}-${ARCH}${TOOLCHAIN_SUFFIX}.cmake"
 
 # Log all variables
-set -x
+set +x
 echo "TARGET_OS: $TARGET_OS"
 echo "LINUX_DISTRO: $LINUX_DISTRO"
 echo "LINUX_TRIPLE: $LINUX_TRIPLE"
@@ -39,7 +39,7 @@ echo "ARCH: $ARCH"
 echo "PREFIX: $PREFIX"
 echo "TOOLCHAIN_SUFFIX: $TOOLCHAIN_SUFFIX"
 echo "TOOLCHAIN_FILE: $TOOLCHAIN_FILE"
-set +x
+set -x
 
 cmake \
     "-DCMAKE_TOOLCHAIN_FILE=$TOOLCHAIN_FILE" \
