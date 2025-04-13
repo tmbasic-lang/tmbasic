@@ -13,10 +13,6 @@
 namespace shared {
 
 ExecutablePatcher::ExecutablePatcher(const std::string& executablePath) : _executablePath(executablePath) {
-    if (!std::filesystem::exists(executablePath)) {
-        throw std::runtime_error("Executable file does not exist: " + executablePath);
-    }
-
     // Parse the binary using LIEF
     _binary = std::unique_ptr<LIEF::Binary>(LIEF::Parser::parse(executablePath));
 
