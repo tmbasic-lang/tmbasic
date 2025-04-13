@@ -2,9 +2,13 @@
 #include <filesystem>
 #include <algorithm>
 
-// Undefine any macros that might conflict with LIEF's enum values
+// Undefine any macros that conflict with LIEF's enum values
 #ifdef DIRECTORY
 #undef DIRECTORY
+#endif
+
+#ifdef IGNORE
+#undef IGNORE
 #endif
 
 // Include LIEF headers only in the implementation

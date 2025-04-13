@@ -1001,7 +1001,7 @@ function Install-Lief
         throw "LIEF needs to be installed, but building is disabled."
     }
 
-    $url = "https://github.com/lief-project/LIEF/releases/download/v$version/LIEF-$version.tar.gz"
+    $url = "https://github.com/lief-project/LIEF/archive/refs/tags/$version.tar.gz"
     $filePath = Get-DownloadedFile -Url $url -Filename "lief-$version.tar.gz"
     Expand-TarballRenamingTopLevelDirectory -Path $filePath -DestinationPath (Join-Path $global:TargetPrefix "usr\src") -NewName "lief"
     $srcDir = Join-Path $global:TargetPrefix "usr\src\lief"
