@@ -283,7 +283,7 @@ elseif(TARGET_OS STREQUAL "mac")
     target_link_directories(tmbasic PRIVATE ${TARGET_PREFIX}/lib)
     add_custom_command(
         TARGET tmbasic POST_BUILD
-        COMMAND fileicon set $<TARGET_FILE:tmbasic> ${CMAKE_SOURCE_DIR}/doc/art/favicon/favicon.icns
+        COMMAND fileicon set $<TARGET_FILE:tmbasic> ${CMAKE_SOURCE_DIR}/doc/art/icon.icns
     )
 elseif(TARGET_OS STREQUAL "win")
     target_link_libraries(tmbasic shlwapi)
