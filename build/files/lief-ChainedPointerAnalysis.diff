@@ -6,7 +6,7 @@
       return *reinterpret_cast<const dyld_chained_ptr_32_firmware_rebase_t*>(&value_);
     }
   
-+ #pragma pack(push, 8) // Force 8-byte alignment for everything until pop
++ #pragma pack(push, 16)
 + 
     struct union_pointer_t {
       PTR_TYPE type = PTR_TYPE::UNKNOWN;
