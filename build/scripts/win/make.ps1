@@ -223,9 +223,9 @@ function Install-GoogleTest
         throw "GoogleTest needs to be installed, but building is disabled."
     }
 
-    $url = "https://github.com/google/googletest/archive/refs/tags/v$version.zip"
-    $filePath = Get-DownloadedFile -Url $url -Filename "googletest-$version.zip"
-    Expand-ArchiveRenamingTopLevelDirectory -Path $filePath -DestinationPath (Join-Path $global:TargetPrefix "usr\src") -NewName "googletest"
+    $url = "https://github.com/google/googletest/archive/refs/tags/v$version.tar.gz"
+    $filePath = Get-DownloadedFile -Url $url -Filename "googletest-$version.tar.gz"
+    Expand-TarballRenamingTopLevelDirectory -Path $filePath -DestinationPath (Join-Path $global:TargetPrefix "usr\src") -NewName "googletest"
     $srcDir = Join-Path $global:TargetPrefix "usr\src\googletest"
 
     $buildDir = Join-Path $srcDir "build"
@@ -279,9 +279,9 @@ function Install-Fmt
         throw "fmt needs to be installed, but building is disabled."
     }
 
-    $url = "https://github.com/fmtlib/fmt/archive/refs/tags/$version.zip"
-    $filePath = Get-DownloadedFile -Url $url -Filename "fmt-$version.zip"
-    Expand-ArchiveRenamingTopLevelDirectory -Path $filePath -DestinationPath (Join-Path $global:TargetPrefix "usr\src") -NewName "fmt"
+    $url = "https://github.com/fmtlib/fmt/archive/refs/tags/$version.tar.gz"
+    $filePath = Get-DownloadedFile -Url $url -Filename "fmt-$version.tar.gz"
+    Expand-TarballRenamingTopLevelDirectory -Path $filePath -DestinationPath (Join-Path $global:TargetPrefix "usr\src") -NewName "fmt"
     $srcDir = Join-Path $global:TargetPrefix "usr\src\fmt"
 
     $buildDir = Join-Path $srcDir "build"
@@ -342,9 +342,9 @@ function Install-Immer
         throw "immer needs to be installed, but building is disabled."
     }
 
-    $url = "https://github.com/arximboldi/immer/archive/refs/tags/v$version.zip"
-    $filePath = Get-DownloadedFile -Url $url -Filename "immer-$version.zip"
-    Expand-ArchiveRenamingTopLevelDirectory -Path $filePath -DestinationPath (Join-Path $global:TargetPrefix "usr\src") -NewName "immer"
+    $url = "https://github.com/arximboldi/immer/archive/refs/tags/v$version.tar.gz"
+    $filePath = Get-DownloadedFile -Url $url -Filename "immer-$version.tar.gz"
+    Expand-TarballRenamingTopLevelDirectory -Path $filePath -DestinationPath (Join-Path $global:TargetPrefix "usr\src") -NewName "immer"
     $srcDir = Join-Path $global:TargetPrefix "usr\src\immer"
     Copy-Item -Path (Join-Path $srcDir "immer") -Destination (Join-Path $global:TargetPrefix "include") -Recurse -Force
 
@@ -365,9 +365,9 @@ function Install-Mpdecimal
         throw "mpdecimal needs to be installed, but building is disabled."
     }
 
-    $url = "https://www.bytereef.org/software/mpdecimal/releases/mpdecimal-$version.zip"
-    $filePath = Get-DownloadedFile -Url $url -Filename "mpdecimal-$version.zip"
-    Expand-ArchiveRenamingTopLevelDirectory -Path $filePath -DestinationPath (Join-Path $global:TargetPrefix "usr\src") -NewName "mpdecimal"
+    $url = "https://www.bytereef.org/software/mpdecimal/releases/mpdecimal-$version.tar.gz"
+    $filePath = Get-DownloadedFile -Url $url -Filename "mpdecimal-$version.tar.gz"
+    Expand-TarballRenamingTopLevelDirectory -Path $filePath -DestinationPath (Join-Path $global:TargetPrefix "usr\src") -NewName "mpdecimal"
     $srcDir = Join-Path $global:TargetPrefix "usr\src\mpdecimal"
 
     Push-Location (Join-Path $srcDir "vcbuild")
@@ -433,9 +433,9 @@ function Install-Tvision
         throw "TVision needs to be installed, but building is disabled."
     }
     
-    $url = "https://github.com/magiblot/tvision/archive/$version.zip"
-    $filePath = Get-DownloadedFile -Url $url -Filename "tvision-$version.zip"
-    Expand-ArchiveRenamingTopLevelDirectory -Path $filePath -DestinationPath (Join-Path $global:TargetPrefix "usr\src") -NewName "tvision"
+    $url = "https://github.com/magiblot/tvision/archive/$version.tar.gz"
+    $filePath = Get-DownloadedFile -Url $url -Filename "tvision-$version.tar.gz"
+    Expand-TarballRenamingTopLevelDirectory -Path $filePath -DestinationPath (Join-Path $global:TargetPrefix "usr\src") -NewName "tvision"
     $srcDir = Join-Path $global:TargetPrefix "usr\src\tvision"
 
     Set-InstalledPackage -Name "tvision" -Version $version
@@ -493,9 +493,9 @@ function Install-Turbo
         throw "Turbo needs to be installed, but building is disabled."
     }
 
-    $url = "https://github.com/magiblot/turbo/archive/$version.zip"
-    $filePath = Get-DownloadedFile -Url $url -Filename "turbo-$version.zip"
-    Expand-ArchiveRenamingTopLevelDirectory -Path $filePath -DestinationPath (Join-Path $global:TargetPrefix "usr\src") -NewName "turbo"
+    $url = "https://github.com/magiblot/turbo/archive/$version.tar.gz"
+    $filePath = Get-DownloadedFile -Url $url -Filename "turbo-$version.tar.gz"
+    Expand-TarballRenamingTopLevelDirectory -Path $filePath -DestinationPath (Join-Path $global:TargetPrefix "usr\src") -NewName "turbo"
     $srcDir = Join-Path $global:TargetPrefix "usr\src\turbo"
 
     $buildDir = Join-Path $srcDir "build"
@@ -552,9 +552,9 @@ function Install-Nameof
         throw "nameof needs to be installed, but building is disabled."
     }
 
-    $url = "https://github.com/Neargye/nameof/archive/refs/tags/v$version.zip"
-    $filePath = Get-DownloadedFile -Url $url -Filename "nameof-$version.zip"
-    Expand-ArchiveRenamingTopLevelDirectory -Path $filePath -DestinationPath (Join-Path $global:TargetPrefix "usr\src") -NewName "nameof"
+    $url = "https://github.com/Neargye/nameof/archive/refs/tags/v$version.tar.gz"
+    $filePath = Get-DownloadedFile -Url $url -Filename "nameof-$version.tar.gz"
+    Expand-TarballRenamingTopLevelDirectory -Path $filePath -DestinationPath (Join-Path $global:TargetPrefix "usr\src") -NewName "nameof"
     $srcDir = Join-Path $global:TargetPrefix "usr\src\nameof"
 
     Copy-Item -Path (Join-Path $srcDir "include\nameof.hpp") -Destination (Join-Path $global:NativePrefix "include") -Recurse -Force
@@ -577,11 +577,9 @@ function Install-Zlib
         throw "zlib needs to be installed, but building is disabled."
     }
     
-    $urlVersion = $version.Replace(".", "")
-    $url = "https://zlib.net/zlib$urlVersion.zip"
-    echo $url
-    $filePath = Get-DownloadedFile -Url $url -Filename "zlib-$version.zip"
-    Expand-ArchiveRenamingTopLevelDirectory -Path $filePath -DestinationPath (Join-Path $global:TargetPrefix "usr\src") -NewName "zlib"
+    $url = "https://zlib.net/zlib-$version.tar.gz"
+    $filePath = Get-DownloadedFile -Url $url -Filename "zlib-$version.tar.gz"
+    Expand-TarballRenamingTopLevelDirectory -Path $filePath -DestinationPath (Join-Path $global:TargetPrefix "usr\src") -NewName "zlib"
     $srcDir = Join-Path $global:TargetPrefix "usr\src\zlib"
 
     # There is a zlibvc.vcxproj in usr\src\zlib\contrib\vstudio\vc17
@@ -650,9 +648,9 @@ function Install-Microtar
         throw "microtar needs to be installed, but building is disabled."
     }
 
-    $url = "https://github.com/rxi/microtar/archive/$version.zip"
-    $filePath = Get-DownloadedFile -Url $url -Filename "microtar-$version.zip"
-    Expand-ArchiveRenamingTopLevelDirectory -Path $filePath -DestinationPath (Join-Path $global:TargetPrefix "usr\src") -NewName "microtar"
+    $url = "https://github.com/rxi/microtar/archive/$version.tar.gz"
+    $filePath = Get-DownloadedFile -Url $url -Filename "microtar-$version.tar.gz"
+    Expand-TarballRenamingTopLevelDirectory -Path $filePath -DestinationPath (Join-Path $global:TargetPrefix "usr\src") -NewName "microtar"
     $srcDir = Join-Path $global:TargetPrefix "usr\src\microtar"
 
     # Build the microtar library
@@ -877,9 +875,9 @@ function Install-Abseil
         throw "abseil needs to be installed, but building is disabled."
     }
 
-    $url = "https://github.com/abseil/abseil-cpp/archive/$version.zip"
-    $filePath = Get-DownloadedFile -Url $url -Filename "abseil-$version.zip"
-    Expand-ArchiveRenamingTopLevelDirectory -Path $filePath -DestinationPath (Join-Path $global:TargetPrefix "usr\src") -NewName "abseil"
+    $url = "https://github.com/abseil/abseil-cpp/archive/$version.tar.gz"
+    $filePath = Get-DownloadedFile -Url $url -Filename "abseil-$version.tar.gz"
+    Expand-TarballRenamingTopLevelDirectory -Path $filePath -DestinationPath (Join-Path $global:TargetPrefix "usr\src") -NewName "abseil"
     $srcDir = Join-Path $global:TargetPrefix "usr\src\abseil"
 
     $buildDir = Join-Path $srcDir "build"
@@ -931,9 +929,9 @@ function Install-Utf8proc
         return
     }
 
-    $url = "https://github.com/JuliaStrings/utf8proc/archive/refs/tags/v$version.zip"
-    $filePath = Get-DownloadedFile -Url $url -Filename "utf8proc-$version.zip"
-    Expand-ArchiveRenamingTopLevelDirectory -Path $filePath -DestinationPath (Join-Path $global:TargetPrefix "usr\src") -NewName "utf8proc"
+    $url = "https://github.com/JuliaStrings/utf8proc/archive/refs/tags/v$version.tar.gz"
+    $filePath = Get-DownloadedFile -Url $url -Filename "utf8proc-$version.tar.gz"
+    Expand-TarballRenamingTopLevelDirectory -Path $filePath -DestinationPath (Join-Path $global:TargetPrefix "usr\src") -NewName "utf8proc"
     $srcDir = Join-Path $global:TargetPrefix "usr\src\utf8proc"
 
     # We must patch the CMakeLists.txt

@@ -576,7 +576,6 @@ $(UTF8PROC_DIR)/install: $(UTF8PROC_DIR)/download $(BINUTILS_DIR)/install $(CMAK
 $(LIEF_DIR)/download:
 	tar zxf $(DOWNLOAD_DIR)/lief-*.tar.gz
 	mv -f LIEF-*/ $(LIEF_DIR)/
-	sed -i s:static_assert://static_assert:g $(LIEF_DIR)/include/LIEF/MachO/ChainedPointerAnalysis.hpp; \
 	touch $@
 
 $(LIEF_DIR)/install: $(LIEF_DIR)/download $(CMAKE_DIR)/install $(BINUTILS_DIR)/install

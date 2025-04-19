@@ -100,6 +100,7 @@ pngcrush -brute -reduce -ow screenshot.png
 1. In `build/`, run `scripts/depsCheck.sh`. Update `build/scripts/depsDownload.sh`.
 1. In `build/`, run `scripts/depsDownload.sh` to pull the latest version of each dep.
 1. In `build/downloads/`, `rm sysroot-* ; aws s3 sync . s3://tmbasic-archive/deps/ --size-only --endpoint-url https://367bdafee4af5175025295154f92e84a.r2.cloudflarestorage.com`
+1. Update `build-environment.ini`.
 1. Commit as "Update deps".
 1. Check for new Alpine releases. Search for `alpine:` to find the Dockerfiles to update. Commit as "Update Alpine".
 
