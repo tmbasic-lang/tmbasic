@@ -48,7 +48,7 @@ AboutDialog::AboutDialog() : TDialog(TRect(0, 0, 0, 0), "About TMBASIC"), TWindo
         {
             new PictureView(getLogoPicture(), 0x7),
             nullptr,
-            new Label("© 2020-2024 Brian Luft"),
+            new Label("© 2020-2025 Brian Luft"),
             new Label("tmbasic.com"),
         })
         .setRowSpacing(0)
