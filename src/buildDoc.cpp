@@ -219,14 +219,6 @@ static string htmlEncode(string str) {
     return str;
 }
 
-static string getDiagramHtml(const string& name) {
-    string text;
-    if (tryReadFile(string("help/diagrams/") + name + ".txt", &text)) {
-        return htmlEncode(text);
-    }
-    throw runtime_error(string("Unable to find diagram: ") + name);
-}
-
 static string processTitle(string str) {
     str = replaceRegex(str, "`([^`]+)`", "\"$1\"");
     return str;
@@ -312,9 +304,6 @@ static string processHtml(string str) {
     str = replace(str, "{{", "{");
     str = replace(str, "--", "—");
     str = replace(str, "\n\n", "<div class=\"paragraphBreak\"></div>");
-    str = replaceRegex(str, R"(dia\[([^\]]+)\])", [](auto& match) -> string {
-        return string("<pre class=\"diagram\">") + getDiagramHtml(match[1].str()) + "</pre>";
-    });
     return str;
 }
 
@@ -642,35 +631,6 @@ static void buildProcedureIndex(
     buildTopic(filePath, "procedures", outputTxt, htmlPageTemplate);
 }
 
-static string insertDiagram(string input, const string& dir, const string& filename) {
-    auto copyFilePath = dir + filename;
-    auto name = filename.substr(0, filename.length() - 4);  // remove ".txt"
-
-    auto diagram = indent(readFile(copyFilePath));
-
-    // escape any { symbols in the diagram
-    diagram = replace(diagram, "{", "{{");
-
-    auto tag = string("dia[") + name + "]";
-
-    while (true) {
-        auto pos = input.find(tag);
-        if (pos == string::npos) {
-            break;
-        }
-
-        input = input.replace(pos, tag.length(), diagram);
-    }
-
-    return input;
-}
-
-static string insertDiagrams(string text) {
-    forEachFile(
-        "help/diagrams", [&text](auto filename) -> void { text = insertDiagram(text, "help/diagrams/", filename); });
-    return text;
-}
-
 int main() {
     try {
         ostringstream outputTxt;
@@ -690,7 +650,7 @@ int main() {
         sort(procedures.begin(), procedures.end(), compareProceduresByName);
         buildProcedureCategoryPages(procedures, &outputTxt, htmlPageTemplate);
         buildProcedureIndex(procedures, &outputTxt, htmlPageTemplate);
-        writeFile("../help-temp/help.txt", insertDiagrams(outputTxt.str()));
+        writeFile("../help-temp/help.txt", outputTxt.str());
     } catch (const regex_error& ex) {
         ostringstream const s;
         cerr << ex.what() << ": " << ex.code() << '\n';
