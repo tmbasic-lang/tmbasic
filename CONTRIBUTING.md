@@ -51,17 +51,14 @@ Take a look at the GitHub Actions workflows for guidance if you want to try it.
     git clone https://github.com/tmbasic/tmbasic.git
     ```
 
-1. Start the build environment and compile TMBASIC.
+1. Start the build environment container.
 
     ```
     cd tmbasic/build
     ./dev.sh
-    scripts/make-tmbasic.sh
     ```
 
-    This will create a development build for Linux suitable for debugging.
-
-1. Type `exit` to leave the build environment.
+1. Press `m` at the prompt to build TMBASIC. Press `q` to quit.
 
 ## Use Visual Studio Code for development and debugging
 1. Install the `ms-vscode.cpptools`, `ms-vscode-remote.remote-containers`, and `ms-azuretools.vscode-docker` extensions in Visual Studio Code.
@@ -77,33 +74,16 @@ If your Docker engine is running on another machine, modify the above steps:
 1. In VSCode, press Ctrl+Shift+P and run the "Remote-SSH: Connect to host..." command to connect to the remote machine.
 1. Continue with the original steps.
 
-## Take screenshots for the website
-SVG screenshots would have been nice, but they get garbled in some browsers (Chrome on Android). Instead, we will just take regular PNG screenshots.
-
-- Windows 10 at 175% scaling
-- PuTTY
-- Terminal size: 80x24
-- Window > Appearance
-    - Cursor appearance: Underline
-    - Font: Consolas 14pt
-    - Font quality: Antialiased
-- Window > Colours > ANSI Cyan: 58, 150, 221
-
-Crop to the console area including the one pixel black outline. Post-process with:
-
-```
-pngcrush -brute -reduce -ow screenshot.png
-```
-
 ## Update third party dependencies
 
+1. Do this on the Linux development host, outside of the dev container.
+1. If you haven't already, run `aws configure` and set it up for Cloudflare R2. Then edit `.aws/credentials` to add:
+    ```
+    request_checksum_calculation = WHEN_REQUIRED
+    response_checksum_validation = WHEN_REQUIRED
+    ```
 1. In `build/`, run `scripts/depsCheck.sh`. Update `build/scripts/depsDownload.sh`.
 1. In `build/`, run `scripts/depsDownload.sh` to pull the latest version of each dep.
-1. If you haven't already, run `aws configure` and set it up for Cloudflare R2. Edit `.aws/credentials` to add:
-    ```
-    request_checksum_calculation   = WHEN_REQUIRED
-    response_checksum_validation   = WHEN_REQUIRED
-    ```
 1. In `build/downloads/`, `rm sysroot-* ; aws s3 sync . s3://tmbasic-archive/deps/ --size-only --endpoint-url https://367bdafee4af5175025295154f92e84a.r2.cloudflarestorage.com`
 1. Update `build-environment.ini`.
 1. Commit as "Update deps".
