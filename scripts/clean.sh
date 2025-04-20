@@ -5,4 +5,16 @@ set -e
 cd "$( dirname "${BASH_SOURCE[0]}" )"
 cd ..
 
-rm -rf cmake win-arm64 win-x64 win-x86 win-native mac-arm64 mac-x64 valgrind.txt
+rm -rf \
+    cmake \
+    win-arm64 \
+    win-x64 \
+    win-x86 \
+    win-native \
+    mac-arm64 \
+    mac-x64 \
+    valgrind.txt \
+    obj \
+    resources-temp \
+    help-temp \
+    ;
